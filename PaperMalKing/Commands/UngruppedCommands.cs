@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -49,10 +48,14 @@ namespace PaperMalKing.Commands
 $@"Paper Mal King is bot designed to automatically track  its users updates on MyAnimeList.
 
 Bot version - {botVersion}.
+DSharpPlus version - {context.Client.VersionString}.
 .NET Core version - {netCoreVersion}.";
 
-			var links = Formatter.MaskedUrl("Source code", new Uri("https://github.com/N0D4N",UriKind.Absolute))+
-						"\n";
+			var links = Formatter.MaskedUrl("Source code",
+							new Uri("https://github.com/N0D4N/PaperMalKing", UriKind.Absolute)) +
+						"\n" +
+						Formatter.MaskedUrl("Wiki",
+							new Uri("https://github.com/N0D4N/PaperMalKing/wiki", UriKind.Absolute));
 
 			var embedBuilder = new DiscordEmbedBuilder
 			{

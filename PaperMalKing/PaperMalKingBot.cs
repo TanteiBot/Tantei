@@ -7,11 +7,11 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using Microsoft.Extensions.DependencyInjection;
 using PaperMalKing.Commands;
 using PaperMalKing.Data;
 using PaperMalKing.Services;
 using PaperMalKing.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace PaperMalKing
 {

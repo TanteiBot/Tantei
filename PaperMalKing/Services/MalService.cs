@@ -11,8 +11,8 @@ using CodeHollow.FeedReader;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using PaperMalKing.Data;
 using JikanDotNet;
+using PaperMalKing.Data;
 
 namespace PaperMalKing.Services
 {

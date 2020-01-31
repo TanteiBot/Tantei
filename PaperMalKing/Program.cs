@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
-using PaperMalKing.Data;
 using Newtonsoft.Json;
+using PaperMalKing.Data;
 
 namespace PaperMalKing
 {

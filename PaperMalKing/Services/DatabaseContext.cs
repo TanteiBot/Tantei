@@ -1,5 +1,5 @@
-﻿using PaperMalKing.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using PaperMalKing.Data;
 
 namespace PaperMalKing.Services
 {
