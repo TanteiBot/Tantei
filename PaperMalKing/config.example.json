@@ -1,0 +1,23 @@
+﻿{
+  "Discord": {
+    "Token": "Your Discord API token here",
+    "ReconnectIndefinetely": true,
+    "AutoReconnect": true,
+    "MessageCacheSize": 64,
+    "LogName": "PaperMalKing",
+    "ChannelId": 1000000000000000,
+    "ActivityType": 3,
+    "PresenceText": "your animelists",
+    "Commands": {
+      "Prefixes": [
+        "pmk"
+      ],
+      "EnableMentionPrefix": true,
+      "CaseSensitive": false,
+      "DmHelp": false
+    }
+  },
+  "Database": {
+    "ConnectionString": "Data Source=path-to-your-database.db"
+  }
+}
