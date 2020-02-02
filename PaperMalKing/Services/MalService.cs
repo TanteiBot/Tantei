@@ -162,7 +162,8 @@ namespace PaperMalKing.Services
 		{
 			var actionString = feedItem.Description.Split(" - ")[0].ToLower();
 			var malUnparsedId = this._regex.Matches(feedItem.Link)
-			.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value)).Value;
+			.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value))
+			?.Value;
 
 			if (!long.TryParse(malUnparsedId, out long malId))
 			{
@@ -263,9 +264,11 @@ namespace PaperMalKing.Services
 				}
 
 				var newAnimeItems = animeFeed.Items.Where(x =>
-					DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(), user.LastUpdateDate) > 0).ToArray();
+					DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(), user.LastUpdateDate) >
+					0);
 				var newMangaItems = mangaFeed.Items.Where(x =>
-					DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(), user.LastUpdateDate) > 0).ToArray();
+					DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(), user.LastUpdateDate) >
+					0);
 
 				if(!newMangaItems.Any() && !newAnimeItems.Any())
 					continue;
@@ -273,31 +276,31 @@ namespace PaperMalKing.Services
 				await Task.Delay(TimeSpan.FromSeconds(4));
 				var malUser = await this._jikanClient.GetUserProfileAsync(user.MalUsername);
 				if (malUser == null)
-					throw new Exception(
-						$"Couldn't load MyAnimeList user from username '{user.MalUsername}' (DiscordId '{user.DiscordId}'");
-				var newItems = newAnimeItems.Concat(newMangaItems);
-				foreach (var animeItem in newAnimeItems)
 				{
-					var malEntity = await this.GetMalEntityAsync(EntityType.Anime, animeItem, user, malUser);
-					if (malEntity != null)
-					{
-						var listUpdateEntry = new ListUpdateEntry(malUser, malEntity, animeItem.Description,
-							animeItem.PublishingDate);
-						await this.UpdateFound?.Invoke(listUpdateEntry);
-					}
+					this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+						$"Couldn't load MyAnimeList user from username '{user.MalUsername}' (DiscordId '{user.DiscordId}'",
+						DateTime.Now);
+					continue;
 				}
-				foreach (var mangaItem in newMangaItems)
+
+				var updateItems = new List<(FeedItem, EntityType)>();
+				updateItems.AddRange(newAnimeItems.Select(x => (x, EntityType.Anime)));
+				updateItems.AddRange(newMangaItems.Select(x => (x, EntityType.Manga)));
+				updateItems.Sort((x, y) => DateTime.Compare(x.Item1.PublishingDate ?? DateTime.MinValue,
+					y.Item1.PublishingDate ?? DateTime.MinValue));
+
+				foreach (var updateItem in updateItems)
 				{
-					var malEntity = await this.GetMalEntityAsync(EntityType.Manga, mangaItem, user, malUser);
+					var malEntity = await this.GetMalEntityAsync(updateItem.Item2, updateItem.Item1, user, malUser);
 					if (malEntity != null)
 					{
-						var listUpdateEntry = new ListUpdateEntry(malUser, malEntity, mangaItem.Description,
-							mangaItem.PublishingDate);
+						var listUpdateEntry = new ListUpdateEntry(malUser, malEntity, updateItem.Item1.Description,
+							updateItem.Item1.PublishingDate);
 						await this.UpdateFound?.Invoke(listUpdateEntry);
 					}
 				}
 
-				user.LastUpdateDate = (readFeedDate ?? DateTime.Now).ToUniversalTime();
+				user.LastUpdateDate = readFeedDate.Value.ToUniversalTime();
 				using (var db = new DatabaseContext(this._config))
 				{
 					db.Users.Update(user);
