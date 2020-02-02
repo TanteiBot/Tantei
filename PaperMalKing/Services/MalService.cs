@@ -1,5 +1,5 @@
 ﻿/*
- * Awful code here probably will rewrite when Mal release they public API
+ * Cleaned up a bit should look nice now
  */
 using System;
 using System.Collections.Generic;
@@ -11,8 +11,10 @@ using CodeHollow.FeedReader;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using JikanDotNet;
 using PaperMalKing.Data;
+using PaperMalKing.Jikan;
+using PaperMalKing.Jikan.Data.Interfaces;
+using PaperMalKing.Jikan.Data.Models;
 
 namespace PaperMalKing.Services
 {
@@ -44,7 +46,7 @@ namespace PaperMalKing.Services
 
 		private readonly Timer _timer;
 
-		private readonly Jikan _jikan;
+		private readonly JikanClient _jikanClient;
 
 		private readonly string _logName;
 
@@ -60,7 +62,7 @@ namespace PaperMalKing.Services
 			this._client = client;
 			client.Ready += this.Client_Ready;
 			this.UpdateFound += this.MalService_UpdateFound;
-			this._jikan = new Jikan();
+			this._jikanClient = new JikanClient();
 			this._logName = this.GetType().Name;
 			this._timer = new Timer(async (e) =>
 				{
@@ -156,6 +158,51 @@ namespace PaperMalKing.Services
 				this.Users[userId] = user;
 			}
 		}
+		private async Task<IMalEntity> GetMalEntityAsync(EntityType type, FeedItem feedItem, PmkUser pmkUser,UserProfile profile)
+		{
+			var actionString = feedItem.Description.Split(" - ")[0].ToLower();
+			var malUnparsedId = this._regex.Matches(feedItem.Link)
+			.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value))
+			?.Value;
+
+			if (!long.TryParse(malUnparsedId, out long malId))
+			{
+				this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+					$"Couldn't parse {malUnparsedId}", DateTime.Now);
+				return null;
+			}
+
+			if (actionString.Contains("plan to"))
+			{
+				if (type == EntityType.Anime)
+					return await this._jikanClient.GetAnimeAsync(malId);
+				return await this._jikanClient.GetMangaAsync(malId);
+			}
+
+			var index = feedItem.Title.LastIndexOf(" - ");
+			var query = feedItem.Title.Remove(index).Trim();
+			await Task.Delay(TimeSpan.FromSeconds(4));
+			if (type == EntityType.Anime)
+			{
+				var userAl = await this._jikanClient.GetUserAnimeListAsync(pmkUser.MalUsername, query);
+				if (userAl?.Anime?.Any() != true)
+				{
+					this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+						$"Couldn't load '{query}' from '{pmkUser.MalUsername}'s animelist", DateTime.Now);
+					return await this._jikanClient.GetAnimeAsync(malId);
+				}
+				return userAl.Anime.FirstOrDefault(x => x.MalId == malId);
+			}
+
+			var userMl = await this._jikanClient.GetUserMangaList(pmkUser.MalUsername, query);
+			if (userMl?.Manga?.Any() != true)
+			{
+				this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+					$"Couldn't load '{query}' from '{pmkUser.MalUsername}'s mangalist", DateTime.Now);
+				return await this._jikanClient.GetMangaAsync(malId);
+			}
+			return userMl.Manga.FirstOrDefault(x => x.MalId == malId);
+		}
 
 		private async Task MalService_UpdateFound(ListUpdateEntry update)
 		{
@@ -191,7 +238,7 @@ namespace PaperMalKing.Services
 			this._client.Ready -= this.Client_Ready;
 		}
 
-		// Code here is getting pretty awful, probably won't rewrite it until official MAL API release to public
+		// Cleaned up a bit should look better now
 		private  async Task Timer_Tick()
 		{
 			this.Updating = true;
@@ -217,162 +264,43 @@ namespace PaperMalKing.Services
 				}
 
 				var newAnimeItems = animeFeed.Items.Where(x =>
-					DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(), user.LastUpdateDate) > 0).ToArray();
+					DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(), user.LastUpdateDate) >
+					0);
 				var newMangaItems = mangaFeed.Items.Where(x =>
-					DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(), user.LastUpdateDate) > 0).ToArray();
+					DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(), user.LastUpdateDate) >
+					0);
 
 				if(!newMangaItems.Any() && !newAnimeItems.Any())
 					continue;
 
 				await Task.Delay(TimeSpan.FromSeconds(4));
-				var malUser = await this._jikan.GetUserProfile(user.MalUsername);
+				var malUser = await this._jikanClient.GetUserProfileAsync(user.MalUsername);
 				if (malUser == null)
-					throw new Exception(
-						$"Couldn't load MyAnimeList user from username '{user.MalUsername}' (DiscordId '{user.DiscordId}'");
-				#region GetAnime
-				if (newAnimeItems.Any())
 				{
-					foreach (var animeItem in newAnimeItems)
+					this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+						$"Couldn't load MyAnimeList user from username '{user.MalUsername}' (DiscordId '{user.DiscordId}'",
+						DateTime.Now);
+					continue;
+				}
+
+				var updateItems = new List<(FeedItem, EntityType)>();
+				updateItems.AddRange(newAnimeItems.Select(x => (x, EntityType.Anime)));
+				updateItems.AddRange(newMangaItems.Select(x => (x, EntityType.Manga)));
+				updateItems.Sort((x, y) => DateTime.Compare(x.Item1.PublishingDate ?? DateTime.MinValue,
+					y.Item1.PublishingDate ?? DateTime.MinValue));
+
+				foreach (var updateItem in updateItems)
+				{
+					var malEntity = await this.GetMalEntityAsync(updateItem.Item2, updateItem.Item1, user, malUser);
+					if (malEntity != null)
 					{
-						var actionString = animeItem.Description.Split(" - ")[0].ToLower();
-						var malUnparsedId = this._regex.Matches(animeItem.Link)
-						.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value)).Value;
-						if (!long.TryParse(malUnparsedId, out long malId))
-						{
-							this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
-								$"Couldn't parse {malUnparsedId}", DateTime.Now);
-							continue;
-						}
-
-						var userAlExt =
-							UserAnimeListExtension.TryParse(actionString.Replace(" ", string.Empty), true,
-								out UserAnimeListExtension result)
-								? result
-								: UserAnimeListExtension.All;
-						var status = (ListUpdateEntry.StatusType) userAlExt;
-						if (!Enum.IsDefined(typeof(ListUpdateEntry.StatusType), status))
-							status = ListUpdateEntry.StatusType.Undefined;
-
-						if (userAlExt == UserAnimeListExtension.PlanToWatch)
-						{
-							await Task.Delay(TimeSpan.FromSeconds(4));
-
-							var animePage = await this._jikan.GetAnime(malId);
-							if (animePage == null)
-								throw new Exception($"Couldn't load anime from MalId '{malId}'");
-							var updateFromPage = new ListUpdateEntry(malUser, animePage, animeItem.Description, status,animeItem.PublishingDate?.ToUniversalTime());
-							await this.UpdateFound?.Invoke(updateFromPage);
-							continue;
-						}
-
-
-						var index = animeItem.Title.LastIndexOf(" - ");
-						var query = animeItem.Title.Remove(index).Trim();
-						await Task.Delay(TimeSpan.FromSeconds(4));
-						var userAl = await this._jikan.GetUserAnimeList(user.MalUsername,new UserListAnimeSearchConfig
-						{
-							Query = query
-						});
-						if (userAl?.Anime?.Any() != true)
-						{
-							await Task.Delay(TimeSpan.FromSeconds(4));
-
-							var animePage = await this._jikan.GetAnime(malId);
-							if (animePage == null)
-								throw new Exception($"Couldn't load anime from MalId '{malId}'");
-							var updateFromPage = new ListUpdateEntry(malUser, animePage, animeItem.Description, status,animeItem.PublishingDate?.ToUniversalTime());
-							await this.UpdateFound?.Invoke(updateFromPage);
-							continue;
-						}
-
-						var anime = userAl.Anime.FirstOrDefault(x => x.MalId == malId);
-						ListUpdateEntry update;
-						if (anime == null)
-						{
-							await Task.Delay(TimeSpan.FromSeconds(4));
-							var animePage = await this._jikan.GetAnime(malId);
-							if (animePage == null)
-								throw new Exception($"Couldn't load anime from MalId '{malId}'");
-							update = new ListUpdateEntry(malUser, animePage, animeItem.Description, status,
-								animeItem.PublishingDate?.ToUniversalTime());
-						}
-						else
-							update = new ListUpdateEntry(malUser, anime, animeItem.Description, status,animeItem.PublishingDate?.ToUniversalTime());
-						await this.UpdateFound?.Invoke(update);
+						var listUpdateEntry = new ListUpdateEntry(malUser, malEntity, updateItem.Item1.Description,
+							updateItem.Item1.PublishingDate);
+						await this.UpdateFound?.Invoke(listUpdateEntry);
 					}
 				}
-				#endregion
-				#region GetManga
-				if (newMangaItems.Any())
-				{
-					foreach (var mangaItem in newMangaItems)
-					{
-						var actionString = mangaItem.Description.Split(" - ")[0].ToLower();
-						var malUnparsedId = this._regex.Matches(mangaItem.Link)
-						.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value)).Value;
-						if (!long.TryParse(malUnparsedId, out long malId))
-						{
-							this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
-								$"Couldn't parse {malUnparsedId}", DateTime.Now);
-							continue;
-						}
 
-						var userMlExt =
-							UserMangaListExtension.TryParse(actionString.Replace(" ", string.Empty), true,
-								out UserMangaListExtension result)
-								? result
-								: UserMangaListExtension.All;
-						var status = (ListUpdateEntry.StatusType) userMlExt;
-						if (!Enum.IsDefined(typeof(ListUpdateEntry.StatusType), status))
-							status = ListUpdateEntry.StatusType.Undefined;
-
-						if (userMlExt == UserMangaListExtension.PlanToRead)
-						{
-							await Task.Delay(TimeSpan.FromSeconds(4));
-							var mangaPage = await this._jikan.GetManga(malId);
-							if(mangaPage == null)
-								throw new Exception($"Couldn't load manga from MalId '{malId}'");
-							var updateFromPage = new ListUpdateEntry(malUser, mangaPage, mangaItem.Description, status,mangaItem.PublishingDate?.ToUniversalTime());
-							await this.UpdateFound?.Invoke(updateFromPage);
-							continue;
-						}
-
-						var index = mangaItem.Title.LastIndexOf(" - ");
-						var query = mangaItem.Title.Remove(index).Trim();
-						await Task.Delay(TimeSpan.FromSeconds(4));
-						var userMl = await this._jikan.GetUserMangaList(user.MalUsername,new UserListMangaSearchConfig
-						{
-							Query = query
-						});
-						if (userMl?.Manga?.Any() != true)
-						{
-							await Task.Delay(TimeSpan.FromSeconds(4));
-							var mangaPage = await this._jikan.GetManga(malId);
-							if(mangaPage == null)
-								throw new Exception($"Couldn't load manga from MalId '{malId}'");
-							var updateFromPage = new ListUpdateEntry(malUser, mangaPage, mangaItem.Description, status,mangaItem.PublishingDate?.ToUniversalTime());
-							await this.UpdateFound?.Invoke(updateFromPage);
-							continue;
-						}
-
-						var manga = userMl.Manga.FirstOrDefault(x => x.MalId == malId);
-						ListUpdateEntry update;
-						if (manga == null)
-						{
-							await Task.Delay(TimeSpan.FromSeconds(4));
-							var mangaPage = await this._jikan.GetManga(malId);
-							if(mangaPage == null)
-								throw new Exception($"Couldn't load manga from MalId '{malId}'");
-
-							update = new ListUpdateEntry(malUser,mangaPage,mangaItem.Description,status,mangaItem.PublishingDate?.ToUniversalTime());
-						}
-						else
-							update = new ListUpdateEntry(malUser, manga, mangaItem.Description, status,mangaItem.PublishingDate?.ToUniversalTime());
-						await this.UpdateFound?.Invoke(update);
-					}
-				}
-				#endregion
-				user.LastUpdateDate = (readFeedDate ?? DateTime.Now).ToUniversalTime();
+				user.LastUpdateDate = readFeedDate.Value.ToUniversalTime();
 				using (var db = new DatabaseContext(this._config))
 				{
 					db.Users.Update(user);
