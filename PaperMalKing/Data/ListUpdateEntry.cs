@@ -3,7 +3,9 @@
  */
 using System;
 using DSharpPlus.Entities;
-using JikanDotNet;
+using PaperMalKing.Jikan.Data;
+using PaperMalKing.Jikan.Data.Interfaces;
+using PaperMalKing.Jikan.Data.Models;
 
 namespace PaperMalKing.Data
 {
@@ -32,39 +34,31 @@ namespace PaperMalKing.Data
 		/// </summary>
 		private readonly StatusType _progressStatus;
 
-		public ListUpdateEntry(UserProfile profile, AnimeListEntry animeEntry, string status, StatusType progressStatus, DateTime? updatedDate) : this(profile,status,progressStatus)
+		public ListUpdateEntry(UserProfile profile, IMalEntity malEntity, string status, DateTime? updatedDate)
 		{
-			this.Entry = new UpdateEntry(animeEntry,  updatedDate);
-		}
-
-		public ListUpdateEntry(UserProfile profile, MangaListEntry mangaEntry, string status, StatusType progressStatus, DateTime? updatedDate) : this(profile,status,progressStatus)
-		{
-			this.Entry = new UpdateEntry(mangaEntry, updatedDate);
-		}
-
-		public ListUpdateEntry(UserProfile profile, Manga manga, string status, StatusType progressStatus, DateTime? updatedDate) : this(profile,status,progressStatus)
-		{
-			this.Entry = new UpdateEntry(manga,  updatedDate);
-		}
-
-		public ListUpdateEntry(UserProfile profile, Anime anime, string status, StatusType progressStatus, DateTime? updatedDate) : this(profile, status,progressStatus)
-		{
-			this.Entry = new UpdateEntry(anime, updatedDate);
-		}
-
-		public ListUpdateEntry(UserProfile profile, string status, StatusType progressStatus)
-		{
+			this.Entry = new UpdateEntry(malEntity,  updatedDate);
 			this.User = profile;
 			this._status = status;
-			this._progressStatus = progressStatus;
+			var statusTypeUnparsed = status.Split(" - ")[0].ToLower().Trim();
+			if(statusTypeUnparsed.Contains("plan to"))
+				this._progressStatus = StatusType.PlanToCheck;
+			else if(statusTypeUnparsed.EndsWith("ing"))
+				this._progressStatus = StatusType.InProgress;
+			else
+			{
+				if (StatusType.TryParse(statusTypeUnparsed, true, out StatusType res))
+					this._progressStatus = res;
+				else
+					this._progressStatus = StatusType.Undefined;
+			}
 		}
 
 
 		public DiscordEmbed CreateEmbed()
 		{
 			var embedBuilder = new DiscordEmbedBuilder()
-			.WithAuthor(this.User.Username, this.User.URL,
-					this.User.ImageURL ?? $"https://cdn.myanimelist.net/images/userimages/{this.User.UserId}.jpg")
+			.WithAuthor(this.User.Username, this.User.Url,
+					this.User.ImageUrl ?? $"https://cdn.myanimelist.net/images/userimages/{this.User.UserId}.jpg")
 			.WithTitle(this.Entry.Title)
 			.WithUrl(this.Entry.TitleUrl)
 			.WithThumbnailUrl(this.Entry.ImageUrl);
@@ -99,27 +93,6 @@ namespace PaperMalKing.Data
 			return embedBuilder.Build();
 		}
 
-		public enum StatusType
-		{
-			/// <summary>
-			/// Reading / Watching
-			/// </summary>
-			InProgress = 1,
-
-			Completed = 2,
-
-			OnHold = 3,
-
-			Dropped = 4,
-
-			/// <summary>
-			/// Plan to read / Plan to watch
-			/// </summary>
-			PlanToCheck = 6,
-
-			Undefined = 7
-		}
-
 		/// <summary>
 		/// Item that was updated
 		/// </summary>
@@ -150,45 +123,18 @@ namespace PaperMalKing.Data
 			/// </summary>
 			public readonly DateTime? EntryUpdatedDate;
 
-			public UpdateEntry(MangaListEntry mangaEntry, DateTime? entryUpdatedDate)
+			public UpdateEntry(IMalEntity malEntity, DateTime? entryUpdatedDate)
 			{
 				this.EntryUpdatedDate = entryUpdatedDate;
-				this.Title = $"{mangaEntry.Title} ({mangaEntry.Type})";
+				this.Title = $"{malEntity.Title} ({malEntity.Type})";
 
-				this.TitleUrl = mangaEntry.URL;
+				this.TitleUrl = malEntity.Url;
 
-				this.ImageUrl = mangaEntry.ImageURL;
+				this.ImageUrl = malEntity.ImageUrl;
 
-				this.Score = mangaEntry.Score;
+				if(malEntity is IListEntry listEntry)
+					this.Score = listEntry.Score;
 			}
-
-			public UpdateEntry(AnimeListEntry animeEntry, DateTime? entryUpdatedDate)
-			{
-				this.EntryUpdatedDate = entryUpdatedDate;
-				this.Title = $"{animeEntry.Title} ({animeEntry.Type})";
-				this.TitleUrl = animeEntry.URL;
-				this.ImageUrl = animeEntry.ImageURL;
-				this.Score = animeEntry.Score;
-			}
-
-			public UpdateEntry(Manga manga, DateTime? entryUpdatedDate)
-			{
-				this.EntryUpdatedDate = entryUpdatedDate;
-				this.Title = $"{manga.Title} ({manga.Type})";
-				this.TitleUrl = manga.LinkCanonical;
-				this.ImageUrl = manga.ImageURL;
-				this.Score = null;
-			}
-
-			public UpdateEntry(Anime anime, DateTime? entryUpdatedDate)
-			{
-				this.EntryUpdatedDate = entryUpdatedDate;
-				this.Title = $"{anime.Title} ({anime.Type})";
-				this.TitleUrl = anime.LinkCanonical;
-				this.ImageUrl = anime.ImageURL;
-				this.Score = null;
-			}
-
 		}
 	}
 }
