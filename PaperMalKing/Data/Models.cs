@@ -55,11 +55,8 @@ namespace PaperMalKing.Data
 		[DatabaseGenerated(DatabaseGeneratedOption.None)]
 		public long GuildId { get; set; }
 
-		[Column("WebhookId")]
-		public long? WebhookId { get; set; }
-
-		[Column("WebhookToken")]
-		public string WebhookToken { get; set; }
+		[Column("ChannelId")]
+		public long? ChannelId { get; set; }
 		public virtual List<GuildUsers> Users { get; set; }
 	}
 

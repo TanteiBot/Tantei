@@ -119,44 +119,40 @@ namespace PaperMalKing.Commands
 			await context.RespondAsync(embed: embed.Build());
 		}
 
-		[Command("WebhookAdd")]
-		[Description("Adds webhook to bot to which updates for users in this guild will be sent")]
-		[Aliases("whadd")]
+		[Command("ChannelAdd")]
+		[Description("Adds channel to bot to which updates for users in this guild will be sent")]
+		[Aliases("chnadd")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
-		public async Task WebhookAdd(CommandContext context, [RemainingText, Description("Url of the webhook")] string webhookUrl)
+		public async Task ChannelAdd(CommandContext context, [Description("Id of channel")] long channelId)
 		{
-			if (string.IsNullOrWhiteSpace(webhookUrl))
-				throw new ArgumentException("Webhook url shouldn't be empty", nameof(webhookUrl));
 			var guildId = (long) context.Guild.Id;
-			await this.MalService.AddWebhookAsync(guildId, webhookUrl);
-			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfuly added webhook");
+			await this.MalService.AddChannelAsync(guildId, channelId);
+			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfuly added channel");
 			await context.RespondAsync(embed: embed.Build());
 		}
 
-		[Command("WebhookUpdate")]
-		[Description("Updates a webhook to which updates will be sent")]
-		[Aliases("whupd")]
+		[Command("ChannelUpdate")]
+		[Description("Updates a channel to which updates will be sent")]
+		[Aliases("chnupd")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
-		public async Task WebhookUpdate(CommandContext context,
-		[RemainingText, Description("Url to the new webhook")] string newWebhookUrl)
+		public async Task ChannelUpdate(CommandContext context,
+		[Description("Id of the new channel")] long channelId)
 		{
-			if (string.IsNullOrWhiteSpace(newWebhookUrl))
-				throw new ArgumentException("Webhook url shouldn't be empty", nameof(newWebhookUrl));
 			var guildId = (long) context.Guild.Id;
-			await this.MalService.UpdateWebhookAsync(guildId, newWebhookUrl);
-			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfuly updated webhook");
+			await this.MalService.UpdateChannelAsync(guildId, channelId);
+			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfuly updated channel");
 			await context.RespondAsync(embed: embed.Build());
 		}
 
-		[Command("WebhookRemove")]
-		[Description("Removes registered webhook for this guild")]
-		[Aliases("whrm")]
+		[Command("ChannelRemove")]
+		[Description("Removes registered channel for this guild")]
+		[Aliases("chnrm")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
-		public async Task WebhookRemove(CommandContext context)
+		public async Task ChannelRemove(CommandContext context)
 		{
 			var guildId = (long) context.Guild.Id;
-			this.MalService.RemoveWebhook(guildId);
-			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfuly removed webhook");
+			this.MalService.RemoveChannel(guildId);
+			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfuly removed channel");
 			await context.RespondAsync(embed: embed.Build());
 
 		}

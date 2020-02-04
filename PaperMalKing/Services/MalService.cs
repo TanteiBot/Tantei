@@ -32,7 +32,7 @@ namespace PaperMalKing.Services
 		/// </summary>
 		private readonly Regex _regex = new Regex(@"(?<=\/)(\d*?)(?=\/)", RegexOptions.Compiled);
 
-		private readonly ConcurrentDictionary<long, DiscordWebhook> _webhooks;
+		private readonly ConcurrentDictionary<long, DiscordChannel> _channels;
 
 		private readonly BotConfig _config;
 
@@ -51,7 +51,7 @@ namespace PaperMalKing.Services
 
 		public MalService(BotConfig config, DiscordClient client)
 		{
-			this._webhooks = new ConcurrentDictionary<long, DiscordWebhook>();
+			this._channels = new ConcurrentDictionary<long, DiscordChannel>();
 			this._config = config;
 			this._client = client;
 			client.Ready += this.Client_Ready;
@@ -226,17 +226,10 @@ namespace PaperMalKing.Services
 			}
 		}
 
-		public async Task AddWebhookAsync(long guildId, string webhookUrl)
+		public async Task AddChannelAsync(long guildId, long channelId)
 		{
-			var webhookUnparsedId = this._regex.Matches(webhookUrl)
-			.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value))
-			?.Value;
-			if (!long.TryParse(webhookUnparsedId, out long webhookId))
-				throw new Exception($"Couldn't parse id from {webhookUrl}");
-			var uWebhookId = (ulong) webhookId;
-			var index = webhookUrl.LastIndexOf('/');
-			var token = webhookUrl.Substring(index + 1);
-			var webhook = await this._client.GetWebhookWithTokenAsync(uWebhookId, token);
+			var uChannelId = (ulong) channelId;
+			var channel = await this._client.GetChannelAsync(uChannelId);
 
 
 			using (var db = new DatabaseContext(this._config))
@@ -245,73 +238,65 @@ namespace PaperMalKing.Services
 				var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
 				if (guild == null)
 				{
-					guild = new PmkGuild {GuildId = guildId, WebhookId = webhookId, WebhookToken = token};
+					guild = new PmkGuild {GuildId = guildId, ChannelId = channelId};
 
 					db.Guilds.Add(guild);
 				}
-				else if (guild.WebhookId == null)
+				else if (guild.ChannelId == null)
 				{
-					guild.WebhookId = webhookId;
-					guild.WebhookToken = token;
+					guild.ChannelId = channelId;
 				}
 				else
-					throw new Exception("Guild with webhook is already in database. Use WebhookUpdate command instead of WebhookAdd");
+					throw new Exception("Guild with channel is already in database. Use ChannelUpdate command instead of ChannelAdd");
 
 				db.SaveChanges();
 
 			}
 
-			this._webhooks.TryAdd(guildId, webhook);
+			this._channels.TryAdd(guildId, channel);
 			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
-				$"Sucessfully added webhook in guild with id '{guildId}'", DateTime.Now);
+				$"Sucessfully added channel in guild with id '{guildId}'", DateTime.Now);
 
 		}
 
-		public async Task UpdateWebhookAsync(long guildId, string webhookUrl)
+		public async Task UpdateChannelAsync(long guildId, long channelId)
 		{
-			var webhookUnparsedId = this._regex.Matches(webhookUrl)
-			.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value))
-			?.Value;
-			if (!long.TryParse(webhookUnparsedId, out long webhookId))
-				throw new Exception($"Couldn't parse id from {webhookUrl}");
-			var uWebhookId = (ulong) webhookId;
-			var index = webhookUrl.LastIndexOf('/');
-			var token = webhookUrl.Substring(index + 1);
-			var webhook = await this._client.GetWebhookWithTokenAsync(uWebhookId, token);
+			var uChannelId = (ulong) channelId;
+			var channel = await this._client.GetChannelAsync(uChannelId);
+
 
 			using (var db = new DatabaseContext(this._config))
 			{
 				var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
 				if(guild == null)
-					throw new Exception("Webhook is not saved in database try to add it instead of updating it");
-				guild.WebhookId = webhookId;
+					throw new Exception("Channel is not saved in database try to add it instead of updating it");
+				guild.ChannelId = channelId;
 				db.Guilds.Update(guild);
 				db.SaveChanges();
 			}
 
-			this._webhooks[guildId] = webhook;
+			this._channels[guildId] = channel;
 			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
-				$"Sucessfully updated webhook in guild with id '{guildId}'", DateTime.Now);
+				$"Sucessfully updated channel in guild with id '{guildId}'", DateTime.Now);
 
 		}
 
-		public void RemoveWebhook(long guildId)
+		public void RemoveChannel(long guildId)
 		{
 			using (var db = new DatabaseContext(this._config))
 			{
 				var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
 				if (guild != null)
 				{
-					this._webhooks.TryRemove(guildId, out var _);
-					if (guild.WebhookId == null) return;
-					guild.WebhookId = null;
-					guild.WebhookToken = null;
+					this._channels.TryRemove(guildId, out var _);
+					if (guild.ChannelId == null) return;
+					guild.ChannelId = null;
 					db.Guilds.Update(guild);
 					db.SaveChanges();
 				}
 			}
 			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
-				$"Sucessfully removed webhook in guild with id '{guildId}'", DateTime.Now);
+				$"Sucessfully removed channel in guild with id '{guildId}'", DateTime.Now);
 
 		}
 
@@ -367,13 +352,13 @@ namespace PaperMalKing.Services
 			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
 				$"Sending update for {update.Entry.Title} in {update.UserProfile.Username} MAL", DateTime.Now);
 
+			var embed = update.CreateEmbed();
+
 			foreach (var guildId in update.User.Guilds.Select(x => x.GuildId))
 			{
-				var embed = update.CreateEmbed();
-				if (this._webhooks.TryGetValue(guildId, out var webhook))
+				if (this._channels.TryGetValue(guildId, out var channel))
 				{
-					await webhook.ExecuteAsync(username: this._client.CurrentUser.Username,
-						avatar_url: this._client.CurrentUser.AvatarUrl, embeds: new[] {embed}, files: null);
+					await channel.SendMessageAsync(embed: embed);
 				}
 			}
 		}
@@ -386,23 +371,23 @@ namespace PaperMalKing.Services
 				{
 					try
 					{
-						if (guild.WebhookId == null)
+						if (guild.ChannelId == null)
 							continue;
-						var webhookId = (ulong) guild.WebhookId.Value;
-						var webhook = await this._client.GetWebhookWithTokenAsync(webhookId, guild.WebhookToken);
-						this._webhooks.TryAdd(guild.GuildId, webhook);
+						var channelId = (ulong) guild.ChannelId.Value;
+						var channel = await this._client.GetChannelAsync(channelId);
+						this._channels.TryAdd(guild.GuildId, channel);
 						e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
-							$"Successfully loaded webhook for guild with id '{guild.GuildId}'", DateTime.Now);
+							$"Successfully loaded channel for guild with id '{guild.GuildId}'", DateTime.Now);
 					}
 					catch(Exception ex)
 					{
 						e.Client.DebugLogger.LogMessage(LogLevel.Critical, this._logName,
-							$"Webhook wasn't loaded succesfully in guild with id '{guild.GuildId}'", DateTime.Now, ex);
+							$"Channel wasn't loaded succesfully in guild with id '{guild.GuildId}'", DateTime.Now, ex);
 					}
 				}
 			}
 
-			e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Loaded webhooks for all guilds", DateTime.Now);
+			e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Loaded channels for all guilds", DateTime.Now);
 
 			this._client.Ready -= this.Client_Ready;
 		}

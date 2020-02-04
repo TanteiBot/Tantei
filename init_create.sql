@@ -1,7 +1,6 @@
 CREATE TABLE [Guilds] (
     [GuildId] INTEGER NOT NULL CONSTRAINT [PK_Guilds] PRIMARY KEY,
-    [WebhookId] INTEGER NULL,
-    [WebhookToken] TEXT NULL
+    [ChannelId] INTEGER NULL
 );
 
 CREATE TABLE [Users] (
