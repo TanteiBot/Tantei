@@ -2,6 +2,7 @@
  * Cleaned up a bit should look nice now
  */
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -11,6 +12,7 @@ using CodeHollow.FeedReader;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using Microsoft.EntityFrameworkCore;
 using PaperMalKing.Data;
 using PaperMalKing.Jikan;
 using PaperMalKing.Jikan.Data.Interfaces;
@@ -21,24 +23,16 @@ namespace PaperMalKing.Services
 	public sealed class MalService
 	{
 		/// <summary>
-		/// User's which updates bot is currently tracking
-		/// </summary>
-		public Dictionary<long, PmkUser> Users { get; set; }
-
-		/// <summary>
 		/// Is currently bot checking for updates
 		/// </summary>
 		public bool Updating { get; private set; }
 
 		/// <summary>
-		/// Channel where all updates will be posted
-		/// </summary>
-		private DiscordChannel Channel { get; set; }
-
-		/// <summary>
-		/// Regex that is used to get Mal Id from RSS feed item
+		/// Regex that is used to get Id from urls
 		/// </summary>
 		private readonly Regex _regex = new Regex(@"(?<=\/)(\d*?)(?=\/)", RegexOptions.Compiled);
+
+		private readonly ConcurrentDictionary<long, DiscordWebhook> _webhooks;
 
 		private readonly BotConfig _config;
 
@@ -57,7 +51,7 @@ namespace PaperMalKing.Services
 
 		public MalService(BotConfig config, DiscordClient client)
 		{
-			this.Users = new Dictionary<long, PmkUser>();
+			this._webhooks = new ConcurrentDictionary<long, DiscordWebhook>();
 			this._config = config;
 			this._client = client;
 			client.Ready += this.Client_Ready;
@@ -86,60 +80,132 @@ namespace PaperMalKing.Services
 					TimeSpan.Zero, TimeSpan.FromMinutes(10));
 		}
 
-		public async Task AddUserAsync(DiscordUser user, string username)
+		public async Task AddUserAsync(DiscordMember member, string username)
 		{
-			var animeRssUrl = $"https://myanimelist.net/rss.php?type=rw&u={username}";
-			var mangaRssUrl = $"https://myanimelist.net/rss.php?type=rm&u={username}";
-			try
-			{
-				await FeedReader.ReadAsync(animeRssUrl);
-				await FeedReader.ReadAsync(mangaRssUrl);
-			}
-			catch
-			{
-				throw new Exception("Couldn't read your updates. Maybe your list isn't public");
-			}
-
-			var userId =(long) user.Id;
-			var pmkUser = new PmkUser {DiscordId = userId, LastUpdateDate = DateTime.Now.ToUniversalTime(), MalUsername = username};
-			if (this.Users.ContainsKey(userId))
-			{
-				throw new Exception("User is already saved");
-			}
+			var userId =(long) member.Id;
 			using (var db = new DatabaseContext(this._config))
 			{
-				db.Users.Add(pmkUser);
+				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
+				if (user == null) //User is adding himself in the first time
+				{
+					var animeRssUrl = $"https://myanimelist.net/rss.php?type=rw&u={username}";
+					var mangaRssUrl = $"https://myanimelist.net/rss.php?type=rm&u={username}";
+					try
+					{
+						await FeedReader.ReadAsync(animeRssUrl);
+						await FeedReader.ReadAsync(mangaRssUrl);
+					}
+					catch
+					{
+						throw new Exception("Couldn't read your updates. Maybe your list isn't public");
+					}
+					var guildId = (long) member.Guild.Id;
+					var guilds = new List<GuildUsers> {new GuildUsers {DiscordId = userId, GuildId = guildId}};
+
+					var pmkUser = new PmkUser
+						{DiscordId = userId, LastUpdateDate = DateTime.Now.ToUniversalTime(), MalUsername = username, Guilds = guilds};
+
+					db.Users.Add(pmkUser);
+					this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+						$"Added new user '{username}'({member})", DateTime.Now);
+				}
+				else // User is already saved in another guilds
+				{
+					var guildId = (long) member.Guild.Id;
+					if (user.Guilds != null && user.Guilds.All(x=>x.GuildId != guildId))
+					{
+						user.Guilds.Add(new GuildUsers {DiscordId = user.DiscordId, GuildId = guildId});
+						db.Update(user);
+						this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+							$"Added ({member}) in guild '{guildId}'", DateTime.Now);
+
+					}
+				}
+
 				var rowChanged = await db.SaveChangesAsync();
 
 				if (rowChanged == 0)
 					throw new Exception("Couldn't save in database. Try again later.");
 			}
-			this.Users.Add(userId, pmkUser);
 		}
 
-		public void RemoveUser(long userId)
+		public async Task AddUserHereAsync(DiscordMember member)
 		{
+			var userId =(long) member.Id;
 			using (var db = new DatabaseContext(this._config))
 			{
 				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
 				if (user == null)
-					throw new ArgumentException("Such user doesn't exist in database",nameof(user));
-				db.Users.Remove(user);
-				var rowsChanges = db.SaveChanges();
-				if (rowsChanges == 0)
-					throw new Exception("Couldn't save changes in database. Try again later");
-
+					throw new Exception("You must add username in this or other guild first");
+				var guildId = (long) member.Guild.Id;
+				if (user.Guilds != null && user.Guilds.All(x=>x.GuildId != guildId))
+				{
+					user.Guilds.Add(new GuildUsers {DiscordId = user.DiscordId, GuildId = guildId});
+					db.Update(user);
+					this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+						$"Added ({member}) in guild '{guildId}'", DateTime.Now);
+					var rowChanged = await db.SaveChangesAsync();
+				}
 			}
-			this.Users.Remove(userId);
 		}
 
-		public async Task UpdateAsync(long userId, string newUsername)
+
+		public void RemoveUserEverywhere(DiscordMember member)
+		{
+			using (var db = new DatabaseContext(this._config))
+			{
+				var userId = (long) member.Id;
+				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
+				if (user == null)
+					return;
+				db.Users.Remove(user);
+				var rowsChanged = db.SaveChanges();
+				if (rowsChanged == 0)
+					throw new Exception("Couldn't save changes in database. Try again later");
+				this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+					$"Sucessfully removed user '{user.MalUsername}'({member}) from all guilds", DateTime.Now);
+
+			}
+		}
+
+		public void RemoveUserHere(DiscordMember member)
+		{
+			using (var db = new DatabaseContext(this._config))
+			{
+				var userId = (long) member.Id;
+				var guildId = (long) member.Guild.Id;
+				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
+				if (user == null)
+					return;
+				if (user.Guilds.Count == 1)
+				{
+					db.Users.Remove(user);
+				}
+				else
+				{
+					var guild = user.Guilds.FirstOrDefault(x => x.GuildId == guildId);
+					if (guild == null)
+						return;
+					user.Guilds.Remove(guild);
+					db.Users.Update(user);
+				}
+				var rowsChanged = db.SaveChanges();
+				if (rowsChanged == 0)
+					throw new Exception("Couldn't save changes in database. Try again later");
+				this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+					$"Sucessfully removed user '{user.MalUsername}'({member}) from {member.Guild}", DateTime.Now);
+
+			}
+		}
+
+		public async Task UpdateUserAsync(long userId, string newUsername)
 		{
 			using (var db = new DatabaseContext(this._config))
 			{
 				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
 				if (user == null)
 					throw new ArgumentException("User is not in database",nameof(user));
+				var oldUsername = user.MalUsername;
 				user.MalUsername = newUsername;
 				try
 				{
@@ -154,10 +220,101 @@ namespace PaperMalKing.Services
 				var rowChanges = db.SaveChanges();
 				if (rowChanges == 0)
 					throw new Exception("Couldn't save update in database. Try again later");
+				this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+					$"Updated user with id'{userId}' from '{oldUsername}' to '{newUsername}'", DateTime.Now);
 
-				this.Users[userId] = user;
 			}
 		}
+
+		public async Task AddWebhookAsync(long guildId, string webhookUrl)
+		{
+			var webhookUnparsedId = this._regex.Matches(webhookUrl)
+			.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value))
+			?.Value;
+			if (!long.TryParse(webhookUnparsedId, out long webhookId))
+				throw new Exception($"Couldn't parse id from {webhookUrl}");
+			var uWebhookId = (ulong) webhookId;
+			var index = webhookUrl.LastIndexOf('/');
+			var token = webhookUrl.Substring(index + 1);
+			var webhook = await this._client.GetWebhookWithTokenAsync(uWebhookId, token);
+
+
+			using (var db = new DatabaseContext(this._config))
+			{
+
+				var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
+				if (guild == null)
+				{
+					guild = new PmkGuild {GuildId = guildId, WebhookId = webhookId, WebhookToken = token};
+
+					db.Guilds.Add(guild);
+				}
+				else if (guild.WebhookId == null)
+				{
+					guild.WebhookId = webhookId;
+					guild.WebhookToken = token;
+				}
+				else
+					throw new Exception("Guild with webhook is already in database. Use WebhookUpdate command instead of WebhookAdd");
+
+				db.SaveChanges();
+
+			}
+
+			this._webhooks.TryAdd(guildId, webhook);
+			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+				$"Sucessfully added webhook in guild with id '{guildId}'", DateTime.Now);
+
+		}
+
+		public async Task UpdateWebhookAsync(long guildId, string webhookUrl)
+		{
+			var webhookUnparsedId = this._regex.Matches(webhookUrl)
+			.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value))
+			?.Value;
+			if (!long.TryParse(webhookUnparsedId, out long webhookId))
+				throw new Exception($"Couldn't parse id from {webhookUrl}");
+			var uWebhookId = (ulong) webhookId;
+			var index = webhookUrl.LastIndexOf('/');
+			var token = webhookUrl.Substring(index + 1);
+			var webhook = await this._client.GetWebhookWithTokenAsync(uWebhookId, token);
+
+			using (var db = new DatabaseContext(this._config))
+			{
+				var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
+				if(guild == null)
+					throw new Exception("Webhook is not saved in database try to add it instead of updating it");
+				guild.WebhookId = webhookId;
+				db.Guilds.Update(guild);
+				db.SaveChanges();
+			}
+
+			this._webhooks[guildId] = webhook;
+			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+				$"Sucessfully updated webhook in guild with id '{guildId}'", DateTime.Now);
+
+		}
+
+		public void RemoveWebhook(long guildId)
+		{
+			using (var db = new DatabaseContext(this._config))
+			{
+				var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
+				if (guild != null)
+				{
+					this._webhooks.TryRemove(guildId, out var _);
+					if (guild.WebhookId == null) return;
+					guild.WebhookId = null;
+					guild.WebhookToken = null;
+					db.Guilds.Update(guild);
+					db.SaveChanges();
+				}
+			}
+			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+				$"Sucessfully removed webhook in guild with id '{guildId}'", DateTime.Now);
+
+		}
+
 		private async Task<IMalEntity> GetMalEntityAsync(EntityType type, FeedItem feedItem, PmkUser pmkUser,UserProfile profile)
 		{
 			var actionString = feedItem.Description.Split(" - ")[0].ToLower();
@@ -206,34 +363,46 @@ namespace PaperMalKing.Services
 
 		private async Task MalService_UpdateFound(ListUpdateEntry update)
 		{
-			this._client.DebugLogger.LogMessage(LogLevel.Info,this._logName, $"Sending update for {update.Entry.Title} in {update.User.Username} MAL",DateTime.Now);
+			await Task.Yield();
+			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+				$"Sending update for {update.Entry.Title} in {update.UserProfile.Username} MAL", DateTime.Now);
 
-			await this.Channel.SendMessageAsync(embed: update.CreateEmbed());
+			foreach (var guildId in update.User.Guilds.Select(x => x.GuildId))
+			{
+				var embed = update.CreateEmbed();
+				if (this._webhooks.TryGetValue(guildId, out var webhook))
+				{
+					await webhook.ExecuteAsync(username: this._client.CurrentUser.Username,
+						avatar_url: this._client.CurrentUser.AvatarUrl, embeds: new[] {embed}, files: null);
+				}
+			}
 		}
 
 		private async Task Client_Ready(ReadyEventArgs e)
 		{
-			try
-			{
-				this.Channel = await e.Client.GetChannelAsync(this._config.Discord.ChannelId);
-
-			}
-			catch(Exception ex)
-			{
-				e.Client.DebugLogger.LogMessage(LogLevel.Critical, this._logName,
-					"Channel wasn't loaded  succesfully check your channel id", DateTime.Now, ex);
-				return;
-			}
-
-			e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Loaded channel successfully", DateTime.Now);
-
 			using (var db = new DatabaseContext(this._config))
 			{
-				foreach (var user in db.Users)
+				foreach (var guild in db.Guilds)
 				{
-					this.Users.Add(user.DiscordId,user);
+					try
+					{
+						if (guild.WebhookId == null)
+							continue;
+						var webhookId = (ulong) guild.WebhookId.Value;
+						var webhook = await this._client.GetWebhookWithTokenAsync(webhookId, guild.WebhookToken);
+						this._webhooks.TryAdd(guild.GuildId, webhook);
+						e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+							$"Successfully loaded webhook for guild with id '{guild.GuildId}'", DateTime.Now);
+					}
+					catch(Exception ex)
+					{
+						e.Client.DebugLogger.LogMessage(LogLevel.Critical, this._logName,
+							$"Webhook wasn't loaded succesfully in guild with id '{guild.GuildId}'", DateTime.Now, ex);
+					}
 				}
 			}
+
+			e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Loaded webhooks for all guilds", DateTime.Now);
 
 			this._client.Ready -= this.Client_Ready;
 		}
@@ -244,9 +413,16 @@ namespace PaperMalKing.Services
 			this.Updating = true;
 			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Starting checking for updates",
 				DateTime.Now);
-			foreach (var user in this.Users.Values)
+			PmkUser[] users;
+			using (var db = new DatabaseContext(this._config))
 			{
-				this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName, $"Starting to checking updates for {user.MalUsername}",DateTime.Now);
+				users =	db.Users.Include(ug=>ug.Guilds).ThenInclude(g=>g.Guild).ToArray();
+			}
+
+			foreach (var user in users)
+			{
+				this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+					$"Starting to checking updates for {user.MalUsername}", DateTime.Now);
 				Feed animeFeed;
 				Feed mangaFeed;
 				DateTime? readFeedDate;
@@ -294,7 +470,7 @@ namespace PaperMalKing.Services
 					var malEntity = await this.GetMalEntityAsync(updateItem.Item2, updateItem.Item1, user, malUser);
 					if (malEntity != null)
 					{
-						var listUpdateEntry = new ListUpdateEntry(malUser, malEntity, updateItem.Item1.Description,
+						var listUpdateEntry = new ListUpdateEntry(malUser,user, malEntity, updateItem.Item1.Description,
 							updateItem.Item1.PublishingDate);
 						await this.UpdateFound?.Invoke(listUpdateEntry);
 					}

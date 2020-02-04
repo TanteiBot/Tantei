@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -41,6 +42,39 @@ namespace PaperMalKing.Data
 		/// </summary>
 		[NotMapped]
 		public string MangaRssFeed => $"https://myanimelist.net/rss.php?type=rm&u={this.MalUsername}";
+
+		public virtual List<GuildUsers> Guilds { get; set; }
 	}
 
+	[Table("Guilds")]
+	public class PmkGuild
+	{
+		[Key]
+		[Required]
+		[Column("GuildId")]
+		[DatabaseGenerated(DatabaseGeneratedOption.None)]
+		public long GuildId { get; set; }
+
+		[Column("WebhookId")]
+		public long? WebhookId { get; set; }
+
+		[Column("WebhookToken")]
+		public string WebhookToken { get; set; }
+		public virtual List<GuildUsers> Users { get; set; }
+	}
+
+	public class GuildUsers
+	{
+		[ForeignKey("DiscordId")]
+		public long DiscordId { get; set; }
+
+		public virtual PmkUser User { get; set; }
+
+		[ForeignKey("GuildId")]
+		public long GuildId { get; set; }
+
+		public virtual PmkGuild Guild{ get; set; }
+	}
 }
+
+

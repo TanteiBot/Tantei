@@ -17,7 +17,9 @@ namespace PaperMalKing.Data
 		/// <summary>
 		/// MyAnimeList user whose list has been updated
 		/// </summary>
-		public readonly UserProfile User;
+		public readonly UserProfile UserProfile;
+
+		public readonly PmkUser User;
 
 		/// <summary>
 		/// Item that was updated(such as manga or anime)
@@ -34,10 +36,11 @@ namespace PaperMalKing.Data
 		/// </summary>
 		private readonly StatusType _progressStatus;
 
-		public ListUpdateEntry(UserProfile profile, IMalEntity malEntity, string status, DateTime? updatedDate)
+		public ListUpdateEntry(UserProfile profile, PmkUser user, IMalEntity malEntity, string status, DateTime? updatedDate)
 		{
 			this.Entry = new UpdateEntry(malEntity,  updatedDate);
-			this.User = profile;
+			this.UserProfile = profile;
+			this.User = user;
 			this._status = status;
 			var statusTypeUnparsed = status.Split(" - ")[0].ToLower().Trim();
 			if(statusTypeUnparsed.Contains("plan to"))
@@ -57,8 +60,8 @@ namespace PaperMalKing.Data
 		public DiscordEmbed CreateEmbed()
 		{
 			var embedBuilder = new DiscordEmbedBuilder()
-			.WithAuthor(this.User.Username, this.User.Url,
-					this.User.ImageUrl ?? $"https://cdn.myanimelist.net/images/userimages/{this.User.UserId}.jpg")
+			.WithAuthor(this.UserProfile.Username, this.UserProfile.Url,
+					this.UserProfile.ImageUrl ?? $"https://cdn.myanimelist.net/images/userimages/{this.UserProfile.UserId}.jpg")
 			.WithTitle(this.Entry.Title)
 			.WithUrl(this.Entry.TitleUrl)
 			.WithThumbnailUrl(this.Entry.ImageUrl);
