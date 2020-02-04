@@ -50,12 +50,6 @@ namespace PaperMalKing.Data
 		public string LogName { get; private set; }
 
 		/// <summary>
-		/// Id of channel where all users' updates will be posted
-		/// </summary>
-		[JsonProperty("ChannelId")]
-		public ulong ChannelId { get; set; }
-
-		/// <summary>
 		/// Which activity type will appear in bot status.
 		/// Set to 0 to display "playing" activity.
 		/// Set to 2 to display "watching" activity.

@@ -5,12 +5,12 @@
     "AutoReconnect": true,
     "MessageCacheSize": 64,
     "LogName": "PaperMalKing",
-    "ChannelId": 1000000000000000,
     "ActivityType": 3,
     "PresenceText": "your animelists",
     "Commands": {
       "Prefixes": [
-        "pmk"
+        "pmk",
+        "=="
       ],
       "EnableMentionPrefix": true,
       "CaseSensitive": false,
