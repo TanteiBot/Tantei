@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -27,6 +28,8 @@ namespace PaperMalKing
 
 		private readonly object _logLock = new object();
 
+        private readonly DiscordActivity _activity;
+
 		public PaperMalKingBot(BotConfig config)
 		{
 			this._config = config;
@@ -40,13 +43,18 @@ namespace PaperMalKing
 				LogLevel = LogLevel.Debug,
 				UseInternalLogHandler = false,
 				Token = discordCfg.Token,
-				ReconnectIndefinitely = discordCfg.ReconnectIndefinetely,
+				ReconnectIndefinitely = discordCfg.ReconnectIndefinitely,
 				AutoReconnect = discordCfg.AutoReconnect,
 				MessageCacheSize = discordCfg.MessageCacheSize,
 			};
 
+            var actType = (ActivityType)this._config.Discord.ActivityType;
+            this._activity = new DiscordActivity(this._config.Discord.PresenceText, actType);
+
+
 			this.Client = new DiscordClient(discordConfig);
 			this.Client.Ready += this.Client_Ready;
+			this.Client.Ready += this.Client_PresenceReady; 
 			this.Client.ClientErrored += this.Client_ClientErrored;
 			this.Client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
 			this.Client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
@@ -77,16 +85,20 @@ namespace PaperMalKing
 			this.Commands.CommandExecuted += this.Commands_CommandExecuted;
 
 			this.Commands.RegisterCommands<MalCommands>();
-			this.Commands.RegisterCommands<OwnerCommands>();
 			this.Commands.RegisterCommands<UngruppedCommands>();
 
 			this.Commands.SetHelpFormatter<PaperMalKingHelpFormatter>();
 		}
 
+		private Task Client_PresenceReady(ReadyEventArgs e)
+        {
+            return e.Client.UpdateStatusAsync(this._activity, UserStatus.Online);
+        }
+
 		public async Task Start()
 		{
 			this.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Starting bot", DateTime.Now);
-			await this.Client.ConnectAsync();
+            await this.Client.ConnectAsync(this._activity, UserStatus.Online);
 			await Task.Delay(-1);
 		}
 
@@ -100,14 +112,12 @@ namespace PaperMalKing
 			return Task.CompletedTask;
 		}
 
-		private async Task Client_Ready(ReadyEventArgs e)
+		private Task Client_Ready(ReadyEventArgs e)
 		{
 			Console.Title = this._logName;
 			e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName,"Bot is ready", DateTime.Now);
-			var actType = (ActivityType) this._config.Discord.ActivityType;
-			await e.Client.UpdateStatusAsync(new DiscordActivity(this._config.Discord.PresenceText, actType),
-				UserStatus.Online);
 			this.Client.Ready -= this.Client_Ready;
+			return Task.CompletedTask;
 		}
 
 		private Task Client_GuildDownloadCompleted(GuildDownloadCompletedEventArgs e)

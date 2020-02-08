@@ -26,10 +26,10 @@ namespace PaperMalKing.Data
 		public string Token { get; private set; }
 
 		/// <summary>
-		/// Should bot reconnect to Discord indefinetely
+		/// Should bot reconnect to Discord indefinitely
 		/// </summary>
-		[JsonProperty("ReconnectIndefinetely")]
-		public bool ReconnectIndefinetely { get; private set; }
+		[JsonProperty("ReconnectIndefinitely")]
+		public bool ReconnectIndefinitely { get; private set; }
 
 		/// <summary>
 		/// Should bot autoreconnect to Discord
@@ -38,7 +38,7 @@ namespace PaperMalKing.Data
 		public bool AutoReconnect { get; private set; }
 
 		/// <summary>
-		/// Size of the global meesage cache. 
+		/// Size of the global message cache. 
 		/// </summary>
 		[JsonProperty("MessageCacheSize")]
 		public int MessageCacheSize { get; private set; }
@@ -52,8 +52,8 @@ namespace PaperMalKing.Data
 		/// <summary>
 		/// Which activity type will appear in bot status.
 		/// Set to 0 to display "playing" activity.
-		/// Set to 2 to display "watching" activity.
-		/// Set to 3 to display "listening" activity
+		/// Set to 2 to display "listening" activity.
+        /// Set to 3 to display "watching" activity
 		/// </summary>
 		[JsonProperty("ActivityType")]
 		public int ActivityType { get; set; }

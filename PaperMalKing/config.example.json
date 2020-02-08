@@ -1,12 +1,12 @@
 ﻿{
   "Discord": {
     "Token": "Your Discord API token here",
-    "ReconnectIndefinetely": true,
+    "ReconnectIndefinitely": true,
     "AutoReconnect": true,
     "MessageCacheSize": 64,
     "LogName": "PaperMalKing",
     "ActivityType": 3,
-    "PresenceText": "your animelists",
+    "PresenceText": "for your animelists",
     "Commands": {
       "Prefixes": [
         "pmk",

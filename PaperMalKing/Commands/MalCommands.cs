@@ -40,12 +40,13 @@ namespace PaperMalKing.Commands
 			await this.MalService.AddUserAsync(context.Member, username);
 
 			var embed = EmbedTemplate.SuccessCommand(context.User,
-				$"Succesfully added {username} in list of tracked users.");
+				$"Successfully added {username} in list of tracked users.");
 			await context.RespondAsync(embed: embed.Build());
 		}
 
 		[Command("AddHere")]
 		[Description("Adds your account on Myanimelist to list of tracked users in this guild. You need to \"register\" your MAL account in other guild with username in it")]
+		[Aliases("addh")]
 		public async Task AddHere(CommandContext context)
 		{
 			await this.MalService.AddUserHereAsync(context.Member);
@@ -68,7 +69,7 @@ namespace PaperMalKing.Commands
 		}
 
 		[Command("removeeverywhere")]
-		[Description("Removes your account on MyAnimeList from being tracked in all guilds where you hava been registered.")]
+		[Description("Removes your account on MyAnimeList from being tracked in all guilds where you have been registered.")]
 		[Aliases("rme")]
 		public async Task RemoveEverywhere(CommandContext context)
 		{
@@ -92,7 +93,7 @@ namespace PaperMalKing.Commands
 		}
 
 		[Command("Update")]
-		[Description("Updates your tracked username. Use this command if you changed your username on MyAnimeLits")]
+		[Description("Updates your tracked username. Use this command if you changed your username on MyAnimeList")]
 		[Aliases("upd")]
 		public async Task Update(CommandContext context,[Description("Your new username on MAL"), RemainingText] string newUsername)
 		{
@@ -115,7 +116,7 @@ namespace PaperMalKing.Commands
 		{
 			if(!this.MalService.Updating)
 				this.MalService.RestartTimer();
-			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfuly started checking task");
+			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfully started checking task");
 			await context.RespondAsync(embed: embed.Build());
 		}
 
@@ -123,11 +124,15 @@ namespace PaperMalKing.Commands
 		[Description("Adds channel to bot to which updates for users in this guild will be sent")]
 		[Aliases("chnadd")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
-		public async Task ChannelAdd(CommandContext context, [Description("Id of channel")] long channelId)
-		{
+		public async Task ChannelAdd(CommandContext context, [Description("Channel where all user-updates will be sent")] DiscordChannel channel)
+        {
+            var perms = channel.PermissionsFor(context.Guild.CurrentMember);
+            if (!perms.HasPermission(Permissions.SendMessages) || !perms.HasPermission(Permissions.EmbedLinks))
+                throw new Exception("Bot is lacking permissions to send messages and use embeds in this channel");
 			var guildId = (long) context.Guild.Id;
+            var channelId = (long) channel.Id;
 			await this.MalService.AddChannelAsync(guildId, channelId);
-			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfuly added channel");
+			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfully added channel");
 			await context.RespondAsync(embed: embed.Build());
 		}
 
@@ -136,11 +141,15 @@ namespace PaperMalKing.Commands
 		[Aliases("chnupd")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
 		public async Task ChannelUpdate(CommandContext context,
-		[Description("Id of the new channel")] long channelId)
+		[Description("New channel where user-updates will be sent")] DiscordChannel channel)
 		{
-			var guildId = (long) context.Guild.Id;
+            var perms = channel.PermissionsFor(context.Guild.CurrentMember);
+            if (!perms.HasPermission(Permissions.SendMessages) || !perms.HasPermission(Permissions.EmbedLinks))
+                throw new Exception("Bot is lacking permissions to send messages and use embeds in this channel");
+            var guildId = (long)context.Guild.Id;
+            var channelId = (long)channel.Id;
 			await this.MalService.UpdateChannelAsync(guildId, channelId);
-			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfuly updated channel");
+			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfully updated channel");
 			await context.RespondAsync(embed: embed.Build());
 		}
 
@@ -152,7 +161,7 @@ namespace PaperMalKing.Commands
 		{
 			var guildId = (long) context.Guild.Id;
 			this.MalService.RemoveChannel(guildId);
-			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfuly removed channel");
+			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfully removed channel");
 			await context.RespondAsync(embed: embed.Build());
 
 		}

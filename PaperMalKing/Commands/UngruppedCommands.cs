@@ -44,28 +44,32 @@ namespace PaperMalKing.Commands
 			var botVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString(3) ?? "";
 			var netCoreVersion = Environment.Version.ToString(3);
 
-			var desc =
-$@"Paper Mal King is bot designed to automatically track  its users updates on MyAnimeList.
+            var desc =
+                "Paper Mal King is bot designed to automatically track  its users updates on MyAnimeList.\nDeveloped by N0D4N#2281 (<@356518417987141633>).";
 
-Bot version - {botVersion}.
-DSharpPlus version - {context.Client.VersionString}.
-.NET Core version - {netCoreVersion}.";
+            var versions = $"Bot version - {botVersion}." +
+                           "\n" +
+                           $"DSharpPlus version - {context.Client.VersionString}." +
+                           "\n" +
+                           $".NET Core version - {netCoreVersion}.";
 
-			var links = Formatter.MaskedUrl("Source code",
-							new Uri("https://github.com/N0D4N/PaperMalKing", UriKind.Absolute)) +
-						"\n" +
-						Formatter.MaskedUrl("Wiki",
-							new Uri("https://github.com/N0D4N/PaperMalKing/wiki", UriKind.Absolute));
+            var sourceCodeLink = "https://github.com/N0D4N/PaperMalKing";
+            var links = Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)) +
+                        "\n" +
+                        Formatter.MaskedUrl("Wiki",
+                            new Uri("https://github.com/N0D4N/PaperMalKing/wiki", UriKind.Absolute));
 
 			var embedBuilder = new DiscordEmbedBuilder
 			{
 				Title = "Info",
+				Url = sourceCodeLink,
 				Description = desc,
 				Timestamp = DateTimeOffset.Now,
 				Color = DiscordColor.DarkBlue,
 				ThumbnailUrl = context.Client.CurrentUser.AvatarUrl
 			};
 			embedBuilder.AddField("Links", links, true);
+            embedBuilder.AddField("Versions", versions, true);
 
 			await context.RespondAsync(embed: embedBuilder.Build());
 		}

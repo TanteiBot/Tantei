@@ -44,6 +44,8 @@ namespace PaperMalKing.Services
 
 		private readonly string _logName;
 
+        private readonly TimeSpan _timerDelay;
+
 
 		private delegate Task UpdateFoundHandler(ListUpdateEntry update);
 
@@ -58,26 +60,26 @@ namespace PaperMalKing.Services
 			this.UpdateFound += this.MalService_UpdateFound;
 			this._jikanClient = new JikanClient();
 			this._logName = this.GetType().Name;
-			this._timer = new Timer(async (e) =>
-			{
-				try
-				{
-					await this.Timer_Tick();
-				}
-				catch (Exception ex)
-				{
-					this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
-						"Exception occured in Timer_Tick method", DateTime.Now, ex);
-				}
-			}, null, TimeSpan.FromSeconds(10),
-				TimeSpan.FromMinutes(10));
-		}
+            this._timerDelay = TimeSpan.FromMinutes(10);
+            this._timer = new Timer(async (e) =>
+            {
+                try
+                {
+                    await this.Timer_Tick();
+                }
+                catch (Exception ex)
+                {
+                    this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+                        "Exception occured in Timer_Tick method", DateTime.Now, ex);
+                }
+            }, null, TimeSpan.FromSeconds(15), Timeout.InfiniteTimeSpan);
+        }
 
 		public void RestartTimer()
 		{
 			if (!this.Updating)
 				this._timer.Change(
-					TimeSpan.Zero, TimeSpan.FromMinutes(10));
+					this._timerDelay, Timeout.InfiniteTimeSpan);
 		}
 
 		public async Task AddUserAsync(DiscordMember member, string username)
@@ -112,9 +114,7 @@ namespace PaperMalKing.Services
 				else // User is already saved in another guilds
 				{
 					var guildId = (long)member.Guild.Id;
-					if (user.Guilds == null)
-						user.Guilds = new List<GuildUsers>();
-					if (user.Guilds.All(x => x.GuildId != guildId))
+                    if (user.Guilds?.All(x => x.GuildId != guildId) == true)
 					{
 						user.Guilds.Add(new GuildUsers { DiscordId = user.DiscordId, GuildId = guildId });
 						db.Update(user);
@@ -142,17 +142,17 @@ namespace PaperMalKing.Services
 				if (user == null)
 					throw new Exception("You must add username in this or other guild first");
 				var guildId = (long)member.Guild.Id;
-				if (user.Guilds == null)
-					user.Guilds = new List<GuildUsers>();
-				if (user.Guilds.All(x => x.GuildId != guildId))
-				{
-					user.Guilds.Add(new GuildUsers { DiscordId = user.DiscordId, GuildId = guildId });
-					db.Update(user);
-					this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
-						$"Added ({member}) in guild '{guildId}'", DateTime.Now);
-					var rowChanged = await db.SaveChangesAsync();
-				}
-			}
+                if (user.Guilds?.All(x => x.GuildId != guildId) == true)
+                {
+                    user.Guilds.Add(new GuildUsers {DiscordId = user.DiscordId, GuildId = guildId});
+                    db.Update(user);
+                    this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+                        $"Added ({member}) in guild '{guildId}'", DateTime.Now);
+                    var rowChanged = await db.SaveChangesAsync();
+                }
+                else
+                    throw new Exception("You are already added in this guild");
+            }
 		}
 
 
@@ -169,7 +169,7 @@ namespace PaperMalKing.Services
 				if (rowsChanged == 0)
 					throw new Exception("Couldn't save changes in database. Try again later");
 				this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
-					$"Sucessfully removed user '{user.MalUsername}'({member}) from all guilds", DateTime.Now);
+					$"Successfully removed user '{user.MalUsername}'({member}) from all guilds", DateTime.Now);
 
 			}
 		}
@@ -211,6 +211,8 @@ namespace PaperMalKing.Services
 				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
 				if (user == null)
 					throw new ArgumentException("Such user does not exist in database", nameof(user));
+                if (user.MalUsername == newUsername)
+                    throw new ArgumentException("New username can't be the same as the old one");
 				var oldUsername = user.MalUsername;
 				user.MalUsername = newUsername;
 				try
@@ -261,7 +263,7 @@ namespace PaperMalKing.Services
 
 			this._channels.TryAdd(guildId, channel);
 			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
-				$"Sucessfully added channel in guild with id '{guildId}'", DateTime.Now);
+				$"Successfully added channel in guild with id '{guildId}'", DateTime.Now);
 
 		}
 
@@ -276,6 +278,8 @@ namespace PaperMalKing.Services
 				var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
 				if (guild == null)
 					throw new Exception("Channel is not saved in database try to add it instead of updating it");
+                if (guild.ChannelId == channelId)
+                    throw new Exception("New channel can't be the same as the old one");
 				guild.ChannelId = channelId;
 				db.Guilds.Update(guild);
 				db.SaveChanges();
@@ -283,7 +287,7 @@ namespace PaperMalKing.Services
 
 			this._channels[guildId] = channel;
 			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
-				$"Sucessfully updated channel in guild with id '{guildId}'", DateTime.Now);
+				$"Successfully updated channel in guild with id '{guildId}'", DateTime.Now);
 
 		}
 
@@ -361,19 +365,17 @@ namespace PaperMalKing.Services
 			var embed = update.CreateEmbed();
 
 			foreach (var guildId in update.User.Guilds.Select(x => x.GuildId))
-			{
-				if (this._channels.TryGetValue(guildId, out var channel))
-				{
-					try
-					{
-						await channel.SendMessageAsync(embed: embed);
-					}
-					catch
-					{
-						// ignored
-					}
-				}
-			}
+            {
+                if (!this._channels.TryGetValue(guildId, out var channel)) continue;
+                try
+                {
+                    await channel.SendMessageAsync(embed: embed);
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
 		}
 
 		private async Task Client_Ready(ReadyEventArgs e)
@@ -406,85 +408,95 @@ namespace PaperMalKing.Services
 		}
 
 		// Cleaned up a bit should look better now
-		private async Task Timer_Tick()
-		{
-			this.Updating = true;
-			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Starting checking for updates",
-				DateTime.Now);
-			PmkUser[] users;
-			using (var db = new DatabaseContext(this._config))
+        private async Task Timer_Tick()
+        {
+            this.Updating = true;
+            try
 			{
-				users = db.Users.Include(ug => ug.Guilds).ThenInclude(g => g.Guild).ToArray();
-			}
+                this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Starting checking for updates",
+                    DateTime.Now);
+                PmkUser[] users;
+                using (var db = new DatabaseContext(this._config))
+                {
+                    users = db.Users.Include(ug => ug.Guilds).ThenInclude(g => g.Guild).ToArray();
+                }
 
-			foreach (var user in users)
-			{
-				this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
-					$"Starting to checking updates for {user.MalUsername}", DateTime.Now);
-				Feed animeFeed;
-				Feed mangaFeed;
-				DateTime? readFeedDate;
-				try
-				{
-					animeFeed = await FeedReader.ReadAsync(user.AnimeRssFeed);
-					mangaFeed = await FeedReader.ReadAsync(user.MangaRssFeed);
-					readFeedDate = DateTime.Now;
-				}
-				catch (Exception e)
-				{
-					this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
-						$"Couldn't load rss feed for {user.MalUsername}", DateTime.Now, e);
-					continue;
-				}
+                foreach (var user in users)
+                {
+                    this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+                        $"Starting to checking updates for {user.MalUsername}", DateTime.Now);
+                    Feed animeFeed;
+                    Feed mangaFeed;
+                    DateTime? readFeedDate;
+                    try
+                    {
+                        animeFeed = await FeedReader.ReadAsync(user.AnimeRssFeed);
+                        mangaFeed = await FeedReader.ReadAsync(user.MangaRssFeed);
+                        readFeedDate = DateTime.Now;
+                    }
+                    catch (Exception e)
+                    {
+                        this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+                            $"Couldn't load rss feed for {user.MalUsername}", DateTime.Now, e);
+                        continue;
+                    }
 
-				var newAnimeItems = animeFeed.Items.Where(x =>
-					DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(), user.LastUpdateDate) >
-					0);
-				var newMangaItems = mangaFeed.Items.Where(x =>
-					DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(), user.LastUpdateDate) >
-					0);
+                    var newAnimeItems = animeFeed.Items.Where(x =>
+                        DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(),
+                            user.LastUpdateDate) >
+                        0);
+                    var newMangaItems = mangaFeed.Items.Where(x =>
+                        DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(),
+                            user.LastUpdateDate) >
+                        0);
 
-				if (!newMangaItems.Any() && !newAnimeItems.Any())
-					continue;
+                    if (!newMangaItems.Any() && !newAnimeItems.Any())
+                        continue;
 
-				await Task.Delay(TimeSpan.FromSeconds(4));
-				var malUser = await this._jikanClient.GetUserProfileAsync(user.MalUsername);
-				if (malUser == null)
-				{
-					this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
-						$"Couldn't load MyAnimeList user from username '{user.MalUsername}' (DiscordId '{user.DiscordId}'",
-						DateTime.Now);
-					continue;
-				}
+                    await Task.Delay(TimeSpan.FromSeconds(4));
+                    var malUser = await this._jikanClient.GetUserProfileAsync(user.MalUsername);
+                    if (malUser == null)
+                    {
+                        this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+                            $"Couldn't load MyAnimeList user from username '{user.MalUsername}' (DiscordId '{user.DiscordId}'",
+                            DateTime.Now);
+                        continue;
+                    }
 
-				var updateItems = new List<(FeedItem, EntityType)>();
-				updateItems.AddRange(newAnimeItems.Select(x => (x, EntityType.Anime)));
-				updateItems.AddRange(newMangaItems.Select(x => (x, EntityType.Manga)));
-				updateItems.Sort((x, y) => DateTime.Compare(x.Item1.PublishingDate ?? DateTime.MinValue,
-					y.Item1.PublishingDate ?? DateTime.MinValue));
+                    var updateItems = new List<(FeedItem, EntityType)>();
+                    updateItems.AddRange(newAnimeItems.Select(x => (x, EntityType.Anime)));
+                    updateItems.AddRange(newMangaItems.Select(x => (x, EntityType.Manga)));
+                    updateItems.Sort((x, y) => DateTime.Compare(x.Item1.PublishingDate ?? DateTime.MinValue,
+                        y.Item1.PublishingDate ?? DateTime.MinValue));
 
-				foreach (var updateItem in updateItems)
-				{
-					var malEntity = await this.GetMalEntityAsync(updateItem.Item2, updateItem.Item1, user, malUser);
-					if (malEntity != null)
-					{
-						var listUpdateEntry = new ListUpdateEntry(malUser, user, malEntity, updateItem.Item1.Description,
-							updateItem.Item1.PublishingDate);
-						await this.UpdateFound?.Invoke(listUpdateEntry);
-					}
-				}
+                    foreach (var updateItem in updateItems)
+                    {
+                        var malEntity = await this.GetMalEntityAsync(updateItem.Item2, updateItem.Item1, user, malUser);
+                        if (malEntity != null)
+                        {
+                            var listUpdateEntry = new ListUpdateEntry(malUser, user, malEntity,
+                                updateItem.Item1.Description,
+                                updateItem.Item1.PublishingDate);
+                            await this.UpdateFound?.Invoke(listUpdateEntry);
+                        }
+                    }
 
-				user.LastUpdateDate = readFeedDate.Value.ToUniversalTime();
-				using (var db = new DatabaseContext(this._config))
-				{
-					db.Users.Update(user);
-					await db.SaveChangesAsync();
-				}
-			}
+                    user.LastUpdateDate = readFeedDate.Value.ToUniversalTime();
+                    using (var db = new DatabaseContext(this._config))
+                    {
+                        db.Users.Update(user);
+                        await db.SaveChangesAsync();
+                    }
+                }
 
-			this.Updating = false;
-			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Ended checking for updates",
-				DateTime.Now);
-		}
-	}
+            }
+            finally
+            {
+                this.Updating = false;
+                this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Ended checking for updates",
+                    DateTime.Now);
+                this._timer.Change(this._timerDelay, Timeout.InfiniteTimeSpan);
+            }
+        }
+    }
 }
