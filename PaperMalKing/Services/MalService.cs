@@ -77,11 +77,11 @@ namespace PaperMalKing.Services
         }
 
 		public void RestartTimer()
-		{
-			if (!this.Updating)
-				this._timer.Change(
-					this._timerDelay, Timeout.InfiniteTimeSpan);
-		}
+        {
+            if (!this.Updating)
+                this._timer.Change(
+                    TimeSpan.FromSeconds(5), Timeout.InfiniteTimeSpan);
+        }
 
 		public async Task AddUserAsync(DiscordMember member, string username)
 		{
