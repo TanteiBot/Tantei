@@ -102,10 +102,20 @@ namespace PaperMalKing.Services
 						throw new Exception("Couldn't read your updates. Maybe your list isn't public");
 					}
 					var guildId = (long)member.Guild.Id;
-					var guilds = new List<GuildUsers> { new GuildUsers { DiscordId = userId, GuildId = guildId } };
+                    var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
+                    if (guild == null)
+                    {
+                        guild = new PmkGuild {ChannelId = null, GuildId = guildId, Users = null};
+                        db.Guilds.Add(guild);
+                    }
 
-					var pmkUser = new PmkUser
-					{ DiscordId = userId, LastUpdateDate = DateTime.Now.ToUniversalTime(), MalUsername = username, Guilds = guilds };
+                    var guilds = new List<GuildUsers> { new GuildUsers { DiscordId = userId, GuildId = guildId } };
+
+                    var pmkUser = new PmkUser
+                    {
+                        DiscordId = userId, LastUpdateDate = DateTime.Now.ToUniversalTime(), MalUsername = username,
+                        Guilds = guilds
+                    };
 
 					db.Users.Add(pmkUser);
 					this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
@@ -114,6 +124,12 @@ namespace PaperMalKing.Services
 				else // User is already saved in another guilds
 				{
 					var guildId = (long)member.Guild.Id;
+                    var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
+                    if (guild == null)
+                    {
+                        guild = new PmkGuild { ChannelId = null, GuildId = guildId, Users = null };
+                        db.Guilds.Add(guild);
+                    }
                     if (user.Guilds?.All(x => x.GuildId != guildId) == true)
 					{
 						user.Guilds.Add(new GuildUsers { DiscordId = user.DiscordId, GuildId = guildId });
