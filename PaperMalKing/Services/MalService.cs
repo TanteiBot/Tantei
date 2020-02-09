@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using CodeHollow.FeedReader;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -92,15 +93,20 @@ namespace PaperMalKing.Services
 				{
 					var animeRssUrl = $"https://myanimelist.net/rss.php?type=rw&u={username}";
 					var mangaRssUrl = $"https://myanimelist.net/rss.php?type=rm&u={username}";
-					try
-					{
-						await FeedReader.ReadAsync(animeRssUrl);
-						await FeedReader.ReadAsync(mangaRssUrl);
-					}
-					catch
-					{
-						throw new Exception("Couldn't read your updates. Maybe your list isn't public");
-					}
+                    try
+                    {
+                        await FeedReader.ReadAsync(animeRssUrl);
+                        await FeedReader.ReadAsync(mangaRssUrl);
+                    }
+                    catch (XmlException xmlEx)
+                    {
+                        if (xmlEx.LineNumber == 42) // This exception is for situation when one of user's lists is private
+                            throw new Exception("Couldn't read your updates. Maybe your list isn't public");
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception("Unhandled exception happened.");
+                    }
 					var guildId = (long)member.Guild.Id;
                     var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
                     if (guild == null)
@@ -443,28 +449,35 @@ namespace PaperMalKing.Services
                         $"Starting to checking updates for {user.MalUsername}", DateTime.Now);
                     Feed animeFeed;
                     Feed mangaFeed;
-                    DateTime? readFeedDate;
+                    DateTime readFeedDate = DateTime.Now;
                     try
                     {
                         animeFeed = await FeedReader.ReadAsync(user.AnimeRssFeed);
-                        mangaFeed = await FeedReader.ReadAsync(user.MangaRssFeed);
-                        readFeedDate = DateTime.Now;
                     }
-                    catch (Exception e)
+                    catch (XmlException ex)
                     {
                         this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
-                            $"Couldn't load rss feed for {user.MalUsername}", DateTime.Now, e);
-                        continue;
+                            $"Couldn't load anime rss feed for {user.MalUsername}", DateTime.Now, ex);
+                        animeFeed = null;
                     }
 
-                    var newAnimeItems = animeFeed.Items.Where(x =>
-                        DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(),
-                            user.LastUpdateDate) >
-                        0);
-                    var newMangaItems = mangaFeed.Items.Where(x =>
-                        DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(),
-                            user.LastUpdateDate) >
-                        0);
+                    try
+                    {
+                        mangaFeed = await FeedReader.ReadAsync(user.MangaRssFeed);
+                    }
+                    catch (XmlException ex)
+                    {
+                        this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+                            $"Couldn't load manga rss feed for {user.MalUsername}", DateTime.Now, ex);
+                        mangaFeed = null;
+                    }
+
+                    var newAnimeItems = animeFeed?.Items.Where(x =>
+                                            DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(),
+                                                user.LastUpdateDate) > 0) ?? Enumerable.Empty<FeedItem>();
+                    var newMangaItems = mangaFeed?.Items.Where(x =>
+                                            DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(),
+                                                user.LastUpdateDate) > 0) ?? Enumerable.Empty<FeedItem>();
 
                     if (!newMangaItems.Any() && !newAnimeItems.Any())
                         continue;
@@ -497,7 +510,7 @@ namespace PaperMalKing.Services
                         }
                     }
 
-                    user.LastUpdateDate = readFeedDate.Value.ToUniversalTime();
+                    user.LastUpdateDate = readFeedDate.ToUniversalTime();
                     using (var db = new DatabaseContext(this._config))
                     {
                         db.Users.Update(user);
