@@ -503,8 +503,17 @@ namespace PaperMalKing.Services
                         var malEntity = await this.GetMalEntityAsync(updateItem.Item2, updateItem.Item1, user, malUser);
                         if (malEntity != null)
                         {
+                            var actionString = updateItem.Item1.Description.Split(" - ")[0];
+                            var status = updateItem.Item1.Description;
+                            if (string.IsNullOrWhiteSpace(actionString))
+                            {
+                                if (updateItem.Item2 == EntityType.Anime)
+                                    status = "Re-watching " + status;
+                                else
+                                    status = "Re-reading " + status;
+                            }
                             var listUpdateEntry = new ListUpdateEntry(malUser, user, malEntity,
-                                updateItem.Item1.Description,
+                                status,
                                 updateItem.Item1.PublishingDate);
                             await this.UpdateFound?.Invoke(listUpdateEntry);
                         }
