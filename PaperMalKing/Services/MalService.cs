@@ -457,7 +457,7 @@ namespace PaperMalKing.Services
                     catch (XmlException ex)
                     {
                         this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
-                            $"Couldn't load anime rss feed for {user.MalUsername}", DateTime.Now, ex);
+                            $"Couldn't load anime rss feed for {user.MalUsername}", DateTime.Now);
                         animeFeed = null;
                     }
 
@@ -468,7 +468,7 @@ namespace PaperMalKing.Services
                     catch (XmlException ex)
                     {
                         this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
-                            $"Couldn't load manga rss feed for {user.MalUsername}", DateTime.Now, ex);
+                            $"Couldn't load manga rss feed for {user.MalUsername}", DateTime.Now);
                         mangaFeed = null;
                     }
 
