@@ -380,7 +380,6 @@ namespace PaperMalKing.Services
 
 		private async Task MalService_UpdateFound(ListUpdateEntry update)
 		{
-			await Task.Yield();
 			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
 				$"Sending update for {update.Entry.Title} in {update.UserProfile.Username} MAL", DateTime.Now);
 
@@ -438,10 +437,8 @@ namespace PaperMalKing.Services
                 this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Starting checking for updates",
                     DateTime.Now);
                 PmkUser[] users;
-                using (var db = new DatabaseContext(this._config))
-                {
-                    users = db.Users.Include(ug => ug.Guilds).ThenInclude(g => g.Guild).ToArray();
-                }
+                using var db = new DatabaseContext(this._config);
+                users = db.Users.Include(ug => ug.Guilds).ThenInclude(g => g.Guild).ToArray();
 
                 foreach (var user in users)
                 {
@@ -520,11 +517,8 @@ namespace PaperMalKing.Services
                     }
 
                     user.LastUpdateDate = readFeedDate.ToUniversalTime();
-                    using (var db = new DatabaseContext(this._config))
-                    {
-                        db.Users.Update(user);
+                    db.Users.Update(user);
                         await db.SaveChangesAsync();
-                    }
                 }
 
             }
