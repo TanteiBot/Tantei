@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DSharpPlus;
 using Newtonsoft.Json;
 using PaperMalKing.Jikan.Data;
 using PaperMalKing.Jikan.Data.Models;
 using PaperMalKing.Jikan.Helpers;
+using PaperMalKing.Utilities;
 
 namespace PaperMalKing.Jikan
 {
@@ -14,11 +17,19 @@ namespace PaperMalKing.Jikan
 
 		private readonly bool _suppressExceptions;
 
-		/// <summary>
+        private long _lastRequestDate;
+
+        private readonly LogDelegate Log;
+
+        private const string LogName = "JikanClient";
+
+        /// <summary>
 		/// Constructor.
 		/// </summary>
-		public JikanClient()
-		{
+		public JikanClient(LogDelegate logDelegate)
+        {
+            this._lastRequestDate = DateTimeOffset.Now.Subtract(TimeSpan.FromSeconds(10)).ToUnixTimeMilliseconds();
+            Log = logDelegate;
 			this._suppressExceptions = true;
 			this._httpClient = HttpProvider.GetHttpClient(true);
 		}
@@ -28,9 +39,11 @@ namespace PaperMalKing.Jikan
 		/// </summary>
 		/// <param name="useHttps">Should client send SSL encrypted requests.</param>
 		/// <param name="suppressExceptions">Should exception be thrown in case of failed request. If true, failed request return null.</param>
-		public JikanClient(bool useHttps, bool suppressExceptions = true)
+		public JikanClient(bool useHttps, LogDelegate logDelegate, bool suppressExceptions = true)
 		{
-			this._suppressExceptions = suppressExceptions;
+            this._lastRequestDate = DateTimeOffset.Now.Subtract(TimeSpan.FromSeconds(10)).ToUnixTimeMilliseconds();
+            Log = logDelegate;
+            this._suppressExceptions = suppressExceptions;
 			this._httpClient = HttpProvider.GetHttpClient(useHttps);
 		}
 
@@ -39,9 +52,11 @@ namespace PaperMalKing.Jikan
 		/// </summary>
 		/// <param name="endpointUrl">Endpoint of the REST API.</param>
 		/// <param name="suppressExceptions">Should exception be thrown in case of failed request. If true, failed request return null.</param>
-		public JikanClient(string endpointUrl, bool suppressExceptions = true)
+		public JikanClient(string endpointUrl, LogDelegate logDelegate, bool suppressExceptions = true)
 		{
-			this._suppressExceptions = suppressExceptions;
+            this._lastRequestDate = DateTimeOffset.Now.Subtract(TimeSpan.FromSeconds(10)).ToUnixTimeMilliseconds();
+            Log = logDelegate;
+            this._suppressExceptions = suppressExceptions;
 			this._httpClient = HttpProvider.GetHttpClient(new Uri(endpointUrl));
 		}
 
@@ -50,9 +65,11 @@ namespace PaperMalKing.Jikan
 		/// </summary>
 		/// <param name="endpointUrl">Endpoint of the REST API.</param>
 		/// <param name="suppressExceptions">Should exception be thrown in case of failed request. If true, failed request return null.</param>
-		public JikanClient(Uri endpointUrl, bool suppressExceptions = true)
+		public JikanClient(Uri endpointUrl, LogDelegate logDelegate, bool suppressExceptions = true)
 		{
-			this._suppressExceptions = suppressExceptions;
+            this._lastRequestDate = DateTimeOffset.Now.Subtract(TimeSpan.FromSeconds(10)).ToUnixTimeMilliseconds();
+            Log = logDelegate;
+            this._suppressExceptions = suppressExceptions;
 			this._httpClient = HttpProvider.GetHttpClient(endpointUrl);
 		}
 
@@ -60,22 +77,46 @@ namespace PaperMalKing.Jikan
 		{
 			T returnedObject = null;
 			var requestUrl = string.Join("/", args);
-			try
-			{
-				using (HttpResponseMessage response = await this._httpClient.GetAsync(requestUrl))
-				{
-					if (response.IsSuccessStatusCode)
-					{
-						string json = await response.Content.ReadAsStringAsync();
+            
+            var timePassed = DateTimeOffset.Now.ToUnixTimeMilliseconds() - this._lastRequestDate;
+            if (timePassed < 2000) //Delay between requests to Jikan should be 2 seconds
+            {
+                var delay = (int) (2000 - timePassed);
+                this.Log(LogLevel.Debug, LogName, $"Waiting for {delay} ms before next request to Jikan",
+                    DateTime.Now);
+                await Task.Delay(delay);
+            }
 
-						returnedObject = JsonConvert.DeserializeObject<T>(json);
-					}
-					else if (!this._suppressExceptions)
-					{
-						throw new Exception($"Status code: '{response.StatusCode}'. Message: '{response.Content}'");
-					}
-				}
-			}
+
+            try
+            {
+                bool tryAgain;
+                do
+                {
+                    tryAgain = false;
+                    using (HttpResponseMessage response = await this._httpClient.GetAsync(requestUrl))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            string json = await response.Content.ReadAsStringAsync();
+
+                            returnedObject = JsonConvert.DeserializeObject<T>(json);
+							if(!returnedObject.RequestCached)
+								this._lastRequestDate = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                        }
+                        else if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                        {
+                            this.Log(LogLevel.Debug, LogName, "Got ratelimited for Jikan, waiting 10 s and retrying request again", DateTime.Now);
+                            await Task.Delay(TimeSpan.FromSeconds(10));
+                            tryAgain = true;
+                        }
+                        else if (!this._suppressExceptions)
+                        {
+                            throw new Exception($"Status code: '{response.StatusCode}'. Message: '{response.Content}'");
+                        }
+                    }
+                } while (tryAgain);
+            }
 			catch (JsonSerializationException ex)
 			{
 				if (!this._suppressExceptions)
@@ -83,7 +124,7 @@ namespace PaperMalKing.Jikan
 					throw new Exception("Serialization failed" + ex.Message);
 				}
 			}
-			return returnedObject;
+            return returnedObject;
 		}
 
 		/// <summary>

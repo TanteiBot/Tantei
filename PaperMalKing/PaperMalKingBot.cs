@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -58,12 +57,13 @@ namespace PaperMalKing
 			this.Client.ClientErrored += this.Client_ClientErrored;
 			this.Client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
 			this.Client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
-
+            var malRssService = new MalRssReaderService(this.Client);
 			var services = new ServiceCollection()
 			.AddSingleton(this.Client)
 			.AddSingleton(this._config)
-			.AddSingleton(new MalService(this._config,this.Client))
-			.AddScoped<DatabaseContext>()
+            .AddSingleton(malRssService)
+			.AddSingleton(new MalService(this._config, this.Client, malRssService))
+            .AddScoped<DatabaseContext>()
 			.BuildServiceProvider();
 
 

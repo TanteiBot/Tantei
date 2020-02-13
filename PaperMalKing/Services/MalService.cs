@@ -47,19 +47,22 @@ namespace PaperMalKing.Services
 
         private readonly TimeSpan _timerDelay;
 
+        private readonly MalRssReaderService _rssReader;
+
 
 		private delegate Task UpdateFoundHandler(ListUpdateEntry update);
 
 		private event UpdateFoundHandler UpdateFound;
 
-		public MalService(BotConfig config, DiscordClient client)
-		{
+		public MalService(BotConfig config, DiscordClient client, MalRssReaderService rssReader)
+        {
+            this._rssReader = rssReader;
 			this._channels = new ConcurrentDictionary<long, DiscordChannel>();
 			this._config = config;
 			this._client = client;
 			client.Ready += this.Client_Ready;
 			this.UpdateFound += this.MalService_UpdateFound;
-			this._jikanClient = new JikanClient();
+			this._jikanClient = new JikanClient(this._client.DebugLogger.LogMessage);
 			this._logName = this.GetType().Name;
             this._timerDelay = TimeSpan.FromMinutes(10);
             this._timer = new Timer(async (e) =>
@@ -85,7 +88,7 @@ namespace PaperMalKing.Services
 
 		public async Task AddUserAsync(DiscordMember member, string username)
 		{
-			var userId = (long)member.Id;
+            var userId = (long)member.Id;
 			using (var db = new DatabaseContext(this._config))
 			{
 				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
@@ -95,8 +98,8 @@ namespace PaperMalKing.Services
 					var mangaRssUrl = $"https://myanimelist.net/rss.php?type=rm&u={username}";
                     try
                     {
-                        await FeedReader.ReadAsync(animeRssUrl);
-                        await FeedReader.ReadAsync(mangaRssUrl);
+                        await this._rssReader.ReadFeedAsync(animeRssUrl);
+                        await this._rssReader.ReadFeedAsync(mangaRssUrl);
                     }
                     catch (XmlException xmlEx)
                     {
@@ -239,8 +242,8 @@ namespace PaperMalKing.Services
 				user.MalUsername = newUsername;
 				try
 				{
-					await FeedReader.ReadAsync(user.AnimeRssFeed);
-					await FeedReader.ReadAsync(user.MangaRssFeed);
+					await this._rssReader.ReadFeedAsync(user.AnimeRssFeed);
+					await this._rssReader.ReadFeedAsync(user.MangaRssFeed);
 				}
 				catch
 				{
@@ -355,7 +358,6 @@ namespace PaperMalKing.Services
 
 			var index = feedItem.Title.LastIndexOf(" - ");
 			var query = feedItem.Title.Remove(index).Trim();
-			await Task.Delay(TimeSpan.FromSeconds(4));
 			if (type == EntityType.Anime)
 			{
 				var userAl = await this._jikanClient.GetUserAnimeListAsync(pmkUser.MalUsername, query);
@@ -449,7 +451,7 @@ namespace PaperMalKing.Services
                     DateTime readFeedDate = DateTime.Now;
                     try
                     {
-                        animeFeed = await FeedReader.ReadAsync(user.AnimeRssFeed);
+                        animeFeed = await this._rssReader.ReadFeedAsync(user.AnimeRssFeed);
                     }
                     catch (XmlException ex)
                     {
@@ -460,7 +462,7 @@ namespace PaperMalKing.Services
 
                     try
                     {
-                        mangaFeed = await FeedReader.ReadAsync(user.MangaRssFeed);
+                        mangaFeed = await this._rssReader.ReadFeedAsync(user.MangaRssFeed);
                     }
                     catch (XmlException ex)
                     {
@@ -479,7 +481,6 @@ namespace PaperMalKing.Services
                     if (!newMangaItems.Any() && !newAnimeItems.Any())
                         continue;
 
-                    await Task.Delay(TimeSpan.FromSeconds(4));
                     var malUser = await this._jikanClient.GetUserProfileAsync(user.MalUsername);
                     if (malUser == null)
                     {
