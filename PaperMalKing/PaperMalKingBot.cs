@@ -159,7 +159,7 @@ namespace PaperMalKing
 				if (failedCheck is RequirePermissionsAttribute reqPerm)
 				{
 					var errorEmbed = EmbedTemplate.CommandErrorEmbed(e.Command, e.Context.User,
-						message: $"You are lacking permissons:{reqPerm.Permissions.ToPermissionString()}");
+						message: $"You are lacking permissions:{reqPerm.Permissions.ToPermissionString()}");
 					await e.Context.RespondAsync(embed: errorEmbed);
 				}
 
@@ -189,7 +189,14 @@ namespace PaperMalKing
 					Console.ForegroundColor = ConsoleColor.Black;
 				}
 
-				Console.Write($"[{e.Timestamp:dd'/'MM'/'yy HH\\:mm\\:ss.fff}] [{e.Application}] [{e.Level.ToString()}]");
+                string timestampFormat;
+#if DEBUG
+                timestampFormat = "dd.MM.yy HH\\:mm\\:ss.fff";
+#else
+                timestampFormat = "dd.MM.yy HH\\:mm\\:ss";
+#endif
+
+				Console.Write($"[{e.Timestamp.ToString(timestampFormat)}] [{e.Application.ToFixedWidth(13)}] [{e.Level.ToShortName()}]");
 				Console.ResetColor();
 				Console.WriteLine($" {e.Message}{(e.Exception != null ? $"\n{e.Exception}" : "")}");
 			}
