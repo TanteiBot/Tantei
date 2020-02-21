@@ -17,7 +17,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 
         private readonly HttpClient _httpClient;
 
-        private const string Logname = "MalFeedReader";
+        private const string LogName = "MalFeedReader";
 
         public FeedReader(LogDelegate log)
         {
@@ -32,7 +32,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
             if (millisecondsPassed < 2000)
             {
                 var delay = (int)(2000 - millisecondsPassed);
-                this.Log(LogLevel.Debug, Logname, $"Waiting {delay}ms before reading next rss feed.", DateTime.Now);
+                this.Log(LogLevel.Debug, LogName, $"Waiting {delay}ms before reading next rss feed.", DateTime.Now);
                 await Task.Delay(delay);
             }
 
@@ -48,7 +48,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
                 }
                 else if (response.StatusCode == HttpStatusCode.TooManyRequests)
                 {
-                    this.Log(LogLevel.Warning, Logname,
+                    this.Log(LogLevel.Warning, LogName,
                         "Got ratelimited by Mal while trying to read rss feed, waiting 10s and retrying", DateTime.Now);
                     tryAgain = true;
                     response.Dispose();

@@ -1,9 +1,8 @@
-﻿using System;
-using DSharpPlus;
+﻿using DSharpPlus;
 
 namespace PaperMalKing.Utilities
 {
-    static class Extensios
+    static class Extensions
     {
         public static string ToFixedWidth(this string s, int newLength)
         {

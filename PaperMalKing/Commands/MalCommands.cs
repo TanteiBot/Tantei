@@ -45,19 +45,19 @@ namespace PaperMalKing.Commands
 		}
 
 		[Command("AddHere")]
-		[Description("Adds your account on Myanimelist to list of tracked users in this guild. You need to \"register\" your MAL account in other guild with username in it")]
+		[Description("Adds your account on MyAnimeList to list of tracked users in this guild. You need to \"register\" your MAL account in other guild with username in it")]
 		[Aliases("addh")]
 		public async Task AddHere(CommandContext context)
 		{
 			await this.MalService.AddUserHereAsync(context.Member);
 			var embed = EmbedTemplate.SuccessCommand(context.User,
-				$"Succesfully added you in list of tracked users in this guild");
+				$"Successfully added you in list of tracked users in this guild");
 			await context.RespondAsync(embed: embed.Build());
 
 		}
 
 
-		[Command("Removehere")]
+		[Command("RemoveHere")]
 		[Description("Removes your account on MyAnimeList from being tracked in this guild.")]
 		[Aliases("rmh")]
 		public async Task RemoveHere(CommandContext context)
@@ -68,7 +68,7 @@ namespace PaperMalKing.Commands
 			await context.RespondAsync(embed: embed.Build());
 		}
 
-		[Command("removeeverywhere")]
+		[Command("RemoveEverywhere")]
 		[Description("Removes your account on MyAnimeList from being tracked in all guilds where you have been registered.")]
 		[Aliases("rme")]
 		public async Task RemoveEverywhere(CommandContext context)

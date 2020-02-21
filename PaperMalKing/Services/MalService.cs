@@ -432,7 +432,7 @@ namespace PaperMalKing.Services
 					catch (Exception ex)
 					{
 						e.Client.DebugLogger.LogMessage(LogLevel.Critical, LogName,
-							$"Channel wasn't loaded succesfully in guild with id '{guild.GuildId}'", DateTime.Now, ex);
+							$"Channel wasn't loaded successfully in guild with id '{guild.GuildId}'", DateTime.Now, ex);
 					}
 				}
 			}
