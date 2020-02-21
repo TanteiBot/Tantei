@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 
-namespace PaperMalKing.Jikan.Helpers
+namespace PaperMalKing.MyAnimeList.Jikan.Helpers
 {
 	/// <summary>
 	/// Provider class for static HttpClient.

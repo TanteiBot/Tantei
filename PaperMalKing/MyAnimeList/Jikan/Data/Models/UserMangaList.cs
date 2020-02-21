@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace PaperMalKing.Jikan.Data.Models
+namespace PaperMalKing.MyAnimeList.Jikan.Data.Models
 {
 	/// <summary>
 	/// User's manga list model class.

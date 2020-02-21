@@ -4,12 +4,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using DSharpPlus;
 using Newtonsoft.Json;
-using PaperMalKing.Jikan.Data;
-using PaperMalKing.Jikan.Data.Models;
-using PaperMalKing.Jikan.Helpers;
+using PaperMalKing.MyAnimeList.Jikan.Data;
+using PaperMalKing.MyAnimeList.Jikan.Data.Models;
+using PaperMalKing.MyAnimeList.Jikan.Helpers;
 using PaperMalKing.Utilities;
 
-namespace PaperMalKing.Jikan
+namespace PaperMalKing.MyAnimeList.Jikan
 {
 	public sealed class JikanClient
 	{
@@ -94,7 +94,7 @@ namespace PaperMalKing.Jikan
                 do
                 {
                     tryAgain = false;
-                    using (HttpResponseMessage response = await this._httpClient.GetAsync(requestUrl))
+                    using (var response = await this._httpClient.GetAsync(requestUrl))
                     {
                         if (response.IsSuccessStatusCode)
                         {
@@ -106,7 +106,7 @@ namespace PaperMalKing.Jikan
                         }
                         else if (response.StatusCode == HttpStatusCode.TooManyRequests)
                         {
-                            this.Log(LogLevel.Debug, LogName, "Got ratelimited for Jikan, waiting 10 s and retrying request again", DateTime.Now);
+                            this.Log(LogLevel.Warning, LogName, "Got ratelimited for Jikan, waiting 10 s and retrying request again", DateTime.Now);
                             await Task.Delay(TimeSpan.FromSeconds(10));
                             tryAgain = true;
                         }
@@ -181,7 +181,8 @@ namespace PaperMalKing.Jikan
 		/// <param name="searchQuery">Query to search.</param>
 		/// <returns>Entries on user's manga list.</returns>
 		public Task<UserMangaList> GetUserMangaList(string username, string searchQuery)
-		{
+        {
+            searchQuery = WebUtility.UrlEncode(searchQuery);
 			var query = string.Concat("mangalist", $"?q={searchQuery}");
 			var endpointParts = new[] { EndpointCategories.User, username, query };
 			return this.ExecuteGetRequestAsync<UserMangaList>(endpointParts);

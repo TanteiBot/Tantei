@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -73,6 +74,19 @@ namespace PaperMalKing.Commands
 
 			await context.RespondAsync(embed: embedBuilder.Build());
 		}
+
+        [Command("DeleteMessages")]
+        [Aliases("dmsg")]
+        [RequireOwner]
+        public async Task DeleteMessages(CommandContext context, [RemainingText, Description("Messages Id's")]
+            params ulong[] messages)
+        {
+            var msgsToDelete =
+                (await context.Channel.GetMessagesBeforeAsync(context.Message.Id)).Where(x => x.Author.IsCurrent && messages.Contains(x.Id));
+			foreach(var msg in msgsToDelete)
+                await context.Channel.DeleteMessageAsync(msg);
+
+        }
 
 
 	}

@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
-using PaperMalKing.Jikan.Data.Interfaces;
+using PaperMalKing.MyAnimeList.Jikan.Data.Interfaces;
 
-namespace PaperMalKing.Jikan.Data.Models
+namespace PaperMalKing.MyAnimeList.Jikan.Data.Models
 {
-	public sealed class Manga : BaseJikanRequest, IMalEntity
+	public sealed class Anime : BaseJikanRequest, IMalEntity
 	{
 		/// <inheritdoc />
 		[JsonProperty(PropertyName = "mal_id")]
@@ -24,5 +24,7 @@ namespace PaperMalKing.Jikan.Data.Models
 		/// <inheritdoc />
 		[JsonProperty(PropertyName = "type")]
 		public string Type { get; set; }
+
+		public static IMalEntity ToIMalEntity(Anime a) => a as IMalEntity;
 	}
 }

@@ -3,9 +3,9 @@
  */
 using System;
 using DSharpPlus.Entities;
-using PaperMalKing.Jikan.Data;
-using PaperMalKing.Jikan.Data.Interfaces;
-using PaperMalKing.Jikan.Data.Models;
+using PaperMalKing.MyAnimeList;
+using PaperMalKing.MyAnimeList.Jikan.Data.Interfaces;
+using PaperMalKing.MyAnimeList.Jikan.Data.Models;
 
 namespace PaperMalKing.Data
 {

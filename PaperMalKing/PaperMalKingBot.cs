@@ -10,6 +10,7 @@ using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using PaperMalKing.Commands;
 using PaperMalKing.Data;
+using PaperMalKing.MyAnimeList.FeedReader;
 using PaperMalKing.Services;
 using PaperMalKing.Utilities;
 
@@ -44,8 +45,8 @@ namespace PaperMalKing
 				Token = discordCfg.Token,
 				ReconnectIndefinitely = discordCfg.ReconnectIndefinitely,
 				AutoReconnect = discordCfg.AutoReconnect,
-				MessageCacheSize = discordCfg.MessageCacheSize,
-			};
+				MessageCacheSize = discordCfg.MessageCacheSize
+            };
 
             var actType = (ActivityType)this._config.Discord.ActivityType;
             this._activity = new DiscordActivity(this._config.Discord.PresenceText, actType);
@@ -57,7 +58,7 @@ namespace PaperMalKing
 			this.Client.ClientErrored += this.Client_ClientErrored;
 			this.Client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
 			this.Client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
-            var malRssService = new MalRssReaderService(this.Client);
+            var malRssService = new FeedReader(this.Client.DebugLogger.LogMessage);
 			var services = new ServiceCollection()
 			.AddSingleton(this.Client)
 			.AddSingleton(this._config)
@@ -188,7 +189,7 @@ namespace PaperMalKing
 					Console.ForegroundColor = ConsoleColor.Black;
 				}
 
-				Console.Write($"[{e.Timestamp:G}] [{e.Application}] [{e.Level.ToString()}]");
+				Console.Write($"[{e.Timestamp:dd'/'MM'/'yy HH\\:mm\\:ss.fff}] [{e.Application}] [{e.Level.ToString()}]");
 				Console.ResetColor();
 				Console.WriteLine($" {e.Message}{(e.Exception != null ? $"\n{e.Exception}" : "")}");
 			}

@@ -1,4 +1,4 @@
-﻿namespace PaperMalKing.Data
+﻿namespace PaperMalKing.MyAnimeList
 {
 	public enum EntityType
 	{

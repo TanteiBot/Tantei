@@ -1,4 +1,4 @@
-﻿namespace PaperMalKing.Jikan.Data.Interfaces
+﻿namespace PaperMalKing.MyAnimeList.Jikan.Data.Interfaces
 {
 	public interface IMalEntity
 	{

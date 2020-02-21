@@ -8,16 +8,17 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using CodeHollow.FeedReader;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.EntityFrameworkCore;
 using PaperMalKing.Data;
-using PaperMalKing.Jikan;
-using PaperMalKing.Jikan.Data.Interfaces;
-using PaperMalKing.Jikan.Data.Models;
+using PaperMalKing.MyAnimeList;
+using PaperMalKing.MyAnimeList.Exceptions;
+using PaperMalKing.MyAnimeList.FeedReader;
+using PaperMalKing.MyAnimeList.Jikan;
+using PaperMalKing.MyAnimeList.Jikan.Data.Interfaces;
+using PaperMalKing.MyAnimeList.Jikan.Data.Models;
 
 namespace PaperMalKing.Services
 {
@@ -43,27 +44,27 @@ namespace PaperMalKing.Services
 
 		private readonly JikanClient _jikanClient;
 
-		private readonly string _logName;
+		private const string LogName = "MalService";
 
         private readonly TimeSpan _timerDelay;
 
-        private readonly MalRssReaderService _rssReader;
+        private readonly FeedReader _rssReader;
 
+        private const int _serverErrorCodeBound = 500;
 
 		private delegate Task UpdateFoundHandler(ListUpdateEntry update);
 
 		private event UpdateFoundHandler UpdateFound;
 
-		public MalService(BotConfig config, DiscordClient client, MalRssReaderService rssReader)
+		public MalService(BotConfig config, DiscordClient client, FeedReader reader)
         {
-            this._rssReader = rssReader;
+            this._rssReader = reader;
 			this._channels = new ConcurrentDictionary<long, DiscordChannel>();
 			this._config = config;
 			this._client = client;
 			client.Ready += this.Client_Ready;
 			this.UpdateFound += this.MalService_UpdateFound;
 			this._jikanClient = new JikanClient(this._client.DebugLogger.LogMessage);
-			this._logName = this.GetType().Name;
             this._timerDelay = TimeSpan.FromMinutes(10);
             this._timer = new Timer(async (e) =>
             {
@@ -73,17 +74,17 @@ namespace PaperMalKing.Services
                 }
                 catch (Exception ex)
                 {
-                    this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+                    this._client.DebugLogger.LogMessage(LogLevel.Error, LogName,
                         "Exception occured in Timer_Tick method", DateTime.Now, ex);
                 }
-            }, null, TimeSpan.FromSeconds(15), Timeout.InfiniteTimeSpan);
+            }, null, TimeSpan.FromSeconds(15), TimeSpan.FromMilliseconds(-1));
         }
 
 		public void RestartTimer()
         {
             if (!this.Updating)
                 this._timer.Change(
-                    TimeSpan.FromSeconds(5), Timeout.InfiniteTimeSpan);
+                    TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(-1));
         }
 
 		public async Task AddUserAsync(DiscordMember member, string username)
@@ -93,23 +94,25 @@ namespace PaperMalKing.Services
 			{
 				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
 				if (user == null) //User is adding himself in the first time
-				{
-					var animeRssUrl = $"https://myanimelist.net/rss.php?type=rw&u={username}";
-					var mangaRssUrl = $"https://myanimelist.net/rss.php?type=rm&u={username}";
-                    try
+                {
+                    var feeds = new[]
                     {
-                        await this._rssReader.ReadFeedAsync(animeRssUrl);
-                        await this._rssReader.ReadFeedAsync(mangaRssUrl);
-                    }
-                    catch (XmlException xmlEx)
+                        $"https://myanimelist.net/rss.php?type=rw&u={username}",
+                        $"https://myanimelist.net/rss.php?type=rm&u={username}"
+                    };
+                    foreach (var feed in feeds)
                     {
-                        if (xmlEx.LineNumber == 42) // This exception is for situation when one of user's lists is private
-                            throw new Exception("Couldn't read your updates. Maybe your list isn't public");
+                        var res = await this._rssReader.GetRssFeedLoadResult(feed);
+                        var code = (int) res;
+                        if (code >= _serverErrorCodeBound)
+                            throw new Exception("Mal is issuing some troubles, try again later");
+                        if (res == RssLoadResult.NotFound)
+                            throw new Exception($"Can't find MyAnimeList account with username '{username}'.");
+                        if (res == RssLoadResult.Forbidden)
+                            throw new Exception("One of your lists isn't public, make it public and try again.");
+                        if (res == RssLoadResult.Unknown) throw new Exception("Unhandled exception happened.");
                     }
-                    catch (Exception ex)
-                    {
-                        throw new Exception("Unhandled exception happened.");
-                    }
+
 					var guildId = (long)member.Guild.Id;
                     var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
                     if (guild == null)
@@ -127,7 +130,7 @@ namespace PaperMalKing.Services
                     };
 
 					db.Users.Add(pmkUser);
-					this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+					this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
 						$"Added new user '{username}'({member})", DateTime.Now);
 				}
 				else // User is already saved in another guilds
@@ -143,7 +146,7 @@ namespace PaperMalKing.Services
 					{
 						user.Guilds.Add(new GuildUsers { DiscordId = user.DiscordId, GuildId = guildId });
 						db.Update(user);
-						this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+						this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
 							$"Added ({member}) in guild '{guildId}'", DateTime.Now);
 					}
 					else
@@ -171,7 +174,7 @@ namespace PaperMalKing.Services
                 {
                     user.Guilds.Add(new GuildUsers {DiscordId = user.DiscordId, GuildId = guildId});
                     db.Update(user);
-                    this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+                    this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
                         $"Added ({member}) in guild '{guildId}'", DateTime.Now);
                     var rowChanged = await db.SaveChangesAsync();
                 }
@@ -193,7 +196,7 @@ namespace PaperMalKing.Services
 				var rowsChanged = db.SaveChanges();
 				if (rowsChanged == 0)
 					throw new Exception("Couldn't save changes in database. Try again later");
-				this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+				this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
 					$"Successfully removed user '{user.MalUsername}'({member}) from all guilds", DateTime.Now);
 
 			}
@@ -223,7 +226,7 @@ namespace PaperMalKing.Services
 				var rowsChanged = db.SaveChanges();
 				if (rowsChanged == 0)
 					throw new Exception("Couldn't save changes in database. Try again later");
-				this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+				this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
 					$"Successfully removed user '{user.MalUsername}'({member}) from {member.Guild}", DateTime.Now);
 
 			}
@@ -240,20 +243,28 @@ namespace PaperMalKing.Services
                     throw new ArgumentException("New username can't be the same as the old one");
 				var oldUsername = user.MalUsername;
 				user.MalUsername = newUsername;
-				try
-				{
-					await this._rssReader.ReadFeedAsync(user.AnimeRssFeed);
-					await this._rssReader.ReadFeedAsync(user.MangaRssFeed);
-				}
-				catch
-				{
-					throw new Exception("Couldn't read your updates. Maybe your list isn't public");
-				}
-				db.Users.Update(user);
+                var feeds = new[]
+                {
+                    user.AnimeRssFeed,
+                    user.MangaRssFeed
+                };
+                foreach (var feed in feeds)
+                {
+                    var res = await this._rssReader.GetRssFeedLoadResult(feed);
+                    var code = (int) res;
+                    if (code >= _serverErrorCodeBound)
+                        throw new Exception("Mal is issuing some troubles, try again later");
+                    if (res == RssLoadResult.NotFound)
+                        throw new Exception($"Can't find MyAnimeList account with username '{newUsername}'.");
+                    if (res == RssLoadResult.Forbidden)
+                        throw new Exception("One of your lists isn't public, make it public and try again.");
+                    if (res == RssLoadResult.Unknown) throw new Exception("Unhandled exception happened.");
+                }
+                db.Users.Update(user);
 				var rowChanges = db.SaveChanges();
 				if (rowChanges == 0)
 					throw new Exception("Couldn't save update in database. Try again later");
-				this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+				this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
 					$"Updated user with id'{userId}' from '{oldUsername}' to '{newUsername}'", DateTime.Now);
 
 			}
@@ -287,7 +298,7 @@ namespace PaperMalKing.Services
 			}
 
 			this._channels.TryAdd(guildId, channel);
-			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+			this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
 				$"Successfully added channel in guild with id '{guildId}'", DateTime.Now);
 
 		}
@@ -311,7 +322,7 @@ namespace PaperMalKing.Services
 			}
 
 			this._channels[guildId] = channel;
-			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+			this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
 				$"Successfully updated channel in guild with id '{guildId}'", DateTime.Now);
 
 		}
@@ -330,10 +341,11 @@ namespace PaperMalKing.Services
 					db.SaveChanges();
 				}
 			}
-			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
-				$"Sucessfully removed channel in guild with id '{guildId}'", DateTime.Now);
 
-		}
+            this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+                $"Successfully removed channel in guild with id '{guildId}'", DateTime.Now);
+
+        }
 
 		private async Task<IMalEntity> GetMalEntityAsync(EntityType type, FeedItem feedItem, PmkUser pmkUser, UserProfile profile)
 		{
@@ -344,7 +356,7 @@ namespace PaperMalKing.Services
 
 			if (!long.TryParse(malUnparsedId, out long malId))
 			{
-				this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+				this._client.DebugLogger.LogMessage(LogLevel.Error, LogName,
 					$"Couldn't parse {malUnparsedId}", DateTime.Now);
 				return null;
 			}
@@ -358,12 +370,12 @@ namespace PaperMalKing.Services
 
 			var index = feedItem.Title.LastIndexOf(" - ");
 			var query = feedItem.Title.Remove(index).Trim();
-			if (type == EntityType.Anime)
+            if (type == EntityType.Anime)
 			{
 				var userAl = await this._jikanClient.GetUserAnimeListAsync(pmkUser.MalUsername, query);
 				if (userAl?.Anime?.Any() != true)
 				{
-					this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+					this._client.DebugLogger.LogMessage(LogLevel.Error, LogName,
 						$"Couldn't load '{query}' from '{pmkUser.MalUsername}'s animelist", DateTime.Now);
 					return await this._jikanClient.GetAnimeAsync(malId);
 				}
@@ -373,7 +385,7 @@ namespace PaperMalKing.Services
 			var userMl = await this._jikanClient.GetUserMangaList(pmkUser.MalUsername, query);
 			if (userMl?.Manga?.Any() != true)
 			{
-				this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+				this._client.DebugLogger.LogMessage(LogLevel.Error, LogName,
 					$"Couldn't load '{query}' from '{pmkUser.MalUsername}'s mangalist", DateTime.Now);
 				return await this._jikanClient.GetMangaAsync(malId);
 			}
@@ -382,7 +394,7 @@ namespace PaperMalKing.Services
 
 		private async Task MalService_UpdateFound(ListUpdateEntry update)
 		{
-			this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+			this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
 				$"Sending update for {update.Entry.Title} in {update.UserProfile.Username} MAL", DateTime.Now);
 
 			var embed = update.CreateEmbed();
@@ -414,18 +426,18 @@ namespace PaperMalKing.Services
 						var channelId = (ulong)guild.ChannelId.Value;
 						var channel = await this._client.GetChannelAsync(channelId);
 						this._channels.TryAdd(guild.GuildId, channel);
-						e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+						e.Client.DebugLogger.LogMessage(LogLevel.Info, LogName,
 							$"Successfully loaded channel for guild with id '{guild.GuildId}'", DateTime.Now);
 					}
 					catch (Exception ex)
 					{
-						e.Client.DebugLogger.LogMessage(LogLevel.Critical, this._logName,
+						e.Client.DebugLogger.LogMessage(LogLevel.Critical, LogName,
 							$"Channel wasn't loaded succesfully in guild with id '{guild.GuildId}'", DateTime.Now, ex);
 					}
 				}
 			}
 
-			e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Loaded channels for all guilds", DateTime.Now);
+			e.Client.DebugLogger.LogMessage(LogLevel.Info, LogName, "Loaded channels for all guilds", DateTime.Now);
 
 			this._client.Ready -= this.Client_Ready;
 		}
@@ -436,7 +448,7 @@ namespace PaperMalKing.Services
             this.Updating = true;
             try
 			{
-                this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Starting checking for updates",
+                this._client.DebugLogger.LogMessage(LogLevel.Info, LogName, "Starting checking for updates",
                     DateTime.Now);
                 PmkUser[] users;
                 using var db = new DatabaseContext(this._config);
@@ -444,57 +456,57 @@ namespace PaperMalKing.Services
 
                 foreach (var user in users)
                 {
-                    this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
+                    this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
                         $"Starting to checking updates for {user.MalUsername}", DateTime.Now);
-                    Feed animeFeed;
-                    Feed mangaFeed;
+                    var feeds = new Feed[2];
+                    var rssUrls = new[] {user.AnimeRssFeed, user.MangaRssFeed};
                     DateTime readFeedDate = DateTime.Now;
-                    try
+
+                    for (int i = 0; i <= 1; i++)
                     {
-                        animeFeed = await this._rssReader.ReadFeedAsync(user.AnimeRssFeed);
-                    }
-                    catch (XmlException ex)
+                        try
+                        {
+                            feeds[i] = await this._rssReader.ReadFeedAsync(rssUrls[i]);
+                        }
+                        catch (MalRssException ex)
+                        {
+                            var code = (int) ex.Reason;
+                            if (code >= _serverErrorCodeBound)
+                            {
+                                this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+                                    $"Skipping planned update check because Mal returned {ex.Reason}", DateTime.Now);
+								return;
+                            }
+                            else
+								this._client.DebugLogger.LogMessage(LogLevel.Warning, LogName,
+                                    $"Couldn't read {ex.ListType}list because {ex.Reason}", DateTime.Now);
+                        }
+
+					}
+
+					var updateItems = new List<(FeedItem, EntityType)>();
+
+					foreach (var feed in feeds)
                     {
-                        this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
-                            $"Couldn't load anime rss feed for {user.MalUsername}", DateTime.Now);
-                        animeFeed = null;
+                        updateItems.AddRange(
+                            feed?.Items.Where(x => DateTime.Compare(x.PublishingDateTime, user.LastUpdateDate) > 0)
+                                .Select(x => (x, feed.GetEntitiesType())) ?? Enumerable.Empty<(FeedItem, EntityType)>());
                     }
 
-                    try
-                    {
-                        mangaFeed = await this._rssReader.ReadFeedAsync(user.MangaRssFeed);
-                    }
-                    catch (XmlException ex)
-                    {
-                        this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
-                            $"Couldn't load manga rss feed for {user.MalUsername}", DateTime.Now);
-                        mangaFeed = null;
-                    }
-
-                    var newAnimeItems = animeFeed?.Items.Where(x =>
-                                            DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(),
-                                                user.LastUpdateDate) > 0) ?? Enumerable.Empty<FeedItem>();
-                    var newMangaItems = mangaFeed?.Items.Where(x =>
-                                            DateTime.Compare((x.PublishingDate ?? DateTime.MinValue).ToUniversalTime(),
-                                                user.LastUpdateDate) > 0) ?? Enumerable.Empty<FeedItem>();
-
-                    if (!newMangaItems.Any() && !newAnimeItems.Any())
+                    if (!updateItems.Any())
                         continue;
 
                     var malUser = await this._jikanClient.GetUserProfileAsync(user.MalUsername);
                     if (malUser == null)
                     {
-                        this._client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+                        this._client.DebugLogger.LogMessage(LogLevel.Error, LogName,
                             $"Couldn't load MyAnimeList user from username '{user.MalUsername}' (DiscordId '{user.DiscordId}'",
                             DateTime.Now);
                         continue;
                     }
 
-                    var updateItems = new List<(FeedItem, EntityType)>();
-                    updateItems.AddRange(newAnimeItems.Select(x => (x, EntityType.Anime)));
-                    updateItems.AddRange(newMangaItems.Select(x => (x, EntityType.Manga)));
-                    updateItems.Sort((x, y) => DateTime.Compare(x.Item1.PublishingDate ?? DateTime.MinValue,
-                        y.Item1.PublishingDate ?? DateTime.MinValue));
+                    updateItems.Sort((x, y) => DateTime.Compare(x.Item1.PublishingDateTime,
+                        y.Item1.PublishingDateTime));
 
                     foreach (var updateItem in updateItems)
                     {
@@ -512,7 +524,7 @@ namespace PaperMalKing.Services
                             }
                             var listUpdateEntry = new ListUpdateEntry(malUser, user, malEntity,
                                 status,
-                                updateItem.Item1.PublishingDate);
+                                updateItem.Item1.PublishingDateTime);
                             await this.UpdateFound?.Invoke(listUpdateEntry);
                         }
                     }
@@ -526,9 +538,9 @@ namespace PaperMalKing.Services
             finally
             {
                 this.Updating = false;
-                this._client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Ended checking for updates",
+                this._client.DebugLogger.LogMessage(LogLevel.Info, LogName, "Ended checking for updates",
                     DateTime.Now);
-                this._timer.Change(this._timerDelay, Timeout.InfiniteTimeSpan);
+                this._timer.Change(this._timerDelay, TimeSpan.FromMilliseconds(-1));
             }
         }
     }
