@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace PaperMalKing.MyAnimeList.FeedReader
 {
     [XmlRoot(ElementName = "item")]
-    public class FeedItem
+    public sealed class FeedItem
     {
         [XmlElement(ElementName = "title")]
         public string Title { get; set; }
@@ -27,7 +27,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
     }
 
     [XmlRoot(ElementName = "channel")]
-    public class FeedChannel
+    public sealed class FeedChannel
     {
         [XmlElement(ElementName = "title")]
         public string Title { get; set; }
@@ -43,7 +43,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
     }
 
     [XmlRoot(ElementName = "rss")]
-    public class Feed
+    public sealed class Feed
     {
         [XmlElement(ElementName = "channel")]
         public FeedChannel Channel { get; set; }

@@ -99,7 +99,7 @@ namespace PaperMalKing.Data
 		/// <summary>
 		/// Item that was updated
 		/// </summary>
-		public class UpdateEntry
+		public sealed class UpdateEntry
 		{
 			/// <summary>
 			/// Name of the item

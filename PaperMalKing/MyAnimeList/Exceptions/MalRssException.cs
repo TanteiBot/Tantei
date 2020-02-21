@@ -2,7 +2,7 @@
 
 namespace PaperMalKing.MyAnimeList.Exceptions
 {
-    class MalRssException : Exception
+    sealed class MalRssException : Exception
     {
         public readonly string Url;
 
