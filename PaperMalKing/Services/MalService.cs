@@ -518,9 +518,9 @@ namespace PaperMalKing.Services
                             if (string.IsNullOrWhiteSpace(actionString))
                             {
                                 if (updateItem.Item2 == EntityType.Anime)
-                                    status = "Re-watching " + status;
+                                    status = "Re-watching" + status;
                                 else
-                                    status = "Re-reading " + status;
+                                    status = "Re-reading" + status;
                             }
                             var listUpdateEntry = new ListUpdateEntry(malUser, user, malEntity,
                                 status,
