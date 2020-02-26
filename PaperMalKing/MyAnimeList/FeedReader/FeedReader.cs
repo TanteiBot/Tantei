@@ -9,8 +9,14 @@ using PaperMalKing.Utilities;
 
 namespace PaperMalKing.MyAnimeList.FeedReader
 {
+    /// <summary>
+    /// RSS reader for MyAnimeList anime and manga rss feeds
+    /// </summary>
     public sealed class FeedReader
     {
+        /// <summary>
+        /// Unix time milliseconds since last request to MyAnimeList
+        /// </summary>
         private long _lastRequestDate;
 
         private readonly LogDelegate Log;

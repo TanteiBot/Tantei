@@ -34,37 +34,61 @@ namespace PaperMalKing.Services
 		/// </summary>
 		private readonly Regex _regex = new Regex(@"(?<=\/)(\d*?)(?=\/)", RegexOptions.Compiled);
 
+		/// <summary>
+		/// Channels where updates will be sent
+		/// </summary>
 		private readonly ConcurrentDictionary<long, DiscordChannel> _channels;
 
+		/// <summary>
+		/// Bot's config
+		/// </summary>
 		private readonly BotConfig _config;
 
-		private readonly DiscordClient _client;
+		/// <summary>
+		/// Client for interacting with Discord
+		/// </summary>
+		private readonly DiscordClient _discordClient;
 
+		/// <summary>
+		/// Timer that handles delays between checks for updates
+		/// </summary>
 		private readonly Timer _timer;
 
+		/// <summary>
+		/// Client for interacting with Jikan REST API
+		/// </summary>
 		private readonly JikanClient _jikanClient;
 
 		private const string LogName = "MalService";
 
+		/// <summary>
+		/// Delay between checks for updates
+		/// </summary>
         private readonly TimeSpan _timerDelay;
 
+		/// <summary>
+		/// MyAnimeList RSS feeds reader
+		/// </summary>
         private readonly FeedReader _rssReader;
 
+		/// <summary>
+		/// Lowest bound for serverside issues
+		/// </summary>
         private const int _serverErrorCodeBound = 500;
 
 		private delegate Task UpdateFoundHandler(ListUpdateEntry update);
 
 		private event UpdateFoundHandler UpdateFound;
 
-		public MalService(BotConfig config, DiscordClient client, FeedReader reader)
+		public MalService(BotConfig config, DiscordClient discordClient, FeedReader reader)
         {
             this._rssReader = reader;
 			this._channels = new ConcurrentDictionary<long, DiscordChannel>();
 			this._config = config;
-			this._client = client;
-			client.Ready += this.Client_Ready;
+			this._discordClient = discordClient;
+			discordClient.Ready += this.Client_Ready;
 			this.UpdateFound += this.MalService_UpdateFound;
-			this._jikanClient = new JikanClient(this._client.DebugLogger.LogMessage);
+			this._jikanClient = new JikanClient(this._discordClient.DebugLogger.LogMessage);
             this._timerDelay = TimeSpan.FromMinutes(10);
             this._timer = new Timer(async (e) =>
             {
@@ -74,7 +98,7 @@ namespace PaperMalKing.Services
                 }
                 catch (Exception ex)
                 {
-                    this._client.DebugLogger.LogMessage(LogLevel.Error, LogName,
+                    this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
                         "Exception occured in Timer_Tick method", DateTime.Now, ex);
                 }
             }, null, TimeSpan.FromSeconds(15), TimeSpan.FromMilliseconds(-1));
@@ -130,7 +154,7 @@ namespace PaperMalKing.Services
                     };
 
 					db.Users.Add(pmkUser);
-					this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+					this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 						$"Added new user '{username}'({member})", DateTime.Now);
 				}
 				else // User is already saved in another guilds
@@ -146,7 +170,7 @@ namespace PaperMalKing.Services
 					{
 						user.Guilds.Add(new GuildUsers { DiscordId = user.DiscordId, GuildId = guildId });
 						db.Update(user);
-						this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+						this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 							$"Added ({member}) in guild '{guildId}'", DateTime.Now);
 					}
 					else
@@ -174,7 +198,7 @@ namespace PaperMalKing.Services
                 {
                     user.Guilds.Add(new GuildUsers {DiscordId = user.DiscordId, GuildId = guildId});
                     db.Update(user);
-                    this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+                    this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
                         $"Added ({member}) in guild '{guildId}'", DateTime.Now);
                     var rowChanged = await db.SaveChangesAsync();
                 }
@@ -196,7 +220,7 @@ namespace PaperMalKing.Services
 				var rowsChanged = db.SaveChanges();
 				if (rowsChanged == 0)
 					throw new Exception("Couldn't save changes in database. Try again later");
-				this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 					$"Successfully removed user '{user.MalUsername}'({member}) from all guilds", DateTime.Now);
 
 			}
@@ -226,7 +250,7 @@ namespace PaperMalKing.Services
 				var rowsChanged = db.SaveChanges();
 				if (rowsChanged == 0)
 					throw new Exception("Couldn't save changes in database. Try again later");
-				this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 					$"Successfully removed user '{user.MalUsername}'({member}) from {member.Guild}", DateTime.Now);
 
 			}
@@ -264,7 +288,7 @@ namespace PaperMalKing.Services
 				var rowChanges = db.SaveChanges();
 				if (rowChanges == 0)
 					throw new Exception("Couldn't save update in database. Try again later");
-				this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 					$"Updated user with id'{userId}' from '{oldUsername}' to '{newUsername}'", DateTime.Now);
 
 			}
@@ -273,7 +297,7 @@ namespace PaperMalKing.Services
 		public async Task AddChannelAsync(long guildId, long channelId)
 		{
 			var uChannelId = (ulong)channelId;
-			var channel = await this._client.GetChannelAsync(uChannelId);
+			var channel = await this._discordClient.GetChannelAsync(uChannelId);
 
 
 			using (var db = new DatabaseContext(this._config))
@@ -298,7 +322,7 @@ namespace PaperMalKing.Services
 			}
 
 			this._channels.TryAdd(guildId, channel);
-			this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 				$"Successfully added channel in guild with id '{guildId}'", DateTime.Now);
 
 		}
@@ -306,7 +330,7 @@ namespace PaperMalKing.Services
 		public async Task UpdateChannelAsync(long guildId, long channelId)
 		{
 			var uChannelId = (ulong)channelId;
-			var channel = await this._client.GetChannelAsync(uChannelId);
+			var channel = await this._discordClient.GetChannelAsync(uChannelId);
 
 
 			using (var db = new DatabaseContext(this._config))
@@ -322,7 +346,7 @@ namespace PaperMalKing.Services
 			}
 
 			this._channels[guildId] = channel;
-			this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 				$"Successfully updated channel in guild with id '{guildId}'", DateTime.Now);
 
 		}
@@ -342,7 +366,7 @@ namespace PaperMalKing.Services
 				}
 			}
 
-            this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+            this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
                 $"Successfully removed channel in guild with id '{guildId}'", DateTime.Now);
 
         }
@@ -356,7 +380,7 @@ namespace PaperMalKing.Services
 
 			if (!long.TryParse(malUnparsedId, out long malId))
 			{
-				this._client.DebugLogger.LogMessage(LogLevel.Error, LogName,
+				this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
 					$"Couldn't parse {malUnparsedId}", DateTime.Now);
 				return null;
 			}
@@ -375,7 +399,7 @@ namespace PaperMalKing.Services
 				var userAl = await this._jikanClient.GetUserAnimeListAsync(pmkUser.MalUsername, query);
 				if (userAl?.Anime?.Any() != true)
 				{
-					this._client.DebugLogger.LogMessage(LogLevel.Error, LogName,
+					this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
 						$"Couldn't load '{query}' from '{pmkUser.MalUsername}'s animelist", DateTime.Now);
 					return await this._jikanClient.GetAnimeAsync(malId);
 				}
@@ -385,7 +409,7 @@ namespace PaperMalKing.Services
 			var userMl = await this._jikanClient.GetUserMangaList(pmkUser.MalUsername, query);
 			if (userMl?.Manga?.Any() != true)
 			{
-				this._client.DebugLogger.LogMessage(LogLevel.Error, LogName,
+				this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
 					$"Couldn't load '{query}' from '{pmkUser.MalUsername}'s mangalist", DateTime.Now);
 				return await this._jikanClient.GetMangaAsync(malId);
 			}
@@ -394,7 +418,7 @@ namespace PaperMalKing.Services
 
 		private async Task MalService_UpdateFound(ListUpdateEntry update)
 		{
-			this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 				$"Sending update for {update.Entry.Title} in {update.UserProfile.Username} MAL", DateTime.Now);
 
 			var embed = update.CreateEmbed();
@@ -424,7 +448,7 @@ namespace PaperMalKing.Services
 						if (guild.ChannelId == null)
 							continue;
 						var channelId = (ulong)guild.ChannelId.Value;
-						var channel = await this._client.GetChannelAsync(channelId);
+						var channel = await this._discordClient.GetChannelAsync(channelId);
 						this._channels.TryAdd(guild.GuildId, channel);
 						e.Client.DebugLogger.LogMessage(LogLevel.Info, LogName,
 							$"Successfully loaded channel for guild with id '{guild.GuildId}'", DateTime.Now);
@@ -439,7 +463,7 @@ namespace PaperMalKing.Services
 
 			e.Client.DebugLogger.LogMessage(LogLevel.Info, LogName, "Loaded channels for all guilds", DateTime.Now);
 
-			this._client.Ready -= this.Client_Ready;
+			this._discordClient.Ready -= this.Client_Ready;
 		}
 
 		// Cleaned up a bit should look better now
@@ -448,7 +472,7 @@ namespace PaperMalKing.Services
             this.Updating = true;
             try
 			{
-                this._client.DebugLogger.LogMessage(LogLevel.Info, LogName, "Starting checking for updates",
+                this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName, "Starting checking for updates",
                     DateTime.Now);
                 PmkUser[] users;
                 using var db = new DatabaseContext(this._config);
@@ -456,7 +480,7 @@ namespace PaperMalKing.Services
 
                 foreach (var user in users)
                 {
-                    this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+                    this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
                         $"Starting to checking updates for {user.MalUsername}", DateTime.Now);
                     var feeds = new Feed[2];
                     var rssUrls = new[] {user.AnimeRssFeed, user.MangaRssFeed};
@@ -473,12 +497,12 @@ namespace PaperMalKing.Services
                             var code = (int) ex.Reason;
                             if (code >= _serverErrorCodeBound)
                             {
-                                this._client.DebugLogger.LogMessage(LogLevel.Info, LogName,
+                                this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
                                     $"Skipping planned update check because Mal returned {ex.Reason}", DateTime.Now);
 								return;
                             }
                             else
-								this._client.DebugLogger.LogMessage(LogLevel.Warning, LogName,
+								this._discordClient.DebugLogger.LogMessage(LogLevel.Warning, LogName,
                                     $"Couldn't read {ex.ListType}list because {ex.Reason}", DateTime.Now);
                         }
 
@@ -499,7 +523,7 @@ namespace PaperMalKing.Services
                     var malUser = await this._jikanClient.GetUserProfileAsync(user.MalUsername);
                     if (malUser == null)
                     {
-                        this._client.DebugLogger.LogMessage(LogLevel.Error, LogName,
+                        this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
                             $"Couldn't load MyAnimeList user from username '{user.MalUsername}' (DiscordId '{user.DiscordId}'",
                             DateTime.Now);
                         continue;
@@ -538,7 +562,7 @@ namespace PaperMalKing.Services
             finally
             {
                 this.Updating = false;
-                this._client.DebugLogger.LogMessage(LogLevel.Info, LogName, "Ended checking for updates",
+                this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName, "Ended checking for updates",
                     DateTime.Now);
                 this._timer.Change(this._timerDelay, TimeSpan.FromMilliseconds(-1));
             }

@@ -19,7 +19,10 @@ namespace PaperMalKing.Data
 		/// </summary>
 		public readonly UserProfile UserProfile;
 
-		public readonly PmkUser User;
+		/// <summary>
+		/// User to which update is related
+		/// </summary>
+        public readonly PmkUser User;
 
 		/// <summary>
 		/// Item that was updated(such as manga or anime)
@@ -56,7 +59,10 @@ namespace PaperMalKing.Data
 			}
 		}
 
-
+		/// <summary>
+		/// Creates an embed that represents this update
+		/// </summary>
+		/// <returns>Embed that represents this update</returns>
 		public DiscordEmbed CreateEmbed()
 		{
 			var embedBuilder = new DiscordEmbedBuilder()
