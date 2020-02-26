@@ -71,7 +71,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
             var response = await this.MakeRequestAsync(url);
             if (response.IsSuccessStatusCode)
             {
-                using (var xml = await response.Content.ReadAsStreamAsync())
+                await using (var xml = await response.Content.ReadAsStreamAsync())
                 {
                     var xmlSerializer = new XmlSerializer(typeof(Feed));
                     Feed feed;
@@ -79,7 +79,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
                     {
                         feed = xmlSerializer.Deserialize(xml) as Feed;
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         throw new MalRssException(url, RssLoadResult.EmptyList);
                     }

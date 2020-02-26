@@ -24,7 +24,5 @@ namespace PaperMalKing.MyAnimeList.Jikan.Data.Models
 		/// <inheritdoc />
 		[JsonProperty(PropertyName = "type")]
 		public string Type { get; set; }
-
-		public static IMalEntity ToIMalEntity(Anime a) => a as IMalEntity;
-	}
+    }
 }

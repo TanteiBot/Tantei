@@ -29,7 +29,7 @@ namespace PaperMalKing.Commands
 
 		[Command("Add")]
 		[Description("Add your account on MyAnimeList to list of tracked users. One discord user can add only one user on MyAnimeList")]
-		public async Task Add(CommandContext context,
+		public async Task AddCommand(CommandContext context,
 		[Description("Your username on MyAnimeList. Warning it's case sensitive!"), RemainingText] string username)
 		{
 			if (string.IsNullOrWhiteSpace(username))
@@ -47,11 +47,11 @@ namespace PaperMalKing.Commands
 		[Command("AddHere")]
 		[Description("Adds your account on MyAnimeList to list of tracked users in this guild. You need to \"register\" your MAL account in other guild with username in it")]
 		[Aliases("addh")]
-		public async Task AddHere(CommandContext context)
+		public async Task AddHereCommand(CommandContext context)
 		{
 			await this.MalService.AddUserHereAsync(context.Member);
 			var embed = EmbedTemplate.SuccessCommand(context.User,
-				$"Successfully added you in list of tracked users in this guild");
+				"Successfully added you in list of tracked users in this guild");
 			await context.RespondAsync(embed: embed.Build());
 
 		}
@@ -60,7 +60,7 @@ namespace PaperMalKing.Commands
 		[Command("RemoveHere")]
 		[Description("Removes your account on MyAnimeList from being tracked in this guild.")]
 		[Aliases("rmh")]
-		public async Task RemoveHere(CommandContext context)
+		public async Task RemoveHereCommand(CommandContext context)
 		{
 			this.MalService.RemoveUserHere(context.Member);
 			var embed = EmbedTemplate.SuccessCommand(context.User,
@@ -71,7 +71,7 @@ namespace PaperMalKing.Commands
 		[Command("RemoveEverywhere")]
 		[Description("Removes your account on MyAnimeList from being tracked in all guilds where you have been registered.")]
 		[Aliases("rme")]
-		public async Task RemoveEverywhere(CommandContext context)
+		public async Task RemoveEverywhereCommand(CommandContext context)
 		{
 			this.MalService.RemoveUserEverywhere(context.Member);
 			var embed = EmbedTemplate.SuccessCommand(context.User,
@@ -83,7 +83,7 @@ namespace PaperMalKing.Commands
 		[Description("Removes other user's account from being tracked")]
 		[Aliases("force_remove", "forcerm", "frm")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
-		public async Task ForceRemove(CommandContext context,[Description("Member to remove from tracked users in this guild")] DiscordMember member)
+		public async Task ForceRemoveCommand(CommandContext context,[Description("Member to remove from tracked users in this guild")] DiscordMember member)
 		{
 			if (member.IsBot)
 				throw new ArgumentException("You can't delete bot from tracking",nameof(member));
@@ -95,7 +95,7 @@ namespace PaperMalKing.Commands
 		[Command("Update")]
 		[Description("Updates your tracked username. Use this command if you changed your username on MyAnimeList")]
 		[Aliases("upd")]
-		public async Task Update(CommandContext context,[Description("Your new username on MAL"), RemainingText] string newUsername)
+		public async Task UpdateCommand(CommandContext context,[Description("Your new username on MAL"), RemainingText] string newUsername)
 		{
 			if (string.IsNullOrWhiteSpace(newUsername))
 				throw new ArgumentException("Username shouldn't be empty", nameof(newUsername));
@@ -112,7 +112,7 @@ namespace PaperMalKing.Commands
 		[Description("Checks MyAnimeListsUpdates right now.")]
 		[Aliases("fc")]
 		[RequireOwner]
-		public async Task ForceCheck(CommandContext context)
+		public async Task ForceCheckCommand(CommandContext context)
 		{
 			if(!this.MalService.Updating)
 				this.MalService.RestartTimer();
@@ -124,7 +124,7 @@ namespace PaperMalKing.Commands
 		[Description("Adds channel to bot to which updates for users in this guild will be sent")]
 		[Aliases("chnadd")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
-		public async Task ChannelAdd(CommandContext context, [Description("Channel where all user-updates will be sent")] DiscordChannel channel)
+		public async Task ChannelAddCommand(CommandContext context, [Description("Channel where all user-updates will be sent")] DiscordChannel channel)
         {
             var perms = channel.PermissionsFor(context.Guild.CurrentMember);
             if (!perms.HasPermission(Permissions.SendMessages) || !perms.HasPermission(Permissions.EmbedLinks))
@@ -140,7 +140,7 @@ namespace PaperMalKing.Commands
 		[Description("Updates a channel to which updates will be sent")]
 		[Aliases("chnupd")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
-		public async Task ChannelUpdate(CommandContext context,
+		public async Task ChannelUpdateCommand(CommandContext context,
 		[Description("New channel where user-updates will be sent")] DiscordChannel channel)
 		{
             var perms = channel.PermissionsFor(context.Guild.CurrentMember);
@@ -157,7 +157,7 @@ namespace PaperMalKing.Commands
 		[Description("Removes registered channel for this guild")]
 		[Aliases("chnrm")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
-		public async Task ChannelRemove(CommandContext context)
+		public async Task ChannelRemoveCommand(CommandContext context)
 		{
 			var guildId = (long) context.Guild.Id;
 			this.MalService.RemoveChannel(guildId);

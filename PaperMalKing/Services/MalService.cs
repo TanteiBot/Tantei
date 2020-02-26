@@ -18,7 +18,6 @@ using PaperMalKing.MyAnimeList.Exceptions;
 using PaperMalKing.MyAnimeList.FeedReader;
 using PaperMalKing.MyAnimeList.Jikan;
 using PaperMalKing.MyAnimeList.Jikan.Data.Interfaces;
-using PaperMalKing.MyAnimeList.Jikan.Data.Models;
 
 namespace PaperMalKing.Services
 {
@@ -40,7 +39,7 @@ namespace PaperMalKing.Services
 		private readonly ConcurrentDictionary<long, DiscordChannel> _channels;
 
 		/// <summary>
-		/// Bot's config
+		/// Bots' config
 		/// </summary>
 		private readonly BotConfig _config;
 
@@ -114,7 +113,7 @@ namespace PaperMalKing.Services
 		public async Task AddUserAsync(DiscordMember member, string username)
 		{
             var userId = (long)member.Id;
-			using (var db = new DatabaseContext(this._config))
+			await using (var db = new DatabaseContext(this._config))
 			{
 				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
 				if (user == null) //User is adding himself in the first time
@@ -188,7 +187,7 @@ namespace PaperMalKing.Services
 		public async Task AddUserHereAsync(DiscordMember member)
 		{
 			var userId = (long)member.Id;
-			using (var db = new DatabaseContext(this._config))
+            await using (var db = new DatabaseContext(this._config))
 			{
 				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
 				if (user == null)
@@ -201,9 +200,10 @@ namespace PaperMalKing.Services
                     this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
                         $"Added ({member}) in guild '{guildId}'", DateTime.Now);
                     var rowChanged = await db.SaveChangesAsync();
+                    if (rowChanged > 0)
+                        return;
                 }
-                else
-                    throw new Exception("You are already added in this guild");
+                throw new Exception("You are already added in this guild");
             }
 		}
 
@@ -258,7 +258,7 @@ namespace PaperMalKing.Services
 
 		public async Task UpdateUserAsync(long userId, string newUsername)
 		{
-			using (var db = new DatabaseContext(this._config))
+            await using (var db = new DatabaseContext(this._config))
 			{
 				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
 				if (user == null)
@@ -300,7 +300,7 @@ namespace PaperMalKing.Services
 			var channel = await this._discordClient.GetChannelAsync(uChannelId);
 
 
-			using (var db = new DatabaseContext(this._config))
+            await using (var db = new DatabaseContext(this._config))
 			{
 
 				var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
@@ -333,7 +333,7 @@ namespace PaperMalKing.Services
 			var channel = await this._discordClient.GetChannelAsync(uChannelId);
 
 
-			using (var db = new DatabaseContext(this._config))
+            await using (var db = new DatabaseContext(this._config))
 			{
 				var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
 				if (guild == null)
@@ -371,7 +371,7 @@ namespace PaperMalKing.Services
 
         }
 
-		private async Task<IMalEntity> GetMalEntityAsync(EntityType type, FeedItem feedItem, PmkUser pmkUser, UserProfile profile)
+		private async Task<IMalEntity> GetMalEntityAsync(EntityType type, FeedItem feedItem, PmkUser pmkUser)
 		{
 			var actionString = feedItem.Description.Split(" - ")[0].ToLower();
 			var malUnparsedId = this._regex.Matches(feedItem.Link)
@@ -439,7 +439,7 @@ namespace PaperMalKing.Services
 
 		private async Task Client_Ready(ReadyEventArgs e)
 		{
-			using (var db = new DatabaseContext(this._config))
+            await using (var db = new DatabaseContext(this._config))
 			{
 				foreach (var guild in db.Guilds)
 				{
@@ -534,7 +534,7 @@ namespace PaperMalKing.Services
 
                     foreach (var updateItem in updateItems)
                     {
-                        var malEntity = await this.GetMalEntityAsync(updateItem.Item2, updateItem.Item1, user, malUser);
+                        var malEntity = await this.GetMalEntityAsync(updateItem.Item2, updateItem.Item1, user);
                         if (malEntity != null)
                         {
                             var actionString = updateItem.Item1.Description.Split(" - ")[0];
