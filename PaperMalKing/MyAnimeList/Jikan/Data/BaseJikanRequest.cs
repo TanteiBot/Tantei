@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PaperMalKing.Jikan.Data
+namespace PaperMalKing.MyAnimeList.Jikan.Data
 {
 	/// <summary>
 	/// Base model class for each Jikan request model, containing information about cache.

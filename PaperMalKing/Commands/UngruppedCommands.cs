@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -14,7 +15,7 @@ namespace PaperMalKing.Commands
 		[Command("say")]
 		[Description("Sends embed in selected channel with selected text")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
-		public async Task Say(CommandContext context,
+		public async Task SayCommand(CommandContext context,
 		[Description("Channel where the embed will be send")]DiscordChannel channelToSayIn,
 		[RemainingText, Description("Text to send")] string messageContent)
 		{
@@ -39,7 +40,7 @@ namespace PaperMalKing.Commands
 		[Command("About")]
 		[Description("Displays info about bot")]
 		[Aliases("Info")]
-		public async Task About(CommandContext context)
+		public async Task AboutCommand(CommandContext context)
 		{
 			var botVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString(3) ?? "";
 			var netCoreVersion = Environment.Version.ToString(3);
@@ -73,6 +74,19 @@ namespace PaperMalKing.Commands
 
 			await context.RespondAsync(embed: embedBuilder.Build());
 		}
+
+        [Command("DeleteMessages")]
+        [Aliases("dmsg")]
+        [RequireOwner]
+        public async Task DeleteMessagesCommand(CommandContext context, [RemainingText, Description("Messages Id's")]
+            params ulong[] messages)
+        {
+            var msgsToDelete =
+                (await context.Channel.GetMessagesBeforeAsync(context.Message.Id)).Where(x => x.Author.IsCurrent && messages.Contains(x.Id));
+			foreach(var msg in msgsToDelete)
+                await context.Channel.DeleteMessageAsync(msg);
+
+        }
 
 
 	}

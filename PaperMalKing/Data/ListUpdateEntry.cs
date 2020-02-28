@@ -3,9 +3,9 @@
  */
 using System;
 using DSharpPlus.Entities;
-using PaperMalKing.Jikan.Data;
-using PaperMalKing.Jikan.Data.Interfaces;
-using PaperMalKing.Jikan.Data.Models;
+using PaperMalKing.MyAnimeList;
+using PaperMalKing.MyAnimeList.Jikan.Data.Interfaces;
+using PaperMalKing.MyAnimeList.Jikan.Data.Models;
 
 namespace PaperMalKing.Data
 {
@@ -19,7 +19,10 @@ namespace PaperMalKing.Data
 		/// </summary>
 		public readonly UserProfile UserProfile;
 
-		public readonly PmkUser User;
+		/// <summary>
+		/// User to which update is related
+		/// </summary>
+        public readonly PmkUser User;
 
 		/// <summary>
 		/// Item that was updated(such as manga or anime)
@@ -56,7 +59,10 @@ namespace PaperMalKing.Data
 			}
 		}
 
-
+		/// <summary>
+		/// Creates an embed that represents this update
+		/// </summary>
+		/// <returns>Embed that represents this update</returns>
 		public DiscordEmbed CreateEmbed()
 		{
 			var embedBuilder = new DiscordEmbedBuilder()
@@ -99,7 +105,7 @@ namespace PaperMalKing.Data
 		/// <summary>
 		/// Item that was updated
 		/// </summary>
-		public class UpdateEntry
+		public sealed class UpdateEntry
 		{
 			/// <summary>
 			/// Name of the item

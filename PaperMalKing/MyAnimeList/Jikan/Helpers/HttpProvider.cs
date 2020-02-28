@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 
-namespace PaperMalKing.Jikan.Helpers
+namespace PaperMalKing.MyAnimeList.Jikan.Helpers
 {
 	/// <summary>
 	/// Provider class for static HttpClient.
@@ -12,12 +12,12 @@ namespace PaperMalKing.Jikan.Helpers
 		/// <summary>
 		/// Endpoint for not SSL encrypted requests.
 		/// </summary>
-		public const string httpEndpoint = "http://api.jikan.moe/v3/";
+		private const string _httpEndpoint = "http://api.jikan.moe/v3/";
 
 		/// <summary>
 		/// Endpoint for SSL encrypted requests.
 		/// </summary>
-		public const string httpsEndpoint = "https://api.jikan.moe/v3/";
+		private const string _httpsEndpoint = "https://api.jikan.moe/v3/";
 
 		/// <summary>
 		/// Constructor.
@@ -33,16 +33,16 @@ namespace PaperMalKing.Jikan.Helpers
 		/// <returns>Static HttpClient.</returns>
 		public static HttpClient GetHttpClient(bool useHttps)
 		{
-			var endpoint = useHttps ? httpsEndpoint : httpEndpoint;
-			var Client = new HttpClient
+			var endpoint = useHttps ? _httpsEndpoint : _httpEndpoint;
+			var client = new HttpClient
 			{
 				BaseAddress = new Uri(endpoint)
 			};
-			Client.DefaultRequestHeaders.Accept.Clear();
-			Client.DefaultRequestHeaders.Accept.Add(
+			client.DefaultRequestHeaders.Accept.Clear();
+			client.DefaultRequestHeaders.Accept.Add(
 				new MediaTypeWithQualityHeaderValue("application/json"));
 
-			return Client;
+			return client;
 		}
 
 		/// <summary>
@@ -52,15 +52,15 @@ namespace PaperMalKing.Jikan.Helpers
 		/// <returns>Static HttpClient.</returns>
 		public static HttpClient GetHttpClient(Uri endpoint)
 		{
-			var Client = new HttpClient
+			var client = new HttpClient
 			{
 				BaseAddress = endpoint
 			};
-			Client.DefaultRequestHeaders.Accept.Clear();
-			Client.DefaultRequestHeaders.Accept.Add(
+			client.DefaultRequestHeaders.Accept.Clear();
+			client.DefaultRequestHeaders.Accept.Add(
 				new MediaTypeWithQualityHeaderValue("application/json"));
 
-			return Client;
+			return client;
 		}
 	}
 }

@@ -14,7 +14,7 @@ namespace PaperMalKing
 	/// <summary>
 	/// Custom help formatter for CommandsNext
 	/// </summary>
-	public class PaperMalKingHelpFormatter : BaseHelpFormatter
+	public sealed class PaperMalKingHelpFormatter : BaseHelpFormatter
 	{
 		public DiscordEmbedBuilder EmbedBuilder { get; }
 		private Command Command { get; set; }

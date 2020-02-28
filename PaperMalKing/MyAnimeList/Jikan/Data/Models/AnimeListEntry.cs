@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
-using PaperMalKing.Jikan.Data.Interfaces;
+using PaperMalKing.MyAnimeList.Jikan.Data.Interfaces;
 
-namespace PaperMalKing.Jikan.Data.Models
+namespace PaperMalKing.MyAnimeList.Jikan.Data.Models
 {
-	public sealed class MangaListEntry : IListEntry
+	public sealed class AnimeListEntry : IListEntry
 	{
 		/// <inheritdoc />
 		[JsonProperty(PropertyName = "mal_id")]
@@ -26,11 +26,11 @@ namespace PaperMalKing.Jikan.Data.Models
 		public string Type { get; set; }
 
 		/// <inheritdoc />
-		[JsonProperty(PropertyName = "read_chapters")]
+		[JsonProperty(PropertyName = "watched_episodes")]
 		public int? CompletedSubEntries { get; set; }
 
 		/// <inheritdoc />
-		[JsonProperty(PropertyName = "total_chapters")]
+		[JsonProperty(PropertyName = "total_episodes")]
 		public int? TotalSubEntries { get; set; }
 
 		/// <inheritdoc />
@@ -38,7 +38,7 @@ namespace PaperMalKing.Jikan.Data.Models
 		public int Score { get; set; }
 
 		/// <inheritdoc />
-		[JsonProperty(PropertyName = "reading_status")]
+		[JsonProperty(PropertyName = "watching_status")]
 		public StatusType UsersStatus { get; set; }
 	}
 }

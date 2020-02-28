@@ -2,6 +2,9 @@
 
 namespace PaperMalKing.Data
 {
+	/// <summary>
+	/// Config for bot
+	/// </summary>
 	public sealed class BotConfig
 	{
 		/// <summary>
@@ -17,6 +20,9 @@ namespace PaperMalKing.Data
 		public BotDatabaseConfig Database { get; private set; }
 	}
 
+	/// <summary>
+	/// Bot config options related to Discord
+	/// </summary>
 	public sealed class BotDiscordConfig
 	{
 		/// <summary>
@@ -70,6 +76,9 @@ namespace PaperMalKing.Data
 		[JsonProperty("Commands")]
 		public BotDiscordCommandsConfig Commands { get; private set; }
 
+		/// <summary>
+		/// Bot Discord config options related to commands
+		/// </summary>
 		public sealed class BotDiscordCommandsConfig
 		{
 			/// <summary>
@@ -98,6 +107,9 @@ namespace PaperMalKing.Data
 		}
 	}
 
+	/// <summary>
+	/// Bot config options related to database 
+	/// </summary>
 	public sealed class BotDatabaseConfig
 	{
 		/// <summary>

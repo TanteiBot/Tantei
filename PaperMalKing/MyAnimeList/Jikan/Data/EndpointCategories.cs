@@ -1,4 +1,4 @@
-﻿namespace PaperMalKing.Jikan.Data
+﻿namespace PaperMalKing.MyAnimeList.Jikan.Data
 {
 	sealed class EndpointCategories
 	{

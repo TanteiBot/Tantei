@@ -9,8 +9,8 @@ namespace PaperMalKing.Utilities
     {
         public static DiscordEmbedBuilder CommandErrorEmbed(Command command, DiscordUser user, Exception ex = null, string message = null)
         {
-            var errorMesage = message ?? $"{ex?.Message}\nin\n{Formatter.InlineCode(ex?.Source)}";
-            return ErrorEmbed(user, errorMesage, $"Exception occured in {command.Name}");
+            var errorMessage = message ?? $"{ex?.Message}\nin\n{Formatter.InlineCode(ex?.Source)}";
+            return ErrorEmbed(user, errorMessage, $"Exception occured in {command.Name}");
         }
 
         public static DiscordEmbedBuilder ErrorEmbed(DiscordUser user, string errorMessage, string title = null)

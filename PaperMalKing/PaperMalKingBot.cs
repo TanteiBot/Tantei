@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -11,6 +10,7 @@ using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using PaperMalKing.Commands;
 using PaperMalKing.Data;
+using PaperMalKing.MyAnimeList.FeedReader;
 using PaperMalKing.Services;
 using PaperMalKing.Utilities;
 
@@ -45,8 +45,8 @@ namespace PaperMalKing
 				Token = discordCfg.Token,
 				ReconnectIndefinitely = discordCfg.ReconnectIndefinitely,
 				AutoReconnect = discordCfg.AutoReconnect,
-				MessageCacheSize = discordCfg.MessageCacheSize,
-			};
+				MessageCacheSize = discordCfg.MessageCacheSize
+            };
 
             var actType = (ActivityType)this._config.Discord.ActivityType;
             this._activity = new DiscordActivity(this._config.Discord.PresenceText, actType);
@@ -58,12 +58,13 @@ namespace PaperMalKing
 			this.Client.ClientErrored += this.Client_ClientErrored;
 			this.Client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
 			this.Client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
-
+            var malRssService = new FeedReader(this.Client.DebugLogger.LogMessage);
 			var services = new ServiceCollection()
 			.AddSingleton(this.Client)
 			.AddSingleton(this._config)
-			.AddSingleton(new MalService(this._config,this.Client))
-			.AddScoped<DatabaseContext>()
+            .AddSingleton(malRssService)
+			.AddSingleton(new MalService(this._config, this.Client, malRssService))
+            .AddScoped<DatabaseContext>()
 			.BuildServiceProvider();
 
 
@@ -158,7 +159,7 @@ namespace PaperMalKing
 				if (failedCheck is RequirePermissionsAttribute reqPerm)
 				{
 					var errorEmbed = EmbedTemplate.CommandErrorEmbed(e.Command, e.Context.User,
-						message: $"You are lacking permissons:{reqPerm.Permissions.ToPermissionString()}");
+						message: $"You are lacking permissions:{reqPerm.Permissions.ToPermissionString()}");
 					await e.Context.RespondAsync(embed: errorEmbed);
 				}
 
@@ -188,7 +189,14 @@ namespace PaperMalKing
 					Console.ForegroundColor = ConsoleColor.Black;
 				}
 
-				Console.Write($"[{e.Timestamp:G}] [{e.Application}] [{e.Level.ToString()}]");
+                string timestampFormat;
+#if DEBUG
+                timestampFormat = "dd.MM.yy HH\\:mm\\:ss.fff";
+#else
+                timestampFormat = "dd.MM.yy HH\\:mm\\:ss";
+#endif
+
+				Console.Write($"[{e.Timestamp.ToString(timestampFormat)}] [{e.Application.ToFixedWidth(13)}] [{e.Level.ToShortName()}]");
 				Console.ResetColor();
 				Console.WriteLine($" {e.Message}{(e.Exception != null ? $"\n{e.Exception}" : "")}");
 			}

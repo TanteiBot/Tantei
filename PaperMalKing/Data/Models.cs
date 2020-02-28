@@ -43,30 +43,49 @@ namespace PaperMalKing.Data
 		[NotMapped]
 		public string MangaRssFeed => $"https://myanimelist.net/rss.php?type=rm&u={this.MalUsername}";
 
+		/// <summary>
+		/// Guilds to which user's updates will be send
+		/// </summary>
 		public virtual List<GuildUsers> Guilds { get; set; }
 	}
 
 	[Table("Guilds")]
 	public class PmkGuild
 	{
+		/// <summary>
+		/// Id of discord guild
+		/// </summary>
 		[Key]
 		[Required]
 		[Column("GuildId")]
 		[DatabaseGenerated(DatabaseGeneratedOption.None)]
 		public long GuildId { get; set; }
 
+		/// <summary>
+		/// Id of channel where updates for users in this guild will be sent
+		/// </summary>
 		[Column("ChannelId")]
 		public long? ChannelId { get; set; }
+
+		/// <summary>
+		/// Users which updates will be sent in this guild
+		/// </summary>
 		public virtual List<GuildUsers> Users { get; set; }
 	}
 
 	public class GuildUsers
 	{
+		/// <summary>
+		/// User's Discord id
+		/// </summary>
 		[ForeignKey("DiscordId")]
 		public long DiscordId { get; set; }
 
 		public virtual PmkUser User { get; set; }
 
+		/// <summary>
+		/// Guild's Discord id
+		/// </summary>
 		[ForeignKey("GuildId")]
 		public long GuildId { get; set; }
 
