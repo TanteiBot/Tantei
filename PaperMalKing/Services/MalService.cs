@@ -1,7 +1,6 @@
 ﻿/*
  * Cleaned up a bit should look nice now
  */
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -113,7 +112,7 @@ namespace PaperMalKing.Services
 
 		public async Task AddUserAsync(DiscordMember member, string username)
 		{
-			var userId = (long) member.Id;
+			var userId = (long)member.Id;
 			await using (var db = new DatabaseContext(this._config))
 			{
 				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
@@ -127,7 +126,7 @@ namespace PaperMalKing.Services
 					foreach (var feed in feeds)
 					{
 						var res = await this._rssReader.GetRssFeedLoadResult(feed);
-						var code = (int) res;
+						var code = (int)res;
 						if (code >= _serverErrorCodeBound)
 							throw new Exception("Mal is issuing some troubles, try again later");
 						if (res == RssLoadResult.NotFound)
@@ -137,19 +136,21 @@ namespace PaperMalKing.Services
 						if (res == RssLoadResult.Unknown) throw new Exception("Unhandled exception happened.");
 					}
 
-					var guildId = (long) member.Guild.Id;
+					var guildId = (long)member.Guild.Id;
 					var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
 					if (guild == null)
 					{
-						guild = new PmkGuild {ChannelId = null, GuildId = guildId, Users = null};
+						guild = new PmkGuild { ChannelId = null, GuildId = guildId, Users = null };
 						db.Guilds.Add(guild);
 					}
 
-					var guilds = new List<GuildUsers> {new GuildUsers {DiscordId = userId, GuildId = guildId}};
+					var guilds = new List<GuildUsers> { new GuildUsers { DiscordId = userId, GuildId = guildId } };
 
 					var pmkUser = new PmkUser
 					{
-						DiscordId = userId, LastUpdateDate = DateTime.Now.ToUniversalTime(), MalUsername = username,
+						DiscordId = userId,
+						LastUpdateDate = DateTime.Now.ToUniversalTime(),
+						MalUsername = username,
 						Guilds = guilds
 					};
 
@@ -159,23 +160,23 @@ namespace PaperMalKing.Services
 				}
 				else // User is already saved in another guilds
 				{
-					var guildId = (long) member.Guild.Id;
+					var guildId = (long)member.Guild.Id;
 					var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
 					if (guild == null)
 					{
-						guild = new PmkGuild {ChannelId = null, GuildId = guildId, Users = null};
+						guild = new PmkGuild { ChannelId = null, GuildId = guildId, Users = null };
 						db.Guilds.Add(guild);
 					}
-
 					if (user.Guilds?.All(x => x.GuildId != guildId) == true)
 					{
-						user.Guilds.Add(new GuildUsers {DiscordId = user.DiscordId, GuildId = guildId});
+						user.Guilds.Add(new GuildUsers { DiscordId = user.DiscordId, GuildId = guildId });
 						db.Update(user);
 						this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 							$"Added ({member}) in guild '{guildId}'", DateTime.Now);
 					}
 					else
 						throw new Exception("You are already registered in this guild.");
+
 				}
 
 				var rowChanged = await db.SaveChangesAsync();
@@ -187,16 +188,16 @@ namespace PaperMalKing.Services
 
 		public async Task AddUserHereAsync(DiscordMember member)
 		{
-			var userId = (long) member.Id;
+			var userId = (long)member.Id;
 			await using (var db = new DatabaseContext(this._config))
 			{
 				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
 				if (user == null)
 					throw new Exception("You must add username in this or other guild first");
-				var guildId = (long) member.Guild.Id;
+				var guildId = (long)member.Guild.Id;
 				if (user.Guilds?.All(x => x.GuildId != guildId) == true)
 				{
-					user.Guilds.Add(new GuildUsers {DiscordId = user.DiscordId, GuildId = guildId});
+					user.Guilds.Add(new GuildUsers { DiscordId = user.DiscordId, GuildId = guildId });
 					db.Update(user);
 					this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 						$"Added ({member}) in guild '{guildId}'", DateTime.Now);
@@ -204,7 +205,6 @@ namespace PaperMalKing.Services
 					if (rowChanged > 0)
 						return;
 				}
-
 				throw new Exception("You are already added in this guild");
 			}
 		}
@@ -214,7 +214,7 @@ namespace PaperMalKing.Services
 		{
 			using (var db = new DatabaseContext(this._config))
 			{
-				var userId = (long) member.Id;
+				var userId = (long)member.Id;
 				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
 				if (user == null)
 					throw new ArgumentException("Such user does not exist in database", nameof(user));
@@ -224,6 +224,7 @@ namespace PaperMalKing.Services
 					throw new Exception("Couldn't save changes in database. Try again later");
 				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 					$"Successfully removed user '{user.MalUsername}'({member}) from all guilds", DateTime.Now);
+
 			}
 		}
 
@@ -231,8 +232,8 @@ namespace PaperMalKing.Services
 		{
 			using (var db = new DatabaseContext(this._config))
 			{
-				var userId = (long) member.Id;
-				var guildId = (long) member.Guild.Id;
+				var userId = (long)member.Id;
+				var guildId = (long)member.Guild.Id;
 				var user = db.Users.FirstOrDefault(x => x.DiscordId == userId);
 				if (user == null)
 					throw new ArgumentException("Such user does not exist in database", nameof(user));
@@ -248,12 +249,12 @@ namespace PaperMalKing.Services
 					user.Guilds.Remove(guild);
 					db.Users.Update(user);
 				}
-
 				var rowsChanged = db.SaveChanges();
 				if (rowsChanged == 0)
 					throw new Exception("Couldn't save changes in database. Try again later");
 				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 					$"Successfully removed user '{user.MalUsername}'({member}) from {member.Guild}", DateTime.Now);
+
 			}
 		}
 
@@ -276,7 +277,7 @@ namespace PaperMalKing.Services
 				foreach (var feed in feeds)
 				{
 					var res = await this._rssReader.GetRssFeedLoadResult(feed);
-					var code = (int) res;
+					var code = (int)res;
 					if (code >= _serverErrorCodeBound)
 						throw new Exception("Mal is issuing some troubles, try again later");
 					if (res == RssLoadResult.NotFound)
@@ -285,28 +286,29 @@ namespace PaperMalKing.Services
 						throw new Exception("One of your lists isn't public, make it public and try again.");
 					if (res == RssLoadResult.Unknown) throw new Exception("Unhandled exception happened.");
 				}
-
 				db.Users.Update(user);
 				var rowChanges = db.SaveChanges();
 				if (rowChanges == 0)
 					throw new Exception("Couldn't save update in database. Try again later");
 				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 					$"Updated user with id'{userId}' from '{oldUsername}' to '{newUsername}'", DateTime.Now);
+
 			}
 		}
 
 		public async Task AddChannelAsync(long guildId, long channelId)
 		{
-			var uChannelId = (ulong) channelId;
+			var uChannelId = (ulong)channelId;
 			var channel = await this._discordClient.GetChannelAsync(uChannelId);
 
 
 			await using (var db = new DatabaseContext(this._config))
 			{
+
 				var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
 				if (guild == null)
 				{
-					guild = new PmkGuild {GuildId = guildId, ChannelId = channelId};
+					guild = new PmkGuild { GuildId = guildId, ChannelId = channelId };
 
 					db.Guilds.Add(guild);
 				}
@@ -315,20 +317,21 @@ namespace PaperMalKing.Services
 					guild.ChannelId = channelId;
 				}
 				else
-					throw new Exception(
-						"Guild with channel is already in database. Use ChannelUpdate command instead of ChannelAdd");
+					throw new Exception("Guild with channel is already in database. Use ChannelUpdate command instead of ChannelAdd");
 
 				db.SaveChanges();
+
 			}
 
 			this._channels.TryAdd(guildId, channel);
 			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 				$"Successfully added channel in guild with id '{guildId}'", DateTime.Now);
+
 		}
 
 		public async Task UpdateChannelAsync(long guildId, long channelId)
 		{
-			var uChannelId = (ulong) channelId;
+			var uChannelId = (ulong)channelId;
 			var channel = await this._discordClient.GetChannelAsync(uChannelId);
 
 
@@ -347,6 +350,7 @@ namespace PaperMalKing.Services
 			this._channels[guildId] = channel;
 			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 				$"Successfully updated channel in guild with id '{guildId}'", DateTime.Now);
+
 		}
 
 		public void RemoveChannel(long guildId)
@@ -366,14 +370,15 @@ namespace PaperMalKing.Services
 
 			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 				$"Successfully removed channel in guild with id '{guildId}'", DateTime.Now);
+
 		}
 
 		private async Task<IMalEntity> GetMalEntityAsync(EntityType type, FeedItem feedItem, PmkUser pmkUser)
 		{
 			var actionString = feedItem.Description.Split(" - ")[0].ToLower();
 			var malUnparsedId = this._regex.Matches(feedItem.Link)
-				.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value))
-				?.Value;
+			.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value))
+			?.Value;
 
 			if (!long.TryParse(malUnparsedId, out long malId))
 			{
@@ -400,7 +405,6 @@ namespace PaperMalKing.Services
 						$"Couldn't load '{query}' from '{pmkUser.MalUsername}'s animelist", DateTime.Now);
 					return await this._jikanClient.GetAnimeAsync(malId);
 				}
-
 				return userAl.Anime.FirstOrDefault(x => x.MalId == malId);
 			}
 
@@ -411,7 +415,6 @@ namespace PaperMalKing.Services
 					$"Couldn't load '{query}' from '{pmkUser.MalUsername}'s mangalist", DateTime.Now);
 				return await this._jikanClient.GetMangaAsync(malId);
 			}
-
 			return userMl.Manga.FirstOrDefault(x => x.MalId == malId);
 		}
 
@@ -446,7 +449,7 @@ namespace PaperMalKing.Services
 					{
 						if (guild.ChannelId == null)
 							continue;
-						var channelId = (ulong) guild.ChannelId.Value;
+						var channelId = (ulong)guild.ChannelId.Value;
 						var channel = await this._discordClient.GetChannelAsync(channelId);
 						this._channels.TryAdd(guild.GuildId, channel);
 						e.Client.DebugLogger.LogMessage(LogLevel.Info, LogName,
@@ -482,8 +485,7 @@ namespace PaperMalKing.Services
 					this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
 						$"Starting to checking updates for {user.MalUsername}", DateTime.Now);
 					var feeds = new Feed[2];
-					var rssUrls = new[] {user.AnimeRssFeed, user.MangaRssFeed};
-					DateTime readFeedDate = DateTime.Now;
+					var rssUrls = new[] { user.AnimeRssFeed, user.MangaRssFeed };
 
 					for (int i = 0; i <= 1; i++)
 					{
@@ -493,7 +495,7 @@ namespace PaperMalKing.Services
 						}
 						catch (MalRssException ex)
 						{
-							var code = (int) ex.Reason;
+							var code = (int)ex.Reason;
 							if (code >= _serverErrorCodeBound)
 							{
 								this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
@@ -504,6 +506,7 @@ namespace PaperMalKing.Services
 								this._discordClient.DebugLogger.LogMessage(LogLevel.Warning, LogName,
 									$"Couldn't read {ex.ListType}list because {ex.Reason}", DateTime.Now);
 						}
+
 					}
 
 					var updateItems = new List<(FeedItem, EntityType)>();
@@ -512,8 +515,7 @@ namespace PaperMalKing.Services
 					{
 						updateItems.AddRange(
 							feed?.Items.Where(x => DateTime.Compare(x.PublishingDateTime, user.LastUpdateDate) > 0)
-								.Select(x => (x, feed.GetEntitiesType())) ??
-							Enumerable.Empty<(FeedItem, EntityType)>());
+								.Select(x => (x, feed.GetEntitiesType())) ?? Enumerable.Empty<(FeedItem, EntityType)>());
 					}
 
 					if (!updateItems.Any())
@@ -530,6 +532,7 @@ namespace PaperMalKing.Services
 
 					updateItems.Sort((x, y) => DateTime.Compare(x.Item1.PublishingDateTime,
 						y.Item1.PublishingDateTime));
+					var latestUpdateDate = updateItems.Last().Item1.PublishingDateTime;
 
 					foreach (var updateItem in updateItems)
 					{
@@ -545,7 +548,6 @@ namespace PaperMalKing.Services
 								else
 									status = "Re-reading" + status;
 							}
-
 							var listUpdateEntry = new ListUpdateEntry(malUser, user, malEntity,
 								status,
 								updateItem.Item1.PublishingDateTime);
@@ -553,10 +555,11 @@ namespace PaperMalKing.Services
 						}
 					}
 
-					user.LastUpdateDate = readFeedDate.ToUniversalTime();
+					user.LastUpdateDate = latestUpdateDate.ToUniversalTime();
 					db.Users.Update(user);
 					await db.SaveChangesAsync();
 				}
+
 			}
 			finally
 			{
