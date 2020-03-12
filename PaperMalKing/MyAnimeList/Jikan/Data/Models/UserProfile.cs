@@ -5,7 +5,7 @@ namespace PaperMalKing.MyAnimeList.Jikan.Data.Models
 	/// <summary>
 	/// User's profile model class.
 	/// </summary>
-	public sealed class UserProfile: BaseJikanRequest
+	public sealed class UserProfile : BaseJikanRequest
 	{
 		/// <summary>
 		/// Username.

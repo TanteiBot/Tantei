@@ -1,21 +1,21 @@
 ﻿namespace PaperMalKing.MyAnimeList
 {
-    public enum RssLoadResult
-    {
-        EmptyList = 0,
+	public enum RssLoadResult
+	{
+		EmptyList = 0,
 
-        Ok = 200,
+		Ok = 200,
 
-        Forbidden = 403,
+		Forbidden = 403,
 
-        NotFound = 404,
+		NotFound = 404,
 
-        BadGateway = 502,
+		BadGateway = 502,
 
-        ServiceUnavailable = 503,
+		ServiceUnavailable = 503,
 
-        GatewayTimeout = 504,
+		GatewayTimeout = 504,
 
-        Unknown = 999
-    }
+		Unknown = 999
+	}
 }

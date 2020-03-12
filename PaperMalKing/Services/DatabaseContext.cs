@@ -32,17 +32,17 @@ namespace PaperMalKing.Services
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<GuildUsers>()
-			.HasKey(x => new {x.DiscordId, x.GuildId});
+				.HasKey(x => new {x.DiscordId, x.GuildId});
 
 			modelBuilder.Entity<GuildUsers>()
-			.HasOne(gu => gu.User)
-			.WithMany(u => u.Guilds)
-			.HasForeignKey(gu => gu.DiscordId);
+				.HasOne(gu => gu.User)
+				.WithMany(u => u.Guilds)
+				.HasForeignKey(gu => gu.DiscordId);
 
 			modelBuilder.Entity<GuildUsers>()
-			.HasOne(gu => gu.Guild)
-			.WithMany(g => g.Users)
-			.HasForeignKey(gu => gu.GuildId);
+				.HasOne(gu => gu.Guild)
+				.WithMany(g => g.Users)
+				.HasForeignKey(gu => gu.GuildId);
 		}
 	}
 }

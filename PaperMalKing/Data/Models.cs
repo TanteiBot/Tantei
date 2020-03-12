@@ -89,8 +89,6 @@ namespace PaperMalKing.Data
 		[ForeignKey("GuildId")]
 		public long GuildId { get; set; }
 
-		public virtual PmkGuild Guild{ get; set; }
+		public virtual PmkGuild Guild { get; set; }
 	}
 }
-
-

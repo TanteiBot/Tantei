@@ -6,7 +6,7 @@ namespace PaperMalKing.MyAnimeList.Jikan.Data.Models
 	/// <summary>
 	/// User's anime list model class.
 	/// </summary>
-	public sealed class UserAnimeList :BaseJikanRequest
+	public sealed class UserAnimeList : BaseJikanRequest
 	{
 		/// <summary>
 		/// Collection of user's anime on their anime list.

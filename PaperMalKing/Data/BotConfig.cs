@@ -59,7 +59,7 @@ namespace PaperMalKing.Data
 		/// Which activity type will appear in bot status.
 		/// Set to 0 to display "playing" activity.
 		/// Set to 2 to display "listening" activity.
-        /// Set to 3 to display "watching" activity
+		/// Set to 3 to display "watching" activity
 		/// </summary>
 		[JsonProperty("ActivityType")]
 		public int ActivityType { get; set; }
@@ -118,5 +118,4 @@ namespace PaperMalKing.Data
 		[JsonProperty("ConnectionString")]
 		public string ConnectionString { get; private set; }
 	}
-
 }

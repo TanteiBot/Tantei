@@ -16,8 +16,10 @@ namespace PaperMalKing.Commands
 		[Description("Sends embed in selected channel with selected text")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
 		public async Task SayCommand(CommandContext context,
-		[Description("Channel where the embed will be send")]DiscordChannel channelToSayIn,
-		[RemainingText, Description("Text to send")] string messageContent)
+			[Description("Channel where the embed will be send")]
+			DiscordChannel channelToSayIn,
+			[RemainingText, Description("Text to send")]
+			string messageContent)
 		{
 			if (string.IsNullOrWhiteSpace(messageContent))
 				throw new ArgumentException("Message's content shouldn't be empty", nameof(messageContent));
@@ -26,7 +28,8 @@ namespace PaperMalKing.Commands
 				Description = messageContent.Replace("@everyone", "@\u200beveryone").Replace("@here", "@\u200bhere"),
 				Timestamp = DateTime.Now,
 				Color = DiscordColor.Blue,
-			}.WithAuthor($"{context.Member.Username}#{context.Member.Discriminator}", iconUrl: context.Member.AvatarUrl);
+			}.WithAuthor($"{context.Member.Username}#{context.Member.Discriminator}",
+				iconUrl: context.Member.AvatarUrl);
 			try
 			{
 				await channelToSayIn.SendMessageAsync(embed: embed);
@@ -45,20 +48,20 @@ namespace PaperMalKing.Commands
 			var botVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString(3) ?? "";
 			var netCoreVersion = Environment.Version.ToString(3);
 
-            var desc =
-                "Paper Mal King is bot designed to automatically track  its users updates on MyAnimeList.\nDeveloped by N0D4N#2281 (<@356518417987141633>).";
+			var desc =
+				"Paper Mal King is bot designed to automatically track  its users updates on MyAnimeList.\nDeveloped by N0D4N#2281 (<@356518417987141633>).";
 
-            var versions = $"Bot version - {botVersion}." +
-                           "\n" +
-                           $"DSharpPlus version - {context.Client.VersionString}." +
-                           "\n" +
-                           $".NET Core version - {netCoreVersion}.";
+			var versions = $"Bot version - {botVersion}." +
+			               "\n" +
+			               $"DSharpPlus version - {context.Client.VersionString}." +
+			               "\n" +
+			               $".NET Core version - {netCoreVersion}.";
 
-            var sourceCodeLink = "https://github.com/N0D4N/PaperMalKing";
-            var links = Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)) +
-                        "\n" +
-                        Formatter.MaskedUrl("Wiki",
-                            new Uri("https://github.com/N0D4N/PaperMalKing/wiki", UriKind.Absolute));
+			var sourceCodeLink = "https://github.com/N0D4N/PaperMalKing";
+			var links = Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)) +
+			            "\n" +
+			            Formatter.MaskedUrl("Wiki",
+				            new Uri("https://github.com/N0D4N/PaperMalKing/wiki", UriKind.Absolute));
 
 			var embedBuilder = new DiscordEmbedBuilder
 			{
@@ -70,24 +73,22 @@ namespace PaperMalKing.Commands
 				ThumbnailUrl = context.Client.CurrentUser.AvatarUrl
 			};
 			embedBuilder.AddField("Links", links, true);
-            embedBuilder.AddField("Versions", versions, true);
+			embedBuilder.AddField("Versions", versions, true);
 
 			await context.RespondAsync(embed: embedBuilder.Build());
 		}
 
-        [Command("DeleteMessages")]
-        [Aliases("dmsg")]
-        [RequireOwner]
-        public async Task DeleteMessagesCommand(CommandContext context, [RemainingText, Description("Messages Id's")]
-            params ulong[] messages)
-        {
-            var msgsToDelete =
-                (await context.Channel.GetMessagesBeforeAsync(context.Message.Id)).Where(x => x.Author.IsCurrent && messages.Contains(x.Id));
-			foreach(var msg in msgsToDelete)
-                await context.Channel.DeleteMessageAsync(msg);
-
-        }
-
-
+		[Command("DeleteMessages")]
+		[Aliases("dmsg")]
+		[RequireOwner]
+		public async Task DeleteMessagesCommand(CommandContext context, [RemainingText, Description("Messages Id's")]
+			params ulong[] messages)
+		{
+			var msgsToDelete =
+				(await context.Channel.GetMessagesBeforeAsync(context.Message.Id)).Where(x =>
+					x.Author.IsCurrent && messages.Contains(x.Id));
+			foreach (var msg in msgsToDelete)
+				await context.Channel.DeleteMessageAsync(msg);
+		}
 	}
 }

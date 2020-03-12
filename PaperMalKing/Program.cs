@@ -10,9 +10,9 @@ namespace PaperMalKing
 		static void Main(string[] args)
 		{
 			var json = "";
-			using(var fs = File.OpenRead("config.json"))
-				using(var sr = new StreamReader(fs, new UTF8Encoding(false)))
-					json = sr.ReadToEnd();
+			using (var fs = File.OpenRead("config.json"))
+			using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
+				json = sr.ReadToEnd();
 
 			var botConfig = JsonConvert.DeserializeObject<BotConfig>(json);
 			var bot = new PaperMalKingBot(botConfig);

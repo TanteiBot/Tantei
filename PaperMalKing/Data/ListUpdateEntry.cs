@@ -1,6 +1,7 @@
 ﻿/*
  * Code looks awful i know it, probably will rewrite together with MalService
  */
+
 using System;
 using DSharpPlus.Entities;
 using PaperMalKing.MyAnimeList;
@@ -22,7 +23,7 @@ namespace PaperMalKing.Data
 		/// <summary>
 		/// User to which update is related
 		/// </summary>
-        public readonly PmkUser User;
+		public readonly PmkUser User;
 
 		/// <summary>
 		/// Item that was updated(such as manga or anime)
@@ -39,16 +40,17 @@ namespace PaperMalKing.Data
 		/// </summary>
 		private readonly StatusType _progressStatus;
 
-		public ListUpdateEntry(UserProfile profile, PmkUser user, IMalEntity malEntity, string status, DateTime? updatedDate)
+		public ListUpdateEntry(UserProfile profile, PmkUser user, IMalEntity malEntity, string status,
+			DateTime? updatedDate)
 		{
-			this.Entry = new UpdateEntry(malEntity,  updatedDate);
+			this.Entry = new UpdateEntry(malEntity, updatedDate);
 			this.UserProfile = profile;
 			this.User = user;
 			this._status = status;
 			var statusTypeUnparsed = status.Split(" - ")[0].ToLower().Trim();
-			if(statusTypeUnparsed.Contains("plan to"))
+			if (statusTypeUnparsed.Contains("plan to"))
 				this._progressStatus = StatusType.PlanToCheck;
-			else if(statusTypeUnparsed.EndsWith("ing"))
+			else if (statusTypeUnparsed.EndsWith("ing"))
 				this._progressStatus = StatusType.InProgress;
 			else
 			{
@@ -66,16 +68,18 @@ namespace PaperMalKing.Data
 		public DiscordEmbed CreateEmbed()
 		{
 			var embedBuilder = new DiscordEmbedBuilder()
-			.WithAuthor(this.UserProfile.Username, this.UserProfile.Url,
-					this.UserProfile.ImageUrl ?? $"https://cdn.myanimelist.net/images/userimages/{this.UserProfile.UserId}.jpg")
-			.WithTitle(this.Entry.Title)
-			.WithUrl(this.Entry.TitleUrl)
-			.WithThumbnailUrl(this.Entry.ImageUrl);
+				.WithAuthor(this.UserProfile.Username, this.UserProfile.Url,
+					this.UserProfile.ImageUrl ??
+					$"https://cdn.myanimelist.net/images/userimages/{this.UserProfile.UserId}.jpg")
+				.WithTitle(this.Entry.Title)
+				.WithUrl(this.Entry.TitleUrl)
+				.WithThumbnailUrl(this.Entry.ImageUrl);
 
 			if (this.Entry.Score.HasValue && this.Entry.Score.Value != 0)
 			{
 				embedBuilder.AddField("Score", this.Entry.Score.Value.ToString(), true);
 			}
+
 			embedBuilder.AddField("Status", this._status, true);
 
 			if (this.Entry.EntryUpdatedDate != null)
@@ -84,15 +88,15 @@ namespace PaperMalKing.Data
 			}
 
 			DiscordColor color;
-			if(this._progressStatus == StatusType.InProgress)
+			if (this._progressStatus == StatusType.InProgress)
 				color = new DiscordColor("#29b236"); // Mal green
-			else if(this._progressStatus == StatusType.Completed)
+			else if (this._progressStatus == StatusType.Completed)
 				color = new DiscordColor("#214290"); // Mal blue
-			else if(this._progressStatus == StatusType.OnHold)
+			else if (this._progressStatus == StatusType.OnHold)
 				color = new DiscordColor("#f9d556"); //Mal yellow
-			else if(this._progressStatus == StatusType.Dropped)
+			else if (this._progressStatus == StatusType.Dropped)
 				color = new DiscordColor("#a22b2d"); // Mal red
-			else if(this._progressStatus == StatusType.PlanToCheck)
+			else if (this._progressStatus == StatusType.PlanToCheck)
 				color = new DiscordColor("#c4c4c4"); // Mal grey
 			else
 				color = DiscordColor.Black;
@@ -141,7 +145,7 @@ namespace PaperMalKing.Data
 
 				this.ImageUrl = malEntity.ImageUrl;
 
-				if(malEntity is IListEntry listEntry)
+				if (malEntity is IListEntry listEntry)
 					this.Score = listEntry.Score;
 			}
 		}

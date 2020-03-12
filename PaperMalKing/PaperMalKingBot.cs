@@ -28,7 +28,7 @@ namespace PaperMalKing
 
 		private readonly object _logLock = new object();
 
-        private readonly DiscordActivity _activity;
+		private readonly DiscordActivity _activity;
 
 		public PaperMalKingBot(BotConfig config)
 		{
@@ -46,26 +46,26 @@ namespace PaperMalKing
 				ReconnectIndefinitely = discordCfg.ReconnectIndefinitely,
 				AutoReconnect = discordCfg.AutoReconnect,
 				MessageCacheSize = discordCfg.MessageCacheSize
-            };
+			};
 
-            var actType = (ActivityType)this._config.Discord.ActivityType;
-            this._activity = new DiscordActivity(this._config.Discord.PresenceText, actType);
+			var actType = (ActivityType) this._config.Discord.ActivityType;
+			this._activity = new DiscordActivity(this._config.Discord.PresenceText, actType);
 
 
 			this.Client = new DiscordClient(discordConfig);
 			this.Client.Ready += this.Client_Ready;
-			this.Client.Ready += this.Client_PresenceReady; 
+			this.Client.Ready += this.Client_PresenceReady;
 			this.Client.ClientErrored += this.Client_ClientErrored;
 			this.Client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
 			this.Client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
-            var malRssService = new FeedReader(this.Client.DebugLogger.LogMessage);
+			var malRssService = new FeedReader(this.Client.DebugLogger.LogMessage);
 			var services = new ServiceCollection()
-			.AddSingleton(this.Client)
-			.AddSingleton(this._config)
-            .AddSingleton(malRssService)
-			.AddSingleton(new MalService(this._config, this.Client, malRssService))
-            .AddScoped<DatabaseContext>()
-			.BuildServiceProvider();
+				.AddSingleton(this.Client)
+				.AddSingleton(this._config)
+				.AddSingleton(malRssService)
+				.AddSingleton(new MalService(this._config, this.Client, malRssService))
+				.AddScoped<DatabaseContext>()
+				.BuildServiceProvider();
 
 
 			var cmdCfg = this._config.Discord.Commands;
@@ -92,31 +92,32 @@ namespace PaperMalKing
 		}
 
 		private Task Client_PresenceReady(ReadyEventArgs e)
-        {
-            return e.Client.UpdateStatusAsync(this._activity, UserStatus.Online);
-        }
+		{
+			return e.Client.UpdateStatusAsync(this._activity, UserStatus.Online);
+		}
 
 		public async Task Start()
 		{
 			this.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Starting bot", DateTime.Now);
-            await this.Client.ConnectAsync(this._activity, UserStatus.Online);
+			await this.Client.ConnectAsync(this._activity, UserStatus.Online);
 			await Task.Delay(-1);
 		}
 
 		private Task Client_ClientErrored(ClientErrorEventArgs e)
 		{
 			var ex = e.Exception;
-			while(ex is AggregateException || ex.InnerException != null)
+			while (ex is AggregateException || ex.InnerException != null)
 				ex = ex.InnerException;
 
-			e.Client.DebugLogger.LogMessage(LogLevel.Error, this._logName, $"Exception occured: {ex.GetType()}: {ex.Message}", DateTime.Now);
+			e.Client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
+				$"Exception occured: {ex.GetType()}: {ex.Message}", DateTime.Now);
 			return Task.CompletedTask;
 		}
 
 		private Task Client_Ready(ReadyEventArgs e)
 		{
 			Console.Title = this._logName;
-			e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName,"Bot is ready", DateTime.Now);
+			e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Bot is ready", DateTime.Now);
 			this.Client.Ready -= this.Client_Ready;
 			return Task.CompletedTask;
 		}
@@ -124,7 +125,8 @@ namespace PaperMalKing
 		private Task Client_GuildDownloadCompleted(GuildDownloadCompletedEventArgs e)
 		{
 			foreach (var guild in e.Guilds.Values)
-				this.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, $"Guild available {guild.Name}",DateTime.Now);
+				this.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, $"Guild available {guild.Name}",
+					DateTime.Now);
 			return Task.CompletedTask;
 		}
 
@@ -146,7 +148,7 @@ namespace PaperMalKing
 				ex = ex.InnerException;
 			}
 
-			if(ex is CommandNotFoundException commandNotFoundEx)
+			if (ex is CommandNotFoundException commandNotFoundEx)
 			{
 				var errorEmbed = EmbedTemplate.ErrorEmbed(e.Context.User,
 					$"Command with name '{commandNotFoundEx.CommandName}' not found. Try using '{this._config.Discord.Commands.Prefixes[0]}help' to get a list of available commands.");
@@ -162,7 +164,6 @@ namespace PaperMalKing
 						message: $"You are lacking permissions:{reqPerm.Permissions.ToPermissionString()}");
 					await e.Context.RespondAsync(embed: errorEmbed);
 				}
-
 			}
 			else
 			{
@@ -189,14 +190,15 @@ namespace PaperMalKing
 					Console.ForegroundColor = ConsoleColor.Black;
 				}
 
-                string timestampFormat;
+				string timestampFormat;
 #if DEBUG
-                timestampFormat = "dd.MM.yy HH\\:mm\\:ss.fff";
+				timestampFormat = "dd.MM.yy HH\\:mm\\:ss.fff";
 #else
                 timestampFormat = "dd.MM.yy HH\\:mm\\:ss";
 #endif
 
-				Console.Write($"[{e.Timestamp.ToString(timestampFormat)}] [{e.Application.ToFixedWidth(13)}] [{e.Level.ToShortName()}]");
+				Console.Write(
+					$"[{e.Timestamp.ToString(timestampFormat)}] [{e.Application.ToFixedWidth(13)}] [{e.Level.ToShortName()}]");
 				Console.ResetColor();
 				Console.WriteLine($" {e.Message}{(e.Exception != null ? $"\n{e.Exception}" : "")}");
 			}

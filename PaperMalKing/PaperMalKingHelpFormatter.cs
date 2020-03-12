@@ -61,14 +61,14 @@ namespace PaperMalKing
 
 					foreach (var arg in ovl.Arguments)
 						sb.Append(arg.IsOptional || arg.IsCatchAll ? " [" : " <").Append(arg.Name)
-						.Append(arg.IsCatchAll ? "..." : "").Append(arg.IsOptional || arg.IsCatchAll ? ']' : '>');
+							.Append(arg.IsCatchAll ? "..." : "").Append(arg.IsOptional || arg.IsCatchAll ? ']' : '>');
 
 					sb.Append("`\n");
 
 					foreach (var arg in ovl.Arguments)
 						sb.Append('`').Append(arg.Name).Append(" (")
-						.Append(this.CommandsNext.GetUserFriendlyTypeName(arg.Type)).Append(")`: ")
-						.Append(arg.Description ?? "No description provided.").Append('\n');
+							.Append(this.CommandsNext.GetUserFriendlyTypeName(arg.Type)).Append(")`: ")
+							.Append(arg.Description ?? "No description provided.").Append('\n');
 
 					sb.Append('\n');
 				}
@@ -78,7 +78,7 @@ namespace PaperMalKing
 
 			var exChecks = this.GetExecutionChecks();
 
-			if(!string.IsNullOrWhiteSpace(exChecks))
+			if (!string.IsNullOrWhiteSpace(exChecks))
 				this.EmbedBuilder.AddField("Command pre-execution checks", exChecks, false);
 
 			return this;
@@ -99,7 +99,7 @@ namespace PaperMalKing
 				var cmdList = new List<Command>();
 				foreach (var cmd in subcommands)
 				{
-					if(cmd is CommandGroup cGroup)
+					if (cmd is CommandGroup cGroup)
 					{
 						var chs = cGroup.Children.ToList();
 
@@ -139,26 +139,26 @@ namespace PaperMalKing
 		/// <returns>String representation of all execution checks for command</returns>
 		private string GetExecutionChecks()
 		{
-
 			var cmd = this.Command;
 			var exChecksSb = new StringBuilder();
 
-			while(cmd != null)
+			while (cmd != null)
 			{
-				if(cmd.ExecutionChecks?.Any() == true)
+				if (cmd.ExecutionChecks?.Any() == true)
 				{
-					if(cmd.ExecutionChecks.Any(x => x is RequireOwnerAttribute))
+					if (cmd.ExecutionChecks.Any(x => x is RequireOwnerAttribute))
 						exChecksSb.AppendLine("To execute this command you need to be the owner of the bot.");
 
 					if (cmd.ExecutionChecks.SingleOrDefault(x => x is OwnerOrPermissionAttribute) is
-							OwnerOrPermissionAttribute ownerOrPerms)
+						OwnerOrPermissionAttribute ownerOrPerms)
 						exChecksSb.AppendLine(
 							$"To execute this command you need to be the owner of the bot or have this permissions {Formatter.InlineCode(ownerOrPerms.Permissions.ToPermissionString())}.");
 				}
+
 				cmd = cmd.Parent;
 			}
-			return exChecksSb.ToString().Trim();
 
+			return exChecksSb.ToString().Trim();
 		}
 	}
 }
