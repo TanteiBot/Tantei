@@ -19,6 +19,9 @@ namespace PaperMalKing.MyAnimeList.Jikan.Helpers
 		/// </summary>
 		private const string _httpsEndpoint = "https://api.jikan.moe/v3/";
 
+
+		private static TimeSpan Timeout = TimeSpan.FromSeconds(45);
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>
@@ -36,7 +39,8 @@ namespace PaperMalKing.MyAnimeList.Jikan.Helpers
 			var endpoint = useHttps ? _httpsEndpoint : _httpEndpoint;
 			var client = new HttpClient
 			{
-				BaseAddress = new Uri(endpoint)
+				BaseAddress = new Uri(endpoint),
+				Timeout = Timeout
 			};
 			client.DefaultRequestHeaders.Accept.Clear();
 			client.DefaultRequestHeaders.Accept.Add(
@@ -54,7 +58,8 @@ namespace PaperMalKing.MyAnimeList.Jikan.Helpers
 		{
 			var client = new HttpClient
 			{
-				BaseAddress = endpoint
+				BaseAddress = endpoint,
+				Timeout = Timeout
 			};
 			client.DefaultRequestHeaders.Accept.Clear();
 			client.DefaultRequestHeaders.Accept.Add(
