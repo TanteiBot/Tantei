@@ -71,11 +71,6 @@ namespace PaperMalKing.Services
 		/// </summary>
 		private readonly FeedReader _rssReader;
 
-		/// <summary>
-		/// Lowest bound for serverside issues
-		/// </summary>
-		private const int _serverErrorCodeBound = 500;
-
 		private delegate Task UpdateFoundHandler(ListUpdateEntry update);
 
 		private event UpdateFoundHandler UpdateFound;
@@ -126,10 +121,19 @@ namespace PaperMalKing.Services
 					};
 					foreach (var feed in feeds)
 					{
-						var res = await this._rssReader.GetRssFeedLoadResult(feed);
+						RssLoadResult res;
+						try
+						{
+							res = await this._rssReader.GetRssFeedLoadResult(feed);
+
+						}
+						catch (ServerSideException ex)
+						{
+							this._discordClient.DebugLogger.LogMessage(LogLevel.Warning, LogName, ex.Message,
+								DateTime.Now);
+							throw new Exception("Mal is having some issues. Try again later.");
+						}
 						var code = (int) res;
-						if (code >= _serverErrorCodeBound)
-							throw new Exception("Mal is issuing some troubles, try again later");
 						if (res == RssLoadResult.NotFound)
 							throw new Exception($"Can't find MyAnimeList account with username '{username}'.");
 						if (res == RssLoadResult.Forbidden)
@@ -277,10 +281,17 @@ namespace PaperMalKing.Services
 				};
 				foreach (var feed in feeds)
 				{
-					var res = await this._rssReader.GetRssFeedLoadResult(feed);
-					var code = (int) res;
-					if (code >= _serverErrorCodeBound)
-						throw new Exception("Mal is issuing some troubles, try again later");
+					RssLoadResult res;
+					try
+					{
+						res = await this._rssReader.GetRssFeedLoadResult(feed);
+					}
+					catch (ServerSideException ex)
+					{
+						this._discordClient.DebugLogger.LogMessage(LogLevel.Warning, LogName, ex.Message,
+							DateTime.Now);
+						throw new Exception("Mal is having some issues. Try again later.");
+					}
 					if (res == RssLoadResult.NotFound)
 						throw new Exception($"Can't find MyAnimeList account with username '{newUsername}'.");
 					if (res == RssLoadResult.Forbidden)
@@ -494,16 +505,8 @@ namespace PaperMalKing.Services
 						}
 						catch (MalRssException ex)
 						{
-							var code = (int) ex.Reason;
-							if (code >= _serverErrorCodeBound)
-							{
-								this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-									$"Skipping planned update check because Mal returned {ex.Reason}", DateTime.Now);
-								return;
-							}
-							else
-								this._discordClient.DebugLogger.LogMessage(LogLevel.Warning, LogName,
-									$"Couldn't read {ex.ListType}list because {ex.Reason}", DateTime.Now);
+							this._discordClient.DebugLogger.LogMessage(LogLevel.Warning, LogName,
+								$"Couldn't read {ex.ListType}list because {ex.Reason}", DateTime.Now);
 						}
 					}
 
@@ -559,6 +562,12 @@ namespace PaperMalKing.Services
 					db.Users.Update(user);
 					await db.SaveChangesAsync();
 				}
+			}
+			catch (ServerSideException ex)
+			{
+				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
+					"Skipping planned check for updates because Mal or Jikan are having some issues", DateTime.Now, ex);
+				return;
 			}
 			finally
 			{

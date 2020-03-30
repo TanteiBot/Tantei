@@ -28,7 +28,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 		public FeedReader(LogDelegate log)
 		{
 			this.Log = log;
-			this._httpClient = new HttpClient();
+			this._httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(45) };
 			this._lastRequestDate = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 		}
 
@@ -37,28 +37,42 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 			var millisecondsPassed = DateTimeOffset.Now.ToUnixTimeMilliseconds() - this._lastRequestDate;
 			if (millisecondsPassed < 2000)
 			{
-				var delay = (int) (2000 - millisecondsPassed);
+				var delay = (int)(2000 - millisecondsPassed);
 				this.Log(LogLevel.Debug, LogName, $"Waiting {delay}ms before reading next rss feed.", DateTime.Now);
 				await Task.Delay(delay);
 			}
 
-			HttpResponseMessage response;
+			HttpResponseMessage response = null;
 			bool tryAgain;
 			do
 			{
 				tryAgain = false;
-				response = await this._httpClient.GetAsync(url);
-				if (response.IsSuccessStatusCode)
+				try
 				{
-					this._lastRequestDate = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+					response = await this._httpClient.GetAsync(url);
+					var statusCode = (int)response.StatusCode;
+					if (response.IsSuccessStatusCode)
+					{
+						this._lastRequestDate = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+					}
+					else if (response.StatusCode == HttpStatusCode.TooManyRequests)
+					{
+						this.Log(LogLevel.Warning, LogName,
+							"Got ratelimited by Mal while trying to read rss feed, waiting 10s and retrying",
+							DateTime.Now);
+						tryAgain = true;
+						response.Dispose();
+						await Task.Delay(TimeSpan.FromSeconds(10));
+					}
+					else if (statusCode >= 500 && statusCode < 600)
+					{
+						throw new ServerSideException(url,
+							$"Encountered serverside issue while accessing {url} with status code {statusCode}");
+					}
 				}
-				else if (response.StatusCode == HttpStatusCode.TooManyRequests)
+				catch (TaskCanceledException ex)
 				{
-					this.Log(LogLevel.Warning, LogName,
-						"Got ratelimited by Mal while trying to read rss feed, waiting 10s and retrying", DateTime.Now);
-					tryAgain = true;
-					response.Dispose();
-					await Task.Delay(TimeSpan.FromSeconds(10));
+					throw new ServerSideException(url, "Waited too long for accessing feed");
 				}
 			} while (tryAgain);
 
@@ -100,12 +114,6 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 				throw new MalRssException(url, RssLoadResult.Forbidden);
 			if (statusCode == HttpStatusCode.NotFound)
 				throw new MalRssException(url, RssLoadResult.NotFound);
-			if (statusCode == HttpStatusCode.GatewayTimeout)
-				throw new MalRssException(url, RssLoadResult.GatewayTimeout);
-			if (statusCode == HttpStatusCode.ServiceUnavailable)
-				throw new MalRssException(url, RssLoadResult.ServiceUnavailable);
-			if (statusCode == HttpStatusCode.BadGateway)
-				throw new MalRssException(url, RssLoadResult.BadGateway);
 			throw new Exception($"Mal returned {statusCode} when tried to access `{url}`");
 		}
 
