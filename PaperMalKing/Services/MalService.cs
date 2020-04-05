@@ -563,7 +563,7 @@ namespace PaperMalKing.Services
 					}
 					finally
 					{
-						if (user.LastUpdateDate == latestUpdateDate)
+						if (user.LastUpdateDate != latestUpdateDate)
 						{
 							user.LastUpdateDate = latestUpdateDate.ToUniversalTime();
 							db.Users.Update(user);
