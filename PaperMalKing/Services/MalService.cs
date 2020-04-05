@@ -534,33 +534,42 @@ namespace PaperMalKing.Services
 
 					updateItems.Sort((x, y) => DateTime.Compare(x.Item1.PublishingDateTime,
 						y.Item1.PublishingDateTime));
-					var latestUpdateDate = updateItems.Last().Item1.PublishingDateTime;
+					var latestUpdateDate = user.LastUpdateDate;
 
-					foreach (var updateItem in updateItems)
+					try
 					{
-						var malEntity = await this.GetMalEntityAsync(updateItem.Item2, updateItem.Item1, user);
-						if (malEntity != null)
+						foreach (var updateItem in updateItems)
 						{
-							var actionString = updateItem.Item1.Description.Split(" - ")[0];
-							var status = updateItem.Item1.Description;
-							if (string.IsNullOrWhiteSpace(actionString))
+							var malEntity = await this.GetMalEntityAsync(updateItem.Item2, updateItem.Item1, user);
+							if (malEntity != null)
 							{
-								if (updateItem.Item2 == EntityType.Anime)
-									status = "Re-watching" + status;
-								else
-									status = "Re-reading" + status;
-							}
+								var actionString = updateItem.Item1.Description.Split(" - ")[0];
+								var status = updateItem.Item1.Description;
+								if (string.IsNullOrWhiteSpace(actionString))
+								{
+									if (updateItem.Item2 == EntityType.Anime)
+										status = "Re-watching" + status;
+									else
+										status = "Re-reading" + status;
+								}
 
-							var listUpdateEntry = new ListUpdateEntry(malUser, user, malEntity,
-								status,
-								updateItem.Item1.PublishingDateTime);
-							await this.UpdateFound?.Invoke(listUpdateEntry);
+								var listUpdateEntry = new ListUpdateEntry(malUser, user, malEntity,
+									status,
+									updateItem.Item1.PublishingDateTime);
+								await this.UpdateFound?.Invoke(listUpdateEntry);
+								latestUpdateDate = updateItem.Item1.PublishingDateTime;
+							}
 						}
 					}
-
-					user.LastUpdateDate = latestUpdateDate.ToUniversalTime();
-					db.Users.Update(user);
-					await db.SaveChangesAsync();
+					finally
+					{
+						if (user.LastUpdateDate == latestUpdateDate)
+						{
+							user.LastUpdateDate = latestUpdateDate.ToUniversalTime();
+							db.Users.Update(user);
+							await db.SaveChangesAsync();
+						}
+					}
 				}
 			}
 			catch (ServerSideException ex)
