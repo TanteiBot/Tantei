@@ -17,6 +17,16 @@
       "DmHelp": false
     }
   },
+  "RateLimits": {
+    "JikanRateLimit": {
+      "RequestsCount": 1,
+      "TimeConstraintInSeconds": 2
+    },
+    "MalRateLimit": {
+      "RequestsCount": 1,
+      "TimeConstraintInSeconds": 2
+    }
+  },
   "Database": {
     "ConnectionString": "Data Source=path-to-your-database.db"
   }

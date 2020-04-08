@@ -18,6 +18,9 @@ namespace PaperMalKing.Data
 		/// </summary>
 		[JsonProperty("Database")]
 		public BotDatabaseConfig Database { get; private set; }
+
+		[JsonProperty("RateLimits")]
+		public BotRateLimitsConfig RateLimits { get; private set; } = new BotRateLimitsConfig();
 	}
 
 	/// <summary>
@@ -117,5 +120,43 @@ namespace PaperMalKing.Data
 		/// </summary>
 		[JsonProperty("ConnectionString")]
 		public string ConnectionString { get; private set; }
+	}
+
+	public sealed class BotRateLimitsConfig
+	{
+		public BotRateLimitsConfig()
+		{
+			this.JikanRateLimitConfig = new JikanRateLimitConfig()
+			{
+				RequestsCount = 1,
+				TimeConstraint = 2
+			};
+			this.MalRateLimitConfig = new MalRateLimitConfig()
+			{
+				RequestsCount = 1,
+				TimeConstraint = 2
+			};
+		}
+
+		[JsonProperty("JikanRateLimit")]
+		public JikanRateLimitConfig JikanRateLimitConfig { get; private set; }
+
+		[JsonProperty("MalRateLimit")]
+		public MalRateLimitConfig MalRateLimitConfig { get; private set; }
+	}
+
+	public sealed class JikanRateLimitConfig : BaseRateLimitConfig
+	{ }
+
+	public sealed class MalRateLimitConfig : BaseRateLimitConfig
+	{ }
+
+	public class BaseRateLimitConfig
+	{
+		[JsonProperty("RequestsCount")]
+		public int RequestsCount { get; set; }
+
+		[JsonProperty("TimeConstraintInSeconds")]
+		public int TimeConstraint { get; set; }
 	}
 }

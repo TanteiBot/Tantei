@@ -1,27 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus;
 using PaperMalKing.Data;
+using PaperMalKing.Utilities;
 
 namespace PaperMalKing.Services
 {
 	public class RateLimiter
 	{
 		public readonly RateLimit RateLimit;
-		private readonly ClockService _clock;
-
+		protected readonly ClockService Clock;
+		public string RateLimiterName { get;}
+		public LogDelegate Log { get; }
 		private DateTime _lastUpdateTime;
 
 		protected readonly FixedSizeQueue<RateLimiterToken> Tokens;
 
 		protected readonly SemaphoreSlim SemaphoreSlim;
 
-		public RateLimiter(RateLimit rateLimit, ClockService clock)
+		public RateLimiter(RateLimit rateLimit, ClockService clock, string rateLimiterName, LogDelegate log)
 		{
 			this.RateLimit = rateLimit;
-			this._clock = clock;
+			this.Clock = clock;
+			this.RateLimiterName = rateLimiterName;
+			this.Log = log;
+			this._lastUpdateTime = this.Clock.UtcNow.Subtract(this.RateLimit.TimeConstraint);
 			this.SemaphoreSlim = new SemaphoreSlim(1, 1);
 			this.Tokens = new FixedSizeQueue<RateLimiterToken>(this.RateLimit.AmountOfRequests);
 		}
@@ -32,27 +39,31 @@ namespace PaperMalKing.Services
 			try
 			{
 				var nextRefillDateTime = this._lastUpdateTime.Add(this.RateLimit.TimeConstraint);
-				var now = this._clock.UtcNow;
+				var now = this.Clock.UtcNow;
 				var areTokensAvailable = this.Tokens.Any();
 				var isTooEarlyToRefill = DateTime.Compare(now, nextRefillDateTime) < 0;
 				if (isTooEarlyToRefill && !areTokensAvailable)
 				{
 					var delay = (nextRefillDateTime - now).Duration();
+					this.Log(LogLevel.Debug, this.RateLimiterName,
+						$"Waiting {delay.TotalMilliseconds:F1}ms before getting next token.", this.Clock.Now);
 					await Task.Delay(delay);
 				}
 				else if (isTooEarlyToRefill) // && TokensAreAvailable
 				{
-					return this.Tokens.Dequeue();
+					if(this.Tokens.TryDequeue(out var token))
+						return token;
+					throw new ArgumentException("Queue is empty");
 				}
 				else // Removing old tokens to generate new
 				{
 					this.Tokens.Clear();
 				}
 
-				this._lastUpdateTime = this._clock.UtcNow;
+				this._lastUpdateTime = this.Clock.UtcNow;
 				for (int i = 0; i < this.RateLimit.AmountOfRequests - 1; i++)
-					this.Tokens.Enqueue(new RateLimiterToken(this._clock.UtcNow));
-				return new RateLimiterToken(this._clock.UtcNow);
+					this.Tokens.Enqueue(new RateLimiterToken(this.Clock.UtcNow));
+				return new RateLimiterToken(this.Clock.UtcNow);
 			}
 			finally
 			{
