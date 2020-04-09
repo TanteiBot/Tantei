@@ -4,10 +4,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using DSharpPlus;
 using Newtonsoft.Json;
+using PaperMalKing.Data;
 using PaperMalKing.MyAnimeList.Exceptions;
 using PaperMalKing.MyAnimeList.Jikan.Data;
 using PaperMalKing.MyAnimeList.Jikan.Data.Models;
 using PaperMalKing.MyAnimeList.Jikan.Helpers;
+using PaperMalKing.Services;
 using PaperMalKing.Utilities;
 
 namespace PaperMalKing.MyAnimeList.Jikan
@@ -18,60 +20,26 @@ namespace PaperMalKing.MyAnimeList.Jikan
 
 		private readonly bool _suppressExceptions;
 
-		private long _lastRequestDate;
-
 		private readonly LogDelegate Log;
+		private readonly ClockService _clock;
+
+		private readonly JikanRateLimiter _rateLimiter;
 
 		private const string LogName = "JikanClient";
 
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public JikanClient(LogDelegate logDelegate)
+		public JikanClient(LogDelegate logDelegate, ClockService clock, JikanRateLimitConfig rlConfig)
 		{
-			this._lastRequestDate = DateTimeOffset.Now.Subtract(TimeSpan.FromSeconds(10)).ToUnixTimeMilliseconds();
 			Log = logDelegate;
+			this._clock = clock;
 			this._suppressExceptions = true;
+			this._rateLimiter =
+				new JikanRateLimiter(
+					new RateLimit(rlConfig.RequestsCount, TimeSpan.FromMilliseconds(rlConfig.TimeConstraint)), this._clock,
+					this.Log);
 			this._httpClient = HttpProvider.GetHttpClient(true);
-		}
-
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		/// <param name="useHttps">Should client send SSL encrypted requests.</param>
-		/// <param name="suppressExceptions">Should exception be thrown in case of failed request. If true, failed request return null.</param>
-		public JikanClient(bool useHttps, LogDelegate logDelegate, bool suppressExceptions = true)
-		{
-			this._lastRequestDate = DateTimeOffset.Now.Subtract(TimeSpan.FromSeconds(10)).ToUnixTimeMilliseconds();
-			Log = logDelegate;
-			this._suppressExceptions = suppressExceptions;
-			this._httpClient = HttpProvider.GetHttpClient(useHttps);
-		}
-
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		/// <param name="endpointUrl">Endpoint of the REST API.</param>
-		/// <param name="suppressExceptions">Should exception be thrown in case of failed request. If true, failed request return null.</param>
-		public JikanClient(string endpointUrl, LogDelegate logDelegate, bool suppressExceptions = true)
-		{
-			this._lastRequestDate = DateTimeOffset.Now.Subtract(TimeSpan.FromSeconds(10)).ToUnixTimeMilliseconds();
-			Log = logDelegate;
-			this._suppressExceptions = suppressExceptions;
-			this._httpClient = HttpProvider.GetHttpClient(new Uri(endpointUrl));
-		}
-
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		/// <param name="endpointUrl">Endpoint of the REST API.</param>
-		/// <param name="suppressExceptions">Should exception be thrown in case of failed request. If true, failed request return null.</param>
-		public JikanClient(Uri endpointUrl, LogDelegate logDelegate, bool suppressExceptions = true)
-		{
-			this._lastRequestDate = DateTimeOffset.Now.Subtract(TimeSpan.FromSeconds(10)).ToUnixTimeMilliseconds();
-			Log = logDelegate;
-			this._suppressExceptions = suppressExceptions;
-			this._httpClient = HttpProvider.GetHttpClient(endpointUrl);
 		}
 
 		private async Task<T> ExecuteGetRequestAsync<T>(string[] args) where T : BaseJikanRequest
@@ -79,14 +47,6 @@ namespace PaperMalKing.MyAnimeList.Jikan
 			T returnedObject = null;
 			var requestUrl = string.Join("/", args);
 
-			var timePassed = DateTimeOffset.Now.ToUnixTimeMilliseconds() - this._lastRequestDate;
-			if (timePassed < 2000) //Delay between requests to Jikan should be 2 seconds
-			{
-				var delay = (int)(2000 - timePassed);
-				this.Log(LogLevel.Debug, LogName, $"Waiting for {delay} ms before next request to Jikan",
-					DateTime.Now);
-				await Task.Delay(delay);
-			}
 
 			bool tryAgain;
 			var url = this._httpClient.BaseAddress + requestUrl;
@@ -96,26 +56,28 @@ namespace PaperMalKing.MyAnimeList.Jikan
 				HttpResponseMessage response = null;
 				try
 				{
+					var token = await this._rateLimiter.GetTokenAsync();
 					response = await this._httpClient.GetAsync(requestUrl);
-					var statusCode = (int)response.StatusCode;
+					var statusCode = (int) response.StatusCode;
 					if (response.IsSuccessStatusCode)
 					{
 						string json = await response.Content.ReadAsStringAsync();
 
 						returnedObject = JsonConvert.DeserializeObject<T>(json);
-						if (!returnedObject.RequestCached)
-							this._lastRequestDate = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+						if (returnedObject.RequestCached)
+							await this._rateLimiter.PopulateTokenAsync(token);
 					}
 					else if (response.StatusCode == HttpStatusCode.TooManyRequests)
 					{
 						this.Log(LogLevel.Warning, LogName,
-							"Got ratelimited for Jikan, waiting 10 s and retrying request again", DateTime.Now);
+							"Got ratelimited for Jikan, waiting 10 s and retrying request again", this._clock.Now);
 						await Task.Delay(TimeSpan.FromSeconds(10));
 						tryAgain = true;
 					}
 					else if (statusCode >= 500 && statusCode < 600)
 					{
-						throw new ServerSideException(url, $"Encountered server-side issue while accessing '{url}' with status code '{statusCode}'");
+						throw new ServerSideException(url,
+							$"Encountered server-side issue while accessing '{url}' with status code '{statusCode}'");
 					}
 					else
 					{
@@ -137,7 +99,6 @@ namespace PaperMalKing.MyAnimeList.Jikan
 			} while (tryAgain);
 
 
-
 			return returnedObject;
 		}
 
@@ -148,7 +109,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 		/// <returns>Information about user's profile with given username.</returns>
 		public Task<UserProfile> GetUserProfileAsync(string username)
 		{
-			var endpointParts = new[] { EndpointCategories.User, username, "profile" };
+			var endpointParts = new[] {EndpointCategories.User, username, "profile"};
 
 			return this.ExecuteGetRequestAsync<UserProfile>(endpointParts);
 		}
@@ -160,7 +121,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 		/// <returns>Anime with given MAL id.</returns>
 		public Task<Anime> GetAnimeAsync(long id)
 		{
-			var endpointParts = new[] { EndpointCategories.Anime, id.ToString() };
+			var endpointParts = new[] {EndpointCategories.Anime, id.ToString()};
 			return this.ExecuteGetRequestAsync<Anime>(endpointParts);
 		}
 
@@ -173,7 +134,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 		public Task<UserAnimeList> GetUserAnimeListAsync(string username, string searchQuery)
 		{
 			var query = string.Concat("animelist", $"?q={searchQuery}");
-			var endpointParts = new[] { EndpointCategories.User, username, query };
+			var endpointParts = new[] {EndpointCategories.User, username, query};
 			return this.ExecuteGetRequestAsync<UserAnimeList>(endpointParts);
 		}
 
@@ -184,7 +145,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 		/// <returns>Manga with given MAL id.</returns>
 		public Task<Manga> GetMangaAsync(long id)
 		{
-			var endpointParts = new[] { EndpointCategories.Manga, id.ToString() };
+			var endpointParts = new[] {EndpointCategories.Manga, id.ToString()};
 			return this.ExecuteGetRequestAsync<Manga>(endpointParts);
 		}
 
@@ -198,7 +159,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 		{
 			searchQuery = WebUtility.UrlEncode(searchQuery);
 			var query = string.Concat("mangalist", $"?q={searchQuery}");
-			var endpointParts = new[] { EndpointCategories.User, username, query };
+			var endpointParts = new[] {EndpointCategories.User, username, query};
 			return this.ExecuteGetRequestAsync<UserMangaList>(endpointParts);
 		}
 	}

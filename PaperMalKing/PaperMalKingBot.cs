@@ -28,6 +28,8 @@ namespace PaperMalKing
 
 		private readonly object _logLock = new object();
 
+		private readonly ClockService _clock;
+
 		private readonly DiscordActivity _activity;
 
 		public PaperMalKingBot(BotConfig config)
@@ -58,14 +60,17 @@ namespace PaperMalKing
 			this.Client.ClientErrored += this.Client_ClientErrored;
 			this.Client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
 			this.Client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
-			var malRssService = new FeedReader(this.Client.DebugLogger.LogMessage);
+			this._clock = new ClockService();
+			var malRssService = new FeedReader(this.Client.DebugLogger.LogMessage, this._clock,
+				this._config.RateLimits.MalRateLimitConfig);
 			var services = new ServiceCollection()
-				.AddSingleton(this.Client)
-				.AddSingleton(this._config)
-				.AddSingleton(malRssService)
-				.AddSingleton(new MalService(this._config, this.Client, malRssService))
-				.AddScoped<DatabaseContext>()
-				.BuildServiceProvider();
+						   .AddSingleton(this.Client)
+						   .AddSingleton(this._config)
+						   .AddSingleton(this._clock)
+						   .AddSingleton(malRssService)
+						   .AddSingleton(new MalService(this._config, this.Client, malRssService, this._clock))
+						   .AddScoped<DatabaseContext>()
+						   .BuildServiceProvider();
 
 
 			var cmdCfg = this._config.Discord.Commands;
@@ -98,7 +103,7 @@ namespace PaperMalKing
 
 		public async Task Start()
 		{
-			this.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Starting bot", DateTime.Now);
+			this.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Starting bot", this._clock.Now);
 			await this.Client.ConnectAsync(this._activity, UserStatus.Online);
 			await Task.Delay(-1);
 		}
@@ -110,14 +115,14 @@ namespace PaperMalKing
 				ex = ex.InnerException;
 
 			e.Client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
-				$"Exception occured: {ex.GetType()}: {ex.Message}", DateTime.Now);
+				$"Exception occured: {ex.GetType()}: {ex.Message}", this._clock.Now);
 			return Task.CompletedTask;
 		}
 
 		private Task Client_Ready(ReadyEventArgs e)
 		{
 			Console.Title = this._logName;
-			e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Bot is ready", DateTime.Now);
+			e.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Bot is ready", this._clock.Now);
 			this.Client.Ready -= this.Client_Ready;
 			return Task.CompletedTask;
 		}
@@ -126,14 +131,14 @@ namespace PaperMalKing
 		{
 			foreach (var guild in e.Guilds.Values)
 				this.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, $"Guild available {guild.Name}",
-					DateTime.Now);
+					this._clock.Now);
 			return Task.CompletedTask;
 		}
 
 		private Task Commands_CommandExecuted(CommandExecutionEventArgs e)
 		{
 			e.Context.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName,
-				$"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
+				$"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", this._clock.Now);
 			return Task.CompletedTask;
 		}
 
@@ -141,7 +146,7 @@ namespace PaperMalKing
 		{
 			e.Context.Client.DebugLogger.LogMessage(LogLevel.Error, this._logName,
 				$"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? "<unknown command>"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}",
-				DateTime.Now);
+				this._clock.Now);
 			var ex = e.Exception;
 			while (ex is AggregateException || ex.InnerException != null)
 			{
@@ -198,7 +203,7 @@ namespace PaperMalKing
 #endif
 
 				Console.Write(
-					$"[{e.Timestamp.ToString(timestampFormat)}] [{e.Application.ToFixedWidth(13)}] [{e.Level.ToShortName()}]");
+					$"[{e.Timestamp.ToString(timestampFormat)}] [{e.Application.ToFixedWidth(14)}] [{e.Level.ToShortName()}]");
 				Console.ResetColor();
 				Console.WriteLine($" {e.Message}{(e.Exception != null ? $"\n{e.Exception}" : "")}");
 			}

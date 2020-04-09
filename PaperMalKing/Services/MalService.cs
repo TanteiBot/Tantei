@@ -71,19 +71,22 @@ namespace PaperMalKing.Services
 		/// </summary>
 		private readonly FeedReader _rssReader;
 
+		private readonly ClockService _clock;
+
 		private delegate Task UpdateFoundHandler(ListUpdateEntry update);
 
 		private event UpdateFoundHandler UpdateFound;
 
-		public MalService(BotConfig config, DiscordClient discordClient, FeedReader reader)
+		public MalService(BotConfig config, DiscordClient discordClient, FeedReader reader, ClockService clock)
 		{
 			this._rssReader = reader;
+			this._clock = clock;
 			this._channels = new ConcurrentDictionary<long, DiscordChannel>();
 			this._config = config;
 			this._discordClient = discordClient;
 			discordClient.Ready += this.Client_Ready;
 			this.UpdateFound += this.MalService_UpdateFound;
-			this._jikanClient = new JikanClient(this._discordClient.DebugLogger.LogMessage);
+			this._jikanClient = new JikanClient(this._discordClient.DebugLogger.LogMessage, this._clock, this._config.RateLimits.JikanRateLimitConfig);
 			this._timerDelay = TimeSpan.FromMinutes(10);
 			this._timer = new Timer(async (e) =>
 			{
@@ -94,7 +97,7 @@ namespace PaperMalKing.Services
 				catch (Exception ex)
 				{
 					this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
-						"Exception occured in Timer_Tick method", DateTime.Now, ex);
+						"Exception occured in Timer_Tick method", this._clock.Now, ex);
 				}
 			}, null, TimeSpan.FromSeconds(15), TimeSpan.FromMilliseconds(-1));
 		}
@@ -130,7 +133,7 @@ namespace PaperMalKing.Services
 						catch (ServerSideException ex)
 						{
 							this._discordClient.DebugLogger.LogMessage(LogLevel.Warning, LogName, ex.Message,
-								DateTime.Now);
+								this._clock.Now);
 							throw new Exception("Mal is having some issues. Try again later.");
 						}
 						var code = (int) res;
@@ -154,14 +157,14 @@ namespace PaperMalKing.Services
 					var pmkUser = new PmkUser
 					{
 						DiscordId = userId,
-						LastUpdateDate = DateTime.Now.ToUniversalTime(),
+						LastUpdateDate = this._clock.Now.ToUniversalTime(),
 						MalUsername = username,
 						Guilds = guilds
 					};
 
 					db.Users.Add(pmkUser);
 					this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-						$"Added new user '{username}'({member})", DateTime.Now);
+						$"Added new user '{username}'({member})", this._clock.Now);
 				}
 				else // User is already saved in another guilds
 				{
@@ -178,7 +181,7 @@ namespace PaperMalKing.Services
 						user.Guilds.Add(new GuildUsers {DiscordId = user.DiscordId, GuildId = guildId});
 						db.Update(user);
 						this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-							$"Added ({member}) in guild '{guildId}'", DateTime.Now);
+							$"Added ({member}) in guild '{guildId}'", this._clock.Now);
 					}
 					else
 						throw new Exception("You are already registered in this guild.");
@@ -205,7 +208,7 @@ namespace PaperMalKing.Services
 					user.Guilds.Add(new GuildUsers {DiscordId = user.DiscordId, GuildId = guildId});
 					db.Update(user);
 					this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-						$"Added ({member}) in guild '{guildId}'", DateTime.Now);
+						$"Added ({member}) in guild '{guildId}'", this._clock.Now);
 					var rowChanged = await db.SaveChangesAsync();
 					if (rowChanged > 0)
 						return;
@@ -229,7 +232,7 @@ namespace PaperMalKing.Services
 				if (rowsChanged == 0)
 					throw new Exception("Couldn't save changes in database. Try again later");
 				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-					$"Successfully removed user '{user.MalUsername}'({member}) from all guilds", DateTime.Now);
+					$"Successfully removed user '{user.MalUsername}'({member}) from all guilds", this._clock.Now);
 			}
 		}
 
@@ -259,7 +262,7 @@ namespace PaperMalKing.Services
 				if (rowsChanged == 0)
 					throw new Exception("Couldn't save changes in database. Try again later");
 				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-					$"Successfully removed user '{user.MalUsername}'({member}) from {member.Guild}", DateTime.Now);
+					$"Successfully removed user '{user.MalUsername}'({member}) from {member.Guild}", this._clock.Now);
 			}
 		}
 
@@ -289,7 +292,7 @@ namespace PaperMalKing.Services
 					catch (ServerSideException ex)
 					{
 						this._discordClient.DebugLogger.LogMessage(LogLevel.Warning, LogName, ex.Message,
-							DateTime.Now);
+							this._clock.Now);
 						throw new Exception("Mal is having some issues. Try again later.");
 					}
 					if (res == RssLoadResult.NotFound)
@@ -304,7 +307,7 @@ namespace PaperMalKing.Services
 				if (rowChanges == 0)
 					throw new Exception("Couldn't save update in database. Try again later");
 				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-					$"Updated user with id'{userId}' from '{oldUsername}' to '{newUsername}'", DateTime.Now);
+					$"Updated user with id'{userId}' from '{oldUsername}' to '{newUsername}'", this._clock.Now);
 			}
 		}
 
@@ -336,7 +339,7 @@ namespace PaperMalKing.Services
 
 			this._channels.TryAdd(guildId, channel);
 			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-				$"Successfully added channel in guild with id '{guildId}'", DateTime.Now);
+				$"Successfully added channel in guild with id '{guildId}'", this._clock.Now);
 		}
 
 		public async Task UpdateChannelAsync(long guildId, long channelId)
@@ -359,7 +362,7 @@ namespace PaperMalKing.Services
 
 			this._channels[guildId] = channel;
 			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-				$"Successfully updated channel in guild with id '{guildId}'", DateTime.Now);
+				$"Successfully updated channel in guild with id '{guildId}'", this._clock.Now);
 		}
 
 		public void RemoveChannel(long guildId)
@@ -378,7 +381,7 @@ namespace PaperMalKing.Services
 			}
 
 			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-				$"Successfully removed channel in guild with id '{guildId}'", DateTime.Now);
+				$"Successfully removed channel in guild with id '{guildId}'", this._clock.Now);
 		}
 
 		private async Task<IMalEntity> GetMalEntityAsync(EntityType type, FeedItem feedItem, PmkUser pmkUser)
@@ -391,7 +394,7 @@ namespace PaperMalKing.Services
 			if (!long.TryParse(malUnparsedId, out long malId))
 			{
 				this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
-					$"Couldn't parse {malUnparsedId}", DateTime.Now);
+					$"Couldn't parse {malUnparsedId}", this._clock.Now);
 				return null;
 			}
 
@@ -410,7 +413,7 @@ namespace PaperMalKing.Services
 				if (userAl?.Anime?.Any() != true)
 				{
 					this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
-						$"Couldn't load '{query}' from '{pmkUser.MalUsername}'s animelist", DateTime.Now);
+						$"Couldn't load '{query}' from '{pmkUser.MalUsername}'s animelist", this._clock.Now);
 					return await this._jikanClient.GetAnimeAsync(malId);
 				}
 
@@ -421,7 +424,7 @@ namespace PaperMalKing.Services
 			if (userMl?.Manga?.Any() != true)
 			{
 				this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
-					$"Couldn't load '{query}' from '{pmkUser.MalUsername}'s mangalist", DateTime.Now);
+					$"Couldn't load '{query}' from '{pmkUser.MalUsername}'s mangalist", this._clock.Now);
 				return await this._jikanClient.GetMangaAsync(malId);
 			}
 
@@ -431,7 +434,7 @@ namespace PaperMalKing.Services
 		private async Task MalService_UpdateFound(ListUpdateEntry update)
 		{
 			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-				$"Sending update for {update.Entry.Title} in {update.UserProfile.Username} MAL", DateTime.Now);
+				$"Sending update for {update.Entry.Title} in {update.UserProfile.Username} MAL", this._clock.Now);
 
 			var embed = update.CreateEmbed();
 
@@ -463,17 +466,17 @@ namespace PaperMalKing.Services
 						var channel = await this._discordClient.GetChannelAsync(channelId);
 						this._channels.TryAdd(guild.GuildId, channel);
 						e.Client.DebugLogger.LogMessage(LogLevel.Info, LogName,
-							$"Successfully loaded channel for guild with id '{guild.GuildId}'", DateTime.Now);
+							$"Successfully loaded channel for guild with id '{guild.GuildId}'", this._clock.Now);
 					}
 					catch (Exception ex)
 					{
 						e.Client.DebugLogger.LogMessage(LogLevel.Critical, LogName,
-							$"Channel wasn't loaded successfully in guild with id '{guild.GuildId}'", DateTime.Now, ex);
+							$"Channel wasn't loaded successfully in guild with id '{guild.GuildId}'", this._clock.Now, ex);
 					}
 				}
 			}
 
-			e.Client.DebugLogger.LogMessage(LogLevel.Info, LogName, "Loaded channels for all guilds", DateTime.Now);
+			e.Client.DebugLogger.LogMessage(LogLevel.Info, LogName, "Loaded channels for all guilds", this._clock.Now);
 
 			this._discordClient.Ready -= this.Client_Ready;
 		}
@@ -485,7 +488,7 @@ namespace PaperMalKing.Services
 			try
 			{
 				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName, "Starting checking for updates",
-					DateTime.Now);
+					this._clock.Now);
 				PmkUser[] users;
 				using var db = new DatabaseContext(this._config);
 				users = db.Users.Include(ug => ug.Guilds).ThenInclude(g => g.Guild).ToArray();
@@ -493,7 +496,7 @@ namespace PaperMalKing.Services
 				foreach (var user in users)
 				{
 					this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-						$"Starting to checking updates for {user.MalUsername}", DateTime.Now);
+						$"Starting to checking updates for {user.MalUsername}", this._clock.Now);
 					var feeds = new Feed[2];
 					var rssUrls = new[] {user.AnimeRssFeed, user.MangaRssFeed};
 
@@ -506,7 +509,7 @@ namespace PaperMalKing.Services
 						catch (MalRssException ex)
 						{
 							this._discordClient.DebugLogger.LogMessage(LogLevel.Warning, LogName,
-								$"Couldn't read {ex.ListType}list because {ex.Reason}", DateTime.Now);
+								$"Couldn't read {ex.ListType}list because {ex.Reason}", this._clock.Now);
 						}
 					}
 
@@ -528,7 +531,7 @@ namespace PaperMalKing.Services
 					{
 						this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
 							$"Couldn't load MyAnimeList user from username '{user.MalUsername}' (DiscordId '{user.DiscordId}'",
-							DateTime.Now);
+							this._clock.Now);
 						continue;
 					}
 
@@ -575,14 +578,14 @@ namespace PaperMalKing.Services
 			catch (ServerSideException ex)
 			{
 				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-					"Skipping planned check for updates because Mal or Jikan are having some issues", DateTime.Now, ex);
+					"Skipping planned check for updates because Mal or Jikan are having some issues", this._clock.Now, ex);
 				return;
 			}
 			finally
 			{
 				this.Updating = false;
 				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName, "Ended checking for updates",
-					DateTime.Now);
+					this._clock.Now);
 				this._timer.Change(this._timerDelay, TimeSpan.FromMilliseconds(-1));
 			}
 		}

@@ -4,7 +4,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using DSharpPlus;
+using PaperMalKing.Data;
 using PaperMalKing.MyAnimeList.Exceptions;
+using PaperMalKing.Services;
 using PaperMalKing.Utilities;
 
 namespace PaperMalKing.MyAnimeList.FeedReader
@@ -14,33 +16,26 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 	/// </summary>
 	public sealed class FeedReader
 	{
-		/// <summary>
-		/// Unix time milliseconds since last request to MyAnimeList
-		/// </summary>
-		private long _lastRequestDate;
-
 		private readonly LogDelegate Log;
+		private readonly ClockService _clock;
+		private readonly RateLimiter _rateLimiter;
 
 		private readonly HttpClient _httpClient;
 
 		private const string LogName = "MalFeedReader";
 
-		public FeedReader(LogDelegate log)
+		public FeedReader(LogDelegate log, ClockService clock, MalRateLimitConfig rlConfig)
 		{
 			this.Log = log;
+			this._clock = clock;
+			this._rateLimiter =
+				new RateLimiter(new RateLimit(rlConfig.RequestsCount, TimeSpan.FromMilliseconds(rlConfig.TimeConstraint)),
+					this._clock, "MalRateLimiter", this.Log);
 			this._httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(45) };
-			this._lastRequestDate = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 		}
 
 		private async Task<HttpResponseMessage> MakeRequestAsync(string url)
 		{
-			var millisecondsPassed = DateTimeOffset.Now.ToUnixTimeMilliseconds() - this._lastRequestDate;
-			if (millisecondsPassed < 2000)
-			{
-				var delay = (int)(2000 - millisecondsPassed);
-				this.Log(LogLevel.Debug, LogName, $"Waiting {delay}ms before reading next rss feed.", DateTime.Now);
-				await Task.Delay(delay);
-			}
 
 			HttpResponseMessage response = null;
 			bool tryAgain;
@@ -49,17 +44,17 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 				tryAgain = false;
 				try
 				{
+					await this._rateLimiter.GetTokenAsync();
+					// #if DEBUG
+					// this.Log(LogLevel.Debug, LogName, "Accessing MAL", this._clock.Now);
+					// #endif
 					response = await this._httpClient.GetAsync(url);
 					var statusCode = (int)response.StatusCode;
-					if (response.IsSuccessStatusCode)
-					{
-						this._lastRequestDate = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-					}
-					else if (response.StatusCode == HttpStatusCode.TooManyRequests)
+					if (response.StatusCode == HttpStatusCode.TooManyRequests)
 					{
 						this.Log(LogLevel.Warning, LogName,
 							"Got ratelimited by Mal while trying to read rss feed, waiting 10s and retrying",
-							DateTime.Now);
+							this._clock.Now);
 						tryAgain = true;
 						response.Dispose();
 						await Task.Delay(TimeSpan.FromSeconds(10));

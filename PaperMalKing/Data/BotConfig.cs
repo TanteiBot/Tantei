@@ -18,6 +18,9 @@ namespace PaperMalKing.Data
 		/// </summary>
 		[JsonProperty("Database")]
 		public BotDatabaseConfig Database { get; private set; }
+
+		[JsonProperty("RateLimits")]
+		public BotRateLimitsConfig RateLimits { get; private set; } = new BotRateLimitsConfig();
 	}
 
 	/// <summary>
@@ -108,7 +111,7 @@ namespace PaperMalKing.Data
 	}
 
 	/// <summary>
-	/// Bot config options related to database 
+	/// Bot config options related to database
 	/// </summary>
 	public sealed class BotDatabaseConfig
 	{
@@ -117,5 +120,68 @@ namespace PaperMalKing.Data
 		/// </summary>
 		[JsonProperty("ConnectionString")]
 		public string ConnectionString { get; private set; }
+	}
+
+	/// <summary>
+	/// Bot config options related to MyAnimeList ratelimits
+	/// </summary>
+	public sealed class BotRateLimitsConfig
+	{
+		public BotRateLimitsConfig()
+		{
+			this.JikanRateLimitConfig = new JikanRateLimitConfig()
+			{
+				RequestsCount = 1,
+				TimeConstraint = 2000
+			};
+			// Since there are no public API for MyAnimeList as well as documentation
+			// Default rate-limit will be 1 request every 2 seconds as it was advised to me in Jikan Discord Guild
+			// Source: https://discordapp.com/channels/460491088004907029/461199124205797439/676861111441686530
+			// I might change it later after Mal will get proper documentation
+			this.MalRateLimitConfig = new MalRateLimitConfig()
+			{
+				RequestsCount = 1,
+				TimeConstraint = 2000
+			};
+		}
+
+		/// <summary>
+		/// Bot rate limit config for Jikan
+		/// </summary>
+		[JsonProperty("JikanRateLimit")]
+		public JikanRateLimitConfig JikanRateLimitConfig { get; private set; }
+
+		/// <summary>
+		/// Bot rate limit config for MyAnimeList
+		/// </summary>
+		[JsonProperty("MalRateLimit")]
+		public MalRateLimitConfig MalRateLimitConfig { get; private set; }
+	}
+
+	/// <summary>
+	/// Bot rate limit config for Jikan
+	/// </summary>
+	public sealed class JikanRateLimitConfig : BaseRateLimitConfig
+	{ }
+
+	/// <summary>
+	/// Bot rate limit config for MyAnimeList
+	/// </summary>
+	public sealed class MalRateLimitConfig : BaseRateLimitConfig
+	{ }
+
+	public class BaseRateLimitConfig
+	{
+		/// <summary>
+		/// Amount of requests
+		/// </summary>
+		[JsonProperty("RequestsCount")]
+		public int RequestsCount { get; set; }
+
+		/// <summary>
+		/// Time in milliseconds after which amount of available requests will be reset
+		/// </summary>
+		[JsonProperty("TimeConstraintInMilliseconds")]
+		public double TimeConstraint { get; set; }
 	}
 }
