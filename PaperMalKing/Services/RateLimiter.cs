@@ -45,8 +45,9 @@ namespace PaperMalKing.Services
 				if (isTooEarlyToRefill && !areTokensAvailable)
 				{
 					var delay = (nextRefillDateTime - now).Duration();
+					var delayInMs = Convert.ToInt32(delay.TotalMilliseconds);
 					this.Log(LogLevel.Debug, this.RateLimiterName,
-						$"Waiting {delay.TotalMilliseconds:F1}ms before getting next token.", this.Clock.Now);
+						$"Waiting {delayInMs}ms before getting next token.", this.Clock.Now);
 					await Task.Delay(delay);
 				}
 				else if (isTooEarlyToRefill) // && TokensAreAvailable

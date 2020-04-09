@@ -7,6 +7,9 @@ using System.Diagnostics;
 
 namespace PaperMalKing.Services
 {
+	/// <summary>
+	/// High precision clock
+	/// </summary>
 	public sealed class ClockService
 	{
 		private readonly long _maxIdleTime;
