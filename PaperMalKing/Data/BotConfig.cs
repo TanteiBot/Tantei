@@ -132,7 +132,7 @@ namespace PaperMalKing.Data
 			this.JikanRateLimitConfig = new JikanRateLimitConfig()
 			{
 				RequestsCount = 1,
-				TimeConstraint = 2
+				TimeConstraint = 2000
 			};
 			// Since there are no public API for MyAnimeList as well as documentation
 			// Default rate-limit will be 1 request every 2 seconds as it was advised to me in Jikan Discord Guild
@@ -141,7 +141,7 @@ namespace PaperMalKing.Data
 			this.MalRateLimitConfig = new MalRateLimitConfig()
 			{
 				RequestsCount = 1,
-				TimeConstraint = 2
+				TimeConstraint = 2000
 			};
 		}
 
@@ -179,9 +179,9 @@ namespace PaperMalKing.Data
 		public int RequestsCount { get; set; }
 
 		/// <summary>
-		/// Time in seconds after which amount of available requests will be reset
+		/// Time in milliseconds after which amount of available requests will be reset
 		/// </summary>
-		[JsonProperty("TimeConstraintInSeconds")]
-		public int TimeConstraint { get; set; }
+		[JsonProperty("TimeConstraintInMilliseconds")]
+		public double TimeConstraint { get; set; }
 	}
 }

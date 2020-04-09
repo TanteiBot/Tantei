@@ -37,7 +37,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 			this._suppressExceptions = true;
 			this._rateLimiter =
 				new JikanRateLimiter(
-					new RateLimit(rlConfig.RequestsCount, TimeSpan.FromSeconds(rlConfig.TimeConstraint)), this._clock,
+					new RateLimit(rlConfig.RequestsCount, TimeSpan.FromMilliseconds(rlConfig.TimeConstraint)), this._clock,
 					this.Log);
 			this._httpClient = HttpProvider.GetHttpClient(true);
 		}

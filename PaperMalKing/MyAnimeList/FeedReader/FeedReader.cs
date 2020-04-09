@@ -29,7 +29,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 			this.Log = log;
 			this._clock = clock;
 			this._rateLimiter =
-				new RateLimiter(new RateLimit(rlConfig.RequestsCount, TimeSpan.FromSeconds(rlConfig.TimeConstraint)),
+				new RateLimiter(new RateLimit(rlConfig.RequestsCount, TimeSpan.FromMilliseconds(rlConfig.TimeConstraint)),
 					this._clock, "MalRateLimiter", this.Log);
 			this._httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(45) };
 		}

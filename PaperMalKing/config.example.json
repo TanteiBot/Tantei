@@ -20,11 +20,11 @@
   "RateLimits": {
     "JikanRateLimit": {
       "RequestsCount": 1,
-      "TimeConstraintInSeconds": 2
+      "TimeConstraintInMilliseconds": 2000
     },
     "MalRateLimit": {
       "RequestsCount": 1,
-      "TimeConstraintInSeconds": 2
+      "TimeConstraintInMilliseconds": 2000
     }
   },
   "Database": {
