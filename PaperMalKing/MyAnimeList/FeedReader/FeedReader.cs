@@ -16,7 +16,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 	/// </summary>
 	public sealed class FeedReader
 	{
-		private readonly LogDelegate Log;
+		private readonly LogDelegate _log;
 		private readonly ClockService _clock;
 		private readonly RateLimiter _rateLimiter;
 
@@ -26,11 +26,11 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 
 		public FeedReader(LogDelegate log, ClockService clock, MalRateLimitConfig rlConfig)
 		{
-			this.Log = log;
+			this._log = log;
 			this._clock = clock;
 			this._rateLimiter =
 				new RateLimiter(new RateLimit(rlConfig.RequestsCount, TimeSpan.FromMilliseconds(rlConfig.TimeConstraint)),
-					this._clock, "MalRateLimiter", this.Log);
+					this._clock, "MalRateLimiter", this._log);
 			this._httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(45) };
 		}
 
@@ -52,20 +52,24 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 					var statusCode = (int)response.StatusCode;
 					if (response.StatusCode == HttpStatusCode.TooManyRequests)
 					{
-						this.Log(LogLevel.Warning, LogName,
+						this._log(LogLevel.Warning, LogName,
 							"Got ratelimited by Mal while trying to read rss feed, waiting 10s and retrying",
 							this._clock.Now);
 						tryAgain = true;
 						response.Dispose();
 						await Task.Delay(TimeSpan.FromSeconds(10));
 					}
+					else if (response.StatusCode == HttpStatusCode.Forbidden)
+						throw new MalRssException(url, RssLoadResult.Forbidden);
+					else if (response.StatusCode == HttpStatusCode.NotFound)
+						throw new MalRssException(url, RssLoadResult.NotFound);
 					else if (statusCode >= 500 && statusCode < 600)
 					{
 						throw new ServerSideException(url,
 							$"Encountered serverside issue while accessing {url} with status code {statusCode}");
 					}
 				}
-				catch (TaskCanceledException ex)
+				catch (TaskCanceledException)
 				{
 					throw new ServerSideException(url, "Waited too long for accessing feed");
 				}

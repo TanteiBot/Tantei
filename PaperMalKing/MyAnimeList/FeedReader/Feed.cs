@@ -41,31 +41,55 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 		[XmlElement(ElementName = "pubDate")]
 		public string PubDateString { get; set; }
 
-		[XmlIgnore] public DateTime PublishingDateTime { get; set; }
+		[XmlIgnore]
+		private bool? _isPlanToCheck;
+
+		[XmlIgnore]
+		public bool IsPlanToCheck
+		{
+			get
+			{
+				if (!this._isPlanToCheck.HasValue)
+				{
+					this._isPlanToCheck =
+						this.Description.Contains("plan to", StringComparison.InvariantCultureIgnoreCase);
+				}
+
+				return this._isPlanToCheck.Value;
+			}
+		}
+
+		[XmlIgnore]
+		public DateTime PublishingDateTime { get; set; }
 	}
 
 	[XmlRoot(ElementName = "channel")]
 	public sealed class FeedChannel
 	{
-		[XmlElement(ElementName = "title")] public string Title { get; set; }
+		[XmlElement(ElementName = "title")]
+		public string Title { get; set; }
 
-		[XmlElement(ElementName = "link")] public string Link { get; set; }
+		[XmlElement(ElementName = "link")]
+		public string Link { get; set; }
 
 		[XmlElement(ElementName = "description")]
 		public string Description { get; set; }
 
-		[XmlElement(ElementName = "item")] public List<FeedItem> Items { get; set; }
+		[XmlElement(ElementName = "item")]
+		public List<FeedItem> Items { get; set; }
 	}
 
 	[XmlRoot(ElementName = "rss")]
 	public sealed class Feed
 	{
-		[XmlElement(ElementName = "channel")] public FeedChannel Channel { get; set; }
+		[XmlElement(ElementName = "channel")]
+		public FeedChannel Channel { get; set; }
 
 		[XmlAttribute(AttributeName = "version")]
 		public string Version { get; set; }
 
-		[XmlIgnore] public List<FeedItem> Items => this.Channel.Items;
+		[XmlIgnore]
+		public List<FeedItem> Items => this.Channel.Items;
 
 		public void TryFillDateTime()
 		{

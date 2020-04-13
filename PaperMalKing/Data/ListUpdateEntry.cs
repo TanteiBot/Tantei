@@ -3,10 +3,11 @@
  */
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using DSharpPlus.Entities;
 using PaperMalKing.MyAnimeList;
 using PaperMalKing.MyAnimeList.Jikan.Data.Interfaces;
-using PaperMalKing.MyAnimeList.Jikan.Data.Models;
 
 namespace PaperMalKing.Data
 {
@@ -15,10 +16,22 @@ namespace PaperMalKing.Data
 	/// </summary>
 	public sealed class ListUpdateEntry
 	{
-		/// <summary>
-		/// MyAnimeList user whose list has been updated
-		/// </summary>
-		public readonly UserProfile UserProfile;
+		private static ConcurrentDictionary<StatusType, DiscordColor> Colors =>
+			new ConcurrentDictionary<StatusType, DiscordColor>(new[]
+			{
+				// Mal blue color for completed entries
+				new KeyValuePair<StatusType, DiscordColor>(StatusType.Completed, new DiscordColor("#214290")),
+				// Mal red for dropped entries
+				new KeyValuePair<StatusType, DiscordColor>(StatusType.Dropped, new DiscordColor("#a22b2d")),
+				// Mal green for entries in progress
+				new KeyValuePair<StatusType, DiscordColor>(StatusType.InProgress, new DiscordColor("#29b236")),
+				//Mal yellow for entries on hold
+				new KeyValuePair<StatusType, DiscordColor>(StatusType.OnHold, new DiscordColor("#f9d556")),
+				// Mal grey for entries being in plans to read or watch
+				new KeyValuePair<StatusType, DiscordColor>(StatusType.PlanToCheck, new DiscordColor("#c4c4c4")),
+				// Black color if somehow entity is undefined
+				new KeyValuePair<StatusType, DiscordColor>(StatusType.Undefined, DiscordColor.Black)
+			});
 
 		/// <summary>
 		/// User to which update is related
@@ -40,25 +53,17 @@ namespace PaperMalKing.Data
 		/// </summary>
 		private readonly StatusType _progressStatus;
 
-		public ListUpdateEntry(UserProfile profile, PmkUser user, IMalEntity malEntity, string status,
-			DateTime? updatedDate)
+		public ListUpdateEntry(PmkUser user, IMalEntity malEntity, string status, DateTime? updatedDate)
 		{
 			this.Entry = new UpdateEntry(malEntity, updatedDate);
-			this.UserProfile = profile;
 			this.User = user;
 			this._status = status;
-			var statusTypeUnparsed = status.Split(" - ")[0].ToLower().Trim();
-			if (statusTypeUnparsed.Contains("plan to"))
-				this._progressStatus = StatusType.PlanToCheck;
-			else if (statusTypeUnparsed.EndsWith("ing"))
-				this._progressStatus = StatusType.InProgress;
-			else
+			if (malEntity is IListEntry li)
 			{
-				if (StatusType.TryParse(statusTypeUnparsed, true, out StatusType res))
-					this._progressStatus = res;
-				else
-					this._progressStatus = StatusType.Undefined;
+				this._progressStatus = li.UsersStatus;
 			}
+			else
+				this._progressStatus = StatusType.PlanToCheck;
 		}
 
 		/// <summary>
@@ -68,12 +73,9 @@ namespace PaperMalKing.Data
 		public DiscordEmbed CreateEmbed()
 		{
 			var embedBuilder = new DiscordEmbedBuilder()
-				.WithAuthor(this.UserProfile.Username, this.UserProfile.Url,
-					this.UserProfile.ImageUrl ??
-					$"https://cdn.myanimelist.net/images/userimages/{this.UserProfile.UserId}.jpg")
-				.WithTitle(this.Entry.Title)
-				.WithUrl(this.Entry.TitleUrl)
-				.WithThumbnailUrl(this.Entry.ImageUrl);
+							   .WithAuthor(this.User.MalUsername, this.User.Url, this.User.MalAvatarUrl)
+							   .WithTitle(this.Entry.Title).WithUrl(this.Entry.TitleUrl)
+							   .WithThumbnailUrl(this.Entry.ImageUrl);
 
 			if (this.Entry.Score.HasValue && this.Entry.Score.Value != 0)
 			{
@@ -87,19 +89,7 @@ namespace PaperMalKing.Data
 				embedBuilder.WithTimestamp(this.Entry.EntryUpdatedDate);
 			}
 
-			DiscordColor color;
-			if (this._progressStatus == StatusType.InProgress)
-				color = new DiscordColor("#29b236"); // Mal green
-			else if (this._progressStatus == StatusType.Completed)
-				color = new DiscordColor("#214290"); // Mal blue
-			else if (this._progressStatus == StatusType.OnHold)
-				color = new DiscordColor("#f9d556"); //Mal yellow
-			else if (this._progressStatus == StatusType.Dropped)
-				color = new DiscordColor("#a22b2d"); // Mal red
-			else if (this._progressStatus == StatusType.PlanToCheck)
-				color = new DiscordColor("#c4c4c4"); // Mal grey
-			else
-				color = DiscordColor.Black;
+			var color = Colors.GetValueOrDefault(this._progressStatus, DiscordColor.Black);
 
 			embedBuilder.WithColor(color);
 

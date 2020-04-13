@@ -20,7 +20,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 
 		private readonly bool _suppressExceptions;
 
-		private readonly LogDelegate Log;
+		private readonly LogDelegate _log;
 		private readonly ClockService _clock;
 
 		private readonly JikanRateLimiter _rateLimiter;
@@ -32,13 +32,13 @@ namespace PaperMalKing.MyAnimeList.Jikan
 		/// </summary>
 		public JikanClient(LogDelegate logDelegate, ClockService clock, JikanRateLimitConfig rlConfig)
 		{
-			Log = logDelegate;
+			this._log = logDelegate;
 			this._clock = clock;
 			this._suppressExceptions = true;
 			this._rateLimiter =
 				new JikanRateLimiter(
 					new RateLimit(rlConfig.RequestsCount, TimeSpan.FromMilliseconds(rlConfig.TimeConstraint)), this._clock,
-					this.Log);
+					this._log);
 			this._httpClient = HttpProvider.GetHttpClient(true);
 		}
 
@@ -69,7 +69,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 					}
 					else if (response.StatusCode == HttpStatusCode.TooManyRequests)
 					{
-						this.Log(LogLevel.Warning, LogName,
+						this._log(LogLevel.Warning, LogName,
 							"Got ratelimited for Jikan, waiting 10 s and retrying request again", this._clock.Now);
 						await Task.Delay(TimeSpan.FromSeconds(10));
 						tryAgain = true;
@@ -84,7 +84,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 						throw new Exception($"Status code: '{response.StatusCode}'. Message: '{response.Content}'");
 					}
 				}
-				catch (TaskCanceledException ex)
+				catch (TaskCanceledException)
 				{
 					throw new ServerSideException(url, "Waited too long for getting info");
 				}
@@ -139,6 +139,18 @@ namespace PaperMalKing.MyAnimeList.Jikan
 		}
 
 		/// <summary>
+		/// Gets entries on user's anime list from in order from latest updates to first updates
+		/// </summary>
+		/// <param name="username">Username</param>
+		/// <returns>Entries on user's anime list ordered by latest update date</returns>
+		public Task<UserAnimeList> GetUserRecentlyUpdatedAnimeAsync(string username)
+		{
+			var query = "animelist/all?order_by=last_updated&sort=desc";
+			var endpointParts = new[] {EndpointCategories.User, username, query};
+			return this.ExecuteGetRequestAsync<UserAnimeList>(endpointParts);
+		}
+
+		/// <summary>
 		/// Return manga with given MAL id.
 		/// </summary>
 		/// <param name="id">MAL id of manga.</param>
@@ -157,8 +169,14 @@ namespace PaperMalKing.MyAnimeList.Jikan
 		/// <returns>Entries on user's manga list.</returns>
 		public Task<UserMangaList> GetUserMangaList(string username, string searchQuery)
 		{
-			searchQuery = WebUtility.UrlEncode(searchQuery);
 			var query = string.Concat("mangalist", $"?q={searchQuery}");
+			var endpointParts = new[] {EndpointCategories.User, username, query};
+			return this.ExecuteGetRequestAsync<UserMangaList>(endpointParts);
+		}
+
+		public Task<UserMangaList> GetUserRecentlyUpdatedMangaAsync(string username)
+		{
+			var query = "mangalist/all?order_by=last_updated&sort=desc";
 			var endpointParts = new[] {EndpointCategories.User, username, query};
 			return this.ExecuteGetRequestAsync<UserMangaList>(endpointParts);
 		}
