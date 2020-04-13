@@ -136,7 +136,6 @@ namespace PaperMalKing.Services
 								this._clock.Now);
 							throw new Exception("Mal is having some issues. Try again later.");
 						}
-						var code = (int) res;
 						if (res == RssLoadResult.NotFound)
 							throw new Exception($"Can't find MyAnimeList account with username '{username}'.");
 						if (res == RssLoadResult.Forbidden)
@@ -386,10 +385,9 @@ namespace PaperMalKing.Services
 
 		private async Task<IMalEntity> GetMalEntityAsync(EntityType type, FeedItem feedItem, PmkUser pmkUser)
 		{
-			var actionString = feedItem.Description.Split(" - ")[0].ToLower();
 			var malUnparsedId = this._regex.Matches(feedItem.Link)
-				.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value))
-				?.Value;
+									.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value))
+									?.Value;
 
 			if (!long.TryParse(malUnparsedId, out long malId))
 			{
@@ -398,14 +396,27 @@ namespace PaperMalKing.Services
 				return null;
 			}
 
-			if (actionString.Contains("plan to"))
+			if (type == EntityType.Anime)
+			{
+				var animeListEntry = pmkUser.RecentlyUpdatedAnime.FirstOrDefault(x => x.MalId == malId);
+				if (animeListEntry != null)
+					return animeListEntry;
+			}
+			else
+			{
+				var mangaListEntry = pmkUser.RecentlyUpdatedManga.FirstOrDefault(x => x.MalId == malId);
+				if (mangaListEntry != null)
+					return mangaListEntry;
+			}
+
+			if (feedItem.IsPlanToCheck)
 			{
 				if (type == EntityType.Anime)
 					return await this._jikanClient.GetAnimeAsync(malId);
 				return await this._jikanClient.GetMangaAsync(malId);
 			}
 
-			var index = feedItem.Title.LastIndexOf(" - ");
+			var index = feedItem.Title.LastIndexOf(" - ", StringComparison.InvariantCulture);
 			var query = feedItem.Title.Remove(index).Trim();
 			if (type == EntityType.Anime)
 			{
@@ -434,7 +445,7 @@ namespace PaperMalKing.Services
 		private async Task MalService_UpdateFound(ListUpdateEntry update)
 		{
 			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
-				$"Sending update for {update.Entry.Title} in {update.UserProfile.Username} MAL", this._clock.Now);
+				$"Sending update for {update.Entry.Title} in {update.User.MalUsername} MAL", this._clock.Now);
 
 			var embed = update.CreateEmbed();
 
@@ -485,12 +496,12 @@ namespace PaperMalKing.Services
 		private async Task Timer_Tick()
 		{
 			this.Updating = true;
+			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName, "Starting checking for updates",
+				this._clock.Now);
+			PmkUser[] users;
+			using var db = new DatabaseContext(this._config);
 			try
 			{
-				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName, "Starting checking for updates",
-					this._clock.Now);
-				PmkUser[] users;
-				using var db = new DatabaseContext(this._config);
 				users = db.Users.Include(ug => ug.Guilds).ThenInclude(g => g.Guild).ToArray();
 
 				foreach (var user in users)
@@ -526,41 +537,53 @@ namespace PaperMalKing.Services
 					if (!updateItems.Any())
 						continue;
 
-					var malUser = await this._jikanClient.GetUserProfileAsync(user.MalUsername);
-					if (malUser == null)
+					if (!user.MalId.HasValue)
 					{
-						this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
-							$"Couldn't load MyAnimeList user from username '{user.MalUsername}' (DiscordId '{user.DiscordId}'",
-							this._clock.Now);
-						continue;
+						var malUser = await this._jikanClient.GetUserProfileAsync(user.MalUsername);
+						if (malUser == null)
+						{
+							this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
+								$"Couldn't load MyAnimeList user from username '{user.MalUsername}' (DiscordId '{user.DiscordId}'",
+								this._clock.Now);
+							continue;
+						}
+
+						user.MalId = malUser.UserId;
+						db.Users.Update(user);
 					}
 
 					updateItems.Sort((x, y) => DateTime.Compare(x.Item1.PublishingDateTime,
 						y.Item1.PublishingDateTime));
 					var latestUpdateDate = user.LastUpdateDate;
+					if (updateItems.Any(x => x.Item2 == EntityType.Anime))
+						user.RecentlyUpdatedAnime =
+							(await this._jikanClient.GetUserRecentlyUpdatedAnimeAsync(user.MalUsername)).Anime;
+					if (updateItems.Any(x => x.Item2 == EntityType.Manga))
+						user.RecentlyUpdatedManga =
+							(await this._jikanClient.GetUserRecentlyUpdatedMangaAsync(user.MalUsername)).Manga;
 
 					try
 					{
-						foreach (var updateItem in updateItems)
+						foreach (var (feedItem, entityType) in updateItems)
 						{
-							var malEntity = await this.GetMalEntityAsync(updateItem.Item2, updateItem.Item1, user);
+							var malEntity = await this.GetMalEntityAsync(entityType, feedItem, user);
 							if (malEntity != null)
 							{
-								var actionString = updateItem.Item1.Description.Split(" - ")[0];
-								var status = updateItem.Item1.Description;
+								var actionString = feedItem.Description.Split(" - ")[0];
+								var status = feedItem.Description;
 								if (string.IsNullOrWhiteSpace(actionString))
 								{
-									if (updateItem.Item2 == EntityType.Anime)
+									if (entityType == EntityType.Anime)
 										status = "Re-watching" + status;
 									else
 										status = "Re-reading" + status;
 								}
 
-								var listUpdateEntry = new ListUpdateEntry(malUser, user, malEntity,
+								var listUpdateEntry = new ListUpdateEntry(user, malEntity,
 									status,
-									updateItem.Item1.PublishingDateTime);
+									feedItem.PublishingDateTime);
 								await this.UpdateFound?.Invoke(listUpdateEntry);
-								latestUpdateDate = updateItem.Item1.PublishingDateTime;
+								latestUpdateDate = feedItem.PublishingDateTime;
 							}
 						}
 					}
@@ -570,7 +593,6 @@ namespace PaperMalKing.Services
 						{
 							user.LastUpdateDate = latestUpdateDate.ToUniversalTime();
 							db.Users.Update(user);
-							await db.SaveChangesAsync();
 						}
 					}
 				}
@@ -583,6 +605,7 @@ namespace PaperMalKing.Services
 			}
 			finally
 			{
+				await db.SaveChangesAsync();
 				this.Updating = false;
 				this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName, "Ended checking for updates",
 					this._clock.Now);

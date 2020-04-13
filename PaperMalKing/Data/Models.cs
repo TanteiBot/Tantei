@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PaperMalKing.MyAnimeList.Jikan.Data.Models;
 
 namespace PaperMalKing.Data
 {
@@ -32,6 +33,33 @@ namespace PaperMalKing.Data
 		public DateTime LastUpdateDate { get; set; }
 
 		/// <summary>
+		/// User's Id on MyAnimeList
+		/// </summary>
+		[Column("MalId")]
+		public long? MalId { get; set; }
+
+		/// <summary>
+		/// Url to user's avatar on MyAnimeList
+		/// </summary>
+		[NotMapped]
+		public string MalAvatarUrl
+		{
+			get
+			{
+				if (this.MalId.HasValue)
+					return $"https://cdn.myanimelist.net/images/userimages/{this.MalId.Value}.jpg";
+				else
+					return null;
+			}
+		}
+
+		/// <summary>
+		/// Url to user profile on MAL
+		/// </summary>
+		[NotMapped]
+		public string Url => $"https://myanimelist.net/profile/{this.MalUsername}";
+
+		/// <summary>
 		/// Url to user's anime RSS feed
 		/// </summary>
 		[NotMapped]
@@ -42,6 +70,18 @@ namespace PaperMalKing.Data
 		/// </summary>
 		[NotMapped]
 		public string MangaRssFeed => $"https://myanimelist.net/rss.php?type=rm&u={this.MalUsername}";
+
+		/// <summary>
+		/// User's recently updated manga
+		/// </summary>
+		[NotMapped]
+		public ICollection<MangaListEntry> RecentlyUpdatedManga { get; set; }
+
+		/// <summary>
+		/// User's recently update anime
+		/// </summary>
+		[NotMapped]
+		public ICollection<AnimeListEntry> RecentlyUpdatedAnime { get; set; }
 
 		/// <summary>
 		/// Guilds to which user's updates will be send

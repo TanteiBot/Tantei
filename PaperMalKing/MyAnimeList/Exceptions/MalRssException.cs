@@ -32,7 +32,7 @@ namespace PaperMalKing.MyAnimeList.Exceptions
 			this.Url = url;
 			this.Reason = reason;
 			this.ListType = url.Contains("type=rw&=") ? EntityType.Anime : EntityType.Manga;
-			var index = url.LastIndexOf("u=");
+			var index = url.LastIndexOf("u=", StringComparison.InvariantCulture);
 			this.Username = url.Substring(index + 2);
 		}
 	}
