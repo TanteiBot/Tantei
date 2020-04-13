@@ -129,7 +129,17 @@ namespace PaperMalKing.Data
 			public UpdateEntry(IMalEntity malEntity, DateTime? entryUpdatedDate)
 			{
 				this.EntryUpdatedDate = entryUpdatedDate;
-				this.Title = $"{malEntity.Title} ({malEntity.Type})";
+				var title = malEntity.Title.Trim();
+				var type = malEntity.Type.Trim();
+				if (title.EndsWith($"({type})", StringComparison.InvariantCultureIgnoreCase) // Title is looking fine the way he is
+					||
+					// I don't want to give titles more standard for bot look
+					// because it will mess up titles like "The Last: Naruto the Movie"
+					title.EndsWith(type, StringComparison.InvariantCultureIgnoreCase))
+					this.Title = title;
+				else
+					this.Title =
+						$"{title} ({type})"; // Append type to title. This will do for most of the titles on MAL
 
 				this.TitleUrl = malEntity.Url;
 
