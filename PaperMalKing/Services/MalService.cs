@@ -19,6 +19,7 @@ using PaperMalKing.MyAnimeList.Exceptions;
 using PaperMalKing.MyAnimeList.FeedReader;
 using PaperMalKing.MyAnimeList.Jikan;
 using PaperMalKing.MyAnimeList.Jikan.Data.Interfaces;
+using PaperMalKing.Utilities;
 
 namespace PaperMalKing.Services
 {
@@ -498,12 +499,10 @@ namespace PaperMalKing.Services
 			this.Updating = true;
 			this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName, "Starting checking for updates",
 				this._clock.Now);
-			PmkUser[] users;
 			using var db = new DatabaseContext(this._config);
 			try
 			{
-				users = db.Users.Include(ug => ug.Guilds).ThenInclude(g => g.Guild).ToArray();
-
+				var users = db.Users.Include(ug => ug.Guilds).ThenInclude(g => g.Guild).ToArray().Shuffle();
 				foreach (var user in users)
 				{
 					this._discordClient.DebugLogger.LogMessage(LogLevel.Info, LogName,
