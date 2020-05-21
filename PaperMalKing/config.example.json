@@ -27,6 +27,9 @@
       "TimeConstraintInMilliseconds": 2000
     }
   },
+  "Misc": {
+    "DelayBetweenChecksForUpdatesInMs": 600000
+  },
   "Database": {
     "ConnectionString": "Data Source=path-to-your-database.db"
   }
