@@ -88,7 +88,7 @@ namespace PaperMalKing.Services
 			discordClient.Ready += this.Client_Ready;
 			this.UpdateFound += this.MalService_UpdateFound;
 			this._jikanClient = new JikanClient(this._discordClient.DebugLogger.LogMessage, this._clock, this._config.RateLimits.JikanRateLimitConfig);
-			this._timerDelay = TimeSpan.FromMinutes(10);
+			this._timerDelay = TimeSpan.FromMilliseconds(config.MiscConfig.DelayBetweenChecksForUpdatesInMs);
 			this._timer = new Timer(async (e) =>
 			{
 				try
@@ -100,7 +100,7 @@ namespace PaperMalKing.Services
 					this._discordClient.DebugLogger.LogMessage(LogLevel.Error, LogName,
 						"Exception occured in Timer_Tick method", this._clock.Now, ex);
 				}
-			}, null, TimeSpan.FromSeconds(15), TimeSpan.FromMilliseconds(-1));
+			}, null, TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
 		}
 
 		public void RestartTimer()
@@ -489,6 +489,8 @@ namespace PaperMalKing.Services
 			}
 
 			e.Client.DebugLogger.LogMessage(LogLevel.Info, LogName, "Loaded channels for all guilds", this._clock.Now);
+
+			this.RestartTimer();
 
 			this._discordClient.Ready -= this.Client_Ready;
 		}

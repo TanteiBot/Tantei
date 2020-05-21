@@ -21,6 +21,9 @@ namespace PaperMalKing.Data
 
 		[JsonProperty("RateLimits")]
 		public BotRateLimitsConfig RateLimits { get; private set; } = new BotRateLimitsConfig();
+
+		[JsonProperty("Misc")]
+		public BotMiscConfig MiscConfig { get; private set; }
 	}
 
 	/// <summary>
@@ -156,6 +159,12 @@ namespace PaperMalKing.Data
 		/// </summary>
 		[JsonProperty("MalRateLimit")]
 		public MalRateLimitConfig MalRateLimitConfig { get; private set; }
+	}
+
+	public sealed class BotMiscConfig
+	{
+		[JsonProperty("DelayBetweenChecksForUpdatesInMs")]
+		public int DelayBetweenChecksForUpdatesInMs { get; private set; }
 	}
 
 	/// <summary>
