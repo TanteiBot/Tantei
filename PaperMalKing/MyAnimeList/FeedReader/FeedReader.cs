@@ -24,14 +24,14 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 
 		private const string LogName = "MalFeedReader";
 
-		public FeedReader(LogDelegate log, ClockService clock, MalRateLimitConfig rlConfig)
+		public FeedReader(LogDelegate log, ClockService clock, BotMalConfig malConfig)
 		{
 			this._log = log;
 			this._clock = clock;
 			this._rateLimiter =
-				new RateLimiter(new RateLimit(rlConfig.RequestsCount, TimeSpan.FromMilliseconds(rlConfig.TimeConstraint)),
+				new RateLimiter(new RateLimit(malConfig.RateLimit.RequestsCount, TimeSpan.FromMilliseconds(malConfig.RateLimit.TimeConstraint)),
 					this._clock, "MalRateLimiter", this._log);
-			this._httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(45) };
+			this._httpClient = HttpProvider.GetHttpClient(TimeSpan.FromMilliseconds(malConfig.Timeout));
 		}
 
 		private async Task<HttpResponseMessage> MakeRequestAsync(string url)

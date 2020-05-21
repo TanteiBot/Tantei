@@ -17,18 +17,21 @@
       "DmHelp": false
     }
   },
-  "RateLimits": {
-    "JikanRateLimit": {
+  "MyAnimeList": {
+    "RateLimit": {
       "RequestsCount": 1,
       "TimeConstraintInMilliseconds": 2000
     },
-    "MalRateLimit": {
+    "Timeout": 45000,
+    "DelayBetweenUpdateChecks": 600000
+  },
+  "Jikan": {
+    "RateLimit": {
       "RequestsCount": 1,
       "TimeConstraintInMilliseconds": 2000
-    }
-  },
-  "Misc": {
-    "DelayBetweenChecksForUpdatesInMs": 600000
+    },
+    "Timeout": 45000,
+    "Uri": "https://api.jikan.moe/v3/"
   },
   "Database": {
     "ConnectionString": "Data Source=path-to-your-database.db"
