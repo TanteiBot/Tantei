@@ -90,5 +90,14 @@ namespace PaperMalKing.Commands
 			foreach (var msg in msgsToDelete)
 				await context.Channel.DeleteMessageAsync(msg);
 		}
+
+		[Command("Exit")]
+		[RequireOwner]
+		public Task ExitCommand(CommandContext context)
+		{
+			context.Client.DebugLogger.LogMessage(LogLevel.Error, context.User.Username, "Exiting due to command", DateTime.UtcNow);
+			Environment.Exit(0);
+			return Task.CompletedTask;
+		}
 	}
 }
