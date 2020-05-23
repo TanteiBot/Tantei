@@ -31,7 +31,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 			this._rateLimiter =
 				new RateLimiter(new RateLimit(malConfig.RateLimit.RequestsCount, TimeSpan.FromMilliseconds(malConfig.RateLimit.TimeConstraint)),
 					this._clock, "MalRateLimiter", this._log);
-			this._httpClient = HttpProvider.GetHttpClient(TimeSpan.FromMilliseconds(malConfig.Timeout));
+			this._httpClient = HttpProvider.GetHttpClientForMalFeedReader(TimeSpan.FromMilliseconds(malConfig.Timeout));
 		}
 
 		private async Task<HttpResponseMessage> MakeRequestAsync(string url)

@@ -18,29 +18,36 @@ namespace PaperMalKing.MyAnimeList
 		/// <returns>Static HttpClient.</returns>
 		public static HttpClient GetHttpClientForJikan(Uri endpoint, TimeSpan timeout)
 		{
-			var client = GetHttpClient(timeout);
-			client.BaseAddress = endpoint;
+			var client = new HttpClient
+			{
+				BaseAddress = endpoint,
+				Timeout = timeout
+			};
 			client.DefaultRequestHeaders.Accept.Clear();
 			client.DefaultRequestHeaders.Accept.Add(
 				new MediaTypeWithQualityHeaderValue("application/json"));
+			client.DefaultRequestHeaders.UserAgent.Clear();
+			client.DefaultRequestHeaders.UserAgent.ParseAdd("PaperMalKingBot");
+
 
 			return client;
 		}
 
-		public static HttpClient GetHttpClient(TimeSpan timeout)
+		public static HttpClient GetHttpClientForMalFeedReader(TimeSpan timeout)
 		{
-			var handler = new HttpClientHandler
+			var handler = new HttpClientHandler()
 			{
-				CookieContainer = new CookieContainer(),
 				UseCookies = true,
+				CookieContainer = new CookieContainer()
 			};
 
 			var client = new HttpClient(handler)
 			{
-				Timeout = timeout,
+				Timeout = timeout
 			};
 			client.DefaultRequestHeaders.UserAgent.Clear();
-			client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0");
+			client.DefaultRequestHeaders.UserAgent.TryParseAdd(
+				"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0");
 			return client;
 		}
 	}
