@@ -1,0 +1,40 @@
+﻿---
+# Config example without much comments.
+# If you are setting bot for the first time - look to 'config.example.yml'.
+# This config is good if you know what you are doing
+# OR 
+# you are fine with defaults and you want bot to work as fast as possible and you followed installation guide properly,
+# if this is the case - you should change only:
+# - Discord.Token and
+# - Database.ConnectionString
+
+
+Discord:
+  Token: "Your Discord API token here"
+  ReconnectIndefinitely: false
+  AutoReconnect: true
+  MessageCacheSize: 64
+  LogName: "PaperMalKing"
+  ActivityType: 3
+  PresenceText: "for your animelists"
+  Commands:
+    Prefixes:
+      - "pmk"
+      - "=="
+    EnableMentionPrefix: true
+    CaseSensitive: false
+    DmHelp: false
+MyAnimeList:
+  RateLimit:
+    RequestsCount: 1
+    TimeConstraint: 2000
+  Timeout: 45000
+  DelayBetweenUpdateChecks: 600000
+Jikan:
+  RateLimit:
+    RequestsCount: 1
+    TimeConstraint: 2000
+  Timeout: 45000
+  Uri: "https://api.jikan.moe/v3/"
+Database:
+  ConnectionString: "Data Source=path-to-your-database.db"

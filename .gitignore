@@ -5,6 +5,7 @@
 
 # Config holds private data
 config.json
+config.yml
 
 # Empty database is distributed with releases
 empty_database.db
