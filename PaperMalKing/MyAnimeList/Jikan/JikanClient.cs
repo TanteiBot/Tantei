@@ -8,7 +8,6 @@ using PaperMalKing.Data;
 using PaperMalKing.MyAnimeList.Exceptions;
 using PaperMalKing.MyAnimeList.Jikan.Data;
 using PaperMalKing.MyAnimeList.Jikan.Data.Models;
-using PaperMalKing.MyAnimeList.Jikan.Helpers;
 using PaperMalKing.Services;
 using PaperMalKing.Utilities;
 
@@ -30,16 +29,16 @@ namespace PaperMalKing.MyAnimeList.Jikan
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public JikanClient(LogDelegate logDelegate, ClockService clock, JikanRateLimitConfig rlConfig)
+		public JikanClient(LogDelegate logDelegate, ClockService clock, BotJikanConfig config)
 		{
 			this._log = logDelegate;
 			this._clock = clock;
 			this._suppressExceptions = true;
 			this._rateLimiter =
 				new JikanRateLimiter(
-					new RateLimit(rlConfig.RequestsCount, TimeSpan.FromMilliseconds(rlConfig.TimeConstraint)), this._clock,
+					new RateLimit(config.RateLimit.RequestsCount, TimeSpan.FromMilliseconds(config.RateLimit.TimeConstraint)), this._clock,
 					this._log);
-			this._httpClient = HttpProvider.GetHttpClient(true);
+			this._httpClient = HttpProvider.GetHttpClientForJikan(new Uri(config.Uri), TimeSpan.FromMilliseconds(config.Timeout));
 		}
 
 		private async Task<T> ExecuteGetRequestAsync<T>(string[] args) where T : BaseJikanRequest

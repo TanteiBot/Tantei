@@ -62,7 +62,7 @@ namespace PaperMalKing
 			this.Client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
 			this._clock = new ClockService();
 			var malRssService = new FeedReader(this.Client.DebugLogger.LogMessage, this._clock,
-				this._config.RateLimits.MalRateLimitConfig);
+				this._config.MyAnimeList);
 			var services = new ServiceCollection()
 						   .AddSingleton(this.Client)
 						   .AddSingleton(this._config)

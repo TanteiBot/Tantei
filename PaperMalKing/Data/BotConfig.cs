@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Threading;
+using Newtonsoft.Json;
 
 namespace PaperMalKing.Data
 {
@@ -19,12 +20,13 @@ namespace PaperMalKing.Data
 		[JsonProperty("Database")]
 		public BotDatabaseConfig Database { get; private set; }
 
-		[JsonProperty("RateLimits")]
-		public BotRateLimitsConfig RateLimits { get; private set; } = new BotRateLimitsConfig();
+		[JsonProperty("Jikan")]
+		public BotJikanConfig Jikan { get; private set; }
 
-		[JsonProperty("Misc")]
-		public BotMiscConfig MiscConfig { get; private set; }
+		[JsonProperty("MyAnimeList")]
+		public BotMalConfig MyAnimeList { get; private set; }
 	}
+
 
 	/// <summary>
 	/// Bot config options related to Discord
@@ -68,13 +70,13 @@ namespace PaperMalKing.Data
 		/// Set to 3 to display "watching" activity
 		/// </summary>
 		[JsonProperty("ActivityType")]
-		public int ActivityType { get; set; }
+		public int ActivityType { get; private set; }
 
 		/// <summary>
 		/// Text that will be displayed in bot status
 		/// </summary>
 		[JsonProperty("PresenceText")]
-		public string PresenceText { get; set; }
+		public string PresenceText { get; private set; }
 
 		/// <summary>
 		/// Bot config to commands in Discord
@@ -125,72 +127,74 @@ namespace PaperMalKing.Data
 		public string ConnectionString { get; private set; }
 	}
 
-	/// <summary>
-	/// Bot config options related to MyAnimeList ratelimits
-	/// </summary>
-	public sealed class BotRateLimitsConfig
+
+	public sealed class BotMalConfig : ITimeoutable, IRateLimitable
 	{
-		public BotRateLimitsConfig()
+		/// <inheritdoc />
+		public int Timeout { get; set; }
+
+		/// <inheritdoc />
+		[JsonProperty("RateLimit")]
+		public RateLimitConfig RateLimit { get; set; }
+
+		[JsonProperty("DelayBetweenUpdateChecks")]
+		public int DelayBetweenUpdateChecks { get; set; }
+	}
+
+	public sealed class BotJikanConfig : ITimeoutable, IRateLimitable
+	{
+		/// <inheritdoc />
+		public int Timeout { get; set; }
+
+		/// <inheritdoc />
+		[JsonProperty("RateLimit")]
+		public RateLimitConfig RateLimit { get; set; }
+
+		[JsonProperty("Uri")]
+		public string Uri { get; private set; }
+	}
+
+	public class RateLimitConfig
+	{
+		public RateLimitConfig()
 		{
-			this.JikanRateLimitConfig = new JikanRateLimitConfig()
-			{
-				RequestsCount = 1,
-				TimeConstraint = 2000
-			};
-			// Since there are no public API for MyAnimeList as well as documentation
-			// Default rate-limit will be 1 request every 2 seconds as it was advised to me in Jikan Discord Guild
-			// Source: https://discordapp.com/channels/460491088004907029/461199124205797439/676861111441686530
-			// I might change it later after Mal will get proper documentation
-			this.MalRateLimitConfig = new MalRateLimitConfig()
-			{
-				RequestsCount = 1,
-				TimeConstraint = 2000
-			};
+			/*
+			 * This default config seems good for both MAL and Jikan.
+			 *
+			 * 
+			 * Since there are no public API for MyAnimeList as well as documentation
+			 * Default rate-limit will be 1 request every 2 seconds as it was advised to me in Jikan Discord Guild
+			 * Source: https://discordapp.com/channels/460491088004907029/461199124205797439/676861111441686530
+			 */
+
+			this.RequestsCount = 1;
+			this.TimeConstraint = 2000;
 		}
 
-		/// <summary>
-		/// Bot rate limit config for Jikan
-		/// </summary>
-		[JsonProperty("JikanRateLimit")]
-		public JikanRateLimitConfig JikanRateLimitConfig { get; private set; }
-
-		/// <summary>
-		/// Bot rate limit config for MyAnimeList
-		/// </summary>
-		[JsonProperty("MalRateLimit")]
-		public MalRateLimitConfig MalRateLimitConfig { get; private set; }
-	}
-
-	public sealed class BotMiscConfig
-	{
-		[JsonProperty("DelayBetweenChecksForUpdatesInMs")]
-		public int DelayBetweenChecksForUpdatesInMs { get; private set; }
-	}
-
-	/// <summary>
-	/// Bot rate limit config for Jikan
-	/// </summary>
-	public sealed class JikanRateLimitConfig : BaseRateLimitConfig
-	{ }
-
-	/// <summary>
-	/// Bot rate limit config for MyAnimeList
-	/// </summary>
-	public sealed class MalRateLimitConfig : BaseRateLimitConfig
-	{ }
-
-	public class BaseRateLimitConfig
-	{
 		/// <summary>
 		/// Amount of requests
 		/// </summary>
 		[JsonProperty("RequestsCount")]
-		public int RequestsCount { get; set; }
+		public int RequestsCount { get; private set; }
 
 		/// <summary>
 		/// Time in milliseconds after which amount of available requests will be reset
 		/// </summary>
 		[JsonProperty("TimeConstraintInMilliseconds")]
-		public double TimeConstraint { get; set; }
+		public double TimeConstraint { get; private set; }
+	}
+
+	public interface IRateLimitable
+	{
+		public RateLimitConfig RateLimit { get; set; }
+	}
+
+	public interface ITimeoutable
+	{
+		/// <summary>
+		/// Time in miliseconds before bot stops awaiting answer from remote server and cancels current check for updates
+		/// </summary>
+		[JsonProperty("Timeout")]
+		public int Timeout { get; set; }
 	}
 }

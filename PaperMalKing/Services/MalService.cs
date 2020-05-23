@@ -87,8 +87,8 @@ namespace PaperMalKing.Services
 			this._discordClient = discordClient;
 			discordClient.Ready += this.Client_Ready;
 			this.UpdateFound += this.MalService_UpdateFound;
-			this._jikanClient = new JikanClient(this._discordClient.DebugLogger.LogMessage, this._clock, this._config.RateLimits.JikanRateLimitConfig);
-			this._timerDelay = TimeSpan.FromMilliseconds(config.MiscConfig.DelayBetweenChecksForUpdatesInMs);
+			this._jikanClient = new JikanClient(this._discordClient.DebugLogger.LogMessage, this._clock, this._config.Jikan);
+			this._timerDelay = TimeSpan.FromMilliseconds(config.MyAnimeList.DelayBetweenUpdateChecks);
 			this._timer = new Timer(async (e) =>
 			{
 				try
