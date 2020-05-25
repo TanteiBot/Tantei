@@ -27,7 +27,7 @@ namespace PaperMalKing.Commands
 			{
 				Description = messageContent.Replace("@everyone", "@\u200beveryone").Replace("@here", "@\u200bhere"),
 				Timestamp = DateTime.Now,
-				Color = DiscordColor.Blue,
+				Color = DiscordColor.Blue
 			}.WithAuthor($"{context.Member.Username}#{context.Member.Discriminator}",
 				iconUrl: context.Member.AvatarUrl);
 			try
@@ -48,8 +48,7 @@ namespace PaperMalKing.Commands
 			var botVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString(3) ?? "";
 			var netCoreVersion = Environment.Version.ToString(3);
 
-			var desc =
-				"Paper Mal King is bot designed to automatically track  its users updates on MyAnimeList.\nDeveloped by N0D4N#2281 (<@356518417987141633>).";
+			const string desc = "Paper Mal King is bot designed to automatically track  its users updates on MyAnimeList.\nDeveloped by N0D4N#2281 (<@356518417987141633>).";
 
 			var versions = $"Bot version - {botVersion}." +
 			               "\n" +
@@ -57,7 +56,7 @@ namespace PaperMalKing.Commands
 			               "\n" +
 			               $".NET Core version - {netCoreVersion}.";
 
-			var sourceCodeLink = "https://github.com/N0D4N/PaperMalKing";
+			const string sourceCodeLink = "https://github.com/N0D4N/PaperMalKing";
 			var links = Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)) +
 			            "\n" +
 			            Formatter.MaskedUrl("Wiki",

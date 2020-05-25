@@ -6,7 +6,7 @@ namespace PaperMalKing.Data
 	/// Queue with fixed size
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public class FixedSizeQueue<T> : ConcurrentQueue<T>
+	public sealed class FixedSizeQueue<T> : ConcurrentQueue<T>
 	{
 		/// <summary>
 		/// Object for locking

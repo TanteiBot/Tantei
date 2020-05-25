@@ -6,7 +6,7 @@ using PaperMalKing.Utilities;
 
 namespace PaperMalKing.MyAnimeList.Jikan
 {
-	public class JikanRateLimiter : RateLimiter
+	public sealed class JikanRateLimiter : RateLimiter
 	{
 		/// <inheritdoc />
 		public JikanRateLimiter(RateLimit rateLimit, ClockService clock, LogDelegate log) : base(rateLimit, clock,

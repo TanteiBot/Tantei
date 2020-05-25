@@ -8,7 +8,7 @@ namespace PaperMalKing.MyAnimeList.Exceptions
 
 		public ServerSideException(string url, string message) : base(message)
 		{
-			Url = url;
+			this.Url = url;
 		}
 	}
 }

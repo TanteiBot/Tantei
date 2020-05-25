@@ -46,13 +46,10 @@ namespace PaperMalKing.Data
 		{
 			get
 			{
-				if (this._malAvatarUrl == null)
+				if (this._malAvatarUrl == null && this.MalId.HasValue)
 				{
-					if (this.MalId.HasValue)
-					{
-						var ts = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-						this._malAvatarUrl = $"https://cdn.myanimelist.net/images/userimages/{this.MalId.Value}.jpg?t={ts}";
-					}
+					var ts = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+					this._malAvatarUrl = $"https://cdn.myanimelist.net/images/userimages/{this.MalId.Value}.jpg?t={ts}";
 				}
 
 				return this._malAvatarUrl;

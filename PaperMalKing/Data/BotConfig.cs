@@ -51,7 +51,7 @@ namespace PaperMalKing.Data
 		public bool AutoReconnect { get; private set; }
 
 		/// <summary>
-		/// Size of the global message cache. 
+		/// Size of the global message cache.
 		/// </summary>
 		[YamlMember(Alias = "MessageCacheSize")]
 		public int MessageCacheSize { get; private set; }

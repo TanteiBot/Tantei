@@ -2,7 +2,7 @@
 
 namespace PaperMalKing.Data
 {
-	public struct RateLimiterToken
+	public readonly struct RateLimiterToken
 	{
 		public readonly DateTime CreationDate;
 

@@ -7,7 +7,7 @@ namespace PaperMalKing.Data
 		public readonly int AmountOfRequests;
 
 		public readonly TimeSpan TimeConstraint;
-		
+
 		public RateLimit(int amountOfRequests, TimeSpan timeConstraint)
 		{
 			this.AmountOfRequests = amountOfRequests;

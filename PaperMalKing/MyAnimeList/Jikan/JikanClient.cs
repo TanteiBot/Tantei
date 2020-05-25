@@ -16,9 +16,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 	public sealed class JikanClient
 	{
 		private readonly HttpClient _httpClient;
-
-		private readonly bool _suppressExceptions;
-
+		
 		private readonly LogDelegate _log;
 		private readonly ClockService _clock;
 
@@ -33,7 +31,6 @@ namespace PaperMalKing.MyAnimeList.Jikan
 		{
 			this._log = logDelegate;
 			this._clock = clock;
-			this._suppressExceptions = true;
 			this._rateLimiter =
 				new JikanRateLimiter(
 					new RateLimit(config.RateLimit.RequestsCount, TimeSpan.FromMilliseconds(config.RateLimit.TimeConstraint)), this._clock,
@@ -60,7 +57,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 					var statusCode = (int) response.StatusCode;
 					if (response.IsSuccessStatusCode)
 					{
-						string json = await response.Content.ReadAsStringAsync();
+						var json = await response.Content.ReadAsStringAsync();
 
 						returnedObject = JsonConvert.DeserializeObject<T>(json);
 						if (returnedObject.RequestCached)
@@ -144,7 +141,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 		/// <returns>Entries on user's anime list ordered by latest update date</returns>
 		public Task<UserAnimeList> GetUserRecentlyUpdatedAnimeAsync(string username)
 		{
-			var query = "animelist/all?order_by=last_updated&sort=desc";
+			const string query = "animelist/all?order_by=last_updated&sort=desc";
 			var endpointParts = new[] {EndpointCategories.User, username, query};
 			return this.ExecuteGetRequestAsync<UserAnimeList>(endpointParts);
 		}
@@ -175,7 +172,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 
 		public Task<UserMangaList> GetUserRecentlyUpdatedMangaAsync(string username)
 		{
-			var query = "mangalist/all?order_by=last_updated&sort=desc";
+			const string query = "mangalist/all?order_by=last_updated&sort=desc";
 			var endpointParts = new[] {EndpointCategories.User, username, query};
 			return this.ExecuteGetRequestAsync<UserMangaList>(endpointParts);
 		}

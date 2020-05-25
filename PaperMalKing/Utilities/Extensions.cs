@@ -30,23 +30,21 @@ namespace PaperMalKing.Utilities
 				_ => "UNK"
 			};
 		}
-		
+
 		public static IList<T> Shuffle<T>(this IList<T> list)
 		{
-			using(var provider = new RNGCryptoServiceProvider())
+			using var provider = new RNGCryptoServiceProvider();
+			var n = list.Count;
+			while(n > 1)
 			{
-				int n = list.Count;
-				while(n > 1)
-				{
-					byte[] box = new byte[sizeof(int)];
-					provider.GetBytes(box);
-					int bit = BitConverter.ToInt32(box, 0);
-					int k = Math.Abs(bit) % n;
-					n--;
-					T value = list[k];
-					list[k] = list[n];
-					list[n] = value;
-				}
+				var box = new byte[sizeof(int)];
+				provider.GetBytes(box);
+				int bit = BitConverter.ToInt32(box, 0);
+				int k = Math.Abs(bit) % n;
+				n--;
+				T value = list[k];
+				list[k] = list[n];
+				list[n] = value;
 			}
 
 			return list;

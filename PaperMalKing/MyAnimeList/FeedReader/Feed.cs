@@ -49,11 +49,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 		{
 			get
 			{
-				if (!this._isPlanToCheck.HasValue)
-				{
-					this._isPlanToCheck =
-						this.Description.Contains("plan to", StringComparison.InvariantCultureIgnoreCase);
-				}
+				this._isPlanToCheck ??= this.Description.Contains("plan to", StringComparison.InvariantCultureIgnoreCase);
 
 				return this._isPlanToCheck.Value;
 			}
@@ -95,7 +91,7 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 		{
 			foreach (var feedItem in this.Items)
 			{
-				DateTime pubDate = DateTime.MinValue;
+				var pubDate = DateTime.MinValue;
 				if (DateTime.TryParse(feedItem.PubDateString, out var result))
 					pubDate = result;
 				feedItem.PublishingDateTime = pubDate.ToUniversalTime();

@@ -15,6 +15,7 @@ namespace PaperMalKing.MyAnimeList
 		/// Get static HttpClient. Using custom, user defined Jikan REST endpoint.
 		/// </summary>
 		/// <param name="endpoint">Endpoint of the REST API.</param>
+		/// <param name="timeout">Timespan before request times out</param>
 		/// <returns>Static HttpClient.</returns>
 		public static HttpClient GetHttpClientForJikan(Uri endpoint, TimeSpan timeout)
 		{
@@ -35,7 +36,7 @@ namespace PaperMalKing.MyAnimeList
 
 		public static HttpClient GetHttpClientForMalFeedReader(TimeSpan timeout)
 		{
-			var handler = new HttpClientHandler()
+			var handler = new HttpClientHandler
 			{
 				UseCookies = true,
 				CookieContainer = new CookieContainer()

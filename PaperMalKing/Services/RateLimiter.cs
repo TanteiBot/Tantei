@@ -12,8 +12,8 @@ namespace PaperMalKing.Services
 	{
 		public readonly RateLimit RateLimit;
 		protected readonly ClockService Clock;
-		public string RateLimiterName { get;}
-		public LogDelegate Log { get; }
+		protected string RateLimiterName { get; }
+		protected LogDelegate Log { get; }
 		private DateTime _lastUpdateTime;
 
 		protected readonly FixedSizeQueue<RateLimiterToken> Tokens;

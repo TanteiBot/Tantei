@@ -372,7 +372,7 @@ namespace PaperMalKing.Services
 				var guild = db.Guilds.FirstOrDefault(x => x.GuildId == guildId);
 				if (guild != null)
 				{
-					this._channels.TryRemove(guildId, out var _);
+					this._channels.TryRemove(guildId, out _);
 					if (guild.ChannelId == null) return;
 					guild.ChannelId = null;
 					db.Guilds.Update(guild);
@@ -568,24 +568,23 @@ namespace PaperMalKing.Services
 						foreach (var (feedItem, entityType) in updateItems)
 						{
 							var malEntity = await this.GetMalEntityAsync(entityType, feedItem, user);
-							if (malEntity != null)
+							if (malEntity == null)
+								continue;
+							var actionString = feedItem.Description.Split(" - ")[0];
+							var status = feedItem.Description;
+							if (string.IsNullOrWhiteSpace(actionString))
 							{
-								var actionString = feedItem.Description.Split(" - ")[0];
-								var status = feedItem.Description;
-								if (string.IsNullOrWhiteSpace(actionString))
-								{
-									if (entityType == EntityType.Anime)
-										status = "Re-watching" + status;
-									else
-										status = "Re-reading" + status;
-								}
-
-								var listUpdateEntry = new ListUpdateEntry(user, malEntity,
-									status,
-									feedItem.PublishingDateTime);
-								await this.UpdateFound?.Invoke(listUpdateEntry);
-								latestUpdateDate = feedItem.PublishingDateTime;
+								if (entityType == EntityType.Anime)
+									status = "Re-watching" + status;
+								else
+									status = "Re-reading" + status;
 							}
+
+							var listUpdateEntry = new ListUpdateEntry(user, malEntity,
+								status,
+								feedItem.PublishingDateTime);
+							await this.UpdateFound?.Invoke(listUpdateEntry);
+							latestUpdateDate = feedItem.PublishingDateTime;
 						}
 					}
 					finally
