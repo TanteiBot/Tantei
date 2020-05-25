@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Newtonsoft.Json;
+﻿using YamlDotNet.Serialization;
 
 namespace PaperMalKing.Data
 {
@@ -11,19 +10,19 @@ namespace PaperMalKing.Data
 		/// <summary>
 		/// Bot Discord config
 		/// </summary>
-		[JsonProperty("Discord")]
+		[YamlMember(Alias = "Discord")]
 		public BotDiscordConfig Discord { get; private set; }
 
 		/// <summary>
 		/// Bot database config
 		/// </summary>
-		[JsonProperty("Database")]
+		[YamlMember(Alias ="Database")]
 		public BotDatabaseConfig Database { get; private set; }
 
-		[JsonProperty("Jikan")]
+		[YamlMember(Alias = "Jikan")]
 		public BotJikanConfig Jikan { get; private set; }
 
-		[JsonProperty("MyAnimeList")]
+		[YamlMember(Alias = "MyAnimeList")]
 		public BotMalConfig MyAnimeList { get; private set; }
 	}
 
@@ -36,31 +35,31 @@ namespace PaperMalKing.Data
 		/// <summary>
 		/// Bot Discord API Token
 		/// </summary>
-		[JsonProperty("Token")]
+		[YamlMember(Alias ="Token")]
 		public string Token { get; private set; }
 
 		/// <summary>
 		/// Should bot reconnect to Discord indefinitely
 		/// </summary>
-		[JsonProperty("ReconnectIndefinitely")]
+		[YamlMember(Alias = "ReconnectIndefinitely")]
 		public bool ReconnectIndefinitely { get; private set; }
 
 		/// <summary>
 		/// Should bot autoreconnect to Discord
 		/// </summary>
-		[JsonProperty("AutoReconnect")]
+		[YamlMember(Alias = "AutoReconnect")]
 		public bool AutoReconnect { get; private set; }
 
 		/// <summary>
 		/// Size of the global message cache. 
 		/// </summary>
-		[JsonProperty("MessageCacheSize")]
+		[YamlMember(Alias = "MessageCacheSize")]
 		public int MessageCacheSize { get; private set; }
 
 		/// <summary>
 		/// Bot name that will be written to logs and console window title
 		/// </summary>
-		[JsonProperty("LogName")]
+		[YamlMember(Alias = "LogName")]
 		public string LogName { get; private set; }
 
 		/// <summary>
@@ -69,19 +68,19 @@ namespace PaperMalKing.Data
 		/// Set to 2 to display "listening" activity.
 		/// Set to 3 to display "watching" activity
 		/// </summary>
-		[JsonProperty("ActivityType")]
+		[YamlMember(Alias = "ActivityType")]
 		public int ActivityType { get; private set; }
 
 		/// <summary>
 		/// Text that will be displayed in bot status
 		/// </summary>
-		[JsonProperty("PresenceText")]
+		[YamlMember(Alias = "PresenceText")]
 		public string PresenceText { get; private set; }
 
 		/// <summary>
 		/// Bot config to commands in Discord
 		/// </summary>
-		[JsonProperty("Commands")]
+		[YamlMember(Alias = "Commands")]
 		public BotDiscordCommandsConfig Commands { get; private set; }
 
 		/// <summary>
@@ -92,25 +91,25 @@ namespace PaperMalKing.Data
 			/// <summary>
 			/// Prefixes that appliable to commands
 			/// </summary>
-			[JsonProperty("Prefixes")]
+			[YamlMember(Alias = "Prefixes")]
 			public string[] Prefixes { get; private set; }
 
 			/// <summary>
 			/// Should bot mention be considered as prefix
 			/// </summary>
-			[JsonProperty("EnableMentionPrefix")]
+			[YamlMember(Alias = "EnableMentionPrefix")]
 			public bool EnableMentionPrefix { get; private set; }
 
 			/// <summary>
 			/// Should bot commands names be case sensitive
 			/// </summary>
-			[JsonProperty("CaseSensitive")]
+			[YamlMember(Alias = "CaseSensitive")]
 			public bool CaseSensitive { get; private set; }
 
 			/// <summary>
 			/// Should bot sends commands help to DM
 			/// </summary>
-			[JsonProperty("DmHelp")]
+			[YamlMember(Alias = "DmHelp")]
 			public bool DmHelp { get; private set; }
 		}
 	}
@@ -123,7 +122,7 @@ namespace PaperMalKing.Data
 		/// <summary>
 		/// Connection string to your SQLite database, generally it should look like "Data Source=Path_to_your_database_here"
 		/// </summary>
-		[JsonProperty("ConnectionString")]
+		[YamlMember(Alias = "ConnectionString")]
 		public string ConnectionString { get; private set; }
 	}
 
@@ -134,10 +133,10 @@ namespace PaperMalKing.Data
 		public int Timeout { get; set; }
 
 		/// <inheritdoc />
-		[JsonProperty("RateLimit")]
+		[YamlMember(Alias = "RateLimit")]
 		public RateLimitConfig RateLimit { get; set; }
 
-		[JsonProperty("DelayBetweenUpdateChecks")]
+		[YamlMember(Alias = "DelayBetweenUpdateChecks")]
 		public int DelayBetweenUpdateChecks { get; set; }
 	}
 
@@ -147,40 +146,25 @@ namespace PaperMalKing.Data
 		public int Timeout { get; set; }
 
 		/// <inheritdoc />
-		[JsonProperty("RateLimit")]
+		[YamlMember(Alias = "RateLimit")]
 		public RateLimitConfig RateLimit { get; set; }
 
-		[JsonProperty("Uri")]
+		[YamlMember(Alias = "Uri")]
 		public string Uri { get; private set; }
 	}
 
 	public class RateLimitConfig
 	{
-		public RateLimitConfig()
-		{
-			/*
-			 * This default config seems good for both MAL and Jikan.
-			 *
-			 * 
-			 * Since there are no public API for MyAnimeList as well as documentation
-			 * Default rate-limit will be 1 request every 2 seconds as it was advised to me in Jikan Discord Guild
-			 * Source: https://discordapp.com/channels/460491088004907029/461199124205797439/676861111441686530
-			 */
-
-			this.RequestsCount = 1;
-			this.TimeConstraint = 2000;
-		}
-
 		/// <summary>
 		/// Amount of requests
 		/// </summary>
-		[JsonProperty("RequestsCount")]
+		[YamlMember(Alias = "RequestsCount")]
 		public int RequestsCount { get; private set; }
 
 		/// <summary>
 		/// Time in milliseconds after which amount of available requests will be reset
 		/// </summary>
-		[JsonProperty("TimeConstraintInMilliseconds")]
+		[YamlMember(Alias = "TimeConstraint")]
 		public double TimeConstraint { get; private set; }
 	}
 
@@ -194,7 +178,7 @@ namespace PaperMalKing.Data
 		/// <summary>
 		/// Time in miliseconds before bot stops awaiting answer from remote server and cancels current check for updates
 		/// </summary>
-		[JsonProperty("Timeout")]
+		[YamlMember(Alias = "Timeout")]
 		public int Timeout { get; set; }
 	}
 }

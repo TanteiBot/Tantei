@@ -1,7 +1,8 @@
 ﻿using System.IO;
 using System.Text;
-using Newtonsoft.Json;
+using YamlDotNet;
 using PaperMalKing.Data;
+using YamlDotNet.Serialization;
 
 namespace PaperMalKing
 {
@@ -9,12 +10,12 @@ namespace PaperMalKing
 	{
 		static void Main(string[] args)
 		{
-			var json = "";
-			using (var fs = File.OpenRead("config.json"))
+			var yaml = "";
+			using (var fs = File.OpenRead("config.yml"))
 			using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
-				json = sr.ReadToEnd();
-
-			var botConfig = JsonConvert.DeserializeObject<BotConfig>(json);
+				yaml = sr.ReadToEnd();
+			var deserializer = new Deserializer();
+			var botConfig = deserializer.Deserialize<BotConfig>(yaml);
 			var bot = new PaperMalKingBot(botConfig);
 			bot.Start().GetAwaiter().GetResult();
 		}
