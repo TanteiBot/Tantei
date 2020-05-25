@@ -46,12 +46,21 @@ namespace PaperMalKing.Data
 		{
 			get
 			{
-				if (this.MalId.HasValue)
-					return $"https://cdn.myanimelist.net/images/userimages/{this.MalId.Value}.jpg";
-				else
-					return null;
+				if (this._malAvatarUrl == null)
+				{
+					if (this.MalId.HasValue)
+					{
+						var ts = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+						this._malAvatarUrl = $"https://cdn.myanimelist.net/images/userimages/{this.MalId.Value}.jpg?t={ts}";
+					}
+				}
+
+				return this._malAvatarUrl;
 			}
 		}
+
+		[NotMapped]
+		private string _malAvatarUrl;
 
 		/// <summary>
 		/// Url to user profile on MAL
