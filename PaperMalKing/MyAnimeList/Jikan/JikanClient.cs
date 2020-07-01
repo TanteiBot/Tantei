@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using DSharpPlus;
 using Newtonsoft.Json;
@@ -16,26 +17,49 @@ namespace PaperMalKing.MyAnimeList.Jikan
 	public sealed class JikanClient
 	{
 		private readonly HttpClient _httpClient;
-		
-		private readonly LogDelegate _log;
+
+		private readonly LogService _logService;
 		private readonly ClockService _clock;
 
 		private readonly JikanRateLimiter _rateLimiter;
 
 		private const string LogName = "JikanClient";
 
+		private readonly string _baseAddress;
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public JikanClient(LogDelegate logDelegate, ClockService clock, BotJikanConfig config)
+		public JikanClient(LogService logService, BotConfig config, ClockService clock, HttpClient httpClient)
 		{
-			this._log = logDelegate;
-			this._clock = clock;
+			var jConfig = config.Jikan;
+			this._logService = logService;
+			this._baseAddress = config.Jikan.Uri;
 			this._rateLimiter =
 				new JikanRateLimiter(
-					new RateLimit(config.RateLimit.RequestsCount, TimeSpan.FromMilliseconds(config.RateLimit.TimeConstraint)), this._clock,
-					this._log);
-			this._httpClient = HttpProvider.GetHttpClientForJikan(new Uri(config.Uri), TimeSpan.FromMilliseconds(config.Timeout));
+					new RateLimit(jConfig.RateLimit.RequestsCount, TimeSpan.FromMilliseconds(jConfig.RateLimit.TimeConstraint)), clock,
+					this._logService);
+			this._httpClient = httpClient;
+		}
+
+
+		private HttpRequestMessage PrepareHttpRequest(string url)
+		{
+			var request = new HttpRequestMessage(HttpMethod.Get, url)
+			{
+				Headers =
+				{
+					Accept =
+					{
+						new MediaTypeWithQualityHeaderValue("application/json")
+					},
+					UserAgent =
+					{
+						new ProductInfoHeaderValue(new ProductHeaderValue("PaperMalKing"))
+					}
+				}
+			};
+			return request;
 		}
 
 		private async Task<T> ExecuteGetRequestAsync<T>(string[] args) where T : BaseJikanRequest
@@ -45,15 +69,16 @@ namespace PaperMalKing.MyAnimeList.Jikan
 
 
 			bool tryAgain;
-			var url = this._httpClient.BaseAddress + requestUrl;
+			var url = this._baseAddress + requestUrl;
 			do
 			{
 				tryAgain = false;
 				HttpResponseMessage response = null;
 				try
 				{
+					var request = this.PrepareHttpRequest(url);
 					var token = await this._rateLimiter.GetTokenAsync();
-					response = await this._httpClient.GetAsync(requestUrl);
+					response = await this._httpClient.SendAsync(request);
 					var statusCode = (int) response.StatusCode;
 					if (response.IsSuccessStatusCode)
 					{
@@ -65,7 +90,7 @@ namespace PaperMalKing.MyAnimeList.Jikan
 					}
 					else if (response.StatusCode == HttpStatusCode.TooManyRequests)
 					{
-						this._log(LogLevel.Warning, LogName,
+						this._logService.Log(LogLevel.Warning, LogName,
 							"Got ratelimited for Jikan, waiting 10 s and retrying request again", this._clock.Now);
 						await Task.Delay(TimeSpan.FromSeconds(10));
 						tryAgain = true;
