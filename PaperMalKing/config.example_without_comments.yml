@@ -8,7 +8,8 @@
 # - Discord.Token and
 # - Database.ConnectionString
 
-
+Misc:
+  Timeout: 60000
 Discord:
   Token: "Your Discord API token here"
   ReconnectIndefinitely: false
@@ -28,13 +29,11 @@ MyAnimeList:
   RateLimit:
     RequestsCount: 1
     TimeConstraint: 2000
-  Timeout: 45000
   DelayBetweenUpdateChecks: 600000
 Jikan:
   RateLimit:
     RequestsCount: 1
     TimeConstraint: 2000
-  Timeout: 45000
   Uri: "https://api.jikan.moe/v3/"
 Database:
   ConnectionString: "Data Source=path-to-your-database.db"

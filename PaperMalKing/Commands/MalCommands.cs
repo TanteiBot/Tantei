@@ -39,7 +39,7 @@ namespace PaperMalKing.Commands
 
 			username = username.Trim();
 
-			await this.MalService.AddUserAsync(context.Member, username);
+			await this.MalService.AddUserAsync(context.Member, username, this.Database);
 
 			var embed = EmbedTemplate.SuccessCommand(context.User,
 				$"Successfully added {username} in list of tracked users.");
@@ -52,7 +52,7 @@ namespace PaperMalKing.Commands
 		[Aliases("addh")]
 		public async Task AddHereCommand(CommandContext context)
 		{
-			await this.MalService.AddUserHereAsync(context.Member);
+			await this.MalService.AddUserHereAsync(context.Member, this.Database);
 			var embed = EmbedTemplate.SuccessCommand(context.User,
 				"Successfully added you in list of tracked users in this guild");
 			await context.RespondAsync(embed: embed.Build());
@@ -64,7 +64,7 @@ namespace PaperMalKing.Commands
 		[Aliases("rmh")]
 		public async Task RemoveHereCommand(CommandContext context)
 		{
-			this.MalService.RemoveUserHere(context.Member);
+			await this.MalService.RemoveUserHereAsync(context.Member, this.Database);
 			var embed = EmbedTemplate.SuccessCommand(context.User,
 				"Successfully deleted you from tracked users in this guild.");
 			await context.RespondAsync(embed: embed.Build());
@@ -76,7 +76,7 @@ namespace PaperMalKing.Commands
 		[Aliases("rme")]
 		public async Task RemoveEverywhereCommand(CommandContext context)
 		{
-			this.MalService.RemoveUserEverywhere(context.Member);
+			await this.MalService.RemoveUserEverywhereAsync(context.Member, this.Database);
 			var embed = EmbedTemplate.SuccessCommand(context.User,
 				"Successfully deleted you from tracked users in all guilds where you have been registered.");
 			await context.RespondAsync(embed: embed.Build());
@@ -92,7 +92,7 @@ namespace PaperMalKing.Commands
 		{
 			if (member.IsBot)
 				throw new ArgumentException("You can't delete bot from tracking", nameof(member));
-			this.MalService.RemoveUserHere(member);
+			await this.MalService.RemoveUserHereAsync(member, this.Database);
 			var embed = EmbedTemplate.SuccessCommand(context.User,
 				$"Successfully deleted {member.Username} from tracked users");
 			await context.RespondAsync(embed: embed.Build());
@@ -110,7 +110,7 @@ namespace PaperMalKing.Commands
 			newUsername = newUsername.Trim();
 
 			var userId = (long) context.User.Id;
-			await this.MalService.UpdateUserAsync(userId, newUsername);
+			await this.MalService.UpdateUserAsync(userId, newUsername, this.Database);
 			var embed = EmbedTemplate.SuccessCommand(context.User,
 				$"Successfully updated your username on MyAnimeList to {newUsername}");
 			await context.RespondAsync(embed: embed.Build());
@@ -141,7 +141,7 @@ namespace PaperMalKing.Commands
 				throw new Exception("Bot is lacking permissions to send messages and use embeds in this channel");
 			var guildId = (long) context.Guild.Id;
 			var channelId = (long) channel.Id;
-			await this.MalService.AddChannelAsync(guildId, channelId);
+			await this.MalService.AddChannelAsync(guildId, channelId, this.Database);
 			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfully added channel");
 			await context.RespondAsync(embed: embed.Build());
 		}
@@ -159,7 +159,7 @@ namespace PaperMalKing.Commands
 				throw new Exception("Bot is lacking permissions to send messages and use embeds in this channel");
 			var guildId = (long) context.Guild.Id;
 			var channelId = (long) channel.Id;
-			await this.MalService.UpdateChannelAsync(guildId, channelId);
+			await this.MalService.UpdateChannelAsync(guildId, channelId, this.Database);
 			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfully updated channel");
 			await context.RespondAsync(embed: embed.Build());
 		}
@@ -171,7 +171,7 @@ namespace PaperMalKing.Commands
 		public async Task ChannelRemoveCommand(CommandContext context)
 		{
 			var guildId = (long) context.Guild.Id;
-			this.MalService.RemoveChannel(guildId);
+			await this.MalService.RemoveChannelAsync(guildId, this.Database);
 			var embed = EmbedTemplate.SuccessCommand(context.User, "Successfully removed channel");
 			await context.RespondAsync(embed: embed.Build());
 		}

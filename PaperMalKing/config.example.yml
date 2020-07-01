@@ -2,6 +2,12 @@
 # Config example with comments.
 # If you know what you are doing and don't want to read too much stuff - take a look at 'config.example_without_commments.yml'.
 
+
+# Misc config
+Misc:
+  # Time for all HttpClients for waiting for respond for servers
+  # Value must be in milliseconds 
+  Timeout: 60000
 # Config related to Discord.
 Discord:
   # Put your bot's API token here.
@@ -51,9 +57,6 @@ MyAnimeList:
     # Determines period of time bot can have RequestsCount's amount of requests to MyAnimeList before it waits to restoring 'quota'.
     # Value must be in milliseconds.
     TimeConstraint: 2000
-  # Time to wait for MyAnimeList server response to request before skipping current check for updates.
-  # Value must be in milliseconds.
-  Timeout: 45000
   # Period of time between checks for updates for all added users.
   # Notice that it time between the end of one check for update ant the start of another
   #                instead of time between start of one check for updates and start for another.
@@ -82,9 +85,6 @@ Jikan:
     # Determines period of time bot can have RequestsCount's amount of requests to MyAnimeList before it waits to restoring 'quota'.
     # Value must be in milliseconds.
     TimeConstraint: 2000
-  # Time to wait for Jikan server response to request before skipping current check for updates.
-  # Value must be in milliseconds.
-  Timeout: 45000
   # The default value is uri for public instance of Jikan.
   # You can specify uri for your instance BUT NOTICE bot itself make request to MyAnimeList directly.
   # So if requests from Jikan server and bot are coming to MyAnimeList from the same public IP you can easily get ratelimited and/or banned.

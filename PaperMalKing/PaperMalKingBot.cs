@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PaperMalKing.Commands;
 using PaperMalKing.Data;
 using PaperMalKing.MyAnimeList.FeedReader;
+using PaperMalKing.MyAnimeList.Jikan;
 using PaperMalKing.Services;
 using PaperMalKing.Utilities;
 
@@ -25,8 +27,8 @@ namespace PaperMalKing
 		private readonly BotConfig _config;
 
 		private readonly string _logName;
-
-		private readonly object _logLock = new object();
+		
+		private readonly LogService _logService;
 
 		private readonly ClockService _clock;
 
@@ -42,6 +44,7 @@ namespace PaperMalKing
 
 			var discordConfig = new DiscordConfiguration
 			{
+				HttpTimeout = TimeSpan.FromMilliseconds(config.Misc.Timeout),
 				LogLevel = LogLevel.Debug,
 				UseInternalLogHandler = false,
 				Token = discordCfg.Token,
@@ -53,26 +56,17 @@ namespace PaperMalKing
 			var actType = (ActivityType) this._config.Discord.ActivityType;
 			this._activity = new DiscordActivity(this._config.Discord.PresenceText, actType);
 
+			this._clock = new ClockService();
+			this._logService = new LogService(this._clock);
 
 			this.Client = new DiscordClient(discordConfig);
 			this.Client.Ready += this.Client_Ready;
 			this.Client.Ready += this.Client_PresenceReady;
 			this.Client.ClientErrored += this.Client_ClientErrored;
-			this.Client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
 			this.Client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
-			this._clock = new ClockService();
-			var malRssService = new FeedReader(this.Client.DebugLogger.LogMessage, this._clock,
-				this._config.MyAnimeList);
-			var services = new ServiceCollection()
-						   .AddSingleton(this.Client)
-						   .AddSingleton(this._config)
-						   .AddSingleton(this._clock)
-						   .AddSingleton(malRssService)
-						   .AddSingleton(new MalService(this._config, this.Client, malRssService, this._clock))
-						   .AddScoped<DatabaseContext>()
-						   .BuildServiceProvider();
+			this.Client.DebugLogger.LogMessageReceived += this._logService.LogEventHandler;
 
-
+			var services = this.ConfigureServices();
 			var cmdCfg = this._config.Discord.Commands;
 
 			var cmdConfig = new CommandsNextConfiguration
@@ -96,16 +90,41 @@ namespace PaperMalKing
 			this.Commands.SetHelpFormatter<PaperMalKingHelpFormatter>();
 		}
 
-		private Task Client_PresenceReady(ReadyEventArgs e)
+		private IServiceProvider ConfigureServices()
 		{
-			return e.Client.UpdateStatusAsync(this._activity, UserStatus.Online);
+
+			var services = new ServiceCollection()
+						   .AddSingleton(this.Client)
+						   .AddSingleton(this._config)
+						   .AddSingleton<HttpClient>(x =>
+						   {
+							   var config = x.GetRequiredService<BotConfig>();
+							   return HttpProvider.GetHttpClient(TimeSpan.FromMilliseconds(config.Misc.Timeout));
+						   })
+						   .AddSingleton<ClockService>(this._clock)
+						   .AddSingleton<LogService>(this._logService)
+						   .AddSingleton<FeedReader>()
+						   .AddSingleton<JikanClient>()
+						   .AddSingleton<MalService>()
+						   .AddScoped<DatabaseContext>()
+						   .BuildServiceProvider();
+
+
+			_ = services.GetRequiredService<MalService>();
+			return services;
 		}
+		
 
 		public async Task Start()
 		{
-			this.Client.DebugLogger.LogMessage(LogLevel.Info, this._logName, "Starting bot", this._clock.Now);
+			this._logService.Log(LogLevel.Info, this._logName, "Starting bot");
 			await this.Client.ConnectAsync(this._activity, UserStatus.Online);
 			await Task.Delay(-1);
+		}
+		
+		private Task Client_PresenceReady(ReadyEventArgs e)
+		{
+			return e.Client.UpdateStatusAsync(this._activity, UserStatus.Online);
 		}
 
 		private Task Client_ClientErrored(ClientErrorEventArgs e)
@@ -174,38 +193,6 @@ namespace PaperMalKing
 			{
 				var errorEmbed = EmbedTemplate.CommandErrorEmbed(e.Command, e.Context.User, ex);
 				await e.Context.RespondAsync(embed: errorEmbed);
-			}
-		}
-
-		private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
-		{
-			lock (this._logLock)
-			{
-				if (e.Level == LogLevel.Debug)
-					Console.ForegroundColor = ConsoleColor.DarkGreen;
-				else if (e.Level == LogLevel.Info)
-					Console.ForegroundColor = ConsoleColor.White;
-				else if (e.Level == LogLevel.Warning)
-					Console.ForegroundColor = ConsoleColor.DarkYellow;
-				else if (e.Level == LogLevel.Error)
-					Console.ForegroundColor = ConsoleColor.DarkRed;
-				else if (e.Level == LogLevel.Critical)
-				{
-					Console.BackgroundColor = ConsoleColor.DarkRed;
-					Console.ForegroundColor = ConsoleColor.Black;
-				}
-
-				string timestampFormat;
-#if DEBUG
-				timestampFormat = "dd.MM.yy HH\\:mm\\:ss.fff";
-#else
-                timestampFormat = "dd.MM.yy HH\\:mm\\:ss";
-#endif
-
-				Console.Write(
-					$"[{e.Timestamp.ToString(timestampFormat)}] [{e.Application.ToFixedWidth(14)}] [{e.Level.ToShortName()}]");
-				Console.ResetColor();
-				Console.WriteLine($" {e.Message}{(e.Exception != null ? $"\n{e.Exception}" : "")}");
 			}
 		}
 	}

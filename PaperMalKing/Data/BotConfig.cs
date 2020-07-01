@@ -7,6 +7,9 @@ namespace PaperMalKing.Data
 	/// </summary>
 	public sealed class BotConfig
 	{
+		[YamlMember(Alias = "Misc")]
+		public BotMiscConfig Misc { get; private set; }
+
 		/// <summary>
 		/// Bot Discord config
 		/// </summary>
@@ -24,6 +27,12 @@ namespace PaperMalKing.Data
 
 		[YamlMember(Alias = "MyAnimeList")]
 		public BotMalConfig MyAnimeList { get; private set; }
+	}
+
+	public class BotMiscConfig
+	{
+		[YamlMember(Alias = "Timeout")]
+		public int Timeout { get; private set; }
 	}
 
 
@@ -127,11 +136,8 @@ namespace PaperMalKing.Data
 	}
 
 
-	public sealed class BotMalConfig : ITimeoutable, IRateLimitable
+	public sealed class BotMalConfig : IRateLimitable
 	{
-		/// <inheritdoc />
-		public int Timeout { get; set; }
-
 		/// <inheritdoc />
 		[YamlMember(Alias = "RateLimit")]
 		public RateLimitConfig RateLimit { get; set; }
@@ -140,11 +146,8 @@ namespace PaperMalKing.Data
 		public int DelayBetweenUpdateChecks { get; set; }
 	}
 
-	public sealed class BotJikanConfig : ITimeoutable, IRateLimitable
+	public sealed class BotJikanConfig : IRateLimitable
 	{
-		/// <inheritdoc />
-		public int Timeout { get; set; }
-
 		/// <inheritdoc />
 		[YamlMember(Alias = "RateLimit")]
 		public RateLimitConfig RateLimit { get; set; }
@@ -171,14 +174,5 @@ namespace PaperMalKing.Data
 	public interface IRateLimitable
 	{
 		public RateLimitConfig RateLimit { get; set; }
-	}
-
-	public interface ITimeoutable
-	{
-		/// <summary>
-		/// Time in miliseconds before bot stops awaiting answer from remote server and cancels current check for updates
-		/// </summary>
-		[YamlMember(Alias = "Timeout")]
-		public int Timeout { get; set; }
 	}
 }
