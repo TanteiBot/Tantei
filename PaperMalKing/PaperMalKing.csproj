@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00681" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00681" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00711" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00711" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1">
@@ -35,6 +35,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+    <ProjectReference Include="..\PaperMalKing.Providers.Base\PaperMalKing.Providers.Base.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,12 +5,12 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-namespace PaperMalKing.Attributes
+namespace PaperMalKing.Providers.Base.Attributes
 {
 	/// <summary>
 	/// Defines that command or group of commands can only be executed by owner of the bot or user with specified permissions.
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
 	public sealed class OwnerOrPermissionAttribute : CheckBaseAttribute
 	{
 		/// <summary>

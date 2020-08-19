@@ -34,6 +34,7 @@ namespace PaperMalKing.Commands
 			[Description("Your username on MyAnimeList. Warning it's case sensitive!"), RemainingText]
 			string username)
 		{
+			
 			if (string.IsNullOrWhiteSpace(username))
 				throw new ArgumentException("Username shouldn't be empty string", nameof(username));
 
