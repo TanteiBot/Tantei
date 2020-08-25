@@ -572,36 +572,28 @@ namespace PaperMalKing.Services
 						user.RecentlyUpdatedManga =
 							(await this._jikanClient.GetUserRecentlyUpdatedMangaAsync(user.MalUsername)).Manga;
 
-					try
+					foreach (var (feedItem, entityType) in updateItems)
 					{
-						foreach (var (feedItem, entityType) in updateItems)
+						var malEntity = await this.GetMalEntityAsync(entityType, feedItem, user);
+						if (malEntity == null)
+							continue;
+						var actionString = feedItem.Description.Split(" - ")[0];
+						var status = feedItem.Description;
+						if (string.IsNullOrWhiteSpace(actionString))
 						{
-							var malEntity = await this.GetMalEntityAsync(entityType, feedItem, user);
-							if (malEntity == null)
-								continue;
-							var actionString = feedItem.Description.Split(" - ")[0];
-							var status = feedItem.Description;
-							if (string.IsNullOrWhiteSpace(actionString))
-							{
-								if (entityType == EntityType.Anime)
-									status = "Re-watching" + status;
-								else
-									status = "Re-reading" + status;
-							}
+							if (entityType == EntityType.Anime)
+								status = "Re-watching" + status;
+							else
+								status = "Re-reading" + status;
+						}
 
-							var listUpdateEntry = new ListUpdateEntry(user, malEntity,
-								status, feedItem.PublishingDateTime);
-							await this.UpdateFound?.Invoke(listUpdateEntry);
-							latestUpdateDate = feedItem.PublishingDateTime;
-						}
-					}
-					finally
-					{
-						if (user.LastUpdateDate != latestUpdateDate)
-						{
-							user.LastUpdateDate = latestUpdateDate.ToUniversalTime();
-							db.Users.Update(user);
-						}
+						var listUpdateEntry = new ListUpdateEntry(user, malEntity,
+							status, feedItem.PublishingDateTime);
+						await this.UpdateFound?.Invoke(listUpdateEntry);
+						latestUpdateDate = feedItem.PublishingDateTime;
+						user.LastUpdateDate = latestUpdateDate.ToUniversalTime();
+						db.Users.Update(user);
+						await db.SaveChangesAsync();
 					}
 				}
 			}
