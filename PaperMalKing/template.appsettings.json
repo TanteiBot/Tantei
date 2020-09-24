@@ -1,0 +1,34 @@
+﻿{
+    "Logging": 
+    {
+        "LogLevel": 
+        {
+            "Default": "Debug",
+            "System": "Information",
+            "Microsoft": "Information"
+        }
+    },
+    "Discord": 
+    {
+        "Token": "",
+        "LogName": "PaperMalKing",
+        "ActivityType": 3,
+        "PresenceText": "for your lists",
+        "Commands":
+        {
+            "Prefixes": [ "pmk", "==" ],
+            "EnableMentionPrefix": true,
+            "CaseSensitive": false,
+            "DmHelp": false
+        }
+    },
+    "Database":
+    {
+        "PathToDbFile": ""    
+    },
+    "UpdatesProviders":
+    {
+        ""
+    }
+    
+}

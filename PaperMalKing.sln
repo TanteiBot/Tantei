@@ -13,10 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Common", "PaperMalKing.Common\PaperMalKing.Common.csproj", "{43317F4B-7259-4914-AAD5-0624DCFDCE59}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Providers.Base", "PaperMalKing.Providers.Base\PaperMalKing.Providers.Base.csproj", "{8B6F5EB9-9F86-40D4-A89B-FC6C05E4FC39}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,14 +23,6 @@ Global
 		{7ED18F5F-E339-4602-9200-DE36FEE657BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7ED18F5F-E339-4602-9200-DE36FEE657BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7ED18F5F-E339-4602-9200-DE36FEE657BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{43317F4B-7259-4914-AAD5-0624DCFDCE59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{43317F4B-7259-4914-AAD5-0624DCFDCE59}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{43317F4B-7259-4914-AAD5-0624DCFDCE59}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{43317F4B-7259-4914-AAD5-0624DCFDCE59}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B6F5EB9-9F86-40D4-A89B-FC6C05E4FC39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B6F5EB9-9F86-40D4-A89B-FC6C05E4FC39}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B6F5EB9-9F86-40D4-A89B-FC6C05E4FC39}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B6F5EB9-9F86-40D4-A89B-FC6C05E4FC39}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

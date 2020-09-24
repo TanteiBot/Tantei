@@ -1,23 +1,39 @@
-﻿using System.IO;
-using System.Text;
-using YamlDotNet;
-using PaperMalKing.Data;
-using YamlDotNet.Serialization;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using PaperMalKing.Options;
+using PaperMalKing.Services;
+using PaperMalKing.Services.Background;
 
 namespace PaperMalKing
 {
-	public sealed class Program
+	public static class Program
 	{
 		static void Main(string[] args)
 		{
-			var yaml = "";
-			using (var fs = File.OpenRead("config.yml"))
-			using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
-				yaml = sr.ReadToEnd();
-			var deserializer = new Deserializer();
-			var botConfig = deserializer.Deserialize<BotConfig>(yaml);
-			var bot = new PaperMalKingBot(botConfig);
-			bot.Start().GetAwaiter().GetResult();
+			CreateHostBuilder(args).Build().Run();
+		}
+
+		public static IHostBuilder CreateHostBuilder(string[] args)
+		{
+			return Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, collection) =>
+			{
+				collection.AddLogging(builder => builder.AddConsole());
+				var config = hostContext.Configuration;
+
+
+				collection.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord));
+				collection.AddOptions<CommandsOptions>().Bind(config.GetSection(CommandsOptions.Commands));
+				collection.AddOptions<TimerOptions>().Bind(config.GetSection(TimerOptions.Timer));
+
+				UpdateProvidersManagementService.ConfigureProviders(config, collection);
+				collection.AddSingleton<UpdateProvidersManagementService>();
+				collection.AddSingleton<UpdatePublishingService>();
+				collection.AddSingleton<CommandsService>();
+				
+				collection.AddHostedService<DiscordService>();
+				collection.AddHostedService<TimerService>();
+			});
 		}
 	}
 }
