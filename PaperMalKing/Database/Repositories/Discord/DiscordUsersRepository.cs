@@ -1,15 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PaperMalKing.Database.Models;
-using PaperMalKing.Services;
 
 namespace PaperMalKing.Database.Repositories.Discord
 {
 	public sealed class DiscordUsersRepository : BaseRepository
 	{
+		private readonly DbSet<DiscordUser> _users;
 		public DiscordUsersRepository(DatabaseContext context) : base(context)
-		{ }
+		{
+			this._users = context.DiscordUsers;
+		}
 
 		public DiscordUser AddUser(long userId)
 		{
@@ -18,17 +21,17 @@ namespace PaperMalKing.Database.Repositories.Discord
 				DiscordUserId = userId,
 				Guilds = new List<DiscordGuildUser>()
 			};
-			return this._context.DiscordUsers.Add(user).Entity;
+			return this._users.Add(user).Entity;
 		}
 
 		public DiscordUser AddUser(DiscordUser user)
 		{
-			return this._context.DiscordUsers.Add(user).Entity;
+			return this._users.Add(user).Entity;
 		}
 
 		public void RemoveUser(DiscordUser user)
 		{
-			this._context.DiscordUsers.Remove(user);
+			this._users.Remove(user);
 		}
 
 		public async ValueTask AddUserToGuildAsync(long userId, long guildId)
@@ -45,7 +48,7 @@ namespace PaperMalKing.Database.Repositories.Discord
 				DiscordUserId = user.DiscordUserId
 			};
 			user.Guilds.Add(guildUser);
-			return this._context.DiscordUsers.Update(user)?.Entity;
+			return this._users.Update(user)?.Entity;
 		}
 
 		public void RemoveUserFromGuild(DiscordUser user, long guildId)
@@ -54,12 +57,10 @@ namespace PaperMalKing.Database.Repositories.Discord
 			if (guildToRemove == null)
 				return;
 			user.Guilds.Remove(guildToRemove);
-			this._context.DiscordUsers.Update(user);
+			this._users.Update(user);
 		}
 
-		public Task<DiscordUser?> GetUserByIdAsync(long userId) =>
-			this._context.DiscordUsers.FirstOrDefaultAsync(u => u.DiscordUserId == userId)!;
-
-		public Task<int> SaveChangesAsync() => this._context.SaveChangesAsync();
+		public ConfiguredTaskAwaitable<DiscordUser> GetUserByIdAsync(long userId) =>
+			this._users.FirstOrDefaultAsync(u => u.DiscordUserId == userId).ConfigureAwait(false)!;
 	}
 }
