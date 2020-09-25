@@ -34,18 +34,14 @@
     <None Include="$(SolutionDir)\Scripts\autorestart.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="config.example.json;config.example.yml;config.example_without_comments.yml;empty_database.db" CopyToPublishDirectory="Always">
+    <None Update="empty_database.db;template.appsettings.json" CopyToPublishDirectory="Always">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
-    <None Update="config.json;config.yml" CopyToPublishDirectory="Never">
+    <None Update="config.json;config.yml;appsettings.json" CopyToPublishDirectory="Never">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Database" />
   </ItemGroup>
   
 </Project>
