@@ -3,12 +3,9 @@ using Microsoft.Extensions.Options;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.Options;
-using MALUserFavManga = PaperMalKing.Database.Models.MyAnimeList.UserFavoriteManga;
-using MALUserFavChar = PaperMalKing.Database.Models.MyAnimeList.UserFavoriteCharacter;
-using MALUserFavPerson = PaperMalKing.Database.Models.MyAnimeList.UserFavoritePerson;
 
 
-namespace PaperMalKing.Services
+namespace PaperMalKing.Database
 {
 	public class DatabaseContext : DbContext
 	{
@@ -16,15 +13,15 @@ namespace PaperMalKing.Services
 
 		public DbSet<DiscordUser> DiscordUsers { get; set; } = null!;
 
-		public DbSet<User> MyAnimeListUsers { get; set; } = null!;
+		public DbSet<MALUser> MyAnimeListUsers { get; set; } = null!;
 
-		public DbSet<UserFavoriteAnime> MyAnimeListUserFavoriteAnimes { get; set; } = null!;
+		public DbSet<MALUserFavoriteAnime> MyAnimeListUserFavoriteAnimes { get; set; } = null!;
 
-		public DbSet<MALUserFavManga> MyAnimeListUserFavoriteMangas { get; set; } = null!;
+		public DbSet<MALUserFavoriteManga> MyAnimeListUserFavoriteMangas { get; set; } = null!;
 
-		public DbSet<MALUserFavChar> MyAnimeListUserFavoriteCharacters { get; set; } = null!;
+		public DbSet<MALUserFavoriteCharacter> MyAnimeListUserFavoriteCharacters { get; set; } = null!;
 
-		public DbSet<MALUserFavPerson> MyAnimeListUserFavoritePersons { get; set; } = null!;
+		public DbSet<MALUserFavoritePerson> MyAnimeListUserFavoritePersons { get; set; } = null!;
 
 		private readonly string _connectionString;
 
@@ -57,6 +54,7 @@ namespace PaperMalKing.Services
 		/// <inheritdoc />
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+			
 			modelBuilder.Entity<DiscordGuildUser>().HasKey(dgu => new
 			{
 				dgu.DiscordGuildId,

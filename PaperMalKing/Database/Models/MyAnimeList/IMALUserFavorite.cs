@@ -1,8 +1,8 @@
 ﻿namespace PaperMalKing.Database.Models.MyAnimeList
 {
-	public interface IUserFavorite
+	public interface IMALUserFavorite
 	{
-		User User { get; }
+		MALUser MALUser { get; }
 
 		long UserId { get; }
 		string Name { get; }

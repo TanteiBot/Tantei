@@ -4,9 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace PaperMalKing.Database.Models.MyAnimeList
 {
 	[Table("MyAnimeListUserAnimeListColors")]
-	public class UserAnimeListColors : IUserListColors
+	public class MALUserAnimeListColors : IUserListColors
 	{
-		public User User { get; set; } = null!;
+		[ForeignKey("UserId")]
+		public MALUser MALUser { get; set; } = null!;
 
 		[Key]
 		public long UserId { get; set; }

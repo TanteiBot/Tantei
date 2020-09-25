@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PaperMalKing.Database.Migrations
 {
@@ -36,7 +37,8 @@ namespace PaperMalKing.Database.Migrations
                     UserId = table.Column<long>(nullable: false),
                     DiscordUserId = table.Column<long>(nullable: false),
                     Username = table.Column<string>(nullable: false),
-                    LastUpdatedTimestamp = table.Column<long>(nullable: false),
+                    LastUpdatedAnimeListTimestamp = table.Column<DateTime>(nullable: false),
+                    LastUpdatedMangaListTimestamp = table.Column<DateTime>(nullable: false),
                     FeaturesEnabled = table.Column<long>(nullable: false)
                 },
                 constraints: table =>
@@ -100,14 +102,15 @@ namespace PaperMalKing.Database.Migrations
                     Type = table.Column<string>(nullable: false),
                     StartYear = table.Column<int>(nullable: false),
                     ImageUrl = table.Column<string>(nullable: true),
+                    MALUserUserId = table.Column<long>(nullable: false),
                     UserId = table.Column<long>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MyAnimeListUserFavoriteAnimes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MyAnimeListUserFavoriteAnimes_MyAnimeListUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_MyAnimeListUserFavoriteAnimes_MyAnimeListUsers_MALUserUserId",
+                        column: x => x.MALUserUserId,
                         principalTable: "MyAnimeListUsers",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
@@ -123,14 +126,15 @@ namespace PaperMalKing.Database.Migrations
                     ImageUrl = table.Column<string>(nullable: false),
                     FromEntryName = table.Column<string>(nullable: false),
                     FromEntryUrl = table.Column<string>(nullable: false),
+                    MALUserUserId = table.Column<long>(nullable: false),
                     UserId = table.Column<long>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MyAnimeListUserFavoriteCharacters", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MyAnimeListUserFavoriteCharacters_MyAnimeListUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_MyAnimeListUserFavoriteCharacters_MyAnimeListUsers_MALUserUserId",
+                        column: x => x.MALUserUserId,
                         principalTable: "MyAnimeListUsers",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
@@ -146,14 +150,15 @@ namespace PaperMalKing.Database.Migrations
                     Type = table.Column<string>(nullable: false),
                     StartYear = table.Column<int>(nullable: false),
                     ImageUrl = table.Column<string>(nullable: true),
+                    MALUserUserId = table.Column<long>(nullable: false),
                     UserId = table.Column<long>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MyAnimeListUserFavoriteMangas", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MyAnimeListUserFavoriteMangas_MyAnimeListUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_MyAnimeListUserFavoriteMangas_MyAnimeListUsers_MALUserUserId",
+                        column: x => x.MALUserUserId,
                         principalTable: "MyAnimeListUsers",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
@@ -167,14 +172,15 @@ namespace PaperMalKing.Database.Migrations
                     Name = table.Column<string>(nullable: false),
                     Url = table.Column<string>(nullable: false),
                     ImageUrl = table.Column<string>(nullable: true),
+                    MALUserUserId = table.Column<long>(nullable: false),
                     UserId = table.Column<long>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MyAnimeListUserFavoritePersons", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MyAnimeListUserFavoritePersons_MyAnimeListUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_MyAnimeListUserFavoritePersons_MyAnimeListUsers_MALUserUserId",
+                        column: x => x.MALUserUserId,
                         principalTable: "MyAnimeListUsers",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
@@ -208,24 +214,24 @@ namespace PaperMalKing.Database.Migrations
                 column: "DiscordUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MyAnimeListUserFavoriteAnimes_UserId",
+                name: "IX_MyAnimeListUserFavoriteAnimes_MALUserUserId",
                 table: "MyAnimeListUserFavoriteAnimes",
-                column: "UserId");
+                column: "MALUserUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MyAnimeListUserFavoriteCharacters_UserId",
+                name: "IX_MyAnimeListUserFavoriteCharacters_MALUserUserId",
                 table: "MyAnimeListUserFavoriteCharacters",
-                column: "UserId");
+                column: "MALUserUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MyAnimeListUserFavoriteMangas_UserId",
+                name: "IX_MyAnimeListUserFavoriteMangas_MALUserUserId",
                 table: "MyAnimeListUserFavoriteMangas",
-                column: "UserId");
+                column: "MALUserUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MyAnimeListUserFavoritePersons_UserId",
+                name: "IX_MyAnimeListUserFavoritePersons_MALUserUserId",
                 table: "MyAnimeListUserFavoritePersons",
-                column: "UserId");
+                column: "MALUserUserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

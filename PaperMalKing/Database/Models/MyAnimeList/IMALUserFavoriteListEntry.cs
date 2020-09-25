@@ -1,6 +1,6 @@
 ﻿namespace PaperMalKing.Database.Models.MyAnimeList
 {
-	public interface IUserFavoriteListEntry : IUserFavorite
+	public interface IMALUserFavoriteListEntry : IMALUserFavorite
 	{
 		int StartYear { get; }
 		public string Type { get; }

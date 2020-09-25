@@ -2,7 +2,7 @@
 {
 	public interface IUserListColors
 	{
-		User User { get; }
+		MALUser MALUser { get; }
 
 		long UserId { get; }
 

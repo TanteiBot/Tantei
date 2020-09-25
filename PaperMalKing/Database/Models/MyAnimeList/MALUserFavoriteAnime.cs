@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PaperMalKing.Database.Models.MyAnimeList
 {
-	[Table("MyAnimeListUserFavoriteMangas")]
-	public class UserFavoriteManga : IUserFavoriteListEntry
+	[Table("MyAnimeListUserFavoriteAnimes")]
+	public class MALUserFavoriteAnime : IMALUserFavoriteListEntry
 	{
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -20,11 +20,11 @@ namespace PaperMalKing.Database.Models.MyAnimeList
 
 		public string? ImageUrl { get; private set; }
 
-		public User User { get; set; } = null!;
+		public MALUser MALUser { get; set; } = null!;
 
 		public long UserId { get; set; }
 
-		public UserFavoriteManga(long id, string name, string url, string type, int startYear, string? imageUrl)
+		public MALUserFavoriteAnime(long id, string name, string url, string type, int startYear, string imageUrl)
 		{
 			this.Id = id;
 			this.Name = name;
