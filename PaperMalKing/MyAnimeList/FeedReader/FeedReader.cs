@@ -118,6 +118,9 @@ namespace PaperMalKing.MyAnimeList.FeedReader
 				throw new MalRssException(url, RssLoadResult.Forbidden);
 			if (statusCode == HttpStatusCode.NotFound)
 				throw new MalRssException(url, RssLoadResult.NotFound);
+			int statusCodeInt = (int) statusCode;
+			if(statusCodeInt == 418) // Since MAL returns 418 when requesting to private list's rss feed
+				throw new MalRssException(url, RssLoadResult.ImTeapot);
 			throw new Exception($"Mal returned {statusCode} when tried to access `{url}`");
 		}
 

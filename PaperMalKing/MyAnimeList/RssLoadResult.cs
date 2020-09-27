@@ -9,6 +9,8 @@
 		Forbidden = 403,
 
 		NotFound = 404,
+		
+		ImTeapot = 418,
 
 		BadGateway = 502,
 
