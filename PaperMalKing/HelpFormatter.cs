@@ -7,7 +7,8 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
-using PaperMalKing.Attributes;
+using MoreLinq;
+using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing
 {
@@ -17,7 +18,7 @@ namespace PaperMalKing
 	public sealed class HelpFormatter : BaseHelpFormatter
 	{
 		public DiscordEmbedBuilder EmbedBuilder { get; }
-		private Command Command { get; set; }
+		private Command Command { get; set; } = null!;
 
 		/// <summary>
 		/// Creates a new help formatter.
@@ -105,7 +106,7 @@ namespace PaperMalKing
 
 						if (cGroup.IsExecutableWithoutSubcommands)
 							chs.Add(cGroup);
-						this.EmbedBuilder.AddField($"{char.ToUpper(cGroup.Name[0]).ToString()}{cGroup.Name.Substring(1)} commands",
+						this.EmbedBuilder.AddField($"{char.ToUpper(cGroup.Name[0]).ToString()}{cGroup.Name.Substring(1)} ({cGroup.Aliases.MinBy(alias => alias.Length).FirstOrDefault()}) commands",
 							string.Join(", ", chs.Select(x => Formatter.InlineCode(x.Name))), false);
 					}
 					else
@@ -113,7 +114,7 @@ namespace PaperMalKing
 				}
 
 				if (cmdList.Any())
-					this.EmbedBuilder.AddField("Ungrupped commands",
+					this.EmbedBuilder.AddField("Ungrouped commands",
 						string.Join(", ", cmdList.Select(x => Formatter.InlineCode(x.Name))), false);
 			}
 

@@ -1,6 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Threading.Tasks;
+using DSharpPlus;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
+using PaperMalKing.Database;
 using PaperMalKing.Options;
 using PaperMalKing.Services;
 using PaperMalKing.Services.Background;
@@ -9,30 +15,60 @@ namespace PaperMalKing
 {
 	public static class Program
 	{
-		static void Main(string[] args)
+		public static Task Main(string[] args)
 		{
-			CreateHostBuilder(args).Build().Run();
+			var host = CreateHostBuilder(args).Build();
+			using (var scope = host.Services.CreateScope())
+			{
+				scope.ServiceProvider.GetRequiredService<CommandsService>();
+				var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+				db.Database.Migrate();
+				var s = scope.ServiceProvider.GetRequiredService<UpdatePublishingService>();
+			}
+
+			return host.RunAsync();
 		}
 
-		public static IHostBuilder CreateHostBuilder(string[] args)
+		private static IHostBuilder CreateHostBuilder(string[] args)
 		{
-			return Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, collection) =>
+			return Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
 			{
-				collection.AddLogging(builder => builder.AddConsole());
+				services.AddLogging(builder => builder.AddSimpleConsole(options =>
+				{
+					options.ColorBehavior = LoggerColorBehavior.Enabled;
+					options.SingleLine = false;
+					options.TimestampFormat = "u";
+					options.UseUtcTimestamp = true;
+				}));
+				services.AddDbContext<DatabaseContext>();
 				var config = hostContext.Configuration;
 
+				services.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord));
+				services.AddOptions<CommandsOptions>().Bind(config.GetSection(CommandsOptions.Commands));
+				services.AddOptions<DatabaseOptions>().Bind(config.GetSection(DatabaseOptions.Database));
+				services.AddSingleton<DiscordClient>(provider =>
+				{
+					var options = provider.GetRequiredService<IOptions<DiscordOptions>>();
+					var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
+					var cfg = new DiscordConfiguration
+					{
+						Intents = DiscordIntents.Guilds | DiscordIntents.GuildMembers | DiscordIntents.GuildMessages,
+						Token = options.Value.Token,
+						AutoReconnect = true,
+						LoggerFactory = loggerFactory,
+						ReconnectIndefinitely = true,
+						MessageCacheSize = 256
+					};
+					return new(cfg);
+				});
+				services.AddSingleton<UpdatePublishingService>();
+				services.AddSingleton<CommandsService>();
+				services.AddSingleton<UpdateProvidersConfigurationService>();
+				services.AddSingleton<GuildManagementService>();
+				UpdateProvidersConfigurationService.ConfigureProviders(config, services);
 
-				collection.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord));
-				collection.AddOptions<CommandsOptions>().Bind(config.GetSection(CommandsOptions.Commands));
-				collection.AddOptions<TimerOptions>().Bind(config.GetSection(TimerOptions.Timer));
-
-				UpdateProvidersManagementService.ConfigureProviders(config, collection);
-				collection.AddSingleton<UpdateProvidersManagementService>();
-				collection.AddSingleton<UpdatePublishingService>();
-				collection.AddSingleton<CommandsService>();
-				
-				collection.AddHostedService<DiscordService>();
-				collection.AddHostedService<TimerService>();
+				services.AddHostedService<UpdateProvidersManagementService>();
+				services.AddHostedService<DiscordBackgroundService>();
 			});
 		}
 	}

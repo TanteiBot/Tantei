@@ -1,0 +1,78 @@
+﻿using System.Text.Json.Serialization;
+using PaperMalKing.MyAnimeList.Wrapper.Models.Progress;
+using PaperMalKing.MyAnimeList.Wrapper.Models.Status;
+
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.List
+{
+	internal sealed class MangaListEntry : IListEntry
+	{
+		private readonly string _url = null!;
+		private readonly MangaProgress _userMangaProgress;
+		private readonly string _imageUrl = null!;
+
+		[JsonPropertyName("status")]
+		public MangaProgress UserMangaProgress
+		{
+			get => this.IsRereading.IsReprogressing ? MangaProgress.Rereading : this._userMangaProgress;
+			init => this._userMangaProgress = value;
+		}
+
+		[JsonPropertyName("num_read_chapters")]
+		public int ReadChapters { get; init; }
+
+		[JsonPropertyName("num_read_volumes")]
+		public int ReadVolumes { get; init; }
+
+		[JsonPropertyName("manga_num_chapters")]
+		public int TotalChapters { get; init; }
+
+		[JsonPropertyName("manga_num_volumes")]
+		public int TotalVolumes { get; init; }
+
+		[JsonPropertyName("manga_publishing_status")]
+		public MangaStatus MangaPublishingStatus { get; init; }
+
+		Reprogressing IListEntry.IsReprogressing => this.IsRereading;
+		
+		[JsonPropertyName("is_rereading")]
+		[JsonConverter(typeof(JsonReprogressingConverter))]
+		public Reprogressing IsRereading { get; init; }
+
+		[JsonPropertyName("manga_id")]
+		public int Id { get; init; }
+
+		GenericProgress IListEntry.UserProgress => this.UserMangaProgress.ToGeneric();
+
+		[JsonPropertyName("manga_title")]
+		public string Title { get; init; } = null!;
+
+		[JsonPropertyName("score")]
+		public int Score { get; init; }
+
+		[JsonPropertyName("tags")]
+		public string Tags { get; init; } = null!;
+
+		int IListEntry.ProgressedSubEntries => this.ReadChapters;
+
+		int IListEntry.TotalSubEntries => this.TotalChapters;
+
+		GenericStatus IListEntry.Status => this.MangaPublishingStatus.ToGeneric();
+
+		[JsonPropertyName("manga_url")]
+		public string Url
+		{
+			get => this._url;
+			init => this._url = Constants.BASE_URL + value;
+		}
+
+		[JsonPropertyName("manga_image_path")]
+		public string ImageUrl
+		{
+			get => this._imageUrl;
+			init => this._imageUrl = value.ToLargeImage();
+		}
+
+		[JsonPropertyName("manga_media_type_string")]
+		public string MediaType { get; init; } = null!;
+	}
+}
