@@ -5,7 +5,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.List
 {
 	internal interface IListEntry
 	{
-		Reprogressing IsReprogressing { get; }
+		bool IsReprogressing { get; }
 		int Id { get; init; }
 		GenericProgress UserProgress { get; }
 		string Title { get; }

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using PaperMalKing.Common.Converters;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Progress;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Status;
 
@@ -13,7 +14,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.List
 		[JsonPropertyName("status")]
 		public MangaProgress UserMangaProgress
 		{
-			get => this.IsRereading.IsReprogressing ? MangaProgress.Rereading : this._userMangaProgress;
+			get => this.IsRereading ? MangaProgress.Rereading : this._userMangaProgress;
 			init => this._userMangaProgress = value;
 		}
 
@@ -32,11 +33,11 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.List
 		[JsonPropertyName("manga_publishing_status")]
 		public MangaStatus MangaPublishingStatus { get; init; }
 
-		Reprogressing IListEntry.IsReprogressing => this.IsRereading;
-		
+		bool IListEntry.IsReprogressing => this.IsRereading;
+
 		[JsonPropertyName("is_rereading")]
-		[JsonConverter(typeof(JsonReprogressingConverter))]
-		public Reprogressing IsRereading { get; init; }
+		[JsonConverter(typeof(JsonToBoolConverter))]
+		public bool IsRereading { get; init; }
 
 		[JsonPropertyName("manga_id")]
 		public int Id { get; init; }
@@ -49,6 +50,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.List
 		[JsonPropertyName("score")]
 		public int Score { get; init; }
 
+		[JsonConverter(typeof(JsonNumberToStringConverter))]
 		[JsonPropertyName("tags")]
 		public string Tags { get; init; } = null!;
 

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using PaperMalKing.Common.Converters;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Progress;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Status;
 
@@ -13,7 +14,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.List
 		[JsonPropertyName("status")]
 		public AnimeProgress UserAnimeProgress
 		{
-			get => this.IsRewatching.IsReprogressing ? AnimeProgress.Rewatching : this._userAnimeProgress;
+			get => this.IsRewatching ? AnimeProgress.Rewatching : this._userAnimeProgress;
 			init => this._userAnimeProgress = value;
 		}
 
@@ -37,12 +38,13 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.List
 		[JsonPropertyName("score")]
 		public int Score { get; init; }
 
+		[JsonConverter(typeof(JsonNumberToStringConverter))]
 		[JsonPropertyName("tags")]
 		public string Tags { get; init; } = null!;
 
 		[JsonPropertyName("is_rewatching")]
-		[JsonConverter(typeof(JsonReprogressingConverter))]
-		public Reprogressing IsRewatching { get; init; }
+		[JsonConverter(typeof(JsonToBoolConverter))]
+		public bool IsRewatching { get; init; }
 
 		int IListEntry.ProgressedSubEntries => this.WatchedEpisodes;
 
@@ -50,7 +52,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.List
 
 		GenericStatus IListEntry.Status => this.AnimeAiringStatus.ToGeneric();
 
-		Reprogressing IListEntry.IsReprogressing => this.IsRewatching;
+		bool IListEntry.IsReprogressing => this.IsRewatching;
 
 		[JsonPropertyName("anime_url")]
 		public string Url

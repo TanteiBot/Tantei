@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.Common.Converters;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Models.List;
 using PaperMalKing.MyAnimeList.Wrapper.Models.List.Types;
@@ -26,7 +27,8 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 		{
 			Converters =
 			{
-				new JsonReprogressingConverter()
+				new JsonNumberToStringConverter(),
+				new JsonToBoolConverter()
 			}
 		};
 
