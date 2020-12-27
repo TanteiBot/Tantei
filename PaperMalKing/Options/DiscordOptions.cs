@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
-using DSharpPlus.Entities;
-
-namespace PaperMalKing.Options
+﻿namespace PaperMalKing.Options
 {
 	public sealed class DiscordOptions
 	{
 		public const string Discord = "Discord";
-		
-		public string Token { get; set; }
 
-		public string ActivityType { get; set; }
+		public string Token { get; set; } = null!;
 
-		public string PresenceText { get; set; }
+		public byte ActivityType { get; set; }
+
+		public string PresenceText { get; set; } = null!;
 	}
 }

@@ -1,1 +1,0 @@
-﻿Uses a lot of code from [jikan.net](https://github.com/Ervie/jikan.net) library.
