@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
+using Humanizer.Inflections;
+using PaperMalKing.Common.Enums;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
