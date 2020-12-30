@@ -7,7 +7,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 	internal sealed class History
 	{
 		[JsonPropertyName("id")]
-		public int Id { get; init; }
+		public ulong Id { get; init; }
 
 		[JsonPropertyName("created_at")]
 		public DateTimeOffset CreatedAt { get; init; }
@@ -22,7 +22,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 			private ListEntryType? _type = null;
 			
 			[JsonPropertyName("id")]
-			public int Id { get; init; }
+			public ulong Id { get; init; }
 
 			[JsonPropertyName("url")]
 			internal string Url { get; init; } = null!;

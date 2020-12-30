@@ -77,7 +77,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 			public string? Type { get; set; }
 
 			[JsonPropertyName("id")]
-			public int Id { get; init; }
+			public ulong Id { get; init; }
 
 			[JsonPropertyName("name")]
 			public string Name { get; init; } = null!;

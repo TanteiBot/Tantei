@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.MyAnimeList;
+using PaperMalKing.Database.Models.Shikimori;
 
 namespace PaperMalKing.Database
 {
@@ -26,6 +27,10 @@ namespace PaperMalKing.Database
 		public DbSet<MalFavoriteCharacter> MalFavoriteCharacters { get; init; } = null!;
 
 		public DbSet<MalFavoritePerson> MalFavoritePersons { get; init; } = null!;
+
+		public DbSet<ShikiUser> ShikiUsers { get; init; } = null!;
+
+		public DbSet<ShikiFavourite> ShikiFavourites { get; init; } = null!;
 
 		private readonly string _connectionString;
 
@@ -97,7 +102,15 @@ namespace PaperMalKing.Database
 				k.Id,
 				k.UserId
 			});
-			
+
+			modelBuilder.Entity<ShikiUser>().HasKey(k => k.Id);
+
+			modelBuilder.Entity<ShikiFavourite>().HasKey(k => new
+			{
+				k.Id,
+				k.FavType
+			});
+
 			var dtoConverter = new DateTimeOffsetToBinaryConverter();
 			RegisterConverter<DateTimeOffset>(dtoConverter, modelBuilder);
 

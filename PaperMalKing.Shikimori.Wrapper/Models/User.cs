@@ -7,7 +7,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 		private string? _imageUrl;
 
 		[JsonPropertyName("id")]
-		public int Id { get; init; }
+		public ulong Id { get; init; }
 
 
 		[JsonPropertyName("nickname")]
