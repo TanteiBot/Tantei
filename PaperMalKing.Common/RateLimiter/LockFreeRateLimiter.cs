@@ -32,38 +32,45 @@ namespace PaperMalKing.Common.RateLimiter
 
 		public async Task TickAsync()
 		{
-			var lastUpdateTime = Interlocked.Read(ref this._lastUpdateTime);
-			var availablePermits = Interlocked.Read(ref this._availablePermits);
-			var nextRefillDateTime = lastUpdateTime +  this._delayBetweenRefills;
-			var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-			var arePermitsAvailable = availablePermits > 0;
-			var isTooEarlyToRefill = now < nextRefillDateTime;
-			switch (isTooEarlyToRefill)
+			while (true)
 			{
-				case true when !arePermitsAvailable:
+				var lastUpdateTime = Interlocked.Read(ref this._lastUpdateTime);
+				var availablePermits = Interlocked.Read(ref this._availablePermits);
+				var nextRefillDateTime = lastUpdateTime + this._delayBetweenRefills;
+				var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+				var arePermitsAvailable = availablePermits > 0;
+				var isTooEarlyToRefill = now < nextRefillDateTime;
+				switch (isTooEarlyToRefill)
 				{
-					var delay = nextRefillDateTime - now;
-					var delayInMs = Convert.ToInt32(delay);
-					this.Logger.LogDebug($"[{this._serviceName}] Waiting {delayInMs.ToString()}ms.");
-					await Task.Delay(delayInMs);
-					break;
+					case true when !arePermitsAvailable:
+					{
+						var delay = nextRefillDateTime - now;
+						var delayInMs = Convert.ToInt32(delay);
+						this.Logger.LogDebug($"[{this._serviceName}] Waiting {delayInMs.ToString()}ms.");
+						await Task.Delay(delayInMs);
+						break;
+					}
+					// && arePermitsAvailable
+					case true:
+					{
+						this.Logger.LogDebug($"[{this._serviceName}] Passing");
+						Interlocked.Decrement(ref this._availablePermits);
+						return;
+					}
 				}
-				// && arePermitsAvailable
-				case true:
-					this.Logger.LogDebug($"[{this._serviceName}] Passing");
-					Interlocked.Decrement(ref this._availablePermits);
-					return;
-			}
 
-			if (Interlocked.CompareExchange(ref this._lastUpdateTime, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), lastUpdateTime) == lastUpdateTime)
-			{
-				this.Logger.LogTrace($"[{this._serviceName}] Updating {nameof(this._availablePermits)}");
-				Interlocked.Exchange(ref this._availablePermits, this.RateLimit.AmountOfRequests - 1);
-			}
-			else
-			{
-				this.Logger.LogTrace($"[{this._serviceName}] Couldn't update {nameof(this._lastUpdateTime)}. Spinning.");
-				this._spinner.SpinOnce();
+				if (Interlocked.CompareExchange(ref this._lastUpdateTime, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), lastUpdateTime) ==
+					lastUpdateTime)
+				{
+					this.Logger.LogTrace($"[{this._serviceName}] Updating {nameof(this._availablePermits)}");
+					Interlocked.Exchange(ref this._availablePermits, this.RateLimit.AmountOfRequests - 1);
+					return;
+				}
+				else
+				{
+					this.Logger.LogTrace($"[{this._serviceName}] Couldn't update {nameof(this._lastUpdateTime)}. Spinning.");
+					this._spinner.SpinOnce();
+				}
 			}
 		}
 
