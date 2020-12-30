@@ -21,10 +21,10 @@ namespace PaperMalKing.Common.RateLimiter
 
 		internal LockFreeRateLimiter(RateLimit rateLimit, ILogger<IRateLimiter<T>>? logger)
 		{
-			this._serviceName = $"{typeof(RateLimiter<T>).Name}<{typeof(T).Name}>";
+			this._serviceName = $"{typeof(LockFreeRateLimiter<T>).Name}<{typeof(T).Name}>";
 			this.RateLimit = rateLimit;
 
-			this.Logger = logger ?? NullLogger<RateLimiter<T>>.Instance;
+			this.Logger = logger ?? NullLogger<LockFreeRateLimiter<T>>.Instance;
 			this._lastUpdateTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 			this._availablePermits = rateLimit.AmountOfRequests;
 			this._delayBetweenRefills = rateLimit.PeriodInMilliseconds;
