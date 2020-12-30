@@ -9,7 +9,8 @@ namespace PaperMalKing.Common.RateLimiter
 			if (rateLimit.AmountOfRequests == 0 || rateLimit.PeriodInMilliseconds == 0)
 				return new NullRateLimiter<T>(rateLimit);
 
-			return new RateLimiter<T>(rateLimit, logger);
+			return new LockFreeRateLimiter<T>(rateLimit, logger);
+			// return new RateLimiter<T>(rateLimit, logger);
 		}
 	}
 }

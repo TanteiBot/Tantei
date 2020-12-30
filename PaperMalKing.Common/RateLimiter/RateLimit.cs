@@ -4,9 +4,9 @@ namespace PaperMalKing.Common.RateLimiter
 {
 	public sealed class RateLimit
 	{
-		public int AmountOfRequests { get; }
+		public long AmountOfRequests { get; }
 
-		public int PeriodInMilliseconds { get; }
+		public long PeriodInMilliseconds { get; }
 
 		public RateLimit(int amountOfRequests, int periodInMilliseconds)
 		{

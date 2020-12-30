@@ -13,7 +13,7 @@ namespace PaperMalKing.Common.RateLimiter
 		private ILogger<IRateLimiter<T>> Logger { get; }
 		private long _lastUpdateTime;
 
-		private int _availablePermits;
+		private long _availablePermits;
 		private SemaphoreSlim? _semaphoreSlim;
 
 		internal RateLimiter(RateLimit rateLimit, ILogger<IRateLimiter<T>>? logger)
