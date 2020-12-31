@@ -1,4 +1,6 @@
-﻿namespace PaperMalKing.MyAnimeList.Wrapper.Models.Progress
+﻿using System.ComponentModel;
+
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Progress
 {
 	internal enum GenericProgress : byte
 	{
@@ -14,6 +16,7 @@
 
 		InPlans = 6,
 
+		[Description("Re-progressing")]
 		Reprogressing = 7,
 
 		All = byte.MaxValue

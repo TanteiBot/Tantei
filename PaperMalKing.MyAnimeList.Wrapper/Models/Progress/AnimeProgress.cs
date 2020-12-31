@@ -1,4 +1,6 @@
-﻿namespace PaperMalKing.MyAnimeList.Wrapper.Models.Progress
+﻿using System.ComponentModel;
+
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Progress
 {
 	internal enum AnimeProgress : byte
 	{
@@ -14,6 +16,7 @@
 
 		PlanToWatch = 6,
 
+		[Description("Re-watching")]
 		Rewatching = 7,
 
 		All = byte.MaxValue
