@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -9,7 +10,7 @@ namespace PaperMalKing.Common.Converters
 		/// <inheritdoc />
 		public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => reader.TokenType switch
 		{
-			JsonTokenType.Number => reader.GetInt32().ToString(),
+			JsonTokenType.Number => reader.GetDouble().ToString(CultureInfo.InvariantCulture),
 			JsonTokenType.String => reader.GetString(),
 			_                    => ""
 		};
