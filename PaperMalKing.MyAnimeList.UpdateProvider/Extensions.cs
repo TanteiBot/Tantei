@@ -20,7 +20,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			IconUrl = WConstants.FAV_ICON,
 			Text = Constants.Name
 		};
-		
+
 		private static readonly Dictionary<GenericProgress, DiscordColor> Colors = new()
 		{
 			{GenericProgress.CurrentlyInProgress, Constants.MalGreen},
@@ -32,7 +32,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			{GenericProgress.All, Constants.MalBlack},
 			{GenericProgress.Unknown, Constants.MalBlack}
 		};
-		
+
 		internal static T ToDbFavorite<T>(this BaseFavorite baseFavorite, MalUser user) where T : class, IMalFavorite
 		{
 			return baseFavorite switch
@@ -120,56 +120,74 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		}
 
 		internal static string ToHashString(this (string, string) v) => $"{v.Item1} {v.Item2}";
+
 		internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this IListEntry listEntry, User user, DateTimeOffset timestamp)
 		{
-			static string TitleMediaTypeString(string title, string mediaType)
-			{
-				return title.EndsWith(mediaType) || title.EndsWith($"({mediaType})") ? title : $"{title} ({mediaType})";
-			}
+			static string TitleMediaTypeString(string title, string mediaType) =>
+				title.EndsWith(mediaType) || title.EndsWith($"({mediaType})") ? title : $"{title} ({mediaType})";
 
-			var eb = new DiscordEmbedBuilder().WithUrl(listEntry.Url).WithThumbnail(listEntry.ImageUrl)
-											  .WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl).WithTimestamp(timestamp);
+			var eb = new DiscordEmbedBuilder().WithThumbnail(listEntry.ImageUrl).WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl)
+											  .WithTimestamp(timestamp);
 
 
 			if (listEntry.Score != 0)
-			{
 				eb.AddField("Score", listEntry.Score.ToString(), true);
-			}
 
 			var userProgressText = listEntry switch
 			{
-				AnimeListEntry animeListEntry =>
-					$"{animeListEntry.UserAnimeProgress.Humanize()} - {animeListEntry.WatchedEpisodes.ToString()} of {"ep".ToQuantity(animeListEntry.TotalEpisodes)}",
-				MangaListEntry mangaListEntry =>
-					$"{mangaListEntry.UserMangaProgress.Humanize()} - {mangaListEntry.ReadChapters.ToString()} of {"ch".ToQuantity(mangaListEntry.TotalChapters)}, {mangaListEntry.ReadVolumes.ToString()} of {"v".ToQuantity(mangaListEntry.TotalVolumes)}",
+				AnimeListEntry
+					{UserAnimeProgress: AnimeProgress.PlanToWatch, TotalEpisodes: 0, WatchedEpisodes: 0} ale => ale.UserAnimeProgress.Humanize(
+					LetterCasing.Sentence),
+				AnimeListEntry
+						{UserAnimeProgress: AnimeProgress.PlanToWatch, WatchedEpisodes: 0} ale =>
+					$"{ale.UserAnimeProgress.Humanize(LetterCasing.Sentence)} - {"ep".ToQuantity(ale.TotalEpisodes)}",
+				AnimeListEntry ale =>
+					$"{ale.UserAnimeProgress.Humanize(LetterCasing.Sentence)} - {(ale.TotalEpisodes == ale.WatchedEpisodes ? "ep".ToQuantity(ale.TotalEpisodes) : $"{ale.WatchedEpisodes.ToString()}/{"ep".ToQuantity(ale.TotalEpisodes)}")}",
+
+				MangaListEntry
+					{UserMangaProgress: MangaProgress.PlanToRead, TotalChapters: 0, ReadChapters: 0} mle => mle.UserMangaProgress.Humanize(
+					LetterCasing.Sentence),
+				MangaListEntry
+						{UserMangaProgress: MangaProgress.PlanToRead, ReadChapters: 0} mle =>
+					$"{mle.UserMangaProgress.Humanize(LetterCasing.Sentence)} - {"ch".ToQuantity(mle.TotalChapters)}, {"v".ToQuantity(mle.TotalVolumes)}",
+				MangaListEntry mle =>
+					$"{mle.UserMangaProgress.Humanize(LetterCasing.Sentence)} - {mle.ReadChapters.ToString()}/{"ch".ToQuantity(mle.TotalChapters)}, {mle.ReadVolumes.ToString()}/{"v".ToQuantity(mle.TotalVolumes)}",
 
 				_ =>
-					$"{listEntry.UserProgress.Humanize()} - {listEntry.ProgressedSubEntries.ToString()} of {listEntry.TotalSubEntries.ToString()}"
+					$"{listEntry.UserProgress.Humanize(LetterCasing.Sentence)} - {listEntry.ProgressedSubEntries.ToString()}/{listEntry.TotalSubEntries.ToString()}"
 			};
 
 			eb.AddField("Progress", userProgressText, true);
 
 			var entryStatus = listEntry switch
 			{
-				AnimeListEntry animeListEntry => animeListEntry.AnimeAiringStatus.Humanize(),
-				MangaListEntry mangaListEntry => mangaListEntry.MangaPublishingStatus.Humanize(),
-				_                             => listEntry.Status.Humanize(),
+				AnimeListEntry animeListEntry => animeListEntry.AnimeAiringStatus.Humanize(LetterCasing.Sentence),
+				MangaListEntry mangaListEntry => mangaListEntry.MangaPublishingStatus.Humanize(LetterCasing.Sentence),
+				_                             => listEntry.Status.Humanize(LetterCasing.Sentence),
 			};
-			var title = "";
-			if (listEntry.Title.Length + listEntry.MediaType.Length + entryStatus.Length <= 256)
-				title = $"{TitleMediaTypeString(listEntry.Title, listEntry.MediaType)} [{entryStatus}]";
-			else if (listEntry.Title.Length + listEntry.MediaType.Length <= 256)
-				title = TitleMediaTypeString(listEntry.Title, listEntry.MediaType);
-			else if (listEntry.Title.Length <= 256)
-				title = listEntry.Title;
-			else title = listEntry.Title.Substring(0, 256);
+			var title = $"{TitleMediaTypeString(listEntry.Title, listEntry.MediaType)} [{entryStatus}]";
+
+			if (title.Length <= 256)
+			{
+				eb.Url = listEntry.Url;
+				eb.Title = title;
+			}
+			else
+				eb.Description = title;
 
 			if (listEntry.Tags.Length != 0)
 			{
 				if (listEntry.Tags.Length <= 1024)
 					eb.AddField("Tags", listEntry.Tags, true);
 				else
-					eb.WithDescription($"Tags\n{listEntry.Tags}".Truncate(2048, Truncator.FixedNumberOfCharacters));
+				{
+					var l = eb.Description?.Length ?? 0;
+					var descToAdd = $"Tags\n{listEntry.Tags}".Truncate(2048 - l - 1, Truncator.FixedNumberOfCharacters);
+					if (string.IsNullOrEmpty(eb.Description))
+						eb.WithDescription(descToAdd);
+					else
+						eb.Description += descToAdd;
+				}
 			}
 
 
