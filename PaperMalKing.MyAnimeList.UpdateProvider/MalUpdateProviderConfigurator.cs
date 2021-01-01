@@ -26,24 +26,24 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			Vocabularies.Default.AddPlural("v", "vs.");
 			Vocabularies.Default.AddPlural("ep", "eps.");
 			services.AddOptions<MalOptions>().Bind(configuration.GetSection(Constants.Name));
-			services.AddSingleton(provider => RateLimiterExtensions.ConfigurationLambda<MalOptions,MyAnimeListClient>(provider));
+			services.AddSingleton(provider => RateLimiterExtensions.ConfigurationLambda<MalOptions, MyAnimeListClient>(provider));
 
 			var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError()
-												  .OrResult(message =>
-													  message.StatusCode == HttpStatusCode.TooManyRequests)
-												  .WaitAndRetryAsync(
-													  Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));
-			services.AddHttpClient(MalOptions.MyAnimeList)
-					.AddPolicyHandler(retryPolicy)
-					.ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
-					{
-						UseCookies = true,
-						CookieContainer = new()
-					}).AddHttpMessageHandler(provider =>
-					{
-						var rl = provider.GetRequiredService<IRateLimiter<MyAnimeListClient>>();
-						return rl.ToHttpMessageHandler();
-					});
+												  .OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
+												  .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));
+			services.AddHttpClient(MalOptions.MyAnimeList).AddPolicyHandler(retryPolicy).ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+			{
+				UseCookies = true,
+				CookieContainer = new()
+			}).AddHttpMessageHandler(provider =>
+			{
+				var rl = provider.GetRequiredService<IRateLimiter<MyAnimeListClient>>();
+				return rl.ToHttpMessageHandler();
+			}).ConfigureHttpClient(client =>
+			{
+				client.DefaultRequestHeaders.UserAgent.Clear();
+				client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0");
+			});
 			services.AddSingleton<MyAnimeListClient>(provider =>
 			{
 				var factory = provider.GetRequiredService<IHttpClientFactory>();
