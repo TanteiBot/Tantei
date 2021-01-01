@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
@@ -7,17 +7,13 @@
         <LangVersion>latest</LangVersion>
         <Version>2.0.0</Version>
         <Nullable>enable</Nullable>
-        <PathMap>$(MSBuildProjectDirectory)=/PaperMalKing/Shikimori/Wrapper</PathMap>
+        <PathMap>$(MSBuildProjectDirectory)=/PaperMalKing/Shikimori/UpdateProvider</PathMap>
     </PropertyGroup>
 
     <ItemGroup>
-        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-            <_Parameter1>PaperMalKing.Shikimori.UpdateProvider</_Parameter1>
-        </AssemblyAttribute>
-    </ItemGroup>
-    
-    <ItemGroup>
       <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+      <ProjectReference Include="..\PaperMalKing.Shikimori.Wrapper\PaperMalKing.Shikimori.Wrapper.csproj" />
+      <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
     </ItemGroup>
 
 </Project>

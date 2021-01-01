@@ -18,7 +18,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Models.List
 		public string Kind { get; init; } = null!;
 
 		[JsonPropertyName("status")]
-		public string Status { get; init; } = null!;
+		public SubEntryReleasingStatus Status { get; init; }
 
 		public string Url => Utils.GetUrl(this.Type, this.Id);
 

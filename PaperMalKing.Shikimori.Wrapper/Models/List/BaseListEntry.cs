@@ -12,7 +12,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Models.List
 		public byte Score { get; init; }
 
 		[JsonPropertyName("status")]
-		public Status Status { get; init; }
+		public AnimeStatus Status { get; init; }
 
 		[JsonPropertyName("text")]
 		public string? Text { get; init; }
