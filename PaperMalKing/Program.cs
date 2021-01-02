@@ -37,7 +37,7 @@ namespace PaperMalKing
 				{
 					options.ColorBehavior = LoggerColorBehavior.Enabled;
 					options.SingleLine = false;
-					options.TimestampFormat = "u";
+					options.TimestampFormat = "[dd.MM.yy HH\\:mm\\:ss.fff] ";
 					options.UseUtcTimestamp = true;
 				}));
 				services.AddDbContext<DatabaseContext>();
