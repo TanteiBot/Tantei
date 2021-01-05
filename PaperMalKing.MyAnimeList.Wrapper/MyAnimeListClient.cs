@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
@@ -60,6 +61,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 			where TR : struct, IRssFeedType
 		{
 			var rssType = new TR();
+			username = WebUtility.UrlEncode(username);
 			var url = $"{rssType.Url}{username}";
 			using var response = await this.GetAsync(url, cancellationToken);
 
@@ -80,6 +82,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 		internal async Task<User> GetUserAsync(string username, CancellationToken cancellationToken = default)
 		{
 			this._logger.LogDebug("Requesting {@Username} profile", username);
+			username = WebUtility.UrlEncode(username);
 			var requestUrl = Constants.PROFILE_URL + username;
 			var htmlNode = await this.GetAsHtmlAsync(requestUrl, cancellationToken);
 			return UserProfileParser.Parse(htmlNode);
@@ -100,6 +103,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 			var tl = new TListType();
 			this._logger.LogDebug("Requesting {@Username} {@Type} list", username, tl.ListEntryType);
 
+			username = WebUtility.UrlEncode(username);
 			var url = tl.LatestUpdatesUrl(username);
 			using var response = await this.GetAsync(url, cancellationToken);
 

@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,9 +21,11 @@ namespace PaperMalKing.Shikimori.Wrapper
 
 		internal async Task<User> GetUserAsync(string nickname, CancellationToken cancellationToken = default)
 		{
+			this._logger.LogDebug("Requesting {@Nickname} profile.", nickname);
+
+			nickname = WebUtility.UrlEncode(nickname);
 			var url = $"{Constants.BASE_USERS_API_URL}/{nickname}";
 
-			this._logger.LogDebug("Requesting {@Nickname} profile.", nickname);
 			// DOnT DISPOSE SINCE CACHED CONTENT WILL BE DISPOSED TOO
 			var rm = new HttpRequestMessage(HttpMethod.Get, url)
 			{
