@@ -77,7 +77,7 @@ namespace PaperMalKing.Services
 
 		private Task CommandsExtensionOnCommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
 		{
-			this._logger.LogDebug(@"Command {@Command} was successfully executed by request of {@Member}", e.Command, e.Context.Member);
+			this._logger.LogDebug("{Command} was successfully executed by request of {Member}", e.Command, e.Context.Member);
 			return Task.CompletedTask;
 		}
 
@@ -89,7 +89,7 @@ namespace PaperMalKing.Services
 				return Task.CompletedTask;
 			}
 			this._logger.LogError(e.Exception,
-				"Command {@Command} errored with exception while trying to be executed by {@Member}", e.Command, e.Context.Member);
+				"{Command} errored with exception while trying to be executed by {Member}", e.Command, e.Context.Member);
 			return Task.CompletedTask;
 		}
 	}

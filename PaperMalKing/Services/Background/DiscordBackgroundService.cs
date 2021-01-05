@@ -44,7 +44,7 @@ namespace PaperMalKing.Services.Background
 		{
 			if (e.Unavailable)
 			{
-				this._logger.LogInformation("Guild {@Guild} became unavailable", e.Guild);
+				this._logger.LogInformation("Guild {Guild} became unavailable", e.Guild);
 				return Task.CompletedTask;
 			}
 
@@ -55,7 +55,7 @@ namespace PaperMalKing.Services.Background
 				var guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == e.Guild.Id);
 				if (guild == null)
 				{
-					this._logger.LogInformation("Bot was removed from guild {@Guild} but since guild wasn't in database there is nothing to remove",
+					this._logger.LogInformation("Bot was removed from guild {Guild} but since guild wasn't in database there is nothing to remove",
 						e.Guild);
 					return;
 				}
@@ -92,11 +92,11 @@ namespace PaperMalKing.Services.Background
 			{
 				using var scope = this._provider.CreateScope();
 				var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-				this._logger.LogDebug("User {@Member} left guild {@Guild}", e.Member, e.Guild);
+				this._logger.LogDebug("User {Member} left guild {Guild}", e.Member, e.Guild);
 				var user = await db.DiscordUsers.Include(u => u.Guilds).FirstOrDefaultAsync(u => u.DiscordUserId == e.Member.Id);
 				if (user == null)
 				{
-					this._logger.LogDebug("User {@Member} that left wasn't saved in db", e.Member);
+					this._logger.LogDebug("User {Member} that left wasn't saved in db", e.Member);
 					return;
 				}
 				else
@@ -104,7 +104,7 @@ namespace PaperMalKing.Services.Background
 					var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == e.Guild.Id);
 					if (guild == null)
 					{
-						this._logger.LogDebug("User {@Member} that left guild {@Guild} didn't have posting updates in it", e.Member, e.Guild);
+						this._logger.LogDebug("User {Member} that left guild {Guild} didn't have posting updates in it", e.Member, e.Guild);
 						return;
 					}
 
