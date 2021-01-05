@@ -30,5 +30,9 @@
         "AmountOfRequests": 1,
         "PeriodInMilliseconds": 2500,
         "DelayBetweenChecksInMilliseconds": 60000
+    },
+    "Shikimori": {
+        "ShikimoriAppName": "ShikiAppName",
+        "DelayBetweenChecksInMilliseconds": 60000
     }
 }
