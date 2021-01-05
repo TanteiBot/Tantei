@@ -108,7 +108,8 @@ namespace PaperMalKing.Database
 			modelBuilder.Entity<ShikiFavourite>().HasKey(k => new
 			{
 				k.Id,
-				k.FavType
+				k.FavType,
+				k.UserId
 			});
 
 			var dtoConverter = new DateTimeOffsetToBinaryConverter();
