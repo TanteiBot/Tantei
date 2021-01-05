@@ -4,15 +4,18 @@
 	{
 		public T Data { get; }
 
-		public int CurrentPage { get; }
-
 		public bool HasNextPage { get; }
 
-		public Paginatable(T data, int currentPage, bool hasNextPage)
+		public Paginatable(T data, bool hasNextPage)
 		{
 			this.Data = data;
-			this.CurrentPage = currentPage;
 			this.HasNextPage = hasNextPage;
+		}
+
+		public void Deconstruct(out T data, out bool hasNextPage)
+		{
+			data = this.Data;
+			hasNextPage = this.HasNextPage;
 		}
 	}
 }

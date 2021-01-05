@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Net.Http;
 
 namespace PaperMalKing.Shikimori.Wrapper
@@ -11,8 +10,8 @@ namespace PaperMalKing.Shikimori.Wrapper
 			{new StringContent("1"), "is_nickname"}
 		};
 
-		public static readonly ConcurrentDictionary<int, MultipartFormDataContent> UserHistoryCachedContent = new();
+		public static readonly ConcurrentDictionary<(uint, byte), MultipartFormDataContent> UserHistoryCachedContent = new();
 
-		public static readonly ConcurrentDictionary<Tuple<int, string>, MultipartFormDataContent> UserListContent = new();
+		public static readonly ConcurrentDictionary<(uint, string), MultipartFormDataContent> UserListContent = new();
 	}
 }

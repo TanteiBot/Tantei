@@ -14,6 +14,9 @@
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>PaperMalKing.Shikimori.UpdateProvider</_Parameter1>
         </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>PaperMalKing</_Parameter1>
+        </AssemblyAttribute>
     </ItemGroup>
     
     <ItemGroup>

@@ -7,10 +7,10 @@ namespace PaperMalKing.UpdatesProviders.Base
 	{
 		string Name { get; }
 
-		Task<IUser> AddUserAsync(string username, ulong userId, ulong guildId);
+		Task<BaseUser> AddUserAsync(string username, ulong userId, ulong guildId);
 
-		Task<IUser> RemoveUserAsync(ulong userId);
+		Task<BaseUser> RemoveUserAsync(ulong userId);
 
-		IAsyncEnumerable<IUser> ListUsersAsync(ulong guildId);
+		IAsyncEnumerable<BaseUser> ListUsersAsync(ulong guildId);
 	}
 }

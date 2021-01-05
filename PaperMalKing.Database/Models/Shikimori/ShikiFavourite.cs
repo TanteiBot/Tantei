@@ -12,7 +12,9 @@ namespace PaperMalKing.Database.Models.Shikimori
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.None)]
 		public string FavType { get; init; } = null!;
+
+		public string Name { get; init; } = null!;
 		
-		public ShikiUser User { get; init; } = null!;
+		public ShikiUser User { get; set; } = null!;
 	}
 }

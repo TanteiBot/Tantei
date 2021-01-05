@@ -10,7 +10,7 @@ namespace PaperMalKing.Database.Models.Shikimori
 		[DatabaseGenerated(DatabaseGeneratedOption.None)]
 		public ulong Id { get; init; }
 
-		public ulong LastHistoryEntryId { get; init; }
+		public ulong LastHistoryEntryId { get; set; }
 
 		public ulong DiscordUserId { get; init; }
 

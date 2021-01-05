@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -50,8 +51,8 @@ namespace PaperMalKing.Common
 			var resultingHs = new HashSet<T>(resulting);
 			originalHs.ExceptWith(resulting);
 			resultingHs.ExceptWith(original);
-			var added = resultingHs.ToArray();
-			var removed = originalHs.ToArray();
+			var added = resultingHs.ToArray() ?? Array.Empty<T>();
+			var removed = originalHs.ToArray() ?? Array.Empty<T>();
 			return (added, removed);
 		}
 
@@ -68,6 +69,22 @@ namespace PaperMalKing.Common
 			var index = original.IndexOf(endOfSubstring, StringComparison.InvariantCultureIgnoreCase);
 			var result = before ? original.Substring(0, index) : original.Substring(index+1, original.Length - index - 1);
 			return result;
+		}
+
+		public static string? ToSentenceCase(this string? value, CultureInfo? cultureInfo = null)
+		{
+			if (string.IsNullOrEmpty(value) || value.Length <= 1)
+				return value;
+
+			value = value.ToLower(cultureInfo);
+			for (var i = 0; i < value.Length; i++)
+			{
+				var ch = value[i];
+				if (char.IsLetter(ch))
+					return $"{char.ToUpper(ch).ToString()}{value.Substring(i + 1)}";
+			}
+
+			return value;
 		}
 
 

@@ -16,4 +16,8 @@
       <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="ReverseMarkdown" Version="3.14.0" />
+    </ItemGroup>
+
 </Project>

@@ -1,80 +1,125 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models
 {
 	internal sealed class Favourites
 	{
-		private readonly List<FavouriteEntry> _allFavourites = new();
+		private readonly List<FavouriteEntry> _allFavourites = new(20);
 
-		internal IReadOnlyList<FavouriteEntry> AllFavourites => this._allFavourites;
+		public IReadOnlyList<FavouriteEntry> AllFavourites => this._allFavourites;
 
 		[JsonPropertyName("animes")]
-		public IReadOnlyList<FavouriteEntry> Animes
+		public FavouriteEntry[] Animes
 		{
+			[Obsolete("Used only for json serializer", true)]
+			get => throw new NotSupportedException();
 			init
 			{
 				foreach (var entry in value)
-					entry.Type = "animes";
+					entry.GenericType = "animes";
 				this._allFavourites.AddRange(value);
 			}
 		}
 
 		[JsonPropertyName("mangas")]
-		public IReadOnlyList<FavouriteEntry> Mangas
+		public FavouriteEntry[] Mangas
 		{
+			[Obsolete("Used only for json serializer", true)]
+			get => throw new NotSupportedException();
 			init
 			{
 				foreach (var entry in value)
-					entry.Type = "mangas";
+					entry.GenericType = "mangas";
 				this._allFavourites.AddRange(value);
 			}
 		}
 
 		[JsonPropertyName("characters")]
-		public IReadOnlyList<FavouriteEntry> Characters
+		public FavouriteEntry[] Characters
 		{
+			[Obsolete("Used only for json serializer", true)]
+			get => throw new NotSupportedException();
 			init
 			{
 				foreach (var entry in value)
-					entry.Type = "characters";
+					entry.GenericType = "characters";
 				this._allFavourites.AddRange(value);
 			}
 		}
 
 		[JsonPropertyName("people")]
-		public IReadOnlyList<FavouriteEntry> People
+		public FavouriteEntry[] People
 		{
+			[Obsolete("Used only for json serializer", true)]
+			get => throw new NotSupportedException();
 			init
 			{
 				foreach (var entry in value)
-					entry.Type = "people";
+					entry.GenericType = "people";
 				this._allFavourites.AddRange(value);
 			}
 		}
 
 		[JsonPropertyName("mangakas")]
-		public IReadOnlyList<FavouriteEntry> Mangakas
+		public FavouriteEntry[] Mangakas
 		{
-			init => this.People = value;
+			[Obsolete("Used only for json serializer", true)]
+			get => throw new NotSupportedException();
+			init
+			{
+				foreach (var entry in value)
+				{
+					entry.SpecificType = "mangaka";
+					entry.GenericType = "people";
+				}
+
+				this._allFavourites.AddRange(value);
+			}
 		}
 
 		[JsonPropertyName("seyu")]
-		public IReadOnlyList<FavouriteEntry> Seyu
+		public FavouriteEntry[] Seyu
 		{
-			init => this.People = value;
+			[Obsolete("Used only for json serializer", true)]
+			get => throw new NotSupportedException();
+			init
+			{
+				foreach (var entry in value)
+				{
+					entry.SpecificType = "seyu";
+					entry.GenericType = "people";
+				}
+
+				this._allFavourites.AddRange(value);
+			}
 		}
 
 		[JsonPropertyName("producers")]
-		public IReadOnlyList<FavouriteEntry> Producers
+		public FavouriteEntry[] Producers
 		{
-			init => this.People = value;
+			[Obsolete("Used only for json serializer", true)]
+			get => throw new NotSupportedException();
+			init
+			{
+				foreach (var entry in value)
+				{
+					entry.SpecificType = "producer";
+					entry.GenericType = "people";
+				}
+
+				this._allFavourites.AddRange(value);
+			}
 		}
 
-		internal sealed class FavouriteEntry
+		public sealed class FavouriteEntry : IEquatable<FavouriteEntry>
 		{
 			[JsonIgnore]
-			public string? Type { get; set; }
+			public string? GenericType { get; set; }
+
+			[JsonIgnore]
+			public string? SpecificType { get; set; } = null;
 
 			[JsonPropertyName("id")]
 			public ulong Id { get; init; }
@@ -82,9 +127,35 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 			[JsonPropertyName("name")]
 			public string Name { get; init; } = null!;
 
-			public string? ImageUrl => Utils.GetImageUrl(this.Type!, this.Id);
+			public string? ImageUrl => Utils.GetImageUrl(this.GenericType!, this.Id);
 
-			public string? Url => Utils.GetUrl(this.Type!, this.Id);
+			public string? Url => Utils.GetUrl(this.GenericType!, this.Id);
+
+			/// <inheritdoc />
+			public bool Equals(FavouriteEntry? other)
+			{
+				if (ReferenceEquals(null, other))
+					return false;
+				if (ReferenceEquals(this, other))
+					return true;
+				return this.GenericType == other.GenericType && this.Id == other.Id;
+			}
+
+			/// <inheritdoc />
+			public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is FavouriteEntry other && Equals(other);
+
+			/// <inheritdoc />
+			public override int GetHashCode()
+			{
+				unchecked
+				{
+					return ((this.GenericType != null ? this.GenericType.GetHashCode() : 0) * 397) ^ this.Id.GetHashCode();
+				}
+			}
+
+			public static bool operator ==(FavouriteEntry? left, FavouriteEntry? right) => Equals(left, right);
+
+			public static bool operator !=(FavouriteEntry? left, FavouriteEntry? right) => !Equals(left, right);
 		}
 	}
 }
