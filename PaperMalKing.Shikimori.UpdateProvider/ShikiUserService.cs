@@ -103,6 +103,22 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			return new("");
 		}
 
+		public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
+		{
+			using var scope = this._serviceProvider.CreateScope();
+			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+			var user = await db.DiscordUsers.Include(du => du.Guilds).FirstOrDefaultAsync(du => du.DiscordUserId == userId);
+			if (user == null)
+				throw new UserProcessingException("You weren't registered in bot");
+			var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
+			if (guild == null)
+				throw new UserProcessingException("You weren't registered in this server");
+
+			user.Guilds.Remove(guild);
+			db.DiscordUsers.Update(user);
+			await db.SaveChangesAndThrowOnNoneAsync();
+		}
+
 		/// <inheritdoc />
 		public IAsyncEnumerable<BaseUser> ListUsersAsync(ulong guildId)
 		{

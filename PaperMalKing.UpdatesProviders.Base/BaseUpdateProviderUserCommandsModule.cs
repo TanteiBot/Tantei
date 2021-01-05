@@ -59,6 +59,22 @@ namespace PaperMalKing.UpdatesProviders.Base
 				$"Successfully removed {user.Username} from {this.UserService.Name} update checker"));
 		}
 
+		public virtual async Task RemoveUserHereCommand(CommandContext ctx)
+		{
+			try
+			{
+				await this.UserService.RemoveUserHereAsync(ctx.User.Id, ctx.Guild.Id);
+			}
+			catch (Exception ex)
+			{
+				var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
+				await ctx.RespondAsync(embed: embed);
+				throw;
+			}
+
+			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Now your updates won't appear in this server"));
+		}
+
 		public virtual async Task ListUsersCommand(CommandContext ctx)
 		{
 			var sb = new StringBuilder();

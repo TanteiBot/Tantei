@@ -43,7 +43,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			{
 				if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)) // User already in specified guild
 				{
-					return new (dbUser.Username);
+					return new(dbUser.Username);
 				}
 
 				guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId);
@@ -53,12 +53,12 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				dbUser.DiscordUser.Guilds.Add(guild);
 				db.MalUsers.Update(dbUser);
 				await db.SaveChangesAndThrowOnNoneAsync();
-				return new (dbUser.Username);
+				return new(dbUser.Username);
 			}
 
 			guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId);
 			if (guild == null)
-				throw new UserProcessingException(new (username),
+				throw new UserProcessingException(new(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
 
 			var duser = await db.DiscordUsers.FirstOrDefaultAsync(user => user.DiscordUserId == userId);
@@ -85,7 +85,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			dbUser.FavoritePeople = mUser.Favorites.FavoritePeople.Select(person => person.ToMalFavoritePerson(dbUser)).ToList();
 			await db.MalUsers.AddAsync(dbUser);
 			await db.SaveChangesAndThrowOnNoneAsync();
-			return new (dbUser.Username);
+			return new(dbUser.Username);
 		}
 
 		/// <inheritdoc />
@@ -106,7 +106,23 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 			db.MalUsers.Remove(user);
 			await db.SaveChangesAndThrowOnNoneAsync();
-			return new (user.Username);
+			return new(user.Username);
+		}
+
+		public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
+		{
+			using var scope = this._serviceProvider.CreateScope();
+			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+			var user = await db.DiscordUsers.Include(du => du.Guilds).FirstOrDefaultAsync(du => du.DiscordUserId == userId);
+			if (user == null)
+				throw new UserProcessingException("You weren't registered in bot");
+			var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
+			if (guild == null)
+				throw new UserProcessingException("You weren't registered in this server");
+
+			user.Guilds.Remove(guild);
+			db.DiscordUsers.Update(user);
+			await db.SaveChangesAndThrowOnNoneAsync();
 		}
 
 		/// <inheritdoc />

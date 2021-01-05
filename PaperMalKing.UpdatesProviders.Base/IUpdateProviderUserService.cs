@@ -11,6 +11,8 @@ namespace PaperMalKing.UpdatesProviders.Base
 
 		Task<BaseUser> RemoveUserAsync(ulong userId);
 
+		Task RemoveUserHereAsync(ulong userId, ulong guildId);
+
 		IAsyncEnumerable<BaseUser> ListUsersAsync(ulong guildId);
 	}
 }

@@ -28,5 +28,9 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		[Command("list")]
 		[Aliases("l")]
 		public override Task ListUsersCommand(CommandContext ctx) => base.ListUsersCommand(ctx);
+
+		[Command("removehere")]
+		[Aliases("rmh")]
+		public override Task RemoveUserHereCommand(CommandContext ctx) => base.RemoveUserHereCommand(ctx);
 	}
 }
