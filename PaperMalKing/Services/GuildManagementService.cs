@@ -23,11 +23,11 @@ namespace PaperMalKing.Services
 		public GuildManagementService(ILogger<GuildManagementService> logger, IServiceProvider serviceProvider, UpdatePublishingService updatePublishingService, DiscordClient discordClient)
 		{
 			this._logger = logger;
-			this._logger.LogDebug($"Building {nameof(GuildManagementService)}");
+			this._logger.LogTrace("Building {@GuildManagementService}", typeof(GuildManagementService));
 			this._serviceProvider = serviceProvider;
 			this._updatePublishingService = updatePublishingService;
 			this._discordClient = discordClient;
-			this._logger.LogDebug($"Built {nameof(GuildManagementService)}");
+			this._logger.LogTrace("Built {@GuildManagementService}", typeof(GuildManagementService));
 		}
 
 		public async Task<DiscordGuild> SetChannelAsync(ulong guildId, ulong channelId)

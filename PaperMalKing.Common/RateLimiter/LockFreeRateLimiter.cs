@@ -46,14 +46,14 @@ namespace PaperMalKing.Common.RateLimiter
 					{
 						var delay = nextRefillDateTime - now;
 						var delayInMs = Convert.ToInt32(delay);
-						this.Logger.LogDebug($"[{this._serviceName}] Waiting {delayInMs.ToString()}ms.");
+						this.Logger.LogDebug("[{ServiceName}] Waiting {@Delay}ms.", this._serviceName, delayInMs);
 						await Task.Delay(delayInMs);
 						break;
 					}
 					// && arePermitsAvailable
 					case true:
 					{
-						this.Logger.LogDebug($"[{this._serviceName}] Passing");
+						this.Logger.LogTrace("[{ServiceName}] Passing", this._serviceName);
 						Interlocked.Decrement(ref this._availablePermits);
 						return;
 					}
@@ -62,13 +62,13 @@ namespace PaperMalKing.Common.RateLimiter
 				if (Interlocked.CompareExchange(ref this._lastUpdateTime, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), lastUpdateTime) ==
 					lastUpdateTime)
 				{
-					this.Logger.LogTrace($"[{this._serviceName}] Updating {nameof(this._availablePermits)}");
+					this.Logger.LogTrace("[{ServiceName}] Updating {AvailablePermits}", this._serviceName, this._availablePermits);
 					Interlocked.Exchange(ref this._availablePermits, this.RateLimit.AmountOfRequests - 1);
 					return;
 				}
 				else
 				{
-					this.Logger.LogTrace($"[{this._serviceName}] Couldn't update {nameof(this._lastUpdateTime)}. Spinning.");
+					this.Logger.LogTrace("[{ServiceName}] Couldn't update {LastUpdateTime}. Spinning.", this._serviceName, this._lastUpdateTime);
 					this._spinner.SpinOnce();
 				}
 			}

@@ -27,7 +27,7 @@ namespace PaperMalKing.Services.Background
 		{
 			this._logger = logger;
 
-			this._logger.LogTrace($"Building {nameof(DiscordBackgroundService)}");
+			this._logger.LogTrace("Building {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
 			this._provider = provider;
 			this._options = options;
 
@@ -37,14 +37,14 @@ namespace PaperMalKing.Services.Background
 			this.Client.ClientErrored += this.ClientOnClientErrored;
 			this.Client.GuildMemberRemoved += this.ClientOnGuildMemberRemoved;
 			this.Client.GuildDeleted += this.ClientOnGuildDeleted;
-			this._logger.LogTrace($"Built {nameof(DiscordBackgroundService)}");
+			this._logger.LogTrace("Built {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
 		}
 
 		private Task ClientOnGuildDeleted(DiscordClient sender, GuildDeleteEventArgs e)
 		{
 			if (e.Unavailable)
 			{
-				this._logger.LogInformation($"Guild {e.Guild} became unavailable");
+				this._logger.LogInformation("Guild {@Guild} became unavailable", e.Guild);
 				return Task.CompletedTask;
 			}
 
@@ -55,8 +55,8 @@ namespace PaperMalKing.Services.Background
 				var guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == e.Guild.Id);
 				if (guild == null)
 				{
-					this._logger.LogInformation(
-						$"Bot was removed from guild {e.Guild} but since guild wasn't in database there is nothing to remove");
+					this._logger.LogInformation("Bot was removed from guild {@Guild} but since guild wasn't in database there is nothing to remove",
+						e.Guild);
 					return;
 				}
 
@@ -92,11 +92,11 @@ namespace PaperMalKing.Services.Background
 			{
 				using var scope = this._provider.CreateScope();
 				var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-				this._logger.LogDebug($"User {e.Member} left guild {e.Guild}");
+				this._logger.LogDebug("User {@Member} left guild {@Guild}", e.Member, e.Guild);
 				var user = await db.DiscordUsers.Include(u => u.Guilds).FirstOrDefaultAsync(u => u.DiscordUserId == e.Member.Id);
 				if (user == null)
 				{
-					this._logger.LogDebug($"User {e.Member} that left wasn't saved in db");
+					this._logger.LogDebug("User {@Member} that left wasn't saved in db", e.Member);
 					return;
 				}
 				else
@@ -104,7 +104,7 @@ namespace PaperMalKing.Services.Background
 					var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == e.Guild.Id);
 					if (guild == null)
 					{
-						this._logger.LogDebug($"User {e.Member} that left guild {e.Guild} didn't have posting updates in it");
+						this._logger.LogDebug("User {@Member} that left guild {@Guild} didn't have posting updates in it", e.Member, e.Guild);
 						return;
 					}
 
@@ -120,7 +120,7 @@ namespace PaperMalKing.Services.Background
 		/// <inheritdoc />
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			this._logger.LogDebug($"Starting {nameof(DiscordBackgroundService)}");
+			this._logger.LogDebug("Starting {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
 			this._logger.LogInformation("Connecting to Discord");
 			await this.Client.ConnectAsync(new(this._options.Value.PresenceText, (ActivityType) this._options.Value.ActivityType), UserStatus.Online);
 			await Task.Delay(Timeout.Infinite, stoppingToken);
@@ -132,7 +132,7 @@ namespace PaperMalKing.Services.Background
 		/// <inheritdoc />
 		public override void Dispose()
 		{
-			this._logger.LogDebug($"Disposing {nameof(DiscordBackgroundService)}");
+			this._logger.LogDebug("Disposing {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
 			this.Client.Dispose();
 		}
 	}

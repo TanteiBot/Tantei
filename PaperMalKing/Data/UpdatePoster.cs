@@ -28,7 +28,7 @@ namespace PaperMalKing.Data
 				for (var i = 0; i < embeds.Count; i++)
 				{
 					var embed = embeds[i];
-					this._logger.LogTrace($"Posting update to {this._channel} - {embed}");
+					this._logger.LogTrace(@"Posting update to {@Channel} - {@Embed}", this._channel, embed);
 					await this._channel.SendMessageAsync(embed: embed);
 				}
 			}

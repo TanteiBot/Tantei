@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
 using PaperMalKing.Options;
 using PaperMalKing.Services;
 using PaperMalKing.Services.Background;
+using Serilog;
 
 namespace PaperMalKing
 {
@@ -34,14 +34,6 @@ namespace PaperMalKing
 		{
 			return Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
 			{
-				services.AddLogging(builder => builder.AddSimpleConsole(options =>
-				{
-					options.ColorBehavior = LoggerColorBehavior.Enabled;
-					options.SingleLine = false;
-					options.TimestampFormat = "[dd.MM.yy HH\\:mm\\:ss.fff] ";
-					options.UseUtcTimestamp = true;
-				}));
-
 				Vocabularies.Default.AddPlural("ch", "chs.");
 				Vocabularies.Default.AddPlural("v", "vs.");
 				Vocabularies.Default.AddPlural("ep", "eps.");
@@ -75,6 +67,10 @@ namespace PaperMalKing
 
 				services.AddHostedService<UpdateProvidersManagementService>();
 				services.AddHostedService<DiscordBackgroundService>();
+			}).UseSerilog((context, _, configuration) =>
+			{
+				configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo
+							 .Console(outputTemplate: "[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}");
 			});
 		}
 	}

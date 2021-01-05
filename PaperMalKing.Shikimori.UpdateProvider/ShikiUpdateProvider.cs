@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -47,7 +46,6 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		/// <inheritdoc />
 		protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 		{
-			this.Logger.LogInformation("Starting to check for updates");
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
@@ -66,7 +64,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				var (addedValues, removedValues) = cfavs.GetDifference(favs.AllFavourites);
 				if (!historyUpdates.Any() && !addedValues.Any() && !removedValues.Any())
 				{
-					this.Logger.LogDebug($"No updates found for {dbUser.Id.ToString()}.");
+					this.Logger.LogDebug("No updates found for {@Id}", dbUser.Id);
 					continue;
 				}
 
@@ -94,15 +92,13 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					db.Entry(user).State = EntityState.Unchanged;
 					continue;
 				}
-				
-				this.Logger.LogDebug($"Found {"update".ToQuantity(totalUpdates.Count)} for {user.Nickname} ({user.Id.ToString()})");
+
 				totalUpdates.ForEach(deb => deb.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
 				await this.UpdateFoundEvent?.Invoke(new(new ShikiUpdate(totalUpdates), this, dbUser.DiscordUser))!;
 				db.ShikiUsers.Update(dbUser);
 				await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
+				this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);
 			}
-
-			this.Logger.LogInformation("Ending checks for updates");
 		}
 	}
 }
