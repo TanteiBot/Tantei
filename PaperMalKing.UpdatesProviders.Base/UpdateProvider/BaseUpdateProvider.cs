@@ -14,7 +14,7 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 
 		protected readonly Timer Timer;
 
-		protected readonly TimeSpan _delayBetweenTimerFires;
+		protected readonly TimeSpan DelayBetweenTimerFires;
 
 		private Task _updateCheckingRunningTask = null!;
 
@@ -22,7 +22,7 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 		{
 			this._cts = new();
 			this.Logger = logger;
-			this._delayBetweenTimerFires = delayBetweenTimerFires;
+			this.DelayBetweenTimerFires = delayBetweenTimerFires;
 			this.Timer = new(_ => this.TimerCallback(null), null, Timeout.Infinite, Timeout.Infinite);
 
 		}
@@ -31,7 +31,7 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 		public abstract string Name { get; }
 
 		/// <inheritdoc />
-		public abstract event UpdateFoundEventHandler UpdateFoundEvent;
+		public abstract event UpdateFoundEventHandler? UpdateFoundEvent;
 
 		/// <inheritdoc />
 		public Task TriggerStoppingAsync()
@@ -54,8 +54,8 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 			}
 			finally
 			{
-				this.RestartTimer(this._delayBetweenTimerFires);
-				this.Logger.LogInformation($"Ended checking for updates in {this.Name} updates provider. Next planned update check is in {this._delayBetweenTimerFires.Humanize()}.");
+				this.RestartTimer(this.DelayBetweenTimerFires);
+				this.Logger.LogInformation($"Ended checking for updates in {this.Name} updates provider. Next planned update check is in {this.DelayBetweenTimerFires.Humanize()}.");
 			}
 		}
 

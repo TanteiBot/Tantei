@@ -32,7 +32,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		/// <inheritdoc />
 		public string Name => Constants.Name;
 
-		public async Task<IUser> AddUserAsync(string username, ulong userId, ulong guildId)
+		public async Task<BaseUser> AddUserAsync(string username, ulong userId, ulong guildId)
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
@@ -43,19 +43,22 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			{
 				if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)) // User already in specified guild
 				{
-					return new User(dbUser);
+					return new (dbUser.Username);
 				}
 
 				guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId);
+				if (guild == null)
+					throw new UserProcessingException(new(username),
+						"Current server is not in database, ask server administrator to add this server to bot");
 				dbUser.DiscordUser.Guilds.Add(guild);
 				db.MalUsers.Update(dbUser);
 				await db.SaveChangesAndThrowOnNoneAsync();
-				return new User(dbUser);
+				return new (dbUser.Username);
 			}
 
 			guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId);
 			if (guild == null)
-				throw new UserProcessingException(new User(username),
+				throw new UserProcessingException(new (username),
 					"Current server is not in database, ask server administrator to add this server to bot");
 
 			var duser = await db.DiscordUsers.FirstOrDefaultAsync(user => user.DiscordUserId == userId);
@@ -82,11 +85,11 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			dbUser.FavoritePeople = mUser.Favorites.FavoritePeople.Select(person => person.ToMalFavoritePerson(dbUser)).ToList();
 			await db.MalUsers.AddAsync(dbUser);
 			await db.SaveChangesAndThrowOnNoneAsync();
-			return new User(dbUser);
+			return new (dbUser.Username);
 		}
 
 		/// <inheritdoc />
-		public async Task<IUser> RemoveUserAsync(ulong userId)
+		public async Task<BaseUser> RemoveUserAsync(ulong userId)
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
@@ -103,11 +106,11 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 			db.MalUsers.Remove(user);
 			await db.SaveChangesAndThrowOnNoneAsync();
-			return new User(user);
+			return new (user.Username);
 		}
 
 		/// <inheritdoc />
-		public IAsyncEnumerable<IUser> ListUsersAsync(ulong guildId)
+		public IAsyncEnumerable<BaseUser> ListUsersAsync(ulong guildId)
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
@@ -117,20 +120,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 						 Username = u.Username,
 						 LastUpdatedAnimeListTimestamp = u.LastUpdatedAnimeListTimestamp
 					 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastUpdatedAnimeListTimestamp)
-					 .Select(mu => new User(mu)).AsNoTracking().AsAsyncEnumerable();
-		}
-
-		private sealed class User : IUser
-		{
-			public string Username => this._dbUser?.Username ?? this.Username;
-
-			private readonly string _username = null!;
-
-			private readonly MalUser? _dbUser;
-
-			public User(MalUser user) => this._dbUser = user;
-
-			public User(string username) => this._username = username;
+					 .Select(mu => new BaseUser(mu.Username, mu.DiscordUser)).AsNoTracking().AsAsyncEnumerable();
 		}
 	}
 }

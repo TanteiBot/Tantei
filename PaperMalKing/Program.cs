@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using DSharpPlus;
+using Humanizer.Inflections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -40,6 +41,11 @@ namespace PaperMalKing
 					options.TimestampFormat = "[dd.MM.yy HH\\:mm\\:ss.fff] ";
 					options.UseUtcTimestamp = true;
 				}));
+
+				Vocabularies.Default.AddPlural("ch", "chs.");
+				Vocabularies.Default.AddPlural("v", "vs.");
+				Vocabularies.Default.AddPlural("ep", "eps.");
+
 				services.AddDbContext<DatabaseContext>();
 				var config = hostContext.Configuration;
 

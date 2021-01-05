@@ -22,9 +22,9 @@ namespace PaperMalKing.UpdatesProviders.Base
 		}
 
 		public virtual async Task AddUserCommand(CommandContext ctx, [RemainingText] [Description("Your username")]
-											   string username)
+												 string username)
 		{
-			IUser user;
+			BaseUser user;
 			try
 			{
 				user = await this.UserService.AddUserAsync(username, ctx.Member.Id, ctx.Member.Guild.Id);
@@ -43,7 +43,7 @@ namespace PaperMalKing.UpdatesProviders.Base
 
 		public virtual async Task RemoveUserInGuildCommand(CommandContext ctx)
 		{
-			IUser user;
+			BaseUser user;
 			try
 			{
 				user = await this.UserService.RemoveUserAsync(ctx.User.Id);
@@ -64,9 +64,9 @@ namespace PaperMalKing.UpdatesProviders.Base
 			var sb = new StringBuilder();
 			try
 			{
+				var i = 1;
 				await foreach (var user in this.UserService.ListUsersAsync(ctx.Guild.Id))
 				{
-					var i = 1;
 					if (sb.Length + user.Username.Length > 2048)
 					{
 						if (sb.Length + "...".Length > 2048)
@@ -76,7 +76,8 @@ namespace PaperMalKing.UpdatesProviders.Base
 						break;
 					}
 
-					sb.AppendLine($"{i++.ToString()}{user.Username}");
+					sb.AppendLine(
+						$"{i++.ToString()}{user.Username} {(user.DiscordUser == null ? "" : Helpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
 				}
 			}
 			catch (Exception ex)

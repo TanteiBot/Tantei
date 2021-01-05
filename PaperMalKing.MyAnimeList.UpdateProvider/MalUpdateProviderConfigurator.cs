@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
-using Humanizer.Inflections;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,9 +21,6 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 		public static void Configure(IConfiguration configuration, IServiceCollection services)
 		{
-			Vocabularies.Default.AddPlural("ch", "chs.");
-			Vocabularies.Default.AddPlural("v", "vs.");
-			Vocabularies.Default.AddPlural("ep", "eps.");
 			services.AddOptions<MalOptions>().Bind(configuration.GetSection(Constants.Name));
 			services.AddSingleton(provider => RateLimiterExtensions.ConfigurationLambda<MalOptions, MyAnimeListClient>(provider));
 
