@@ -19,10 +19,10 @@ namespace PaperMalKing.Services.Background
 		{
 			this._logger = logger;
 
-			this._logger.LogTrace($"Building {nameof(UpdateProvidersManagementService)}");
+			this._logger.LogTrace("Building {@UpdateProvidersManagementService}", typeof(UpdateProvidersManagementService));
 			this._serviceProvider = serviceProvider;
 			this._updateProvidersConfigurationService = updateProvidersConfigurationService;
-			this._logger.LogTrace($"Built {nameof(UpdateProvidersManagementService)}");
+			this._logger.LogTrace("Built {@UpdateProvidersManagementService}", typeof(UpdateProvidersManagementService));
 		}
 
 		/// <inheritdoc />

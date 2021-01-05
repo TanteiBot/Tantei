@@ -28,13 +28,13 @@ namespace PaperMalKing.Services
 									   UpdateProvidersConfigurationService updateProvidersConfigurationService)
 		{
 			this._logger = logger;
-			this._logger.LogTrace($"Building {nameof(UpdatePublishingService)}");
+			this._logger.LogTrace("Building {@UpdatePublishingService}", typeof(UpdatePublishingService));
 
 			this._discordClient = discordClient;
 			this._serviceProvider = serviceProvider;
 			this._updateProvidersConfigurationService = updateProvidersConfigurationService;
 			this._discordClient.GuildDownloadCompleted += this.DiscordClientOnGuildDownloadCompleted;
-			this._logger.LogTrace($"Built {nameof(UpdatePublishingService)}");
+			this._logger.LogTrace("Built {@UpdatePublishingService}", typeof(UpdatePublishingService));
 		}
 
 		private Task DiscordClientOnGuildDownloadCompleted(DiscordClient sender, GuildDownloadCompletedEventArgs e)
@@ -47,10 +47,10 @@ namespace PaperMalKing.Services
 				await foreach (var guild in db.DiscordGuilds.AsNoTracking().AsAsyncEnumerable())
 				{
 					var discordGuild = await sender.GetGuildAsync(guild.DiscordGuildId);
-					this._logger.LogTrace($"Loaded guild {discordGuild.Name} {discordGuild.Id.ToString()}");
+					this._logger.LogTrace(@"Loaded guild {@Guild}", discordGuild);
 					var channels = await discordGuild.GetChannelsAsync();
 					var channel = channels.First(ch => ch.Id == guild.PostingChannelId);
-					this._logger.LogTrace($"Loaded channel {channel.Id.ToString()} in guild {discordGuild.Id.ToString()}");
+					this._logger.LogTrace("Loaded channel {@Channel} in guild {@DiscordGuild}", channel, discordGuild);
 					this.AddChannel(channel);
 				}
 
@@ -71,6 +71,7 @@ namespace PaperMalKing.Services
 
 
 		public void RemoveChannel(ulong id) => this._updatePosters.TryRemove(id, out _);
+
 		public bool AddChannel(DiscordChannel channel) => this._updatePosters.TryAdd(channel.Id,
 			new(this._serviceProvider.GetRequiredService<ILogger<UpdatePoster>>(), channel));
 

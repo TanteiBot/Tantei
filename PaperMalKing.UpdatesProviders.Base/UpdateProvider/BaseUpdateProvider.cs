@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Humanizer;
 using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
@@ -37,6 +36,7 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 		public Task TriggerStoppingAsync()
 		{
 			this._cts.Cancel();
+			this.Logger.LogInformation("Stopping {Name} update provider", this.Name);
 			return this._updateCheckingRunningTask;
 		}
 
@@ -44,18 +44,18 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 		{
 			try
 			{
-				this.Logger.LogInformation($"Starting checking for updates in {this.Name} updates provider");
+				this.Logger.LogInformation("Starting checking for updates in {@Name} updates provider", this.Name);
 				this._updateCheckingRunningTask = this.CheckForUpdatesAsync(this._cts.Token);
 				await this._updateCheckingRunningTask;
 			}
 			catch (Exception e)
 			{
-				this.Logger.LogError(e, $"Exception occured while checking for updates in {this.Name} updates provider");
+				this.Logger.LogError(e, "Exception occured while checking for updates in {@Name} updates provider", this.Name);
 			}
 			finally
 			{
 				this.RestartTimer(this.DelayBetweenTimerFires);
-				this.Logger.LogInformation($"Ended checking for updates in {this.Name} updates provider. Next planned update check is in {this.DelayBetweenTimerFires.Humanize()}.");
+				this.Logger.LogInformation("Ended checking for updates in {Name} updates provider. Next planned update check is in {@DelayBetweenTimerFires}.", this.Name, this.DelayBetweenTimerFires);
 			}
 		}
 

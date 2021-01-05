@@ -1,12 +1,15 @@
 ﻿{
-    "Logging": {
-        "LogLevel": {
+    "Serilog": {
+        "MinimumLevel": {
             "Default": "Debug",
-            "System": "Information",
-            "System.Net": "Warning",
-            "Microsoft": "Information",
-            "PaperMalKing": "Debug",
-            "Microsoft.EntityFrameworkCore.Database.Command": "Warning"
+            "Override": {
+                "System": "Information",
+                "System.Net": "Information",
+                "System.Text.Json": "Debug",
+                "Microsoft": "Information",
+                "PaperMalKing": "Debug",
+                "Microsoft.EntityFrameworkCore": "Warning"
+            }
         }
     },
     "Discord": {

@@ -79,7 +79,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 
 		internal async Task<User> GetUserAsync(string username, CancellationToken cancellationToken = default)
 		{
-			this._logger.LogDebug($"Requesting {username}'s profile");
+			this._logger.LogDebug("Requesting {@Username} profile", username);
 			var requestUrl = Constants.PROFILE_URL + username;
 			var htmlNode = await this.GetAsHtmlAsync(requestUrl, cancellationToken);
 			return UserProfileParser.Parse(htmlNode);
@@ -88,7 +88,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 		internal async Task<string> GetUsernameAsync(ulong id, CancellationToken cancellationToken = default)
 		{
 			var url = $"{Constants.COMMENTS_URL}{id.ToString()}";
-			this._logger.LogDebug($"Requesting username by id {id.ToString()}");
+			this._logger.LogDebug("Requesting username by id {@Id}", id);
 			var htmlNode = await this.GetAsHtmlAsync(url, cancellationToken);
 			return CommentsParser.Parse(htmlNode);
 		}
@@ -98,7 +98,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 			where TE : class, IListEntry where TListType : struct, IListType<TE>
 		{
 			var tl = new TListType();
-			this._logger.LogDebug($"Requesting {username}'s {tl.ListEntryType.ToString()} list");
+			this._logger.LogDebug("Requesting {@Username} {@Type} list", username, tl.ListEntryType);
 
 			var url = tl.LatestUpdatesUrl(username);
 			using var response = await this.GetAsync(url, cancellationToken);

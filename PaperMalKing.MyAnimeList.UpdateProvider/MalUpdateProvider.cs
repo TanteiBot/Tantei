@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -107,15 +106,14 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 #endregion
 
-			this.Logger.LogInformation("Starting to check for updates");
 			using var scope = this._provider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
 			await foreach (var dbUser in db.MalUsers.Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas).Include(u => u.FavoriteCharacters)
-										   .Include(u => u.FavoritePeople).Where(user => user.DiscordUser.Guilds.Any())
-										   .AsAsyncEnumerable().WithCancellation(cancellationToken))
+										   .Include(u => u.FavoritePeople).Where(user => user.DiscordUser.Guilds.Any()).AsAsyncEnumerable()
+										   .WithCancellation(cancellationToken))
 			{
-				this.Logger.LogDebug($"Starting to check for updates for {dbUser.Username}");
+				this.Logger.LogDebug("Starting to check for updates for {@Username}", dbUser.Username);
 				User? user = null;
 				try
 				{
@@ -123,7 +121,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				}
 				catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
 				{
-					this.Logger.LogError(exception, $"User with username {dbUser.Username} not found");
+					this.Logger.LogError(exception, "User with username {@Username} not found", dbUser.Username);
 					dbUser.Username = await this._client.GetUsernameAsync((ulong) dbUser.UserId, cancellationToken);
 					db.MalUsers.Update(dbUser);
 					await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
@@ -142,7 +140,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 				if (user is null)
 				{
-					this.Logger.LogError($"User {dbUser.Username} wasn't initialized due to unknown error");
+					this.Logger.LogError("User {Username} wasn't initialized due to unknown error", dbUser.Username);
 					return;
 				}
 
@@ -175,48 +173,52 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				if (!totalUpdates.Any() || this.UpdateFoundEvent == null)
 				{
 					db.Entry(dbUser).State = EntityState.Unchanged;
-					this.Logger.LogDebug($"Ended checking updates for {user.Username} with no updates found");
+					this.Logger.LogDebug("Ended checking updates for {@Username} with no updates found", dbUser.Username);
 					continue;
 				}
 
 				await db.Entry(dbUser).Reference(u => u.DiscordUser).LoadAsync(cancellationToken);
 				await db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).LoadAsync(cancellationToken);
-				totalUpdates.ForEach(b=> b.WithMalUpdateProviderFooter().AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), true));
+				totalUpdates.ForEach(b =>
+					b.WithMalUpdateProviderFooter().AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), true));
 				if (cancellationToken.IsCancellationRequested)
 				{
-					this.Logger.LogInformation($"Ended checking updates for {user.Username} because it was canceled");
+					this.Logger.LogInformation("Ended checking updates for {@Username} because it was canceled", dbUser.Username);
 					db.Entry(dbUser).State = EntityState.Unchanged;
 					continue;
 				}
+
 				await this.UpdateFoundEvent?.Invoke(new(new MalUpdate(totalUpdates), this, dbUser.DiscordUser))!;
 				db.Entry(dbUser).State = EntityState.Modified;
 				await db.SaveChangesAsync(CancellationToken.None);
-				this.Logger.LogDebug($"Ended checking updates for {user.Username} with {"update".ToQuantity(totalUpdates.Length)} found");
+				this.Logger.LogDebug("Ended checking updates for {@Username} with {@Updates} updates found", dbUser.Username, totalUpdates.Length);
 			}
 		}
 
 		private IReadOnlyList<DiscordEmbedBuilder> CheckFavoritesUpdates(MalUser dbUser, User user)
 		{
 			IReadOnlyList<DiscordEmbedBuilder> ToDiscordEmbedBuilders<TDbf, TWf>(List<TDbf> original, IReadOnlyList<TWf> resulting, User user,
-																				 MalUser dbUser) where TDbf : class, IMalFavorite where TWf : BaseFavorite
+																				 MalUser dbUser) where TDbf : class, IMalFavorite
+																								 where TWf : BaseFavorite
 			{
 				var sor = original.Select(favorite => favorite.Id).OrderBy(i => i).ToArray();
 				var sr = resulting.Select(fav => fav.Url.Id).OrderBy(i => i).ToArray();
 				if (!original.Any() && !resulting.Any() || sor.SequenceEqual(sr))
 				{
-					this.Logger.LogTrace($"Didn't find any {typeof(TWf).Name} updates for {dbUser.Username}");
+					this.Logger.LogTrace("Didn't find any {@Name} updates for {@Username}", typeof(TWf).Name, dbUser.Username);
 					return Array.Empty<DiscordEmbedBuilder>();
 				}
+
 				var cResulting = resulting.Select(favorite => favorite.ToDbFavorite<TDbf>(dbUser)).ToArray();
 				var (addedValues, removedValues) = original.GetDifference(cResulting);
 				if (!addedValues.Any() && !removedValues.Any())
 				{
-					this.Logger.LogTrace($"Didn't find any {typeof(TWf).Name} updates for {dbUser.Username}");
+					this.Logger.LogTrace("Didn't find any {@Name} updates for {@Username}", typeof(TWf).Name, dbUser.Username);
 					return Array.Empty<DiscordEmbedBuilder>();
 				}
 
-				this.Logger.LogTrace(
-					$"Found {addedValues.Count.ToString()} new favorites, {removedValues.Count.ToString()} removed favorites of type {typeof(TWf)} of {dbUser.Username}");
+				this.Logger.LogTrace("Found {@AddedCount} new favorites, {@RemovedCount} removed favorites of type {@Type} of {@Username}",
+					addedValues.Count, removedValues.Count, typeof(TWf), dbUser.Username);
 
 				var result = new List<DiscordEmbedBuilder>(addedValues.Count + removedValues.Count);
 
@@ -245,7 +247,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				return result;
 			}
 
-			this.Logger.LogTrace($"Checking favorites updates of {dbUser.Username}");
+			this.Logger.LogTrace("Checking favorites updates of {@Username}", dbUser.Username);
 
 			var list = new List<DiscordEmbedBuilder>(0);
 			list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoriteAnimes, user.Favorites.FavoriteAnime, user, dbUser));

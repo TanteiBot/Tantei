@@ -48,7 +48,7 @@ namespace PaperMalKing.Common.RateLimiter
 				}
 				else if (isTooEarlyToRefill) // && arePermitsAvailable
 				{
-					this.Logger.LogInformation($"[{this._serviceName}] Passing");
+					this.Logger.LogInformation("[{ServiceName}] Passing", this._serviceName);
 					this._availablePermits--;
 					return;
 				}

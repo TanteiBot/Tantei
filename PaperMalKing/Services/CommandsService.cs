@@ -51,11 +51,11 @@ namespace PaperMalKing.Services
 			var assemblies = Utils.LoadAndListPmkAssemblies();
 			foreach (var assembly in assemblies.Where(a => a.FullName?.Contains("PaperMalKing", StringComparison.InvariantCultureIgnoreCase) ?? true))
 			{
-				this._logger.LogTrace($"Found {assembly.GetName().Name!} which may contain Commands modules");
+				this._logger.LogTrace("Found {Assembly} which may contain Commands modules", assembly);
 				foreach (var type in assembly.GetExportedTypes()
 											 .Where(t => t.FullName!.EndsWith("Commands", StringComparison.InvariantCultureIgnoreCase)))
 				{
-					this._logger.LogTrace($"Trying to register {type.FullName} command module");
+					this._logger.LogTrace("Trying to register {@Type} command module", type);
 					try
 					{
 						this.CommandsExtension.RegisterCommands(type);
@@ -65,7 +65,7 @@ namespace PaperMalKing.Services
 						this._logger.LogError(ex, $"Error occured while trying to register {type.FullName}");
 					}
 
-					this._logger.LogDebug($"Successfully registered {type}");
+					this._logger.LogDebug("Successfully registered {@Type}", type);
 				}
 			}
 
@@ -77,7 +77,7 @@ namespace PaperMalKing.Services
 
 		private Task CommandsExtensionOnCommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
 		{
-			this._logger.LogDebug($"Command {e.Command.QualifiedName} was successfully executed by request of {e.Context.Member}");
+			this._logger.LogDebug(@"Command {@Command} was successfully executed by request of {@Member}", e.Command, e.Context.Member);
 			return Task.CompletedTask;
 		}
 
@@ -89,7 +89,7 @@ namespace PaperMalKing.Services
 				return Task.CompletedTask;
 			}
 			this._logger.LogError(e.Exception,
-				$"Command {e.Command?.QualifiedName} errored with exception while trying to be executed by {e.Context.Member}");
+				"Command {@Command} errored with exception while trying to be executed by {@Member}", e.Command, e.Context.Member);
 			return Task.CompletedTask;
 		}
 	}
