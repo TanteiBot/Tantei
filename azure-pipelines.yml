@@ -18,7 +18,7 @@ steps:
   displayName: 'Install sdk'
   inputs:
     packageType: 'sdk'
-    version: '5.0'
+    version: '5.x'
 
 - task: DotNetCoreCLI@2
   displayName: 'Build projects'
