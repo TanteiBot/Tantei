@@ -1,0 +1,40 @@
+trigger:
+- master
+- rewrite-v2
+
+pr:
+- master
+- rewrite-v2
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  publishPath: './bin/Release/publish'
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Install sdk'
+  inputs:
+    packageType: 'sdk'
+    version: '5.0'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build projects'
+  inputs:
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: publish
+    publishWebProjects: True
+    arguments: '--configuration $(BuildConfiguration) --output $(publishPath)'
+    zipAfterPublish: True
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(publishPath)' 
+    artifactName: 'PaperMalKing'
