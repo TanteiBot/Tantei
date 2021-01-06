@@ -8,7 +8,7 @@ namespace PaperMalKing.UpdatesProviders.Base
 
 		public DiscordUser? DiscordUser { get; init; }
 
-		public BaseUser(string username, DiscordUser discordUser = null)
+		public BaseUser(string username, DiscordUser? discordUser = null)
 		{
 			this.Username = username;
 			this.DiscordUser = discordUser;
