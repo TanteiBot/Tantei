@@ -24,6 +24,7 @@ namespace PaperMalKing.UpdatesProviders.Base
 		public virtual async Task AddUserCommand(CommandContext ctx, [RemainingText] [Description("Your username")]
 												 string username)
 		{
+			this.Logger.LogInformation("Trying to add {ProviderUsername} {Member} to {Name} update provider",username, ctx.Member,  UserService.Name);
 			BaseUser user;
 			try
 			{
@@ -32,9 +33,12 @@ namespace PaperMalKing.UpdatesProviders.Base
 			catch (Exception ex)
 			{
 				var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-				await ctx.RespondAsync(embed: embed);
+				await ctx.RespondAsync(embed: embed.Build());
+				this.Logger.LogError(ex,"Failed to add {ProviderUsername} {Member} to {Name} update provider",username, ctx.Member,  UserService.Name);
 				throw;
 			}
+
+			this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider",username, ctx.Member,  UserService.Name);
 
 			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx,
 				$"Successfully added {user.Username} to {this.UserService.Name} update checker"));
@@ -43,6 +47,7 @@ namespace PaperMalKing.UpdatesProviders.Base
 
 		public virtual async Task RemoveUserInGuildCommand(CommandContext ctx)
 		{
+			this.Logger.LogInformation("Trying to remove {Member} from {Name} update provider", ctx.Member, UserService.Name);
 			BaseUser user;
 			try
 			{
@@ -52,8 +57,11 @@ namespace PaperMalKing.UpdatesProviders.Base
 			{
 				var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
 				await ctx.RespondAsync(embed: embed);
+				this.Logger.LogError(ex,"Failed to remove {Member} from {Name} update provider",ctx.Member,  UserService.Name);
+
 				throw;
 			}
+			this.Logger.LogInformation("Successfully removed {Member} from {Name} update provider", ctx.Member, UserService.Name);
 
 			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx,
 				$"Successfully removed {user.Username} from {this.UserService.Name} update checker"));

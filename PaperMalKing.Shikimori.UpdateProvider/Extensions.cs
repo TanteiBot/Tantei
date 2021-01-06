@@ -131,8 +131,8 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			{
 				var episodes = firstTarget switch
 				{
-					var i when firstTarget.Episodes != 0      => firstTarget.Episodes.Value,
-					var i when firstTarget.EpisodesAired != 0 => firstTarget.EpisodesAired!.Value,
+					_ when firstTarget.Episodes != 0      => firstTarget.Episodes.Value,
+					_ when firstTarget.EpisodesAired != 0 => firstTarget.EpisodesAired!.Value,
 					_                                         => 0
 				};
 				if (episodes != 0)

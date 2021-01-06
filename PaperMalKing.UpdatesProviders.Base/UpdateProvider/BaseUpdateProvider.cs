@@ -22,7 +22,7 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 			this._cts = new();
 			this.Logger = logger;
 			this.DelayBetweenTimerFires = delayBetweenTimerFires;
-			this.Timer = new(_ => this.TimerCallback(null), null, Timeout.Infinite, Timeout.Infinite);
+			this.Timer = new(_ => this.TimerCallback(), null, Timeout.Infinite, Timeout.Infinite);
 
 		}
 
@@ -40,7 +40,7 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 			return this._updateCheckingRunningTask;
 		}
 
-		private async void TimerCallback(object? state)
+		private async void TimerCallback()
 		{
 			try
 			{
