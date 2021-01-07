@@ -46,11 +46,12 @@ namespace PaperMalKing.Services
 				this._logger.LogDebug("Starting querying posting channels");
 				await foreach (var guild in db.DiscordGuilds.AsNoTracking().AsAsyncEnumerable())
 				{
-					var discordGuild = await sender.GetGuildAsync(guild.DiscordGuildId);
-					this._logger.LogTrace(@"Loaded guild {@Guild}", discordGuild);
-					var channels = await discordGuild.GetChannelsAsync();
-					var channel = channels.First(ch => ch.Id == guild.PostingChannelId);
-					this._logger.LogTrace("Loaded channel {@Channel} in guild {@DiscordGuild}", channel, discordGuild);
+					this._logger.LogTrace("Trying to get guild with {Id}",guild.DiscordGuildId);
+					var discordGuild = e.Guilds[guild.DiscordGuildId];
+					this._logger.LogTrace(@"Loaded guild {Guild}", discordGuild);
+					var channel = discordGuild.GetChannel(guild.PostingChannelId) ??
+					              (await discordGuild.GetChannelsAsync()).First(ch => ch.Id == guild.PostingChannelId);
+					this._logger.LogTrace("Loaded channel {Channel} in guild {DiscordGuild}", channel, discordGuild);
 					this.AddChannel(channel);
 				}
 

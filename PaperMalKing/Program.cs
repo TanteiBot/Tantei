@@ -55,7 +55,8 @@ namespace PaperMalKing
 						AutoReconnect = true,
 						LoggerFactory = loggerFactory,
 						ReconnectIndefinitely = true,
-						MessageCacheSize = 256
+						MessageCacheSize = 256,
+						MinimumLogLevel = LogLevel.Trace
 					};
 					return new(cfg);
 				});
