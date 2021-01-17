@@ -24,7 +24,7 @@ steps:
   displayName: 'Build projects'
   inputs:
     command: 'build'
-    projects: '**/PaperMalKing.csproj'
+    projects: '**/PaperMalKing.sln'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
