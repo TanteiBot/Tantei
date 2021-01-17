@@ -21,10 +21,10 @@ steps:
     version: '5.x'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Build projects'
+  displayName: 'Build solution'
   inputs:
     command: 'build'
-    projects: '**/PaperMalKing.csproj'
+    projects: '**/PaperMalKing.sln'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
