@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-    internal sealed class MediaListEntry
+    public sealed class MediaListEntry
     {
         private readonly Dictionary<ScoreFormat, byte> _scores = new();
 
@@ -23,28 +24,28 @@ namespace PaperMalKing.AniList.Wrapper.Models
         public Dictionary<string, float>? AdvancedScores { get; init; }
 
         [JsonPropertyName("point100Score")]
-        internal byte Point100Score
+        public byte Point100Score
         {
             [Obsolete("", true)] get => throw new NotSupportedException();
             init => this._scores.Add(ScoreFormat.POINT_100, value);
         }
 
         [JsonPropertyName("point10Score")]
-        internal byte Point10Score
+        public byte Point10Score
         {
             [Obsolete("", true)] get => throw new NotSupportedException();
             init => this._scores.Add(ScoreFormat.POINT_10, value);
         }
 
         [JsonPropertyName("point5Score")]
-        internal byte Point5Score
+        public byte Point5Score
         {
             [Obsolete("", true)] get => throw new NotSupportedException();
             init => this._scores.Add(ScoreFormat.POINT_5, value);
         }
 
         [JsonPropertyName("point3Score")]
-        internal byte Point3Score
+        public byte Point3Score
         {
             [Obsolete("", true)] get => throw new NotSupportedException();
             init => this._scores.Add(ScoreFormat.POINT_3, value);
@@ -55,6 +56,8 @@ namespace PaperMalKing.AniList.Wrapper.Models
 
         public string GetScore(ScoreFormat scoreFormat)
         {
+            if (this._scores.Values.All(s => s == 0))
+                return "";
             return scoreFormat switch
             {
                 ScoreFormat.POINT_100 => $"{this._scores[scoreFormat].ToString()}/100",

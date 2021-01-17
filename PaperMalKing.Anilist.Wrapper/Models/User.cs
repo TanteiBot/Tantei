@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-    internal sealed class User
+    public sealed class User : ISiteUrlable, IImageble
     {
         [JsonPropertyName("id")]
         public ulong Id { get; init; }

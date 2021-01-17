@@ -10,9 +10,9 @@ namespace PaperMalKing.Database.Models.AniList
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public ulong Id { get; init; }
         
-        public long LastActivityTimestamp { get; init; }
+        public long LastActivityTimestamp { get; set; }
         
-        public long LastReviewTimestamp { get; init; }
+        public long LastReviewTimestamp { get; set; }
         
         public ulong DiscordUserId { get; init; }
 

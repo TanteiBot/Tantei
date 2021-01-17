@@ -1,9 +1,10 @@
 ﻿using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
+using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-    internal sealed class Media
+    public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
     {
         [JsonPropertyName("id")]
         public ulong Id { get; init; }
@@ -21,7 +22,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         public MediaFormat Format { get; init; }
 
         [JsonPropertyName("countryOfOrigin")]
-        public string CountryOfOriginCode { get; init; } = null!;
+        public string CountryOfOrigin { get; init; } = null!;
 
         [JsonPropertyName("status")]
         public MediaStatus Status { get; init; }

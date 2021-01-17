@@ -1,6 +1,6 @@
 ﻿namespace PaperMalKing.AniList.Wrapper.Models.Enums
 {
-    internal enum MediaListStatus : byte
+    public enum MediaListStatus : byte
     {
         CURRENT = 0,
         PLANNING = 1,

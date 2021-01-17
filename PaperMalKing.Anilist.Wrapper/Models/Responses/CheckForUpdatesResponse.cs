@@ -2,7 +2,7 @@
 
 namespace PaperMalKing.AniList.Wrapper.Models.Responses
 {
-    internal sealed class CheckForUpdatesResponse
+    public sealed class CheckForUpdatesResponse
     {
         public bool HasNextPage => this.User.Favourites.HasNextPage ||
                                    this.ListActivities.PageInfo.HasNextPage ||

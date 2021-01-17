@@ -1,6 +1,6 @@
 ﻿namespace PaperMalKing.AniList.Wrapper.Models.Enums
 {
-    internal enum ScoreFormat : byte
+    public enum ScoreFormat : byte
     {
         POINT_100 = 0,
         POINT_10_DECIMAL = 1,

@@ -2,9 +2,9 @@
 
 namespace PaperMalKing.AniList.Wrapper.Models.Responses
 {
-    internal sealed class InitialUserInfoResponse
+    public sealed class InitialUserInfoResponse
     {
         [JsonPropertyName("User")]
-        internal User User { get; init; } = null!;
+        public User User { get; init; } = null!;
     }
 }

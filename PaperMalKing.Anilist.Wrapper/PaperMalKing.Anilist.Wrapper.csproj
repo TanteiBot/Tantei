@@ -15,6 +15,15 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>PaperMalKing.AniList.UpdateProvider</_Parameter1>
+        </AssemblyAttribute>
+
+        
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>System.Text.Json</_Parameter1>
+        </AssemblyAttribute>
     </ItemGroup>
 
 </Project>

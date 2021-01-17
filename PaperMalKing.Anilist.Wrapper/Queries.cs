@@ -199,7 +199,7 @@
                     stylisedNative: native(stylised: true)
                     native(stylised: false)
                   }
-                  type
+                  format
                   image: coverImage {
                     large: extraLarge
                   }
@@ -212,6 +212,9 @@
         public const string FavouritesInfoQuery = @"
           query ($page: Int, $animeIds: [Int], $mangaIds: [Int], $charIds: [Int], $staffIds: [Int], $studioIds: [Int]) {
             Animes: Page(page: $page, perPage: 50) {
+              pageInfo{
+                hasNextPage
+              }
               values: media(type: ANIME, id_in: $animeIds) {
                 title {
                   stylisedRomaji: romaji(stylised: true)
@@ -222,14 +225,18 @@
                   native(stylised: false)
                 }
                 siteUrl
-                format
                 countryOfOrigin
+                format
+                id
                 image: coverImage {
                   large: extraLarge
                 }
               }
             }
             Mangas: Page(page: $page, perPage: 50) {
+              pageInfo{
+                hasNextPage
+              }
               values: media(type: MANGA, id_in: $mangaIds) {
                 title {
                   stylisedRomaji: romaji(stylised: true)
@@ -239,21 +246,26 @@
                   stylisedNative: native(stylised: true)
                   native(stylised: false)
                 }
+                countryOfOrigin
                 siteUrl
                 format
-                countryOfOrigin
+                id
                 image: coverImage {
                   large: extraLarge
                 }
               }
             }
             Characters: Page(page: $page, perPage: 50) {
+              pageInfo{
+                hasNextPage
+              }
               values: characters(id_in: $charIds) {
                 name {
                   full
                   native
                 }
                 siteUrl
+                id
                 image {
                   large
                 }
@@ -274,11 +286,15 @@
               }
             }
             Staff: Page(page: $page, perPage: 50) {
+              pageInfo{
+                hasNextPage
+              }
               values: staff(id_in: $staffIds) {
                 name {
                   full
                   native
                 }
+                id
                 siteUrl
                 image {
                   large
@@ -286,11 +302,15 @@
               }
             }
             Studios: Page(page: $page, perPage: 50) {
+              pageInfo{
+                hasNextPage
+              }
               values: studios(id_in: $studioIds) {
                 name
                 siteUrl
+                id
                 media(sort: POPULARITY_DESC, isMain: true, page: 1, perPage: 1) {
-                  nodes {
+                  values: nodes {
                     title {
                       stylisedRomaji: romaji(stylised: true)
                       romaji(stylised: false)

@@ -1,8 +1,10 @@
 ﻿using System.Text.Json.Serialization;
+using PaperMalKing.AniList.Wrapper.Models.Enums;
+using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-    internal sealed class Review
+    public sealed class Review : ISiteUrlable
     {
         [JsonPropertyName("createdAt")]
         public long CreatedAtTimeStamp { get; init; }
@@ -15,5 +17,8 @@ namespace PaperMalKing.AniList.Wrapper.Models
 
         [JsonPropertyName("media")]
         public Media Media { get; init; } = null!;
+        
+        [JsonPropertyName("format")]
+        public MediaFormat Format { get; init; }
     }
 }

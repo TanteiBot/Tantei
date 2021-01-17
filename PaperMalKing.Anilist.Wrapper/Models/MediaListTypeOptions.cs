@@ -2,7 +2,7 @@
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-    internal sealed class MediaListTypeOptions
+    public sealed class MediaListTypeOptions
     {
         [JsonPropertyName("advancedScoringEnabled")]
         public bool IsAdvancedScoringEnabled { get; init; }

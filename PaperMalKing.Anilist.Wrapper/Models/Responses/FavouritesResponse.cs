@@ -2,7 +2,7 @@
 
 namespace PaperMalKing.AniList.Wrapper.Models.Responses
 {
-    internal sealed class FavouritesResponse
+    public sealed class FavouritesResponse
     {
         public bool HasNextPage => this.Anime.PageInfo.HasNextPage ||
                                    this.Manga.PageInfo.HasNextPage ||

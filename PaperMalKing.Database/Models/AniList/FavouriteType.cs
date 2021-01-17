@@ -2,10 +2,10 @@
 {
     public enum FavouriteType : byte
     {
-        Anime,
-        Manga,
-        Character,
-        Staff,
-        Studio
+        Anime = 0,
+        Manga = 1,
+        Character = 2,
+        Staff = 3,
+        Studio = 4
     }
 }

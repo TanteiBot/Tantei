@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-    internal sealed class Studio
+    public sealed class Studio : ISiteUrlable, IIdentifiable
     {
         [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
@@ -11,6 +12,9 @@ namespace PaperMalKing.AniList.Wrapper.Models
         public string Url { get; init; } = null!;
 
         [JsonPropertyName("media")]
-        public Page<Media> Media { get; init; } = Page<Media>.Empty;
+        public Connection<Media> Media { get; init; }
+
+        [JsonPropertyName("id")]
+        public ulong Id { get; init; }
     }
 }

@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
+using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-    internal sealed class Favourites
+    public sealed class Favourites
     {
         public bool HasNextPage { get; init; } = false;
 
@@ -16,7 +17,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("anime")]
         public Connection<IdentifiableFavourite> Anime
         {
-            [Obsolete("", true)] get => throw new NotSupportedException();
+            [Obsolete("",true)]get => null!;
             init
             {
                 if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -28,7 +29,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("manga")]
         public Connection<IdentifiableFavourite> Manga
         {
-            [Obsolete("", true)] get => throw new NotSupportedException();
+            [Obsolete("",true)]get => null!;
             init
             {
                 if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -41,7 +42,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("characters")]
         public Connection<IdentifiableFavourite> Characters
         {
-            [Obsolete("", true)] get => throw new NotSupportedException();
+            [Obsolete("",true)]get => null!;
             init
             {
                 if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -54,7 +55,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("staff")]
         public Connection<IdentifiableFavourite> Staff
         {
-            [Obsolete("", true)] get => throw new NotSupportedException();
+            [Obsolete("",true)]get => null!;
             init
             {
                 if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -67,7 +68,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("studios")]
         public Connection<IdentifiableFavourite> Studios
         {
-            [Obsolete("", true)] get => throw new NotSupportedException();
+            [Obsolete("",true)]get => null!;
             init
             {
                 if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -77,13 +78,30 @@ namespace PaperMalKing.AniList.Wrapper.Models
             }
         }
 
-        internal sealed class IdentifiableFavourite
+        public sealed class IdentifiableFavourite : IIdentifiable, IEquatable<IdentifiableFavourite>
         {
             [JsonPropertyName("id")]
             public ulong Id { get; init; }
 
             [JsonIgnore]
             public FavouriteType Type { get; set; }
+
+            public bool Equals(IdentifiableFavourite? other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return this.Id == other.Id && this.Type == other.Type;
+            }
+
+            public override bool Equals(object? obj)
+            {
+                return ReferenceEquals(this, obj) || obj is IdentifiableFavourite other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(this.Id, (int) this.Type);
+            }
         }
     }
 }

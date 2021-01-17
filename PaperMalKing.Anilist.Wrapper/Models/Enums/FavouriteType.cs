@@ -1,6 +1,6 @@
 ﻿namespace PaperMalKing.AniList.Wrapper.Models.Enums
 {
-    internal enum FavouriteType : byte
+    public enum FavouriteType : byte
     {
         Anime = 0,
         Manga = 1,

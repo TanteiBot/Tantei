@@ -23,7 +23,6 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 			this.Logger = logger;
 			this.DelayBetweenTimerFires = delayBetweenTimerFires;
 			this.Timer = new(_ => this.TimerCallback(), null, Timeout.Infinite, Timeout.Infinite);
-
 		}
 
 		/// <inheritdoc />

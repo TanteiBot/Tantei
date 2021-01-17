@@ -2,7 +2,7 @@
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-    internal sealed class ListActivity
+    public sealed class ListActivity
     {
         [JsonPropertyName("status")]
         public string Status { get; init; } = null!;

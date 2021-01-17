@@ -13,8 +13,8 @@ namespace PaperMalKing.Database.Models.AniList
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public FavouriteType FavouriteType { get; init; }
         
-        public ulong UserId { get; init; }
+        public ulong UserId { get; set; }
         
-        public AniListUser User { get; init; } = null!;
+        public AniListUser User { get; set; } = null!;
     }
 }

@@ -37,5 +37,8 @@
     "Shikimori": {
         "ShikimoriAppName": "ShikiAppName",
         "DelayBetweenChecksInMilliseconds": 60000
+    },
+    "AniList":{
+        "DelayBetweenChecksInMilliseconds": 100000
     }
 }

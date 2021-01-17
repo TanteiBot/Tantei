@@ -1,6 +1,6 @@
 ﻿namespace PaperMalKing.AniList.Wrapper.Models.Enums
 {
-    internal enum TitleLanguage : byte
+    public enum TitleLanguage : byte
     {
         NATIVE = 1,
         NATIVE_STYLISED = 2,

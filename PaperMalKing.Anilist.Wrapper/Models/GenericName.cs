@@ -3,13 +3,13 @@ using PaperMalKing.AniList.Wrapper.Models.Enums;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-    internal sealed class GenericName
+    public sealed class GenericName
     {
         [JsonPropertyName("full")]
-        internal string? Full { get; init; }
+        public string? Full { get; init; }
 
         [JsonPropertyName("native")]
-        internal string Native { get; init; } = null!;
+        public string Native { get; init; } = null!;
 
         public string GetName(TitleLanguage language)
         {

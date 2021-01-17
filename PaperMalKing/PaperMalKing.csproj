@@ -40,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PaperMalKing.AniList.UpdateProvider\PaperMalKing.AniList.UpdateProvider.csproj" />
     <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
     <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
     <ProjectReference Include="..\PaperMalKing.MyAnimeList.UpdateProvider\PaperMalKing.MyAnimeList.UpdateProvider.csproj" />
