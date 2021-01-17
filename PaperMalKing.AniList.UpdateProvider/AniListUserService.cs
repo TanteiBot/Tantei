@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
@@ -17,19 +16,18 @@ namespace PaperMalKing.AniList.UpdateProvider
     public sealed class AniListUserService : IUpdateProviderUserService
     {
         private readonly AniListClient _client;
-        private readonly ILogger<AniListUserService> _logger;
         private readonly IServiceProvider _serviceProvider;
         public string Name => Constants.NAME;
 
-        public AniListUserService(AniListClient client, ILogger<AniListUserService> logger, IServiceProvider serviceProvider)
+        public AniListUserService(AniListClient client, IServiceProvider serviceProvider)
         {
             this._client = client;
-            this._logger = logger;
             this._serviceProvider = serviceProvider;
         }
 
         public async Task<BaseUser> AddUserAsync(string username, ulong userId, ulong guildId)
         {
+            
             using var scope = this._serviceProvider.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
             var dbUser = await db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds)

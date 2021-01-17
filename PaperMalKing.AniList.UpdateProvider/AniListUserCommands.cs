@@ -10,7 +10,7 @@ namespace PaperMalKing.AniList.UpdateProvider
     [Aliases("al")]
     public sealed class AniListUserCommands : BaseUpdateProviderUserCommandsModule
     {
-        public AniListUserCommands(AniListUserService userService, ILogger<BaseUpdateProviderUserCommandsModule> logger) : base(userService,
+        public AniListUserCommands(AniListUserService userService, ILogger<AniListUserCommands> logger) : base(userService,
             logger)
         {
         }
