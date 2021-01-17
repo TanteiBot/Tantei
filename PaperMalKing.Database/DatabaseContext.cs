@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Database.Models;
+using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.Database.Models.Shikimori;
 
@@ -31,6 +32,10 @@ namespace PaperMalKing.Database
 		public DbSet<ShikiUser> ShikiUsers { get; init; } = null!;
 
 		public DbSet<ShikiFavourite> ShikiFavourites { get; init; } = null!;
+
+		public DbSet<AniListUser> AniListUsers { get; init; } = null!;
+
+		public DbSet<AniListFavourite> AniListFavourites { get; init; } = null!;
 
 		private readonly string _connectionString;
 
@@ -109,6 +114,14 @@ namespace PaperMalKing.Database
 			{
 				k.Id,
 				k.FavType,
+				k.UserId
+			});
+
+			modelBuilder.Entity<AniListUser>().HasKey(k => k.Id);
+			modelBuilder.Entity<AniListFavourite>().HasKey(k => new
+			{
+				k.Id,
+				k.FavouriteType,
 				k.UserId
 			});
 

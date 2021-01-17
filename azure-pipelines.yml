@@ -21,7 +21,7 @@ steps:
     version: '5.x'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Build projects'
+  displayName: 'Build solution'
   inputs:
     command: 'build'
     projects: '**/PaperMalKing.sln'

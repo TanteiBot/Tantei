@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MoreLinq;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.MyAnimeList;
@@ -198,7 +197,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		private IReadOnlyList<DiscordEmbedBuilder> CheckFavoritesUpdates(MalUser dbUser, User user)
 		{
 			IReadOnlyList<DiscordEmbedBuilder> ToDiscordEmbedBuilders<TDbf, TWf>(List<TDbf> original, IReadOnlyList<TWf> resulting, User user,
-																				 MalUser dbUser) where TDbf : class, IMalFavorite
+																				 MalUser dbUser) where TDbf : class, IMalFavorite, IEquatable<TDbf>
 																								 where TWf : BaseFavorite
 			{
 				var sor = original.Select(favorite => favorite.Id).OrderBy(i => i).ToArray();

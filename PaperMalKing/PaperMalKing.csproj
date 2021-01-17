@@ -42,6 +42,8 @@
   <ItemGroup>
     <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
     <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
+    <ProjectReference Include="..\PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj" />
+    <ProjectReference Include="..\PaperMalKing.AniList.UpdateProvider\PaperMalKing.AniList.UpdateProvider.csproj" />
     <ProjectReference Include="..\PaperMalKing.MyAnimeList.UpdateProvider\PaperMalKing.MyAnimeList.UpdateProvider.csproj" />
     <ProjectReference Include="..\PaperMalKing.Shikimori.UpdateProvider\PaperMalKing.Shikimori.UpdateProvider.csproj" />
   </ItemGroup>
