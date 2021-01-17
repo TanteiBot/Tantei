@@ -12,7 +12,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         public string Url { get; init; } = null!;
 
         [JsonPropertyName("media")]
-        public Connection<Media> Media { get; init; }
+        public Connection<Media> Media { get; init; } = null!;
 
         [JsonPropertyName("id")]
         public ulong Id { get; init; }
