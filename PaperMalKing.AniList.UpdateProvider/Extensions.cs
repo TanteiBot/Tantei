@@ -141,7 +141,7 @@ namespace PaperMalKing.AniList.UpdateProvider
                 (isAnime
                     ? user.MediaListOptions.AnimeListOptions.IsAdvancedScoringEnabled
                     : user.MediaListOptions.MangaListOptions.IsAdvancedScoringEnabled) &&
-                mediaListEntry.AdvancedScores?.Values.All(s => s != 0) == true;
+                mediaListEntry.AdvancedScores?.Values.Any(s => s != 0) == true;
             var eb = new DiscordEmbedBuilder()
                 .WithAniListAuthor(user)
                 .WithTimestamp(DateTimeOffset.FromUnixTimeSeconds(activity.CreatedAtTimestamp))
@@ -158,7 +158,7 @@ namespace PaperMalKing.AniList.UpdateProvider
             {
                 var sb = new StringBuilder();
                 foreach (var (key, value) in mediaListEntry.AdvancedScores!)
-                    sb.AppendLine($"{key}: {value:#.#}");
+                    sb.AppendLine($"{key}: {value:0.#}");
                 eb.AddField("Advanced scoring", sb.ToString(), true);
             }
 

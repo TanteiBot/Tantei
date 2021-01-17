@@ -27,7 +27,7 @@ namespace PaperMalKing.AniList.UpdateProvider
                     var character = (obj as Character)!;
                     var media = character.Media.Values[0];
                     return InitialFavouriteEmbedBuilder(character, user, added).WithTitle(character.Name.GetName(user.Options.TitleLanguage))
-                        .AddField("From", Formatter.MaskedUrl(media.Title.GetTitle(user.Options.TitleLanguage), new Uri(media.Url)));
+                        .AddField("From", Formatter.MaskedUrl(media.Title.GetTitle(user.Options.TitleLanguage), new Uri(media.Url)), true);
                 }
             },
             {
@@ -43,7 +43,7 @@ namespace PaperMalKing.AniList.UpdateProvider
                     var studio = (obj as Studio)!;
                     var media = studio.Media.Nodes[0];
                     return InitialFavouriteEmbedBuilder(studio, user, added).WithTitle(studio.Name)
-                        .AddField("Most popular work", Formatter.MaskedUrl(media.Title.GetTitle(user.Options.TitleLanguage), new Uri(media.Url)));
+                        .AddField("Authors of", Formatter.MaskedUrl(media.Title.GetTitle(user.Options.TitleLanguage), new Uri(media.Url)), true);
                 }
             }
         };
