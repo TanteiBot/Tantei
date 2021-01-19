@@ -34,9 +34,9 @@ namespace PaperMalKing
 		{
 			return Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
 			{
-				Vocabularies.Default.AddPlural("ch", "chs.");
-				Vocabularies.Default.AddPlural("v", "vs.");
-				Vocabularies.Default.AddPlural("ep", "eps.");
+				Vocabularies.Default.AddPlural("ch", "ch.");
+				Vocabularies.Default.AddPlural("v", "v.");
+				Vocabularies.Default.AddPlural("ep", "ep.");
 
 				services.AddDbContext<DatabaseContext>();
 				var config = hostContext.Configuration;
