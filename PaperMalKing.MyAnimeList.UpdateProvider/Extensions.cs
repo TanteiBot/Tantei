@@ -96,7 +96,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			var eb = new DiscordEmbedBuilder
 			{
 				Url = favorite.NameUrl
-			}.WithThumbnail(favorite.ImageUrl).AddField("Status", $"{(added ? "Added" : "Removed")} favorite", true);
+			}.WithThumbnail(favorite.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favorite");
 
 			eb.WithColor(added ? Constants.MalGreen : Constants.MalRed);
 

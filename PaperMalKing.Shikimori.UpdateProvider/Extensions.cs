@@ -66,7 +66,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				{
 					Url = favouriteEntry.Url,
 					Title = $"{favouriteEntry.Name} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
-				}.WithThumbnail(favouriteEntry.ImageUrl).AddField("Status", $"{(added ? "Added" : "removed")} favourite", true).WithShikiAuthor(user)
+				}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "removed")} favourite").WithShikiAuthor(user)
 				 .WithColor(added ? Constants.ShikiGreen : Constants.ShikiRed);
 		}
 

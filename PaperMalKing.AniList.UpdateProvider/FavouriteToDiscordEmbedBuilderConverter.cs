@@ -51,7 +51,7 @@ namespace PaperMalKing.AniList.UpdateProvider
         private static DiscordEmbedBuilder InitialFavouriteEmbedBuilder(ISiteUrlable value, User user, bool added)
         {
             var eb = new DiscordEmbedBuilder().WithAniListAuthor(user).WithColor(added ? Constants.AniListBlue : Constants.AniListRed)
-                .WithDescription($"{(added ? "Added" : "Removed")} favourite {value.GetType().Name.ToLowerInvariant()}").WithUrl(value.Url);
+                .WithDescription($"{(added ? "Added" : "Removed")} favourite").WithUrl(value.Url);
             if (value is IImageble imageble) eb.WithThumbnail(imageble.Image.ImageUrl);
             return eb;
         }
