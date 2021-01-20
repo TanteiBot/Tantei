@@ -62,8 +62,10 @@ namespace PaperMalKing.AniList.UpdateProvider
                 if (!allUpdates.Any())
                 {
                     this.Logger.LogTrace("No updates found for {Username}", recentUserUpdates.User.Name);
+                    db.Entry(dbUser).State = EntityState.Unchanged;
                     continue;
                 }
+
                 var lastActivityTimestamp = recentUserUpdates.Activities.MaxBy(a => a.CreatedAtTimestamp).Select(a => a.CreatedAtTimestamp)
                     .FirstOrDefault();
                 var lastReviewTimeStamp = recentUserUpdates.Reviews.MaxBy(r => r.CreatedAtTimeStamp).Select(a => a.CreatedAtTimeStamp)
@@ -78,6 +80,7 @@ namespace PaperMalKing.AniList.UpdateProvider
                 }
 
                 allUpdates.ForEach(u => u.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
+                allUpdates.Sort((deb1, deb2) => DateTimeOffset.Compare(deb1.Timestamp.GetValueOrDefault(), deb2.Timestamp.GetValueOrDefault()));
                 this.UpdateFoundEvent?.Invoke(new(new AniListUpdate(allUpdates), this, dbUser.DiscordUser));
                 db.Entry(dbUser).State = EntityState.Modified;
                 await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
@@ -123,7 +126,7 @@ namespace PaperMalKing.AniList.UpdateProvider
             user.Favourites.RemoveAll(f => removedValues.Any(rv => rv.Id == f.Id && rv.Type == (Wrapper.Models.Enums.FavouriteType) f.FavouriteType));
             user.Favourites.AddRange(addedValues.Select(av => new AniListFavourite()
                 {User = user, UserId = user.Id, Id = av.Id, FavouriteType = (FavouriteType) av.Type}));
-            
+
             var changedValues = new List<Favourites.IdentifiableFavourite>(addedValues);
             changedValues.AddRange(removedValues);
             var animeIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Anime);
