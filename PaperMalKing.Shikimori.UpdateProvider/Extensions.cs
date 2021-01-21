@@ -125,7 +125,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 
 			if (firstTarget.Chapters.HasValue && firstTarget.Chapters != 0)
 			{
-				eb.AddField("Total", $"{"ch".ToQuantity(firstTarget.Chapters.Value)}, {"v".ToQuantity(firstTarget.Volumes!.Value)}", true);
+				eb.AddField("Total", $"{firstTarget.Chapters.Value.ToString()} ch, {firstTarget.Volumes!.Value.ToString()} v.", true);
 			}
 			else if (firstTarget.Episodes.HasValue)
 			{
@@ -136,7 +136,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					_                                         => 0
 				};
 				if (episodes != 0)
-					eb.AddField("Total", "ep".ToQuantity(episodes), true);
+					eb.AddField("Total", $"{episodes.ToString()} ep.", true);
 			}
 
 			return eb;

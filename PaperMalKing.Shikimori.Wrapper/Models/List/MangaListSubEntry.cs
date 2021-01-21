@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using Humanizer;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models.List
 {
@@ -8,7 +7,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Models.List
 		protected override string Type => "mangas";
 
 		/// <inheritdoc />
-		public override string TotalAmount => $"{"ch".ToQuantity(this.Chapters)}, {"v".ToQuantity(this.Volumes)}";
+		public override string TotalAmount => $"{this.Chapters.ToString()} ep., {this.Volumes.ToString()} v.";
 
 		[JsonPropertyName("volumes")]
 		public int Volumes { get; init; }

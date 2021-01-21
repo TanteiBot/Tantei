@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using DSharpPlus;
-using Humanizer.Inflections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -32,12 +31,8 @@ namespace PaperMalKing
 
 		private static IHostBuilder CreateHostBuilder(string[] args)
 		{
-			return Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
+			return Host.CreateDefaultBuilder().ConfigureServices((hostContext, services) =>
 			{
-				Vocabularies.Default.AddPlural("ch", "ch.");
-				Vocabularies.Default.AddPlural("v", "v.");
-				Vocabularies.Default.AddPlural("ep", "ep.");
-
 				services.AddDbContext<DatabaseContext>();
 				var config = hostContext.Configuration;
 

@@ -140,18 +140,18 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					LetterCasing.Sentence),
 				AnimeListEntry
 						{UserAnimeProgress: AnimeProgress.PlanToWatch, WatchedEpisodes: 0} ale =>
-					$"{ale.UserAnimeProgress.Humanize(LetterCasing.Sentence)} - {"ep".ToQuantity(ale.TotalEpisodes)}",
+					$"{ale.UserAnimeProgress.Humanize(LetterCasing.Sentence)} - {ale.TotalEpisodes.ToString()} ep.",
 				AnimeListEntry ale =>
-					$"{ale.UserAnimeProgress.Humanize(LetterCasing.Sentence)} - {(ale.TotalEpisodes == ale.WatchedEpisodes ? "ep".ToQuantity(ale.TotalEpisodes) : $"{ale.WatchedEpisodes.ToString()}/{"ep".ToQuantity(ale.TotalEpisodes)}")}",
+					$"{ale.UserAnimeProgress.Humanize(LetterCasing.Sentence)} - {(ale.TotalEpisodes == ale.WatchedEpisodes ? $"{ale.TotalEpisodes.ToString()} ep." : $"{ale.WatchedEpisodes.ToString()}/{ale.TotalEpisodes.ToString()} ep.")}",
 
 				MangaListEntry
 					{UserMangaProgress: MangaProgress.PlanToRead, TotalChapters: 0, ReadChapters: 0} mle => mle.UserMangaProgress.Humanize(
 					LetterCasing.Sentence),
 				MangaListEntry
 						{UserMangaProgress: MangaProgress.PlanToRead, ReadChapters: 0} mle =>
-					$"{mle.UserMangaProgress.Humanize(LetterCasing.Sentence)} - {"ch".ToQuantity(mle.TotalChapters)}, {"v".ToQuantity(mle.TotalVolumes)}",
+					$"{mle.UserMangaProgress.Humanize(LetterCasing.Sentence)} - {mle.TotalChapters.ToString()} ch, {mle.TotalVolumes.ToString()} v.",
 				MangaListEntry mle =>
-					$"{mle.UserMangaProgress.Humanize(LetterCasing.Sentence)} - {mle.ReadChapters.ToString()}/{"ch".ToQuantity(mle.TotalChapters)}, {mle.ReadVolumes.ToString()}/{"v".ToQuantity(mle.TotalVolumes)}",
+					$"{mle.UserMangaProgress.Humanize(LetterCasing.Sentence)} - {mle.ReadChapters.ToString()}/{mle.TotalChapters.ToString()} ch, {mle.ReadVolumes.ToString()}/{mle.TotalVolumes.ToString()} v.",
 
 				_ =>
 					$"{listEntry.UserProgress.Humanize(LetterCasing.Sentence)} - {listEntry.ProgressedSubEntries.ToString()}/{listEntry.TotalSubEntries.ToString()}"

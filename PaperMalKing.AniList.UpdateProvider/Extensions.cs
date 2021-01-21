@@ -172,9 +172,9 @@ namespace PaperMalKing.AniList.UpdateProvider
         {
             if (!media.Episodes.HasValue && !media.Chapters.HasValue && !media.Volumes.HasValue) return eb;
             var fieldVal = new StringBuilder();
-            if (media.Episodes.GetValueOrDefault() != 0) fieldVal.Append("ep".ToQuantity(media.Episodes!.Value));
-            if (media.Chapters.GetValueOrDefault() != 0) fieldVal.Append("ch".ToQuantity(media.Chapters!.Value));
-            if (media.Volumes.GetValueOrDefault() != 0) fieldVal.Append("v".ToQuantity(media.Volumes!.Value));
+            if (media.Episodes.GetValueOrDefault() != 0) fieldVal.Append($"{media.Episodes!.Value.ToString()} ep.");
+            if (media.Chapters.GetValueOrDefault() != 0) fieldVal.Append($"{media.Chapters!.Value.ToString()} ch,");
+            if (media.Volumes.GetValueOrDefault() != 0) fieldVal.Append($"{media.Volumes!.Value.ToString()} v.");
             eb.AddField("Total", fieldVal.ToString(), true);
 
             return eb;
