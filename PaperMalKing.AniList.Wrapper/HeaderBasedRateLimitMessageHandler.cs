@@ -26,41 +26,51 @@ namespace PaperMalKing.AniList.Wrapper
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             await this._semaphoreSlim.WaitAsync(cancellationToken);
-            HttpResponseMessage response;
-            do
+            try
             {
-                var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                if (now - this._timestamp >= 60)
+                HttpResponseMessage response;
+                do
                 {
-                    this._logger.LogTrace("Resetting anilist ratelimiter");
-                    this._timestamp = now;
-                    this._rateLimitRemaining = RateLimitMaxRequests;
-                }
+                    var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    if (now - this._timestamp >= 60)
+                    {
+                        this._logger.LogTrace("Resetting AniList ratelimiter");
+                        this._timestamp = now;
+                        this._rateLimitRemaining = RateLimitMaxRequests;
+                    }
 
-                this._rateLimitRemaining--;
-                if (this._rateLimitRemaining < 0)
-                {
-                    var delay = this._timestamp + 60 - now;
-                    this._logger.LogDebug("Waiting {Delay}", delay);
-                    await Task.Delay(TimeSpan.FromSeconds(delay), cancellationToken);
-                    this._timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                    this._rateLimitRemaining = RateLimitMaxRequests;
-                }
+                    this._rateLimitRemaining--;
+                    if (this._rateLimitRemaining < 0)
+                    {
+                        var delay = this._timestamp + 60 - now;
+                        this._logger.LogDebug("AniList exceeded rate-limit waiting {Delay}", delay);
+                        await Task.Delay(TimeSpan.FromSeconds(Math.Min(delay, 60)), cancellationToken);
+                        this._timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                        this._rateLimitRemaining = RateLimitMaxRequests;
+                    }
 
-                response = await base.SendAsync(request, cancellationToken);
+                    response = await base.SendAsync(request, cancellationToken);
 
-                if (response.StatusCode == HttpStatusCode.TooManyRequests && response.Headers.RetryAfter?.Delta != null)
-                {
-                    var delay = response.Headers.RetryAfter.Delta.Value.Add(TimeSpan.FromSeconds(1));
-                    this._logger.LogInformation("Got 429'd waiting {Delay}", delay);
-                    await Task.Delay(delay, cancellationToken);
-                }
-                else
-                    this._rateLimitRemaining = sbyte.Parse(response.Headers.GetValues("X-RateLimit-Remaining").First());
-            } while (!cancellationToken.IsCancellationRequested && response.StatusCode == HttpStatusCode.TooManyRequests);
+                    if (response.StatusCode == HttpStatusCode.TooManyRequests && response.Headers.RetryAfter?.Delta != null)
+                    {
+                        var delay = response.Headers.RetryAfter.Delta.Value.Add(TimeSpan.FromSeconds(1));
+                        this._logger.LogInformation("Got 429'd waiting {Delay}", delay);
+                        await Task.Delay(delay, cancellationToken);
+                    }
+                    else
+                    {
+                        this._rateLimitRemaining = sbyte.Parse(response.Headers.GetValues("X-RateLimit-Remaining").First());
+                        this._logger.LogTrace("AniList rate limit remaining {RateLimitRemaining}", this._rateLimitRemaining);
+                    }
+                } while (!cancellationToken.IsCancellationRequested && response.StatusCode == HttpStatusCode.TooManyRequests);
 
-            this._semaphoreSlim.Release();
-            return response;
+                return response;
+
+            }
+            finally
+            {
+                this._semaphoreSlim.Release();
+            }
         }
     }
 }
