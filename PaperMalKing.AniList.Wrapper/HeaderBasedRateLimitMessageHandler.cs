@@ -44,7 +44,7 @@ namespace PaperMalKing.AniList.Wrapper
                     {
                         var delay = this._timestamp + 60 - now;
                         this._logger.LogDebug("AniList exceeded rate-limit waiting {Delay}", delay);
-                        await Task.Delay(TimeSpan.FromSeconds(delay), cancellationToken);
+                        await Task.Delay(TimeSpan.FromSeconds(Math.Min(delay, 60)), cancellationToken);
                         this._timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                         this._rateLimitRemaining = RateLimitMaxRequests;
                     }

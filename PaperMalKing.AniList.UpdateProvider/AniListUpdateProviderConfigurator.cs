@@ -34,6 +34,7 @@ namespace PaperMalKing.AniList.UpdateProvider
             {
                 var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
                 var httpClient = httpClientFactory.CreateClient(Constants.NAME);
+                httpClient.Timeout = TimeSpan.FromSeconds(200);
                 var logger = provider.GetRequiredService<ILogger<AniListClient>>();
                 var options = new GraphQLHttpClientOptions()
                 {
