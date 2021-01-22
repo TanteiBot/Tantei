@@ -1,3 +1,4 @@
+# All development is going in [rewrite-v2 branch](https://github.com/N0D4N/PaperMalKing/tree/rewrite-v2)
 ## Paper Mal King
 
 Paper Mal King is simple Discord bot which main function is to automatically track and post it's users updates on MyAnimeList.  
