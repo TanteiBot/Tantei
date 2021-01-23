@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -56,7 +58,7 @@ namespace PaperMalKing.Common
             var removed = originalHs.ToArray() ?? Array.Empty<T>();
             return (added, removed);
         }
-        
+
         public static List<T> Add<T>(this List<T> list, T value)
         {
             list.Add(value);
@@ -86,5 +88,11 @@ namespace PaperMalKing.Common
             for (var i = 0; i < list.Count; i++) action(list[i]);
             return list;
         }
+
+        public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector) where TKey : IComparable<TKey> =>
+            source.Aggregate((accumulator, next) => selector(accumulator).CompareTo(selector(next)) < 0 ? next : accumulator);
+
+        public static TSource MinBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector) where TKey : IComparable<TKey> =>
+            source.Aggregate((accumulator, next) => selector(accumulator).CompareTo(selector(next)) > 0 ? next : accumulator);
     }
 }

@@ -26,7 +26,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MoreLinq;
 using PaperMalKing.AniList.UpdateProvider.CombinedResponses;
 using PaperMalKing.AniList.Wrapper;
 using PaperMalKing.AniList.Wrapper.Models;
@@ -84,10 +83,8 @@ namespace PaperMalKing.AniList.UpdateProvider
                     continue;
                 }
 
-                var lastActivityTimestamp = recentUserUpdates.Activities.MaxBy(a => a.CreatedAtTimestamp).Select(a => a.CreatedAtTimestamp)
-                    .FirstOrDefault();
-                var lastReviewTimeStamp = recentUserUpdates.Reviews.MaxBy(r => r.CreatedAtTimeStamp).Select(a => a.CreatedAtTimeStamp)
-                    .FirstOrDefault();
+                var lastActivityTimestamp = recentUserUpdates.Activities.Any() ? recentUserUpdates.Activities.Max(a => a.CreatedAtTimestamp) : 0L;
+                var lastReviewTimeStamp = recentUserUpdates.Reviews.Any() ? recentUserUpdates.Reviews.Max(r => r.CreatedAtTimeStamp) : 0L;
                 if (dbUser.LastActivityTimestamp < lastActivityTimestamp) dbUser.LastActivityTimestamp = lastActivityTimestamp;
                 if (dbUser.LastReviewTimestamp < lastReviewTimeStamp) dbUser.LastReviewTimestamp = lastReviewTimeStamp;
                 if (cancellationToken.IsCancellationRequested)

@@ -23,7 +23,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MoreLinq.Extensions;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.Shikimori;
@@ -98,7 +97,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					DiscordUserId = userId,
 				},
 				DiscordUserId = userId,
-				LastHistoryEntryId = history.Data.MaxBy(he => he.Id).First().Id
+				LastHistoryEntryId = history.Data.Max(he => he.Id)
 			};
 			dbUser.Favourites.ForEach(f => f.User = dbUser);
 			await db.ShikiUsers.AddAsync(dbUser);

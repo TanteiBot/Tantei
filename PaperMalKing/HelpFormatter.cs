@@ -25,7 +25,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
-using MoreLinq;
+using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing
@@ -124,7 +124,7 @@ namespace PaperMalKing
 
 						if (cGroup.IsExecutableWithoutSubcommands)
 							chs.Add(cGroup);
-						this.EmbedBuilder.AddField($"{char.ToUpper(cGroup.Name[0]).ToString()}{cGroup.Name.Substring(1)} ({cGroup.Aliases.MinBy(alias => alias.Length).FirstOrDefault()}) commands",
+						this.EmbedBuilder.AddField($"{char.ToUpper(cGroup.Name[0]).ToString()}{cGroup.Name.Substring(1)} ({cGroup.Aliases.MinBy(alias => alias.Length)}) commands",
 							string.Join(", ", chs.Select(x => Formatter.InlineCode(x.Name))), false);
 					}
 					else

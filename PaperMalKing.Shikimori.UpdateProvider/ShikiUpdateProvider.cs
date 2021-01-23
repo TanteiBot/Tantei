@@ -26,7 +26,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MoreLinq;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.Shikimori;
@@ -100,7 +99,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				var groupedHistoryEntries = historyUpdates.GroupSimilarHistoryEntries();
 				foreach (var group in groupedHistoryEntries)
 					totalUpdates.Add(group.ToDiscordEmbed(user));
-				var lastHistoryEntry = historyUpdates.MaxBy(h => h.Id).FirstOrDefault();
+				var lastHistoryEntry = historyUpdates.MaxBy(h => h.Id);
 				if (lastHistoryEntry != null)
 					dbUser.LastHistoryEntryId = lastHistoryEntry.Id;
 
