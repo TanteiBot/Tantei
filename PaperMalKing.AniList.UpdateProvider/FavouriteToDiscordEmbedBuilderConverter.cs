@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -35,7 +37,7 @@ namespace PaperMalKing.AniList.UpdateProvider
                     var media = (obj as Media)!;
                     var eb = InitialFavouriteEmbedBuilder(media, user, added).WithMediaTitle(media, user.Options.TitleLanguage)
                         .WithTotalSubEntries(media);
-
+                    eb.Description += $" {media?.Type.ToString().ToLowerInvariant()}";
                     return eb;
                 }
             },
@@ -44,7 +46,8 @@ namespace PaperMalKing.AniList.UpdateProvider
                 {
                     var character = (obj as Character)!;
                     var media = character.Media.Values[0];
-                    return InitialFavouriteEmbedBuilder(character, user, added).WithTitle(character.Name.GetName(user.Options.TitleLanguage))
+                    return InitialFavouriteEmbedBuilder(character, user, added)
+                        .WithTitle($"{character.Name.GetName(user.Options.TitleLanguage)} [Character]")
                         .AddField("From", Formatter.MaskedUrl(media.Title.GetTitle(user.Options.TitleLanguage), new Uri(media.Url)), true);
                 }
             },
@@ -52,7 +55,7 @@ namespace PaperMalKing.AniList.UpdateProvider
                 typeof(Staff), (obj, user, added) =>
                 {
                     var staff = (obj as Staff)!;
-                    return InitialFavouriteEmbedBuilder(staff, user, added).WithTitle(staff.Name.GetName(user.Options.TitleLanguage));
+                    return InitialFavouriteEmbedBuilder(staff, user, added).WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [Staff]");
                 }
             },
             {
@@ -60,8 +63,9 @@ namespace PaperMalKing.AniList.UpdateProvider
                 {
                     var studio = (obj as Studio)!;
                     var media = studio.Media.Nodes[0];
-                    return InitialFavouriteEmbedBuilder(studio, user, added).WithTitle(studio.Name)
-                        .AddField("Authors of", Formatter.MaskedUrl(media.Title.GetTitle(user.Options.TitleLanguage), new Uri(media.Url)), true);
+                    return InitialFavouriteEmbedBuilder(studio, user, added).WithTitle($"{studio.Name} [Studio]")
+                        .AddField("Most popular title", Formatter.MaskedUrl(media.Title.GetTitle(user.Options.TitleLanguage), new Uri(media.Url)),
+                            true);
                 }
             }
         };

@@ -244,6 +244,7 @@ namespace PaperMalKing.AniList.Wrapper
                 }
                 siteUrl
                 countryOfOrigin
+                type
                 format
                 id
                 image: coverImage {
@@ -265,6 +266,7 @@ namespace PaperMalKing.AniList.Wrapper
                   native(stylised: false)
                 }
                 countryOfOrigin
+                type
                 siteUrl
                 format
                 id
