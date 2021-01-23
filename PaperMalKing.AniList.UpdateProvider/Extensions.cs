@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -107,13 +109,14 @@ namespace PaperMalKing.AniList.UpdateProvider
                         case MediaFormat.MANGA:
                         case MediaFormat.ONE_SHOT:
                             return "Manhwa";
-                        default: 
+                        default:
                             return media.Format.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
                     }
                 default:
                     return media.Format.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
             }
         }
+
         public static DiscordEmbedBuilder WithMediaTitle(this DiscordEmbedBuilder eb, Media media, TitleLanguage titleLanguage)
         {
             var strings = new[]
@@ -169,13 +172,14 @@ namespace PaperMalKing.AniList.UpdateProvider
                 .WithColor(Colors[mediaListEntry.Status])
                 .WithThumbnail(activity.Media.Image.ImageUrl);
             var score = mediaListEntry.GetScore(user.MediaListOptions.ScoreFormat);
-			if (!string.IsNullOrEmpty(score))
+            if (!string.IsNullOrEmpty(score))
                 eb.AddField("Score", score, true);
-            
+
             if (isAdvancedScoringEnabled)
             {
                 var sb = new StringBuilder();
-                foreach (var (key, value) in mediaListEntry.AdvancedScores!)
+                foreach (var (key, value) in mediaListEntry.AdvancedScores?.Where(e => e.Value != 0f) ??
+                                             Enumerable.Empty<KeyValuePair<string, float>>())
                     sb.AppendLine($"{key}: {value:0.#}");
                 eb.AddField("Advanced scoring", sb.ToString(), true);
             }
