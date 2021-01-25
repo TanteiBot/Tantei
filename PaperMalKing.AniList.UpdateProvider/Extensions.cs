@@ -192,12 +192,16 @@ namespace PaperMalKing.AniList.UpdateProvider
 
         public static DiscordEmbedBuilder WithTotalSubEntries(this DiscordEmbedBuilder eb, Media media)
         {
-            if (!media.Episodes.HasValue && !media.Chapters.HasValue && !media.Volumes.HasValue) return eb;
-            var fieldVal = new StringBuilder();
-            if (media.Episodes.GetValueOrDefault() != 0) fieldVal.Append($"{media.Episodes!.Value.ToString()} ep.");
-            if (media.Chapters.GetValueOrDefault() != 0) fieldVal.Append($"{media.Chapters!.Value.ToString()} ch,");
-            if (media.Volumes.GetValueOrDefault() != 0) fieldVal.Append($"{media.Volumes!.Value.ToString()} v.");
-            eb.AddField("Total", fieldVal.ToString(), true);
+            var episodes = media.Episodes.GetValueOrDefault();
+            var chapters = media.Chapters.GetValueOrDefault();
+            var volumes = media.Volumes.GetValueOrDefault();
+            if (episodes == 0 && chapters == 0 && volumes == 0) return eb;
+            var fieldVal = new List<string>(3);
+            if (episodes != 0) fieldVal.Add($"{episodes.ToString()} ep.");
+            if (chapters != 0) fieldVal.Add($"{chapters.ToString()} ch");
+            if (volumes != 0) fieldVal.Add($"{volumes.ToString()} v.");
+            if (fieldVal.Count != 0)
+                eb.AddField("Total", string.Join(',', fieldVal), true);
 
             return eb;
         }
