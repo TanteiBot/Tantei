@@ -17,14 +17,15 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features
 {
-	[AttributeUsage(AttributeTargets.Field)]
-	public sealed class FeatureReadableNameAttribute : Attribute
-	{
-		public readonly string Name;
+    // ReSharper disable once TypeParameterCanBeVariant
+    public interface IUserFeaturesService<T> where T : struct, Enum, IComparable, IConvertible, IFormattable
+    {
+        Task EnableFeature(T feature, ulong userId);
 
-		public FeatureReadableNameAttribute(string name) => this.Name = name.ToLowerInvariant();
-	}
+        Task DisableFeature(T feature, ulong userId);
+    }
 }
