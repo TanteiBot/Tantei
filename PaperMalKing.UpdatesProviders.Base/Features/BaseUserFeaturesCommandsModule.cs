@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
+using PaperMalKing.Common.Attributes;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features
@@ -43,7 +44,7 @@ namespace PaperMalKing.UpdatesProviders.Base.Features
             for (var i = 0; i < fields.Length; i++)
             {
                 var field = fields[i];
-                if (field.Name.Equals("value__")) continue;
+                if (field.Name.Equals("value__") || field.Name.ToLowerInvariant().Equals("default")) continue;
                 var featureDescriptionAttribute = field.GetCustomAttribute<FeatureDescriptionAttribute>();
                 if (featureDescriptionAttribute == null)
                     throw new ArgumentNullException(featureType.Name);
@@ -104,7 +105,7 @@ namespace PaperMalKing.UpdatesProviders.Base.Features
             for (var i = 0; i < fields.Length; i++)
             {
                 var field = fields[i];
-                if (field.Name.Equals("value__")) continue;
+                if (field.Name.Equals("value__") || field.Name.ToLowerInvariant().Equals("default")) continue;
                 var featureDescriptionAttribute = field.GetCustomAttribute<FeatureDescriptionAttribute>()!;
                 sb.AppendLine(
                     $"{i.ToString()}. {featureDescriptionAttribute.Description} - {featureDescriptionAttribute.Summary.ToLowerInvariant()}");

@@ -18,7 +18,7 @@
 
 using System;
 
-namespace PaperMalKing.UpdatesProviders.Base.Features
+namespace PaperMalKing.Common.Attributes
 {
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public sealed class FeatureDescriptionAttribute : Attribute
