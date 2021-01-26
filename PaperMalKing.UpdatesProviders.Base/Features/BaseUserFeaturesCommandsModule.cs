@@ -40,7 +40,7 @@ namespace PaperMalKing.UpdatesProviders.Base.Features
 			this.Logger = logger;
 		}
 
-		public virtual async Task EnableFeatureCommand(CommandContext context, T[] features)
+		public virtual async Task EnableFeatureCommand(CommandContext context, params T[] features)
 		{
 			if (!features.Any())
 				return;
@@ -64,7 +64,7 @@ namespace PaperMalKing.UpdatesProviders.Base.Features
 																		 $"Successfully enabled {features.Humanize()} for you"));
 		}
 
-		public virtual async Task DisableFeatureCommand(CommandContext context, T[] features)
+		public virtual async Task DisableFeatureCommand(CommandContext context, params T[] features)
 		{
 			if (!features.Any())
 				return;
@@ -90,9 +90,9 @@ namespace PaperMalKing.UpdatesProviders.Base.Features
 
 		public virtual Task ListFeaturesCommand(CommandContext context) =>
 			context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context, "All features")
-													 .WithDescription(string.Join('\n',
+													 .WithDescription(string.Join(";\n",
 																				  this.UserFeaturesService.Descriptions.Values
-																					  .Select(tuple => $"{tuple.Item1} - {tuple.Item2}"))));
+																					  .Select(tuple => $"[{tuple.Item1}] - {tuple.Item2}"))));
 
 		public virtual async Task EnabledFeaturesCommand(CommandContext context)
 		{

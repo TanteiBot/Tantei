@@ -16,23 +16,12 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
-using DSharpPlus.Entities;
-using PaperMalKing.UpdatesProviders.Base;
+using DSharpPlus.CommandsNext;
 
-namespace PaperMalKing.UpdatesProviders.MyAnimeList
+namespace PaperMalKing.UpdatesProviders.Base
 {
-	internal sealed class MalUpdate : IUpdate
+	public interface ICommandsService
 	{
-		public MalUpdate(IEnumerable<DiscordEmbedBuilder> embeds)
-		{
-			this.UpdateEmbeds = embeds.Select(builder => builder.WithMalUpdateProviderFooter()).ToArray();
-		}
-
-		public MalUpdate(IReadOnlyList<DiscordEmbedBuilder> embeds) => this.UpdateEmbeds = embeds;
-		
-		/// <inheritdoc />
-		public IReadOnlyList<DiscordEmbedBuilder> UpdateEmbeds { get; }
+		CommandsNextExtension CommandsExtension { get; }
 	}
 }

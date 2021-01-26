@@ -23,7 +23,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common.RateLimiter;
+using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper;
+using PaperMalKing.UpdatesProviders.Base;
+using PaperMalKing.UpdatesProviders.Base.Features;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
@@ -64,6 +67,8 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				var logger = provider.GetRequiredService<ILogger<MyAnimeListClient>>();
 				return new(logger, factory.CreateClient(MalOptions.MyAnimeList));
 			});
+			services.AddSingleton<IExecuteOnStartupService, MalExecuteOnStartupService>();
+			services.AddSingleton<IUserFeaturesService<MalUserFeatures>,MalUserFeaturesService>();
 			services.AddSingleton<MalUserService>();
 			services.AddSingleton<IUpdateProvider, MalUpdateProvider>();
 		}

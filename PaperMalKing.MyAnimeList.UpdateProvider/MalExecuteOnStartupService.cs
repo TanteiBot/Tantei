@@ -1,5 +1,4 @@
 ﻿#region LICENSE
-
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -15,29 +14,29 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 #endregion
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using PaperMalKing.Database.Models.MyAnimeList;
+using PaperMalKing.UpdatesProviders.Base;
+using PaperMalKing.UpdatesProviders.Base.Features;
 
-namespace PaperMalKing.Database
+namespace PaperMalKing.UpdatesProviders.MyAnimeList
 {
-	public static class Extensions
+	public sealed class MalExecuteOnStartupService : IExecuteOnStartupService
 	{
-		public static async Task<int> SaveChangesAndThrowOnNoneAsync(this DbContext context, CancellationToken cancellationToken = default)
+		private readonly ICommandsService _commandsService;
+
+		public MalExecuteOnStartupService(ICommandsService commandsService)
 		{
-			var rows = await context.SaveChangesAsync(cancellationToken);
-			if (rows <= 0)
-				throw new NoChangesSavedException(context);
-			return rows;
+			this._commandsService = commandsService;
 		}
 
-		public static MalUserFeatures GetDefault(this MalUserFeatures features) => MalUserFeatures.AnimeList | MalUserFeatures.MangaList   |
-																				   MalUserFeatures.Favorites | MalUserFeatures.Mention     |
-																				   MalUserFeatures.Website   | MalUserFeatures.MediaFormat |
-																				   MalUserFeatures.MediaStatus;
+		public Task ExecuteAsync(CancellationToken cancellationToken = default)
+		{
+			this._commandsService.CommandsExtension.RegisterConverter(new FeatureArgumentConverter<MalUserFeatures>());
+			return Task.CompletedTask;
+		}
 	}
 }

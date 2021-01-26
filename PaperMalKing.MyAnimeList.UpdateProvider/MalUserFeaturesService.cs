@@ -51,15 +51,15 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			this._serviceProvider = serviceProvider;
 			var t = typeof(MalUserFeatures);
 			var ti = t.GetTypeInfo();
-			var values = Enum.GetValues(t).Cast<MalUserFeatures>().Where(v => v != MalUserFeatures.Default);
+			var values = Enum.GetValues(t).Cast<MalUserFeatures>().Where(v => v != MalUserFeatures.None);
 
-			foreach (var xv in values)
+			foreach (var enumVal in values)
 			{
-				var xsv = xv.ToString();
-				var xmv = ti.DeclaredMembers.FirstOrDefault(xm => xm.Name == xsv);
-				var xav = xmv!.GetCustomAttribute<FeatureDescriptionAttribute>();
+				var name = enumVal.ToString();
+				var fieldVal = ti.DeclaredMembers.First(xm => xm.Name == name);
+				var attribute = fieldVal!.GetCustomAttribute<FeatureDescriptionAttribute>()!;
 
-				this.Descriptions[xv] = (xav.Description, xav.Summary);
+				this.Descriptions[enumVal] = (attribute.Description, attribute.Summary);
 			}
 		}
 

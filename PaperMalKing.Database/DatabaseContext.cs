@@ -106,7 +106,7 @@ namespace PaperMalKing.Database
 			base.OnModelCreating(modelBuilder);
 
 			modelBuilder.Entity<MalUser>().Property(mu => mu.Features)
-						.HasDefaultValue(MalUserFeatures.Default);
+						.HasDefaultValue(MalUserFeatures.None.GetDefault());
 
 			modelBuilder.Entity<MalFavoriteAnime>().HasKey(k => new
 			{

@@ -18,7 +18,6 @@
 
 using System.Threading.Tasks;
 using DSharpPlus;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -27,6 +26,7 @@ using PaperMalKing.Database;
 using PaperMalKing.Options;
 using PaperMalKing.Services;
 using PaperMalKing.Services.Background;
+using PaperMalKing.UpdatesProviders.Base;
 using Serilog;
 
 namespace PaperMalKing
@@ -36,13 +36,6 @@ namespace PaperMalKing
 		public static Task Main(string[] args)
 		{
 			var host = CreateHostBuilder(args).Build();
-			using (var scope = host.Services.CreateScope())
-			{
-				scope.ServiceProvider.GetRequiredService<CommandsService>();
-				var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-				db.Database.Migrate();
-				var s = scope.ServiceProvider.GetRequiredService<UpdatePublishingService>();
-			}
 
 			return host.RunAsync();
 		}
@@ -74,13 +67,14 @@ namespace PaperMalKing
 					return new(cfg);
 				});
 				services.AddSingleton<UpdatePublishingService>();
-				services.AddSingleton<CommandsService>();
+				services.AddSingleton<ICommandsService, CommandsService>();
 				services.AddSingleton<UpdateProvidersConfigurationService>();
 				services.AddSingleton<GuildManagementService>();
 				UpdateProvidersConfigurationService.ConfigureProviders(config, services);
-
+				
 				services.AddHostedService<UpdateProvidersManagementService>();
 				services.AddHostedService<DiscordBackgroundService>();
+				services.AddHostedService<OnStartupActionsExecutingService>();
 			}).UseSerilog((context, _, configuration) =>
 			{
 				configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo

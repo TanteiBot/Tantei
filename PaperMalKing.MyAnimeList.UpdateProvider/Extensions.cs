@@ -59,7 +59,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			if (features.HasFlag(MalUserFeatures.AnimeList)) options |= ParserOptions.AnimeList;
 			if (features.HasFlag(MalUserFeatures.MangaList)) options |= ParserOptions.MangaList;
 			if (features.HasFlag(MalUserFeatures.Favorites)) options |= ParserOptions.Favorites;
-			
+
 			return options;
 		}
 
@@ -151,7 +151,8 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 		internal static string ToHashString(this (string, string) v) => $"{v.Item1} {v.Item2}";
 
-		internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this IListEntry listEntry, User user, DateTimeOffset timestamp)
+		internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this IListEntry listEntry, User user, DateTimeOffset timestamp,
+																  MalUserFeatures features)
 		{
 			static string SubEntriesProgress(int progressedValue, int totalValue, bool isInPlans, string ending) =>
 				progressedValue switch
@@ -161,8 +162,10 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					_ => $"{progressedValue.ToString()}/{totalValue.ToString()} {ending}"
 				};
 
-			static string TitleMediaTypeString(string title, string mediaType) =>
-				title.EndsWith(mediaType) || title.EndsWith($"({mediaType})") ? title : $"{title} ({mediaType})";
+			static string TitleMediaTypeString(string title, string mediaType, MalUserFeatures features) =>
+				title.EndsWith(mediaType) || title.EndsWith($"({mediaType})") || !features.HasFlag(MalUserFeatures.MediaFormat)
+					? title
+					: $"{title} ({mediaType})";
 
 			var eb = new DiscordEmbedBuilder().WithThumbnail(listEntry.ImageUrl).WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl)
 											  .WithTimestamp(timestamp);
@@ -203,14 +206,21 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			}
 
 			eb.AddField("Progress", userProgressText, true);
-
-			var entryStatus = listEntry switch
+			
+			var shortTitle = TitleMediaTypeString(listEntry.Title, listEntry.MediaType, features);
+			string title;
+			if (features.HasFlag(MalUserFeatures.MediaStatus))
 			{
-				AnimeListEntry animeListEntry => animeListEntry.AnimeAiringStatus.Humanize(LetterCasing.Sentence),
-				MangaListEntry mangaListEntry => mangaListEntry.MangaPublishingStatus.Humanize(LetterCasing.Sentence),
-				_                             => listEntry.Status.Humanize(LetterCasing.Sentence),
-			};
-			var title = $"{TitleMediaTypeString(listEntry.Title, listEntry.MediaType)} [{entryStatus}]";
+				var entryStatus = listEntry switch
+				{
+					AnimeListEntry animeListEntry => animeListEntry.AnimeAiringStatus.Humanize(LetterCasing.Sentence),
+					MangaListEntry mangaListEntry => mangaListEntry.MangaPublishingStatus.Humanize(LetterCasing.Sentence),
+					_                             => listEntry.Status.Humanize(LetterCasing.Sentence),
+				};
+				title = $"{shortTitle} [{entryStatus}]";
+			}
+			else
+				title = shortTitle;
 
 			if (title.Length <= 256)
 			{
@@ -218,7 +228,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				eb.Title = title;
 			}
 			else
-				eb.Description = title;
+				eb.Description = Formatter.MaskedUrl(title, new Uri(listEntry.Url));
 
 			if (listEntry.Tags.Length != 0)
 			{

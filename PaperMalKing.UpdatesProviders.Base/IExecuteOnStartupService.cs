@@ -1,5 +1,4 @@
 ﻿#region LICENSE
-
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -15,29 +14,15 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 #endregion
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using PaperMalKing.Database.Models.MyAnimeList;
 
-namespace PaperMalKing.Database
+namespace PaperMalKing.UpdatesProviders.Base
 {
-	public static class Extensions
+	public interface IExecuteOnStartupService
 	{
-		public static async Task<int> SaveChangesAndThrowOnNoneAsync(this DbContext context, CancellationToken cancellationToken = default)
-		{
-			var rows = await context.SaveChangesAsync(cancellationToken);
-			if (rows <= 0)
-				throw new NoChangesSavedException(context);
-			return rows;
-		}
-
-		public static MalUserFeatures GetDefault(this MalUserFeatures features) => MalUserFeatures.AnimeList | MalUserFeatures.MangaList   |
-																				   MalUserFeatures.Favorites | MalUserFeatures.Mention     |
-																				   MalUserFeatures.Website   | MalUserFeatures.MediaFormat |
-																				   MalUserFeatures.MediaStatus;
+		Task ExecuteAsync(CancellationToken cancellationToken = default);
 	}
 }
