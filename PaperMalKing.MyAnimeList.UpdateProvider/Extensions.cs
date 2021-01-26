@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -128,11 +130,11 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 			eb.WithColor(added ? Constants.MalGreen : Constants.MalRed);
 
-			var title = "";
-			if (favorite is IMalListFavorite baseListFavorite)
-				title = $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear.ToString()}]";
-			else
-				title = favorite.Name;
+			var title = favorite switch
+			{
+				IMalListFavorite baseListFavorite => $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear.ToString()}]",
+				_                                 => favorite.Name
+			};
 			eb.WithTitle(title);
 
 			if (favorite is MalFavoriteCharacter favoriteCharacter)
@@ -151,6 +153,14 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 		internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this IListEntry listEntry, User user, DateTimeOffset timestamp)
 		{
+			static string SubEntriesProgress(int progressedValue, int totalValue, bool isInPlans, string ending) =>
+				progressedValue switch
+				{
+					0 when totalValue == 0 => "",
+					_ when progressedValue == totalValue || (isInPlans && progressedValue == 0) => $"{totalValue.ToString()} {ending}",
+					_ => $"{progressedValue.ToString()}/{totalValue.ToString()} {ending}"
+				};
+
 			static string TitleMediaTypeString(string title, string mediaType) =>
 				title.EndsWith(mediaType) || title.EndsWith($"({mediaType})") ? title : $"{title} ({mediaType})";
 
@@ -161,29 +171,36 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			if (listEntry.Score != 0)
 				eb.AddField("Score", listEntry.Score.ToString(), true);
 
-			var userProgressText = listEntry switch
+			string userProgressText;
+			switch (listEntry)
 			{
-				AnimeListEntry
-					{UserAnimeProgress: AnimeProgress.PlanToWatch, TotalEpisodes: 0, WatchedEpisodes: 0} ale => ale.UserAnimeProgress.Humanize(
-					LetterCasing.Sentence),
-				AnimeListEntry
-						{UserAnimeProgress: AnimeProgress.PlanToWatch, WatchedEpisodes: 0} ale =>
-					$"{ale.UserAnimeProgress.Humanize(LetterCasing.Sentence)} - {ale.TotalEpisodes.ToString()} ep.",
-				AnimeListEntry ale =>
-					$"{ale.UserAnimeProgress.Humanize(LetterCasing.Sentence)} - {(ale.TotalEpisodes == ale.WatchedEpisodes ? $"{ale.TotalEpisodes.ToString()} ep." : $"{ale.WatchedEpisodes.ToString()}/{ale.TotalEpisodes.ToString()} ep.")}",
-
-				MangaListEntry
-					{UserMangaProgress: MangaProgress.PlanToRead, TotalChapters: 0, ReadChapters: 0} mle => mle.UserMangaProgress.Humanize(
-					LetterCasing.Sentence),
-				MangaListEntry
-						{UserMangaProgress: MangaProgress.PlanToRead, ReadChapters: 0} mle =>
-					$"{mle.UserMangaProgress.Humanize(LetterCasing.Sentence)} - {mle.TotalChapters.ToString()} ch, {mle.TotalVolumes.ToString()} v.",
-				MangaListEntry mle =>
-					$"{mle.UserMangaProgress.Humanize(LetterCasing.Sentence)} - {mle.ReadChapters.ToString()}/{mle.TotalChapters.ToString()} ch, {mle.ReadVolumes.ToString()}/{mle.TotalVolumes.ToString()} v.",
-
-				_ =>
-					$"{listEntry.UserProgress.Humanize(LetterCasing.Sentence)} - {listEntry.ProgressedSubEntries.ToString()}/{listEntry.TotalSubEntries.ToString()}"
-			};
+				case AnimeListEntry ale:
+				{
+					var progress = ale.UserAnimeProgress.Humanize(LetterCasing.Sentence);
+					var episodeProgress = SubEntriesProgress(ale.WatchedEpisodes, ale.TotalEpisodes,
+															 ale.UserAnimeProgress == AnimeProgress.PlanToWatch, "ep.");
+					userProgressText = episodeProgress != "" ? $"{progress} - {episodeProgress}" : progress;
+					break;
+				}
+				case MangaListEntry mle:
+				{
+					var progress = mle.UserMangaProgress.Humanize(LetterCasing.Sentence);
+					var chapterProgress = SubEntriesProgress(mle.ReadChapters, mle.TotalChapters,
+															 mle.UserMangaProgress == MangaProgress.PlanToRead, "ch,");
+					var volumeProgress =
+						SubEntriesProgress(mle.ReadVolumes, mle.ReadVolumes, mle.UserMangaProgress == MangaProgress.PlanToRead, "v.");
+					userProgressText = chapterProgress != "" || volumeProgress != "" ? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
+					break;
+				}
+				default:
+				{
+					var progress = listEntry.UserProgress.Humanize(LetterCasing.Sentence);
+					var sep = SubEntriesProgress(listEntry.ProgressedSubEntries, listEntry.TotalSubEntries,
+												 listEntry.UserProgress == GenericProgress.InPlans, "");
+					userProgressText = sep != "" ? $"{progress} - {sep}" : progress;
+					break;
+				}
+			}
 
 			eb.AddField("Progress", userProgressText, true);
 

@@ -27,13 +27,13 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base
 {
-	public class BaseUpdateProviderUserCommandsModule : BaseCommandModule
+	public abstract class BaseUpdateProviderUserCommandsModule : BaseCommandModule
 	{
 		protected readonly ILogger<BaseUpdateProviderUserCommandsModule> Logger;
 		protected readonly IUpdateProviderUserService UserService;
 
 		/// <inheritdoc />
-		public BaseUpdateProviderUserCommandsModule(IUpdateProviderUserService userService, ILogger<BaseUpdateProviderUserCommandsModule> logger)
+		protected BaseUpdateProviderUserCommandsModule(IUpdateProviderUserService userService, ILogger<BaseUpdateProviderUserCommandsModule> logger)
 		{
 			this.UserService = userService;
 			this.Logger = logger;
