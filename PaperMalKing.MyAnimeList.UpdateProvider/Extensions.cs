@@ -51,6 +51,16 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			{GenericProgress.Unknown, Constants.MalBlack}
 		};
 
+		internal static ParserOptions ToParserOptions(this MalUserFeatures features)
+		{
+			var options = ParserOptions.None;
+			if (features.HasFlag(MalUserFeatures.AnimeList)) options |= ParserOptions.AnimeList;
+			if (features.HasFlag(MalUserFeatures.MangaList)) options |= ParserOptions.MangaList;
+			if (features.HasFlag(MalUserFeatures.Favorites)) options |= ParserOptions.Favorites;
+			
+			return options;
+		}
+
 		internal static T ToDbFavorite<T>(this BaseFavorite baseFavorite, MalUser user) where T : class, IMalFavorite
 		{
 			return baseFavorite switch

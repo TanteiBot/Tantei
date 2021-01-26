@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites
@@ -29,5 +30,13 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites
 		internal IReadOnlyList<FavoriteCharacter> FavoriteCharacters { get; init; } = null!;
 
 		internal IReadOnlyList<FavoritePerson> FavoritePeople { get; init; } = null!;
+
+		internal static readonly UserFavorites Empty = new()
+		{
+			FavoriteAnime = Array.Empty<FavoriteAnime>(),
+			FavoriteManga = Array.Empty<FavoriteManga>(),
+			FavoriteCharacters = Array.Empty<FavoriteCharacter>(),
+			FavoritePeople = Array.Empty<FavoritePerson>()
+		};
 	}
 }

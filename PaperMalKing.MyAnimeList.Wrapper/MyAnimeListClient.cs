@@ -97,13 +97,15 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 			return feed?.Items ?? Enumerable.Empty<FeedItem>();
 		}
 
-		internal async Task<User> GetUserAsync(string username, CancellationToken cancellationToken = default)
+		internal async Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default)
 		{
+			if (options == ParserOptions.None)
+				throw new ArgumentException("No reason to parse profile without anime/manga lists and favorites");
 			this._logger.LogDebug("Requesting {@Username} profile", username);
 			username = WebUtility.UrlEncode(username);
 			var requestUrl = Constants.PROFILE_URL + username;
 			var htmlNode = await this.GetAsHtmlAsync(requestUrl, cancellationToken);
-			return UserProfileParser.Parse(htmlNode);
+			return UserProfileParser.Parse(htmlNode, options);
 		}
 
 		internal async Task<string> GetUsernameAsync(ulong id, CancellationToken cancellationToken = default)

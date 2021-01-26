@@ -27,7 +27,7 @@ using Humanizer;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features
 {
-    public class FeatureArgumentConverter<T> : IArgumentConverter<T> where T : struct, Enum, IComparable, IConvertible, IFormattable
+    public class FeatureArgumentConverter<T> : IArgumentConverter<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
     {
         public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
         {

@@ -41,7 +41,7 @@ namespace PaperMalKing.Database.Models.MyAnimeList
 
 		public string LastMangaUpdateHash { get; set; } = null!;
 		
-		public MalUserFeatures Features { get; init; }
+		public MalUserFeatures Features { get; set; }
 		
 		public List<MalFavoriteAnime> FavoriteAnimes { get; set; } = null!;
 

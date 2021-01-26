@@ -1,5 +1,4 @@
 ﻿#region LICENSE
-
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -15,17 +14,18 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 #endregion
 
 using System;
 
-namespace PaperMalKing.UpdatesProviders.Base.Exceptions
+namespace PaperMalKing.MyAnimeList.Wrapper.Models
 {
-    public sealed class UserFeaturesException<T> : Exception where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
-    {
-        public T Feature { get; }
-
-        public UserFeaturesException(T feature, string message) : base(message) => this.Feature = feature;
-    }
+	[Flags]
+	internal enum ParserOptions : byte
+	{
+		None = 0,
+		Favorites = 1,
+		AnimeList = 1 << 1,
+		MangaList = 1 << 2
+	}
 }

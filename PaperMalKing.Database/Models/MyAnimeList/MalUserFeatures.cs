@@ -29,17 +29,17 @@ namespace PaperMalKing.Database.Models.MyAnimeList
 		[FeatureDescription("animelist", "Track changes in animelist")]
 		AnimeList = 1,
 		[FeatureDescription("mangalist", "Track changes in mangalist")]
-		MangaList = 2,
+		MangaList = 1 << 1,
 		[FeatureDescription("favorites", "Track changes in favorites")]
-		Favorites = 4,
+		Favorites = 1 << 2,
 		[FeatureDescription("mention", "Mention user in update")]
-		Mention = 8,
+		Mention = 1 << 3,
 		[FeatureDescription("website", "Show name and icon of website in update")]
-		Website = 16,
+		Website = 1 << 4,
 		[FeatureDescription("mediaformat", "Show format of media in update (tv, movie, manga etc)")]
-		MediaFormat = 32,
+		MediaFormat = 1 << 5,
 		[FeatureDescription("mediastatus", "Show status of media in update (Ongoing, finished etc)")]
-		MediaStatus = 64,
+		MediaStatus = 1 << 6,
 		Default = AnimeList | MangaList | Favorites | Mention | Website | MediaFormat | MediaStatus
 	}
 }

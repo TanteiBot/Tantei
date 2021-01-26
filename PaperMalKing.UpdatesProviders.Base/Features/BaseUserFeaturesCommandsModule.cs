@@ -19,99 +19,85 @@
 #endregion
 
 using System;
-using System.Reflection;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
+using Humanizer;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
-using PaperMalKing.Common.Attributes;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features
 {
-    public abstract class BaseUserFeaturesCommandsModule<T> : BaseCommandModule where T : struct, Enum, IComparable, IConvertible, IFormattable
-    {
-        protected readonly IUserFeaturesService<T> UserFeaturesService;
-        protected readonly ILogger<BaseUserFeaturesCommandsModule<T>> Logger;
+	public abstract class BaseUserFeaturesCommandsModule<T> : BaseCommandModule where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
+	{
+		protected readonly IUserFeaturesService<T> UserFeaturesService;
+		protected readonly ILogger<BaseUserFeaturesCommandsModule<T>> Logger;
 
-        protected BaseUserFeaturesCommandsModule(IUserFeaturesService<T> userFeaturesService, ILogger<BaseUserFeaturesCommandsModule<T>> logger)
-        {
-            this.UserFeaturesService = userFeaturesService;
-            this.Logger = logger;
-            var featureType = typeof(T);
-            var fields = featureType.GetFields();
-            for (var i = 0; i < fields.Length; i++)
-            {
-                var field = fields[i];
-                if (field.Name.Equals("value__") || field.Name.ToLowerInvariant().Equals("default")) continue;
-                var featureDescriptionAttribute = field.GetCustomAttribute<FeatureDescriptionAttribute>();
-                if (featureDescriptionAttribute == null)
-                    throw new ArgumentNullException(featureType.Name);
-            }
-        }
+		protected BaseUserFeaturesCommandsModule(IUserFeaturesService<T> userFeaturesService, ILogger<BaseUserFeaturesCommandsModule<T>> logger)
+		{
+			this.UserFeaturesService = userFeaturesService;
+			this.Logger = logger;
+		}
 
+		public virtual async Task EnableFeatureCommand(CommandContext context, T[] features)
+		{
+			if (!features.Any())
+				return;
+			this.Logger.LogInformation("Trying to enable {Features} feature for {Username}", features, context.Member.DisplayName);
+			try
+			{
+				await this.UserFeaturesService.EnableFeaturesAsync(features, context.User.Id);
+			}
+			catch (Exception ex)
+			{
+				var embed = ex is UserFeaturesException<T> ufe
+					? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed enabling {ufe.Feature.ToString().ToLowerInvariant()}")
+					: EmbedTemplate.UnknownErrorEmbed(context);
+				await context.RespondAsync(embed: embed.Build());
+				this.Logger.LogError(ex, "Failed to enable {Features} for {Username}", features, context.Member.DisplayName);
+				throw;
+			}
 
-        public virtual async Task EnableFeatureCommand(CommandContext context, T feature)
-        {
-            this.Logger.LogInformation("Trying to enable {Feature} feature for {Username}", feature, context.Member.DisplayName);
-            try
-            {
-                await this.UserFeaturesService.EnableFeature(feature, context.User.Id);
-            }
-            catch (Exception ex)
-            {
-                var embed = ex is UserFeaturesException<T> ufe
-                    ? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed enabling {ufe.Feature.ToString().ToLowerInvariant()}")
-                    : EmbedTemplate.UnknownErrorEmbed(context);
-                await context.RespondAsync(embed: embed.Build());
-                this.Logger.LogError(ex, "Failed to enable {Feature} for {Username}", feature, context.Member.DisplayName);
-                throw;
-            }
+			this.Logger.LogInformation("Successfully enabled {Features} feature for {Username}", features, context.Member.DisplayName);
+			await context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context,
+																		 $"Successfully enabled {features.Humanize()} for you"));
+		}
 
-            this.Logger.LogInformation("Successfully enabled {Feature} feature for {Username}", feature, context.Member.DisplayName);
-            await context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context,
-                $"Successfully enabled {feature.ToString().ToLowerInvariant()} for you"));
-        }
+		public virtual async Task DisableFeatureCommand(CommandContext context, T[] features)
+		{
+			if (!features.Any())
+				return;
+			this.Logger.LogInformation("Trying to disable {Features} feature for {Username}", features, context.Member.DisplayName);
+			try
+			{
+				await this.UserFeaturesService.DisableFeaturesAsync(features, context.User.Id);
+			}
+			catch (Exception ex)
+			{
+				var embed = ex is UserFeaturesException<T> ufe
+					? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed disabling {ufe.Feature.ToString().ToLowerInvariant()}")
+					: EmbedTemplate.UnknownErrorEmbed(context);
+				await context.RespondAsync(embed: embed.Build());
+				this.Logger.LogError(ex, "Failed to disable {Features} for {Username}", features, context.Member.DisplayName);
+				throw;
+			}
 
-        public virtual async Task DisableFeatureCommand(CommandContext context, T feature)
-        {
-            this.Logger.LogInformation("Trying to disable {Feature} feature for {Username}", feature, context.Member.DisplayName);
-            try
-            {
-                await this.UserFeaturesService.DisableFeature(feature, context.User.Id);
-            }
-            catch (Exception ex)
-            {
-                var embed = ex is UserFeaturesException<T> ufe
-                    ? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed disabling {ufe.Feature.ToString().ToLowerInvariant()}")
-                    : EmbedTemplate.UnknownErrorEmbed(context);
-                await context.RespondAsync(embed: embed.Build());
-                this.Logger.LogError(ex, "Failed to disable {Feature} for {Username}", feature, context.Member.DisplayName);
-                throw;
-            }
+			this.Logger.LogInformation("Successfully disabled {Features} feature for {Username}", features, context.Member.DisplayName);
+			await context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context,
+																		 $"Successfully disabled {features.Humanize()} for you"));
+		}
 
-            this.Logger.LogInformation("Successfully disabled {Feature} feature for {Username}", feature, context.Member.DisplayName);
-            await context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context,
-                $"Successfully disabled {feature.ToString().ToLowerInvariant()} for you"));
-        }
+		public virtual Task ListFeaturesCommand(CommandContext context) =>
+			context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context, "All features")
+													 .WithDescription(string.Join('\n',
+																				  this.UserFeaturesService.Descriptions.Values
+																					  .Select(tuple => $"{tuple.Item1} - {tuple.Item2}"))));
 
-        public virtual Task ListFeaturesCommand(CommandContext context)
-        {
-            var featureType = typeof(T);
-            var fields = featureType.GetFields();
-            var sb = new StringBuilder();
-            sb.AppendLine();
-            for (var i = 0; i < fields.Length; i++)
-            {
-                var field = fields[i];
-                if (field.Name.Equals("value__") || field.Name.ToLowerInvariant().Equals("default")) continue;
-                var featureDescriptionAttribute = field.GetCustomAttribute<FeatureDescriptionAttribute>()!;
-                sb.AppendLine(
-                    $"{i.ToString()}. {featureDescriptionAttribute.Description} - {featureDescriptionAttribute.Summary.ToLowerInvariant()}");
-            }
-
-            return context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context, "All features").WithDescription(sb.ToString()));
-        }
-    }
+		public virtual async Task EnabledFeaturesCommand(CommandContext context)
+		{
+			var featuresDesc = await this.UserFeaturesService.EnabledFeaturesAsync(context.User.Id);
+			await context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context, "Your enabled features").WithDescription(featuresDesc));
+		}
+	}
 }

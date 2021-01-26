@@ -17,15 +17,19 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features
 {
     // ReSharper disable once TypeParameterCanBeVariant
-    public interface IUserFeaturesService<T> where T : struct, Enum, IComparable, IConvertible, IFormattable
+    public interface IUserFeaturesService<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
     {
-        Task EnableFeature(T feature, ulong userId);
+        IReadOnlyDictionary<T, (string,string)> Descriptions { get; }
+        Task EnableFeaturesAsync(IReadOnlyList<T> features, ulong userId);
 
-        Task DisableFeature(T feature, ulong userId);
+        Task DisableFeaturesAsync(IReadOnlyList<T> features, ulong userId);
+
+        Task<string> EnabledFeaturesAsync(ulong userId);
     }
 }

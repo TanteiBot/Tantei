@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -127,14 +129,20 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
 			await foreach (var dbUser in db.MalUsers.Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas).Include(u => u.FavoriteCharacters)
-										   .Include(u => u.FavoritePeople).Where(user => user.DiscordUser.Guilds.Any()).AsAsyncEnumerable()
+										   .Include(u => u.FavoritePeople)
+										   .Where(user => user.DiscordUser.Guilds.Any()                    ||
+														  // Is bitwise to allow executing on server
+														  (user.Features & MalUserFeatures.AnimeList) != 0 ||
+														  (user.Features & MalUserFeatures.MangaList) != 0 ||
+														  (user.Features & MalUserFeatures.Favorites) != 0)
+										   .AsAsyncEnumerable()
 										   .WithCancellation(cancellationToken))
 			{
 				this.Logger.LogDebug("Starting to check for updates for {@Username}", dbUser.Username);
 				User? user = null;
 				try
 				{
-					user = await this._client.GetUserAsync(dbUser.Username, cancellationToken);
+					user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), cancellationToken);
 				}
 				catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
 				{
@@ -155,35 +163,33 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					return;
 				}
 
-				if (user is null)
-				{
-					this.Logger.LogError("User {Username} wasn't initialized due to unknown error", dbUser.Username);
-					return;
-				}
+				var favoritesUpdates = dbUser.Features.HasFlag(MalUserFeatures.Favorites)
+					? this.CheckFavoritesUpdates(dbUser, user)
+					: Array.Empty<DiscordEmbedBuilder>();
 
-				var favoritesUpdates = this.CheckFavoritesUpdates(dbUser, user);
-
-				var animeListUpdates = user.HasPublicAnimeUpdates switch
+				var animeListUpdates = dbUser.Features.HasFlag(MalUserFeatures.AnimeList) ? user.HasPublicAnimeUpdates switch
 				{
 					true when dbUser.LastAnimeUpdateHash.Substring(" ", true) != user.LatestAnimeUpdate!.Hash.inRssHash => await
 						CheckRssListUpdates<AnimeRssFeed, AnimeListEntry, AnimeListType>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp,
-							DbAnimeUpdateAction, cancellationToken),
+																						 DbAnimeUpdateAction, cancellationToken),
 					true when dbUser.LastAnimeUpdateHash.Substring(" ", false) != user.LatestAnimeUpdate!.Hash.inProfileHash => await
 						CheckProfileListUpdatesAsync<AnimeListEntry, AnimeListType>(dbUser, user, user!.LatestAnimeUpdate.Id,
-							dbUser.LastUpdatedAnimeListTimestamp, DbAnimeUpdateAction, cancellationToken),
+																					dbUser.LastUpdatedAnimeListTimestamp, DbAnimeUpdateAction,
+																					cancellationToken),
 					_ => Array.Empty<DiscordEmbedBuilder>()
-				};
+				} : Array.Empty<DiscordEmbedBuilder>();
 
-				var mangaListUpdates = user.HasPublicMangaUpdates switch
+				var mangaListUpdates = dbUser.Features.HasFlag(MalUserFeatures.MangaList) ? user.HasPublicMangaUpdates switch
 				{
 					true when dbUser.LastMangaUpdateHash.Substring(" ", true) != user.LatestMangaUpdate!.Hash.inRssHash => await
 						CheckRssListUpdates<MangaRssFeed, MangaListEntry, MangaListType>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp,
-							DbMangaUpdateAction, cancellationToken),
+																						 DbMangaUpdateAction, cancellationToken),
 					true when dbUser.LastMangaUpdateHash.Substring(" ", false) != user.LatestMangaUpdate!.Hash.inProfileHash => await
 						CheckProfileListUpdatesAsync<MangaListEntry, MangaListType>(dbUser, user, user!.LatestMangaUpdate.Id,
-							dbUser.LastUpdatedMangaListTimestamp, DbMangaUpdateAction, cancellationToken),
+																					dbUser.LastUpdatedMangaListTimestamp, DbMangaUpdateAction,
+																					cancellationToken),
 					_ => Array.Empty<DiscordEmbedBuilder>()
-				};
+				} : Array.Empty<DiscordEmbedBuilder>();
 
 				var totalUpdates = favoritesUpdates.Concat(animeListUpdates).Concat(mangaListUpdates)
 												   .OrderBy(b => b.Timestamp ?? DateTimeOffset.MinValue).ToArray();
@@ -197,7 +203,8 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				await db.Entry(dbUser).Reference(u => u.DiscordUser).LoadAsync(cancellationToken);
 				await db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).LoadAsync(cancellationToken);
 				totalUpdates.ForEach(b =>
-					b.WithMalUpdateProviderFooter().AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), true));
+										 b.WithMalUpdateProviderFooter()
+										  .AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), true));
 				if (cancellationToken.IsCancellationRequested)
 				{
 					this.Logger.LogInformation("Ended checking updates for {@Username} because it was canceled", dbUser.Username);
@@ -235,7 +242,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				}
 
 				this.Logger.LogTrace("Found {@AddedCount} new favorites, {@RemovedCount} removed favorites of type {@Type} of {@Username}",
-					addedValues.Count, removedValues.Count, typeof(TWf), dbUser.Username);
+									 addedValues.Count, removedValues.Count, typeof(TWf), dbUser.Username);
 
 				var result = new List<DiscordEmbedBuilder>(addedValues.Count + removedValues.Count);
 

@@ -80,7 +80,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					"Current server is not in database, ask server administrator to add this server to bot");
 
 			var duser = await db.DiscordUsers.FirstOrDefaultAsync(user => user.DiscordUserId == userId);
-			var mUser = await this._client.GetUserAsync(username);
+			var mUser = await this._client.GetUserAsync(username, MalUserFeatures.Default.ToParserOptions());
 			var now = DateTimeOffset.Now;
 			dbUser = new()
 			{
