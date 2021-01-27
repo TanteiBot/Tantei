@@ -19,7 +19,9 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -70,8 +72,11 @@ namespace PaperMalKing.Services
 			this.CommandsExtension.CommandExecuted += this.CommandsExtensionOnCommandExecuted;
 
 			var assemblies = Utils.LoadAndListPmkAssemblies();
+			Dictionary<Guid, Type> nestedTypesNotToRegister = new ();
+
 			foreach (var assembly in assemblies.Where(a => a.FullName?.Contains("PaperMalKing", StringComparison.InvariantCultureIgnoreCase) ?? true))
 			{
+				nestedTypesNotToRegister.Clear();
 				this._logger.LogTrace("Found {Assembly} which may contain Commands modules", assembly);
 				foreach (var type in assembly.GetExportedTypes()
 											 .Where(t => t.FullName!.EndsWith("Commands", StringComparison.InvariantCultureIgnoreCase)))
@@ -79,11 +84,19 @@ namespace PaperMalKing.Services
 					this._logger.LogTrace("Trying to register {@Type} command module", type);
 					try
 					{
+						if(nestedTypesNotToRegister.TryGetValue(type.GUID, out _))
+							continue;
+						var nestedTypes = type.GetNestedTypes(BindingFlags.Public)
+											  .Where(t => t.FullName.EndsWith("Commands", StringComparison.InvariantCultureIgnoreCase));
+						if (nestedTypes.Any())
+							foreach (var nestedType in nestedTypes)
+								nestedTypesNotToRegister.Add(nestedType.GUID, nestedType);
+						
 						this.CommandsExtension.RegisterCommands(type);
 					}
 					catch (Exception ex)
 					{
-						this._logger.LogError(ex, $"Error occured while trying to register {type.FullName}");
+						this._logger.LogError(ex, "Error occured while trying to register {FullName}", type.FullName);
 					}
 
 					this._logger.LogDebug("Successfully registered {@Type}", type);
