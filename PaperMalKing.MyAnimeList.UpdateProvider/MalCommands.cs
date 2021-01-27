@@ -52,7 +52,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 		[Command("list")]
 		[Aliases("l")]
-		[Description("List accounts of all tracked user's on MyAnimeList")]
+		[Description("List accounts of all tracked user's on MyAnimeList in this server")]
 		public override Task ListUsersCommand(CommandContext ctx) => base.ListUsersCommand(ctx);
 
 		[Command("removehere")]
@@ -61,7 +61,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		public override Task RemoveUserHereCommand(CommandContext ctx) => base.RemoveUserHereCommand(ctx);
 
 		[Group("features")]
-		[Description("Manage your enabled features for updates from MyAnimeList.net")]
+		[Description("Manage your features for updates send from MyAnimeList.net")]
 		[ModuleLifespan(ModuleLifespan.Singleton)]
 		public sealed class MalUserFeaturesCommands : BaseUserFeaturesCommandsModule<MalUserFeatures>
 		{
@@ -86,7 +86,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 			[Command("list")]
 			[Aliases("all")]
-			[Description("Show all features that are available for MyAnimeList.net")]
+			[Description("Show all features that are available for updates from MyAnimeList.net")]
 			public override Task ListFeaturesCommand(CommandContext context) => base.ListFeaturesCommand(context);
 		}
 	}

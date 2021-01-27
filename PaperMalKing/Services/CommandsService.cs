@@ -87,7 +87,7 @@ namespace PaperMalKing.Services
 						if(nestedTypesNotToRegister.TryGetValue(type.GUID, out _))
 							continue;
 						var nestedTypes = type.GetNestedTypes(BindingFlags.Public)
-											  .Where(t => t.FullName.EndsWith("Commands", StringComparison.InvariantCultureIgnoreCase));
+											  .Where(t => t.FullName!.EndsWith("Commands", StringComparison.InvariantCultureIgnoreCase));
 						if (nestedTypes.Any())
 							foreach (var nestedType in nestedTypes)
 								nestedTypesNotToRegister.Add(nestedType.GUID, nestedType);

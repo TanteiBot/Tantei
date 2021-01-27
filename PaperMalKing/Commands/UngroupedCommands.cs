@@ -106,6 +106,7 @@ namespace PaperMalKing.Commands
 
 		[Command("DeleteMessages")]
 		[Aliases("dmsg", "rm", "rmm")]
+		[Description("Delete messages by their id")]
 		[RequireOwner]
 		public async Task DeleteMessagesCommand(CommandContext context, [RemainingText, Description("Messages Id's")]
 												params ulong[] messages)
