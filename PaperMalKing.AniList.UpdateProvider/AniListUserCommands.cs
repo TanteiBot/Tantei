@@ -47,7 +47,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 
         [Command("list")]
         [Aliases("l")]
-        [Description("List accounts of all tracked users on AniList")]
+        [Description("List accounts of all tracked users on AniList in this server")]
         public override Task ListUsersCommand(CommandContext ctx) => base.ListUsersCommand(ctx);
 
         [Command("removehere")]

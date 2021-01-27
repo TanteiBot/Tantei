@@ -46,7 +46,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 
         [Command("list")]
         [Aliases("l")]
-        [Description("List accounts of all tracked user's on Shikimori")]
+        [Description("List accounts of all tracked user's on Shikimori in this server")]
         public override Task ListUsersCommand(CommandContext ctx) => base.ListUsersCommand(ctx);
 
         [Command("removehere")]
