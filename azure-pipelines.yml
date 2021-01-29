@@ -39,7 +39,7 @@ jobs:
           zipAfterPublish: True
 
       - task: UniversalPackages@0
-        condition: not(eq(variables['build.reason'], 'PullRequest')))
+        condition: not(eq(variables['build.reason'], 'PullRequest'))
         inputs:
           command: 'publish'
           publishDirectory: '$(Build.ArtifactStagingDirectory)'
