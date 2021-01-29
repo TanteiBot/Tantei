@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,22 +15,15 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
-using System.Collections.Concurrent;
-using System.Net.Http;
-
-namespace PaperMalKing.Shikimori.Wrapper
+namespace PaperMalKing.Shikimori.Wrapper.Models
 {
-	internal static class ContentCaching
+	internal enum HistoryRequestOptions : byte
 	{
-		public static readonly MultipartFormDataContent UserCachedContent = new()
-		{
-			{new StringContent("1"), "is_nickname"}
-		};
-
-		public static readonly ConcurrentDictionary<(uint, byte), MultipartFormDataContent> UserHistoryCachedContent = new();
-
-		public static readonly ConcurrentDictionary<(uint, string), MultipartFormDataContent> UserListContent = new();
+		Anime = 0,
+		Manga = 1,
+		Any = 2
 	}
 }
