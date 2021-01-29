@@ -130,7 +130,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 			await foreach (var dbUser in db.MalUsers.Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas).Include(u => u.FavoriteCharacters)
 										   .Include(u => u.FavoritePeople)
-										   .Where(user => user.DiscordUser.Guilds.Any() ||
+										   .Where(user => user.DiscordUser.Guilds.Any()).Where(user =>
 														  // Is bitwise to allow executing on server
 														  (user.Features & MalUserFeatures.AnimeList) != 0 ||
 														  (user.Features & MalUserFeatures.MangaList) != 0 ||
