@@ -198,7 +198,7 @@ namespace PaperMalKing.AniList.UpdateProvider
             if (episodes == 0 && chapters == 0 && volumes == 0) return eb;
             var fieldVal = new List<string>(3);
             if (episodes != 0) fieldVal.Add($"{episodes.ToString()} ep.");
-            if (chapters != 0) fieldVal.Add($"{chapters.ToString()} ch");
+            if (chapters != 0) fieldVal.Add($"{chapters.ToString()} ch. ");
             if (volumes != 0) fieldVal.Add($"{volumes.ToString()} v.");
             if (fieldVal.Count != 0)
                 eb.AddField("Total", string.Join(',', fieldVal), true);

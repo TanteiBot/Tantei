@@ -144,7 +144,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 
 			if (firstTarget.Chapters.HasValue && firstTarget.Chapters != 0)
 			{
-				eb.AddField("Total", $"{firstTarget.Chapters.Value.ToString()} ch, {firstTarget.Volumes!.Value.ToString()} v.", true);
+				eb.AddField("Total", $"{firstTarget.Chapters.Value.ToString()} ch. {firstTarget.Volumes!.Value.ToString()} v.", true);
 			}
 			else if (firstTarget.Episodes.HasValue)
 			{
