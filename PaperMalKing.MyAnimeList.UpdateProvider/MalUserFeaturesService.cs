@@ -33,6 +33,7 @@ using PaperMalKing.Database;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
+using PaperMalKing.UpdatesProviders.Base.Exceptions;
 using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.UpdatesProviders.MyAnimeList
@@ -79,6 +80,8 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 								 .Include(u => u.FavoriteCharacters)
 								 .Include(u => u.FavoritePeople)
 								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId);
+			if (dbUser == null)
+				throw new UserFeaturesException("You must register first before enabling features");
 			var total = features.Aggregate((acc, next) => acc | next);
 			User? user = null;
 			dbUser.Features |= total;
@@ -129,6 +132,9 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 								 .Include(u => u.FavoriteCharacters)
 								 .Include(u => u.FavoritePeople)
 								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId);
+			if (dbUser == null)
+				throw new UserFeaturesException("You must register first before disabling features");
+
 			var total = features.Aggregate((acc, next) => acc | next);
 
 			dbUser.Features &= ~total;
@@ -140,7 +146,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				dbUser.FavoritePeople.Clear();
 			}
 
-			db.Update(dbUser);
+			db.MalUsers.Update(dbUser);
 			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
 		}
 
@@ -148,7 +154,11 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.MalUsers.Include(mu => mu.DiscordUser).FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId);
+			var dbUser = await db.MalUsers.Include(mu => mu.DiscordUser).AsNoTrackingWithIdentityResolution()
+								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId);
+			if (dbUser == null)
+				throw new UserFeaturesException("You must register first before checking for enabled features");
+
 			return dbUser.Features.Humanize();
 		}
 	}

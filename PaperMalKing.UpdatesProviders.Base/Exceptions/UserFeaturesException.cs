@@ -22,10 +22,8 @@ using System;
 
 namespace PaperMalKing.UpdatesProviders.Base.Exceptions
 {
-    public sealed class UserFeaturesException<T> : Exception where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
+    public sealed class UserFeaturesException : Exception
     {
-        public T Feature { get; }
-
-        public UserFeaturesException(T feature, string message) : base(message) => this.Feature = feature;
+        public UserFeaturesException(string message) : base(message) {}
     }
 }

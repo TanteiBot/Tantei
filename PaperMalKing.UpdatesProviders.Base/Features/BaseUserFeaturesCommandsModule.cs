@@ -51,8 +51,8 @@ namespace PaperMalKing.UpdatesProviders.Base.Features
 			}
 			catch (Exception ex)
 			{
-				var embed = ex is UserFeaturesException<T> ufe
-					? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed enabling {ufe.Feature.ToString().ToLowerInvariant()}")
+				var embed = ex is UserFeaturesException ufe
+					? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed enabling {features.Humanize().ToLowerInvariant()}")
 					: EmbedTemplate.UnknownErrorEmbed(context);
 				await context.RespondAsync(embed: embed.Build());
 				this.Logger.LogError(ex, "Failed to enable {Features} for {Username}", features, context.Member.DisplayName);
@@ -75,8 +75,8 @@ namespace PaperMalKing.UpdatesProviders.Base.Features
 			}
 			catch (Exception ex)
 			{
-				var embed = ex is UserFeaturesException<T> ufe
-					? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed disabling {ufe.Feature.ToString().ToLowerInvariant()}")
+				var embed = ex is UserFeaturesException ufe
+					? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed disabling {features.Humanize().ToLowerInvariant()}")
 					: EmbedTemplate.UnknownErrorEmbed(context);
 				await context.RespondAsync(embed: embed.Build());
 				this.Logger.LogError(ex, "Failed to disable {Features} for {Username}", features, context.Member.DisplayName);
