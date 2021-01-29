@@ -18,26 +18,35 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System;
+using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Database.Models.Shikimori
 {
-	public sealed class ShikiUser
+	[Flags]
+	public enum ShikiUserFeatures : ulong
 	{
-		[Key]
-		[DatabaseGenerated(DatabaseGeneratedOption.None)]
-		public ulong Id { get; init; }
+		None = 0,
 
-		public ulong LastHistoryEntryId { get; set; }
+		[FeatureDescription("animelist", "track changes in animelist")]
+		AnimeList = 1,
 
-		public ulong DiscordUserId { get; init; }
+		[FeatureDescription("mangalist", "track changes in mangalist")]
+		MangaList = 1 << 1,
 
-		public ShikiUserFeatures Features { get; set; }
+		[FeatureDescription("favorites", "track changes in favorites")]
+		Favorites = 1 << 2,
 
-		public DiscordUser DiscordUser { get; init; } = null!;
+		[FeatureDescription("mention", "mention user in update")]
+		Mention = 1 << 3,
 
-		public List<ShikiFavourite> Favourites { get; init; } = null!;
+		[FeatureDescription("website", "show name and icon of website in update")]
+		Website = 1 << 4,
+
+		[FeatureDescription("mediaformat", "show format of media in update (tv, movie, manga etc)")]
+		MediaFormat = 1 << 5,
+
+		[FeatureDescription("mediastatus", "show status of media in update (ongoing, finished etc)")]
+		MediaStatus = 1 << 6
 	}
 }
