@@ -1,40 +1,51 @@
 trigger:
-- master
-- rewrite-v2
+  - master
+  - rewrite-v2
 
 pr:
-- master
-- rewrite-v2
+  - master
+  - rewrite-v2
 
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
   buildConfiguration: 'Release'
-  publishPath: './bin/Release/publish'
 
-steps:
-- task: UseDotNet@2
-  displayName: 'Install sdk'
-  inputs:
-    packageType: 'sdk'
-    version: '5.x'
+jobs:
+  - job: Build
+    steps:
+      - task: UseDotNet@2
+        displayName: 'Install sdk'
+        inputs:
+          packageType: 'sdk'
+          version: '5.x'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Build solution'
-  inputs:
-    command: 'build'
-    projects: '**/PaperMalKing.sln'
-    arguments: '--configuration $(buildConfiguration)'
+      - task: DotNetCoreCLI@2
+        displayName: 'Build solution'
+        inputs:
+          command: 'build'
+          projects: '**/PaperMalKing.sln'
+          arguments: '--configuration $(buildConfiguration)'
 
-- task: DotNetCoreCLI@2
-  inputs:
-    command: publish
-    publishWebProjects: false
-    arguments: '--configuration $(BuildConfiguration) --output $(publishPath)'
-    zipAfterPublish: True
+  - job: Publish
+    steps:
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: publish
+          publishWebProjects: false
+          projects: '**/PaperMalKing.csproj'
+          arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+          zipAfterPublish: True
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: '$(publishPath)' 
-    artifactName: 'PaperMalKing'
+      - task: UniversalPackages@0
+        condition: not(eq(variables['build.reason'], 'PullRequest')))
+        inputs:
+          command: 'publish'
+          publishDirectory: '$(Build.ArtifactStagingDirectory)'
+          feedsToUsePublish: 'internal'
+          vstsFeedPublish: 'd475bf4a-404e-4e0c-a66c-880218a5120e/7b760514-455d-4029-90ec-fb23714e4b6a'
+          publishPackageMetadata: false
+          vstsFeedPackagePublish: 'PaperMalKing'
+          versionOption: 'custom'
+          versionPublish: '2.0.0-alpha-$(Build.BuildNumber)-$(Build.SourceVersion)'
