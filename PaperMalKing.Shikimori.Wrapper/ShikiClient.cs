@@ -78,7 +78,7 @@ namespace PaperMalKing.Shikimori.Wrapper
 				{new StringContent(page.ToString()), "page"},
 				{new StringContent(limit.ToString()), "limit"}
 			};
-			if (options != HistoryRequestOptions.Any) content.Add(new StringContent(options.ToString()));
+			if (options != HistoryRequestOptions.Any) content.Add(new StringContent(options.ToString()), "target_type");
 			
 			var rm = new HttpRequestMessage(HttpMethod.Get, url)
 			{

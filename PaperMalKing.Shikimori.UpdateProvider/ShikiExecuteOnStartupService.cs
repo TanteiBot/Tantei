@@ -16,21 +16,27 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System.Collections.Generic;
-using DSharpPlus.Entities;
+using System.Threading;
+using System.Threading.Tasks;
+using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.UpdatesProviders.Base;
+using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.Shikimori.UpdateProvider
 {
-	internal sealed class ShikiUpdate : IUpdate
+	public sealed class ShikiExecuteOnStartupService : IExecuteOnStartupService
 	{
-		/// <inheritdoc />
-		public IReadOnlyList<DiscordEmbedBuilder> UpdateEmbeds { get; }
+		private readonly ICommandsService _commandsService;
 
-		public ShikiUpdate(List<DiscordEmbedBuilder> updateEmbeds)
+		public ShikiExecuteOnStartupService(ICommandsService commandsService)
 		{
-			updateEmbeds.ForEach(deb => deb.WithFooter("Shikimori", Constants.ICON_URL));
-			this.UpdateEmbeds = updateEmbeds;
+			this._commandsService = commandsService;
+		}
+
+		public Task ExecuteAsync(CancellationToken cancellationToken = default)
+		{
+			this._commandsService.CommandsExtension.RegisterConverter(new FeatureArgumentConverter<ShikiUserFeatures>());
+			return Task.CompletedTask;
 		}
 	}
 }

@@ -37,13 +37,13 @@ namespace PaperMalKing.Database
 		}
 
 		public static MalUserFeatures GetDefault(this MalUserFeatures _) => MalUserFeatures.AnimeList | MalUserFeatures.MangaList   |
-																				   MalUserFeatures.Favorites | MalUserFeatures.Mention     |
-																				   MalUserFeatures.Website   | MalUserFeatures.MediaFormat |
-																				   MalUserFeatures.MediaStatus;
+																			MalUserFeatures.Favorites | MalUserFeatures.Mention     |
+																			MalUserFeatures.Website   | MalUserFeatures.MediaFormat |
+																			MalUserFeatures.MediaStatus;
 
-		public static ShikiUserFeatures GetDefault(this ShikiUserFeatures _) => ShikiUserFeatures.AnimeList | ShikiUserFeatures.MangaList   |
-																					   ShikiUserFeatures.Favorites | ShikiUserFeatures.Mention     |
-																					   ShikiUserFeatures.Website   | ShikiUserFeatures.MediaFormat |
-																					   ShikiUserFeatures.MediaStatus;
+		public static ShikiUserFeatures GetDefault(this ShikiUserFeatures _) => ShikiUserFeatures.AnimeList  | ShikiUserFeatures.MangaList   |
+																				ShikiUserFeatures.Favourites | ShikiUserFeatures.Mention     |
+																				ShikiUserFeatures.Website    | ShikiUserFeatures.MediaFormat |
+																				ShikiUserFeatures.MediaStatus;
 	}
 }

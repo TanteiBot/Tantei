@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -47,7 +49,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		/// <inheritdoc />
 		public ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptions<ShikiOptions> options, ShikiClient client,
 								   IServiceProvider serviceProvider) : base(logger,
-			TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
+																			TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 		{
 			this._options = options;
 			this._client = client;
@@ -67,11 +69,20 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
 			await foreach (var dbUser in db.ShikiUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds).Include(u => u.Favourites)
-										   .Where(u => u.DiscordUser.Guilds.Any()).AsAsyncEnumerable().WithCancellation(cancellationToken))
+										   .Where(u => u.DiscordUser.Guilds.Any()).Where(u => (u.Features & ShikiUserFeatures.AnimeList) != 0 ||
+																							  (u.Features & ShikiUserFeatures.MangaList) != 0 ||
+																							  (u.Features & ShikiUserFeatures.Favourites) != 0)
+										   .AsAsyncEnumerable().WithCancellation(cancellationToken))
 			{
 				var totalUpdates = new List<DiscordEmbedBuilder>();
-				var historyUpdates = await this._client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, cancellationToken);
-				var favs = await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken);
+				var historyUpdates =
+					await this._client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken);
+				var favs = dbUser.Features switch
+				{
+					_ when dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) =>
+						await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken),
+					_ => Favourites.Empty
+				};
 				var cfavs = dbUser.Favourites.Select(f => new Favourites.FavouriteEntry
 				{
 					Id = f.Id,
@@ -98,10 +109,13 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				totalUpdates.AddRange(addedValues.Select(af => af.ToDiscordEmbed(user, true)));
 				var groupedHistoryEntries = historyUpdates.GroupSimilarHistoryEntries();
 				foreach (var group in groupedHistoryEntries)
-					totalUpdates.Add(group.ToDiscordEmbed(user));
-				var lastHistoryEntry = historyUpdates.MaxBy(h => h.Id);
-				if (lastHistoryEntry != null)
-					dbUser.LastHistoryEntryId = lastHistoryEntry.Id;
+					totalUpdates.Add(group.ToDiscordEmbed(user, dbUser.Features));
+				if (historyUpdates.Any())
+				{
+					var lastHistoryEntryId = historyUpdates.Max(h => h.Id);
+					dbUser.LastHistoryEntryId = lastHistoryEntryId;
+				}
+
 
 				if (cancellationToken.IsCancellationRequested)
 				{
@@ -110,8 +124,12 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					continue;
 				}
 
-				totalUpdates.ForEach(deb => deb.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
-				await this.UpdateFoundEvent?.Invoke(new(new ShikiUpdate(totalUpdates), this, dbUser.DiscordUser))!;
+				if((dbUser.Features & ShikiUserFeatures.Mention) != 0)
+					totalUpdates.ForEach(deb => deb.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
+
+				if ((dbUser.Features & ShikiUserFeatures.Website) != 0)
+					totalUpdates.ForEach(deb => deb.WithShikiUpdateProviderFooter());
+				await this.UpdateFoundEvent?.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser))!;
 				db.ShikiUsers.Update(dbUser);
 				await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
 				this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);

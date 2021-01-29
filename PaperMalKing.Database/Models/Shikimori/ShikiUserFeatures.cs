@@ -35,7 +35,7 @@ namespace PaperMalKing.Database.Models.Shikimori
 		MangaList = 1 << 1,
 
 		[FeatureDescription("favorites", "track changes in favorites")]
-		Favorites = 1 << 2,
+		Favourites = 1 << 2,
 
 		[FeatureDescription("mention", "mention user in update")]
 		Mention = 1 << 3,

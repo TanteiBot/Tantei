@@ -27,6 +27,7 @@ using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.Shikimori.Wrapper;
+using PaperMalKing.Shikimori.Wrapper.Models;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
@@ -78,7 +79,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					"Current server is not in database, ask server administrator to add this server to bot");
 			var dUser = await db.DiscordUsers.FirstOrDefaultAsync(du => du.DiscordUserId == userId);
 			var shikiUser = await this._client.GetUserAsync(username);
-			var history = await this._client.GetUserHistoryAsync(shikiUser.Id, 1, 1);
+			var history = await this._client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any);
 			var favourites = await this._client.GetUserFavouritesAsync(shikiUser.Id);
 			dbUser = new()
 			{
@@ -90,6 +91,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					// User = dbUser
 				}).ToList(),
 				Id = shikiUser.Id,
+				Features = ShikiUserFeatures.None.GetDefault(),
 				DiscordUser = dUser ?? new()
 				{
 					BotUser = new(),

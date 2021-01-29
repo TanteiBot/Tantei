@@ -38,6 +38,6 @@ namespace PaperMalKing.Database.Models.Shikimori
 
 		public DiscordUser DiscordUser { get; init; } = null!;
 
-		public List<ShikiFavourite> Favourites { get; init; } = null!;
+		public List<ShikiFavourite> Favourites { get; set; } = null!;
 	}
 }
