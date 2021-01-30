@@ -73,7 +73,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.ShikiUsers.Include(su => su.DiscordUser).Include(su => su.Favourites)
+			var dbUser = await db.ShikiUsers.Include(su => su.Favourites)
 								 .FirstOrDefaultAsync(su => su.DiscordUserId == userId);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before enabling features");
@@ -119,8 +119,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.ShikiUsers.Include(su => su.DiscordUser).Include(su => su.Favourites)
-								 .FirstOrDefaultAsync(su => su.DiscordUserId == userId);
+			var dbUser = await db.ShikiUsers.Include(su => su.Favourites).FirstOrDefaultAsync(su => su.DiscordUserId == userId);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before disabling features");
 			
@@ -138,7 +137,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.ShikiUsers.Include(su => su.DiscordUser).AsNoTrackingWithIdentityResolution()
+			var dbUser = await db.ShikiUsers.AsNoTrackingWithIdentityResolution()
 								 .FirstOrDefaultAsync(su => su.DiscordUserId == userId);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before checking for enabled features");
