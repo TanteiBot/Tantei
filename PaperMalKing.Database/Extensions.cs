@@ -21,6 +21,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.Database.Models.Shikimori;
 
@@ -45,5 +46,10 @@ namespace PaperMalKing.Database
 																				ShikiUserFeatures.Favourites | ShikiUserFeatures.Mention     |
 																				ShikiUserFeatures.Website    | ShikiUserFeatures.MediaFormat |
 																				ShikiUserFeatures.MediaStatus;
+
+		public static AniListUserFeatures GetDefault(this AniListUserFeatures _) => AniListUserFeatures.AnimeList  | AniListUserFeatures.MangaList   |
+																					AniListUserFeatures.Favourites | AniListUserFeatures.Mention     |
+																					AniListUserFeatures.Website    | AniListUserFeatures.MediaFormat |
+																					AniListUserFeatures.MediaStatus;
 	}
 }

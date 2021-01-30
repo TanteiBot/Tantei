@@ -142,6 +142,8 @@ namespace PaperMalKing.Database
 			});
 
 			modelBuilder.Entity<AniListUser>().HasKey(k => k.Id);
+
+			modelBuilder.Entity<AniListUser>().Property(u => u.Features).HasDefaultValue((AniListUserFeatures) 127ul);
 			modelBuilder.Entity<AniListFavourite>().HasKey(k => new
 			{
 				k.Id,

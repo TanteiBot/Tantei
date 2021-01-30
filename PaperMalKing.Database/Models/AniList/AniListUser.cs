@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System.Collections.Generic;
@@ -22,20 +24,22 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PaperMalKing.Database.Models.AniList
 {
-    public sealed class AniListUser
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public ulong Id { get; init; }
-        
-        public long LastActivityTimestamp { get; set; }
-        
-        public long LastReviewTimestamp { get; set; }
-        
-        public ulong DiscordUserId { get; init; }
+	public sealed class AniListUser
+	{
+		[Key]
+		[DatabaseGenerated(DatabaseGeneratedOption.None)]
+		public ulong Id { get; init; }
 
-        public DiscordUser DiscordUser { get; init; } = null!;
+		public long LastActivityTimestamp { get; set; }
 
-        public List<AniListFavourite> Favourites { get; init; } = null!;
-    }
+		public long LastReviewTimestamp { get; set; }
+
+		public ulong DiscordUserId { get; init; }
+
+		public AniListUserFeatures Features { get; set; }
+
+		public DiscordUser DiscordUser { get; init; } = null!;
+
+		public List<AniListFavourite> Favourites { get; init; } = null!;
+	}
 }
