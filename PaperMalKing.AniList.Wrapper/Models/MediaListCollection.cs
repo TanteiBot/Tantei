@@ -26,6 +26,8 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("lists")]
         public MediaListGroup[] Lists { get; init; } = Array.Empty<MediaListGroup>();
 
+        public static readonly MediaListCollection Empty = new ();
+
         public sealed class MediaListGroup
         {
             public MediaListEntry[] Entries { get; init; } = Array.Empty<MediaListEntry>();

@@ -26,6 +26,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper;
+using PaperMalKing.Database.Models.AniList;
+using PaperMalKing.UpdatesProviders.Base;
+using PaperMalKing.UpdatesProviders.Base.Features;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.AniList.UpdateProvider
@@ -68,6 +71,8 @@ namespace PaperMalKing.AniList.UpdateProvider
 
                 return new(gqlc, logger);
             });
+            serviceCollection.AddSingleton<IExecuteOnStartupService, AniListExecuteOnStartupService>();
+            serviceCollection.AddSingleton<IUserFeaturesService<AniListUserFeatures>, AniListUserFeaturesService>();
             serviceCollection.AddSingleton<AniListUserService>();
             serviceCollection.AddSingleton<IUpdateProvider, AniListUpdateProvider>();
         }

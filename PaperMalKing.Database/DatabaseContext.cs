@@ -105,6 +105,9 @@ namespace PaperMalKing.Database
 
 			base.OnModelCreating(modelBuilder);
 
+			// Constant value because default in app can be changed anytime
+			modelBuilder.Entity<MalUser>().Property(mu => mu.Features).HasDefaultValue((MalUserFeatures) 127ul); 
+
 			modelBuilder.Entity<MalFavoriteAnime>().HasKey(k => new
 			{
 				k.Id,
@@ -128,6 +131,9 @@ namespace PaperMalKing.Database
 
 			modelBuilder.Entity<ShikiUser>().HasKey(k => k.Id);
 
+			modelBuilder.Entity<ShikiUser>().Property(u => u.Features)
+						.HasDefaultValue((ShikiUserFeatures) 127ul); // Constant value because default in app can be changed anytime
+
 			modelBuilder.Entity<ShikiFavourite>().HasKey(k => new
 			{
 				k.Id,
@@ -136,6 +142,8 @@ namespace PaperMalKing.Database
 			});
 
 			modelBuilder.Entity<AniListUser>().HasKey(k => k.Id);
+
+			modelBuilder.Entity<AniListUser>().Property(u => u.Features).HasDefaultValue((AniListUserFeatures) 127ul);
 			modelBuilder.Entity<AniListFavourite>().HasKey(k => new
 			{
 				k.Id,

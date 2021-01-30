@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,22 +15,30 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
-using System.Collections.Concurrent;
-using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using PaperMalKing.Database.Models.AniList;
+using PaperMalKing.UpdatesProviders.Base;
+using PaperMalKing.UpdatesProviders.Base.Features;
 
-namespace PaperMalKing.Shikimori.Wrapper
+namespace PaperMalKing.AniList.UpdateProvider
 {
-	internal static class ContentCaching
+	public sealed class AniListExecuteOnStartupService : IExecuteOnStartupService
 	{
-		public static readonly MultipartFormDataContent UserCachedContent = new()
+		private readonly ICommandsService _commandsService;
+
+		public AniListExecuteOnStartupService(ICommandsService commandsService)
 		{
-			{new StringContent("1"), "is_nickname"}
-		};
+			this._commandsService = commandsService;
+		}
 
-		public static readonly ConcurrentDictionary<(uint, byte), MultipartFormDataContent> UserHistoryCachedContent = new();
-
-		public static readonly ConcurrentDictionary<(uint, string), MultipartFormDataContent> UserListContent = new();
+		public Task ExecuteAsync(CancellationToken cancellationToken = default)
+		{
+			this._commandsService.CommandsExtension.RegisterConverter(new FeatureArgumentConverter<AniListUserFeatures>());
+			return Task.CompletedTask;
+		}
 	}
 }

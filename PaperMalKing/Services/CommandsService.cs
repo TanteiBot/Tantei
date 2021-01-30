@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,10 +15,13 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -25,15 +29,16 @@ using DSharpPlus.CommandsNext.Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Options;
+using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.Utilities;
 
 namespace PaperMalKing.Services
 {
-	public sealed class CommandsService
+	public sealed class CommandsService : ICommandsService
 	{
 		private readonly ILogger<CommandsService> _logger;
 		private readonly CommandsOptions _options;
-		public readonly CommandsNextExtension CommandsExtension;
+		public CommandsNextExtension CommandsExtension { get; }
 
 		public CommandsService(IOptions<CommandsOptions> options, IServiceProvider provider, DiscordClient client, ILogger<CommandsService> logger)
 		{
@@ -67,8 +72,11 @@ namespace PaperMalKing.Services
 			this.CommandsExtension.CommandExecuted += this.CommandsExtensionOnCommandExecuted;
 
 			var assemblies = Utils.LoadAndListPmkAssemblies();
+			Dictionary<Guid, Type> nestedTypesNotToRegister = new ();
+
 			foreach (var assembly in assemblies.Where(a => a.FullName?.Contains("PaperMalKing", StringComparison.InvariantCultureIgnoreCase) ?? true))
 			{
+				nestedTypesNotToRegister.Clear();
 				this._logger.LogTrace("Found {Assembly} which may contain Commands modules", assembly);
 				foreach (var type in assembly.GetExportedTypes()
 											 .Where(t => t.FullName!.EndsWith("Commands", StringComparison.InvariantCultureIgnoreCase)))
@@ -76,11 +84,19 @@ namespace PaperMalKing.Services
 					this._logger.LogTrace("Trying to register {@Type} command module", type);
 					try
 					{
+						if(nestedTypesNotToRegister.TryGetValue(type.GUID, out _))
+							continue;
+						var nestedTypes = type.GetNestedTypes(BindingFlags.Public)
+											  .Where(t => t.FullName!.EndsWith("Commands", StringComparison.InvariantCultureIgnoreCase));
+						if (nestedTypes.Any())
+							foreach (var nestedType in nestedTypes)
+								nestedTypesNotToRegister.Add(nestedType.GUID, nestedType);
+						
 						this.CommandsExtension.RegisterCommands(type);
 					}
 					catch (Exception ex)
 					{
-						this._logger.LogError(ex, $"Error occured while trying to register {type.FullName}");
+						this._logger.LogError(ex, "Error occured while trying to register {FullName}", type.FullName);
 					}
 
 					this._logger.LogDebug("Successfully registered {@Type}", type);
@@ -107,7 +123,7 @@ namespace PaperMalKing.Services
 				return Task.CompletedTask;
 			}
 			this._logger.LogError(e.Exception,
-				"{Command} errored with exception while trying to be executed by {Member}", e.Command, e.Context.Member);
+								  "{Command} errored with exception while trying to be executed by {Member}", e.Command, e.Context.Member);
 			return Task.CompletedTask;
 		}
 	}

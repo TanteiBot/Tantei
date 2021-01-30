@@ -16,15 +16,12 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
+using DSharpPlus.CommandsNext;
 
-namespace PaperMalKing.UpdatesProviders.Base.Features
+namespace PaperMalKing.UpdatesProviders.Base
 {
-	[AttributeUsage(AttributeTargets.Field)]
-	public sealed class FeatureReadableNameAttribute : Attribute
+	public interface ICommandsService
 	{
-		public readonly string Name;
-
-		public FeatureReadableNameAttribute(string name) => this.Name = name.ToLowerInvariant();
+		CommandsNextExtension CommandsExtension { get; }
 	}
 }

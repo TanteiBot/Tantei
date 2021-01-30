@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
+using System;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models
@@ -27,5 +28,11 @@ namespace PaperMalKing.AniList.Wrapper.Models
 
         [JsonPropertyName("values")]
         public T[] Nodes { get; init; } = null!;
+
+        public static readonly Connection<T> Empty = new()
+        {
+            PageInfo = new() {HasNextPage = false},
+            Nodes = Array.Empty<T>()
+        };
     }
 }

@@ -19,6 +19,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -35,6 +36,8 @@ namespace PaperMalKing.Commands
 	public sealed class UngroupedCommands : BaseCommandModule
 	{
 		private readonly UpdateProvidersConfigurationService _providersConfigurationService;
+
+		private DiscordEmbed? AboutEmbed;
 
 		/// <inheritdoc />
 		public UngroupedCommands(UpdateProvidersConfigurationService providersConfigurationService)
@@ -72,35 +75,38 @@ namespace PaperMalKing.Commands
 		[Aliases("Info")]
 		public async Task AboutCommand(CommandContext context)
 		{
-			var botVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "";
-			var netCoreVersion = Environment.Version.ToString(3);
-
-			const string desc =
-				"Paper Mal King is bot designed to automatically track  its users updates on MyAnimeList.\nDeveloped by N0D4N#2281 (<@356518417987141633>).";
-
-			var versions = $"Bot version - {botVersion}." + "\n" + $"DSharpPlus version - {context.Client.VersionString}." + "\n" +
-						   $".NET Core version - {netCoreVersion}.";
-
-			const string sourceCodeLink = "https://github.com/N0D4N/PaperMalKing";
-			var links = Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)) + "\n" +
-						Formatter.MaskedUrl("Wiki", new Uri("https://github.com/N0D4N/PaperMalKing/wiki", UriKind.Absolute));
-
-			var embedBuilder = new DiscordEmbedBuilder
+			if (this.AboutEmbed == null)
 			{
-				Title = "Info",
-				Url = sourceCodeLink,
-				Description = desc,
-				Timestamp = DateTimeOffset.Now,
-				Color = DiscordColor.DarkBlue,
-			}.WithThumbnail(context.Client.CurrentUser.AvatarUrl);
-			embedBuilder.AddField("Links", links, true);
-			embedBuilder.AddField("Versions", versions, true);
+				var botVersion = $"{Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3)}-alpha" ?? "";
+				var netCoreVersion = Environment.Version.ToString(3);
 
-			await context.RespondAsync(embed: embedBuilder.Build());
+				const string desc =
+					"Paper Mal King is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.\nDeveloped by N0D4N#2281 (<@356518417987141633>).";
+
+				var versions = $"Bot version - {botVersion}." + "\n" + $"DSharpPlus version - {context.Client.VersionString}." + "\n" +
+							   $".NET version - {netCoreVersion}.";
+
+				const string sourceCodeLink = "https://github.com/N0D4N/PaperMalKing/tree/rewrite-v2";
+				var links = Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute));
+
+				var embedBuilder = new DiscordEmbedBuilder
+				{
+					Title = "Info",
+					Url = sourceCodeLink,
+					Description = desc,
+					Color = DiscordColor.DarkBlue,
+				}.WithThumbnail(context.Client.CurrentUser.AvatarUrl);
+				embedBuilder.AddField("Links", links, true);
+				embedBuilder.AddField("Versions", versions, true);
+				Interlocked.Exchange(ref this.AboutEmbed, embedBuilder.Build());
+			}
+
+			await context.RespondAsync(embed: this.AboutEmbed);
 		}
 
 		[Command("DeleteMessages")]
 		[Aliases("dmsg", "rm", "rmm")]
+		[Description("Delete messages by their id")]
 		[RequireOwner]
 		public async Task DeleteMessagesCommand(CommandContext context, [RemainingText, Description("Messages Id's")]
 												params ulong[] messages)

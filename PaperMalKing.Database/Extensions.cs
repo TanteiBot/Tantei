@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,11 +15,15 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using PaperMalKing.Database.Models.AniList;
+using PaperMalKing.Database.Models.MyAnimeList;
+using PaperMalKing.Database.Models.Shikimori;
 
 namespace PaperMalKing.Database
 {
@@ -31,5 +36,20 @@ namespace PaperMalKing.Database
 				throw new NoChangesSavedException(context);
 			return rows;
 		}
+
+		public static MalUserFeatures GetDefault(this MalUserFeatures _) => MalUserFeatures.AnimeList | MalUserFeatures.MangaList   |
+																			MalUserFeatures.Favorites | MalUserFeatures.Mention     |
+																			MalUserFeatures.Website   | MalUserFeatures.MediaFormat |
+																			MalUserFeatures.MediaStatus;
+
+		public static ShikiUserFeatures GetDefault(this ShikiUserFeatures _) => ShikiUserFeatures.AnimeList  | ShikiUserFeatures.MangaList   |
+																				ShikiUserFeatures.Favourites | ShikiUserFeatures.Mention     |
+																				ShikiUserFeatures.Website    | ShikiUserFeatures.MediaFormat |
+																				ShikiUserFeatures.MediaStatus;
+
+		public static AniListUserFeatures GetDefault(this AniListUserFeatures _) => AniListUserFeatures.AnimeList  | AniListUserFeatures.MangaList   |
+																					AniListUserFeatures.Favourites | AniListUserFeatures.Mention     |
+																					AniListUserFeatures.Website    | AniListUserFeatures.MediaFormat |
+																					AniListUserFeatures.MediaStatus;
 	}
 }

@@ -19,12 +19,13 @@
 using HtmlAgilityPack;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
+using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 {
 	internal static partial class UserProfileParser
 	{
-		internal static User Parse(HtmlNode node)
+		internal static User Parse(HtmlNode node, ParserOptions options)
 		{
 			var reportUrl = node.SelectSingleNode("//a[contains(@class, 'header-right')]").Attributes["href"].Value;
 			var li = reportUrl.LastIndexOf('=');
@@ -32,7 +33,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 			var id = int.Parse(reportUrl.Substring(li + 1));
 			var url = node.SelectSingleNode("//meta[@property='og:url']").Attributes["content"].Value;
 			var username = url.Substring(url.LastIndexOf('/') + 1);
-			var favorites = FavoritesParser.Parse(node);
+			var favorites = options.HasFlag(ParserOptions.Favorites) ? FavoritesParser.Parse(node) : UserFavorites.Empty;
 			//var rssNode = node.SelectSingleNode("//div[@class = 'user-profile-sns']");
 
 			return new()
@@ -40,8 +41,8 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 				Favorites = favorites,
 				Username = username,
 				Id = id,
-				LatestAnimeUpdate = LatestUpdatesParser.Parse(node, ListEntryType.Anime),
-				LatestMangaUpdate = LatestUpdatesParser.Parse(node, ListEntryType.Manga)
+				LatestAnimeUpdate = options.HasFlag(ParserOptions.AnimeList)? LatestUpdatesParser.Parse(node, ListEntryType.Anime) : null,
+				LatestMangaUpdate = options.HasFlag(ParserOptions.MangaList)? LatestUpdatesParser.Parse(node, ListEntryType.Manga) : null
 			};
 		}
 	}

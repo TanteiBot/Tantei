@@ -16,21 +16,16 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System.Collections.Generic;
-using DSharpPlus.Entities;
-using PaperMalKing.UpdatesProviders.Base;
+using System;
 
-namespace PaperMalKing.Shikimori.UpdateProvider
+namespace PaperMalKing.MyAnimeList.Wrapper.Models
 {
-	internal sealed class ShikiUpdate : IUpdate
+	[Flags]
+	internal enum ParserOptions : byte
 	{
-		/// <inheritdoc />
-		public IReadOnlyList<DiscordEmbedBuilder> UpdateEmbeds { get; }
-
-		public ShikiUpdate(List<DiscordEmbedBuilder> updateEmbeds)
-		{
-			updateEmbeds.ForEach(deb => deb.WithFooter("Shikimori", Constants.ICON_URL));
-			this.UpdateEmbeds = updateEmbeds;
-		}
+		None = 0,
+		Favorites = 1,
+		AnimeList = 1 << 1,
+		MangaList = 1 << 2
 	}
 }

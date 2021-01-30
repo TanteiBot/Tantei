@@ -21,6 +21,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Http;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.AniList.Wrapper.GraphQL;
+using PaperMalKing.AniList.Wrapper.Models;
 using PaperMalKing.AniList.Wrapper.Models.Responses;
 
 namespace PaperMalKing.AniList.Wrapper
@@ -46,21 +48,21 @@ namespace PaperMalKing.AniList.Wrapper
         }
 
         internal async Task<CheckForUpdatesResponse> CheckForUpdatesAsync(ulong userId, byte page, long activitiesTimeStamp, ushort perChunk,
-            ushort chunk, CancellationToken cancellationToken = default)
+            ushort chunk, RequestOptions options, CancellationToken cancellationToken = default)
         {
             this._logger.LogDebug("Requesting updates check for {UserId}, {Page}", userId, page);
-            var request = Requests.CheckForUpdatesRequest(userId, page, activitiesTimeStamp, perChunk, chunk);
+            var request = Requests.CheckForUpdatesRequest(userId, page, activitiesTimeStamp, perChunk, chunk, options);
             var response = await this._client.SendQueryAsync<CheckForUpdatesResponse>(request, cancellationToken);
             return response.Data;
         }
 
         internal async Task<FavouritesResponse> FavouritesInfoAsync(byte page, ulong[] animeIds, ulong[] mangaIds, ulong[] charIds, ulong[] staffIds,
-            ulong[] studioIds, CancellationToken cancellationToken = default)
+            ulong[] studioIds, RequestOptions options, CancellationToken cancellationToken = default)
         {
             if (!animeIds.Any() && !mangaIds.Any() && !charIds.Any() && !staffIds.Any() && !staffIds.Any() && !studioIds.Any())
                 return FavouritesResponse.Empty;
             
-            var request = Requests.FavouritesInfoRequest(page, animeIds, mangaIds, charIds, staffIds, studioIds);
+            var request = Requests.FavouritesInfoRequest(page, animeIds, mangaIds, charIds, staffIds, studioIds, options);
             var response = await this._client.SendQueryAsync<FavouritesResponse>(request, cancellationToken);
             return response.Data;
         }

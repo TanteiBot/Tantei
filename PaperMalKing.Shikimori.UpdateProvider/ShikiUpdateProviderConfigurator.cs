@@ -24,7 +24,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Common.RateLimiter;
+using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.Shikimori.Wrapper;
+using PaperMalKing.UpdatesProviders.Base;
+using PaperMalKing.UpdatesProviders.Base.Features;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
@@ -67,6 +70,8 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				var logger = provider.GetRequiredService<ILogger<ShikiClient>>();
 				return new(factory.CreateClient(Constants.NAME), logger);
 			});
+			serviceCollection.AddSingleton<IExecuteOnStartupService, ShikiExecuteOnStartupService>();
+			serviceCollection.AddSingleton<IUserFeaturesService<ShikiUserFeatures>, ShikiUserFeaturesService>();
 			serviceCollection.AddSingleton<ShikiUserService>();
 			serviceCollection.AddSingleton<IUpdateProvider, ShikiUpdateProvider>();
 		}

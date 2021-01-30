@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,19 +15,21 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Humanizer;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Enums;
+using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.Shikimori.Wrapper;
 using PaperMalKing.Shikimori.Wrapper.Models;
 
@@ -34,8 +37,6 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 {
 	internal static class Extensions
 	{
-		private readonly static Regex htmlRegex = new("<.*?>", RegexOptions.Compiled);
-		
 		private static readonly DiscordEmbedBuilder.EmbedFooter ShikiUpdateProviderFooter = new()
 		{
 			Text = "Shikimori",
@@ -55,11 +56,20 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			builder.WithAuthor(user.Nickname, user.Url, user.ImageUrl);
 
 		public static async Task<List<History>> GetAllUserHistoryAfterEntryAsync(this ShikiClient client, ulong userId, ulong limitHistoryEntryId,
+																				 ShikiUserFeatures features,
 																				 CancellationToken cancellationToken = default)
 		{
 			uint page = 1;
 			byte limit = 10;
-			var (data, hasNextPage) = await client.GetUserHistoryAsync(userId, page, limit, cancellationToken);
+			var options = features switch
+			{
+				_ when features.HasFlag(ShikiUserFeatures.AnimeList) && features.HasFlag(ShikiUserFeatures.MangaList) => HistoryRequestOptions.Any,
+				_ when features.HasFlag(ShikiUserFeatures.AnimeList) && !features.HasFlag(ShikiUserFeatures.MangaList) => HistoryRequestOptions.Anime,
+				_ when features.HasFlag(ShikiUserFeatures.MangaList) && !features.HasFlag(ShikiUserFeatures.AnimeList) => HistoryRequestOptions.Manga,
+				_ => throw new ArgumentOutOfRangeException(nameof(features), features, null)
+			};
+
+			var (data, hasNextPage) = await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken);
 			var unpaginatedRes = data.Where(e => e.Id > limitHistoryEntryId).ToList();
 			if (unpaginatedRes.Count != data.Length || !hasNextPage)
 				return unpaginatedRes;
@@ -69,7 +79,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			var isLimitReached = false;
 			for (page = 1, limit = 100; hnp && !isLimitReached; page++)
 			{
-				var (paginatedData, paginatedHasNextPage) = await client.GetUserHistoryAsync(userId, page, limit, cancellationToken);
+				var (paginatedData, paginatedHasNextPage) = await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken);
 				hnp = paginatedHasNextPage;
 				var toAcc = paginatedData.Where(e => e.Id > limitHistoryEntryId).ToArray();
 				isLimitReached = paginatedData.Length == toAcc.Length;
@@ -113,12 +123,12 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			return res;
 		}
 
-		public static DiscordEmbedBuilder ToDiscordEmbed(this List<History> history, UserInfo user)
+		public static DiscordEmbedBuilder ToDiscordEmbed(this List<History> history, UserInfo user, ShikiUserFeatures features)
 		{
 			var first = history[0];
 			var ruCulture = CultureInfo.GetCultureInfo("ru-RU");
 			var eb = new DiscordEmbedBuilder().WithTimestamp(first.CreatedAt).WithShikiAuthor(user).WithColor(Constants.ShikiBlue);
-			var desc = htmlRegex.Replace(string.Join("; ", history.Select(h => h.Description)), string.Empty).ToSentenceCase(ruCulture)!;
+			var desc = string.Join("; ", history.Select(h => h.Description)).StripHtml().ToSentenceCase(ruCulture)!;
 			eb.WithDescription(desc);
 
 			var dict = new Dictionary<int, ProgressType>();
@@ -132,27 +142,31 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			dict.TryAdd(desc.LastIndexOf("прочитан", StringComparison.OrdinalIgnoreCase), ProgressType.Completed);
 			dict.TryAdd(desc.LastIndexOf("перечитываю", StringComparison.OrdinalIgnoreCase), ProgressType.InProgress);
 			var progress = dict.OrderByDescending(kvp => kvp.Key).First().Value;
-
+			
 			eb.WithColor(Colors[progress]);
 			var firstTarget = first?.Target;
 			if (firstTarget == null)
 				return eb;
 
-			eb.WithTitle(
-				  $"{firstTarget.Name} ({firstTarget.Kind.Humanize(LetterCasing.Sentence)}) [{firstTarget.Status.Humanize(LetterCasing.Sentence)}]")
+			var titleSb = new StringBuilder(firstTarget.Name);
+			if ((features & ShikiUserFeatures.MediaFormat) != 0)
+				titleSb.Append($" ({firstTarget.Kind.Humanize(LetterCasing.Sentence)})");
+			if ((features & ShikiUserFeatures.MediaStatus) != 0)
+				titleSb.AppendLine($" [{firstTarget.Status.Humanize(LetterCasing.Sentence)}]");
+			eb.WithTitle(titleSb.ToString())
 			  .WithUrl(firstTarget.Url).WithThumbnail(firstTarget.ImageUrl);
 
 			if (firstTarget.Chapters.HasValue && firstTarget.Chapters != 0)
 			{
-				eb.AddField("Total", $"{firstTarget.Chapters.Value.ToString()} ch, {firstTarget.Volumes!.Value.ToString()} v.", true);
+				eb.AddField("Total", $"{firstTarget.Chapters.Value.ToString()} ch. {firstTarget.Volumes!.Value.ToString()} v.", true);
 			}
 			else if (firstTarget.Episodes.HasValue)
 			{
 				var episodes = firstTarget switch
 				{
-					_ when firstTarget.Episodes != 0      => firstTarget.Episodes.Value,
+					_ when firstTarget.Episodes      != 0 => firstTarget.Episodes.Value,
 					_ when firstTarget.EpisodesAired != 0 => firstTarget.EpisodesAired!.Value,
-					_                                         => 0
+					_                                     => 0
 				};
 				if (episodes != 0)
 					eb.AddField("Total", $"{episodes.ToString()} ep.", true);

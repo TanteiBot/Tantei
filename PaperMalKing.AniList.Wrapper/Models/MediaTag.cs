@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,28 +15,22 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
-using System.Collections.Generic;
-using DSharpPlus.Entities;
-using PaperMalKing.Common;
-using PaperMalKing.UpdatesProviders.Base;
+using System.Text.Json.Serialization;
 
-namespace PaperMalKing.AniList.UpdateProvider
+namespace PaperMalKing.AniList.Wrapper.Models
 {
-    internal sealed class AniListUpdate : IUpdate
-    {
-        private static readonly DiscordEmbedBuilder.EmbedFooter AniListFooter = new()
-        {
-            Text = Constants.NAME,
-            IconUrl = Constants.ICON_URL
-        };
-        
-        public IReadOnlyList<DiscordEmbedBuilder> UpdateEmbeds { get; }
+	public sealed class MediaTag
+	{
+		[JsonPropertyName("name")]
+		public string Name { get; init; } = null!;
 
-        public AniListUpdate(IReadOnlyList<DiscordEmbedBuilder> updateEmbeds)
-        {
-            this.UpdateEmbeds = updateEmbeds.ForEach(u => u.Footer = AniListFooter);
-        }
-    }
+		[JsonPropertyName("rank")]
+		public byte Rank { get; init; }
+
+		[JsonPropertyName("isMediaSpoiler")]
+		public bool IsSpoiler { get; init; }
+	}
 }

@@ -25,6 +25,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
+using Humanizer;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 
@@ -62,7 +63,7 @@ namespace PaperMalKing
 			this.EmbedBuilder.WithDescription(
 				$"{Formatter.InlineCode(command.Name)}: {command.Description ?? "No description provided."}");
 
-			if (command is CommandGroup cGroup && cGroup.IsExecutableWithoutSubcommands)
+			if (command is CommandGroup {IsExecutableWithoutSubcommands: true})
 				this.EmbedBuilder.WithDescription(
 					$"{this.EmbedBuilder.Description}\n\nThis group can be executed as a standalone command.");
 
@@ -98,7 +99,7 @@ namespace PaperMalKing
 			var exChecks = this.GetExecutionChecks();
 
 			if (!string.IsNullOrWhiteSpace(exChecks))
-				this.EmbedBuilder.AddField("Command pre-execution checks", exChecks, false);
+				this.EmbedBuilder.AddField("Command requirements", exChecks, false);
 
 			return this;
 		}
@@ -120,12 +121,15 @@ namespace PaperMalKing
 				{
 					if (cmd is CommandGroup cGroup)
 					{
+						if (cGroup.Parent != null)
+							continue;
 						var chs = cGroup.Children.ToList();
-
+						
 						if (cGroup.IsExecutableWithoutSubcommands)
 							chs.Add(cGroup);
-						this.EmbedBuilder.AddField($"{char.ToUpper(cGroup.Name[0]).ToString()}{cGroup.Name.Substring(1)} ({cGroup.Aliases.MinBy(alias => alias.Length)}) commands",
-							string.Join(", ", chs.Select(x => Formatter.InlineCode(x.Name))), false);
+						var shortestAlias = cGroup.Aliases.Any() ? $"({cGroup.Aliases.MinBy(alias => alias.Length)})" : "";
+						this.EmbedBuilder.AddField($"{cGroup.Name.Humanize(LetterCasing.Sentence)} {shortestAlias} commands",
+												   string.Join(", ", chs.Select(x => Formatter.InlineCode(x.Name))), false);
 					}
 					else
 						cmdList.Add(cmd);

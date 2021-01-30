@@ -32,6 +32,7 @@ namespace PaperMalKing.Commands
 {
 	[Group("ServerManagement")]
 	[Aliases("sm", "srvmgm")]
+	[Description("Commands for managing server")]
 	[ModuleLifespan(ModuleLifespan.Singleton)]
 	[OwnerOrPermission(Permissions.ManageGuild)]
 	public sealed class GuildManagementCommands : BaseCommandModule

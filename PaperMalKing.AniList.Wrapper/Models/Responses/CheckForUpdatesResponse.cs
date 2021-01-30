@@ -30,10 +30,10 @@ namespace PaperMalKing.AniList.Wrapper.Models.Responses
         public User User { get; init; } = null!;
 
         [JsonPropertyName("AnimeList")]
-        public MediaListCollection AnimeList { get; init; } = null!;
+        public MediaListCollection AnimeList { get; init; } = MediaListCollection.Empty;
 
         [JsonPropertyName("MangaList")]
-        public MediaListCollection MangaList { get; init; } = null!;
+        public MediaListCollection MangaList { get; init; } = MediaListCollection.Empty;
 
         [JsonPropertyName("ActivitiesPage")]
         public Page<ListActivity> ListActivities { get; init; } = Page<ListActivity>.Empty;

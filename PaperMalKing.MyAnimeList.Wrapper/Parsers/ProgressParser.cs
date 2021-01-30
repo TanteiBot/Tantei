@@ -38,7 +38,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 			return GenericProgress.Unknown;
 		}
 
-		private static bool TryParse<TEnum>(string value, out TEnum result) where TEnum : struct, Enum =>
+		private static bool TryParse<TEnum>(string value, out TEnum result) where TEnum : unmanaged, Enum =>
 			Enum.TryParse(value, true, out result);
 	}
 }

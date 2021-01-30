@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System.Collections.Generic;
@@ -32,8 +34,10 @@ namespace PaperMalKing.Database.Models.Shikimori
 
 		public ulong DiscordUserId { get; init; }
 
+		public ShikiUserFeatures Features { get; set; }
+
 		public DiscordUser DiscordUser { get; init; } = null!;
 
-		public List<ShikiFavourite> Favourites { get; init; } = null!;
+		public List<ShikiFavourite> Favourites { get; set; } = null!;
 	}
 }

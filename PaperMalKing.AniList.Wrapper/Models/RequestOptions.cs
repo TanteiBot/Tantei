@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,25 +15,26 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
-using DSharpPlus.Entities;
-using PaperMalKing.UpdatesProviders.Base;
+using System;
 
-namespace PaperMalKing.UpdatesProviders.MyAnimeList
+namespace PaperMalKing.AniList.Wrapper.Models
 {
-	internal sealed class MalUpdate : IUpdate
+	[Flags]
+	public enum RequestOptions
 	{
-		public MalUpdate(IEnumerable<DiscordEmbedBuilder> embeds)
-		{
-			this.UpdateEmbeds = embeds.Select(builder => builder.WithMalUpdateProviderFooter()).ToArray();
-		}
-
-		public MalUpdate(IReadOnlyList<DiscordEmbedBuilder> embeds) => this.UpdateEmbeds = embeds;
-		
-		/// <inheritdoc />
-		public IReadOnlyList<DiscordEmbedBuilder> UpdateEmbeds { get; }
+		AnimeList = 1        << 0,
+		MangaList = 1        << 1,
+		Favourites = 1       << 2,
+		MediaFormat = 1      << 5,
+		MediaStatus = 1      << 6,
+		MediaDescription = 1 << 7,
+		Genres = 1           << 8,
+		Tags = 1             << 9,
+		Studio = 1           << 10,
+		Mangaka = 1          << 11,
+		Reviews = 1          << 12
 	}
 }
