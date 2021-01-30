@@ -32,10 +32,10 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 	[Aliases("mal")]
 	[Description("Commands for managing user updates from MyAnimeList.net")]
 	[ModuleLifespan(ModuleLifespan.Singleton)]
-	public sealed class MalUserCommands : BaseUpdateProviderUserCommandsModule
+	public sealed class MalCommands : BaseUpdateProviderUserCommandsModule
 	{
 		/// <inheritdoc />
-		public MalUserCommands(MalUserService userService, ILogger<MalUserCommands> logger) : base(userService, logger)
+		public MalCommands(MalUserService userService, ILogger<MalCommands> logger) : base(userService, logger)
 		{
 		}
 
