@@ -39,9 +39,9 @@ namespace PaperMalKing.AniList.UpdateProvider
 {
 	internal static class Extensions
 	{
-		private static readonly Regex SourceRemovalRegex = new (@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		internal static readonly Regex SourceRemovalRegex = new(@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-		private static readonly Regex EmptyLinesRemovalRegex = new(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline);
+		internal static readonly Regex EmptyLinesRemovalRegex = new(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline);
 
 		private static readonly Dictionary<MediaListStatus, DiscordColor> Colors = new()
 		{
@@ -52,7 +52,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 			{MediaListStatus.PLANNING, Constants.AniListOrange},
 			{MediaListStatus.COMPLETED, Constants.AniListGreen}
 		};
-		
+
 		private static readonly DiscordEmbedBuilder.EmbedFooter AniListFooter = new()
 		{
 			Text = Constants.NAME,
@@ -61,8 +61,9 @@ namespace PaperMalKing.AniList.UpdateProvider
 
 		private static readonly char[] SentenceEndingChars = new[] {'.', '!', '?', ';'};
 
-		public static async Task<CombinedRecentUpdatesResponse> GetAllRecentUserUpdatesAsync(this AniListClient client, AniListUser user, AniListUserFeatures features,
-																							 CancellationToken cancellationToken = default)
+		public static async Task<CombinedRecentUpdatesResponse> GetAllRecentUserUpdatesAsync(
+			this AniListClient client, AniListUser user, AniListUserFeatures features,
+			CancellationToken cancellationToken = default)
 		{
 			const ushort initialPerChunkValue = 50;
 			const ushort extendedPerChunkValue = 500;
@@ -70,7 +71,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 			var perChunk = initialPerChunkValue;
 			ushort chunk = 1;
 			var result = new CombinedRecentUpdatesResponse();
-			var options = (UpdatesCheckRequestOptions) features;
+			var options = (RequestOptions) features;
 			for (byte page = 1; hasNextPage; page++)
 			{
 				var response = await client.CheckForUpdatesAsync(user.Id, page, user.LastActivityTimestamp, perChunk, chunk, options,
@@ -134,10 +135,11 @@ namespace PaperMalKing.AniList.UpdateProvider
 			}
 		}
 
-		public static DiscordEmbedBuilder WithMediaTitle(this DiscordEmbedBuilder eb, Media media, TitleLanguage titleLanguage, AniListUserFeatures features)
+		public static DiscordEmbedBuilder WithMediaTitle(this DiscordEmbedBuilder eb, Media media, TitleLanguage titleLanguage,
+														 AniListUserFeatures features)
 		{
 			var strings = new List<string> {media.Title.GetTitle(titleLanguage)};
-			if((features & AniListUserFeatures.MediaFormat) != 0)
+			if ((features & AniListUserFeatures.MediaFormat) != 0)
 				strings.Add($" ({media.GetEmbedFormat()})");
 			if ((features & AniListUserFeatures.MediaStatus) != 0)
 				strings.Add($" [{media.Status.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence)}]");
@@ -204,34 +206,46 @@ namespace PaperMalKing.AniList.UpdateProvider
 			}
 
 			eb.WithTotalSubEntries(activity.Media);
+			eb.EnrichWithMediaInfo(activity.Media, user, features);
+
+			if (!string.IsNullOrEmpty(mediaListEntry.Notes)) eb.AddField("Notes", mediaListEntry.Notes.Truncate(1023), true);
+			if (mediaListEntry.Repeat != 0) eb.AddField($"{(isAnime ? "Rewatched" : "Reread")} times", mediaListEntry.Repeat.ToString(), true);
+			return eb;
+		}
+
+		public static DiscordEmbedBuilder EnrichWithMediaInfo(this DiscordEmbedBuilder eb, Media media, User user, AniListUserFeatures features)
+		{
+			
+			var isAnime = media.Type == ListType.ANIME;
 
 			if (isAnime && (features & AniListUserFeatures.Studio) != 0)
 			{
-				var text = string.Join(", ", activity.Media.Studios.Nodes.Select(studio => Formatter.MaskedUrl(studio.Name, new Uri(studio.Url))));
-				if(!string.IsNullOrEmpty(text))
+				var text = string.Join(", ", media.Studios.Nodes.Select(studio => Formatter.MaskedUrl(studio.Name, new Uri(studio.Url))));
+				if (!string.IsNullOrEmpty(text))
 					eb.AddField("Made by studio", text, true);
 			}
 
 			if (!isAnime && (features & AniListUserFeatures.Mangaka) != 0)
 			{
-				var text = string.Join(", ", activity.Media.Staff.Nodes.Select(edge =>
-																				   $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new Uri(edge.Staff.Url))} - {edge.Role}"));
+				var text = string.Join(", ", media.Staff.Nodes.Select(edge =>
+																		  $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new Uri(edge.Staff.Url))} - {edge.Role}"));
 				if (!string.IsNullOrEmpty(text))
 					eb.AddField("Made by", text, true);
 			}
 
-			if ((features & AniListUserFeatures.Genres) != 0 && activity.Media.Genres.Any())
-				eb.AddField("Genres", string.Join(", ", activity.Media.Genres), true);
-			if ((features & AniListUserFeatures.Tags) != 0 && activity.Media.Tags.Any())
+			if ((features & AniListUserFeatures.Genres) != 0 && media.Genres.Any())
+				eb.AddField("Genres", string.Join(", ", media.Genres), true);
+			if ((features & AniListUserFeatures.Tags) != 0 && media.Tags.Any())
 			{
-				
 				eb.AddField("Tags",
 							string.Join(", ",
-										activity.Media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? $"||{t.Name}||" : t.Name)),
-							false);}
-			if ((features & AniListUserFeatures.MediaDescription) != 0 && !string.IsNullOrEmpty(activity.Media.Description))
+										media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? $"||{t.Name}||" : t.Name)),
+							false);
+			}
+
+			if ((features & AniListUserFeatures.MediaDescription) != 0 && !string.IsNullOrEmpty(media.Description))
 			{
-				var mediaDescription = activity.Media.Description.StripHtml();
+				var mediaDescription = media.Description.StripHtml();
 				mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
 				mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
 				mediaDescription = mediaDescription.Trim().Truncate(350);
@@ -239,8 +253,6 @@ namespace PaperMalKing.AniList.UpdateProvider
 					eb.AddField("Description", mediaDescription, false);
 			}
 
-			if (!string.IsNullOrEmpty(mediaListEntry.Notes)) eb.AddField("Notes", mediaListEntry.Notes.Truncate(1023), true);
-			if (mediaListEntry.Repeat != 0) eb.AddField($"{(isAnime ? "Rewatched" : "Reread")} times", mediaListEntry.Repeat.ToString(), true);
 			return eb;
 		}
 

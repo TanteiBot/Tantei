@@ -171,7 +171,8 @@ namespace PaperMalKing.AniList.UpdateProvider
 			for (byte page = 1; hasNextPage; page++)
 			{
 				var favouritesInfo =
-					await this._client.FavouritesInfoAsync(page, animeIds, mangaIds, charIds, staffIds, studioIds, cancellationToken);
+					await this._client.FavouritesInfoAsync(page, animeIds, mangaIds, charIds, staffIds, studioIds, (RequestOptions) user.Features,
+														   cancellationToken);
 				combinedResponse.Add(favouritesInfo);
 				hasNextPage = favouritesInfo.HasNextPage;
 			}

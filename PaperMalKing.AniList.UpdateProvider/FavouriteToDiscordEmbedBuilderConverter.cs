@@ -22,9 +22,12 @@ using System;
 using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Humanizer;
 using PaperMalKing.AniList.Wrapper.Models;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;
+using PaperMalKing.Common;
 using PaperMalKing.Database.Models.AniList;
+using static PaperMalKing.AniList.UpdateProvider.Extensions;
 
 namespace PaperMalKing.AniList.UpdateProvider
 {
@@ -37,13 +40,13 @@ namespace PaperMalKing.AniList.UpdateProvider
                 {
                     var media = (obj as Media)!;
                     var eb = InitialFavouriteEmbedBuilder(media, user, added).WithMediaTitle(media, user.Options.TitleLanguage, features)
-                        .WithTotalSubEntries(media);
+                                                                             .WithTotalSubEntries(media).EnrichWithMediaInfo(media, user, features);
                     eb.Description += $" {media?.Type.ToString().ToLowerInvariant()}";
                     return eb;
                 }
             },
             {
-                typeof(Character), (obj, user, added, features) =>
+                typeof(Character), (obj, user, added, _) =>
                 {
                     var character = (obj as Character)!;
                     var media = character.Media.Values[0];
@@ -56,7 +59,18 @@ namespace PaperMalKing.AniList.UpdateProvider
                 typeof(Staff), (obj, user, added, features) =>
                 {
                     var staff = (obj as Staff)!;
-                    return InitialFavouriteEmbedBuilder(staff, user, added).WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [Staff]");
+                    var eb = InitialFavouriteEmbedBuilder(staff, user, added).WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [Staff]");
+                        if ((features & AniListUserFeatures.MediaDescription) != 0 && !string.IsNullOrEmpty(staff.Description))
+                        {
+                            var mediaDescription = staff.Description.StripHtml();
+                            mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
+                            mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
+                            mediaDescription = mediaDescription.Trim().Truncate(350);
+                            if (!string.IsNullOrEmpty(mediaDescription))
+                                eb.AddField("Description", mediaDescription, false);
+                        }
+                    
+                    return eb;
                 }
             },
             {

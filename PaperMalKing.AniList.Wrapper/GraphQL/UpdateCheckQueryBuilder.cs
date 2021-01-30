@@ -23,7 +23,7 @@ using PaperMalKing.AniList.Wrapper.Models;
 
 namespace PaperMalKing.AniList.Wrapper.GraphQL
 {
-	public static class UpdateCheckQueryBuilder
+	internal static class UpdateCheckQueryBuilder
 	{
 		private const string QueryStart = @"
           query ($userId: Int, $page: Int, $activitiesFilterTimeStamp: Int, $perChunk: Int, $chunk: Int) {
@@ -158,10 +158,10 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
             }
             ";
 
-		public static string Build(UpdatesCheckRequestOptions options)
+		public static string Build(RequestOptions options)
 		{
-			var hasAnime = (options & UpdatesCheckRequestOptions.Favourites) != 0;
-			var hasManga = (options & UpdatesCheckRequestOptions.AnimeList)  != 0;
+			var hasAnime = (options & RequestOptions.Favourites) != 0;
+			var hasManga = (options & RequestOptions.AnimeList)  != 0;
 			var favouritesSq = options switch
 			{
 				_ when hasAnime => FavouritesSubQuery,
@@ -174,12 +174,12 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
 			};
 			var mListSq = options switch
 			{
-				_ when (options & UpdatesCheckRequestOptions.MangaList) != 0 => MangaListSubQuery,
+				_ when (options & RequestOptions.MangaList) != 0 => MangaListSubQuery,
 				_                                                            => string.Empty
 			};
 			var reviewSq = options switch
 			{
-				_ when (options & UpdatesCheckRequestOptions.Reviews) != 0 => ReviewsSubQuery,
+				_ when (options & RequestOptions.Reviews) != 0 => ReviewsSubQuery,
 				_                                                          => string.Empty
 			};
 			var sb = new StringBuilder(QueryStart);
@@ -200,67 +200,19 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
 					true               => "ANIME_LIST",
 					_                  => "MANGA_LIST"
 				};
-				sb.AppendLine($"              values: activities(userId: $userId, type: {type}, sort: ID_DESC, createdAt_greater: $activitiesFilterTimeStamp) {{");
+				sb.AppendLine($"values: activities(userId: $userId, type: {type}, sort: ID_DESC, createdAt_greater: $activitiesFilterTimeStamp) {{");
 				sb.AppendLine(@"... on ListActivity {
                   status
                   progress
                   createdAt
                   media {
-                    id
-                    title {
-                      stylisedRomaji: romaji(stylised: true)
-                      romaji(stylised: false)
-                      stylisedEnglish: english(stylised: true)
-                      english(stylised: false)
-                      stylisedNative: native(stylised: true)
-                      native(stylised: false)
-                    }
-                    type
-                    siteUrl");
-				if ((options & UpdatesCheckRequestOptions.MediaFormat) != 0)
-					sb.AppendLine(@"format
-        countryOfOrigin");
-				if ((options & UpdatesCheckRequestOptions.MediaStatus) != 0)
-					sb.AppendLine(@"                    status(version: 2)
-        ");
+                    ");
 				if(hasAnime)
 					sb.AppendLine("episodes");
 				if (hasManga)
 					sb.AppendLine(@"chapters
                     volumes");
-				sb.AppendLine(@"image: coverImage {
-                      large: extraLarge
-                    }");
-				if ((options & UpdatesCheckRequestOptions.MediaDescription) != 0)
-					sb.AppendLine("description(asHtml: false)");
-				if ((options & UpdatesCheckRequestOptions.Genres) != 0)
-					sb.AppendLine("genres");
-				if ((options & UpdatesCheckRequestOptions.Tags) != 0)
-					sb.AppendLine(@"tags{
-                      name
-                      rank
-                      isMediaSpoiler
-                    }");
-				if ((options & UpdatesCheckRequestOptions.Studio) != 0)
-					sb.AppendLine(@"studios(sort: FAVOURITES_DESC, isMain: true){
-                      values: nodes{
-                        name
-                        siteUrl
-                      }
-                    }");
-				if ((options & UpdatesCheckRequestOptions.Mangaka) != 0)
-					sb.AppendLine(@"staff(sort: FAVOURITES_DESC, page: 1, perPage: 5){
-                      values: edges{
-                        role
-                        node{
-                          name{
-                            full
-                            native
-                          }
-                          siteUrl
-                        }
-                      }
-                    }");
+				Helpers.AppendMediaFields(sb, options);
 				sb.AppendLine(@"}
                 }
               }

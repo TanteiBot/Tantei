@@ -34,5 +34,8 @@ namespace PaperMalKing.AniList.Wrapper.Models
 
         [JsonPropertyName("id")]
         public ulong Id { get; init; }
+
+        [JsonPropertyName("description")]
+        public string Description { get; init; } = null!;
     }
 }

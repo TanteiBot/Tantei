@@ -23,7 +23,7 @@ using System;
 namespace PaperMalKing.AniList.Wrapper.Models
 {
 	[Flags]
-	public enum UpdatesCheckRequestOptions
+	public enum RequestOptions
 	{
 		AnimeList = 1        << 0,
 		MangaList = 1        << 1,
