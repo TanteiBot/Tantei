@@ -28,7 +28,9 @@ namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses
 
         public readonly List<ListActivity> Activities = new();
 
-        public User User { get; private set; } = null!;
+        private User? _user;
+
+        public User User => this._user!;
 
         public readonly List<MediaListEntry> AnimeList = new(50);
 
@@ -38,7 +40,7 @@ namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses
 
         public void Add(CheckForUpdatesResponse response)
         {
-            this.User ??= response.User;
+            this._user ??= response.User;
             this.Favourites.AddRange(response.User.Favourites.AllFavourites);
             
             this.Reviews.AddRange(response.Reviews.Values);

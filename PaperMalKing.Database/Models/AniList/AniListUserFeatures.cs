@@ -62,6 +62,9 @@ namespace PaperMalKing.Database.Models.AniList
 		Studio = 1 << 10,
 
 		[FeatureDescription("mangaka", "show mangaka that made manga")]
-		Mangaka = 1 << 11
+		Mangaka = 1 << 11,
+
+		[FeatureDescription("reviews", "track user reviews")]
+		Reviews = 1 << 12
 	}
 }

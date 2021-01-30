@@ -96,6 +96,8 @@ namespace PaperMalKing.AniList.Wrapper.Models
             }
         }
 
+        public static readonly Favourites Empty = new() {HasNextPage = false};
+
         public sealed class IdentifiableFavourite : IIdentifiable, IEquatable<IdentifiableFavourite>
         {
             [JsonPropertyName("id")]

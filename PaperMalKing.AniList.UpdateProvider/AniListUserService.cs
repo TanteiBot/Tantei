@@ -76,7 +76,7 @@ namespace PaperMalKing.AniList.UpdateProvider
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             dbUser = new()
             {
-                Favourites = response.Favourites.Select(f => new AniListFavourite() {Id = f.Id, FavouriteType = (FavouriteType) f.Type}).ToList(),
+                Favourites = response.Favourites.Select(f => new AniListFavourite {Id = f.Id, FavouriteType = (FavouriteType) f.Type}).ToList(),
                 Id = response.UserId!.Value,
                 DiscordUser = dUser,
                 DiscordUserId = dUser.DiscordUserId,

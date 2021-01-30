@@ -23,7 +23,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -38,8 +37,6 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 {
 	internal static class Extensions
 	{
-		private readonly static Regex htmlRegex = new("<.*?>", RegexOptions.Compiled);
-
 		private static readonly DiscordEmbedBuilder.EmbedFooter ShikiUpdateProviderFooter = new()
 		{
 			Text = "Shikimori",
@@ -131,7 +128,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			var first = history[0];
 			var ruCulture = CultureInfo.GetCultureInfo("ru-RU");
 			var eb = new DiscordEmbedBuilder().WithTimestamp(first.CreatedAt).WithShikiAuthor(user).WithColor(Constants.ShikiBlue);
-			var desc = htmlRegex.Replace(string.Join("; ", history.Select(h => h.Description)), string.Empty).ToSentenceCase(ruCulture)!;
+			var desc = string.Join("; ", history.Select(h => h.Description)).StripHtml().ToSentenceCase(ruCulture)!;
 			eb.WithDescription(desc);
 
 			var dict = new Dictionary<int, ProgressType>();

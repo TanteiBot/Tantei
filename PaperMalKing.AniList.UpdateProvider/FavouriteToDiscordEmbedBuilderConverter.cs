@@ -24,25 +24,26 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using PaperMalKing.AniList.Wrapper.Models;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;
+using PaperMalKing.Database.Models.AniList;
 
 namespace PaperMalKing.AniList.UpdateProvider
 {
     internal static class FavouriteToDiscordEmbedBuilderConverter
     {
-        private static readonly Dictionary<Type, Func<ISiteUrlable, User, bool, DiscordEmbedBuilder>> Converters = new()
+        private static readonly Dictionary<Type, Func<ISiteUrlable, User, bool, AniListUserFeatures, DiscordEmbedBuilder>> Converters = new()
         {
             {
-                typeof(Media), (obj, user, added) =>
+                typeof(Media), (obj, user, added, features) =>
                 {
                     var media = (obj as Media)!;
-                    var eb = InitialFavouriteEmbedBuilder(media, user, added).WithMediaTitle(media, user.Options.TitleLanguage)
+                    var eb = InitialFavouriteEmbedBuilder(media, user, added).WithMediaTitle(media, user.Options.TitleLanguage, features)
                         .WithTotalSubEntries(media);
                     eb.Description += $" {media?.Type.ToString().ToLowerInvariant()}";
                     return eb;
                 }
             },
             {
-                typeof(Character), (obj, user, added) =>
+                typeof(Character), (obj, user, added, features) =>
                 {
                     var character = (obj as Character)!;
                     var media = character.Media.Values[0];
@@ -52,14 +53,14 @@ namespace PaperMalKing.AniList.UpdateProvider
                 }
             },
             {
-                typeof(Staff), (obj, user, added) =>
+                typeof(Staff), (obj, user, added, features) =>
                 {
                     var staff = (obj as Staff)!;
                     return InitialFavouriteEmbedBuilder(staff, user, added).WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [Staff]");
                 }
             },
             {
-                typeof(Studio), (obj, user, added) =>
+                typeof(Studio), (obj, user, added, features) =>
                 {
                     var studio = (obj as Studio)!;
                     var media = studio.Media.Nodes[0];
@@ -78,10 +79,10 @@ namespace PaperMalKing.AniList.UpdateProvider
             return eb;
         }
 
-        public static DiscordEmbedBuilder Convert(ISiteUrlable obj, User user, bool added)
+        public static DiscordEmbedBuilder Convert(ISiteUrlable obj, User user, bool added, AniListUserFeatures features)
         {
             var func = Converters[obj.GetType()];
-            return func(obj, user, added);
+            return func(obj, user, added, features);
         }
     }
 }

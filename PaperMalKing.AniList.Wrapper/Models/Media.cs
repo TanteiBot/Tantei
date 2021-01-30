@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
+using System;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;
@@ -56,5 +57,20 @@ namespace PaperMalKing.AniList.Wrapper.Models
 
         [JsonPropertyName("image")]
         public Image Image { get; init; } = null!;
+
+        [JsonPropertyName("description")]
+        public string Description { get; init; } = null!;
+        
+        [JsonPropertyName("genres")]
+        public string[] Genres { get; init; } = Array.Empty<string>();
+
+        [JsonPropertyName("tags")]
+        public MediaTag[] Tags { get; init; } = Array.Empty<MediaTag>();
+
+        [JsonPropertyName("studios")]
+        public Connection<Studio> Studios { get; init; } = Connection<Studio>.Empty;
+
+        [JsonPropertyName("staff")]
+        public Connection<StaffEdge> Staff { get; init; } = Connection<StaffEdge>.Empty;
     }
 }

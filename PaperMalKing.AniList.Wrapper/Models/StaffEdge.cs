@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,23 +15,19 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
-using System;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-    public sealed class MediaListCollection
-    {
-        [JsonPropertyName("lists")]
-        public MediaListGroup[] Lists { get; init; } = Array.Empty<MediaListGroup>();
+	public sealed class StaffEdge
+	{
+		[JsonPropertyName("role")]
+		public string Role { get; init; } = null!;
 
-        public static readonly MediaListCollection Empty = new ();
-
-        public sealed class MediaListGroup
-        {
-            public MediaListEntry[] Entries { get; init; } = Array.Empty<MediaListEntry>();
-        }
-    }
+		[JsonPropertyName("node")]
+		public Staff Staff { get; init; } = null!;
+	}
 }

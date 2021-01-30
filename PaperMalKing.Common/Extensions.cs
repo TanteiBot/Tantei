@@ -29,6 +29,9 @@ namespace PaperMalKing.Common
 {
 	public static class Extensions
 	{
+		
+		private readonly static Regex HtmlRegex = new("<.*?>", RegexOptions.Compiled);
+
 		public static string ToFixedWidth(this string s, int newLength)
 		{
 			if (s.Length < newLength)
@@ -70,6 +73,8 @@ namespace PaperMalKing.Common
 
 			return value;
 		}
+
+		public static string StripHtml(this string value) => HtmlRegex.Replace(value, string.Empty);
 		
 		public static string SplitByCapitalLetter(this string s) =>
 			string.Join(' ', Regex.Split(s, @"(?<!^)(?=[A-Z])", RegexOptions.Compiled)).FirstCharToUpper();

@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,28 +15,30 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
-using System.Collections.Generic;
-using DSharpPlus.Entities;
-using PaperMalKing.Common;
+using System.Threading;
+using System.Threading.Tasks;
+using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base;
+using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.AniList.UpdateProvider
 {
-    internal sealed class AniListUpdate : IUpdate
-    {
-        private static readonly DiscordEmbedBuilder.EmbedFooter AniListFooter = new()
-        {
-            Text = Constants.NAME,
-            IconUrl = Constants.ICON_URL
-        };
-        
-        public IReadOnlyList<DiscordEmbedBuilder> UpdateEmbeds { get; }
+	public sealed class AniListExecuteOnStartupService : IExecuteOnStartupService
+	{
+		private readonly ICommandsService _commandsService;
 
-        public AniListUpdate(IReadOnlyList<DiscordEmbedBuilder> updateEmbeds)
-        {
-            this.UpdateEmbeds = updateEmbeds.ForEach(u => u.Footer = AniListFooter);
-        }
-    }
+		public AniListExecuteOnStartupService(ICommandsService commandsService)
+		{
+			this._commandsService = commandsService;
+		}
+
+		public Task ExecuteAsync(CancellationToken cancellationToken = default)
+		{
+			this._commandsService.CommandsExtension.RegisterConverter(new FeatureArgumentConverter<AniListUserFeatures>());
+			return Task.CompletedTask;
+		}
+	}
 }
