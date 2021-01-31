@@ -248,7 +248,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 				var mediaDescription = media.Description.StripHtml();
 				mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
 				mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
-				mediaDescription = mediaDescription.Trim().Truncate(350);
+				mediaDescription = Formatter.Strip(mediaDescription).Trim().Truncate(350);
 				if (!string.IsNullOrEmpty(mediaDescription))
 					eb.AddField("Description", mediaDescription, false);
 			}
