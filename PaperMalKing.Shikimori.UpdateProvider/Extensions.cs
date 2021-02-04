@@ -89,12 +89,13 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			return acc;
 		}
 
-		public static DiscordEmbedBuilder ToDiscordEmbed(this Favourites.FavouriteEntry favouriteEntry, UserInfo user, bool added)
+		public static DiscordEmbedBuilder ToDiscordEmbed(this FavouriteEntry favouriteEntry, UserInfo user, bool added, ShikiUserFeatures features)
 		{
+			var favouriteName = (features & ShikiUserFeatures.Russian) != 0 ? favouriteEntry.RussianName ?? favouriteEntry.Name : favouriteEntry.Name;
 			return new DiscordEmbedBuilder
 				{
 					Url = favouriteEntry.Url,
-					Title = $"{favouriteEntry.Name} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
+					Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
 				}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "removed")} favourite").WithShikiAuthor(user)
 				 .WithColor(added ? Constants.ShikiGreen : Constants.ShikiRed);
 		}
@@ -148,7 +149,11 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			if (firstTarget == null)
 				return eb;
 
-			var titleSb = new StringBuilder(firstTarget.Name);
+			var titleSb = new StringBuilder();
+			if ((features & ShikiUserFeatures.Russian) != 0)
+				titleSb.Append(firstTarget.RussianName ?? firstTarget.Name);
+			else
+				titleSb.Append(firstTarget.Name);
 			if ((features & ShikiUserFeatures.MediaFormat) != 0)
 				titleSb.Append($" ({firstTarget.Kind.Humanize(LetterCasing.Sentence)})");
 			if ((features & ShikiUserFeatures.MediaStatus) != 0)

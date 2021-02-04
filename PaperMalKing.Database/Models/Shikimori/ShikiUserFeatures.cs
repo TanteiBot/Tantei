@@ -47,6 +47,9 @@ namespace PaperMalKing.Database.Models.Shikimori
 		MediaFormat = 1 << 5,
 
 		[FeatureDescription("mediastatus", "show status of media in update (ongoing, finished etc)")]
-		MediaStatus = 1 << 6
+		MediaStatus = 1 << 6,
+		
+		[FeatureDescription("russian", "show favorites, anime, manga, ranobe titles in russian")]
+		Russian = 1 << 7
 	}
 }

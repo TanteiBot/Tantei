@@ -83,7 +83,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 						await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken),
 					_ => Favourites.Empty
 				};
-				var cfavs = dbUser.Favourites.Select(f => new Favourites.FavouriteEntry
+				var cfavs = dbUser.Favourites.Select(f => new FavouriteEntry
 				{
 					Id = f.Id,
 					Name = f.Name,
@@ -105,8 +105,8 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					User = dbUser
 				}));
 				var user = await this._client.GetUserInfo(dbUser.Id, cancellationToken);
-				totalUpdates.AddRange(removedValues.Select(rf => rf.ToDiscordEmbed(user, false)));
-				totalUpdates.AddRange(addedValues.Select(af => af.ToDiscordEmbed(user, true)));
+				totalUpdates.AddRange(removedValues.Select(rf => rf.ToDiscordEmbed(user, false, dbUser.Features)));
+				totalUpdates.AddRange(addedValues.Select(af => af.ToDiscordEmbed(user, true, dbUser.Features)));
 				var groupedHistoryEntries = historyUpdates.GroupSimilarHistoryEntries();
 				foreach (var group in groupedHistoryEntries)
 					totalUpdates.Add(group.ToDiscordEmbed(user, dbUser.Features));
