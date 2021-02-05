@@ -59,7 +59,8 @@ namespace PaperMalKing.AniList.UpdateProvider
 			IconUrl = Constants.ICON_URL
 		};
 
-		private static readonly char[] SentenceEndingChars = new[] {'.', '!', '?', ';'};
+		private const int InlineFieldValueMaxLength = 30;
+
 
 		public static async Task<CombinedRecentUpdatesResponse> GetAllRecentUserUpdatesAsync(
 			this AniListClient client, AniListUser user, AniListUserFeatures features,
@@ -234,13 +235,15 @@ namespace PaperMalKing.AniList.UpdateProvider
 			}
 
 			if ((features & AniListUserFeatures.Genres) != 0 && media.Genres.Any())
-				eb.AddField("Genres", string.Join(", ", media.Genres), true);
+			{
+				var fieldVal = string.Join(", ", media.Genres);
+				eb.AddField("Genres", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
+			}
 			if ((features & AniListUserFeatures.Tags) != 0 && media.Tags.Any())
 			{
-				eb.AddField("Tags",
-							string.Join(", ",
-										media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? $"||{t.Name}||" : t.Name)),
-							false);
+				var fieldVal = string.Join(", ",
+										   media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? $"||{t.Name}||" : t.Name));
+				eb.AddField("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 			}
 
 			if ((features & AniListUserFeatures.MediaDescription) != 0 && !string.IsNullOrEmpty(media.Description))
@@ -250,7 +253,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 				mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
 				mediaDescription = Formatter.Strip(mediaDescription).Trim().Truncate(350);
 				if (!string.IsNullOrEmpty(mediaDescription))
-					eb.AddField("Description", mediaDescription, false);
+					eb.AddField("Description", mediaDescription, mediaDescription.Length <= InlineFieldValueMaxLength);
 			}
 
 			return eb;
