@@ -73,6 +73,7 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                       values: nodes{
                         name
                         siteUrl
+						isAnimationStudio
                       }
                     }");
 			if ((options & RequestOptions.Mangaka) != 0)

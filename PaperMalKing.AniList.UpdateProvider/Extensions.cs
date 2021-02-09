@@ -216,14 +216,15 @@ namespace PaperMalKing.AniList.UpdateProvider
 
 		public static DiscordEmbedBuilder EnrichWithMediaInfo(this DiscordEmbedBuilder eb, Media media, User user, AniListUserFeatures features)
 		{
-			
 			var isAnime = media.Type == ListType.ANIME;
 
 			if (isAnime && (features & AniListUserFeatures.Studio) != 0)
 			{
-				var text = string.Join(", ", media.Studios.Nodes.Select(studio => Formatter.MaskedUrl(studio.Name, new Uri(studio.Url))));
+				var studios = media.Studios.Nodes.Where(s => s.IsAnimationStudio)
+								   .Select(studio => Formatter.MaskedUrl(studio.Name, new Uri(studio.Url))).ToArray();
+				var text = string.Join(", ", studios);
 				if (!string.IsNullOrEmpty(text))
-					eb.AddField("Made by studio", text, true);
+					eb.AddField($"Made by {"studio".ToQuantity(studios.Length)}", text, true);
 			}
 
 			if (!isAnime && (features & AniListUserFeatures.Mangaka) != 0)
@@ -239,6 +240,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 				var fieldVal = string.Join(", ", media.Genres);
 				eb.AddField("Genres", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 			}
+
 			if ((features & AniListUserFeatures.Tags) != 0 && media.Tags.Any())
 			{
 				var fieldVal = string.Join(", ",
