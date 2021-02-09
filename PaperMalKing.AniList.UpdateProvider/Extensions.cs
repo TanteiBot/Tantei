@@ -224,7 +224,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 								   .Select(studio => Formatter.MaskedUrl(studio.Name, new Uri(studio.Url))).ToArray();
 				var text = string.Join(", ", studios);
 				if (!string.IsNullOrEmpty(text))
-					eb.AddField($"Made by {"studio".ToQuantity(studios.Length)}", text, true);
+					eb.AddField($"Made by {"studio".ToQuantity(studios.Length, ShowQuantityAs.None)}", text, true);
 			}
 
 			if (!isAnime && (features & AniListUserFeatures.Mangaka) != 0)
