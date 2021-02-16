@@ -77,7 +77,7 @@ namespace PaperMalKing.Commands
 		{
 			if (this.AboutEmbed == null)
 			{
-				var botVersion = $"{Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3)}-alpha" ?? "";
+				var botVersion = $"{Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3)}" ?? "";
 				var netCoreVersion = Environment.Version.ToString(3);
 
 				const string desc =
