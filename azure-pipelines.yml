@@ -1,5 +1,10 @@
+trigger:
+  - master
+  - rewrite-v2
+
 pr:
-- master
+  - master
+  - rewrite-v2
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -7,6 +12,38 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
-steps:
-- script: dotnet build
-  displayName: 'dotnet build'
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Install sdk'
+            inputs:
+              packageType: 'sdk'
+              version: '5.x'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Build solution'
+            inputs:
+              command: 'build'
+              projects: '**/PaperMalKing.sln'
+              arguments: '--configuration $(buildConfiguration)'
+
+  - stage: Publish
+    condition: and(succeeded('Build'), not(eq(variables['build.reason'], 'PullRequest')))
+    jobs:
+      - job: Publish
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: '**/PaperMalKing.csproj'
+              arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+              zipAfterPublish: True
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'PaperMalKing'

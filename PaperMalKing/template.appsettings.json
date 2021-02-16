@@ -1,0 +1,44 @@
+﻿{
+    "Serilog": {
+        "MinimumLevel": {
+            "Default": "Debug",
+            "Override": {
+                "System": "Information",
+                "System.Net": "Information",
+                "System.Text.Json": "Debug",
+                "Microsoft": "Information",
+                "PaperMalKing": "Debug",
+                "Microsoft.EntityFrameworkCore": "Warning"
+            }
+        }
+    },
+    "Discord": {
+        "Token": "",
+        "ActivityType": 3,
+        "PresenceText": "for your lists",
+        "Commands": {
+            "Prefixes": [
+                "aa",
+                "---"
+            ],
+            "EnableMentionPrefix": true,
+            "CaseSensitive": false,
+            "DmHelp": false
+        }
+    },
+    "Database": {
+        "ConnectionString": "Data Source=/path/to/db/db.db"
+    },
+    "MyAnimeList": {
+        "AmountOfRequests": 1,
+        "PeriodInMilliseconds": 2500,
+        "DelayBetweenChecksInMilliseconds": 60000
+    },
+    "Shikimori": {
+        "ShikimoriAppName": "ShikiAppName",
+        "DelayBetweenChecksInMilliseconds": 60000
+    },
+    "AniList":{
+        "DelayBetweenChecksInMilliseconds": 100000
+    }
+}
