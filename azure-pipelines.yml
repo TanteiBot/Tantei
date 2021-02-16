@@ -1,10 +1,8 @@
 trigger:
   - master
-  - rewrite-v2
 
 pr:
   - master
-  - rewrite-v2
 
 pool:
   vmImage: 'ubuntu-latest'
