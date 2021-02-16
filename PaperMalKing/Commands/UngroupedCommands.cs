@@ -86,7 +86,7 @@ namespace PaperMalKing.Commands
 				var versions = $"Bot version - {botVersion}." + "\n" + $"DSharpPlus version - {context.Client.VersionString}." + "\n" +
 							   $".NET version - {netCoreVersion}.";
 
-				const string sourceCodeLink = "https://github.com/N0D4N/PaperMalKing/tree/rewrite-v2";
+				const string sourceCodeLink = "https://github.com/N0D4N/PaperMalKing";
 				var links = Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute));
 
 				var embedBuilder = new DiscordEmbedBuilder
