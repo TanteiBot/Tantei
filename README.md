@@ -8,13 +8,12 @@ Paper Mal King is Discord bot that tracks user's updates from various anime/mang
 Installation
 ---------------------
 Prerequisites: git, .NET SDK 5.0
-1. `git clone https://github.com/N0D4N/PaperMalKing.git`
-2. `cd PaperMalKing/`
-3. `git checkout rewrite-v2`
-4. `dotnet publish -c Release -o publish/ PaperMalKing/PaperMalKing.csproj`
-5. `cd publish/`
-6. `cp template.appsettings.json appsettings.json`
-7. Fill necessary data in `appsettings.json`
+- `git clone https://github.com/N0D4N/PaperMalKing.git`
+- `cd PaperMalKing/`
+- `dotnet publish -c Release -o publish/ PaperMalKing/PaperMalKing.csproj`
+- `cd publish/`
+- `cp template.appsettings.json appsettings.json`
+- Fill necessary data in `appsettings.json`
 
 Run with `dotnet PaperMalKing.dll`
 
