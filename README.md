@@ -17,6 +17,10 @@ Prerequisites: git, .NET SDK 5.0
 
 Run with `dotnet PaperMalKing.dll`
 
+Notice
+---------------------
+Project is unofficial and is not affiliated with MyAnimeList.net, Shikimori.one, AniList.co or any other website/application from which project can get users updates.
+
 License
 ---------------------
 
