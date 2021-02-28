@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -35,10 +37,11 @@ namespace PaperMalKing.Services.Background
 {
 	public sealed class DiscordBackgroundService : BackgroundService
 	{
+		private readonly ILogger<DiscordBackgroundService> _logger;
 		private readonly IOptions<DiscordOptions> _options;
 		private readonly IServiceProvider _provider;
-		private readonly ILogger<DiscordBackgroundService> _logger;
 		public readonly DiscordClient Client;
+		private int _activityIndex;
 
 		public DiscordBackgroundService(IServiceProvider provider, IOptions<DiscordOptions> options, ILogger<DiscordBackgroundService> logger,
 										DiscordClient client)
@@ -74,14 +77,14 @@ namespace PaperMalKing.Services.Background
 				if (guild == null)
 				{
 					this._logger.LogInformation("Bot was removed from guild {Guild} but since guild wasn't in database there is nothing to remove",
-						e.Guild);
+												e.Guild);
 					return;
 				}
 
 				db.DiscordGuilds.Remove(guild);
 				await db.SaveChangesAndThrowOnNoneAsync();
 			}).ContinueWith(task => this._logger.LogError(task.Exception, "Task on removing guild from db faulted"),
-				TaskContinuationOptions.OnlyOnFaulted);
+							TaskContinuationOptions.OnlyOnFaulted);
 
 			return Task.CompletedTask;
 		}
@@ -115,7 +118,6 @@ namespace PaperMalKing.Services.Background
 				if (user == null)
 				{
 					this._logger.LogDebug("User {Member} that left wasn't saved in db", e.Member);
-					return;
 				}
 				else
 				{
@@ -131,7 +133,7 @@ namespace PaperMalKing.Services.Background
 					await db.SaveChangesAndThrowOnNoneAsync();
 				}
 			}).ContinueWith(task => this._logger.LogError(task.Exception, "Task on removing left member from the guild failed due to unknown reason"),
-				TaskContinuationOptions.OnlyOnFaulted);
+							TaskContinuationOptions.OnlyOnFaulted);
 			return Task.CompletedTask;
 		}
 
@@ -140,11 +142,63 @@ namespace PaperMalKing.Services.Background
 		{
 			this._logger.LogDebug("Starting {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
 			this._logger.LogInformation("Connecting to Discord");
-			await this.Client.ConnectAsync(new(this._options.Value.PresenceText, (ActivityType) this._options.Value.ActivityType), UserStatus.Online);
+			if (this._options.Value.Activities.Length > 1)
+			{
+				await this.Client.ConnectAsync();
+				await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+				_ = Task.Factory.StartNew(async cancellationToken =>
+						{
+							var token = (CancellationToken) (cancellationToken ?? CancellationToken.None);
+							while (!token.IsCancellationRequested)
+							{
+								if (this._activityIndex >= this._options.Value.Activities.Length)
+									this._activityIndex = 0;
+								var options = this._options.Value.Activities[this._activityIndex];
+
+								var (discordActivity, userStatus) = this.OptionsToDiscordActivity(options);
+								await this.Client.UpdateStatusAsync(discordActivity, userStatus);
+								await Task.Delay(TimeSpan.FromMilliseconds(options.TimeToBeDisplayedInMilliseconds), token);
+								this._activityIndex++;
+							}
+						}, stoppingToken, stoppingToken)
+						.ContinueWith(task => this._logger.LogError(task.Exception, "Error occured while updating Discord presence"),
+									  TaskContinuationOptions.OnlyOnFaulted);
+			}
+			else
+			{
+				this._logger.LogInformation("Found only one Discord status in options so it won't be changed");
+				var (discordActivity, userStatus) = this.OptionsToDiscordActivity(this._options.Value.Activities[0]);
+				await this.Client.ConnectAsync(discordActivity, userStatus);
+			}
+
 			await Task.Delay(Timeout.Infinite, stoppingToken);
 			var t = this.Client.DisconnectAsync();
 			this._logger.LogInformation("Disconnecting from Discord");
 			await t;
+		}
+
+		private (DiscordActivity, UserStatus) OptionsToDiscordActivity(DiscordOptions.DiscordActivityOptions options)
+		{
+			if (!Enum.TryParse(options.ActivityType, true, out ActivityType activityType))
+			{
+				var correctActivities = string.Join(", ", Enum.GetValues<ActivityType>());
+				this._logger
+					.LogError("Couldn't parse correct ActivityType from {ActivityType}, correct values are {CorrectActivities}",
+							  options.ActivityType, correctActivities);
+				activityType = ActivityType.Playing;
+			}
+
+			if (!Enum.TryParse(options.Status, true, out UserStatus status))
+			{
+				var correctStatuses = string.Join(", ", Enum.GetValues<UserStatus>());
+				this._logger
+					.LogError("Couldn't parse correct UserStatus from {Status}, correct values are {CorrectStatuses}",
+							  options.Status, correctStatuses);
+				status = UserStatus.Online;
+
+			}
+
+			return (new (options.PresenceText, activityType), status);
 		}
 
 		/// <inheritdoc />
