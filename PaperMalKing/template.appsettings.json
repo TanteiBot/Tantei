@@ -14,8 +14,20 @@
     },
     "Discord": {
         "Token": "",
-        "ActivityType": 3,
-        "PresenceText": "for your lists",
+        "Activities":[
+            {
+                "ActivityType": "Watching",
+                "PresenceText": "over your lists and favorites",
+                "TimeToBeDisplayedInMilliseconds": 300000,
+                "Status": "Online"
+            },
+            {
+                "ActivityType": "Playing",
+                "PresenceText": "github.com/N0D4N/PaperMalKing",
+                "TimeToBeDisplayedInMilliseconds": 300000,
+                "Status": "Online"
+            }
+        ],
         "Commands": {
             "Prefixes": [
                 "aa",
