@@ -207,11 +207,10 @@ namespace PaperMalKing.AniList.UpdateProvider
 			}
 
 			eb.WithTotalSubEntries(activity.Media);
-			eb.EnrichWithMediaInfo(activity.Media, user, features);
-
-			if (!string.IsNullOrEmpty(mediaListEntry.Notes)) eb.AddField("Notes", mediaListEntry.Notes.Truncate(1023), true);
 			if (mediaListEntry.Repeat != 0) eb.AddField($"{(isAnime ? "Rewatched" : "Reread")} times", mediaListEntry.Repeat.ToString(), true);
-			return eb;
+			if (!string.IsNullOrEmpty(mediaListEntry.Notes)) eb.AddField("Notes", mediaListEntry.Notes.Truncate(1023), true);
+
+			return eb.EnrichWithMediaInfo(activity.Media, user, features);
 		}
 
 		public static DiscordEmbedBuilder EnrichWithMediaInfo(this DiscordEmbedBuilder eb, Media media, User user, AniListUserFeatures features)
