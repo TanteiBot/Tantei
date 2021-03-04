@@ -78,12 +78,13 @@ namespace PaperMalKing.AniList.UpdateProvider
 				if ((dbUser.Features & AniListUserFeatures.Reviews) != 0)
 					allUpdates.AddRange(recentUserUpdates.Reviews.Where(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)
 														 .Select(r => r.ToDiscordEmbedBuilder(recentUserUpdates.User)));
-				foreach (var listActivity in recentUserUpdates.Activities)
+				foreach (var grouping in recentUserUpdates.Activities.GroupBy(activity => activity.Media.Id))
 				{
-					var mediaListEntry = listActivity.Media.Type == ListType.ANIME
-						? recentUserUpdates.AnimeList.First(mle => mle.Id == listActivity.Media.Id)
-						: recentUserUpdates.MangaList.First(mle => mle.Id == listActivity.Media.Id);
-					allUpdates.Add(listActivity.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser.Features));
+					var lastListActivityOnMedia = grouping.MaxBy(activity => activity.CreatedAtTimestamp);
+					var mediaListEntry = lastListActivityOnMedia.Media.Type == ListType.ANIME
+						? recentUserUpdates.AnimeList.First(mle => mle.Id == lastListActivityOnMedia.Media.Id)
+						: recentUserUpdates.MangaList.First(mle => mle.Id == lastListActivityOnMedia.Media.Id);
+					allUpdates.Add(lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser.Features));
 				}
 
 				if (!allUpdates.Any())

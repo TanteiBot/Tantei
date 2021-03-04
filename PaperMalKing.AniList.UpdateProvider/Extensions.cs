@@ -177,7 +177,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 																					   mediaListEntry.Status == MediaListStatus.COMPLETED);
 			var desc = isHiddenProgressPresent switch
 			{
-				true => $"{(isAnime ? $"Watched episode" : $"Read chapter")} {activity.Progress} and {activity.Status.ToLowerInvariant()} it",
+				true => $"{(isAnime ? $"Watched episode" : $"Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it",
 				_    => $"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}"
 			};
 			var isAdvancedScoringEnabled =
