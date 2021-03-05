@@ -102,7 +102,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 			return result;
 		}
 
-		public static string GetEmbedFormat(this Media media)
+		public static string? GetEmbedFormat(this Media media)
 		{
 			switch (media.CountryOfOrigin)
 			{
@@ -120,7 +120,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 						case MediaFormat.ONE_SHOT:
 							return "Manhua";
 						default:
-							return media.Format.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+							return media.Format?.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
 					}
 				case "KR":
 					switch (media.Format)
@@ -129,10 +129,10 @@ namespace PaperMalKing.AniList.UpdateProvider
 						case MediaFormat.ONE_SHOT:
 							return "Manhwa";
 						default:
-							return media.Format.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+							return media.Format?.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
 					}
 				default:
-					return media.Format.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+					return media.Format?.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
 			}
 		}
 
@@ -141,7 +141,11 @@ namespace PaperMalKing.AniList.UpdateProvider
 		{
 			var strings = new List<string> {media.Title.GetTitle(titleLanguage)};
 			if ((features & AniListUserFeatures.MediaFormat) != 0)
-				strings.Add($" ({media.GetEmbedFormat()})");
+			{
+				var format = media.GetEmbedFormat();
+				if (!string.IsNullOrEmpty(format))
+					strings.Add($" ({format})");
+			}
 			if ((features & AniListUserFeatures.MediaStatus) != 0)
 				strings.Add($" [{media.Status.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence)}]");
 			var sb = new StringBuilder(256);
@@ -162,7 +166,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 		public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this Review review, User user)
 		{
 			return new DiscordEmbedBuilder().WithAniListAuthor(user).WithTitle(
-																			   $"New review on {review.Media.Title.GetTitle(user.Options.TitleLanguage)} ({review.Media.Format.Humanize(LetterCasing.Sentence)})")
+																			   $"New review on {review.Media.Title.GetTitle(user.Options.TitleLanguage)} ({review.Media.Format?.Humanize(LetterCasing.Sentence)})")
 											.WithThumbnail(review.Media.Image.ImageUrl).WithUrl(review.Url)
 											.WithTimestamp(DateTimeOffset.FromUnixTimeSeconds(review.CreatedAtTimeStamp))
 											.WithDescription(review.Summary);

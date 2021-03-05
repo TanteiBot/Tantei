@@ -38,7 +38,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         public string Url { get; init; } = null!;
 
         [JsonPropertyName("format")]
-        public MediaFormat Format { get; init; }
+        public MediaFormat? Format { get; init; }
 
         [JsonPropertyName("countryOfOrigin")]
         public string CountryOfOrigin { get; init; } = null!;
