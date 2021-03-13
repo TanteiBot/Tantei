@@ -19,6 +19,7 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,6 +31,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Options;
 
@@ -41,7 +43,6 @@ namespace PaperMalKing.Services.Background
 		private readonly IOptions<DiscordOptions> _options;
 		private readonly IServiceProvider _provider;
 		public readonly DiscordClient Client;
-		private int _activityIndex;
 
 		public DiscordBackgroundService(IServiceProvider provider, IOptions<DiscordOptions> options, ILogger<DiscordBackgroundService> logger,
 										DiscordClient client)
@@ -151,14 +152,19 @@ namespace PaperMalKing.Services.Background
 							var token = (CancellationToken) (cancellationToken ?? CancellationToken.None);
 							while (!token.IsCancellationRequested)
 							{
-								if (this._activityIndex >= this._options.Value.Activities.Length)
-									this._activityIndex = 0;
-								var options = this._options.Value.Activities[this._activityIndex];
-
-								var (discordActivity, userStatus) = this.OptionsToDiscordActivity(options);
-								await this.Client.UpdateStatusAsync(discordActivity, userStatus);
-								await Task.Delay(TimeSpan.FromMilliseconds(options.TimeToBeDisplayedInMilliseconds), token);
-								this._activityIndex++;
+								foreach (var options in this._options.Value.Activities)
+								{
+									try
+									{
+										var (discordActivity, userStatus) = this.OptionsToDiscordActivity(options);
+										await this.Client.UpdateStatusAsync(discordActivity, userStatus);
+										await Task.Delay(TimeSpan.FromMilliseconds(options.TimeToBeDisplayedInMilliseconds), token);
+									}
+									catch (Exception ex)
+									{
+										this._logger.LogError(ex, "Error occured while updating Discord presence");
+									}
+								}
 							}
 						}, stoppingToken, stoppingToken)
 						.ContinueWith(task => this._logger.LogError(task.Exception, "Error occured while updating Discord presence"),
@@ -169,6 +175,48 @@ namespace PaperMalKing.Services.Background
 				this._logger.LogInformation("Found only one Discord status in options so it won't be changed");
 				var (discordActivity, userStatus) = this.OptionsToDiscordActivity(this._options.Value.Activities[0]);
 				await this.Client.ConnectAsync(discordActivity, userStatus);
+			}
+
+			if (!string.IsNullOrEmpty(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory) &&
+				Directory.Exists(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory)      && Directory
+					.EnumerateFiles(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory)
+					.Count(f => f.EndsWith(".jpg") || f.EndsWith(".png") || f.EndsWith(".jpeg")) > 1)
+			{
+				this._logger.LogInformation("Found more than 1 avatar in {PathToAvatarsDirectory}",
+											this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory);
+				_ = Task.Factory.StartNew(async cancellationToken =>
+						{
+							var token = (CancellationToken) (cancellationToken ?? CancellationToken.None);
+							while (!token.IsCancellationRequested)
+							{
+								var pathes = Directory
+											 .EnumerateFiles(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory)
+											 .Where(f => f.EndsWith(".jpg") || f.EndsWith(".png") || f.EndsWith(".jpeg")).ToArray().Shuffle();
+								foreach (var path in pathes)
+								{
+									try
+									{
+										await using (var stream = File.Open(path, FileMode.Open, FileAccess.Read))
+											await this.Client.UpdateCurrentUserAsync(null, new Optional<Stream>(stream));
+										
+										this._logger.LogDebug("Changed Discord avatar");
+										await
+											Task.Delay(TimeSpan.FromMinutes(this._options.Value.AvatarChangingOptions.TimeBetweenChangingAvatarsInMinutes),
+													   token);
+									}
+									catch (Exception ex)
+									{
+										this._logger.LogError(ex, "Error occured while updating Discord avatar");
+									}
+								}
+							}
+						}, stoppingToken, stoppingToken)
+						.ContinueWith(task => this._logger.LogError(task.Exception, "Error occured while updating Discord avatar"),
+									  TaskContinuationOptions.OnlyOnFaulted);
+			}
+			else
+			{
+				this._logger.LogError("Didn't found avatars directory or there was 1 or there wasn't pictures that can be avatar");
 			}
 
 			await Task.Delay(Timeout.Infinite, stoppingToken);
@@ -195,10 +243,9 @@ namespace PaperMalKing.Services.Background
 					.LogError("Couldn't parse correct UserStatus from {Status}, correct values are {CorrectStatuses}",
 							  options.Status, correctStatuses);
 				status = UserStatus.Online;
-
 			}
 
-			return (new (options.PresenceText, activityType), status);
+			return (new(options.PresenceText, activityType), status);
 		}
 
 		/// <inheritdoc />
