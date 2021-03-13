@@ -26,6 +26,8 @@ namespace PaperMalKing.Options
 
 		public DiscordActivityOptions[] Activities { get; set; } = null!;
 		
+		public DiscordAvatarChangingOptions AvatarChangingOptions { get; set; } = null!;
+		
 		public sealed class DiscordActivityOptions
 		{
 			public string ActivityType { get; set; } = null!;
@@ -35,6 +37,13 @@ namespace PaperMalKing.Options
 			public int TimeToBeDisplayedInMilliseconds { get; set; }
 
 			public string Status { get; set; } = null!;
+		}
+		
+		public sealed class DiscordAvatarChangingOptions
+		{
+			public string? PathToAvatarsDirectory { get; set; }
+			
+			public int TimeBetweenChangingAvatarsInMinutes { get; set; }
 		}
 	}
 }
