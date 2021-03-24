@@ -20,6 +20,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.Database.Models.MyAnimeList;
@@ -31,10 +32,25 @@ namespace PaperMalKing.Database
 	{
 		public static async Task<int> SaveChangesAndThrowOnNoneAsync(this DbContext context, CancellationToken cancellationToken = default)
 		{
-			var rows = await context.SaveChangesAsync(cancellationToken);
+			var rows = await context.TrySaveChangesUntilDatabaseIsUnlockedAsync(cancellationToken);
 			if (rows <= 0)
 				throw new NoChangesSavedException(context);
 			return rows;
+		}
+
+		public static async Task<int> TrySaveChangesUntilDatabaseIsUnlockedAsync(this DbContext context, CancellationToken cancellationToken = default)
+		{
+			while (!cancellationToken.IsCancellationRequested)
+			{
+				try
+				{
+					var rows = await context.SaveChangesAsync(cancellationToken);
+					return rows;
+				}
+				catch (SqliteException ex) when (ex.SqliteErrorCode == 5) // Database is locked
+				{ }
+			}
+			throw new TaskCanceledException("Saving changes were cancelled");
 		}
 
 		public static MalUserFeatures GetDefault(this MalUserFeatures _) => MalUserFeatures.AnimeList | MalUserFeatures.MangaList   |
