@@ -154,6 +154,8 @@ namespace PaperMalKing.Services.Background
 							{
 								foreach (var options in this._options.Value.Activities)
 								{
+									if (token.IsCancellationRequested)
+										return;
 									try
 									{
 										var (discordActivity, userStatus) = this.OptionsToDiscordActivity(options);
@@ -194,10 +196,12 @@ namespace PaperMalKing.Services.Background
 											 .Where(f => f.EndsWith(".jpg") || f.EndsWith(".png") || f.EndsWith(".jpeg")).ToArray().Shuffle();
 								foreach (var path in pathes)
 								{
+									if (token.IsCancellationRequested)
+										return;
 									try
 									{
 										await using (var stream = File.Open(path, FileMode.Open, FileAccess.Read))
-											await this.Client.UpdateCurrentUserAsync(null, new Optional<Stream>(stream));
+											await this.Client.UpdateCurrentUserAsync(null, new(stream));
 										
 										this._logger.LogDebug("Changed Discord avatar");
 										await
