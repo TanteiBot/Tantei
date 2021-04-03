@@ -140,14 +140,17 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			{
 				this.Logger.LogDebug("Starting to check for updates for {@Username}", dbUser.Username);
 				User? user = null;
+				var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+				cts.CancelAfter(TimeSpan.FromMinutes(2));
+				var ct = cts.Token;
 				try
 				{
-					user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), cancellationToken);
+					user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), ct);
 				}
 				catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
 				{
 					this.Logger.LogError(exception, "User with username {@Username} not found", dbUser.Username);
-					dbUser.Username = await this._client.GetUsernameAsync((ulong) dbUser.UserId, cancellationToken);
+					dbUser.Username = await this._client.GetUsernameAsync((ulong) dbUser.UserId, ct);
 					db.MalUsers.Update(dbUser);
 					await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
 					return;
@@ -172,11 +175,11 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					{
 						true when dbUser.LastAnimeUpdateHash.Substring(" ", true) != user.LatestAnimeUpdate!.Hash.inRssHash => await
 							CheckRssListUpdates<AnimeRssFeed, AnimeListEntry, AnimeListType>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp,
-																							 DbAnimeUpdateAction, cancellationToken),
+																							 DbAnimeUpdateAction, ct),
 						true when dbUser.LastAnimeUpdateHash.Substring(" ", false) != user.LatestAnimeUpdate!.Hash.inProfileHash => await
 							CheckProfileListUpdatesAsync<AnimeListEntry, AnimeListType>(dbUser, user, user!.LatestAnimeUpdate.Id,
 																						dbUser.LastUpdatedAnimeListTimestamp, DbAnimeUpdateAction,
-																						cancellationToken),
+																						ct),
 						_ => Array.Empty<DiscordEmbedBuilder>()
 					}
 					: Array.Empty<DiscordEmbedBuilder>();
@@ -186,11 +189,11 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					{
 						true when dbUser.LastMangaUpdateHash.Substring(" ", true) != user.LatestMangaUpdate!.Hash.inRssHash => await
 							CheckRssListUpdates<MangaRssFeed, MangaListEntry, MangaListType>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp,
-																							 DbMangaUpdateAction, cancellationToken),
+																							 DbMangaUpdateAction, ct),
 						true when dbUser.LastMangaUpdateHash.Substring(" ", false) != user.LatestMangaUpdate!.Hash.inProfileHash => await
 							CheckProfileListUpdatesAsync<MangaListEntry, MangaListType>(dbUser, user, user!.LatestMangaUpdate.Id,
 																						dbUser.LastUpdatedMangaListTimestamp, DbMangaUpdateAction,
-																						cancellationToken),
+																						ct),
 						_ => Array.Empty<DiscordEmbedBuilder>()
 					}
 					: Array.Empty<DiscordEmbedBuilder>();
@@ -204,14 +207,14 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					continue;
 				}
 
-				await db.Entry(dbUser).Reference(u => u.DiscordUser).LoadAsync(cancellationToken);
-				await db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).LoadAsync(cancellationToken);
+				await db.Entry(dbUser).Reference(u => u.DiscordUser).LoadAsync(ct);
+				await db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).LoadAsync(ct);
 				if (dbUser.Features.HasFlag(MalUserFeatures.Mention))
 					totalUpdates.ForEach(b => b.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), true));
 				if (dbUser.Features.HasFlag(MalUserFeatures.Website))
 					totalUpdates.ForEach(b => b.WithMalUpdateProviderFooter());
 
-				if (cancellationToken.IsCancellationRequested)
+				if (ct.IsCancellationRequested)
 				{
 					this.Logger.LogInformation("Ended checking updates for {@Username} because it was canceled", dbUser.Username);
 					db.Entry(dbUser).State = EntityState.Unchanged;
