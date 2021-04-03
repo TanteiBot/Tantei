@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PaperMalKing.Common.RateLimiter
@@ -24,6 +25,6 @@ namespace PaperMalKing.Common.RateLimiter
 	{
 		RateLimit RateLimit { get; }
 
-		Task TickAsync();
+		Task TickAsync(CancellationToken cancellationToken = default);
 	}
 }

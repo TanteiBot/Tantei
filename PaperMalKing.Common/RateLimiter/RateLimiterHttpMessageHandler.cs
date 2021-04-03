@@ -52,7 +52,7 @@ namespace PaperMalKing.Common.RateLimiter
 		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
 																	 CancellationToken cancellationToken)
 		{
-			await this.RateLimiter.TickAsync();
+			await this.RateLimiter.TickAsync(cancellationToken);
 			return await base.SendAsync(request, cancellationToken);
 		}
 

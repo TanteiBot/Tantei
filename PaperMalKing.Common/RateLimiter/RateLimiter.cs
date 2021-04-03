@@ -45,11 +45,11 @@ namespace PaperMalKing.Common.RateLimiter
 			this._semaphoreSlim = new (1, 1);
 		}
 
-		public async Task TickAsync()
+		public async Task TickAsync(CancellationToken cancellationToken = default)
 		{
 			if (this._semaphoreSlim == null)
 				return;
-			await this._semaphoreSlim.WaitAsync();
+			await this._semaphoreSlim.WaitAsync(cancellationToken);
 			try
 			{
 				var nextRefillDateTime = this._lastUpdateTime + this.RateLimit.PeriodInMilliseconds;
@@ -62,7 +62,7 @@ namespace PaperMalKing.Common.RateLimiter
 					var delayInMs = Convert.ToInt32(delay);
 					this.Logger.LogDebug(
 						$"[{this._serviceName}] Waiting {delayInMs.ToString()}ms.");
-					await Task.Delay(delayInMs);
+					await Task.Delay(delayInMs, cancellationToken);
 				}
 				else if (isTooEarlyToRefill) // && arePermitsAvailable
 				{

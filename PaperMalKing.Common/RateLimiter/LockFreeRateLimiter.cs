@@ -43,14 +43,19 @@ namespace PaperMalKing.Common.RateLimiter
 			this.RateLimit = rateLimit;
 
 			this.Logger = logger ?? NullLogger<LockFreeRateLimiter<T>>.Instance;
-			this._lastUpdateTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-			this._availablePermits = rateLimit.AmountOfRequests;
-			this._delayBetweenRefills = rateLimit.PeriodInMilliseconds;
+			this._delayBetweenRefills = this.RateLimit.PeriodInMilliseconds;
+			this.Reset();
 		}
 
-		public async Task TickAsync()
+		private void Reset()
 		{
-			while (true)
+			Interlocked.Exchange(ref this._lastUpdateTime, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+			Interlocked.Exchange(ref this._availablePermits, this.RateLimit.AmountOfRequests);
+		}
+
+		public async Task TickAsync(CancellationToken cancellationToken = default)
+		{
+			while (cancellationToken.IsCancellationRequested)
 			{
 				var lastUpdateTime = Interlocked.Read(ref this._lastUpdateTime);
 				var availablePermits = Interlocked.Read(ref this._availablePermits);
@@ -65,7 +70,7 @@ namespace PaperMalKing.Common.RateLimiter
 						var delay = nextRefillDateTime - now;
 						var delayInMs = Convert.ToInt32(delay);
 						this.Logger.LogDebug("[{ServiceName}] Waiting {@Delay}ms.", this._serviceName, delayInMs);
-						await Task.Delay(delayInMs);
+						await Task.Delay(delayInMs, cancellationToken);
 						break;
 					}
 					// && arePermitsAvailable
@@ -90,6 +95,7 @@ namespace PaperMalKing.Common.RateLimiter
 					this._spinner.SpinOnce();
 				}
 			}
+			this.Reset();
 		}
 
 		/// <inheritdoc />
