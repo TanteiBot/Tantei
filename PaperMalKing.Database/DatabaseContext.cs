@@ -84,8 +84,16 @@ namespace PaperMalKing.Database
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			if (!optionsBuilder.IsConfigured)
+			{
 				optionsBuilder.UseSqlite(this._connectionString,
 					builder => { builder.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery); });
+				
+				SQLitePCL.Batteries_V2.Init();
+				// SQLITE_CONFIG_MULTITHREAD
+				// https://github.com/dotnet/efcore/issues/9994
+				// https://sqlite.org/threadsafe.html
+				SQLitePCL.raw.sqlite3_config(2);
+			}
 		}
 
 		/// <inheritdoc />
