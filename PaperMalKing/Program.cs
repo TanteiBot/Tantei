@@ -78,7 +78,7 @@ namespace PaperMalKing
 			}).UseSerilog((context, _, configuration) =>
 			{
 				configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo
-							 .Console(outputTemplate: "[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}");
+							 .Console(outputTemplate: "[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {Level:u3}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}");
 			});
 		}
 	}
