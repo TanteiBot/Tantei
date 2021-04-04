@@ -51,11 +51,12 @@ namespace PaperMalKing.Common.RateLimiter
 		{
 			Interlocked.Exchange(ref this._lastUpdateTime, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 			Interlocked.Exchange(ref this._availablePermits, this.RateLimit.AmountOfRequests);
+			this.Logger.LogInformation($"{this._serviceName} Resetting");
 		}
 
 		public async Task TickAsync(CancellationToken cancellationToken = default)
 		{
-			while (cancellationToken.IsCancellationRequested)
+			while (!cancellationToken.IsCancellationRequested)
 			{
 				var lastUpdateTime = Interlocked.Read(ref this._lastUpdateTime);
 				var availablePermits = Interlocked.Read(ref this._availablePermits);
@@ -96,6 +97,7 @@ namespace PaperMalKing.Common.RateLimiter
 				}
 			}
 			this.Reset();
+			cancellationToken.ThrowIfCancellationRequested();
 		}
 
 		/// <inheritdoc />
