@@ -129,10 +129,22 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 
 				if ((dbUser.Features & ShikiUserFeatures.Website) != 0)
 					totalUpdates.ForEach(deb => deb.WithShikiUpdateProviderFooter());
-				await this.UpdateFoundEvent?.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser))!;
-				db.ShikiUsers.Update(dbUser);
-				await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
-				this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);
+
+				await using var transaction = await db.Database.BeginTransactionAsync(CancellationToken.None);
+				try
+				{
+					db.ShikiUsers.Update(dbUser);
+					if (await db.SaveChangesAsync(CancellationToken.None) <= 0) throw new Exception("Couldn't save update in DB");
+					await transaction.CommitAsync();
+					await this.UpdateFoundEvent?.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser))!;
+					this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);
+				}
+				catch(Exception ex)
+				{
+					await transaction.RollbackAsync();
+					this.Logger.LogError(ex, ex.Message);
+
+				}
 			}
 		}
 	}

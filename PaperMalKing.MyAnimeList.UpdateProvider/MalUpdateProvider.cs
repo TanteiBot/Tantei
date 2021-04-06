@@ -141,11 +141,12 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				this.Logger.LogDebug("Starting to check for updates for {@Username}", dbUser.Username);
 				User? user = null;
 				var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-				cts.CancelAfter(TimeSpan.FromMinutes(2));
+				cts.CancelAfter(TimeSpan.FromMinutes(5));
 				var ct = cts.Token;
 				try
 				{
 					user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), ct);
+					this.Logger.LogTrace("Loaded profile for {@Username}", user.Username);
 				}
 				catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
 				{
@@ -221,10 +222,20 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					continue;
 				}
 
-				await this.UpdateFoundEvent?.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser))!;
-				db.Entry(dbUser).State = EntityState.Modified;
-				await db.SaveChangesAsync(CancellationToken.None);
-				this.Logger.LogDebug("Ended checking updates for {@Username} with {@Updates} updates found", dbUser.Username, totalUpdates.Length);
+				await using var transaction = await db.Database.BeginTransactionAsync(ct);
+				try
+				{
+					db.Entry(dbUser).State = EntityState.Modified;
+					if (await db.SaveChangesAsync(ct) <= 0) throw new Exception("Couldn't save update in Db");
+					await transaction.CommitAsync();
+					await this.UpdateFoundEvent?.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser))!;
+					this.Logger.LogDebug("Ended checking updates for {@Username} with {@Updates} updates found", dbUser.Username, totalUpdates.Length);
+				}
+				catch(Exception ex)
+				{
+					await transaction.RollbackAsync();
+					this.Logger.LogError(ex, ex.Message);
+				}
 			}
 		}
 

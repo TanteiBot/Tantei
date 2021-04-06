@@ -110,9 +110,19 @@ namespace PaperMalKing.AniList.UpdateProvider
 					continue;
 				}
 
-				this.UpdateFoundEvent?.Invoke(new(new BaseUpdate(allUpdates), this, dbUser.DiscordUser));
-				db.Entry(dbUser).State = EntityState.Modified;
-				await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
+				await using var transaction = db.Database.BeginTransaction();
+				try
+				{
+					db.Entry(dbUser).State = EntityState.Modified;
+					if (await db.SaveChangesAsync(CancellationToken.None) <= 0) throw new Exception("Couldn't save updates to database");
+					await transaction.CommitAsync();
+					this.UpdateFoundEvent?.Invoke(new(new BaseUpdate(allUpdates), this, dbUser.DiscordUser));
+				}
+				catch (Exception ex)
+				{
+					await transaction.RollbackAsync();
+					this.Logger.LogError(ex, ex.Message);
+				}
 			}
 		}
 

@@ -18,6 +18,7 @@
 
 #endregion
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
@@ -48,7 +49,9 @@ namespace PaperMalKing.Database
 					return rows;
 				}
 				catch (SqliteException ex) when (ex.SqliteErrorCode == 5) // Database is locked
-				{ }
+				{
+					await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken);
+				}
 			}
 			throw new TaskCanceledException("Saving changes were cancelled");
 		}
