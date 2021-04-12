@@ -105,7 +105,10 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 			username = WebUtility.UrlEncode(username);
 			var requestUrl = Constants.PROFILE_URL + username;
 			var htmlNode = await this.GetAsHtmlAsync(requestUrl, cancellationToken);
-			return UserProfileParser.Parse(htmlNode, options);
+			this._logger.LogTrace("Starting parsing {@Username} profile", username);
+			var user = UserProfileParser.Parse(htmlNode, options);
+			this._logger.LogTrace("Ended parsing {@Username} profile", username);
+			return user;
 		}
 
 		internal async Task<string> GetUsernameAsync(ulong id, CancellationToken cancellationToken = default)
