@@ -62,7 +62,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 		public int? Chapters { get; init; }
 
 		[JsonPropertyName("kind")]
-		public string Kind { get; init; } = null!;
+		public string? Kind { get; init; }
 
 		[JsonPropertyName("name")]
 		public string Name { get; init; } = null!;

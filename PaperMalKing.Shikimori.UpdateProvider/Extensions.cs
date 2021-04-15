@@ -155,7 +155,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			else
 				titleSb.Append(firstTarget.Name);
 			if ((features & ShikiUserFeatures.MediaFormat) != 0)
-				titleSb.Append($" ({firstTarget.Kind.Humanize(LetterCasing.Sentence)})");
+				titleSb.Append($" ({(firstTarget.Kind ?? "Unknown").Humanize(LetterCasing.Sentence)})");
 			if ((features & ShikiUserFeatures.MediaStatus) != 0)
 				titleSb.AppendLine($" [{firstTarget.Status.Humanize(LetterCasing.Sentence)}]");
 			eb.WithTitle(titleSb.ToString())
