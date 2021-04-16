@@ -61,6 +61,17 @@ namespace PaperMalKing.AniList.UpdateProvider
 
 		protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 		{
+			void NewFunction(IGrouping<ulong, ListActivity>? grouping, CombinedRecentUpdatesResponse? recentUserUpdates, List<DiscordEmbedBuilder>? allUpdates, AniListUser? dbUser)
+			{
+				var lastListActivityOnMedia = grouping.MaxBy(activity => activity.CreatedAtTimestamp);
+				MediaListEntry mediaListEntry;
+				if (lastListActivityOnMedia.Media.Type == ListType.ANIME)
+					mediaListEntry = recentUserUpdates.AnimeList.First(mle => mle.Id == lastListActivityOnMedia.Media.Id);
+				else
+					mediaListEntry = recentUserUpdates.MangaList.First(mle => mle.Id == lastListActivityOnMedia.Media.Id);
+				allUpdates.Add(lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser.Features));
+			}
+
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			await foreach (var dbUser in db.AniListUsers.Include(au => au.DiscordUser).ThenInclude(du => du.Guilds).Include(au => au.Favourites)
@@ -82,9 +93,10 @@ namespace PaperMalKing.AniList.UpdateProvider
 				{
 					var lastListActivityOnMedia = grouping.MaxBy(activity => activity.CreatedAtTimestamp);
 					var mediaListEntry = lastListActivityOnMedia.Media.Type == ListType.ANIME
-						? recentUserUpdates.AnimeList.First(mle => mle.Id == lastListActivityOnMedia.Media.Id)
-						: recentUserUpdates.MangaList.First(mle => mle.Id == lastListActivityOnMedia.Media.Id);
-					allUpdates.Add(lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser.Features));
+						? recentUserUpdates.AnimeList.FirstOrDefault(mle => mle.Id == lastListActivityOnMedia.Media.Id)
+						: recentUserUpdates.MangaList.FirstOrDefault(mle => mle.Id == lastListActivityOnMedia.Media.Id);
+					if(mediaListEntry != null)
+						allUpdates.Add(lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser.Features));
 				}
 
 				if (!allUpdates.Any())
