@@ -191,7 +191,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					var chapterProgress = SubEntriesProgress(mle.ReadChapters, mle.TotalChapters,
 															 mle.UserMangaProgress == MangaProgress.PlanToRead, "ch. ");
 					var volumeProgress =
-						SubEntriesProgress(mle.ReadVolumes, mle.ReadVolumes, mle.UserMangaProgress == MangaProgress.PlanToRead, "v.");
+						SubEntriesProgress(mle.ReadVolumes, mle.TotalVolumes, mle.UserMangaProgress == MangaProgress.PlanToRead, "v.");
 					userProgressText = chapterProgress != "" || volumeProgress != "" ? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
 					break;
 				}
