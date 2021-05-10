@@ -232,8 +232,12 @@ namespace PaperMalKing.AniList.UpdateProvider
 
 			if (!isAnime && (features & AniListUserFeatures.Mangaka) != 0)
 			{
-				var text = string.Join(", ", media.Staff.Nodes.Select(edge =>
-																		  $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new Uri(edge.Staff.Url))} - {edge.Role}"));
+				var text = string.Join(", ",
+					media.Staff.Nodes
+						 .Where(edge =>
+							 !edge.Role.StartsWith("Lettering", StringComparison.InvariantCultureIgnoreCase) &&
+							 !edge.Role.StartsWith("Translator", StringComparison.InvariantCultureIgnoreCase)).Take(5).Select(edge =>
+							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
 				if (!string.IsNullOrEmpty(text))
 					eb.AddField("Made by", text, true);
 			}
