@@ -43,6 +43,8 @@ namespace PaperMalKing.AniList.UpdateProvider
 
 		internal static readonly Regex EmptyLinesRemovalRegex = new(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline);
 
+		private static readonly string[] IgnoredRoles = {"Lettering", "Translator", "Touch-Up Art"};
+
 		private static readonly Dictionary<MediaListStatus, DiscordColor> Colors = new()
 		{
 			{MediaListStatus.PAUSED, Constants.AniListPeach},
@@ -235,8 +237,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 				var text = string.Join(", ",
 					media.Staff.Nodes
 						 .Where(edge =>
-							 !edge.Role.StartsWith("Lettering", StringComparison.InvariantCultureIgnoreCase) &&
-							 !edge.Role.StartsWith("Translator", StringComparison.InvariantCultureIgnoreCase)).Take(5).Select(edge =>
+							 IgnoredRoles.All(r => !edge.Role.StartsWith(r))).Take(5).Select(edge =>
 							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
 				if (!string.IsNullOrEmpty(text))
 					eb.AddField("Made by", text, true);
