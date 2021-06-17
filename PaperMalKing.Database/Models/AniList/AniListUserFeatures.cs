@@ -65,6 +65,9 @@ namespace PaperMalKing.Database.Models.AniList
 		Mangaka = 1 << 11,
 
 		[FeatureDescription("reviews", "track user reviews")]
-		Reviews = 1 << 12
+		Reviews = 1 << 12,
+		
+		[FeatureDescription("customlists", "show to which custom lists entry belongs to")]
+		CustomLists = 1 << 13
 	}
 }

@@ -94,9 +94,9 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
               ";
 
 		private const string AnimeListSubQuery = @"
-            AnimeList: MediaListCollection(userId: $userId, type: ANIME, sort: UPDATED_TIME_DESC, chunk: $chunk, perChunk: $perChunk) {
-              lists {
-                entries {
+            AnimeList: MediaListCollection(userId: $userId, type: ANIME, sort: UPDATED_TIME_DESC, chunk: $chunk, perChunk: $perChunk) {{
+              lists {{
+                entries {{
                   id: mediaId
                   status
                   point100Score: score(format: POINT_100)
@@ -107,15 +107,16 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                   repeat
                   notes
                   advancedScores
-                }
-              }
-            }
+				  {0}
+                }}
+              }}
+            }}
             ";
 
 		private const string MangaListSubQuery = @"
-            MangaList: MediaListCollection(userId: $userId, type: MANGA, sort: UPDATED_TIME_DESC, chunk: $chunk, perChunk: $perChunk) {
-              lists {
-                entries {
+            MangaList: MediaListCollection(userId: $userId, type: MANGA, sort: UPDATED_TIME_DESC, chunk: $chunk, perChunk: $perChunk) {{
+              lists {{
+                entries {{
                   id: mediaId
                   status
                   point100Score: score(format: POINT_100)
@@ -126,9 +127,10 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                   repeat
                   notes
                   advancedScores
-                }
-              }
-            }
+				  {0}
+                }}
+              }}
+            }}
             ";
 
 		private const string ReviewsSubQuery = @"
@@ -160,34 +162,28 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
 
 		public static string Build(RequestOptions options)
 		{
-			var hasAnime = (options & RequestOptions.Favourites) != 0;
-			var hasManga = (options & RequestOptions.AnimeList)  != 0;
-			var favouritesSq = options switch
-			{
-				_ when hasAnime => FavouritesSubQuery,
-				_               => string.Empty
-			};
-			var aListSq = options switch
-			{
-				_ when hasManga => AnimeListSubQuery,
-				_               => string.Empty
-			};
-			var mListSq = options switch
-			{
-				_ when (options & RequestOptions.MangaList) != 0 => MangaListSubQuery,
-				_                                                            => string.Empty
-			};
-			var reviewSq = options switch
-			{
-				_ when (options & RequestOptions.Reviews) != 0 => ReviewsSubQuery,
-				_                                                          => string.Empty
-			};
-			var sb = new StringBuilder(QueryStart);
-			sb.AppendLine(favouritesSq);
-			sb.AppendLine("}");
-			sb.AppendLine(aListSq);
-			sb.AppendLine(mListSq);
+			var hasAnime = (options & RequestOptions.AnimeList) != 0;
+			var hasManga = (options & RequestOptions.MangaList)  != 0;
+			var hasFavs = (options & RequestOptions.Favourites) != 0;
 
+
+			var hasReview = (options & RequestOptions.Reviews) != 0;
+			var sb = new StringBuilder(QueryStart);
+			if (hasFavs)
+			{
+				sb.AppendLine(FavouritesSubQuery);
+			}
+			sb.AppendLine("}");
+			if (hasAnime)
+			{
+				sb.AppendLine(string.Format(AnimeListSubQuery,
+					(options & RequestOptions.CustomLists) != 0 ? "customLists(asArray: true)" : string.Empty));
+			}
+
+			if (hasManga)
+			{
+				sb.AppendLine(string.Format(MangaListSubQuery, (options & RequestOptions.CustomLists) != 0 ? "customLists(asArray: true)" : string.Empty));
+			}
 			if (hasAnime || hasManga)
 			{
 				sb.AppendLine(@"ActivitiesPage: Page(page: $page, perPage: 50) {
@@ -218,8 +214,10 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
               }
             }");
 			}
-
-			sb.AppendLine(reviewSq);
+			if (hasReview)
+			{
+				sb.AppendLine(ReviewsSubQuery);
+			}
 			sb.AppendLine("}");
 			return sb.ToString();
 		}

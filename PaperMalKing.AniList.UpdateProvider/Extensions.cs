@@ -215,7 +215,10 @@ namespace PaperMalKing.AniList.UpdateProvider
 			eb.WithTotalSubEntries(activity.Media);
 			if (mediaListEntry.Repeat != 0) eb.AddField($"{(isAnime ? "Rewatched" : "Reread")} times", mediaListEntry.Repeat.ToString(), true);
 			if (!string.IsNullOrEmpty(mediaListEntry.Notes)) eb.AddField("Notes", mediaListEntry.Notes.Truncate(1023), true);
-
+			if ((features & AniListUserFeatures.CustomLists) != 0 && mediaListEntry.CustomLists.Any(x => x.Enabled))
+			{
+				eb.AddField("Custom lists", string.Join(", ", mediaListEntry.CustomLists.Where(x=>x.Enabled).Select(x => x.Name)), true);
+			}
 			return eb.EnrichWithMediaInfo(activity.Media, user, features);
 		}
 
@@ -255,6 +258,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 										   media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? $"||{t.Name}||" : t.Name));
 				eb.AddField("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 			}
+			
 
 			if ((features & AniListUserFeatures.MediaDescription) != 0 && !string.IsNullOrEmpty(media.Description))
 			{
