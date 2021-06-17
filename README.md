@@ -28,4 +28,4 @@ Copyright 2021 N0D4N
 
 Licensed under the AGPLv3: https://www.gnu.org/licenses/agpl-3.0.html
 
-![License](https://www.gnu.org/graphics/agplv3-with-text-100x42.png)
+[![License](https://www.gnu.org/graphics/agplv3-with-text-100x42.png)](https://www.gnu.org/licenses/agpl-3.0.html)
