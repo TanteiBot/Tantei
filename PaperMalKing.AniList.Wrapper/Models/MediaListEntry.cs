@@ -73,7 +73,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         public ulong Id { get; init; }
 
         [JsonPropertyName("customLists")]
-        public CustomList[] CustomLists { get; init; } = Array.Empty<CustomList>();
+        public CustomList[]? CustomLists { get; init; } = Array.Empty<CustomList>();
 
         public string GetScore(ScoreFormat scoreFormat)
         {
