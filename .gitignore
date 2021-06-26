@@ -11,7 +11,6 @@ appsettings.json
 # Empty database is distributed with releases
 empty_database.db
 
-.editorconfig
 
 # User-specific files
 *.rsuser
