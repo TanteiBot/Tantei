@@ -1,14 +1,14 @@
-Paper Mal King
+Tantei
 =================
 
 
-[![Azure DevOps builds (branch)](https://img.shields.io/azure-devops/build/ndan/PaperMalKing/1/rewrite-v2)](https://dev.azure.com/ndan/PaperMalKing/_build?definitionId=1&_a=summary&repositoryFilter=1&branchFilter=2%2C2) [![Discord](https://discord.com/api/guilds/507267293647208487/widget.png?style=shield)](https://discord.gg/b43GycdVAV)  
-Paper Mal King is Discord bot that tracks user's updates from various anime/manga list websites such as [MyAnimeList](https://myanimelist.net), [Shikimori](https://shikimori.one), [AniList](https://anilist.co) and posts them to Discord server/servers.
+[![.NET build](https://github.com/TanteiBot/Tantei/actions/workflows/build.yml/badge.svg)](https://github.com/TanteiBot/Tantei/actions/workflows/build.yml)  
+Tantei is Discord bot that tracks user's updates from various anime/manga list websites such as [MyAnimeList](https://myanimelist.net), [Shikimori](https://shikimori.one), [AniList](https://anilist.co) and posts them to Discord server/servers.
 
 Installation
 ---------------------
 Prerequisites: git, .NET SDK 5.0
-- `git clone https://github.com/N0D4N/PaperMalKing.git`
+- `git clone https://github.com/TanteiBot/Tantei.git`
 - `cd PaperMalKing/`
 - `dotnet publish -c Release -o publish/ PaperMalKing/PaperMalKing.csproj`
 - `cd publish/`
