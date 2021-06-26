@@ -1,0 +1,27 @@
+name: .NET build
+
+on: 
+  workflow_dispatch:
+  
+  push:
+    branches: 
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs: 
+  build:
+    env:
+      DOTNET_NOLOGO: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v1.8.0
+        with:
+          dotnet-version: '5.x'
+      - name: Install deps
+        run: dotnet restore
+      - name: Build projects
+        run: dotnet build --configuration Release --no-restore

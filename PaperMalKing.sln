@@ -9,7 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		NuGet.config = NuGet.config
 		README.md = README.md
-		azure-pipelines.yml = azure-pipelines.yml
 		LICENSE.md = LICENSE.md
 	EndProjectSection
 EndProject
@@ -30,6 +29,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.AniList.Wrapper", "PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj", "{82D32C6E-5371-463E-BEF9-45EF4B8876A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.AniList.UpdateProvider", "PaperMalKing.AniList.UpdateProvider\PaperMalKing.AniList.UpdateProvider.csproj", "{C4075A12-12AF-4B81-AD3B-99704DDB7B03}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{E970512D-B479-4616-B280-AB6FC9F3D111}"
+ProjectSection(SolutionItems) = preProject
+	.github/workflows/build.yml = .github/workflows/build.yml
+EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
