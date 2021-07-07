@@ -28,15 +28,20 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 	{
 		private static readonly char[] Numbers = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
+		private const string BaseSelectorStart = "//div[contains(@class, 'updates ";
+		private const string BaseSelectorEnd = "')]/div[1]";
+		private const string AnimeSelector = BaseSelectorStart + "anime" + BaseSelectorEnd;
+		private const string MangaSelector = BaseSelectorStart + "manga" + BaseSelectorEnd;
+
 		internal static LatestInProfileUpdate? Parse(HtmlNode node, ListEntryType listEntryType)
 		{
-			var type = listEntryType switch
+			var selector = listEntryType switch
 			{
-				ListEntryType.Anime => "anime",
-				ListEntryType.Manga => "manga",
+				ListEntryType.Anime => AnimeSelector,
+				ListEntryType.Manga => MangaSelector,
 				_                   => throw new ArgumentOutOfRangeException(nameof(listEntryType), listEntryType, null)
 			};
-			var dataNode = node.SelectSingleNode($"//div[contains(@class, 'updates {type}')]/div[1]");
+			var dataNode = node.SelectSingleNode(selector);
 			if (dataNode == null)
 				return null;
 			var hd = new HtmlDocument();
