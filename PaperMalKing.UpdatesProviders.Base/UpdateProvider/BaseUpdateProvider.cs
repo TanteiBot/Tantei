@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -25,7 +27,7 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 {
 	public abstract class BaseUpdateProvider : IUpdateProvider
 	{
-		private readonly CancellationTokenSource _cts;
+		private CancellationTokenSource? _cts;
 
 		protected readonly ILogger<BaseUpdateProvider> Logger;
 
@@ -37,7 +39,6 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 
 		protected BaseUpdateProvider(ILogger<BaseUpdateProvider> logger, TimeSpan delayBetweenTimerFires)
 		{
-			this._cts = new();
 			this.Logger = logger;
 			this.DelayBetweenTimerFires = delayBetweenTimerFires;
 			this.Timer = new(_ => this.TimerCallback(), null, Timeout.Infinite, Timeout.Infinite);
@@ -52,13 +53,15 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 		/// <inheritdoc />
 		public Task TriggerStoppingAsync()
 		{
-			this._cts.Cancel();
+			this._cts?.Cancel();
 			this.Logger.LogInformation("Stopping {Name} update provider", this.Name);
 			return this._updateCheckingRunningTask;
 		}
 
 		private async void TimerCallback()
 		{
+			using var cts = new CancellationTokenSource();
+			this._cts = cts;
 			try
 			{
 				this.Logger.LogInformation("Starting checking for updates in {@Name} updates provider", this.Name);
@@ -71,8 +74,11 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 			}
 			finally
 			{
+				this._cts = null;
 				this.RestartTimer(this.DelayBetweenTimerFires);
-				this.Logger.LogInformation("Ended checking for updates in {Name} updates provider. Next planned update check is in {@DelayBetweenTimerFires}.", this.Name, this.DelayBetweenTimerFires);
+				this.Logger.LogInformation(
+					"Ended checking for updates in {Name} updates provider. Next planned update check is in {@DelayBetweenTimerFires}.", this.Name,
+					this.DelayBetweenTimerFires);
 			}
 		}
 
