@@ -10,16 +10,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.4" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.4">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.7"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj"/>
     </ItemGroup>
 
 </Project>
