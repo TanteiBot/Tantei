@@ -28,10 +28,6 @@
                 "Status": "Online"
             }
         ],
-        "AvatarChangingOptions":{
-            "PathToAvatarsDirectory": "/path/to/directory/with/avatars/",
-            "TimeBetweenChangingAvatarsInMinutes": 720
-        },
         "Commands": {
             "Prefixes": [
                 "aa",

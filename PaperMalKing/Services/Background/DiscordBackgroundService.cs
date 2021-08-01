@@ -20,7 +20,6 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +31,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Options;
 
@@ -182,52 +180,6 @@ namespace PaperMalKing.Services.Background
 				this._logger.LogInformation("Found only one Discord status in options so it won't be changed");
 				var (discordActivity, userStatus) = this.OptionsToDiscordActivity(this._options.Value.Activities[0]);
 				await this.Client.ConnectAsync(discordActivity, userStatus).ConfigureAwait(false);
-			}
-
-			if (!string.IsNullOrEmpty(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory) &&
-				Directory.Exists(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory) && Directory
-					.EnumerateFiles(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory).Count(f =>
-						f.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) ||
-						f.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase) ||
-						f.EndsWith(".jpeg", StringComparison.InvariantCultureIgnoreCase)) > 1)
-			{
-				this._logger.LogInformation("Found more than 1 avatar in {PathToAvatarsDirectory}",
-					this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory);
-				_ = Task.Factory.StartNew(async cancellationToken =>
-				{
-					var token = (CancellationToken) (cancellationToken ?? CancellationToken.None);
-					while (!token.IsCancellationRequested)
-					{
-						var pathes = Directory.EnumerateFiles(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory).Where(f =>
-							f.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) ||
-							f.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase) ||
-							f.EndsWith(".jpeg", StringComparison.InvariantCultureIgnoreCase)).ToArray().Shuffle();
-						foreach (var path in pathes)
-						{
-							if (token.IsCancellationRequested)
-								return;
-							try
-							{
-								await using (var stream = File.Open(path, FileMode.Open, FileAccess.Read))
-									await this.Client.UpdateCurrentUserAsync(null, new(stream)).ConfigureAwait(false);
-
-								this._logger.LogDebug("Changed Discord avatar");
-								await Task.Delay(TimeSpan.FromMinutes(this._options.Value.AvatarChangingOptions.TimeBetweenChangingAvatarsInMinutes),
-									token).ConfigureAwait(false);
-							}
-							catch (Exception ex)
-							{
-								this._logger.LogError(ex, "Error occured while updating Discord avatar");
-							}
-						}
-					}
-				}, stoppingToken, stoppingToken, TaskCreationOptions.None, TaskScheduler.Current).ContinueWith(
-					task => this._logger.LogError(task.Exception, "Error occured while updating Discord avatar"), CancellationToken.None,
-					TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
-			}
-			else
-			{
-				this._logger.LogError("Didn't found avatars directory or there was 1 or there wasn't pictures that can be avatar");
 			}
 
 			await Task.Delay(Timeout.Infinite, stoppingToken).ConfigureAwait(false);
