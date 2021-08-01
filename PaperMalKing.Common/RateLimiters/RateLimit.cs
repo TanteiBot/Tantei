@@ -18,7 +18,7 @@
 
 using System;
 
-namespace PaperMalKing.Common.RateLimiter
+namespace PaperMalKing.Common.RateLimiters
 {
 	public sealed class RateLimit
 	{

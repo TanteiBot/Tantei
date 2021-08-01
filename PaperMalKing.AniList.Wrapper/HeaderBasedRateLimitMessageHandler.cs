@@ -43,7 +43,7 @@ namespace PaperMalKing.AniList.Wrapper
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            await this._semaphoreSlim.WaitAsync(cancellationToken);
+            await this._semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
             {
                 HttpResponseMessage response;
@@ -62,18 +62,18 @@ namespace PaperMalKing.AniList.Wrapper
                     {
                         var delay = this._timestamp + 60 - now;
                         this._logger.LogDebug("AniList exceeded rate-limit waiting {Delay}", delay);
-                        await Task.Delay(TimeSpan.FromSeconds(Math.Min(delay, 60)), cancellationToken);
+                        await Task.Delay(TimeSpan.FromSeconds(Math.Min(delay, 60)), cancellationToken).ConfigureAwait(false);
                         this._timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                         this._rateLimitRemaining = RateLimitMaxRequests;
                     }
 
-                    response = await base.SendAsync(request, cancellationToken);
+                    response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
                     if (response.StatusCode == HttpStatusCode.TooManyRequests && response.Headers.RetryAfter?.Delta != null)
                     {
                         var delay = response.Headers.RetryAfter.Delta.Value.Add(TimeSpan.FromSeconds(1));
                         this._logger.LogInformation("Got 429'd waiting {Delay}", delay);
-                        await Task.Delay(delay, cancellationToken);
+                        await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
                     }
                     else
                     {

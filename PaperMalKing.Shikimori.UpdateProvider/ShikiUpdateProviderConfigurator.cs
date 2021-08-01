@@ -23,7 +23,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PaperMalKing.Common.RateLimiter;
+using PaperMalKing.Common.RateLimiters;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.Shikimori.Wrapper;
 using PaperMalKing.UpdatesProviders.Base;

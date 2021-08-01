@@ -31,6 +31,6 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss
 		public string Version { get; set; } = null!;
 
 		[XmlIgnore]
-		public List<FeedItem> Items => this.Channel.Items;
+		public IReadOnlyList<FeedItem> Items => this.Channel.Items;
 	}
 }

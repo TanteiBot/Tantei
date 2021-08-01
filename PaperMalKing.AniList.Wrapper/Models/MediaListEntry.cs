@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -38,7 +39,8 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("notes")]
         public string? Notes { get; init; }
 
-        [JsonPropertyName("advancedScores")]
+		[SuppressMessage("", "CA2227")]
+		[JsonPropertyName("advancedScores")]
         public Dictionary<string, float>? AdvancedScores { get; init; }
 
         [JsonPropertyName("point100Score")]

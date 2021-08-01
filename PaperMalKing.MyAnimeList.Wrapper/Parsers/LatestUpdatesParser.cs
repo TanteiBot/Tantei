@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using HtmlAgilityPack;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
@@ -24,6 +25,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Models.Progress;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 {
+	[SuppressMessage("Globalization", "CA1307")]
 	internal static class LatestUpdatesParser
 	{
 		private static readonly char[] Numbers = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};

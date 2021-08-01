@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace PaperMalKing.Common.RateLimiter
+namespace PaperMalKing.Common.RateLimiters
 {
 	public sealed class RateLimiter<T> : IRateLimiter<T>, IDisposable
 	{
@@ -32,7 +32,7 @@ namespace PaperMalKing.Common.RateLimiter
 		private long _lastUpdateTime;
 
 		private long _availablePermits;
-		private SemaphoreSlim? _semaphoreSlim;
+		private volatile SemaphoreSlim? _semaphoreSlim;
 
 		internal RateLimiter(RateLimit rateLimit, ILogger<IRateLimiter<T>>? logger)
 		{
@@ -47,36 +47,36 @@ namespace PaperMalKing.Common.RateLimiter
 
 		public async Task TickAsync(CancellationToken cancellationToken = default)
 		{
-			if (this._semaphoreSlim == null)
-				return;
-			await this._semaphoreSlim.WaitAsync(cancellationToken);
-			try
+			var slim = this._semaphoreSlim;
+			if (slim != null)
 			{
-				var nextRefillDateTime = this._lastUpdateTime + this.RateLimit.PeriodInMilliseconds;
-				var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-				var arePermitsAvailable = this._availablePermits > 0;
-				var isTooEarlyToRefill = now < nextRefillDateTime;
-				if (isTooEarlyToRefill && !arePermitsAvailable)
+				await slim.WaitAsync(cancellationToken).ConfigureAwait(false);
+				try
 				{
-					var delay = nextRefillDateTime - now;
-					var delayInMs = Convert.ToInt32(delay);
-					this.Logger.LogDebug(
-						$"[{this._serviceName}] Waiting {delayInMs.ToString()}ms.");
-					await Task.Delay(delayInMs, cancellationToken);
-				}
-				else if (isTooEarlyToRefill) // && arePermitsAvailable
-				{
-					this.Logger.LogInformation("[{ServiceName}] Passing", this._serviceName);
-					this._availablePermits--;
-					return;
-				}
+					var nextRefillDateTime = this._lastUpdateTime + this.RateLimit.PeriodInMilliseconds;
+					var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+					var arePermitsAvailable = this._availablePermits > 0;
+					var isTooEarlyToRefill = now < nextRefillDateTime;
+					if (isTooEarlyToRefill && !arePermitsAvailable)
+					{
+						var delay = nextRefillDateTime - now;
+						this.Logger.LogDebug("[{ServiceName}] Waiting {Delay}ms", this._serviceName, delay.ToString());
+						await Task.Delay((int) delay, cancellationToken).ConfigureAwait(false);
+					}
+					else if (isTooEarlyToRefill) // && arePermitsAvailable
+					{
+						this.Logger.LogInformation("[{ServiceName}] Passing", this._serviceName);
+						this._availablePermits--;
+						return;
+					}
 
-				this._lastUpdateTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-				this._availablePermits = this.RateLimit.AmountOfRequests - 1;
-			}
-			finally
-			{
-				this._semaphoreSlim?.Release();
+					this._lastUpdateTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+					this._availablePermits = this.RateLimit.AmountOfRequests - 1;
+				}
+				finally
+				{
+					slim.Release();
+				}
 			}
 		}
 

@@ -79,7 +79,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 								 .Include(u => u.FavoriteMangas)
 								 .Include(u => u.FavoriteCharacters)
 								 .Include(u => u.FavoritePeople)
-								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId);
+								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before enabling features");
 			var total = features.Aggregate((acc, next) => acc | next);
@@ -93,21 +93,21 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				{
 					case MalUserFeatures.AnimeList:
 					{
-						user ??= await this._client.GetUserAsync(dbUser.Username, total.ToParserOptions(), CancellationToken.None);
+						user ??= await this._client.GetUserAsync(dbUser.Username, total.ToParserOptions(), CancellationToken.None).ConfigureAwait(false);
 						dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdate?.Hash.ToHashString() ?? "";
 						dbUser.LastUpdatedAnimeListTimestamp = now;
 						break;
 					}
 					case MalUserFeatures.MangaList:
 					{
-						user ??= await this._client.GetUserAsync(dbUser.Username, total.ToParserOptions(), CancellationToken.None);
+						user ??= await this._client.GetUserAsync(dbUser.Username, total.ToParserOptions(), CancellationToken.None).ConfigureAwait(false);
 						dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdate?.Hash.ToHashString() ?? "";
 						dbUser.LastUpdatedMangaListTimestamp = now;
 						break;
 					}
 					case MalUserFeatures.Favorites:
 					{
-						user ??= await this._client.GetUserAsync(dbUser.Username, total.ToParserOptions(), CancellationToken.None);
+						user ??= await this._client.GetUserAsync(dbUser.Username, total.ToParserOptions(), CancellationToken.None).ConfigureAwait(false);
 						dbUser.FavoriteAnimes = user.Favorites.FavoriteAnime.Select(x => x.ToMalFavoriteAnime(dbUser)).ToList();
 						dbUser.FavoriteMangas = user.Favorites.FavoriteManga.Select(x => x.ToMalFavoriteManga(dbUser)).ToList();
 						dbUser.FavoriteCharacters = user.Favorites.FavoriteCharacters.Select(x => x.ToMalFavoriteCharacter(dbUser)).ToList();
@@ -118,7 +118,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			}
 
 			db.MalUsers.Update(dbUser);
-			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
+			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 		}
 
 		public async Task DisableFeaturesAsync(IReadOnlyList<MalUserFeatures> features, ulong userId)
@@ -131,7 +131,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 								 .Include(u => u.FavoriteMangas)
 								 .Include(u => u.FavoriteCharacters)
 								 .Include(u => u.FavoritePeople)
-								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId);
+								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before disabling features");
 
@@ -147,7 +147,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			}
 
 			db.MalUsers.Update(dbUser);
-			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
+			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 		}
 
 		public async Task<string> EnabledFeaturesAsync(ulong userId)
@@ -155,7 +155,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			var dbUser = await db.MalUsers.Include(mu => mu.DiscordUser).AsNoTrackingWithIdentityResolution()
-								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId);
+								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before checking for enabled features");
 

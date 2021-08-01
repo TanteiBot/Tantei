@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -62,8 +63,9 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		}
 
 		/// <inheritdoc />
-		public override event UpdateFoundEventHandler? UpdateFoundEvent;
+		public override event UpdateFoundEvent? UpdateFoundEvent;
 
+		[SuppressMessage("Microsoft.Design", "CA1031")]
 		protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 		{
 #region LocalFuncs
@@ -84,7 +86,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				MalUser dbUser, User user, DateTimeOffset lastUpdateDateTime, Action<string, DateTimeOffset, MalUser> dbUpdateAction,
 				CancellationToken ct) where TRss : struct, IRssFeedType where TLe : class, IListEntry where TL : struct, IListType<TLe>
 			{
-				var rssUpdates = await this._client.GetRecentRssUpdatesAsync<TRss>(user.Username, ct);
+				var rssUpdates = await this._client.GetRecentRssUpdatesAsync<TRss>(user.Username, ct).ConfigureAwait(false);
 
 				var type = new TRss().Type;
 				var updates = rssUpdates.Where(update => update.PublishingDateTimeOffset > lastUpdateDateTime)
@@ -93,7 +95,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				if (!updates.Any())
 					return Array.Empty<DiscordEmbedBuilder>();
 
-				var list = await this._client.GetLatestListUpdatesAsync<TLe, TL>(user.Username, ct);
+				var list = await this._client.GetLatestListUpdatesAsync<TLe, TL>(user.Username, ct).ConfigureAwait(false);
 
 				foreach (var update in updates)
 				{
@@ -111,12 +113,12 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 													.ToDiscordEmbedBuilder(user, update.UpdateDateTime, dbUser.Features)).ToArray();
 			}
 
-			async ValueTask<IReadOnlyList<DiscordEmbedBuilder>> CheckProfileListUpdatesAsync<TLe, TL>(
+			async Task<IReadOnlyList<DiscordEmbedBuilder>> CheckProfileListUpdatesAsync<TLe, TL>(
 				MalUser dbUser, User user, int latestUpdateId, DateTimeOffset latestUpdateDateTime,
 				Action<string, DateTimeOffset, MalUser> dbUpdateAction, CancellationToken ct)
 				where TLe : class, IListEntry where TL : struct, IListType<TLe>
 			{
-				var listUpdates = await this._client.GetLatestListUpdatesAsync<TLe, TL>(user.Username, ct);
+				var listUpdates = await this._client.GetLatestListUpdatesAsync<TLe, TL>(user.Username, ct).ConfigureAwait(false);
 				var lastListUpdate = listUpdates.First(u => u.Id == latestUpdateId);
 				dbUpdateAction(lastListUpdate.GetHash().ToHashString(), latestUpdateDateTime, dbUser);
 
@@ -136,24 +138,24 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 														  (user.Features & MalUserFeatures.MangaList) != 0 ||
 														  (user.Features & MalUserFeatures.Favorites) != 0)
 										   .AsAsyncEnumerable()
-										   .WithCancellation(cancellationToken))
+										   .WithCancellation(cancellationToken).ConfigureAwait(false))
 			{
 				this.Logger.LogDebug("Starting to check for updates for {@Username}", dbUser.Username);
 				User? user = null;
-				var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+				using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 				cts.CancelAfter(TimeSpan.FromMinutes(5));
 				var ct = cts.Token;
 				try
 				{
-					user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), ct);
+					user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), ct).ConfigureAwait(false);
 					this.Logger.LogTrace("Loaded profile for {@Username}", user.Username);
 				}
 				catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
 				{
 					this.Logger.LogError(exception, "User with username {@Username} not found", dbUser.Username);
-					dbUser.Username = await this._client.GetUsernameAsync((ulong) dbUser.UserId, ct);
+					dbUser.Username = await this._client.GetUsernameAsync((ulong) dbUser.UserId, ct).ConfigureAwait(false);
 					db.MalUsers.Update(dbUser);
-					await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
+					await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 					return;
 				}
 				catch (HttpRequestException exception) when ((int?) exception.StatusCode >= 500)
@@ -176,11 +178,11 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					{
 						true when dbUser.LastAnimeUpdateHash.Substring(" ", true) != user.LatestAnimeUpdate!.Hash.inRssHash => await
 							CheckRssListUpdates<AnimeRssFeed, AnimeListEntry, AnimeListType>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp,
-																							 DbAnimeUpdateAction, ct),
+																							 DbAnimeUpdateAction, ct).ConfigureAwait(false),
 						true when dbUser.LastAnimeUpdateHash.Substring(" ", false) != user.LatestAnimeUpdate!.Hash.inProfileHash => await
 							CheckProfileListUpdatesAsync<AnimeListEntry, AnimeListType>(dbUser, user, user!.LatestAnimeUpdate.Id,
 																						dbUser.LastUpdatedAnimeListTimestamp, DbAnimeUpdateAction,
-																						ct),
+																						ct).ConfigureAwait(false),
 						_ => Array.Empty<DiscordEmbedBuilder>()
 					}
 					: Array.Empty<DiscordEmbedBuilder>();
@@ -190,11 +192,11 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					{
 						true when dbUser.LastMangaUpdateHash.Substring(" ", true) != user.LatestMangaUpdate!.Hash.inRssHash => await
 							CheckRssListUpdates<MangaRssFeed, MangaListEntry, MangaListType>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp,
-																							 DbMangaUpdateAction, ct),
+																							 DbMangaUpdateAction, ct).ConfigureAwait(false),
 						true when dbUser.LastMangaUpdateHash.Substring(" ", false) != user.LatestMangaUpdate!.Hash.inProfileHash => await
 							CheckProfileListUpdatesAsync<MangaListEntry, MangaListType>(dbUser, user, user!.LatestMangaUpdate.Id,
 																						dbUser.LastUpdatedMangaListTimestamp, DbMangaUpdateAction,
-																						ct),
+																						ct).ConfigureAwait(false),
 						_ => Array.Empty<DiscordEmbedBuilder>()
 					}
 					: Array.Empty<DiscordEmbedBuilder>();
@@ -208,8 +210,8 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					continue;
 				}
 
-				await db.Entry(dbUser).Reference(u => u.DiscordUser).LoadAsync(ct);
-				await db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).LoadAsync(ct);
+				await db.Entry(dbUser).Reference(u => u.DiscordUser).LoadAsync(ct).ConfigureAwait(false);
+				await db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).LoadAsync(ct).ConfigureAwait(false);
 				if (dbUser.Features.HasFlag(MalUserFeatures.Mention))
 					totalUpdates.ForEach(b => b.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), true));
 				if (dbUser.Features.HasFlag(MalUserFeatures.Website))
@@ -222,19 +224,19 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					continue;
 				}
 
-				await using var transaction = await db.Database.BeginTransactionAsync(ct);
+				await using var transaction = await db.Database.BeginTransactionAsync(ct).ConfigureAwait(false);
 				try
 				{
 					db.Entry(dbUser).State = EntityState.Modified;
-					if (await db.SaveChangesAsync(ct) <= 0) throw new Exception("Couldn't save update in Db");
-					await transaction.CommitAsync();
-					await this.UpdateFoundEvent?.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser))!;
+					if (await db.SaveChangesAsync(ct).ConfigureAwait(false) <= 0) throw new Exception("Couldn't save update in Db");
+					await transaction.CommitAsync(CancellationToken.None).ConfigureAwait(false);
+					await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 					this.Logger.LogDebug("Ended checking updates for {@Username} with {@Updates} updates found", dbUser.Username, totalUpdates.Length);
 				}
 				catch(Exception ex)
 				{
-					await transaction.RollbackAsync();
-					this.Logger.LogError(ex, ex.Message);
+					await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
+					this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
 				}
 			}
 		}
@@ -298,7 +300,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoriteMangas, user.Favorites.FavoriteManga, user, dbUser));
 			list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoriteCharacters, user.Favorites.FavoriteCharacters, user, dbUser));
 			list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoritePeople, user.Favorites.FavoritePeople, user, dbUser));
-			list.Sort((b1, b2) => string.Compare(b1.Title, b2.Title, StringComparison.InvariantCulture));
+			list.Sort((b1, b2) => string.Compare(b1.Title, b2.Title, StringComparison.InvariantCultureIgnoreCase));
 			return list.OrderBy(deb => deb.Color.HasValue ? deb.Color.Value.Value : DiscordColor.None.Value).ThenBy(deb => deb.Title).ToArray();
 		}
 	}

@@ -131,12 +131,6 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 			}
 		}
 
-		public static readonly Favourites Empty;
-		
-		static Favourites()
-		{
-			Empty = new Favourites();
-			Empty._allFavourites.Clear();
-		}
+		public static readonly Favourites Empty = new ();
 	}
 }

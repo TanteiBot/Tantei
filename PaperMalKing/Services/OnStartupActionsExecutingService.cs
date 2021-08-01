@@ -41,10 +41,10 @@ namespace PaperMalKing.Services
 		public async Task StartAsync(CancellationToken cancellationToken)
 		{
 			using var scope = this._serviceProvider.CreateScope();
-			
+
 			scope.ServiceProvider.GetRequiredService<ICommandsService>();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			await db.Database.MigrateAsync(CancellationToken.None);
+			await db.Database.MigrateAsync(CancellationToken.None).ConfigureAwait(false);
 			var s = this._serviceProvider.GetRequiredService<UpdatePublishingService>();
 			var services = this._serviceProvider.GetServices<IExecuteOnStartupService>();
 			foreach (var service in services)
@@ -52,7 +52,7 @@ namespace PaperMalKing.Services
 				if (cancellationToken.IsCancellationRequested)
 					return;
 
-				await service.ExecuteAsync(cancellationToken);
+				await service.ExecuteAsync(cancellationToken).ConfigureAwait(false);
 			}
 		}
 

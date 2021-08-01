@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -27,6 +28,7 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base
 {
+	[SuppressMessage("Microsoft.Design", "CA1051")]
 	public abstract class BaseUpdateProviderUserCommandsModule : BaseCommandModule
 	{
 		protected readonly ILogger<BaseUpdateProviderUserCommandsModule> Logger;
@@ -46,12 +48,12 @@ namespace PaperMalKing.UpdatesProviders.Base
 			BaseUser user;
 			try
 			{
-				user = await this.UserService.AddUserAsync(username, ctx.Member.Id, ctx.Member.Guild.Id);
+				user = await this.UserService.AddUserAsync(username, ctx.Member.Id, ctx.Member.Guild.Id).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
 				var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-				await ctx.RespondAsync(embed: embed.Build());
+				await ctx.RespondAsync(embed: embed.Build()).ConfigureAwait(false);
 				this.Logger.LogError(ex,"Failed to add {ProviderUsername} {Member} to {Name} update provider",username, ctx.Member,  UserService.Name);
 				throw;
 			}
@@ -59,7 +61,7 @@ namespace PaperMalKing.UpdatesProviders.Base
 			this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider",username, ctx.Member,  UserService.Name);
 
 			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx,
-				$"Successfully added {user.Username} to {this.UserService.Name} update checker"));
+				$"Successfully added {user.Username} to {this.UserService.Name} update checker")).ConfigureAwait(false);
 		}
 
 
@@ -69,12 +71,12 @@ namespace PaperMalKing.UpdatesProviders.Base
 			BaseUser user;
 			try
 			{
-				user = await this.UserService.RemoveUserAsync(ctx.User.Id);
+				user = await this.UserService.RemoveUserAsync(ctx.User.Id).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
 				var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-				await ctx.RespondAsync(embed: embed);
+				await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
 				this.Logger.LogError(ex,"Failed to remove {Member} from {Name} update provider",ctx.Member,  UserService.Name);
 
 				throw;
@@ -82,23 +84,23 @@ namespace PaperMalKing.UpdatesProviders.Base
 			this.Logger.LogInformation("Successfully removed {Member} from {Name} update provider", ctx.Member, UserService.Name);
 
 			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx,
-				$"Successfully removed {user.Username} from {this.UserService.Name} update checker"));
+				$"Successfully removed {user.Username} from {this.UserService.Name} update checker")).ConfigureAwait(false);
 		}
 
 		public virtual async Task RemoveUserHereCommand(CommandContext ctx)
 		{
 			try
 			{
-				await this.UserService.RemoveUserHereAsync(ctx.User.Id, ctx.Guild.Id);
+				await this.UserService.RemoveUserHereAsync(ctx.User.Id, ctx.Guild.Id).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
 				var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-				await ctx.RespondAsync(embed: embed);
+				await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
 				throw;
 			}
 
-			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Now your updates won't appear in this server"));
+			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Now your updates won't appear in this server")).ConfigureAwait(false);
 		}
 
 		public virtual async Task ListUsersCommand(CommandContext ctx)
@@ -125,11 +127,11 @@ namespace PaperMalKing.UpdatesProviders.Base
 			catch (Exception ex)
 			{
 				var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-				await ctx.RespondAsync(embed: embed);
+				await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
 				throw;
 			}
 
-			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, "Users").WithDescription(sb.ToString()));
+			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, "Users").WithDescription(sb.ToString())).ConfigureAwait(false);
 		}
 	}
 }

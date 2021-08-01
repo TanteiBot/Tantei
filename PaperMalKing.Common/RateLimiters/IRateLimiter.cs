@@ -19,20 +19,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PaperMalKing.Common.RateLimiter
+namespace PaperMalKing.Common.RateLimiters
 {
-	public sealed class NullRateLimiter<T> : IRateLimiter<T>
+	public interface IRateLimiter<T>
 	{
-		public static readonly NullRateLimiter<T> Instance = new(new(1, 1));
+		RateLimit RateLimit { get; }
 
-		internal NullRateLimiter(RateLimit rateLimit)
-		{
-			this.RateLimit = rateLimit;
-		}
-
-		/// <inheritdoc />
-		public RateLimit RateLimit { get; }
-
-		public Task TickAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+		Task TickAsync(CancellationToken cancellationToken = default);
 	}
 }

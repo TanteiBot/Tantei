@@ -78,7 +78,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 			for (byte page = 1; hasNextPage; page++)
 			{
 				var response = await client.CheckForUpdatesAsync(user.Id, page, user.LastActivityTimestamp, perChunk, chunk, options,
-																 cancellationToken);
+																 cancellationToken).ConfigureAwait(false);
 				result.Add(response);
 				hasNextPage = response.HasNextPage;
 				if (perChunk == initialPerChunkValue)
@@ -96,7 +96,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 			var result = new CombinedInitialInfoResponse();
 			for (byte page = 1; hasNextPage; page++)
 			{
-				var response = await client.GetInitialUserInfoAsync(username, page, cancellationToken);
+				var response = await client.GetInitialUserInfoAsync(username, page, cancellationToken).ConfigureAwait(false);
 				result.Add(response.User);
 				hasNextPage = response.User.Favourites.HasNextPage;
 			}
@@ -240,7 +240,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 				var text = string.Join(", ",
 					media.Staff.Nodes
 						 .Where(edge =>
-							 IgnoredRoles.All(r => !edge.Role.StartsWith(r))).Take(5).Select(edge =>
+							 IgnoredRoles.All(r => !edge.Role.StartsWith(r, StringComparison.InvariantCulture))).Take(5).Select(edge =>
 							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
 				if (!string.IsNullOrEmpty(text))
 					eb.AddField("Made by", text, true);

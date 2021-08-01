@@ -36,7 +36,7 @@ namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses
 
         public readonly List<MediaListEntry> MangaList = new(50);
 
-        public readonly List<Favourites.IdentifiableFavourite> Favourites = new();
+        public readonly List<IdentifiableFavourite> Favourites = new();
 
         public void Add(CheckForUpdatesResponse response)
         {

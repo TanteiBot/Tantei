@@ -19,6 +19,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
@@ -29,7 +30,8 @@ namespace PaperMalKing.UpdatesProviders.Base.Features
 {
     public class FeatureArgumentConverter<T> : IArgumentConverter<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
     {
-        public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
+		[SuppressMessage("Microsoft.Design", "CA1031")]
+		public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
         {
             try
             {

@@ -16,9 +16,12 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace PaperMalKing.AniList.Wrapper.Models.Enums
 {
-    public enum MediaStatus : byte
+	[SuppressMessage("Naming", "CA1707")]
+	public enum MediaStatus : byte
     {
         FINISHED,
         RELEASING,

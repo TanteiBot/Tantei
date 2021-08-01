@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -25,7 +27,7 @@ using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.Services.Background
 {
-	public sealed class UpdateProvidersManagementService : BackgroundService
+	public sealed class UpdateProvidersManagementService : IHostedService
 	{
 		private readonly ILogger<UpdateProvidersManagementService> _logger;
 		private readonly IServiceProvider _serviceProvider;
@@ -43,22 +45,24 @@ namespace PaperMalKing.Services.Background
 			this._logger.LogTrace("Built {@UpdateProvidersManagementService}", typeof(UpdateProvidersManagementService));
 		}
 
-		/// <inheritdoc />
-		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+		public Task StartAsync(CancellationToken cancellationToken)
 		{
 			this._logger.LogInformation("Starting to wait for shutdown for cancelling update providers checking for updates");
-			await Task.Delay(Timeout.Infinite, stoppingToken).ContinueWith(async task =>
+			return Task.CompletedTask;
+		}
+
+		public async Task StopAsync(CancellationToken cancellationToken)
+		{
+			this._logger.LogInformation("Stopping update providers");
+			var tasks = new Task[this._updateProvidersConfigurationService.Providers.Count];
+			var providers = this._updateProvidersConfigurationService.Providers.Values.ToArray();
+			for (var i = 0; i < providers.Length; i++)
 			{
-				this._logger.LogInformation("Stopping update providers");
-				var tasks = new Task[this._updateProvidersConfigurationService.Providers.Count];
-				var providers = this._updateProvidersConfigurationService.Providers.Values.ToArray();
-				for (var i = 0; i < providers.Length; i++)
-				{
-					var provider = providers[i];
-					tasks[i] = provider.TriggerStoppingAsync();
-				}
-				await Task.WhenAll(tasks);
-			}, TaskContinuationOptions.OnlyOnCanceled);
+				var provider = providers[i];
+				tasks[i] = provider.TriggerStoppingAsync();
+			}
+
+			await Task.WhenAll(tasks).ConfigureAwait(false);
 		}
 	}
 }

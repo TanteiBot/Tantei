@@ -19,12 +19,14 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 {
+	[SuppressMessage("Microsoft.Design", "CA1051")]
 	public abstract class BaseUpdateProvider : IUpdateProvider
 	{
 		private CancellationTokenSource? _cts;
@@ -48,7 +50,7 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 		public abstract string Name { get; }
 
 		/// <inheritdoc />
-		public abstract event UpdateFoundEventHandler? UpdateFoundEvent;
+		public abstract event UpdateFoundEvent? UpdateFoundEvent;
 
 		/// <inheritdoc />
 		public Task TriggerStoppingAsync()
@@ -58,6 +60,7 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 			return this._updateCheckingRunningTask;
 		}
 
+		[SuppressMessage("Microsoft.Design", "CA1031")]
 		private async void TimerCallback()
 		{
 			using var cts = new CancellationTokenSource();
@@ -66,7 +69,7 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 			{
 				this.Logger.LogInformation("Starting checking for updates in {@Name} updates provider", this.Name);
 				this._updateCheckingRunningTask = this.CheckForUpdatesAsync(this._cts.Token);
-				await this._updateCheckingRunningTask;
+				await this._updateCheckingRunningTask.ConfigureAwait(false);
 			}
 			catch (Exception e)
 			{

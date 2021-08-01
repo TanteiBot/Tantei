@@ -41,7 +41,7 @@ namespace PaperMalKing.AniList.UpdateProvider
                     var media = (obj as Media)!;
                     var eb = InitialFavouriteEmbedBuilder(media, user, added).WithMediaTitle(media, user.Options.TitleLanguage, features)
                                                                              .WithTotalSubEntries(media).EnrichWithMediaInfo(media, user, features);
-                    eb.Description += $" {media?.Type.ToString().ToLowerInvariant()}";
+                    eb.Description += $" {media.Type.ToString().ToLowerInvariant()}";
                     return eb;
                 }
             },

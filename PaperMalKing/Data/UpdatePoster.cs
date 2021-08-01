@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System.Collections.Generic;
@@ -31,7 +33,7 @@ namespace PaperMalKing.Data
 		private readonly ILogger<UpdatePoster> _logger;
 		private readonly DiscordChannel _channel;
 
-		public UpdatePoster(ILogger<UpdatePoster> logger,DiscordChannel channel)
+		public UpdatePoster(ILogger<UpdatePoster> logger, DiscordChannel channel)
 		{
 			this._logger = logger;
 			this._channel = channel;
@@ -40,14 +42,14 @@ namespace PaperMalKing.Data
 
 		public async Task PostUpdatesAsync(IReadOnlyList<DiscordEmbedBuilder> embeds)
 		{
-			await this._semaphore.WaitAsync();
+			await this._semaphore.WaitAsync().ConfigureAwait(false);
 			try
 			{
 				for (var i = 0; i < embeds.Count; i++)
 				{
 					var embed = embeds[i];
 					this._logger.LogTrace("Posting update to {Channel} - {@Embed}", this._channel, embed);
-					await this._channel.SendMessageAsync(embed: embed);
+					await this._channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
 				}
 			}
 			finally

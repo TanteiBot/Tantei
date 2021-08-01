@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System.Threading.Tasks;
@@ -42,7 +44,7 @@ namespace PaperMalKing
 
 		private static IHostBuilder CreateHostBuilder(string[] args)
 		{
-			return Host.CreateDefaultBuilder().ConfigureServices((hostContext, services) =>
+			return Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
 			{
 				services.AddDbContext<DatabaseContext>();
 				var config = hostContext.Configuration;
@@ -71,14 +73,15 @@ namespace PaperMalKing
 				services.AddSingleton<UpdateProvidersConfigurationService>();
 				services.AddSingleton<GuildManagementService>();
 				UpdateProvidersConfigurationService.ConfigureProviders(config, services);
-				
+
 				services.AddHostedService<UpdateProvidersManagementService>();
 				services.AddHostedService<DiscordBackgroundService>();
 				services.AddHostedService<OnStartupActionsExecutingService>();
 			}).UseSerilog((context, _, configuration) =>
 			{
-				configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo
-							 .Console(outputTemplate: "[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {Level:u3}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}");
+				configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo.Console(
+					outputTemplate:
+					"[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {Level:u3}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}");
 			});
 		}
 	}

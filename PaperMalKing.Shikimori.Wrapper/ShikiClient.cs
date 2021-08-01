@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -49,23 +50,24 @@ namespace PaperMalKing.Shikimori.Wrapper
 			nickname = WebUtility.UrlEncode(nickname);
 			var url = $"{Constants.BASE_USERS_API_URL}/{nickname}";
 			
-			var rm = new HttpRequestMessage(HttpMethod.Get, url)
+			using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 			{
 				Content = UserCachedContent
 			};
 
-			using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-			return (await response!.Content.ReadFromJsonAsync<User>(null, cancellationToken))!;
+			using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+			return (await response!.Content.ReadFromJsonAsync<User>(null, cancellationToken).ConfigureAwait(false))!;
 		}
 
 		internal async Task<Favourites> GetUserFavouritesAsync(ulong userId, CancellationToken cancellationToken = default)
 		{
 			this._logger.LogDebug("Requesting {@UserId} favourites", userId);
 			var url = $"{Constants.BASE_USERS_API_URL}/{userId.ToString()}/favourites";
-			var favs = await this._httpClient.GetFromJsonAsync<Favourites>(url, cancellationToken);
+			var favs = await this._httpClient.GetFromJsonAsync<Favourites>(url, cancellationToken).ConfigureAwait(false);
 			return favs!;
 		}
 
+		[SuppressMessage("","CA2000")]
 		internal async Task<Paginatable<History[]>> GetUserHistoryAsync(ulong userId, uint page, byte limit, HistoryRequestOptions options, 
 																		CancellationToken cancellationToken = default)
 		{
@@ -73,20 +75,20 @@ namespace PaperMalKing.Shikimori.Wrapper
 			limit = Constants.HISTORY_LIMIT < limit ? Constants.HISTORY_LIMIT : limit;
 			this._logger.LogDebug("Requesting {@UserId} history. Page {@Page}", userId, page);
 
-			var content = new MultipartFormDataContent
+			using var content = new MultipartFormDataContent
 			{
 				{new StringContent(page.ToString()), "page"},
 				{new StringContent(limit.ToString()), "limit"}
 			};
 			if (options != HistoryRequestOptions.Any) content.Add(new StringContent(options.ToString()), "target_type");
 			
-			var rm = new HttpRequestMessage(HttpMethod.Get, url)
+			using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 			{
-				Content = content 
+				Content = content
 			};
-			using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+			using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 
-			var data = (await response.Content.ReadFromJsonAsync<History[]>(null, cancellationToken))!;
+			var data = (await response.Content.ReadFromJsonAsync<History[]>(null, cancellationToken).ConfigureAwait(false))!;
 			var hasNextPage = data.Length == limit + 1;
 			return new(data, hasNextPage);
 		}

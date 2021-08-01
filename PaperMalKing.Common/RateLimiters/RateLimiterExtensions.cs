@@ -22,7 +22,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Common.Options;
 
-namespace PaperMalKing.Common.RateLimiter
+namespace PaperMalKing.Common.RateLimiters
 {
 	public static class RateLimiterExtensions
 	{

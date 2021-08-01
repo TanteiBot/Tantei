@@ -16,9 +16,12 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace PaperMalKing.AniList.Wrapper.Models.Enums
 {
-    public enum ScoreFormat : byte
+	[SuppressMessage("Naming", "CA1707")]
+	public enum ScoreFormat : byte
     {
         POINT_100 = 0,
         POINT_10_DECIMAL = 1,

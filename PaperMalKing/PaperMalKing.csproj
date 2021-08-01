@@ -1,27 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <ServerGarbageCollection>true</ServerGarbageCollection>
         <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net5.0</TargetFramework>
-        <Version>2.0.0</Version>
-        <Authors>N0D4N</Authors>
-        <LangVersion>latest</LangVersion>
-        <Nullable>enable</Nullable>
-        <PathMap>$(MSBuildProjectDirectory)=/PaperMalKing</PathMap>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Serilog" Version="2.10.0"/>
-        <PackageReference Include="Serilog.Extensions.Hosting" Version="4.1.2"/>
-        <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0"/>
-        <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1"/>
+        <PackageReference Include="Serilog" Version="2.10.0" />
+        <PackageReference Include="Serilog.Extensions.Hosting" Version="4.1.2" />
+        <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -42,15 +35,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj"/>
-        <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj"/>
-        <ProjectReference Include="..\PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj"/>
-        <ProjectReference Include="..\PaperMalKing.AniList.UpdateProvider\PaperMalKing.AniList.UpdateProvider.csproj"/>
-        <ProjectReference Include="..\PaperMalKing.MyAnimeList.UpdateProvider\PaperMalKing.MyAnimeList.UpdateProvider.csproj"/>
-        <ProjectReference Include="..\PaperMalKing.MyAnimeList.Wrapper\PaperMalKing.MyAnimeList.Wrapper.csproj"/>
-        <ProjectReference Include="..\PaperMalKing.Shikimori.UpdateProvider\PaperMalKing.Shikimori.UpdateProvider.csproj"/>
-        <ProjectReference Include="..\PaperMalKing.Shikimori.Wrapper\PaperMalKing.Shikimori.Wrapper.csproj"/>
-        <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj"/>
+        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+        <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
+        <ProjectReference Include="..\PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj" />
+        <ProjectReference Include="..\PaperMalKing.AniList.UpdateProvider\PaperMalKing.AniList.UpdateProvider.csproj" />
+        <ProjectReference Include="..\PaperMalKing.MyAnimeList.UpdateProvider\PaperMalKing.MyAnimeList.UpdateProvider.csproj" />
+        <ProjectReference Include="..\PaperMalKing.MyAnimeList.Wrapper\PaperMalKing.MyAnimeList.Wrapper.csproj" />
+        <ProjectReference Include="..\PaperMalKing.Shikimori.UpdateProvider\PaperMalKing.Shikimori.UpdateProvider.csproj" />
+        <ProjectReference Include="..\PaperMalKing.Shikimori.Wrapper\PaperMalKing.Shikimori.Wrapper.csproj" />
+        <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
     </ItemGroup>
 
 </Project>

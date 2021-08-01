@@ -19,6 +19,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -42,7 +43,7 @@ namespace PaperMalKing.Services.Background
 		private readonly ILogger<DiscordBackgroundService> _logger;
 		private readonly IOptions<DiscordOptions> _options;
 		private readonly IServiceProvider _provider;
-		public readonly DiscordClient Client;
+		private readonly DiscordClient Client;
 
 		public DiscordBackgroundService(IServiceProvider provider, IOptions<DiscordOptions> options, ILogger<DiscordBackgroundService> logger,
 										DiscordClient client)
@@ -67,25 +68,27 @@ namespace PaperMalKing.Services.Background
 			if (e.Unavailable)
 			{
 				this._logger.LogInformation("Guild {Guild} became unavailable", e.Guild);
-				return Task.CompletedTask;
 			}
-
-			_ = Task.Factory.StartNew(async () =>
+			else
 			{
-				using var scope = this._provider.CreateScope();
-				var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-				var guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == e.Guild.Id);
-				if (guild == null)
+				_ = Task.Factory.StartNew(async () =>
 				{
-					this._logger.LogInformation("Bot was removed from guild {Guild} but since guild wasn't in database there is nothing to remove",
-												e.Guild);
-					return;
-				}
+					using var scope = this._provider.CreateScope();
+					var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+					var guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == e.Guild.Id).ConfigureAwait(false);
+					if (guild == null)
+					{
+						this._logger.LogInformation(
+							"Bot was removed from guild {Guild} but since guild wasn't in database there is nothing to remove", e.Guild);
+						return;
+					}
 
-				db.DiscordGuilds.Remove(guild);
-				await db.SaveChangesAndThrowOnNoneAsync();
-			}).ContinueWith(task => this._logger.LogError(task.Exception, "Task on removing guild from db faulted"),
-							TaskContinuationOptions.OnlyOnFaulted);
+					db.DiscordGuilds.Remove(guild);
+					await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
+				}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Current).ContinueWith(
+					task => this._logger.LogError(task.Exception, "Task on removing guild from db faulted"), CancellationToken.None,
+					TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
+			}
 
 			return Task.CompletedTask;
 		}
@@ -115,7 +118,8 @@ namespace PaperMalKing.Services.Background
 				using var scope = this._provider.CreateScope();
 				var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 				this._logger.LogDebug("User {Member} left guild {Guild}", e.Member, e.Guild);
-				var user = await db.DiscordUsers.Include(u => u.Guilds).FirstOrDefaultAsync(u => u.DiscordUserId == e.Member.Id);
+				var user = await db.DiscordUsers.Include(u => u.Guilds).FirstOrDefaultAsync(u => u.DiscordUserId == e.Member.Id)
+								   .ConfigureAwait(false);
 				if (user == null)
 				{
 					this._logger.LogDebug("User {Member} that left wasn't saved in db", e.Member);
@@ -131,102 +135,105 @@ namespace PaperMalKing.Services.Background
 
 					user.Guilds.Remove(guild);
 					db.Update(user);
-					await db.SaveChangesAndThrowOnNoneAsync();
+					await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 				}
-			}).ContinueWith(task => this._logger.LogError(task.Exception, "Task on removing left member from the guild failed due to unknown reason"),
-							TaskContinuationOptions.OnlyOnFaulted);
+			}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Current).ContinueWith(
+				task => this._logger.LogError(task.Exception, "Task on removing left member from the guild failed due to unknown reason"),
+				CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
 			return Task.CompletedTask;
 		}
 
-		/// <inheritdoc />
+		[SuppressMessage("Microsoft.Design", "CA1031")]
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
 			this._logger.LogDebug("Starting {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
 			this._logger.LogInformation("Connecting to Discord");
 			if (this._options.Value.Activities.Length > 1)
 			{
-				await this.Client.ConnectAsync();
-				await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+				await this.Client.ConnectAsync().ConfigureAwait(false);
+				await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken).ConfigureAwait(false);
 				_ = Task.Factory.StartNew(async cancellationToken =>
+				{
+					var token = (CancellationToken) (cancellationToken ?? CancellationToken.None);
+					while (!token.IsCancellationRequested)
+					{
+						foreach (var options in this._options.Value.Activities)
 						{
-							var token = (CancellationToken) (cancellationToken ?? CancellationToken.None);
-							while (!token.IsCancellationRequested)
+							if (token.IsCancellationRequested)
+								return;
+							try
 							{
-								foreach (var options in this._options.Value.Activities)
-								{
-									if (token.IsCancellationRequested)
-										return;
-									try
-									{
-										var (discordActivity, userStatus) = this.OptionsToDiscordActivity(options);
-										await this.Client.UpdateStatusAsync(discordActivity, userStatus);
-										await Task.Delay(TimeSpan.FromMilliseconds(options.TimeToBeDisplayedInMilliseconds), token);
-									}
-									catch (Exception ex)
-									{
-										this._logger.LogError(ex, "Error occured while updating Discord presence");
-									}
-								}
+								var (discordActivity, userStatus) = this.OptionsToDiscordActivity(options);
+								await this.Client.UpdateStatusAsync(discordActivity, userStatus).ConfigureAwait(false);
+								await Task.Delay(TimeSpan.FromMilliseconds(options.TimeToBeDisplayedInMilliseconds), token).ConfigureAwait(false);
 							}
-						}, stoppingToken, stoppingToken)
-						.ContinueWith(task => this._logger.LogError(task.Exception, "Error occured while updating Discord presence"),
-									  TaskContinuationOptions.OnlyOnFaulted);
+							catch (Exception ex)
+							{
+								this._logger.LogError(ex, "Error occured while updating Discord presence");
+							}
+						}
+					}
+				}, stoppingToken, stoppingToken, TaskCreationOptions.None, TaskScheduler.Current).ContinueWith(
+					task => this._logger.LogError(task.Exception, "Error occured while updating Discord presence"), CancellationToken.None,
+					TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
 			}
 			else
 			{
 				this._logger.LogInformation("Found only one Discord status in options so it won't be changed");
 				var (discordActivity, userStatus) = this.OptionsToDiscordActivity(this._options.Value.Activities[0]);
-				await this.Client.ConnectAsync(discordActivity, userStatus);
+				await this.Client.ConnectAsync(discordActivity, userStatus).ConfigureAwait(false);
 			}
 
 			if (!string.IsNullOrEmpty(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory) &&
-				Directory.Exists(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory)      && Directory
-					.EnumerateFiles(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory)
-					.Count(f => f.EndsWith(".jpg") || f.EndsWith(".png") || f.EndsWith(".jpeg")) > 1)
+				Directory.Exists(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory) && Directory
+					.EnumerateFiles(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory).Count(f =>
+						f.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) ||
+						f.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase) ||
+						f.EndsWith(".jpeg", StringComparison.InvariantCultureIgnoreCase)) > 1)
 			{
 				this._logger.LogInformation("Found more than 1 avatar in {PathToAvatarsDirectory}",
-											this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory);
+					this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory);
 				_ = Task.Factory.StartNew(async cancellationToken =>
+				{
+					var token = (CancellationToken) (cancellationToken ?? CancellationToken.None);
+					while (!token.IsCancellationRequested)
+					{
+						var pathes = Directory.EnumerateFiles(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory).Where(f =>
+							f.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) ||
+							f.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase) ||
+							f.EndsWith(".jpeg", StringComparison.InvariantCultureIgnoreCase)).ToArray().Shuffle();
+						foreach (var path in pathes)
 						{
-							var token = (CancellationToken) (cancellationToken ?? CancellationToken.None);
-							while (!token.IsCancellationRequested)
+							if (token.IsCancellationRequested)
+								return;
+							try
 							{
-								var pathes = Directory
-											 .EnumerateFiles(this._options.Value.AvatarChangingOptions.PathToAvatarsDirectory)
-											 .Where(f => f.EndsWith(".jpg") || f.EndsWith(".png") || f.EndsWith(".jpeg")).ToArray().Shuffle();
-								foreach (var path in pathes)
-								{
-									if (token.IsCancellationRequested)
-										return;
-									try
-									{
-										await using (var stream = File.Open(path, FileMode.Open, FileAccess.Read))
-											await this.Client.UpdateCurrentUserAsync(null, new(stream));
-										
-										this._logger.LogDebug("Changed Discord avatar");
-										await
-											Task.Delay(TimeSpan.FromMinutes(this._options.Value.AvatarChangingOptions.TimeBetweenChangingAvatarsInMinutes),
-													   token);
-									}
-									catch (Exception ex)
-									{
-										this._logger.LogError(ex, "Error occured while updating Discord avatar");
-									}
-								}
+								await using (var stream = File.Open(path, FileMode.Open, FileAccess.Read))
+									await this.Client.UpdateCurrentUserAsync(null, new(stream)).ConfigureAwait(false);
+
+								this._logger.LogDebug("Changed Discord avatar");
+								await Task.Delay(TimeSpan.FromMinutes(this._options.Value.AvatarChangingOptions.TimeBetweenChangingAvatarsInMinutes),
+									token).ConfigureAwait(false);
 							}
-						}, stoppingToken, stoppingToken)
-						.ContinueWith(task => this._logger.LogError(task.Exception, "Error occured while updating Discord avatar"),
-									  TaskContinuationOptions.OnlyOnFaulted);
+							catch (Exception ex)
+							{
+								this._logger.LogError(ex, "Error occured while updating Discord avatar");
+							}
+						}
+					}
+				}, stoppingToken, stoppingToken, TaskCreationOptions.None, TaskScheduler.Current).ContinueWith(
+					task => this._logger.LogError(task.Exception, "Error occured while updating Discord avatar"), CancellationToken.None,
+					TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
 			}
 			else
 			{
 				this._logger.LogError("Didn't found avatars directory or there was 1 or there wasn't pictures that can be avatar");
 			}
 
-			await Task.Delay(Timeout.Infinite, stoppingToken);
+			await Task.Delay(Timeout.Infinite, stoppingToken).ConfigureAwait(false);
 			var t = this.Client.DisconnectAsync();
 			this._logger.LogInformation("Disconnecting from Discord");
-			await t;
+			await t.ConfigureAwait(false);
 		}
 
 		private (DiscordActivity, UserStatus) OptionsToDiscordActivity(DiscordOptions.DiscordActivityOptions options)
@@ -234,18 +241,16 @@ namespace PaperMalKing.Services.Background
 			if (!Enum.TryParse(options.ActivityType, true, out ActivityType activityType))
 			{
 				var correctActivities = string.Join(", ", Enum.GetValues<ActivityType>());
-				this._logger
-					.LogError("Couldn't parse correct ActivityType from {ActivityType}, correct values are {CorrectActivities}",
-							  options.ActivityType, correctActivities);
+				this._logger.LogError("Couldn't parse correct ActivityType from {ActivityType}, correct values are {CorrectActivities}",
+					options.ActivityType, correctActivities);
 				activityType = ActivityType.Playing;
 			}
 
 			if (!Enum.TryParse(options.Status, true, out UserStatus status))
 			{
 				var correctStatuses = string.Join(", ", Enum.GetValues<UserStatus>());
-				this._logger
-					.LogError("Couldn't parse correct UserStatus from {Status}, correct values are {CorrectStatuses}",
-							  options.Status, correctStatuses);
+				this._logger.LogError("Couldn't parse correct UserStatus from {Status}, correct values are {CorrectStatuses}", options.Status,
+					correctStatuses);
 				status = UserStatus.Online;
 			}
 
@@ -255,6 +260,7 @@ namespace PaperMalKing.Services.Background
 		/// <inheritdoc />
 		public override void Dispose()
 		{
+			base.Dispose();
 			this._logger.LogDebug("Disposing {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
 			this.Client.Dispose();
 		}

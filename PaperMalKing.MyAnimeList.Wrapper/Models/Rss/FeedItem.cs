@@ -49,8 +49,8 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss
 		///     <see cref="Link" />
 		/// </summary>
 		[XmlElement(ElementName = "guid")]
-
-		public string Guid { get; set; } = null!;
+		[Obsolete("Use link property")]
+		public string ItemGuid { get; set; } = null!;
 
 		/// <summary>
 		///     Contains info about update such as status of entity and amount of watched/read episodes/chapters

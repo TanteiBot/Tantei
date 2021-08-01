@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,8 +58,9 @@ namespace PaperMalKing.AniList.UpdateProvider
 		}
 
 		public override string Name => Constants.NAME;
-		public override event UpdateFoundEventHandler? UpdateFoundEvent;
+		public override event UpdateFoundEvent? UpdateFoundEvent;
 
+		[SuppressMessage("Microsoft.Design", "CA1031")]
 		protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 		{
 			using var scope = this._serviceProvider.CreateScope();
@@ -72,9 +74,9 @@ namespace PaperMalKing.AniList.UpdateProvider
 			{
 				this.Logger.LogDebug("Starting to check for updates of {UserId}", dbUser.Id);
 				var allUpdates = new List<DiscordEmbedBuilder>();
-				var recentUserUpdates = await this._client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, cancellationToken);
+				var recentUserUpdates = await this._client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, cancellationToken).ConfigureAwait(false);
 				if ((dbUser.Features & AniListUserFeatures.Favourites) != 0)
-					allUpdates.AddRange(await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, cancellationToken));
+					allUpdates.AddRange(await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, cancellationToken).ConfigureAwait(false));
 				if ((dbUser.Features & AniListUserFeatures.Reviews) != 0)
 					allUpdates.AddRange(recentUserUpdates.Reviews.Where(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)
 														 .Select(r => r.ToDiscordEmbedBuilder(recentUserUpdates.User)));
@@ -111,18 +113,18 @@ namespace PaperMalKing.AniList.UpdateProvider
 					continue;
 				}
 
-				await using var transaction = db.Database.BeginTransaction();
+				await using var transaction =  await db.Database.BeginTransactionAsync(CancellationToken.None).ConfigureAwait(false);
 				try
 				{
 					db.Entry(dbUser).State = EntityState.Modified;
-					if (await db.SaveChangesAsync(CancellationToken.None) <= 0) throw new Exception("Couldn't save updates to database");
-					await transaction.CommitAsync();
-					this.UpdateFoundEvent?.Invoke(new(new BaseUpdate(allUpdates), this, dbUser.DiscordUser));
+					if (await db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false) <= 0) throw new Exception("Couldn't save updates to database");
+					await transaction.CommitAsync(CancellationToken.None).ConfigureAwait(false);
+					await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(allUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
-					await transaction.RollbackAsync();
-					this.Logger.LogError(ex, ex.Message);
+					await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
+					this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
 				}
 			}
 		}
@@ -130,15 +132,15 @@ namespace PaperMalKing.AniList.UpdateProvider
 		private async Task<IReadOnlyList<DiscordEmbedBuilder>> GetFavouritesUpdatesAsync(CombinedRecentUpdatesResponse response, AniListUser user,
 																						 CancellationToken cancellationToken = default)
 		{
-			static ulong[] GetIds(IReadOnlyList<Favourites.IdentifiableFavourite> collection,
-								  Func<Favourites.IdentifiableFavourite, bool> predicate)
+			static ulong[] GetIds(IReadOnlyList<IdentifiableFavourite> collection,
+								  Func<IdentifiableFavourite, bool> predicate)
 			{
 				return collection.Any(predicate) ? collection.Where(predicate).Select(f => f.Id).ToArray() : Array.Empty<ulong>();
 			}
 
 			static void GetFavouritesEmbed<T>(List<DiscordEmbedBuilder> aggregator,
-											  IReadOnlyList<Favourites.IdentifiableFavourite> addedValues,
-											  IReadOnlyList<Favourites.IdentifiableFavourite> removedValues,
+											  IReadOnlyList<IdentifiableFavourite> addedValues,
+											  IReadOnlyList<IdentifiableFavourite> removedValues,
 											  List<T> obtainedValues, Wrapper.Models.Enums.FavouriteType type, User user,
 											  AniListUserFeatures features)
 				where T : class, IIdentifiable, ISiteUrlable
@@ -156,7 +158,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 				}
 			}
 
-			var convFavs = user.Favourites.Select(f => new Favourites.IdentifiableFavourite()
+			var convFavs = user.Favourites.Select(f => new IdentifiableFavourite()
 			{
 				Id = f.Id,
 				Type = (Wrapper.Models.Enums.FavouriteType) f.FavouriteType
@@ -170,7 +172,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 			user.Favourites.AddRange(addedValues.Select(av => new AniListFavourite()
 															{User = user, UserId = user.Id, Id = av.Id, FavouriteType = (FavouriteType) av.Type}));
 
-			var changedValues = new List<Favourites.IdentifiableFavourite>(addedValues);
+			var changedValues = new List<IdentifiableFavourite>(addedValues);
 			changedValues.AddRange(removedValues);
 			var animeIds = GetIds(changedValues, f => f.Type  == Wrapper.Models.Enums.FavouriteType.Anime);
 			var mangaIds = GetIds(changedValues, f => f.Type  == Wrapper.Models.Enums.FavouriteType.Manga);
@@ -184,7 +186,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 			{
 				var favouritesInfo =
 					await this._client.FavouritesInfoAsync(page, animeIds, mangaIds, charIds, staffIds, studioIds, (RequestOptions) user.Features,
-														   cancellationToken);
+														   cancellationToken).ConfigureAwait(false);
 				combinedResponse.Add(favouritesInfo);
 				hasNextPage = favouritesInfo.HasNextPage;
 			}
