@@ -240,7 +240,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 				var text = string.Join(", ",
 					media.Staff.Nodes
 						 .Where(edge =>
-							 IgnoredRoles.All(r => !edge.Role.StartsWith(r, StringComparison.InvariantCulture))).Take(5).Select(edge =>
+							 IgnoredRoles.All(r => !edge.Role.StartsWith(r, StringComparison.InvariantCultureIgnoreCase))).Take(5).Select(edge =>
 							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
 				if (!string.IsNullOrEmpty(text))
 					eb.AddField("Made by", text, true);
