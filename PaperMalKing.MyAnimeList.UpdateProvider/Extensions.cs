@@ -162,6 +162,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				{
 					0 when totalValue == 0 => string.Empty,
 					_ when progressedValue == totalValue || (isInPlans && progressedValue == 0) => $"{totalValue.ToString()} {ending}",
+					_ when totalValue == 0 => $"{progressedValue.ToString()}/? {ending}",
 					_ => $"{progressedValue.ToString()}/{totalValue.ToString()} {ending}"
 				};
 
