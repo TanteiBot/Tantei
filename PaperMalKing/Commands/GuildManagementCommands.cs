@@ -64,7 +64,7 @@ namespace PaperMalKing.Commands
 				if (!perms.HasPermission(Permissions.SendMessages))
 					throw new GuildManagementException(
 						$"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages");
-				await this._managementService.SetChannelAsync(channel.GuildId, channel.Id).ConfigureAwait(false);
+				await this._managementService.SetChannelAsync(channel.GuildId!.Value, channel.Id).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
@@ -90,7 +90,7 @@ namespace PaperMalKing.Commands
 				if (!perms.HasPermission(Permissions.SendMessages))
 					throw new GuildManagementException(
 						$"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages");
-				await this._managementService.UpdateChannelAsync(channel.GuildId, channel.Id).ConfigureAwait(false);
+				await this._managementService.UpdateChannelAsync(channel.GuildId!.Value, channel.Id).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
