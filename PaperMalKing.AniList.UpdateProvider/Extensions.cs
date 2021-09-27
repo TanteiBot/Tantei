@@ -43,22 +43,19 @@ namespace PaperMalKing.AniList.UpdateProvider
 
 		internal static readonly Regex EmptyLinesRemovalRegex = new(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline);
 
-		private static readonly string[] IgnoredRoles = {
+		private static readonly string[] IgnoredStartWithRoles = {
 														"Touch-Up",
 														"Touch Up",
 														"Illustrat",
 														"Collaborat",
 														"Color",
 														"Digital Coloring",
-														"Insert",
-														"Senior Editor",
 														"Cooking Supervisor",
-														"Physics Consultant",
-														"Research Cooperation"
-														"Edit", // Editing and Editor
 														"Letter",//Letterer and Lettering
 														"Translat", //Translator and Translation
 														 };
+
+		private static readonly string[] IgnoredContainsRoles = { "Assist", "Edit", "Insert", "Consultant", "Cooperation" };
 
 		private static readonly Dictionary<MediaListStatus, DiscordColor> Colors = new()
 		{
@@ -254,8 +251,10 @@ namespace PaperMalKing.AniList.UpdateProvider
 			{
 				var text = string.Join(", ",
 					media.Staff.Nodes
-						 .Where(edge =>
-							 IgnoredRoles.All(r => !edge.Role.StartsWith(r, StringComparison.InvariantCultureIgnoreCase))).Take(5).Select(edge =>
+						 .Where(edge => IgnoredStartWithRoles.All(r =>
+							 !edge.Role.StartsWith(r, StringComparison.InvariantCultureIgnoreCase) &&
+							 IgnoredContainsRoles.All(r => edge.Role.Contains(r, StringComparison.InvariantCultureIgnoreCase)))).Take(7)
+						 .Select(edge =>
 							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
 				if (!string.IsNullOrEmpty(text))
 					eb.AddField("Made by", text, true);
