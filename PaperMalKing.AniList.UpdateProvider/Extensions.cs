@@ -43,7 +43,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 
 		internal static readonly Regex EmptyLinesRemovalRegex = new(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline);
 
-		private static readonly string[] IgnoredRoles = {"Lettering", "Translator", "Touch-Up Art", "Illustration"};
+		private static readonly string[] IgnoredRoles = {"Lettering", "Translator", "Touch-Up Art", "Illustration", "Letterer", "Assistant"};
 
 		private static readonly Dictionary<MediaListStatus, DiscordColor> Colors = new()
 		{
