@@ -253,7 +253,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 					media.Staff.Nodes
 						 .Where(edge => IgnoredStartWithRoles.All(r =>
 							 !edge.Role.StartsWith(r, StringComparison.InvariantCultureIgnoreCase) &&
-							 IgnoredContainsRoles.All(r => edge.Role.Contains(r, StringComparison.InvariantCultureIgnoreCase)))).Take(7)
+							 IgnoredContainsRoles.All(r => !edge.Role.Contains(r, StringComparison.InvariantCultureIgnoreCase)))).Take(7)
 						 .Select(edge =>
 							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
 				if (!string.IsNullOrEmpty(text))
