@@ -224,19 +224,19 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					continue;
 				}
 
-				await using var transaction = await db.Database.BeginTransactionAsync(ct).ConfigureAwait(false);
+				using var transaction = db.Database.BeginTransaction();
 				try
 				{
 					db.Entry(dbUser).State = EntityState.Modified;
-					if (await db.SaveChangesAsync(ct).ConfigureAwait(false) <= 0) throw new Exception("Couldn't save update in Db");
-					await transaction.CommitAsync(CancellationToken.None).ConfigureAwait(false);
+					if (db.SaveChanges() <= 0) throw new Exception("Couldn't save update in Db");
+					transaction.Commit();
 					await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 					this.Logger.LogDebug("Ended checking updates for {@Username} with {@Updates} updates found", dbUser.Username, totalUpdates.Length);
 				}
 				catch(Exception ex)
 				{
-					await transaction.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
 					this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
+					throw;
 				}
 			}
 		}
