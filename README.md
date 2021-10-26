@@ -18,13 +18,13 @@ Run with `dotnet PaperMalKing.dll`
 Building and developing
 ---------------------
 Prerequisites: git, .NET 6.0 SDK
-1. ```
+1. ```sh
    git clone https://github.com/TanteiBot/Tantei.git
    ```
-2. ```
+2. ```sh
    cd Tantei
    ```
-3. ```
+3. ```sh
    dotnet build -c Release
    ```
 
@@ -36,6 +36,6 @@ License
 ---------------------
 
 Copyright 2021 N0D4N
-<img align="right" src="https://www.gnu.org/graphics/agplv3-with-text-100x42.png">
+<a href="https://www.gnu.org/licenses/agpl-3.0.html"><img align="right" src="https://www.gnu.org/graphics/agplv3-with-text-100x42.png"></a>
 
-Licensed under the AGPLv3: https://www.gnu.org/licenses/agpl-3.0.html 
+Licensed under the AGPLv3: <https://www.gnu.org/licenses/agpl-3.0.html>
