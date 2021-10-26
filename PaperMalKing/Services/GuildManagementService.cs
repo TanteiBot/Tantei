@@ -18,9 +18,6 @@
 
 #endregion
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

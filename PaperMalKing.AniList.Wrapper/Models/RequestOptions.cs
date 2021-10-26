@@ -18,8 +18,6 @@
 
 #endregion
 
-using System;
-
 namespace PaperMalKing.AniList.Wrapper.Models
 {
 	[Flags]

@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Progress;
 

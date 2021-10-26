@@ -16,9 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using GraphQL.Client.Http;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper.GraphQL;

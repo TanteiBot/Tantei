@@ -18,7 +18,6 @@
 
 #endregion
 
-using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

@@ -18,7 +18,6 @@
 
 #endregion
 
-using System;
 using System.Text.Json.Serialization;
 using PaperMalKing.Common.Enums;
 

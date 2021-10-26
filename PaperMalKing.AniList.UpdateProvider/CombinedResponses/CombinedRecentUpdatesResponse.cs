@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System.Collections.Generic;
 using PaperMalKing.AniList.Wrapper.Models;
 using PaperMalKing.AniList.Wrapper.Models.Responses;
 

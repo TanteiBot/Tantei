@@ -18,9 +18,6 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 

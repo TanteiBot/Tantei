@@ -16,9 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
-using System.Collections.Generic;
-
 namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites
 {
 	internal sealed class UserFavorites

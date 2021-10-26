@@ -18,7 +18,6 @@
 
 #endregion
 
-using System;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Database.Models.MyAnimeList

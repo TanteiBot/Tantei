@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;

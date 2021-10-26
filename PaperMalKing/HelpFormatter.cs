@@ -18,8 +18,6 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -28,7 +26,6 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
 using Humanizer;
-using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing

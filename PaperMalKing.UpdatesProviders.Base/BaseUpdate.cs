@@ -18,7 +18,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using DSharpPlus.Entities;
 
 namespace PaperMalKing.UpdatesProviders.Base

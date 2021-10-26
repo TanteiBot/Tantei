@@ -16,8 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models

@@ -18,8 +18,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;

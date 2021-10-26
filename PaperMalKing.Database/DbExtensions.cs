@@ -18,9 +18,6 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using PaperMalKing.Database.Models.AniList;

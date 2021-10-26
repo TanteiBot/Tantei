@@ -18,8 +18,6 @@
 
 #endregion
 
-using System;
-
 namespace PaperMalKing.Exceptions
 {
 	public sealed class GuildManagementException : Exception

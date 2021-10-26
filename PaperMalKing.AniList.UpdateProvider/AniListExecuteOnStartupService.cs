@@ -18,8 +18,6 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Features;

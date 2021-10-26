@@ -16,10 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace PaperMalKing.UpdatesProviders.Base.Features
 {
 	// ReSharper disable once TypeParameterCanBeVariant

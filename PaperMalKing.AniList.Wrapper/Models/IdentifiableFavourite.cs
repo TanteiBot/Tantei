@@ -9,7 +9,6 @@
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY
 
-using System;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;

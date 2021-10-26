@@ -18,17 +18,11 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.Shikimori;

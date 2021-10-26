@@ -18,8 +18,6 @@
 
 #endregion
 
-using System;
-
 namespace PaperMalKing.UpdatesProviders.Base.Exceptions
 {
 	public sealed class UserFeaturesException : Exception

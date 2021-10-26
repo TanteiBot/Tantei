@@ -16,8 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
-
 namespace PaperMalKing.UpdatesProviders.Base.Exceptions
 {
 	public sealed class UserProcessingException : Exception

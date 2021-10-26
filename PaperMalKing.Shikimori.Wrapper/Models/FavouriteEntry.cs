@@ -18,7 +18,6 @@
 
 #endregion
 
-using System;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models
