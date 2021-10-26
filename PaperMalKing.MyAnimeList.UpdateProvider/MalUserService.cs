@@ -52,7 +52,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			var dbUser = await db.MalUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds)
 								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
-			DiscordGuild guild;
+			DiscordGuild? guild;
 			if (dbUser != null) // User already in DB
 			{
 				if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)) // User already in specified guild

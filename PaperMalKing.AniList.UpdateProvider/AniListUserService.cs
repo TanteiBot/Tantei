@@ -46,7 +46,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			var dbUser = await db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds)
 				.FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
-			DiscordGuild guild;
+			DiscordGuild? guild = null;
 			if (dbUser != null) // User already in db
 			{
 				if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
@@ -74,8 +74,12 @@ namespace PaperMalKing.AniList.UpdateProvider
 			{
 				Favourites = response.Favourites.Select(f => new AniListFavourite { Id = f.Id, FavouriteType = (FavouriteType)f.Type }).ToList(),
 				Id = response.UserId!.Value,
-				DiscordUser = dUser,
-				DiscordUserId = dUser.DiscordUserId,
+				DiscordUser = dUser ?? new()
+				{
+					Guilds = new DiscordGuild[1] { guild },
+					DiscordUserId = userId,
+					BotUser = new()
+				},
 				LastActivityTimestamp = now,
 				LastReviewTimestamp = now
 			};

@@ -52,7 +52,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			var dbUser = await db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds)
 								 .FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
-			DiscordGuild guild;
+			DiscordGuild? guild;
 			if (dbUser != null) // User already in db
 			{
 				if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
