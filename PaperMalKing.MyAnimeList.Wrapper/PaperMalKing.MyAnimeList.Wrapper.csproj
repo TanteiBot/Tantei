@@ -2,6 +2,7 @@
     <PropertyGroup>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <OutputType>Library</OutputType>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="HtmlAgilityPack" Version="1.11.36" />
+        <PackageReference Include="HtmlAgilityPack" />
     </ItemGroup>
 
 </Project>
