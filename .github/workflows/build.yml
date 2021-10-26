@@ -14,14 +14,13 @@ jobs:
   build:
     env:
       DOTNET_NOLOGO: true
-      DOTNET_VERSION: '6.x'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ${{ DOTNET_VERSION }}
+          dotnet-version: '6.x'
       - name: Install deps
         run: dotnet restore
       - name: Build projects

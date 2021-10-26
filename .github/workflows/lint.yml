@@ -17,4 +17,6 @@ jobs:
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: false
+          # TODO set to true after refactoring
+          VALIDATE_JSCPD: false # Checks code for duplicates
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
