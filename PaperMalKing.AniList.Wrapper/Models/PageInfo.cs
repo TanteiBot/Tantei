@@ -16,10 +16,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.AniList.Wrapper.Models
+namespace PaperMalKing.AniList.Wrapper.Models;
+
+public sealed class PageInfo
 {
-	public sealed class PageInfo
-	{
-		public bool HasNextPage { get; init; }
-	}
+	public bool HasNextPage { get; init; }
 }

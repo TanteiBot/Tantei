@@ -16,10 +16,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.AniList.Wrapper
+namespace PaperMalKing.AniList.Wrapper;
+
+internal static class Constants
 {
-	internal static class Constants
-	{
-		public const string BASE_URL = "https://graphql.anilist.co/";
-	}
+	public const string BASE_URL = "https://graphql.anilist.co/";
 }

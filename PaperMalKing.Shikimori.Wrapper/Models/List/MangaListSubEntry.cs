@@ -18,19 +18,18 @@
 
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.Shikimori.Wrapper.Models.List
+namespace PaperMalKing.Shikimori.Wrapper.Models.List;
+
+internal sealed class MangaListSubEntry : BaseListSubEntry
 {
-	internal sealed class MangaListSubEntry : BaseListSubEntry
-	{
-		protected override string Type => "mangas";
+	protected override string Type => "mangas";
 
-		/// <inheritdoc />
-		public override string TotalAmount => $"{this.Chapters.ToString()} ep., {this.Volumes.ToString()} v.";
+	/// <inheritdoc />
+	public override string TotalAmount => $"{this.Chapters.ToString()} ep., {this.Volumes.ToString()} v.";
 
-		[JsonPropertyName("volumes")]
-		public int Volumes { get; init; }
+	[JsonPropertyName("volumes")]
+	public int Volumes { get; init; }
 
-		[JsonPropertyName("chapters")]
-		public int Chapters { get; init; }
-	}
+	[JsonPropertyName("chapters")]
+	public int Chapters { get; init; }
 }

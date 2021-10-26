@@ -20,25 +20,24 @@
 
 using PaperMalKing.Common.Attributes;
 
-namespace PaperMalKing.Database.Models.MyAnimeList
+namespace PaperMalKing.Database.Models.MyAnimeList;
+
+[Flags]
+public enum MalUserFeatures : ulong
 {
-	[Flags]
-	public enum MalUserFeatures : ulong
-	{
-		None = 0,
-		[FeatureDescription("animelist", "track changes in animelist")]
-		AnimeList = 1,
-		[FeatureDescription("mangalist", "track changes in mangalist")]
-		MangaList = 1 << 1,
-		[FeatureDescription("favorites", "track changes in favorites")]
-		Favorites = 1 << 2,
-		[FeatureDescription("mention", "mention user in update")]
-		Mention = 1 << 3,
-		[FeatureDescription("website", "show name and icon of website in update")]
-		Website = 1 << 4,
-		[FeatureDescription("mediaformat", "show format of media in update (tv, movie, manga etc)")]
-		MediaFormat = 1 << 5,
-		[FeatureDescription("mediastatus", "show status of media in update (ongoing, finished etc)")]
-		MediaStatus = 1 << 6
-	}
+	None = 0,
+	[FeatureDescription("animelist", "track changes in animelist")]
+	AnimeList = 1,
+	[FeatureDescription("mangalist", "track changes in mangalist")]
+	MangaList = 1 << 1,
+	[FeatureDescription("favorites", "track changes in favorites")]
+	Favorites = 1 << 2,
+	[FeatureDescription("mention", "mention user in update")]
+	Mention = 1 << 3,
+	[FeatureDescription("website", "show name and icon of website in update")]
+	Website = 1 << 4,
+	[FeatureDescription("mediaformat", "show format of media in update (tv, movie, manga etc)")]
+	MediaFormat = 1 << 5,
+	[FeatureDescription("mediastatus", "show status of media in update (ongoing, finished etc)")]
+	MediaStatus = 1 << 6
 }

@@ -16,11 +16,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.AniList.Wrapper.GraphQL
+namespace PaperMalKing.AniList.Wrapper.GraphQL;
+
+internal static class Queries
 {
-	internal static class Queries
-	{
-		public const string GetUserInitialInfoByUsernameQuery = @"
+	public const string GetUserInitialInfoByUsernameQuery = @"
           query ($username: String, $favouritePage: Int) {
             User(name: $username) {
               id
@@ -70,7 +70,7 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
           }
           ";
 
-		public const string FavouritesInfoQuery = @"
+	public const string FavouritesInfoQuery = @"
           query ($page: Int, $animeIds: [Int], $mangaIds: [Int], $charIds: [Int], $staffIds: [Int], $studioIds: [Int]) {
             Animes: Page(page: $page, perPage: 50) {
               pageInfo{
@@ -193,5 +193,4 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
             }
           }
           ";
-	}
 }

@@ -16,20 +16,19 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.Database.Models.MyAnimeList
+namespace PaperMalKing.Database.Models.MyAnimeList;
+
+public interface IMalFavorite
 {
-	public interface IMalFavorite
-	{
-		public int UserId { get; init; }
+	public int UserId { get; init; }
 
-		public int Id { get; init; }
+	public int Id { get; init; }
 
-		public string? ImageUrl { get; init; }
+	public string? ImageUrl { get; init; }
 
-		public string Name { get; init; }
+	public string Name { get; init; }
 
-		public string NameUrl { get; init; }
+	public string NameUrl { get; init; }
 
-		public MalUser User { get; init; }
-	}
+	public MalUser User { get; init; }
 }

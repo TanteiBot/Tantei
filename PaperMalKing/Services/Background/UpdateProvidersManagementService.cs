@@ -21,44 +21,43 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace PaperMalKing.Services.Background
+namespace PaperMalKing.Services.Background;
+
+public sealed class UpdateProvidersManagementService : IHostedService
 {
-	public sealed class UpdateProvidersManagementService : IHostedService
+	private readonly ILogger<UpdateProvidersManagementService> _logger;
+	private readonly IServiceProvider _serviceProvider;
+	private readonly UpdateProvidersConfigurationService _updateProvidersConfigurationService;
+
+
+	public UpdateProvidersManagementService(ILogger<UpdateProvidersManagementService> logger, IServiceProvider serviceProvider,
+											UpdateProvidersConfigurationService updateProvidersConfigurationService)
 	{
-		private readonly ILogger<UpdateProvidersManagementService> _logger;
-		private readonly IServiceProvider _serviceProvider;
-		private readonly UpdateProvidersConfigurationService _updateProvidersConfigurationService;
+		this._logger = logger;
 
+		this._logger.LogTrace("Building {@UpdateProvidersManagementService}", typeof(UpdateProvidersManagementService));
+		this._serviceProvider = serviceProvider;
+		this._updateProvidersConfigurationService = updateProvidersConfigurationService;
+		this._logger.LogTrace("Built {@UpdateProvidersManagementService}", typeof(UpdateProvidersManagementService));
+	}
 
-		public UpdateProvidersManagementService(ILogger<UpdateProvidersManagementService> logger, IServiceProvider serviceProvider,
-												UpdateProvidersConfigurationService updateProvidersConfigurationService)
+	public Task StartAsync(CancellationToken cancellationToken)
+	{
+		this._logger.LogInformation("Starting to wait for shutdown for cancelling update providers checking for updates");
+		return Task.CompletedTask;
+	}
+
+	public async Task StopAsync(CancellationToken cancellationToken)
+	{
+		this._logger.LogInformation("Stopping update providers");
+		var tasks = new Task[this._updateProvidersConfigurationService.Providers.Count];
+		var providers = this._updateProvidersConfigurationService.Providers.Values.ToArray();
+		for (var i = 0; i < providers.Length; i++)
 		{
-			this._logger = logger;
-
-			this._logger.LogTrace("Building {@UpdateProvidersManagementService}", typeof(UpdateProvidersManagementService));
-			this._serviceProvider = serviceProvider;
-			this._updateProvidersConfigurationService = updateProvidersConfigurationService;
-			this._logger.LogTrace("Built {@UpdateProvidersManagementService}", typeof(UpdateProvidersManagementService));
+			var provider = providers[i];
+			tasks[i] = provider.TriggerStoppingAsync();
 		}
 
-		public Task StartAsync(CancellationToken cancellationToken)
-		{
-			this._logger.LogInformation("Starting to wait for shutdown for cancelling update providers checking for updates");
-			return Task.CompletedTask;
-		}
-
-		public async Task StopAsync(CancellationToken cancellationToken)
-		{
-			this._logger.LogInformation("Stopping update providers");
-			var tasks = new Task[this._updateProvidersConfigurationService.Providers.Count];
-			var providers = this._updateProvidersConfigurationService.Providers.Values.ToArray();
-			for (var i = 0; i < providers.Length; i++)
-			{
-				var provider = providers[i];
-				tasks[i] = provider.TriggerStoppingAsync();
-			}
-
-			await Task.WhenAll(tasks).ConfigureAwait(false);
-		}
+		await Task.WhenAll(tasks).ConfigureAwait(false);
 	}
 }

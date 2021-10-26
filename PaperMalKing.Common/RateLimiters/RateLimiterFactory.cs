@@ -18,19 +18,18 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace PaperMalKing.Common.RateLimiters
-{
-	public static class RateLimiterFactory
-	{
-		public static IRateLimiter<T> Create<T>(RateLimit rateLimit, ILogger<IRateLimiter<T>>? logger = null)
-		{
-			if (rateLimit == null)
-				throw new ArgumentNullException(nameof(rateLimit));
-			if (rateLimit.AmountOfRequests == 0 || rateLimit.PeriodInMilliseconds == 0)
-				return new NullRateLimiter<T>(rateLimit);
+namespace PaperMalKing.Common.RateLimiters;
 
-			return new LockFreeRateLimiter<T>(rateLimit, logger);
-			// return new RateLimiter<T>(rateLimit, logger);
-		}
+public static class RateLimiterFactory
+{
+	public static IRateLimiter<T> Create<T>(RateLimit rateLimit, ILogger<IRateLimiter<T>>? logger = null)
+	{
+		if (rateLimit == null)
+			throw new ArgumentNullException(nameof(rateLimit));
+		if (rateLimit.AmountOfRequests == 0 || rateLimit.PeriodInMilliseconds == 0)
+			return new NullRateLimiter<T>(rateLimit);
+
+		return new LockFreeRateLimiter<T>(rateLimit, logger);
+		// return new RateLimiter<T>(rateLimit, logger);
 	}
 }

@@ -16,10 +16,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.AniList.Wrapper.Models.Interfaces
+namespace PaperMalKing.AniList.Wrapper.Models.Interfaces;
+
+internal interface IImageble
 {
-	internal interface IImageble
-	{
-		Image Image { get; init; }
-	}
+	Image Image { get; init; }
 }

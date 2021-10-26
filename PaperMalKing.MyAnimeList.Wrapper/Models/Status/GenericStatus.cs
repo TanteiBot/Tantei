@@ -16,12 +16,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Status
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Status;
+
+internal enum GenericStatus : byte
 {
-	internal enum GenericStatus : byte
-	{
-		OnGoing = 1,
-		Ended = 2,
-		NotYetStarted = 3
-	}
+	OnGoing = 1,
+	Ended = 2,
+	NotYetStarted = 3
 }

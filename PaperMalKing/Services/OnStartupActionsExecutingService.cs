@@ -24,38 +24,37 @@ using Microsoft.Extensions.Hosting;
 using PaperMalKing.Database;
 using PaperMalKing.UpdatesProviders.Base;
 
-namespace PaperMalKing.Services
+namespace PaperMalKing.Services;
+
+public sealed class OnStartupActionsExecutingService : IHostedService
 {
-	public sealed class OnStartupActionsExecutingService : IHostedService
+	private readonly IServiceProvider _serviceProvider;
+
+	public OnStartupActionsExecutingService(IServiceProvider serviceProvider)
 	{
-		private readonly IServiceProvider _serviceProvider;
+		this._serviceProvider = serviceProvider;
+	}
 
-		public OnStartupActionsExecutingService(IServiceProvider serviceProvider)
+	public async Task StartAsync(CancellationToken cancellationToken)
+	{
+		using var scope = this._serviceProvider.CreateScope();
+
+		scope.ServiceProvider.GetRequiredService<ICommandsService>();
+		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		await db.Database.MigrateAsync(CancellationToken.None).ConfigureAwait(false);
+		var s = this._serviceProvider.GetRequiredService<UpdatePublishingService>();
+		var services = this._serviceProvider.GetServices<IExecuteOnStartupService>();
+		foreach (var service in services)
 		{
-			this._serviceProvider = serviceProvider;
+			if (cancellationToken.IsCancellationRequested)
+				return;
+
+			await service.ExecuteAsync(cancellationToken).ConfigureAwait(false);
 		}
+	}
 
-		public async Task StartAsync(CancellationToken cancellationToken)
-		{
-			using var scope = this._serviceProvider.CreateScope();
-
-			scope.ServiceProvider.GetRequiredService<ICommandsService>();
-			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			await db.Database.MigrateAsync(CancellationToken.None).ConfigureAwait(false);
-			var s = this._serviceProvider.GetRequiredService<UpdatePublishingService>();
-			var services = this._serviceProvider.GetServices<IExecuteOnStartupService>();
-			foreach (var service in services)
-			{
-				if (cancellationToken.IsCancellationRequested)
-					return;
-
-				await service.ExecuteAsync(cancellationToken).ConfigureAwait(false);
-			}
-		}
-
-		public Task StopAsync(CancellationToken cancellationToken)
-		{
-			return Task.CompletedTask;
-		}
+	public Task StopAsync(CancellationToken cancellationToken)
+	{
+		return Task.CompletedTask;
 	}
 }

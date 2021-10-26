@@ -30,50 +30,49 @@ using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Features;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-namespace PaperMalKing.AniList.UpdateProvider
+namespace PaperMalKing.AniList.UpdateProvider;
+
+internal class AniListUpdateProviderConfigurator : IUpdateProviderConfigurator<AniListUpdateProvider>
 {
-	internal class AniListUpdateProviderConfigurator : IUpdateProviderConfigurator<AniListUpdateProvider>
+	[Obsolete("", true)]
+	public void ConfigureNonStatic(IConfiguration configuration, IServiceCollection serviceCollection)
 	{
-		[Obsolete("", true)]
-		public void ConfigureNonStatic(IConfiguration configuration, IServiceCollection serviceCollection)
-		{
-			throw new NotSupportedException();
-		}
+		throw new NotSupportedException();
+	}
 
-		public static void Configure(IConfiguration configuration, IServiceCollection serviceCollection)
-		{
-			serviceCollection.AddOptions<AniListOptions>().Bind(configuration.GetSection(AniListOptions.AniList));
+	public static void Configure(IConfiguration configuration, IServiceCollection serviceCollection)
+	{
+		serviceCollection.AddOptions<AniListOptions>().Bind(configuration.GetSection(AniListOptions.AniList));
 
-			serviceCollection.AddHttpClient(Constants.NAME).AddHttpMessageHandler(provider =>
-				{
-					var rlLogger = provider.GetRequiredService<ILogger<HeaderBasedRateLimitMessageHandler>>();
-					var rl = new HeaderBasedRateLimitMessageHandler(rlLogger);
-					return rl;
-				});
-			serviceCollection.AddSingleton<AniListClient>(provider =>
+		serviceCollection.AddHttpClient(Constants.NAME).AddHttpMessageHandler(provider =>
+		{
+			var rlLogger = provider.GetRequiredService<ILogger<HeaderBasedRateLimitMessageHandler>>();
+			var rl = new HeaderBasedRateLimitMessageHandler(rlLogger);
+			return rl;
+		});
+		serviceCollection.AddSingleton<AniListClient>(provider =>
+		{
+			var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+			var httpClient = httpClientFactory.CreateClient(Constants.NAME);
+			httpClient.Timeout = TimeSpan.FromSeconds(200);
+			var logger = provider.GetRequiredService<ILogger<AniListClient>>();
+			var options = new GraphQLHttpClientOptions()
 			{
-				var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
-				var httpClient = httpClientFactory.CreateClient(Constants.NAME);
-				httpClient.Timeout = TimeSpan.FromSeconds(200);
-				var logger = provider.GetRequiredService<ILogger<AniListClient>>();
-				var options = new GraphQLHttpClientOptions()
+				EndPoint = new Uri(Wrapper.Constants.BASE_URL)
+			};
+			var gqlc = new GraphQLHttpClient(options, new SystemTextJsonSerializer(new JsonSerializerOptions()
+			{
+				Converters =
 				{
-					EndPoint = new Uri(Wrapper.Constants.BASE_URL)
-				};
-				var gqlc = new GraphQLHttpClient(options, new SystemTextJsonSerializer(new JsonSerializerOptions()
-				{
-					Converters =
-					{
-						new JsonStringEnumConverter(new JsonUpperPolicyCase())
-					}
-				}), httpClient);
+					new JsonStringEnumConverter(new JsonUpperPolicyCase())
+				}
+			}), httpClient);
 
-				return new(gqlc, logger);
-			});
-			serviceCollection.AddSingleton<IExecuteOnStartupService, AniListExecuteOnStartupService>();
-			serviceCollection.AddSingleton<IUserFeaturesService<AniListUserFeatures>, AniListUserFeaturesService>();
-			serviceCollection.AddSingleton<AniListUserService>();
-			serviceCollection.AddSingleton<IUpdateProvider, AniListUpdateProvider>();
-		}
+			return new(gqlc, logger);
+		});
+		serviceCollection.AddSingleton<IExecuteOnStartupService, AniListExecuteOnStartupService>();
+		serviceCollection.AddSingleton<IUserFeaturesService<AniListUserFeatures>, AniListUserFeaturesService>();
+		serviceCollection.AddSingleton<AniListUserService>();
+		serviceCollection.AddSingleton<IUpdateProvider, AniListUpdateProvider>();
 	}
 }

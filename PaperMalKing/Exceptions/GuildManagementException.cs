@@ -18,19 +18,18 @@
 
 #endregion
 
-namespace PaperMalKing.Exceptions
+namespace PaperMalKing.Exceptions;
+
+public sealed class GuildManagementException : Exception
 {
-	public sealed class GuildManagementException : Exception
+	public ulong? GuildId { get; }
+
+	public ulong? ChannelId { get; }
+
+	/// <inheritdoc />
+	public GuildManagementException(string message, ulong? guildId = default, ulong? channelId = default) : base(message)
 	{
-		public ulong? GuildId { get; }
-
-		public ulong? ChannelId { get; }
-
-		/// <inheritdoc />
-		public GuildManagementException(string message, ulong? guildId = default, ulong? channelId = default) : base(message)
-		{
-			this.GuildId = guildId;
-			this.ChannelId = channelId;
-		}
+		this.GuildId = guildId;
+		this.ChannelId = channelId;
 	}
 }

@@ -16,8 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.Shikimori.Wrapper.Models
-{
-	internal sealed class User : UserInfo
-	{ }
-}
+namespace PaperMalKing.Shikimori.Wrapper.Models;
+
+internal sealed class User : UserInfo
+{ }

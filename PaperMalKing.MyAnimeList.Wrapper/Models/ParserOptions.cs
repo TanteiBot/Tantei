@@ -16,14 +16,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models
+namespace PaperMalKing.MyAnimeList.Wrapper.Models;
+
+[Flags]
+internal enum ParserOptions : byte
 {
-	[Flags]
-	internal enum ParserOptions : byte
-	{
-		None = 0,
-		Favorites = 1,
-		AnimeList = 1 << 1,
-		MangaList = 1 << 2
-	}
+	None = 0,
+	Favorites = 1,
+	AnimeList = 1 << 1,
+	MangaList = 1 << 2
 }

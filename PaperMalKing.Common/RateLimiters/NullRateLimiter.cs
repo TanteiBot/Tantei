@@ -16,20 +16,19 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.Common.RateLimiters
+namespace PaperMalKing.Common.RateLimiters;
+
+public sealed class NullRateLimiter<T> : IRateLimiter<T>
 {
-	public sealed class NullRateLimiter<T> : IRateLimiter<T>
+	public static readonly NullRateLimiter<T> Instance = new(new(1, 1));
+
+	internal NullRateLimiter(RateLimit rateLimit)
 	{
-		public static readonly NullRateLimiter<T> Instance = new(new(1, 1));
-
-		internal NullRateLimiter(RateLimit rateLimit)
-		{
-			this.RateLimit = rateLimit;
-		}
-
-		/// <inheritdoc />
-		public RateLimit RateLimit { get; }
-
-		public Task TickAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+		this.RateLimit = rateLimit;
 	}
+
+	/// <inheritdoc />
+	public RateLimit RateLimit { get; }
+
+	public Task TickAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 }

@@ -9,10 +9,9 @@
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY
 
-namespace PaperMalKing.AniList.Wrapper.Models
+namespace PaperMalKing.AniList.Wrapper.Models;
+
+public sealed class MediaListGroup
 {
-	public sealed class MediaListGroup
-	{
-		public MediaListEntry[] Entries { get; init; } = Array.Empty<MediaListEntry>();
-	}
+	public MediaListEntry[] Entries { get; init; } = Array.Empty<MediaListEntry>();
 }

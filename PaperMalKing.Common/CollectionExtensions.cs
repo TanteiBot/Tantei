@@ -20,42 +20,41 @@
 
 using System.Security.Cryptography;
 
-namespace PaperMalKing.Common
+namespace PaperMalKing.Common;
+
+public static class CollectionExtensions
 {
-	public static class CollectionExtensions
+	public static IList<T> Shuffle<T>(this IList<T> list)
 	{
-		public static IList<T> Shuffle<T>(this IList<T> list)
+		var n = list.Count;
+		Span<byte> box = stackalloc byte[sizeof(int)];
+		while (n > 1)
 		{
-			var n = list.Count;
-			Span<byte> box = stackalloc byte[sizeof(int)];
-			while (n > 1)
-			{
-				RandomNumberGenerator.Fill(box);
-				var bit = BitConverter.ToInt32(box);
-				var k = Math.Abs(bit) % n;
-				n--;
-				(list[k], list[n]) = (list[n], list[k]);
-			}
-
-			return list;
+			RandomNumberGenerator.Fill(box);
+			var bit = BitConverter.ToInt32(box);
+			var k = Math.Abs(bit) % n;
+			n--;
+			(list[k], list[n]) = (list[n], list[k]);
 		}
 
-		public static (IReadOnlyList<T> AddedValues, IReadOnlyList<T> RemovedValues) GetDifference<T>(
-			this IReadOnlyList<T> original, IReadOnlyList<T> resulting) where T : IEquatable<T>
-		{
-			var originalHs = new HashSet<T>(original);
-			var resultingHs = new HashSet<T>(resulting);
-			originalHs.ExceptWith(resulting);
-			resultingHs.ExceptWith(original);
-			var added = resultingHs.ToArray() ?? Array.Empty<T>();
-			var removed = originalHs.ToArray() ?? Array.Empty<T>();
-			return (added, removed);
-		}
+		return list;
+	}
 
-		public static T[] ForEach<T>(this T[] array, Action<T> action)
-		{
-			Array.ForEach(array, action);
-			return array;
-		}
+	public static (IReadOnlyList<T> AddedValues, IReadOnlyList<T> RemovedValues) GetDifference<T>(
+		this IReadOnlyList<T> original, IReadOnlyList<T> resulting) where T : IEquatable<T>
+	{
+		var originalHs = new HashSet<T>(original);
+		var resultingHs = new HashSet<T>(resulting);
+		originalHs.ExceptWith(resulting);
+		resultingHs.ExceptWith(original);
+		var added = resultingHs.ToArray() ?? Array.Empty<T>();
+		var removed = originalHs.ToArray() ?? Array.Empty<T>();
+		return (added, removed);
+	}
+
+	public static T[] ForEach<T>(this T[] array, Action<T> action)
+	{
+		Array.ForEach(array, action);
+		return array;
 	}
 }

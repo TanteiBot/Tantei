@@ -16,14 +16,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.Common.Enums
+namespace PaperMalKing.Common.Enums;
+
+public enum ProgressType : byte
 {
-	public enum ProgressType : byte
-	{
-		InProgress = 0,
-		Completed = 1,
-		OnHold = 2,
-		Dropped = 3,
-		InPlans = 4
-	}
+	InProgress = 0,
+	Completed = 1,
+	OnHold = 2,
+	Dropped = 3,
+	InPlans = 4
 }

@@ -31,45 +31,44 @@ using Polly;
 using Polly.Contrib.WaitAndRetry;
 using Polly.Extensions.Http;
 
-namespace PaperMalKing.UpdatesProviders.MyAnimeList
+namespace PaperMalKing.UpdatesProviders.MyAnimeList;
+
+internal sealed class MalUpdateProviderConfigurator : IUpdateProviderConfigurator<MalUpdateProvider>
 {
-	internal sealed class MalUpdateProviderConfigurator : IUpdateProviderConfigurator<MalUpdateProvider>
+	/// <inheritdoc />
+	public void ConfigureNonStatic(IConfiguration configuration, IServiceCollection serviceCollection)
+	{ }
+
+	public static void Configure(IConfiguration configuration, IServiceCollection services)
 	{
-		/// <inheritdoc />
-		public void ConfigureNonStatic(IConfiguration configuration, IServiceCollection serviceCollection)
-		{ }
+		services.AddOptions<MalOptions>().Bind(configuration.GetSection(Constants.Name));
+		services.AddSingleton(provider => RateLimiterExtensions.ConfigurationLambda<MalOptions, MyAnimeListClient>(provider));
 
-		public static void Configure(IConfiguration configuration, IServiceCollection services)
+		var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError()
+											  .OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
+											  .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));
+		services.AddHttpClient(MalOptions.MyAnimeList).AddPolicyHandler(retryPolicy).ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
 		{
-			services.AddOptions<MalOptions>().Bind(configuration.GetSection(Constants.Name));
-			services.AddSingleton(provider => RateLimiterExtensions.ConfigurationLambda<MalOptions, MyAnimeListClient>(provider));
-
-			var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError()
-												  .OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
-												  .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));
-			services.AddHttpClient(MalOptions.MyAnimeList).AddPolicyHandler(retryPolicy).ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
-			{
-				UseCookies = true,
-				CookieContainer = new()
-			}).AddHttpMessageHandler(provider =>
-			{
-				var rl = provider.GetRequiredService<IRateLimiter<MyAnimeListClient>>();
-				return rl.ToHttpMessageHandler();
-			}).ConfigureHttpClient(client =>
-			{
-				client.DefaultRequestHeaders.UserAgent.Clear();
-				client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0");
-			});
-			services.AddSingleton<MyAnimeListClient>(provider =>
-			{
-				var factory = provider.GetRequiredService<IHttpClientFactory>();
-				var logger = provider.GetRequiredService<ILogger<MyAnimeListClient>>();
-				return new(logger, factory.CreateClient(MalOptions.MyAnimeList));
-			});
-			services.AddSingleton<IExecuteOnStartupService, MalExecuteOnStartupService>();
-			services.AddSingleton<IUserFeaturesService<MalUserFeatures>, MalUserFeaturesService>();
-			services.AddSingleton<MalUserService>();
-			services.AddSingleton<IUpdateProvider, MalUpdateProvider>();
-		}
+			UseCookies = true,
+			CookieContainer = new()
+		}).AddHttpMessageHandler(provider =>
+		{
+			var rl = provider.GetRequiredService<IRateLimiter<MyAnimeListClient>>();
+			return rl.ToHttpMessageHandler();
+		}).ConfigureHttpClient(client =>
+		{
+			client.DefaultRequestHeaders.UserAgent.Clear();
+			client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0");
+		});
+		services.AddSingleton<MyAnimeListClient>(provider =>
+		{
+			var factory = provider.GetRequiredService<IHttpClientFactory>();
+			var logger = provider.GetRequiredService<ILogger<MyAnimeListClient>>();
+			return new(logger, factory.CreateClient(MalOptions.MyAnimeList));
+		});
+		services.AddSingleton<IExecuteOnStartupService, MalExecuteOnStartupService>();
+		services.AddSingleton<IUserFeaturesService<MalUserFeatures>, MalUserFeaturesService>();
+		services.AddSingleton<MalUserService>();
+		services.AddSingleton<IUpdateProvider, MalUpdateProvider>();
 	}
 }

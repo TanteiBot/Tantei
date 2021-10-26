@@ -16,14 +16,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.Database.Models.AniList
+namespace PaperMalKing.Database.Models.AniList;
+
+public enum FavouriteType : byte
 {
-	public enum FavouriteType : byte
-	{
-		Anime = 0,
-		Manga = 1,
-		Character = 2,
-		Staff = 3,
-		Studio = 4
-	}
+	Anime = 0,
+	Manga = 1,
+	Character = 2,
+	Staff = 3,
+	Studio = 4
 }

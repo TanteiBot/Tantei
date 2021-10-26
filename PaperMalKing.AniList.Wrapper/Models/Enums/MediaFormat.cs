@@ -18,20 +18,19 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace PaperMalKing.AniList.Wrapper.Models.Enums
+namespace PaperMalKing.AniList.Wrapper.Models.Enums;
+
+[SuppressMessage("Naming", "CA1707")]
+public enum MediaFormat : byte
 {
-	[SuppressMessage("Naming", "CA1707")]
-	public enum MediaFormat : byte
-	{
-		TV,
-		TV_SHORT,
-		MOVIE,
-		SPECIAL,
-		OVA,
-		ONA,
-		MUSIC,
-		MANGA,
-		NOVEL,
-		ONE_SHOT
-	}
+	TV,
+	TV_SHORT,
+	MOVIE,
+	SPECIAL,
+	OVA,
+	ONA,
+	MUSIC,
+	MANGA,
+	NOVEL,
+	ONE_SHOT
 }

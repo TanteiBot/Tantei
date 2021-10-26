@@ -19,23 +19,22 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss;
+
+[SuppressMessage("", "CA2227")]
+[XmlRoot(ElementName = "channel")]
+public sealed class FeedChannel
 {
-	[SuppressMessage("", "CA2227")]
-	[XmlRoot(ElementName = "channel")]
-	public sealed class FeedChannel
-	{
-		[XmlElement(ElementName = "title")]
-		public string Title { get; set; } = null!;
+	[XmlElement(ElementName = "title")]
+	public string Title { get; set; } = null!;
 
-		[XmlElement(ElementName = "link")]
-		public string Link { get; set; } = null!;
+	[XmlElement(ElementName = "link")]
+	public string Link { get; set; } = null!;
 
-		[XmlElement(ElementName = "description")]
-		public string Description { get; set; } = null!;
+	[XmlElement(ElementName = "description")]
+	public string Description { get; set; } = null!;
 
-		[SuppressMessage("Microsoft.Design", "CA1002")]
-		[XmlElement(ElementName = "item")]
-		public List<FeedItem> Items { get; set; } = null!;
-	}
+	[SuppressMessage("Microsoft.Design", "CA1002")]
+	[XmlElement(ElementName = "item")]
+	public List<FeedItem> Items { get; set; } = null!;
 }

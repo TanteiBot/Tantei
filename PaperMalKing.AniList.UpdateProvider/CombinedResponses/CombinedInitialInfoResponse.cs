@@ -18,19 +18,18 @@
 
 using PaperMalKing.AniList.Wrapper.Models;
 
-namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses
+namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses;
+
+internal sealed class CombinedInitialInfoResponse
 {
-	internal sealed class CombinedInitialInfoResponse
+	public ulong? UserId = null;
+
+	public readonly List<IdentifiableFavourite> Favourites = new();
+
+	public void Add(User user)
 	{
-		public ulong? UserId = null;
+		this.UserId ??= user.Id;
 
-		public readonly List<IdentifiableFavourite> Favourites = new();
-
-		public void Add(User user)
-		{
-			this.UserId ??= user.Id;
-
-			this.Favourites.AddRange(user.Favourites.AllFavourites);
-		}
+		this.Favourites.AddRange(user.Favourites.AllFavourites);
 	}
 }

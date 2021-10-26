@@ -16,12 +16,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.Database
-{
-	public sealed class DatabaseOptions
-	{
-		public const string Database = nameof(Database);
+namespace PaperMalKing.Database;
 
-		public string ConnectionString { get; init; } = null!;
-	}
+public sealed class DatabaseOptions
+{
+	public const string Database = nameof(Database);
+
+	public string ConnectionString { get; init; } = null!;
 }

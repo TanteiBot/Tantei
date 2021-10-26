@@ -16,10 +16,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.UpdatesProviders.Base
+namespace PaperMalKing.UpdatesProviders.Base;
+
+public interface IExecuteOnStartupService
 {
-	public interface IExecuteOnStartupService
-	{
-		Task ExecuteAsync(CancellationToken cancellationToken = default);
-	}
+	Task ExecuteAsync(CancellationToken cancellationToken = default);
 }

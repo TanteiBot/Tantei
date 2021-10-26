@@ -18,10 +18,9 @@
 
 using DSharpPlus.CommandsNext;
 
-namespace PaperMalKing.UpdatesProviders.Base
+namespace PaperMalKing.UpdatesProviders.Base;
+
+public interface ICommandsService
 {
-	public interface ICommandsService
-	{
-		CommandsNextExtension CommandsExtension { get; }
-	}
+	CommandsNextExtension CommandsExtension { get; }
 }

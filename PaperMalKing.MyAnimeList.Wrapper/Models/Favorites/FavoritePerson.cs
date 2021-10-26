@@ -16,11 +16,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
+
+internal sealed class FavoritePerson : BaseFavorite
 {
-	internal sealed class FavoritePerson : BaseFavorite
-	{
-		internal FavoritePerson(BaseFavorite other) : base(other)
-		{ }
-	}
+	internal FavoritePerson(BaseFavorite other) : base(other)
+	{ }
 }

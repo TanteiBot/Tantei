@@ -18,12 +18,11 @@
 
 #endregion
 
-namespace PaperMalKing.Shikimori.Wrapper.Models
+namespace PaperMalKing.Shikimori.Wrapper.Models;
+
+internal enum HistoryRequestOptions : byte
 {
-	internal enum HistoryRequestOptions : byte
-	{
-		Anime = 0,
-		Manga = 1,
-		Any = 2
-	}
+	Anime = 0,
+	Manga = 1,
+	Any = 2
 }

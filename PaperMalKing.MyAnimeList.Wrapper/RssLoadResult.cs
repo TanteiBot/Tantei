@@ -16,12 +16,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.MyAnimeList.Wrapper
+namespace PaperMalKing.MyAnimeList.Wrapper;
+
+internal enum RssLoadResult : short
 {
-	internal enum RssLoadResult : short
-	{
-		Forbidden = 403,
-		NotFound = 404,
-		Teapot = 418
-	}
+	Forbidden = 403,
+	NotFound = 404,
+	Teapot = 418
 }

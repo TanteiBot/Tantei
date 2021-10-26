@@ -29,125 +29,124 @@ using PaperMalKing.Common.Attributes;
 using PaperMalKing.Services;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-namespace PaperMalKing.Commands
+namespace PaperMalKing.Commands;
+
+[ModuleLifespan(ModuleLifespan.Singleton)]
+[SuppressMessage("Performance", "CA1822")]
+public sealed class UngroupedCommands : BaseCommandModule
 {
-	[ModuleLifespan(ModuleLifespan.Singleton)]
-	[SuppressMessage("Performance", "CA1822")]
-	public sealed class UngroupedCommands : BaseCommandModule
+	private readonly UpdateProvidersConfigurationService _providersConfigurationService;
+
+	private DiscordEmbed? AboutEmbed;
+
+	/// <inheritdoc />
+	public UngroupedCommands(UpdateProvidersConfigurationService providersConfigurationService)
 	{
-		private readonly UpdateProvidersConfigurationService _providersConfigurationService;
+		this._providersConfigurationService = providersConfigurationService;
+	}
 
-		private DiscordEmbed? AboutEmbed;
-
-		/// <inheritdoc />
-		public UngroupedCommands(UpdateProvidersConfigurationService providersConfigurationService)
+	[Command("say")]
+	[Description("Sends embed in selected channel with selected text")]
+	[OwnerOrPermission(Permissions.ManageGuild)]
+	[SuppressMessage("Microsoft.Design", "CA1031")]
+	public async Task SayCommand(CommandContext context, [Description("Channel where the embed will be send")]
+								 DiscordChannel channelToSayIn, [RemainingText, Description("Text to send")]
+								 string messageContent)
+	{
+		if (string.IsNullOrWhiteSpace(messageContent))
+			throw new ArgumentException("Message's content shouldn't be empty", nameof(messageContent));
+		var embed = new DiscordEmbedBuilder
 		{
-			this._providersConfigurationService = providersConfigurationService;
+			Description = messageContent.Replace("@everyone", "@\u200beveryone", StringComparison.Ordinal)
+										.Replace("@here", "@\u200bhere", StringComparison.Ordinal),
+			Timestamp = DateTime.Now,
+			Color = DiscordColor.Blue
+		}.WithAuthor($"{context.Member.Username}#{context.Member.Discriminator}", iconUrl: context.Member.AvatarUrl);
+		try
+		{
+			await channelToSayIn.SendMessageAsync(embed: embed).ConfigureAwait(false);
+		}
+		catch
+		{
+			await context.RespondAsync("Couldn't send message. Check permissions for bot and try again.").ConfigureAwait(false);
+		}
+	}
+
+	[Command("About")]
+	[Description("Displays info about bot")]
+	[Aliases("Info")]
+	public async Task AboutCommand(CommandContext context)
+	{
+		if (this.AboutEmbed == null)
+		{
+			var botVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "";
+			var dotnetVersion = Environment.Version.ToString(3);
+
+			const string desc =
+				"Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.\nDeveloped by N0D4N#2281 (<@356518417987141633>).";
+
+			var versions = $"Bot version - {botVersion}." + "\n" + $"DSharpPlus version - {context.Client.VersionString}." + "\n" +
+						   $".NET version - {dotnetVersion}.";
+
+			const string sourceCodeLink = "https://github.com/TanteiBot/Tantei";
+			var links = Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute));
+
+			var embedBuilder = new DiscordEmbedBuilder
+			{
+				Title = "Info",
+				Url = sourceCodeLink,
+				Description = desc,
+				Color = DiscordColor.DarkBlue,
+			}.WithThumbnail(context.Client.CurrentUser.AvatarUrl);
+			embedBuilder.AddField("Links", links, true);
+			embedBuilder.AddField("Versions", versions, true);
+			Interlocked.Exchange(ref this.AboutEmbed, embedBuilder.Build());
 		}
 
-		[Command("say")]
-		[Description("Sends embed in selected channel with selected text")]
-		[OwnerOrPermission(Permissions.ManageGuild)]
-		[SuppressMessage("Microsoft.Design", "CA1031")]
-		public async Task SayCommand(CommandContext context, [Description("Channel where the embed will be send")]
-									 DiscordChannel channelToSayIn, [RemainingText, Description("Text to send")]
-									 string messageContent)
+		await context.RespondAsync(embed: this.AboutEmbed).ConfigureAwait(false);
+	}
+
+	[Command("DeleteMessages")]
+	[Aliases("dmsg", "rm", "rmm")]
+	[Description("Delete messages by their id")]
+	[RequireOwner]
+	public async Task DeleteMessagesCommand(CommandContext context, [RemainingText, Description("Messages Id's")]
+											params ulong[] messages)
+	{
+		var msgsToDelete =
+			(await context.Channel.GetMessagesBeforeAsync(context.Message.Id).ConfigureAwait(false)).Where(x =>
+				x.Author.IsCurrent && messages.Contains(x.Id));
+		foreach (var msg in msgsToDelete)
+			await context.Channel.DeleteMessageAsync(msg).ConfigureAwait(false);
+	}
+
+	[Command("Forcecheck")]
+	[Aliases("fc")]
+	[RequireOwner]
+	[Hidden]
+	public async Task ForceCheckCommand(CommandContext context, [RemainingText, Description("Update provider name")]
+										string name)
+	{
+		name = name.Trim();
+		BaseUpdateProvider? baseUpdateProvider;
+		if (this._providersConfigurationService.Providers.TryGetValue(name, out var provider) && provider is BaseUpdateProvider bup)
 		{
-			if (string.IsNullOrWhiteSpace(messageContent))
-				throw new ArgumentException("Message's content shouldn't be empty", nameof(messageContent));
-			var embed = new DiscordEmbedBuilder
-			{
-				Description = messageContent.Replace("@everyone", "@\u200beveryone", StringComparison.Ordinal)
-											.Replace("@here", "@\u200bhere", StringComparison.Ordinal),
-				Timestamp = DateTime.Now,
-				Color = DiscordColor.Blue
-			}.WithAuthor($"{context.Member.Username}#{context.Member.Discriminator}", iconUrl: context.Member.AvatarUrl);
-			try
-			{
-				await channelToSayIn.SendMessageAsync(embed: embed).ConfigureAwait(false);
-			}
-			catch
-			{
-				await context.RespondAsync("Couldn't send message. Check permissions for bot and try again.").ConfigureAwait(false);
-			}
+			baseUpdateProvider = bup;
+		}
+		else
+		{
+			var upc = this._providersConfigurationService.Providers.Values.FirstOrDefault(p => p.Name.Where(char.IsUpper).ToString() == name);
+			baseUpdateProvider = upc as BaseUpdateProvider;
 		}
 
-		[Command("About")]
-		[Description("Displays info about bot")]
-		[Aliases("Info")]
-		public async Task AboutCommand(CommandContext context)
+		if (baseUpdateProvider != null)
 		{
-			if (this.AboutEmbed == null)
-			{
-				var botVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "";
-				var dotnetVersion = Environment.Version.ToString(3);
-
-				const string desc =
-					"Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.\nDeveloped by N0D4N#2281 (<@356518417987141633>).";
-
-				var versions = $"Bot version - {botVersion}." + "\n" + $"DSharpPlus version - {context.Client.VersionString}." + "\n" +
-							   $".NET version - {dotnetVersion}.";
-
-				const string sourceCodeLink = "https://github.com/TanteiBot/Tantei";
-				var links = Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute));
-
-				var embedBuilder = new DiscordEmbedBuilder
-				{
-					Title = "Info",
-					Url = sourceCodeLink,
-					Description = desc,
-					Color = DiscordColor.DarkBlue,
-				}.WithThumbnail(context.Client.CurrentUser.AvatarUrl);
-				embedBuilder.AddField("Links", links, true);
-				embedBuilder.AddField("Versions", versions, true);
-				Interlocked.Exchange(ref this.AboutEmbed, embedBuilder.Build());
-			}
-
-			await context.RespondAsync(embed: this.AboutEmbed).ConfigureAwait(false);
+			baseUpdateProvider.RestartTimer(TimeSpan.Zero);
+			await context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context, "Success")).ConfigureAwait(false);
 		}
-
-		[Command("DeleteMessages")]
-		[Aliases("dmsg", "rm", "rmm")]
-		[Description("Delete messages by their id")]
-		[RequireOwner]
-		public async Task DeleteMessagesCommand(CommandContext context, [RemainingText, Description("Messages Id's")]
-												params ulong[] messages)
+		else
 		{
-			var msgsToDelete =
-				(await context.Channel.GetMessagesBeforeAsync(context.Message.Id).ConfigureAwait(false)).Where(x =>
-					x.Author.IsCurrent && messages.Contains(x.Id));
-			foreach (var msg in msgsToDelete)
-				await context.Channel.DeleteMessageAsync(msg).ConfigureAwait(false);
-		}
-
-		[Command("Forcecheck")]
-		[Aliases("fc")]
-		[RequireOwner]
-		[Hidden]
-		public async Task ForceCheckCommand(CommandContext context, [RemainingText, Description("Update provider name")]
-											string name)
-		{
-			name = name.Trim();
-			BaseUpdateProvider? baseUpdateProvider;
-			if (this._providersConfigurationService.Providers.TryGetValue(name, out var provider) && provider is BaseUpdateProvider bup)
-			{
-				baseUpdateProvider = bup;
-			}
-			else
-			{
-				var upc = this._providersConfigurationService.Providers.Values.FirstOrDefault(p => p.Name.Where(char.IsUpper).ToString() == name);
-				baseUpdateProvider = upc as BaseUpdateProvider;
-			}
-
-			if (baseUpdateProvider != null)
-			{
-				baseUpdateProvider.RestartTimer(TimeSpan.Zero);
-				await context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context, "Success")).ConfigureAwait(false);
-			}
-			else
-			{
-				await context.RespondAsync(embed: EmbedTemplate.ErrorEmbed(context, "Haven't found such update provider")).ConfigureAwait(false);
-			}
+			await context.RespondAsync(embed: EmbedTemplate.ErrorEmbed(context, "Haven't found such update provider")).ConfigureAwait(false);
 		}
 	}
 }

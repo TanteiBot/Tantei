@@ -24,21 +24,20 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.Entities;
 using Humanizer;
 
-namespace PaperMalKing.UpdatesProviders.Base.Features
+namespace PaperMalKing.UpdatesProviders.Base.Features;
+
+public class FeatureArgumentConverter<T> : IArgumentConverter<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
-	public class FeatureArgumentConverter<T> : IArgumentConverter<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
+	[SuppressMessage("Microsoft.Design", "CA1031")]
+	public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
 	{
-		[SuppressMessage("Microsoft.Design", "CA1031")]
-		public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
+		try
 		{
-			try
-			{
-				return Task.FromResult(new Optional<T>(value.DehumanizeTo<T>()));
-			}
-			catch
-			{
-				return Task.FromResult(Optional.FromNoValue<T>());
-			}
+			return Task.FromResult(new Optional<T>(value.DehumanizeTo<T>()));
+		}
+		catch
+		{
+			return Task.FromResult(Optional.FromNoValue<T>());
 		}
 	}
 }

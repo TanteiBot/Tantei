@@ -18,12 +18,11 @@
 
 using PaperMalKing.Common.Enums;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss.Types
-{
-	internal interface IRssFeedType
-	{
-		string Url { get; }
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss.Types;
 
-		ListEntryType Type { get; }
-	}
+internal interface IRssFeedType
+{
+	string Url { get; }
+
+	ListEntryType Type { get; }
 }

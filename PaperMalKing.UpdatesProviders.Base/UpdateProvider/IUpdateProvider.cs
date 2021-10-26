@@ -16,13 +16,12 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
-{
-	public interface IUpdateProvider
-	{
-		string Name { get; }
-		event UpdateFoundEvent UpdateFoundEvent;
+namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-		public Task TriggerStoppingAsync();
-	}
+public interface IUpdateProvider
+{
+	string Name { get; }
+	event UpdateFoundEvent UpdateFoundEvent;
+
+	public Task TriggerStoppingAsync();
 }
