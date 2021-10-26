@@ -20,6 +20,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -31,6 +32,7 @@ namespace PaperMalKing.Shikimori.Wrapper
 	{
 		private readonly HttpClient _httpClient;
 		private readonly ILogger<ShikiClient> _logger;
+		private static readonly JsonSerializerOptions _jsonSerializerOptions = new(JsonSerializerDefaults.Web);
 		
 		private static readonly MultipartFormDataContent UserCachedContent = new()
 		{
@@ -56,7 +58,7 @@ namespace PaperMalKing.Shikimori.Wrapper
 			};
 
 			using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-			return (await response!.Content.ReadFromJsonAsync<User>(null, cancellationToken).ConfigureAwait(false))!;
+			return (await response!.Content.ReadFromJsonAsync<User>(_jsonSerializerOptions, cancellationToken).ConfigureAwait(false))!;
 		}
 
 		internal async Task<Favourites> GetUserFavouritesAsync(ulong userId, CancellationToken cancellationToken = default)
@@ -88,7 +90,7 @@ namespace PaperMalKing.Shikimori.Wrapper
 			};
 			using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 
-			var data = (await response.Content.ReadFromJsonAsync<History[]>(null, cancellationToken).ConfigureAwait(false))!;
+			var data = (await response.Content.ReadFromJsonAsync<History[]>(_jsonSerializerOptions, cancellationToken).ConfigureAwait(false))!;
 			var hasNextPage = data.Length == limit + 1;
 			return new(data, hasNextPage);
 		}
