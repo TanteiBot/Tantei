@@ -140,10 +140,10 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		return db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).Select(su => new
-				 {
-					 su.DiscordUser,
-					 su.LastHistoryEntryId
-				 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastHistoryEntryId)
+		{
+			su.DiscordUser,
+			su.LastHistoryEntryId
+		}).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastHistoryEntryId)
 				 .Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking().AsAsyncEnumerable();
 	}
 }

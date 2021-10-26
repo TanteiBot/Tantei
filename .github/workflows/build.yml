@@ -1,17 +1,17 @@
 ---
 name: .NET build
 
-on: 
+on:
   workflow_dispatch:
   
   push:
-    branches: 
+    branches:
       - master
   pull_request:
     branches:
       - master
 
-jobs: 
+jobs:
   build:
     env:
       DOTNET_NOLOGO: true

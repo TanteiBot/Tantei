@@ -39,8 +39,8 @@ internal static class MalDateTimeParser
 		{
 			"seconds" => now.AddSeconds(-number),
 			"minutes" => now.AddMinutes(-number),
-			"hours"   => now.AddHours(-number),
-			_         => null
+			"hours" => now.AddHours(-number),
+			_ => null
 		};
 	}
 }

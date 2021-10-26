@@ -78,24 +78,24 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 			{
 				case AniListUserFeatures.AnimeList:
 				case AniListUserFeatures.MangaList:
-				{
-					dbUser.LastActivityTimestamp = now;
-					break;
-				}
+					{
+						dbUser.LastActivityTimestamp = now;
+						break;
+					}
 				case AniListUserFeatures.Favourites:
-				{
-					var fr = await this._client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites, CancellationToken.None)
-									   .ConfigureAwait(false);
-					dbUser.Favourites.Clear();
-					dbUser.Favourites.AddRange(fr.Favourites.Select(f => new AniListFavourite { Id = f.Id, FavouriteType = (FavouriteType)f.Type })
-												 .ToList());
-					break;
-				}
+					{
+						var fr = await this._client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites, CancellationToken.None)
+										   .ConfigureAwait(false);
+						dbUser.Favourites.Clear();
+						dbUser.Favourites.AddRange(fr.Favourites.Select(f => new AniListFavourite { Id = f.Id, FavouriteType = (FavouriteType)f.Type })
+													 .ToList());
+						break;
+					}
 				case AniListUserFeatures.Reviews:
-				{
-					dbUser.LastReviewTimestamp = now;
-					break;
-				}
+					{
+						dbUser.LastReviewTimestamp = now;
+						break;
+					}
 			}
 		}
 

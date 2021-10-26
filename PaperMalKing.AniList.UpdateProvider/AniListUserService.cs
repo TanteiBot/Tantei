@@ -128,10 +128,10 @@ public sealed class AniListUserService : IUpdateProviderUserService
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		return db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).Select(su => new
-				 {
-					 su.DiscordUser,
-					 su.LastActivityTimestamp
-				 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastActivityTimestamp)
+		{
+			su.DiscordUser,
+			su.LastActivityTimestamp
+		}).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastActivityTimestamp)
 				 .Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking().AsAsyncEnumerable();
 	}
 }

@@ -63,7 +63,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 	[SuppressMessage("Microsoft.Design", "CA1031")]
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
-#region LocalFuncs
+		#region LocalFuncs
 
 		static void DbAnimeUpdateAction(string h, DateTimeOffset dto, MalUser u)
 		{
@@ -120,7 +120,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			return new[] { lastListUpdate.ToDiscordEmbedBuilder(user, DateTimeOffset.Now, dbUser.Features) };
 		}
 
-#endregion
+		#endregion
 
 		using var scope = this._provider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();

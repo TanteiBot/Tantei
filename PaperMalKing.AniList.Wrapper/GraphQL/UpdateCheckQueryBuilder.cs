@@ -193,8 +193,8 @@ internal static class UpdateCheckQueryBuilder
 			var type = hasAnime switch
 			{
 				true when hasManga => "MEDIA_LIST",
-				true               => "ANIME_LIST",
-				_                  => "MANGA_LIST"
+				true => "ANIME_LIST",
+				_ => "MANGA_LIST"
 			};
 			sb.AppendLine($"values: activities(userId: $userId, type: {type}, sort: ID_DESC, createdAt_greater: $activitiesFilterTimeStamp) {{");
 			sb.AppendLine(@"... on ListActivity {

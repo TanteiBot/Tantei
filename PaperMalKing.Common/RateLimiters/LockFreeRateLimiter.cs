@@ -64,20 +64,20 @@ public sealed class LockFreeRateLimiter<T> : IRateLimiter<T>
 			switch (isTooEarlyToRefill)
 			{
 				case true when !arePermitsAvailable:
-				{
-					var delay = nextRefillDateTime - now;
-					var delayInMs = Convert.ToInt32(delay);
-					this.Logger.LogDebug("[{ServiceName}] Waiting {@Delay}ms.", this._serviceName, delayInMs);
-					await Task.Delay(delayInMs, cancellationToken).ConfigureAwait(false);
-					break;
-				}
+					{
+						var delay = nextRefillDateTime - now;
+						var delayInMs = Convert.ToInt32(delay);
+						this.Logger.LogDebug("[{ServiceName}] Waiting {@Delay}ms.", this._serviceName, delayInMs);
+						await Task.Delay(delayInMs, cancellationToken).ConfigureAwait(false);
+						break;
+					}
 				// && arePermitsAvailable
 				case true:
-				{
-					this.Logger.LogTrace("[{ServiceName}] Passing", this._serviceName);
-					Interlocked.Decrement(ref this._availablePermits);
-					return;
-				}
+					{
+						this.Logger.LogTrace("[{ServiceName}] Passing", this._serviceName);
+						Interlocked.Decrement(ref this._availablePermits);
+						return;
+					}
 			}
 
 			if (Interlocked.CompareExchange(ref this._lastUpdateTime, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), lastUpdateTime) ==

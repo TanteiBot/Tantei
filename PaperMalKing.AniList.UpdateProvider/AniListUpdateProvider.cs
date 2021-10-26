@@ -165,7 +165,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 
 		user.Favourites.RemoveAll(f => removedValues.Any(rv => rv.Id == f.Id && rv.Type == (Wrapper.Models.Enums.FavouriteType)f.FavouriteType));
 		user.Favourites.AddRange(addedValues.Select(av => new AniListFavourite()
-			{ User = user, UserId = user.Id, Id = av.Id, FavouriteType = (FavouriteType)av.Type }));
+		{ User = user, UserId = user.Id, Id = av.Id, FavouriteType = (FavouriteType)av.Type }));
 
 		var changedValues = new List<IdentifiableFavourite>(addedValues);
 		changedValues.AddRange(removedValues);

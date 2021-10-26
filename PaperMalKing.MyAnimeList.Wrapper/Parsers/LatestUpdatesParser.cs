@@ -40,7 +40,7 @@ internal static class LatestUpdatesParser
 		{
 			ListEntryType.Anime => AnimeSelector,
 			ListEntryType.Manga => MangaSelector,
-			_                   => throw new ArgumentOutOfRangeException(nameof(listEntryType), listEntryType, null)
+			_ => throw new ArgumentOutOfRangeException(nameof(listEntryType), listEntryType, null)
 		};
 		var dataNode = node.SelectSingleNode(selector);
 		if (dataNode == null)
