@@ -35,8 +35,7 @@ namespace PaperMalKing.Common
             while (n > 1)
             {
                 provider.GetBytes(box);
-                ReadOnlySpan<byte> readonlyBox = box;
-                var bit = BitConverter.ToInt32(readonlyBox);
+                var bit = BitConverter.ToInt32(box);
                 var k = Math.Abs(bit) % n;
                 n--;
                 var value = list[k];
@@ -59,37 +58,13 @@ namespace PaperMalKing.Common
             return (added, removed);
         }
 
-        public static List<T> Add<T>(this List<T> list, T value)
-        {
-            list.Add(value);
-            return list;
-        }
-
-        public static List<T> AddRange<T>(this List<T> list, IEnumerable<T> values)
-        {
-            list.AddRange(values);
-            return list;
-        }
-
         public static T[] ForEach<T>(this T[] array, Action<T> action)
         {
             Array.ForEach(array, action);
             return array;
         }
 
-        public static List<T> ForEach<T>(this List<T> source, Action<T> action)
-        {
-            source.ForEach(action);
-            return source;
-        }
-
-        public static IReadOnlyList<T> ForEach<T>(this IReadOnlyList<T> list, Action<T> action)
-        {
-            for (var i = 0; i < list.Count; i++) action(list[i]);
-            return list;
-        }
-
-        public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector) where TKey : IComparable<TKey> =>
+		public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector) where TKey : IComparable<TKey> =>
             source.Aggregate((accumulator, next) => selector(accumulator).CompareTo(selector(next)) < 0 ? next : accumulator);
 
         public static TSource MinBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector) where TKey : IComparable<TKey> =>

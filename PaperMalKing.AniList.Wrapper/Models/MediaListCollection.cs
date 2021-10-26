@@ -17,20 +17,17 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-    public sealed class MediaListCollection
+	[SuppressMessage("Naming", "CA1711")]
+	public sealed class MediaListCollection
     {
         [JsonPropertyName("lists")]
         public MediaListGroup[] Lists { get; init; } = Array.Empty<MediaListGroup>();
 
         public static readonly MediaListCollection Empty = new ();
-
-        public sealed class MediaListGroup
-        {
-            public MediaListEntry[] Entries { get; init; } = Array.Empty<MediaListEntry>();
-        }
-    }
+	}
 }

@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Models.List;
@@ -26,6 +27,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
 namespace PaperMalKing.MyAnimeList.Wrapper
 {
+	[SuppressMessage("Globalization", "CA1307")]
 	internal static class Extensions
 	{
 		internal static string ToLargeImage(this string value)

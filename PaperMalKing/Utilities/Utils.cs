@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -32,6 +34,7 @@ namespace PaperMalKing.Utilities
 			{
 				Assembly.LoadFile(file);
 			}
+
 			return AppDomain.CurrentDomain.GetAssemblies();
 		}
 	}

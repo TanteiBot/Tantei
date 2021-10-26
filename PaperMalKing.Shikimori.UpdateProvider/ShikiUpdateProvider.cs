@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,9 +61,10 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		public override string Name => Constants.NAME;
 
 		/// <inheritdoc />
-		public override event UpdateFoundEventHandler? UpdateFoundEvent;
+		public override event UpdateFoundEvent? UpdateFoundEvent;
 
 		/// <inheritdoc />
+		[SuppressMessage("Microsoft.Design", "CA1031")]
 		protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 		{
 			using var scope = this._serviceProvider.CreateScope();
@@ -75,12 +77,13 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 										   .AsAsyncEnumerable().WithCancellation(cancellationToken))
 			{
 				var totalUpdates = new List<DiscordEmbedBuilder>();
-				var historyUpdates =
-					await this._client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken);
+				var historyUpdates = await this._client
+											   .GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features,
+												   cancellationToken).ConfigureAwait(false);
 				var favs = dbUser.Features switch
 				{
 					_ when dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) =>
-						await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken),
+						await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken).ConfigureAwait(false),
 					_ => Favourites.Empty
 				};
 				var cfavs = dbUser.Favourites.Select(f => new FavouriteEntry
@@ -104,7 +107,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					FavType = fe.GenericType!,
 					User = dbUser
 				}));
-				var user = await this._client.GetUserInfo(dbUser.Id, cancellationToken);
+				var user = await this._client.GetUserInfo(dbUser.Id, cancellationToken).ConfigureAwait(false);
 				totalUpdates.AddRange(removedValues.Select(rf => rf.ToDiscordEmbed(user, false, dbUser.Features)));
 				totalUpdates.AddRange(addedValues.Select(af => af.ToDiscordEmbed(user, true, dbUser.Features)));
 				var groupedHistoryEntries = historyUpdates.GroupSimilarHistoryEntries();
@@ -130,20 +133,19 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				if ((dbUser.Features & ShikiUserFeatures.Website) != 0)
 					totalUpdates.ForEach(deb => deb.WithShikiUpdateProviderFooter());
 
-				await using var transaction = await db.Database.BeginTransactionAsync(CancellationToken.None);
+				using var transaction = db.Database.BeginTransaction();
 				try
 				{
 					db.ShikiUsers.Update(dbUser);
-					if (await db.SaveChangesAsync(CancellationToken.None) <= 0) throw new Exception("Couldn't save update in DB");
-					await transaction.CommitAsync();
-					await this.UpdateFoundEvent?.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser))!;
+					if (db.SaveChanges() <= 0) throw new Exception("Couldn't save update in DB");
+					transaction.Commit();
+					await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 					this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);
 				}
 				catch(Exception ex)
 				{
-					await transaction.RollbackAsync();
-					this.Logger.LogError(ex, ex.Message);
-
+					this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
+					throw;
 				}
 			}
 		}

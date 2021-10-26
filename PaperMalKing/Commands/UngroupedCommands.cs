@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,9 +15,11 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -33,6 +36,7 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 namespace PaperMalKing.Commands
 {
 	[ModuleLifespan(ModuleLifespan.Singleton)]
+	[SuppressMessage("Performance", "CA1822")]
 	public sealed class UngroupedCommands : BaseCommandModule
 	{
 		private readonly UpdateProvidersConfigurationService _providersConfigurationService;
@@ -48,6 +52,7 @@ namespace PaperMalKing.Commands
 		[Command("say")]
 		[Description("Sends embed in selected channel with selected text")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
+		[SuppressMessage("Microsoft.Design", "CA1031")]
 		public async Task SayCommand(CommandContext context, [Description("Channel where the embed will be send")]
 									 DiscordChannel channelToSayIn, [RemainingText, Description("Text to send")]
 									 string messageContent)
@@ -56,17 +61,18 @@ namespace PaperMalKing.Commands
 				throw new ArgumentException("Message's content shouldn't be empty", nameof(messageContent));
 			var embed = new DiscordEmbedBuilder
 			{
-				Description = messageContent.Replace("@everyone", "@\u200beveryone").Replace("@here", "@\u200bhere"),
+				Description = messageContent.Replace("@everyone", "@\u200beveryone", StringComparison.Ordinal)
+											.Replace("@here", "@\u200bhere", StringComparison.Ordinal),
 				Timestamp = DateTime.Now,
 				Color = DiscordColor.Blue
 			}.WithAuthor($"{context.Member.Username}#{context.Member.Discriminator}", iconUrl: context.Member.AvatarUrl);
 			try
 			{
-				await channelToSayIn.SendMessageAsync(embed: embed);
+				await channelToSayIn.SendMessageAsync(embed: embed).ConfigureAwait(false);
 			}
 			catch
 			{
-				await context.RespondAsync("Couldn't send message. Check permissions for bot and try again.");
+				await context.RespondAsync("Couldn't send message. Check permissions for bot and try again.").ConfigureAwait(false);
 			}
 		}
 
@@ -77,16 +83,16 @@ namespace PaperMalKing.Commands
 		{
 			if (this.AboutEmbed == null)
 			{
-				var botVersion = $"{Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3)}" ?? "";
-				var netCoreVersion = Environment.Version.ToString(3);
+				var botVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "";
+				var dotnetVersion = Environment.Version.ToString(3);
 
 				const string desc =
-					"Paper Mal King is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.\nDeveloped by N0D4N#2281 (<@356518417987141633>).";
+					"Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.\nDeveloped by N0D4N#2281 (<@356518417987141633>).";
 
 				var versions = $"Bot version - {botVersion}." + "\n" + $"DSharpPlus version - {context.Client.VersionString}." + "\n" +
-							   $".NET version - {netCoreVersion}.";
+							   $".NET version - {dotnetVersion}.";
 
-				const string sourceCodeLink = "https://github.com/N0D4N/PaperMalKing";
+				const string sourceCodeLink = "https://github.com/TanteiBot/Tantei";
 				var links = Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute));
 
 				var embedBuilder = new DiscordEmbedBuilder
@@ -101,7 +107,7 @@ namespace PaperMalKing.Commands
 				Interlocked.Exchange(ref this.AboutEmbed, embedBuilder.Build());
 			}
 
-			await context.RespondAsync(embed: this.AboutEmbed);
+			await context.RespondAsync(embed: this.AboutEmbed).ConfigureAwait(false);
 		}
 
 		[Command("DeleteMessages")]
@@ -112,9 +118,10 @@ namespace PaperMalKing.Commands
 												params ulong[] messages)
 		{
 			var msgsToDelete =
-				(await context.Channel.GetMessagesBeforeAsync(context.Message.Id)).Where(x => x.Author.IsCurrent && messages.Contains(x.Id));
+				(await context.Channel.GetMessagesBeforeAsync(context.Message.Id).ConfigureAwait(false)).Where(x =>
+					x.Author.IsCurrent && messages.Contains(x.Id));
 			foreach (var msg in msgsToDelete)
-				await context.Channel.DeleteMessageAsync(msg);
+				await context.Channel.DeleteMessageAsync(msg).ConfigureAwait(false);
 		}
 
 		[Command("Forcecheck")]
@@ -126,8 +133,7 @@ namespace PaperMalKing.Commands
 		{
 			name = name.Trim();
 			BaseUpdateProvider? baseUpdateProvider;
-			if (this._providersConfigurationService.Providers.TryGetValue(name, out var provider) &&
-				provider is BaseUpdateProvider bup)
+			if (this._providersConfigurationService.Providers.TryGetValue(name, out var provider) && provider is BaseUpdateProvider bup)
 			{
 				baseUpdateProvider = bup;
 			}
@@ -140,14 +146,12 @@ namespace PaperMalKing.Commands
 			if (baseUpdateProvider != null)
 			{
 				baseUpdateProvider.RestartTimer(TimeSpan.Zero);
-				await context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context, "Success"));
+				await context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context, "Success")).ConfigureAwait(false);
 			}
 			else
 			{
-				await context.RespondAsync(embed: EmbedTemplate.ErrorEmbed(context, "Haven't found such update provider"));
+				await context.RespondAsync(embed: EmbedTemplate.ErrorEmbed(context, "Haven't found such update provider")).ConfigureAwait(false);
 			}
-
-
 		}
 	}
 }

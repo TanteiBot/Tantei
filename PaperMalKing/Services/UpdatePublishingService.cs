@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,12 +15,14 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -64,11 +67,11 @@ namespace PaperMalKing.Services
 				this._logger.LogDebug("Starting querying posting channels");
 				await foreach (var guild in db.DiscordGuilds.AsNoTracking().AsAsyncEnumerable())
 				{
-					this._logger.LogTrace("Trying to get guild with {Id}",guild.DiscordGuildId);
+					this._logger.LogTrace("Trying to get guild with {Id}", guild.DiscordGuildId);
 					var discordGuild = e.Guilds[guild.DiscordGuildId];
 					this._logger.LogTrace(@"Loaded guild {Guild}", discordGuild);
 					var channel = discordGuild.GetChannel(guild.PostingChannelId) ??
-					              (await discordGuild.GetChannelsAsync()).First(ch => ch.Id == guild.PostingChannelId);
+								  (await discordGuild.GetChannelsAsync().ConfigureAwait(false)).First(ch => ch.Id == guild.PostingChannelId);
 					this._logger.LogTrace("Loaded channel {Channel} in guild {DiscordGuild}", channel, discordGuild);
 					this.AddChannel(channel);
 				}
@@ -83,8 +86,8 @@ namespace PaperMalKing.Services
 
 				this._logger.LogDebug("Ended querying posting channels");
 				this._discordClient.GuildDownloadCompleted -= this.DiscordClientOnGuildDownloadCompleted;
-			}).ContinueWith(task => this._logger.LogError(task.Exception, "Task on loading channels to post to failed"),
-				TaskContinuationOptions.OnlyOnFaulted);
+			}).ContinueWith(task => this._logger.LogError(task.Exception, "Task on loading channels to post to failed"), CancellationToken.None,
+				TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
 			return Task.CompletedTask;
 		}
 
@@ -109,7 +112,7 @@ namespace PaperMalKing.Services
 				tasks.Add(this._updatePosters[guild.PostingChannelId].PostUpdatesAsync(args.Update.UpdateEmbeds));
 			}
 
-			await Task.WhenAll(tasks);
+			await Task.WhenAll(tasks).ConfigureAwait(false);
 		}
 	}
 }

@@ -42,7 +42,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 		private readonly AniListClient _client;
 		private readonly ILogger<AniListUserFeaturesService> _logger;
 		private readonly IServiceProvider _serviceProvider;
-		public readonly Dictionary<AniListUserFeatures, (string, string)> Descriptions = new();
+		private readonly Dictionary<AniListUserFeatures, (string, string)> Descriptions = new();
 
 		public AniListUserFeaturesService(AniListClient client, ILogger<AniListUserFeaturesService> logger, IServiceProvider serviceProvider)
 		{
@@ -70,7 +70,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.AniListUsers.Include(u => u.Favourites).FirstOrDefaultAsync(u => u.DiscordUserId == userId);
+			var dbUser = await db.AniListUsers.Include(u => u.Favourites).FirstOrDefaultAsync(u => u.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before enabling features");
 			var total = features.Aggregate((acc, next) => acc | next);
@@ -89,7 +89,8 @@ namespace PaperMalKing.AniList.UpdateProvider
 					}
 					case AniListUserFeatures.Favourites:
 					{
-						var fr = await this._client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites, CancellationToken.None);
+						var fr = await this._client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites, CancellationToken.None)
+										   .ConfigureAwait(false);
 						dbUser.Favourites.Clear();
 						dbUser.Favourites.AddRange(fr.Favourites.Select(f => new AniListFavourite {Id = f.Id, FavouriteType = (FavouriteType) f.Type})
 											  .ToList());
@@ -105,14 +106,14 @@ namespace PaperMalKing.AniList.UpdateProvider
 
 
 			db.AniListUsers.Update(dbUser);
-			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
+			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 		}
 
 		public async Task DisableFeaturesAsync(IReadOnlyList<AniListUserFeatures> features, ulong userId)
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.AniListUsers.Include(su => su.Favourites).FirstOrDefaultAsync(su => su.DiscordUserId == userId);
+			var dbUser = await db.AniListUsers.Include(su => su.Favourites).FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before disabling features");
 			
@@ -123,14 +124,14 @@ namespace PaperMalKing.AniList.UpdateProvider
 				dbUser.Favourites.Clear();
 
 			db.AniListUsers.Update(dbUser);
-			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
+			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 		}
 
 		public async Task<string> EnabledFeaturesAsync(ulong userId)
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.AniListUsers.AsNoTrackingWithIdentityResolution().FirstOrDefaultAsync(su => su.DiscordUserId == userId);
+			var dbUser = await db.AniListUsers.AsNoTrackingWithIdentityResolution().FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before checking for enabled features");
 

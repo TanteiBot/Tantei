@@ -43,7 +43,7 @@ namespace PaperMalKing.AniList.Wrapper
         {
             this._logger.LogDebug("Requesting initial info for {Username}, {Page}", username, favouritesPage);
             var request = Requests.GetUserInitialInfoByUsernameRequest(username, favouritesPage);
-            var response = await this._client.SendQueryAsync<InitialUserInfoResponse>(request, cancellationToken);
+            var response = await this._client.SendQueryAsync<InitialUserInfoResponse>(request, cancellationToken).ConfigureAwait(false);
             return response.Data;
         }
 
@@ -52,7 +52,7 @@ namespace PaperMalKing.AniList.Wrapper
         {
             this._logger.LogDebug("Requesting updates check for {UserId}, {Page}", userId, page);
             var request = Requests.CheckForUpdatesRequest(userId, page, activitiesTimeStamp, perChunk, chunk, options);
-            var response = await this._client.SendQueryAsync<CheckForUpdatesResponse>(request, cancellationToken);
+            var response = await this._client.SendQueryAsync<CheckForUpdatesResponse>(request, cancellationToken).ConfigureAwait(false);
             return response.Data;
         }
 
@@ -61,9 +61,9 @@ namespace PaperMalKing.AniList.Wrapper
         {
             if (!animeIds.Any() && !mangaIds.Any() && !charIds.Any() && !staffIds.Any() && !staffIds.Any() && !studioIds.Any())
                 return FavouritesResponse.Empty;
-            
+
             var request = Requests.FavouritesInfoRequest(page, animeIds, mangaIds, charIds, staffIds, studioIds, options);
-            var response = await this._client.SendQueryAsync<FavouritesResponse>(request, cancellationToken);
+            var response = await this._client.SendQueryAsync<FavouritesResponse>(request, cancellationToken).ConfigureAwait(false);
             return response.Data;
         }
     }

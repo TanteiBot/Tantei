@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace PaperMalKing.Common.RateLimiter
+namespace PaperMalKing.Common.RateLimiters
 {
 	public sealed class LockFreeRateLimiter<T> : IRateLimiter<T>
 	{
@@ -71,7 +71,7 @@ namespace PaperMalKing.Common.RateLimiter
 						var delay = nextRefillDateTime - now;
 						var delayInMs = Convert.ToInt32(delay);
 						this.Logger.LogDebug("[{ServiceName}] Waiting {@Delay}ms.", this._serviceName, delayInMs);
-						await Task.Delay(delayInMs, cancellationToken);
+						await Task.Delay(delayInMs, cancellationToken).ConfigureAwait(false);
 						break;
 					}
 					// && arePermitsAvailable

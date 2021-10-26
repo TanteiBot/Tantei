@@ -25,9 +25,9 @@ namespace PaperMalKing.Common.Attributes
     {
         public FeatureDescriptionAttribute(string description, string summary)
         {
-            if(string.IsNullOrEmpty(description) || string.IsNullOrWhiteSpace(description))
+            if(string.IsNullOrWhiteSpace(description))
                 throw new ArgumentException(null, nameof(description));
-            if(string.IsNullOrEmpty(summary) || string.IsNullOrWhiteSpace(summary))
+            if(string.IsNullOrWhiteSpace(summary))
                 throw new ArgumentException(null, nameof(summary)); ;
             this.Description = description;
             this.Summary = summary;

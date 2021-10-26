@@ -25,7 +25,7 @@ namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses
     {
         public ulong? UserId = null;
 
-        public readonly List<Favourites.IdentifiableFavourite> Favourites = new();
+        public readonly List<IdentifiableFavourite> Favourites = new();
 
         public void Add(User user)
         {

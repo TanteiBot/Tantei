@@ -16,11 +16,15 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace PaperMalKing.AniList.Wrapper.Models.Enums
 {
-    public enum TitleLanguage : byte
+	[SuppressMessage("Microsoft.Design", "CA1008")]
+	[SuppressMessage("Naming", "CA1707")]
+	public enum TitleLanguage : byte
     {
-        NATIVE = 1,
+		NATIVE = 1,
         NATIVE_STYLISED = 2,
         ROMAJI = 3,
         ROMAJI_STYLISED = 4,

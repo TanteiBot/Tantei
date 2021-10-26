@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -42,7 +43,7 @@ namespace PaperMalKing.Common.Attributes
 		/// <param name="permissions">Permissions needed to execute command.</param>
 		public OwnerOrPermissionAttribute(Permissions permissions) => this.Permissions = permissions;
 
-		public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
+		public override Task<bool> ExecuteCheckAsync([NotNull] CommandContext ctx, bool help)
 		{
 			var app = ctx.Client.CurrentApplication;
 			var me = ctx.Client.CurrentUser;

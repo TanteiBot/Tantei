@@ -17,16 +17,21 @@
 #endregion
 
 using System;
+using Microsoft.Extensions.Logging;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Exceptions
+namespace PaperMalKing.Common.RateLimiters
 {
-	internal sealed class RssLoadException : Exception
+	public static class RateLimiterFactory
 	{
-		internal RssLoadResult LoadResult { get; init; }
-
-		internal RssLoadException(RssLoadResult loadResult, string? message = "") : base(message)
+		public static IRateLimiter<T> Create<T>(RateLimit rateLimit, ILogger<IRateLimiter<T>>? logger = null)
 		{
-			this.LoadResult = loadResult;
+			if (rateLimit == null)
+				throw new ArgumentNullException(nameof(rateLimit));
+			if (rateLimit.AmountOfRequests == 0 || rateLimit.PeriodInMilliseconds == 0)
+				return new NullRateLimiter<T>(rateLimit);
+
+			return new LockFreeRateLimiter<T>(rateLimit, logger);
+			// return new RateLimiter<T>(rateLimit, logger);
 		}
 	}
 }

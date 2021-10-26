@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -40,6 +41,7 @@ namespace PaperMalKing.Services
 		private readonly CommandsOptions _options;
 		public CommandsNextExtension CommandsExtension { get; }
 
+		[SuppressMessage("Microsoft.Design", "CA1031")]
 		public CommandsService(IOptions<CommandsOptions> options, IServiceProvider provider, DiscordClient client, ILogger<CommandsService> logger)
 		{
 			this._logger = logger;
@@ -72,7 +74,7 @@ namespace PaperMalKing.Services
 			this.CommandsExtension.CommandExecuted += this.CommandsExtensionOnCommandExecuted;
 
 			var assemblies = Utils.LoadAndListPmkAssemblies();
-			Dictionary<Guid, Type> nestedTypesNotToRegister = new ();
+			HashSet<Type> nestedTypesNotToRegister = new();
 
 			foreach (var assembly in assemblies.Where(a => a.FullName?.Contains("PaperMalKing", StringComparison.InvariantCultureIgnoreCase) ?? true))
 			{
@@ -84,14 +86,13 @@ namespace PaperMalKing.Services
 					this._logger.LogTrace("Trying to register {@Type} command module", type);
 					try
 					{
-						if(nestedTypesNotToRegister.TryGetValue(type.GUID, out _))
+						if (nestedTypesNotToRegister.Contains(type))
 							continue;
 						var nestedTypes = type.GetNestedTypes(BindingFlags.Public)
 											  .Where(t => t.FullName!.EndsWith("Commands", StringComparison.InvariantCultureIgnoreCase));
-						if (nestedTypes.Any())
-							foreach (var nestedType in nestedTypes)
-								nestedTypesNotToRegister.Add(nestedType.GUID, nestedType);
-						
+						foreach (var nestedType in nestedTypes)
+							nestedTypesNotToRegister.Add(nestedType);
+
 						this.CommandsExtension.RegisterCommands(type);
 					}
 					catch (Exception ex)
@@ -122,8 +123,9 @@ namespace PaperMalKing.Services
 				this._logger.LogDebug(ex, "Command wasn't found");
 				return Task.CompletedTask;
 			}
-			this._logger.LogError(e.Exception,
-								  "{Command} errored with exception while trying to be executed by {Member}", e.Command, e.Context.Member);
+
+			this._logger.LogError(e.Exception, "{Command} errored with exception while trying to be executed by {Member}", e.Command,
+				e.Context.Member);
 			return Task.CompletedTask;
 		}
 	}

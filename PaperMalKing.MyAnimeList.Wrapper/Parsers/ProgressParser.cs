@@ -17,16 +17,18 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Progress;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 {
+	[SuppressMessage("Globalization", "CA1307")]
 	internal static class ProgressParser
 	{
 		internal static GenericProgress Parse(string value)
 		{
 			value = value.Trim();
-			if (value == "" || value == "?")
+			if (value.Length == 0 || value == "?")
 				return GenericProgress.Reprogressing;
 			value = value.Replace("-", "").Replace(" ", "");
 			if (TryParse<GenericProgress>(value, out var genericResult))

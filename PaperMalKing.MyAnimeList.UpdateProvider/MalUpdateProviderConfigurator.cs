@@ -22,7 +22,7 @@ using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PaperMalKing.Common.RateLimiter;
+using PaperMalKing.Common.RateLimiters;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.UpdatesProviders.Base;

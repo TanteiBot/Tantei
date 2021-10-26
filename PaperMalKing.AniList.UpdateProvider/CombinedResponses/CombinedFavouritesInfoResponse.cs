@@ -24,13 +24,13 @@ namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses
 {
     public sealed class CombinedFavouritesInfoResponse
     {
-        public readonly List<Media> Anime = new();
-        public readonly List<Media> Manga = new();
-        public readonly List<Character> Characters = new();
-        public readonly List<Staff> Staff = new();
-        public readonly List<Studio> Studios = new();
+		public List<Media> Anime { get; } = new();
+		public List<Media> Manga { get; } = new();
+		public List<Character> Characters { get; } = new();
+		public List<Staff> Staff { get; } = new();
+		public List<Studio> Studios { get; } = new();
 
-        public void Add(FavouritesResponse response)
+		public void Add(FavouritesResponse response)
         {
             this.Anime.AddRange(response.Anime.Values);
             this.Manga.AddRange(response.Manga.Values);

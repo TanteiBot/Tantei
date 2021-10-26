@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -62,16 +64,16 @@ namespace PaperMalKing.Commands
 				if (!perms.HasPermission(Permissions.SendMessages))
 					throw new GuildManagementException(
 						$"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages");
-				await this._managementService.SetChannelAsync( channel.GuildId, channel.Id);
+				await this._managementService.SetChannelAsync(channel.GuildId!.Value, channel.Id).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
 				var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-				await ctx.RespondAsync(embed: embed);
+				await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
 				throw;
 			}
 
-			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully set {channel}"));
+			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully set {channel}")).ConfigureAwait(false);
 		}
 
 		[Command("update")]
@@ -88,16 +90,16 @@ namespace PaperMalKing.Commands
 				if (!perms.HasPermission(Permissions.SendMessages))
 					throw new GuildManagementException(
 						$"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages");
-				await this._managementService.UpdateChannelAsync(channel.GuildId, channel.Id);
+				await this._managementService.UpdateChannelAsync(channel.GuildId!.Value, channel.Id).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
 				var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-				await ctx.RespondAsync(embed: embed);
+				await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
 				throw;
 			}
 
-			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully updated to {channel}"));
+			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully updated to {channel}")).ConfigureAwait(false);
 		}
 
 		[Command("removeserver")]
@@ -106,16 +108,17 @@ namespace PaperMalKing.Commands
 		{
 			try
 			{
-				await this._managementService.RemoveGuildAsync(ctx.Guild.Id);
+				await this._managementService.RemoveGuildAsync(ctx.Guild.Id).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
 				var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-				await ctx.RespondAsync(embed: embed);
+				await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
 				throw;
 			}
 
-			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, "Successfully removed this server from being tracked"));
+			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, "Successfully removed this server from being tracked"))
+					 .ConfigureAwait(false);
 		}
 
 		[Command("forseremoveuser")]
@@ -126,16 +129,17 @@ namespace PaperMalKing.Commands
 		{
 			try
 			{
-				await this._managementService.RemoveUserAsync(ctx.Guild.Id, userId);
+				await this._managementService.RemoveUserAsync(ctx.Guild.Id, userId).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
 				var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-				await ctx.RespondAsync(embed: embed);
+				await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
 				throw;
 			}
 
-			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully removed {userId.ToString()} this server from being tracked"));
+			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully removed {userId.ToString()} this server from being tracked"))
+					 .ConfigureAwait(false);
 		}
 
 		[Command("forseremoveuser")]

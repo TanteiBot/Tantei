@@ -29,11 +29,11 @@ using PaperMalKing.Database.Models.Shikimori;
 
 namespace PaperMalKing.Database
 {
-	public static class Extensions
+	public static class DbExtensions
 	{
 		public static async Task<int> SaveChangesAndThrowOnNoneAsync(this DbContext context, CancellationToken cancellationToken = default)
 		{
-			var rows = await context.TrySaveChangesUntilDatabaseIsUnlockedAsync(cancellationToken);
+			var rows = await context.TrySaveChangesUntilDatabaseIsUnlockedAsync(cancellationToken).ConfigureAwait(false);
 			if (rows <= 0)
 				throw new NoChangesSavedException(context);
 			return rows;
@@ -45,12 +45,12 @@ namespace PaperMalKing.Database
 			{
 				try
 				{
-					var rows = await context.SaveChangesAsync(cancellationToken);
+					var rows = await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 					return rows;
 				}
 				catch (SqliteException ex) when (ex.SqliteErrorCode == 5) // Database is locked
 				{
-					await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken);
+					await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken).ConfigureAwait(false);
 				}
 			}
 			throw new TaskCanceledException("Saving changes were cancelled");

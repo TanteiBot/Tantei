@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 namespace PaperMalKing.Options
@@ -25,25 +27,16 @@ namespace PaperMalKing.Options
 		public string Token { get; set; } = null!;
 
 		public DiscordActivityOptions[] Activities { get; set; } = null!;
-		
-		public DiscordAvatarChangingOptions AvatarChangingOptions { get; set; } = null!;
-		
+
 		public sealed class DiscordActivityOptions
 		{
 			public string ActivityType { get; set; } = null!;
-			
+
 			public string PresenceText { get; set; } = null!;
-			
+
 			public int TimeToBeDisplayedInMilliseconds { get; set; }
 
 			public string Status { get; set; } = null!;
-		}
-		
-		public sealed class DiscordAvatarChangingOptions
-		{
-			public string? PathToAvatarsDirectory { get; set; }
-			
-			public int TimeBetweenChangingAvatarsInMinutes { get; set; }
 		}
 	}
 }

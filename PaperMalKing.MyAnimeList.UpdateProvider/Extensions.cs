@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
@@ -151,19 +152,22 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 		internal static string ToHashString(this (string, string) v) => $"{v.Item1} {v.Item2}";
 
+		[SuppressMessage("Maintainability", "CA1508")]
 		internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this IListEntry listEntry, User user, DateTimeOffset timestamp,
 																  MalUserFeatures features)
 		{
+			[return: NotNull]
 			static string SubEntriesProgress(int progressedValue, int totalValue, bool isInPlans, string ending) =>
 				progressedValue switch
 				{
-					0 when totalValue == 0 => "",
+					0 when totalValue == 0 => string.Empty,
 					_ when progressedValue == totalValue || (isInPlans && progressedValue == 0) => $"{totalValue.ToString()} {ending}",
+					_ when totalValue == 0 => $"{progressedValue.ToString()}/? {ending}",
 					_ => $"{progressedValue.ToString()}/{totalValue.ToString()} {ending}"
 				};
 
 			static string TitleMediaTypeString(string title, string mediaType, MalUserFeatures features) =>
-				title.EndsWith(mediaType) || title.EndsWith($"({mediaType})") || !features.HasFlag(MalUserFeatures.MediaFormat)
+				title.EndsWith(mediaType, StringComparison.InvariantCulture) || title.EndsWith($"({mediaType})", StringComparison.InvariantCulture) || !features.HasFlag(MalUserFeatures.MediaFormat)
 					? title
 					: $"{title} ({mediaType})";
 
@@ -182,7 +186,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					var progress = ale.UserAnimeProgress.Humanize(LetterCasing.Sentence);
 					var episodeProgress = SubEntriesProgress(ale.WatchedEpisodes, ale.TotalEpisodes,
 															 ale.UserAnimeProgress == AnimeProgress.PlanToWatch, "ep.");
-					userProgressText = episodeProgress != "" ? $"{progress} - {episodeProgress}" : progress;
+					userProgressText = episodeProgress.Length != 0 ? $"{progress} - {episodeProgress}" : progress;
 					break;
 				}
 				case MangaListEntry mle:
@@ -192,7 +196,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 															 mle.UserMangaProgress == MangaProgress.PlanToRead, "ch. ");
 					var volumeProgress =
 						SubEntriesProgress(mle.ReadVolumes, mle.TotalVolumes, mle.UserMangaProgress == MangaProgress.PlanToRead, "v.");
-					userProgressText = chapterProgress != "" || volumeProgress != "" ? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
+					userProgressText = chapterProgress.Length != 0 || volumeProgress.Length != 0 ? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
 					break;
 				}
 				default:
@@ -200,7 +204,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					var progress = listEntry.UserProgress.Humanize(LetterCasing.Sentence);
 					var sep = SubEntriesProgress(listEntry.ProgressedSubEntries, listEntry.TotalSubEntries,
 												 listEntry.UserProgress == GenericProgress.InPlans, "");
-					userProgressText = sep != "" ? $"{progress} - {sep}" : progress;
+					userProgressText = sep.Length != 0 ? $"{progress} - {sep}" : progress;
 					break;
 				}
 			}

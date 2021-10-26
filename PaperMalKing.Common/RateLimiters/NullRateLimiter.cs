@@ -16,10 +16,23 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Exceptions
+namespace PaperMalKing.Common.RateLimiters
 {
-	internal sealed class EmptyListException : Exception
-	{ }
+	public sealed class NullRateLimiter<T> : IRateLimiter<T>
+	{
+		public static readonly NullRateLimiter<T> Instance = new(new(1, 1));
+
+		internal NullRateLimiter(RateLimit rateLimit)
+		{
+			this.RateLimit = rateLimit;
+		}
+
+		/// <inheritdoc />
+		public RateLimit RateLimit { get; }
+
+		public Task TickAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+	}
 }

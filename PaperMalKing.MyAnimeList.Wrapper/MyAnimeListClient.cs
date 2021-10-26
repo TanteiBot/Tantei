@@ -18,12 +18,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Serialization;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
@@ -62,32 +64,39 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 
 		private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken = default)
 		{
-			var response = await this._httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+			var response = await this._httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 			return response.EnsureSuccessStatusCode();
 		}
 
 		private async Task<HtmlNode> GetAsHtmlAsync(string url, CancellationToken cancellationToken = default)
 		{
-			using var response = await this.GetAsync(url, cancellationToken);
+			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
 			var doc = new HtmlDocument();
-			await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+			await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 			doc.Load(stream);
 			return doc.DocumentNode;
 		}
 
+		[SuppressMessage("Microsoft.Design", "CA1031")]
 		internal async Task<IEnumerable<FeedItem>> GetRecentRssUpdatesAsync<TR>(string username, CancellationToken cancellationToken = default)
 			where TR : struct, IRssFeedType
 		{
 			var rssType = new TR();
 			username = WebUtility.UrlEncode(username);
 			var url = $"{rssType.Url}{username}";
-			using var response = await this.GetAsync(url, cancellationToken);
+			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-			await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+			await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 			Feed? feed;
 			try
 			{
-				feed = (Feed?) this._xmlSerializer.Deserialize(stream);
+				using var xmlTextReader = new XmlTextReader(stream)
+				{
+					WhitespaceHandling = WhitespaceHandling.Significant,
+					Normalization = true,
+					XmlResolver = null
+				};
+				feed = (Feed?) this._xmlSerializer.Deserialize(xmlTextReader);
 			}
 			catch
 			{
@@ -104,7 +113,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 			this._logger.LogDebug("Requesting {@Username} profile", username);
 			username = WebUtility.UrlEncode(username);
 			var requestUrl = Constants.PROFILE_URL + username;
-			var htmlNode = await this.GetAsHtmlAsync(requestUrl, cancellationToken);
+			var htmlNode = await this.GetAsHtmlAsync(requestUrl, cancellationToken).ConfigureAwait(false);
 			this._logger.LogTrace("Starting parsing {@Username} profile", username);
 			var user = UserProfileParser.Parse(htmlNode, options);
 			this._logger.LogTrace("Ended parsing {@Username} profile", username);
@@ -115,7 +124,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 		{
 			var url = $"{Constants.COMMENTS_URL}{id.ToString()}";
 			this._logger.LogDebug("Requesting username by id {@Id}", id);
-			var htmlNode = await this.GetAsHtmlAsync(url, cancellationToken);
+			var htmlNode = await this.GetAsHtmlAsync(url, cancellationToken).ConfigureAwait(false);
 			return CommentsParser.Parse(htmlNode);
 		}
 
@@ -128,10 +137,10 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 
 			username = WebUtility.UrlEncode(username);
 			var url = tl.LatestUpdatesUrl(username);
-			using var response = await this.GetAsync(url, cancellationToken);
+			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-			await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-			var updates = await JsonSerializer.DeserializeAsync<TE[]>(stream, this._jsonSerializerOptions, cancellationToken);
+			await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+			var updates = await JsonSerializer.DeserializeAsync<TE[]>(stream, this._jsonSerializerOptions, cancellationToken).ConfigureAwait(false);
 			return updates ?? Array.Empty<TE>();
 		}
 	}

@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
-using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
@@ -97,31 +96,5 @@ namespace PaperMalKing.AniList.Wrapper.Models
         }
 
         public static readonly Favourites Empty = new() {HasNextPage = false};
-
-        public sealed class IdentifiableFavourite : IIdentifiable, IEquatable<IdentifiableFavourite>
-        {
-            [JsonPropertyName("id")]
-            public ulong Id { get; init; }
-
-            [JsonIgnore]
-            public FavouriteType Type { get; set; }
-
-            public bool Equals(IdentifiableFavourite? other)
-            {
-                if (ReferenceEquals(null, other)) return false;
-                if (ReferenceEquals(this, other)) return true;
-                return this.Id == other.Id && this.Type == other.Type;
-            }
-
-            public override bool Equals(object? obj)
-            {
-                return ReferenceEquals(this, obj) || obj is IdentifiableFavourite other && Equals(other);
-            }
-
-            public override int GetHashCode()
-            {
-                return HashCode.Combine(this.Id, (int) this.Type);
-            }
-        }
-    }
+	}
 }

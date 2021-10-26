@@ -17,12 +17,14 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
+	[SuppressMessage("Naming", "CA1724")]
     public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
     {
         [JsonPropertyName("id")]

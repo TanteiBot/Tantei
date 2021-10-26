@@ -39,12 +39,12 @@ using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.Shikimori.UpdateProvider
 {
-	internal sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFeatures>
+	public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFeatures>
 	{
 		private readonly ShikiClient _client;
 		private readonly ILogger<ShikiUserFeaturesService> _logger;
 		private readonly IServiceProvider _serviceProvider;
-		public readonly Dictionary<ShikiUserFeatures, (string, string)> Descriptions = new();
+		private readonly Dictionary<ShikiUserFeatures, (string, string)> Descriptions = new();
 
 		IReadOnlyDictionary<ShikiUserFeatures, (string, string)> IUserFeaturesService<ShikiUserFeatures>.Descriptions => this.Descriptions;
 
@@ -74,7 +74,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			var dbUser = await db.ShikiUsers.Include(su => su.Favourites)
-								 .FirstOrDefaultAsync(su => su.DiscordUserId == userId);
+								 .FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before enabling features");
 			var total = features.Aggregate((acc, next) => acc | next);
@@ -90,13 +90,14 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					{
 						if (lastHistoryEntry.HasValue)
 							break;
-						var (data, _) = await this._client.GetUserHistoryAsync(dbUser.Id, 1, 1, HistoryRequestOptions.Any, CancellationToken.None);
+						var (data, _) = await this._client.GetUserHistoryAsync(dbUser.Id, 1, 1, HistoryRequestOptions.Any, CancellationToken.None)
+												  .ConfigureAwait(false);
 						lastHistoryEntry = data.MaxBy(h => h.Id).Id;
 						break;
 					}
 					case ShikiUserFeatures.Favourites:
 					{
-						var favourites = await this._client.GetUserFavouritesAsync(dbUser.Id, CancellationToken.None);
+						var favourites = await this._client.GetUserFavouritesAsync(dbUser.Id, CancellationToken.None).ConfigureAwait(false);
 						dbUser.Favourites = favourites.AllFavourites.Select(fe => new ShikiFavourite
 						{
 							Id = fe.Id,
@@ -112,14 +113,14 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			if (lastHistoryEntry.HasValue)
 				dbUser.LastHistoryEntryId = lastHistoryEntry.Value;
 			db.ShikiUsers.Update(dbUser);
-			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
+			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 		}
 
 		public async Task DisableFeaturesAsync(IReadOnlyList<ShikiUserFeatures> features, ulong userId)
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.ShikiUsers.Include(su => su.Favourites).FirstOrDefaultAsync(su => su.DiscordUserId == userId);
+			var dbUser = await db.ShikiUsers.Include(su => su.Favourites).FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before disabling features");
 			
@@ -130,7 +131,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				dbUser.Favourites.Clear();
 
 			db.ShikiUsers.Update(dbUser);
-			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
+			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 		}
 
 		public async Task<string> EnabledFeaturesAsync(ulong userId)
@@ -138,7 +139,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			var dbUser = await db.ShikiUsers.AsNoTrackingWithIdentityResolution()
-								 .FirstOrDefaultAsync(su => su.DiscordUserId == userId);
+								 .FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before checking for enabled features");
 

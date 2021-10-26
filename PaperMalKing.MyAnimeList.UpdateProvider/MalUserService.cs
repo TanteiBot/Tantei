@@ -55,7 +55,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			var dbUser = await db.MalUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds)
-								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId);
+								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
 			DiscordGuild guild;
 			if (dbUser != null) // User already in DB
 			{
@@ -64,23 +64,23 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					return new(dbUser.Username);
 				}
 
-				guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId);
+				guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
 				if (guild == null)
 					throw new UserProcessingException(new(username),
 						"Current server is not in database, ask server administrator to add this server to bot");
 				dbUser.DiscordUser.Guilds.Add(guild);
 				db.MalUsers.Update(dbUser);
-				await db.SaveChangesAndThrowOnNoneAsync();
+				await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 				return new(dbUser.Username);
 			}
 
-			guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId);
+			guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
 			if (guild == null)
 				throw new UserProcessingException(new(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
 
-			var duser = await db.DiscordUsers.FirstOrDefaultAsync(user => user.DiscordUserId == userId);
-			var mUser = await this._client.GetUserAsync(username, MalUserFeatures.None.GetDefault().ToParserOptions());
+			var duser = await db.DiscordUsers.FirstOrDefaultAsync(user => user.DiscordUserId == userId).ConfigureAwait(false);
+			var mUser = await this._client.GetUserAsync(username, MalUserFeatures.None.GetDefault().ToParserOptions()).ConfigureAwait(false);
 			var now = DateTimeOffset.Now;
 			dbUser = new()
 			{
@@ -101,8 +101,8 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			dbUser.FavoriteMangas = mUser.Favorites.FavoriteManga.Select(manga => manga.ToMalFavoriteManga(dbUser)).ToList();
 			dbUser.FavoriteCharacters = mUser.Favorites.FavoriteCharacters.Select(character => character.ToMalFavoriteCharacter(dbUser)).ToList();
 			dbUser.FavoritePeople = mUser.Favorites.FavoritePeople.Select(person => person.ToMalFavoritePerson(dbUser)).ToList();
-			await db.MalUsers.AddAsync(dbUser);
-			await db.SaveChangesAndThrowOnNoneAsync();
+			await db.MalUsers.AddAsync(dbUser).ConfigureAwait(false);
+			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 			return new(dbUser.Username);
 		}
 
@@ -116,14 +116,14 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				DiscordUser = u.DiscordUser,
 				Username = u.Username,
 				UserId = u.UserId
-			}).FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId);
+			}).FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
 			if (user == null)
 			{
 				throw new UserProcessingException($"You weren't tracked by {this.Name} update checker");
 			}
 
 			db.MalUsers.Remove(user);
-			await db.SaveChangesAndThrowOnNoneAsync();
+			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 			return new(user.Username);
 		}
 
@@ -131,7 +131,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var user = await db.DiscordUsers.Include(du => du.Guilds).FirstOrDefaultAsync(du => du.DiscordUserId == userId);
+			var user = await db.DiscordUsers.Include(du => du.Guilds).FirstOrDefaultAsync(du => du.DiscordUserId == userId).ConfigureAwait(false);
 			if (user == null)
 				throw new UserProcessingException("You weren't registered in bot");
 			var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
@@ -140,7 +140,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 			user.Guilds.Remove(guild);
 			db.DiscordUsers.Update(user);
-			await db.SaveChangesAndThrowOnNoneAsync();
+			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 		}
 
 		/// <inheritdoc />

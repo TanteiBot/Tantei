@@ -21,9 +21,9 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PaperMalKing.Common.RateLimiter
+namespace PaperMalKing.Common.RateLimiters
 {
-	public sealed class RateLimiterHttpMessageHandler<T> : DelegatingHandler, IDisposable
+	public sealed class RateLimiterHttpMessageHandler<T> : DelegatingHandler
 	{
 		private IRateLimiter<T> _rateLimiter;
 		private readonly object _lock = new();
@@ -52,8 +52,8 @@ namespace PaperMalKing.Common.RateLimiter
 		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
 																	 CancellationToken cancellationToken)
 		{
-			await this.RateLimiter.TickAsync(cancellationToken);
-			return await base.SendAsync(request, cancellationToken);
+			await this.RateLimiter.TickAsync(cancellationToken).ConfigureAwait(false);
+			return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 		}
 
 		public new void Dispose()

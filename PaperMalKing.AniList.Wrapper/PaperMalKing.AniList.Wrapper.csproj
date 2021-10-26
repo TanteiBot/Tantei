@@ -1,18 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <OutputType>Library</OutputType>
-        <TargetFramework>net5.0</TargetFramework>
-        <LangVersion>latest</LangVersion>
-        <Version>2.0.0</Version>
-        <Nullable>enable</Nullable>
-        <PathMap>$(MSBuildProjectDirectory)=/PaperMalKing/AniList/Wrapper</PathMap>
+        <NoWarn>$(NoWarn);CA1041;CA1002;</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="GraphQL.Client" Version="3.2.2" />
-      <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" Version="3.2.2" />
+        <PackageReference Include="GraphQL.Client" Version="3.2.4"/>
+        <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" Version="3.2.4"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -20,9 +15,9 @@
             <_Parameter1>PaperMalKing.AniList.UpdateProvider</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
-    
+
     <ItemGroup>
-        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj"/>
     </ItemGroup>
 
 </Project>

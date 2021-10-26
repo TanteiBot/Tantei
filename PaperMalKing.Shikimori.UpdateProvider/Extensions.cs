@@ -69,7 +69,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				_ => throw new ArgumentOutOfRangeException(nameof(features), features, null)
 			};
 
-			var (data, hasNextPage) = await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken);
+			var (data, hasNextPage) = await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken).ConfigureAwait(false);
 			var unpaginatedRes = data.Where(e => e.Id > limitHistoryEntryId).ToList();
 			if (unpaginatedRes.Count != data.Length || !hasNextPage)
 				return unpaginatedRes;
@@ -79,7 +79,8 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			var isLimitReached = false;
 			for (page = 1, limit = 100; hnp && !isLimitReached; page++)
 			{
-				var (paginatedData, paginatedHasNextPage) = await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken);
+				var (paginatedData, paginatedHasNextPage) =
+					await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken).ConfigureAwait(false);
 				hnp = paginatedHasNextPage;
 				var toAcc = paginatedData.Where(e => e.Id > limitHistoryEntryId).ToArray();
 				isLimitReached = paginatedData.Length == toAcc.Length;
