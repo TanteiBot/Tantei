@@ -42,7 +42,7 @@ namespace PaperMalKing.Common.RateLimiters
 			this.Logger = logger ?? NullLogger<RateLimiter<T>>.Instance;
 			this._lastUpdateTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 			this._availablePermits = rateLimit.AmountOfRequests;
-			this._semaphoreSlim = new (1, 1);
+			this._semaphoreSlim = new(1, 1);
 		}
 
 		public async Task TickAsync(CancellationToken cancellationToken = default)
@@ -61,7 +61,7 @@ namespace PaperMalKing.Common.RateLimiters
 					{
 						var delay = nextRefillDateTime - now;
 						this.Logger.LogDebug("[{ServiceName}] Waiting {Delay}ms", this._serviceName, delay.ToString());
-						await Task.Delay((int) delay, cancellationToken).ConfigureAwait(false);
+						await Task.Delay((int)delay, cancellationToken).ConfigureAwait(false);
 					}
 					else if (isTooEarlyToRefill) // && arePermitsAvailable
 					{

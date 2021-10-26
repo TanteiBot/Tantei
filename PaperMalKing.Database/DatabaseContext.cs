@@ -87,7 +87,7 @@ namespace PaperMalKing.Database
 			{
 				optionsBuilder.UseSqlite(this._connectionString,
 					builder => { builder.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery); });
-				
+
 				SQLitePCL.Batteries_V2.Init();
 				// SQLITE_CONFIG_MULTITHREAD
 				// https://github.com/dotnet/efcore/issues/9994
@@ -114,7 +114,7 @@ namespace PaperMalKing.Database
 			base.OnModelCreating(modelBuilder);
 
 			// Constant value because default in app can be changed anytime
-			modelBuilder.Entity<MalUser>().Property(mu => mu.Features).HasDefaultValue((MalUserFeatures) 127ul); 
+			modelBuilder.Entity<MalUser>().Property(mu => mu.Features).HasDefaultValue((MalUserFeatures)127ul);
 
 			modelBuilder.Entity<MalFavoriteAnime>().HasKey(k => new
 			{
@@ -140,7 +140,7 @@ namespace PaperMalKing.Database
 			modelBuilder.Entity<ShikiUser>().HasKey(k => k.Id);
 
 			modelBuilder.Entity<ShikiUser>().Property(u => u.Features)
-						.HasDefaultValue((ShikiUserFeatures) 127ul); // Constant value because default in app can be changed anytime
+						.HasDefaultValue((ShikiUserFeatures)127ul); // Constant value because default in app can be changed anytime
 
 			modelBuilder.Entity<ShikiFavourite>().HasKey(k => new
 			{
@@ -151,7 +151,7 @@ namespace PaperMalKing.Database
 
 			modelBuilder.Entity<AniListUser>().HasKey(k => k.Id);
 
-			modelBuilder.Entity<AniListUser>().Property(u => u.Features).HasDefaultValue((AniListUserFeatures) 127ul);
+			modelBuilder.Entity<AniListUser>().Property(u => u.Features).HasDefaultValue((AniListUserFeatures)127ul);
 			modelBuilder.Entity<AniListFavourite>().HasKey(k => new
 			{
 				k.Id,
@@ -162,7 +162,7 @@ namespace PaperMalKing.Database
 			var dtoConverter = new DateTimeOffsetToBinaryConverter();
 			RegisterConverter<DateTimeOffset>(dtoConverter, modelBuilder);
 
-			var ulongConverter = new ValueConverter<ulong, long>(ul => (long) ul, l => (ulong) l);
+			var ulongConverter = new ValueConverter<ulong, long>(ul => (long)ul, l => (ulong)l);
 			RegisterConverter<ulong>(ulongConverter, modelBuilder);
 
 			var favConverter = new EnumToNumberConverter<FavoriteType, byte>();

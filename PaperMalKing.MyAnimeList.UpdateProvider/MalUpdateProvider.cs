@@ -68,7 +68,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		[SuppressMessage("Microsoft.Design", "CA1031")]
 		protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 		{
-#region LocalFuncs
+			#region LocalFuncs
 
 			static void DbAnimeUpdateAction(string h, DateTimeOffset dto, MalUser u)
 			{
@@ -122,10 +122,10 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				var lastListUpdate = listUpdates.First(u => u.Id == latestUpdateId);
 				dbUpdateAction(lastListUpdate.GetHash().ToHashString(), latestUpdateDateTime, dbUser);
 
-				return new[] {lastListUpdate.ToDiscordEmbedBuilder(user, DateTimeOffset.Now, dbUser.Features)};
+				return new[] { lastListUpdate.ToDiscordEmbedBuilder(user, DateTimeOffset.Now, dbUser.Features) };
 			}
 
-#endregion
+			#endregion
 
 			using var scope = this._provider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
@@ -153,12 +153,12 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
 				{
 					this.Logger.LogError(exception, "User with username {@Username} not found", dbUser.Username);
-					dbUser.Username = await this._client.GetUsernameAsync((ulong) dbUser.UserId, ct).ConfigureAwait(false);
+					dbUser.Username = await this._client.GetUsernameAsync((ulong)dbUser.UserId, ct).ConfigureAwait(false);
 					db.MalUsers.Update(dbUser);
 					await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 					return;
 				}
-				catch (HttpRequestException exception) when ((int?) exception.StatusCode >= 500)
+				catch (HttpRequestException exception) when ((int?)exception.StatusCode >= 500)
 				{
 					this.Logger.LogError(exception, "Mal server encounters some error, skipping current update check");
 					return;
@@ -233,7 +233,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 					this.Logger.LogDebug("Ended checking updates for {@Username} with {@Updates} updates found", dbUser.Username, totalUpdates.Length);
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
 					throw;

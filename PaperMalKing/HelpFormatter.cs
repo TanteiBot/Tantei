@@ -61,7 +61,7 @@ namespace PaperMalKing
 
 			this.EmbedBuilder.WithDescription($"{Formatter.InlineCode(command.Name)}: {command.Description ?? "No description provided."}");
 
-			if (command is CommandGroup {IsExecutableWithoutSubcommands: true})
+			if (command is CommandGroup { IsExecutableWithoutSubcommands: true })
 				this.EmbedBuilder.WithDescription($"{this.EmbedBuilder.Description}\n\nThis group can be executed as a standalone command.");
 
 			if (command.Aliases?.Any() == true)

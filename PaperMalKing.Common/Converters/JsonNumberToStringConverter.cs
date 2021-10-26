@@ -30,7 +30,7 @@ namespace PaperMalKing.Common.Converters
 		{
 			JsonTokenType.Number => reader.GetDouble().ToString(CultureInfo.InvariantCulture),
 			JsonTokenType.String => reader.GetString(),
-			_                    => ""
+			_ => ""
 		};
 
 		/// <inheritdoc />

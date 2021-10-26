@@ -20,10 +20,10 @@ using PaperMalKing.Common.Options;
 
 namespace PaperMalKing.AniList.UpdateProvider
 {
-    internal sealed class AniListOptions : ITimerOptions<AniListUpdateProvider>
-    {
-        public int DelayBetweenChecksInMilliseconds { get; init; }
+	internal sealed class AniListOptions : ITimerOptions<AniListUpdateProvider>
+	{
+		public int DelayBetweenChecksInMilliseconds { get; init; }
 
-        public const string AniList = Constants.NAME;
-    }
+		public const string AniList = Constants.NAME;
+	}
 }

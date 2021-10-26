@@ -38,7 +38,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(this.Id, (int) this.Type);
+			return HashCode.Combine(this.Id, (int)this.Type);
 		}
 	}
 }

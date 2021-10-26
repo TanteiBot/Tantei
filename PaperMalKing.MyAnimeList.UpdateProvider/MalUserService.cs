@@ -88,7 +88,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				Username = mUser.Username,
 				DiscordUser = duser ?? new()
 				{
-					Guilds = new DiscordGuild[1] {guild},
+					Guilds = new DiscordGuild[1] { guild },
 					DiscordUserId = userId,
 					BotUser = new()
 				},
@@ -149,11 +149,11 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			return db.MalUsers.Include(malUser => malUser.DiscordUser).ThenInclude(du => du.Guilds).Select(u => new MalUser
-					 {
-						 DiscordUser = u.DiscordUser,
-						 Username = u.Username,
-						 LastUpdatedAnimeListTimestamp = u.LastUpdatedAnimeListTimestamp
-					 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastUpdatedAnimeListTimestamp)
+			{
+				DiscordUser = u.DiscordUser,
+				Username = u.Username,
+				LastUpdatedAnimeListTimestamp = u.LastUpdatedAnimeListTimestamp
+			}).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastUpdatedAnimeListTimestamp)
 					 .Select(mu => new BaseUser(mu.Username, mu.DiscordUser)).AsNoTracking().AsAsyncEnumerable();
 		}
 	}

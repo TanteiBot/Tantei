@@ -36,7 +36,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 			if (!s.Contains("l.jpg") && !s.Contains("characters"))
 				s = s.Replace(".jpg", "l.jpg");
 			var i = s.IndexOf("?s", StringComparison.InvariantCultureIgnoreCase);
-			return i <=0 ? s : s.Remove(i);
+			return i <= 0 ? s : s.Remove(i);
 		}
 
 		internal static RecentUpdate ToRecentUpdate(this FeedItem feedItem, ListEntryType type)

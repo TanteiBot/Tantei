@@ -45,11 +45,11 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 
 		private static readonly Dictionary<ProgressType, DiscordColor> Colors = new()
 		{
-			{ProgressType.Completed, Constants.ShikiGreen},
-			{ProgressType.Dropped, Constants.ShikiRed},
-			{ProgressType.InPlans, Constants.ShikiBlue},
-			{ProgressType.InProgress, Constants.ShikiBlue},
-			{ProgressType.OnHold, Constants.ShikiGrey}
+			{ ProgressType.Completed, Constants.ShikiGreen },
+			{ ProgressType.Dropped, Constants.ShikiRed },
+			{ ProgressType.InPlans, Constants.ShikiBlue },
+			{ ProgressType.InProgress, Constants.ShikiBlue },
+			{ ProgressType.OnHold, Constants.ShikiGrey }
 		};
 
 		public static DiscordEmbedBuilder WithShikiAuthor(this DiscordEmbedBuilder builder, UserInfo user) =>
@@ -94,10 +94,10 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		{
 			var favouriteName = (features & ShikiUserFeatures.Russian) != 0 ? favouriteEntry.RussianName ?? favouriteEntry.Name : favouriteEntry.Name;
 			return new DiscordEmbedBuilder
-				{
-					Url = favouriteEntry.Url,
-					Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
-				}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "removed")} favourite").WithShikiAuthor(user)
+			{
+				Url = favouriteEntry.Url,
+				Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
+			}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "removed")} favourite").WithShikiAuthor(user)
 				 .WithColor(added ? Constants.ShikiGreen : Constants.ShikiRed);
 		}
 
@@ -144,7 +144,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			dict.TryAdd(desc.LastIndexOf("прочитан", StringComparison.OrdinalIgnoreCase), ProgressType.Completed);
 			dict.TryAdd(desc.LastIndexOf("перечитываю", StringComparison.OrdinalIgnoreCase), ProgressType.InProgress);
 			var progress = dict.OrderByDescending(kvp => kvp.Key).First().Value;
-			
+
 			eb.WithColor(Colors[progress]);
 			var firstTarget = first?.Target;
 			if (firstTarget == null)
@@ -170,9 +170,9 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			{
 				var episodes = firstTarget switch
 				{
-					_ when firstTarget.Episodes      != 0 => firstTarget.Episodes.Value,
+					_ when firstTarget.Episodes != 0 => firstTarget.Episodes.Value,
 					_ when firstTarget.EpisodesAired != 0 => firstTarget.EpisodesAired!.Value,
-					_                                     => 0
+					_ => 0
 				};
 				if (episodes != 0)
 					eb.AddField("Total", $"{episodes.ToString()} ep.", true);

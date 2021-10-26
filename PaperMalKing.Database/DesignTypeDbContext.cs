@@ -26,7 +26,7 @@ namespace PaperMalKing.Database
 		{
 			if (args.Length == 0)
 				return new();
-			return string.IsNullOrEmpty(args?[0]) ? new () : new (args[0]);
+			return string.IsNullOrEmpty(args?[0]) ? new() : new(args[0]);
 		}
 	}
 }

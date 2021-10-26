@@ -34,7 +34,7 @@ namespace PaperMalKing.Database.Models.Shikimori
 		public string Name { get; init; } = null!;
 
 		public ulong UserId { get; init; }
-		
+
 		public ShikiUser User { get; set; } = null!;
 	}
 }

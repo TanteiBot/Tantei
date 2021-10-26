@@ -60,7 +60,7 @@ namespace PaperMalKing.Services
 			{
 				foreach (var updateProvider in assembly.GetTypes().Where(t =>
 					t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IUpdateProviderConfigurator<>))))
-					updateProvider.GetMethod("Configure")?.Invoke(null, new object[] {configuration, services});
+					updateProvider.GetMethod("Configure")?.Invoke(null, new object[] { configuration, services });
 			}
 		}
 	}

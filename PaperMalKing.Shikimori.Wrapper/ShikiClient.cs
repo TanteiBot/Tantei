@@ -33,10 +33,10 @@ namespace PaperMalKing.Shikimori.Wrapper
 		private readonly HttpClient _httpClient;
 		private readonly ILogger<ShikiClient> _logger;
 		private static readonly JsonSerializerOptions _jsonSerializerOptions = new(JsonSerializerDefaults.Web);
-		
+
 		private static readonly MultipartFormDataContent UserCachedContent = new()
 		{
-			{new StringContent("1"), "is_nickname"}
+			{ new StringContent("1"), "is_nickname" }
 		};
 
 		public ShikiClient(HttpClient httpClient, ILogger<ShikiClient> logger)
@@ -51,7 +51,7 @@ namespace PaperMalKing.Shikimori.Wrapper
 
 			nickname = WebUtility.UrlEncode(nickname);
 			var url = $"{Constants.BASE_USERS_API_URL}/{nickname}";
-			
+
 			using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 			{
 				Content = UserCachedContent
@@ -69,8 +69,8 @@ namespace PaperMalKing.Shikimori.Wrapper
 			return favs!;
 		}
 
-		[SuppressMessage("","CA2000")]
-		internal async Task<Paginatable<History[]>> GetUserHistoryAsync(ulong userId, uint page, byte limit, HistoryRequestOptions options, 
+		[SuppressMessage("", "CA2000")]
+		internal async Task<Paginatable<History[]>> GetUserHistoryAsync(ulong userId, uint page, byte limit, HistoryRequestOptions options,
 																		CancellationToken cancellationToken = default)
 		{
 			var url = $"{Constants.BASE_USERS_API_URL}/{userId.ToString()}/history";
@@ -83,7 +83,7 @@ namespace PaperMalKing.Shikimori.Wrapper
 				{new StringContent(limit.ToString()), "limit"}
 			};
 			if (options != HistoryRequestOptions.Any) content.Add(new StringContent(options.ToString()), "target_type");
-			
+
 			using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 			{
 				Content = content

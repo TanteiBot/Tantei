@@ -18,8 +18,8 @@
 
 namespace PaperMalKing.AniList.Wrapper.Models.Interfaces
 {
-    internal interface IImageble
-    {
-        Image Image { get; init; }
-    }
+	internal interface IImageble
+	{
+		Image Image { get; init; }
+	}
 }

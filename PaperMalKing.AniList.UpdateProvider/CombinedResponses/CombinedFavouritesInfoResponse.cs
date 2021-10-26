@@ -22,8 +22,8 @@ using PaperMalKing.AniList.Wrapper.Models.Responses;
 
 namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses
 {
-    public sealed class CombinedFavouritesInfoResponse
-    {
+	public sealed class CombinedFavouritesInfoResponse
+	{
 		public List<Media> Anime { get; } = new();
 		public List<Media> Manga { get; } = new();
 		public List<Character> Characters { get; } = new();
@@ -31,12 +31,12 @@ namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses
 		public List<Studio> Studios { get; } = new();
 
 		public void Add(FavouritesResponse response)
-        {
-            this.Anime.AddRange(response.Anime.Values);
-            this.Manga.AddRange(response.Manga.Values);
-            this.Characters.AddRange(response.Characters.Values);
-            this.Staff.AddRange(response.Staff.Values);
-            this.Studios.AddRange(response.Studios.Values);
-        }
-    }
+		{
+			this.Anime.AddRange(response.Anime.Values);
+			this.Manga.AddRange(response.Manga.Values);
+			this.Characters.AddRange(response.Characters.Values);
+			this.Staff.AddRange(response.Staff.Values);
+			this.Studios.AddRange(response.Studios.Values);
+		}
+	}
 }

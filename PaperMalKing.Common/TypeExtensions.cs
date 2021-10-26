@@ -52,7 +52,7 @@ namespace PaperMalKing.Common
 		public static string Substring(this string original, string endOfSubstring, bool before)
 		{
 			var index = original.IndexOf(endOfSubstring, StringComparison.InvariantCultureIgnoreCase);
-			var result = before ? original.Substring(0, index) : original.Substring(index+1, original.Length - index - 1);
+			var result = before ? original.Substring(0, index) : original.Substring(index + 1, original.Length - index - 1);
 			return result;
 		}
 

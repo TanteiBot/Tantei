@@ -20,7 +20,7 @@ using System.ComponentModel;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models
 {
-	public enum MangaStatus: byte
+	public enum MangaStatus : byte
 	{
 		[Description("Читаю")]
 		Reading = 0,

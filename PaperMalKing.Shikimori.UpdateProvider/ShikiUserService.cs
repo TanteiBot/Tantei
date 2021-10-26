@@ -95,7 +95,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				DiscordUser = dUser ?? new()
 				{
 					BotUser = new(),
-					Guilds = new DiscordGuild[1] {guild},
+					Guilds = new DiscordGuild[1] { guild },
 					DiscordUserId = userId,
 				},
 				DiscordUserId = userId,
@@ -144,10 +144,10 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			return db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).Select(su => new
-					 {
-						 su.DiscordUser,
-						 su.LastHistoryEntryId
-					 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastHistoryEntryId)
+			{
+				su.DiscordUser,
+				su.LastHistoryEntryId
+			}).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastHistoryEntryId)
 					 .Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking().AsAsyncEnumerable();
 		}
 	}

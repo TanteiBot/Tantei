@@ -41,8 +41,8 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 				Favorites = favorites,
 				Username = username,
 				Id = id,
-				LatestAnimeUpdate = options.HasFlag(ParserOptions.AnimeList)? LatestUpdatesParser.Parse(node, ListEntryType.Anime) : null,
-				LatestMangaUpdate = options.HasFlag(ParserOptions.MangaList)? LatestUpdatesParser.Parse(node, ListEntryType.Manga) : null
+				LatestAnimeUpdate = options.HasFlag(ParserOptions.AnimeList) ? LatestUpdatesParser.Parse(node, ListEntryType.Anime) : null,
+				LatestMangaUpdate = options.HasFlag(ParserOptions.MangaList) ? LatestUpdatesParser.Parse(node, ListEntryType.Manga) : null
 			};
 		}
 	}

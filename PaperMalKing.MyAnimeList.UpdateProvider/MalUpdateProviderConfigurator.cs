@@ -68,7 +68,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				return new(logger, factory.CreateClient(MalOptions.MyAnimeList));
 			});
 			services.AddSingleton<IExecuteOnStartupService, MalExecuteOnStartupService>();
-			services.AddSingleton<IUserFeaturesService<MalUserFeatures>,MalUserFeaturesService>();
+			services.AddSingleton<IUserFeaturesService<MalUserFeatures>, MalUserFeaturesService>();
 			services.AddSingleton<MalUserService>();
 			services.AddSingleton<IUpdateProvider, MalUpdateProvider>();
 		}

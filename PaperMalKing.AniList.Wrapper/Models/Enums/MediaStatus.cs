@@ -22,11 +22,11 @@ namespace PaperMalKing.AniList.Wrapper.Models.Enums
 {
 	[SuppressMessage("Naming", "CA1707")]
 	public enum MediaStatus : byte
-    {
-        FINISHED,
-        RELEASING,
-        NOT_YET_RELEASED,
-        CANCELLED,
-        HIATUS
-    }
+	{
+		FINISHED,
+		RELEASING,
+		NOT_YET_RELEASED,
+		CANCELLED,
+		HIATUS
+	}
 }

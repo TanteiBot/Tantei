@@ -152,7 +152,7 @@ namespace PaperMalKing.Services.Background
 				await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken).ConfigureAwait(false);
 				_ = Task.Factory.StartNew(async cancellationToken =>
 				{
-					var token = (CancellationToken) (cancellationToken ?? CancellationToken.None);
+					var token = (CancellationToken)(cancellationToken ?? CancellationToken.None);
 					while (!token.IsCancellationRequested)
 					{
 						foreach (var options in this._options.Value.Activities)

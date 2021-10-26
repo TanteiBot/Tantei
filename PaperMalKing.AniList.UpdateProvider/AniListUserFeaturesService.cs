@@ -83,24 +83,24 @@ namespace PaperMalKing.AniList.UpdateProvider
 				{
 					case AniListUserFeatures.AnimeList:
 					case AniListUserFeatures.MangaList:
-					{
-						dbUser.LastActivityTimestamp = now;
-						break;
-					}
+						{
+							dbUser.LastActivityTimestamp = now;
+							break;
+						}
 					case AniListUserFeatures.Favourites:
-					{
-						var fr = await this._client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites, CancellationToken.None)
-										   .ConfigureAwait(false);
-						dbUser.Favourites.Clear();
-						dbUser.Favourites.AddRange(fr.Favourites.Select(f => new AniListFavourite {Id = f.Id, FavouriteType = (FavouriteType) f.Type})
-											  .ToList());
-						break;
-					}
+						{
+							var fr = await this._client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites, CancellationToken.None)
+											   .ConfigureAwait(false);
+							dbUser.Favourites.Clear();
+							dbUser.Favourites.AddRange(fr.Favourites.Select(f => new AniListFavourite { Id = f.Id, FavouriteType = (FavouriteType)f.Type })
+												  .ToList());
+							break;
+						}
 					case AniListUserFeatures.Reviews:
-					{
-						dbUser.LastReviewTimestamp = now;
-						break;
-					}
+						{
+							dbUser.LastReviewTimestamp = now;
+							break;
+						}
 				}
 			}
 
@@ -116,11 +116,11 @@ namespace PaperMalKing.AniList.UpdateProvider
 			var dbUser = await db.AniListUsers.Include(su => su.Favourites).FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before disabling features");
-			
+
 			var total = features.Aggregate((acc, next) => acc | next);
 
 			dbUser.Features &= ~total;
-			if (features.Any(x => x == AniListUserFeatures.Favourites)) 
+			if (features.Any(x => x == AniListUserFeatures.Favourites))
 				dbUser.Favourites.Clear();
 
 			db.AniListUsers.Update(dbUser);
@@ -136,7 +136,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 				throw new UserFeaturesException("You must register first before checking for enabled features");
 
 			return dbUser.Features.Humanize();
-			
+
 		}
 	}
 }

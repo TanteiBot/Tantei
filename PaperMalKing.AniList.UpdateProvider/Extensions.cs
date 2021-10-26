@@ -59,12 +59,12 @@ namespace PaperMalKing.AniList.UpdateProvider
 
 		private static readonly Dictionary<MediaListStatus, DiscordColor> Colors = new()
 		{
-			{MediaListStatus.PAUSED, Constants.AniListPeach},
-			{MediaListStatus.CURRENT, Constants.AniListBlue},
-			{MediaListStatus.REPEATING, Constants.AniListBlue},
-			{MediaListStatus.DROPPED, Constants.AniListRed},
-			{MediaListStatus.PLANNING, Constants.AniListOrange},
-			{MediaListStatus.COMPLETED, Constants.AniListGreen}
+			{ MediaListStatus.PAUSED, Constants.AniListPeach },
+			{ MediaListStatus.CURRENT, Constants.AniListBlue },
+			{ MediaListStatus.REPEATING, Constants.AniListBlue },
+			{ MediaListStatus.DROPPED, Constants.AniListRed },
+			{ MediaListStatus.PLANNING, Constants.AniListOrange },
+			{ MediaListStatus.COMPLETED, Constants.AniListGreen }
 		};
 
 		private static readonly DiscordEmbedBuilder.EmbedFooter AniListFooter = new()
@@ -86,7 +86,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 			var perChunk = initialPerChunkValue;
 			ushort chunk = 1;
 			var result = new CombinedRecentUpdatesResponse();
-			var options = (RequestOptions) features;
+			var options = (RequestOptions)features;
 			for (byte page = 1; hasNextPage; page++)
 			{
 				var response = await client.CheckForUpdatesAsync(user.Id, page, user.LastActivityTimestamp, perChunk, chunk, options,
@@ -153,7 +153,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 		public static DiscordEmbedBuilder WithMediaTitle(this DiscordEmbedBuilder eb, Media media, TitleLanguage titleLanguage,
 														 AniListUserFeatures features)
 		{
-			var strings = new List<string> {media.Title.GetTitle(titleLanguage)};
+			var strings = new List<string> { media.Title.GetTitle(titleLanguage) };
 			if ((features & AniListUserFeatures.MediaFormat) != 0)
 			{
 				var format = media.GetEmbedFormat();
@@ -190,13 +190,13 @@ namespace PaperMalKing.AniList.UpdateProvider
 																AniListUserFeatures features)
 		{
 			var isAnime = activity.Media.Type == ListType.ANIME;
-			var isHiddenProgressPresent = !string.IsNullOrEmpty(activity.Progress) && (mediaListEntry.Status == MediaListStatus.PAUSED  ||
+			var isHiddenProgressPresent = !string.IsNullOrEmpty(activity.Progress) && (mediaListEntry.Status == MediaListStatus.PAUSED ||
 																					   mediaListEntry.Status == MediaListStatus.DROPPED ||
 																					   mediaListEntry.Status == MediaListStatus.COMPLETED);
 			var desc = isHiddenProgressPresent switch
 			{
 				true => $"{(isAnime ? $"Watched episode" : $"Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it",
-				_    => $"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}"
+				_ => $"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}"
 			};
 			var isAdvancedScoringEnabled =
 				(isAnime
@@ -229,7 +229,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 			if (!string.IsNullOrEmpty(mediaListEntry.Notes)) eb.AddField("Notes", mediaListEntry.Notes.Truncate(1023), true);
 			if ((features & AniListUserFeatures.CustomLists) != 0 && mediaListEntry.CustomLists?.Any(x => x.Enabled) == true)
 			{
-				eb.AddField("Custom lists", string.Join(", ", mediaListEntry.CustomLists!.Where(x=>x.Enabled).Select(x => x.Name)), true);
+				eb.AddField("Custom lists", string.Join(", ", mediaListEntry.CustomLists!.Where(x => x.Enabled).Select(x => x.Name)), true);
 			}
 			return eb.EnrichWithMediaInfo(activity.Media, user, features);
 		}
@@ -272,7 +272,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 										   media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? $"||{t.Name}||" : t.Name));
 				eb.AddField("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 			}
-			
+
 
 			if ((features & AniListUserFeatures.MediaDescription) != 0 && !string.IsNullOrEmpty(media.Description))
 			{
@@ -296,7 +296,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 			var fieldVal = new List<string>(3);
 			if (episodes != 0) fieldVal.Add($"{episodes.ToString()} ep.");
 			if (chapters != 0) fieldVal.Add($"{chapters.ToString()} ch");
-			if (volumes  != 0) fieldVal.Add($"{volumes.ToString()} v.");
+			if (volumes != 0) fieldVal.Add($"{volumes.ToString()} v.");
 			if (fieldVal.Count != 0)
 				eb.AddField("Total", string.Join(", ", fieldVal), true);
 

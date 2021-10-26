@@ -96,7 +96,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 					Normalization = true,
 					XmlResolver = null
 				};
-				feed = (Feed?) this._xmlSerializer.Deserialize(xmlTextReader);
+				feed = (Feed?)this._xmlSerializer.Deserialize(xmlTextReader);
 			}
 			catch
 			{

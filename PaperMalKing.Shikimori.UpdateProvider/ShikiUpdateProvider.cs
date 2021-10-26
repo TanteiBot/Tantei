@@ -127,7 +127,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					continue;
 				}
 
-				if((dbUser.Features & ShikiUserFeatures.Mention) != 0)
+				if ((dbUser.Features & ShikiUserFeatures.Mention) != 0)
 					totalUpdates.ForEach(deb => deb.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
 
 				if ((dbUser.Features & ShikiUserFeatures.Website) != 0)
@@ -142,7 +142,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 					this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
 					throw;

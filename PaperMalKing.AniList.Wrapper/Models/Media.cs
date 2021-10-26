@@ -25,54 +25,54 @@ using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 namespace PaperMalKing.AniList.Wrapper.Models
 {
 	[SuppressMessage("Naming", "CA1724")]
-    public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
-    {
-        [JsonPropertyName("id")]
-        public ulong Id { get; init; }
+	public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
+	{
+		[JsonPropertyName("id")]
+		public ulong Id { get; init; }
 
-        [JsonPropertyName("title")]
-        public MediaTitle Title { get; init; } = null!;
+		[JsonPropertyName("title")]
+		public MediaTitle Title { get; init; } = null!;
 
-        [JsonPropertyName("type")]
-        public ListType Type { get; init; }
+		[JsonPropertyName("type")]
+		public ListType Type { get; init; }
 
-        [JsonPropertyName("siteUrl")]
-        public string Url { get; init; } = null!;
+		[JsonPropertyName("siteUrl")]
+		public string Url { get; init; } = null!;
 
-        [JsonPropertyName("format")]
-        public MediaFormat? Format { get; init; }
+		[JsonPropertyName("format")]
+		public MediaFormat? Format { get; init; }
 
-        [JsonPropertyName("countryOfOrigin")]
-        public string CountryOfOrigin { get; init; } = null!;
+		[JsonPropertyName("countryOfOrigin")]
+		public string CountryOfOrigin { get; init; } = null!;
 
-        [JsonPropertyName("status")]
-        public MediaStatus Status { get; init; }
+		[JsonPropertyName("status")]
+		public MediaStatus Status { get; init; }
 
-        [JsonPropertyName("episodes")]
-        public ushort? Episodes { get; init; }
+		[JsonPropertyName("episodes")]
+		public ushort? Episodes { get; init; }
 
-        [JsonPropertyName("chapters")]
-        public ushort? Chapters { get; init; }
+		[JsonPropertyName("chapters")]
+		public ushort? Chapters { get; init; }
 
-        [JsonPropertyName("volumes")]
-        public ushort? Volumes { get; init; }
+		[JsonPropertyName("volumes")]
+		public ushort? Volumes { get; init; }
 
-        [JsonPropertyName("image")]
-        public Image Image { get; init; } = null!;
+		[JsonPropertyName("image")]
+		public Image Image { get; init; } = null!;
 
-        [JsonPropertyName("description")]
-        public string Description { get; init; } = null!;
-        
-        [JsonPropertyName("genres")]
-        public string[] Genres { get; init; } = Array.Empty<string>();
+		[JsonPropertyName("description")]
+		public string Description { get; init; } = null!;
 
-        [JsonPropertyName("tags")]
-        public MediaTag[] Tags { get; init; } = Array.Empty<MediaTag>();
+		[JsonPropertyName("genres")]
+		public string[] Genres { get; init; } = Array.Empty<string>();
 
-        [JsonPropertyName("studios")]
-        public Connection<Studio> Studios { get; init; } = Connection<Studio>.Empty;
+		[JsonPropertyName("tags")]
+		public MediaTag[] Tags { get; init; } = Array.Empty<MediaTag>();
 
-        [JsonPropertyName("staff")]
-        public Connection<StaffEdge> Staff { get; init; } = Connection<StaffEdge>.Empty;
-    }
+		[JsonPropertyName("studios")]
+		public Connection<Studio> Studios { get; init; } = Connection<Studio>.Empty;
+
+		[JsonPropertyName("staff")]
+		public Connection<StaffEdge> Staff { get; init; } = Connection<StaffEdge>.Empty;
+	}
 }

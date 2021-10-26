@@ -62,7 +62,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			{
 				client.DefaultRequestHeaders.UserAgent.Clear();
 				client.DefaultRequestHeaders.UserAgent.ParseAdd($"{provider.GetRequiredService<IOptions<ShikiOptions>>().Value.ShikimoriAppName}");
-				client.BaseAddress = new (Wrapper.Constants.BASE_URL);
+				client.BaseAddress = new(Wrapper.Constants.BASE_URL);
 			});
 			serviceCollection.AddSingleton<ShikiClient>(provider =>
 			{

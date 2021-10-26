@@ -44,14 +44,14 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 		private static readonly Dictionary<GenericProgress, DiscordColor> Colors = new()
 		{
-			{GenericProgress.CurrentlyInProgress, Constants.MalGreen},
-			{GenericProgress.Completed, Constants.MalBlue},
-			{GenericProgress.OnHold, Constants.MalYellow},
-			{GenericProgress.Dropped, Constants.MalRed},
-			{GenericProgress.InPlans, Constants.MalGrey},
-			{GenericProgress.Reprogressing, Constants.MalGreen},
-			{GenericProgress.All, Constants.MalBlack},
-			{GenericProgress.Unknown, Constants.MalBlack}
+			{ GenericProgress.CurrentlyInProgress, Constants.MalGreen },
+			{ GenericProgress.Completed, Constants.MalBlue },
+			{ GenericProgress.OnHold, Constants.MalYellow },
+			{ GenericProgress.Dropped, Constants.MalRed },
+			{ GenericProgress.InPlans, Constants.MalGrey },
+			{ GenericProgress.Reprogressing, Constants.MalGreen },
+			{ GenericProgress.All, Constants.MalBlack },
+			{ GenericProgress.Unknown, Constants.MalBlack }
 		};
 
 		internal static ParserOptions ToParserOptions(this MalUserFeatures features)
@@ -68,11 +68,11 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		{
 			return baseFavorite switch
 			{
-				FavoriteAnime favoriteAnime         => favoriteAnime.ToMalFavoriteAnime(user) as T,
+				FavoriteAnime favoriteAnime => favoriteAnime.ToMalFavoriteAnime(user) as T,
 				FavoriteCharacter favoriteCharacter => favoriteCharacter.ToMalFavoriteCharacter(user) as T,
-				FavoriteManga favoriteManga         => favoriteManga.ToMalFavoriteManga(user) as T,
-				FavoritePerson favoritePerson       => favoritePerson.ToMalFavoritePerson(user) as T,
-				_                                   => throw new InvalidOperationException()
+				FavoriteManga favoriteManga => favoriteManga.ToMalFavoriteManga(user) as T,
+				FavoritePerson favoritePerson => favoritePerson.ToMalFavoritePerson(user) as T,
+				_ => throw new InvalidOperationException()
 			} ?? throw new InvalidOperationException();
 		}
 
@@ -134,7 +134,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			var title = favorite switch
 			{
 				IMalListFavorite baseListFavorite => $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear.ToString()}]",
-				_                                 => favorite.Name
+				_ => favorite.Name
 			};
 			eb.WithTitle(title);
 
@@ -182,35 +182,35 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			switch (listEntry)
 			{
 				case AnimeListEntry ale:
-				{
-					var progress = ale.UserAnimeProgress.Humanize(LetterCasing.Sentence);
-					var episodeProgress = SubEntriesProgress(ale.WatchedEpisodes, ale.TotalEpisodes,
-															 ale.UserAnimeProgress == AnimeProgress.PlanToWatch, "ep.");
-					userProgressText = episodeProgress.Length != 0 ? $"{progress} - {episodeProgress}" : progress;
-					break;
-				}
+					{
+						var progress = ale.UserAnimeProgress.Humanize(LetterCasing.Sentence);
+						var episodeProgress = SubEntriesProgress(ale.WatchedEpisodes, ale.TotalEpisodes,
+																 ale.UserAnimeProgress == AnimeProgress.PlanToWatch, "ep.");
+						userProgressText = episodeProgress.Length != 0 ? $"{progress} - {episodeProgress}" : progress;
+						break;
+					}
 				case MangaListEntry mle:
-				{
-					var progress = mle.UserMangaProgress.Humanize(LetterCasing.Sentence);
-					var chapterProgress = SubEntriesProgress(mle.ReadChapters, mle.TotalChapters,
-															 mle.UserMangaProgress == MangaProgress.PlanToRead, "ch. ");
-					var volumeProgress =
-						SubEntriesProgress(mle.ReadVolumes, mle.TotalVolumes, mle.UserMangaProgress == MangaProgress.PlanToRead, "v.");
-					userProgressText = chapterProgress.Length != 0 || volumeProgress.Length != 0 ? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
-					break;
-				}
+					{
+						var progress = mle.UserMangaProgress.Humanize(LetterCasing.Sentence);
+						var chapterProgress = SubEntriesProgress(mle.ReadChapters, mle.TotalChapters,
+																 mle.UserMangaProgress == MangaProgress.PlanToRead, "ch. ");
+						var volumeProgress =
+							SubEntriesProgress(mle.ReadVolumes, mle.TotalVolumes, mle.UserMangaProgress == MangaProgress.PlanToRead, "v.");
+						userProgressText = chapterProgress.Length != 0 || volumeProgress.Length != 0 ? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
+						break;
+					}
 				default:
-				{
-					var progress = listEntry.UserProgress.Humanize(LetterCasing.Sentence);
-					var sep = SubEntriesProgress(listEntry.ProgressedSubEntries, listEntry.TotalSubEntries,
-												 listEntry.UserProgress == GenericProgress.InPlans, "");
-					userProgressText = sep.Length != 0 ? $"{progress} - {sep}" : progress;
-					break;
-				}
+					{
+						var progress = listEntry.UserProgress.Humanize(LetterCasing.Sentence);
+						var sep = SubEntriesProgress(listEntry.ProgressedSubEntries, listEntry.TotalSubEntries,
+													 listEntry.UserProgress == GenericProgress.InPlans, "");
+						userProgressText = sep.Length != 0 ? $"{progress} - {sep}" : progress;
+						break;
+					}
 			}
 
 			eb.AddField("Progress", userProgressText, true);
-			
+
 			var shortTitle = TitleMediaTypeString(listEntry.Title, listEntry.MediaType, features);
 			string title;
 			if (features.HasFlag(MalUserFeatures.MediaStatus))
@@ -219,7 +219,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				{
 					AnimeListEntry animeListEntry => animeListEntry.AnimeAiringStatus.Humanize(LetterCasing.Sentence),
 					MangaListEntry mangaListEntry => mangaListEntry.MangaPublishingStatus.Humanize(LetterCasing.Sentence),
-					_                             => listEntry.Status.Humanize(LetterCasing.Sentence),
+					_ => listEntry.Status.Humanize(LetterCasing.Sentence),
 				};
 				title = $"{shortTitle} [{entryStatus}]";
 			}

@@ -40,8 +40,8 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 			{
 				"seconds" => now.AddSeconds(-number),
 				"minutes" => now.AddMinutes(-number),
-				"hours"   => now.AddHours(-number),
-				_         => null
+				"hours" => now.AddHours(-number),
+				_ => null
 			};
 		}
 	}

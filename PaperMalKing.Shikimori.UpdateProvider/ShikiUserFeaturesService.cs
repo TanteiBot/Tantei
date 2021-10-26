@@ -87,26 +87,26 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				{
 					case ShikiUserFeatures.AnimeList:
 					case ShikiUserFeatures.MangaList:
-					{
-						if (lastHistoryEntry.HasValue)
-							break;
-						var (data, _) = await this._client.GetUserHistoryAsync(dbUser.Id, 1, 1, HistoryRequestOptions.Any, CancellationToken.None)
-												  .ConfigureAwait(false);
-						lastHistoryEntry = data.MaxBy(h => h.Id)!.Id;
-						break;
-					}
-					case ShikiUserFeatures.Favourites:
-					{
-						var favourites = await this._client.GetUserFavouritesAsync(dbUser.Id, CancellationToken.None).ConfigureAwait(false);
-						dbUser.Favourites = favourites.AllFavourites.Select(fe => new ShikiFavourite
 						{
-							Id = fe.Id,
-							Name = fe.Name,
-							FavType = fe.GenericType!,
-							User = dbUser
-						}).ToList();
-						break;
-					}
+							if (lastHistoryEntry.HasValue)
+								break;
+							var (data, _) = await this._client.GetUserHistoryAsync(dbUser.Id, 1, 1, HistoryRequestOptions.Any, CancellationToken.None)
+													  .ConfigureAwait(false);
+							lastHistoryEntry = data.MaxBy(h => h.Id)!.Id;
+							break;
+						}
+					case ShikiUserFeatures.Favourites:
+						{
+							var favourites = await this._client.GetUserFavouritesAsync(dbUser.Id, CancellationToken.None).ConfigureAwait(false);
+							dbUser.Favourites = favourites.AllFavourites.Select(fe => new ShikiFavourite
+							{
+								Id = fe.Id,
+								Name = fe.Name,
+								FavType = fe.GenericType!,
+								User = dbUser
+							}).ToList();
+							break;
+						}
 				}
 			}
 
@@ -123,11 +123,11 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			var dbUser = await db.ShikiUsers.Include(su => su.Favourites).FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before disabling features");
-			
+
 			var total = features.Aggregate((acc, next) => acc | next);
 
 			dbUser.Features &= ~total;
-			if (features.Any(x => x == ShikiUserFeatures.Favourites)) 
+			if (features.Any(x => x == ShikiUserFeatures.Favourites))
 				dbUser.Favourites.Clear();
 
 			db.ShikiUsers.Update(dbUser);

@@ -163,7 +163,7 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
 		public static string Build(RequestOptions options)
 		{
 			var hasAnime = (options & RequestOptions.AnimeList) != 0;
-			var hasManga = (options & RequestOptions.MangaList)  != 0;
+			var hasManga = (options & RequestOptions.MangaList) != 0;
 			var hasFavs = (options & RequestOptions.Favourites) != 0;
 
 
@@ -193,8 +193,8 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
 				var type = hasAnime switch
 				{
 					true when hasManga => "MEDIA_LIST",
-					true               => "ANIME_LIST",
-					_                  => "MANGA_LIST"
+					true => "ANIME_LIST",
+					_ => "MANGA_LIST"
 				};
 				sb.AppendLine($"values: activities(userId: $userId, type: {type}, sort: ID_DESC, createdAt_greater: $activitiesFilterTimeStamp) {{");
 				sb.AppendLine(@"... on ListActivity {
@@ -203,7 +203,7 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                   createdAt
                   media {
                     ");
-				if(hasAnime)
+				if (hasAnime)
 					sb.AppendLine("episodes");
 				if (hasManga)
 					sb.AppendLine(@"chapters

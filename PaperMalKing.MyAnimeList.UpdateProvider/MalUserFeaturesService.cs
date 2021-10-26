@@ -92,28 +92,28 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				switch (feature)
 				{
 					case MalUserFeatures.AnimeList:
-					{
-						user ??= await this._client.GetUserAsync(dbUser.Username, total.ToParserOptions(), CancellationToken.None).ConfigureAwait(false);
-						dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdate?.Hash.ToHashString() ?? "";
-						dbUser.LastUpdatedAnimeListTimestamp = now;
-						break;
-					}
+						{
+							user ??= await this._client.GetUserAsync(dbUser.Username, total.ToParserOptions(), CancellationToken.None).ConfigureAwait(false);
+							dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdate?.Hash.ToHashString() ?? "";
+							dbUser.LastUpdatedAnimeListTimestamp = now;
+							break;
+						}
 					case MalUserFeatures.MangaList:
-					{
-						user ??= await this._client.GetUserAsync(dbUser.Username, total.ToParserOptions(), CancellationToken.None).ConfigureAwait(false);
-						dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdate?.Hash.ToHashString() ?? "";
-						dbUser.LastUpdatedMangaListTimestamp = now;
-						break;
-					}
+						{
+							user ??= await this._client.GetUserAsync(dbUser.Username, total.ToParserOptions(), CancellationToken.None).ConfigureAwait(false);
+							dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdate?.Hash.ToHashString() ?? "";
+							dbUser.LastUpdatedMangaListTimestamp = now;
+							break;
+						}
 					case MalUserFeatures.Favorites:
-					{
-						user ??= await this._client.GetUserAsync(dbUser.Username, total.ToParserOptions(), CancellationToken.None).ConfigureAwait(false);
-						dbUser.FavoriteAnimes = user.Favorites.FavoriteAnime.Select(x => x.ToMalFavoriteAnime(dbUser)).ToList();
-						dbUser.FavoriteMangas = user.Favorites.FavoriteManga.Select(x => x.ToMalFavoriteManga(dbUser)).ToList();
-						dbUser.FavoriteCharacters = user.Favorites.FavoriteCharacters.Select(x => x.ToMalFavoriteCharacter(dbUser)).ToList();
-						dbUser.FavoritePeople = user.Favorites.FavoritePeople.Select(x => x.ToMalFavoritePerson(dbUser)).ToList();
-						break;
-					}
+						{
+							user ??= await this._client.GetUserAsync(dbUser.Username, total.ToParserOptions(), CancellationToken.None).ConfigureAwait(false);
+							dbUser.FavoriteAnimes = user.Favorites.FavoriteAnime.Select(x => x.ToMalFavoriteAnime(dbUser)).ToList();
+							dbUser.FavoriteMangas = user.Favorites.FavoriteManga.Select(x => x.ToMalFavoriteManga(dbUser)).ToList();
+							dbUser.FavoriteCharacters = user.Favorites.FavoriteCharacters.Select(x => x.ToMalFavoriteCharacter(dbUser)).ToList();
+							dbUser.FavoritePeople = user.Favorites.FavoritePeople.Select(x => x.ToMalFavoritePerson(dbUser)).ToList();
+							break;
+						}
 				}
 			}
 

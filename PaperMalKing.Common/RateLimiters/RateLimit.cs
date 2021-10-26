@@ -36,7 +36,7 @@ namespace PaperMalKing.Common.RateLimiters
 			this.PeriodInMilliseconds = periodInMilliseconds;
 		}
 
-		public RateLimit(int amountOfRequests, TimeSpan period) : this(amountOfRequests, (int) period.TotalMilliseconds)
+		public RateLimit(int amountOfRequests, TimeSpan period) : this(amountOfRequests, (int)period.TotalMilliseconds)
 		{ }
 
 		/// <inheritdoc />
