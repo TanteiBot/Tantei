@@ -16,10 +16,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.Common.Options
+namespace PaperMalKing.Common.Options;
+
+public interface ITimerOptions<T>
 {
-	public interface ITimerOptions<T>
-	{
-		int DelayBetweenChecksInMilliseconds { get; }
-	}
+	int DelayBetweenChecksInMilliseconds { get; }
 }

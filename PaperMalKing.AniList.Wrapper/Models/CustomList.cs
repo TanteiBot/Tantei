@@ -16,14 +16,13 @@
 
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.AniList.Wrapper.Models
-{
-	public sealed class CustomList
-	{
-		[JsonPropertyName("name")]
-		public string Name { get; init; } = null!;
+namespace PaperMalKing.AniList.Wrapper.Models;
 
-		[JsonPropertyName("enabled")]
-		public bool Enabled { get; init; }
-	}
+public sealed class CustomList
+{
+	[JsonPropertyName("name")]
+	public string Name { get; init; } = null!;
+
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; init; }
 }

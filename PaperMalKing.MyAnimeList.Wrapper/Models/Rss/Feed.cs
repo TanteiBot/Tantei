@@ -16,21 +16,19 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss;
+
+[XmlRoot(ElementName = "rss")]
+public sealed class Feed
 {
-	[XmlRoot(ElementName = "rss")]
-	public sealed class Feed
-	{
-		[XmlElement(ElementName = "channel")]
-		public FeedChannel Channel { get; set; } = null!;
+	[XmlElement(ElementName = "channel")]
+	public FeedChannel Channel { get; set; } = null!;
 
-		[XmlAttribute(AttributeName = "version")]
-		public string Version { get; set; } = null!;
+	[XmlAttribute(AttributeName = "version")]
+	public string Version { get; set; } = null!;
 
-		[XmlIgnore]
-		public IReadOnlyList<FeedItem> Items => this.Channel.Items;
-	}
+	[XmlIgnore]
+	public IReadOnlyList<FeedItem> Items => this.Channel.Items;
 }

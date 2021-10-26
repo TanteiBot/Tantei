@@ -20,17 +20,16 @@
 
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.AniList.Wrapper.Models
+namespace PaperMalKing.AniList.Wrapper.Models;
+
+public sealed class MediaTag
 {
-	public sealed class MediaTag
-	{
-		[JsonPropertyName("name")]
-		public string Name { get; init; } = null!;
+	[JsonPropertyName("name")]
+	public string Name { get; init; } = null!;
 
-		[JsonPropertyName("rank")]
-		public byte Rank { get; init; }
+	[JsonPropertyName("rank")]
+	public byte Rank { get; init; }
 
-		[JsonPropertyName("isMediaSpoiler")]
-		public bool IsSpoiler { get; init; }
-	}
+	[JsonPropertyName("isMediaSpoiler")]
+	public bool IsSpoiler { get; init; }
 }

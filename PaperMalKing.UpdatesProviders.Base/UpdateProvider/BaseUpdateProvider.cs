@@ -18,78 +18,74 @@
 
 #endregion
 
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
+namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider;
+
+[SuppressMessage("Microsoft.Design", "CA1051")]
+public abstract class BaseUpdateProvider : IUpdateProvider
 {
-	[SuppressMessage("Microsoft.Design", "CA1051")]
-	public abstract class BaseUpdateProvider : IUpdateProvider
+	private CancellationTokenSource? _cts;
+
+	protected readonly ILogger<BaseUpdateProvider> Logger;
+
+	protected readonly Timer Timer;
+
+	protected readonly TimeSpan DelayBetweenTimerFires;
+
+	private Task _updateCheckingRunningTask = null!;
+
+	protected BaseUpdateProvider(ILogger<BaseUpdateProvider> logger, TimeSpan delayBetweenTimerFires)
 	{
-		private CancellationTokenSource? _cts;
-
-		protected readonly ILogger<BaseUpdateProvider> Logger;
-
-		protected readonly Timer Timer;
-
-		protected readonly TimeSpan DelayBetweenTimerFires;
-
-		private Task _updateCheckingRunningTask = null!;
-
-		protected BaseUpdateProvider(ILogger<BaseUpdateProvider> logger, TimeSpan delayBetweenTimerFires)
-		{
-			this.Logger = logger;
-			this.DelayBetweenTimerFires = delayBetweenTimerFires;
-			this.Timer = new(_ => this.TimerCallback(), null, Timeout.Infinite, Timeout.Infinite);
-		}
-
-		/// <inheritdoc />
-		public abstract string Name { get; }
-
-		/// <inheritdoc />
-		public abstract event UpdateFoundEvent? UpdateFoundEvent;
-
-		/// <inheritdoc />
-		public Task TriggerStoppingAsync()
-		{
-			this._cts?.Cancel();
-			this.Logger.LogInformation("Stopping {Name} update provider", this.Name);
-			return this._updateCheckingRunningTask;
-		}
-
-		[SuppressMessage("Microsoft.Design", "CA1031")]
-		private async void TimerCallback()
-		{
-			using var cts = new CancellationTokenSource();
-			this._cts = cts;
-			try
-			{
-				this.Logger.LogInformation("Starting checking for updates in {@Name} updates provider", this.Name);
-				this._updateCheckingRunningTask = this.CheckForUpdatesAsync(this._cts.Token);
-				await this._updateCheckingRunningTask.ConfigureAwait(false);
-			}
-			catch (Exception e)
-			{
-				this.Logger.LogError(e, "Exception occured while checking for updates in {@Name} updates provider", this.Name);
-			}
-			finally
-			{
-				this._cts = null;
-				this.RestartTimer(this.DelayBetweenTimerFires);
-				this.Logger.LogInformation(
-					"Ended checking for updates in {Name} updates provider. Next planned update check is in {@DelayBetweenTimerFires}.", this.Name,
-					this.DelayBetweenTimerFires);
-			}
-		}
-
-		public void RestartTimer(TimeSpan delay)
-		{
-			this.Timer.Change(delay, Timeout.InfiniteTimeSpan);
-		}
-
-		protected abstract Task CheckForUpdatesAsync(CancellationToken cancellationToken);
+		this.Logger = logger;
+		this.DelayBetweenTimerFires = delayBetweenTimerFires;
+		this.Timer = new(_ => this.TimerCallback(), null, Timeout.Infinite, Timeout.Infinite);
 	}
+
+	/// <inheritdoc />
+	public abstract string Name { get; }
+
+	/// <inheritdoc />
+	public abstract event UpdateFoundEvent? UpdateFoundEvent;
+
+	/// <inheritdoc />
+	public Task TriggerStoppingAsync()
+	{
+		this._cts?.Cancel();
+		this.Logger.LogInformation("Stopping {Name} update provider", this.Name);
+		return this._updateCheckingRunningTask;
+	}
+
+	[SuppressMessage("Microsoft.Design", "CA1031")]
+	private async void TimerCallback()
+	{
+		using var cts = new CancellationTokenSource();
+		this._cts = cts;
+		try
+		{
+			this.Logger.LogInformation("Starting checking for updates in {@Name} updates provider", this.Name);
+			this._updateCheckingRunningTask = this.CheckForUpdatesAsync(this._cts.Token);
+			await this._updateCheckingRunningTask.ConfigureAwait(false);
+		}
+		catch (Exception e)
+		{
+			this.Logger.LogError(e, "Exception occured while checking for updates in {@Name} updates provider", this.Name);
+		}
+		finally
+		{
+			this._cts = null;
+			this.RestartTimer(this.DelayBetweenTimerFires);
+			this.Logger.LogInformation(
+				"Ended checking for updates in {Name} updates provider. Next planned update check is in {@DelayBetweenTimerFires}.", this.Name,
+				this.DelayBetweenTimerFires);
+		}
+	}
+
+	public void RestartTimer(TimeSpan delay)
+	{
+		this.Timer.Change(delay, Timeout.InfiniteTimeSpan);
+	}
+
+	protected abstract Task CheckForUpdatesAsync(CancellationToken cancellationToken);
 }

@@ -2,6 +2,7 @@
     <PropertyGroup>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <OutputType>Library</OutputType>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
 
     <ItemGroup>

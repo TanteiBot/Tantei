@@ -16,18 +16,16 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
 using Microsoft.EntityFrameworkCore;
 
-namespace PaperMalKing.Database
-{
-	public sealed class NoChangesSavedException : Exception
-	{
-		public DbContext? Context { get; }
+namespace PaperMalKing.Database;
 
-		public NoChangesSavedException(DbContext? context)
-		{
-			this.Context = context;
-		}
+public sealed class NoChangesSavedException : Exception
+{
+	public DbContext? Context { get; }
+
+	public NoChangesSavedException(DbContext? context)
+	{
+		this.Context = context;
 	}
 }

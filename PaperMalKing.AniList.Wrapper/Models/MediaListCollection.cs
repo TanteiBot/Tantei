@@ -16,18 +16,16 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.AniList.Wrapper.Models
-{
-	[SuppressMessage("Naming", "CA1711")]
-	public sealed class MediaListCollection
-    {
-        [JsonPropertyName("lists")]
-        public MediaListGroup[] Lists { get; init; } = Array.Empty<MediaListGroup>();
+namespace PaperMalKing.AniList.Wrapper.Models;
 
-        public static readonly MediaListCollection Empty = new ();
-	}
+[SuppressMessage("Naming", "CA1711")]
+public sealed class MediaListCollection
+{
+	[JsonPropertyName("lists")]
+	public MediaListGroup[] Lists { get; init; } = Array.Empty<MediaListGroup>();
+
+	public static readonly MediaListCollection Empty = new();
 }

@@ -16,82 +16,78 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace PaperMalKing.Common.RateLimiters
+namespace PaperMalKing.Common.RateLimiters;
+
+public sealed class RateLimiter<T> : IRateLimiter<T>, IDisposable
 {
-	public sealed class RateLimiter<T> : IRateLimiter<T>, IDisposable
+	private readonly string _serviceName;
+	public RateLimit RateLimit { get; }
+	private ILogger<IRateLimiter<T>> Logger { get; }
+	private long _lastUpdateTime;
+
+	private long _availablePermits;
+	private volatile SemaphoreSlim? _semaphoreSlim;
+
+	internal RateLimiter(RateLimit rateLimit, ILogger<IRateLimiter<T>>? logger)
 	{
-		private readonly string _serviceName;
-		public RateLimit RateLimit { get; }
-		private ILogger<IRateLimiter<T>> Logger { get; }
-		private long _lastUpdateTime;
+		this._serviceName = $"{typeof(RateLimiter<T>).Name}<{typeof(T).Name}>";
+		this.RateLimit = rateLimit;
 
-		private long _availablePermits;
-		private volatile SemaphoreSlim? _semaphoreSlim;
+		this.Logger = logger ?? NullLogger<RateLimiter<T>>.Instance;
+		this._lastUpdateTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+		this._availablePermits = rateLimit.AmountOfRequests;
+		this._semaphoreSlim = new(1, 1);
+	}
 
-		internal RateLimiter(RateLimit rateLimit, ILogger<IRateLimiter<T>>? logger)
+	public async Task TickAsync(CancellationToken cancellationToken = default)
+	{
+		var slim = this._semaphoreSlim;
+		if (slim != null)
 		{
-			this._serviceName = $"{typeof(RateLimiter<T>).Name}<{typeof(T).Name}>";
-			this.RateLimit = rateLimit;
-
-			this.Logger = logger ?? NullLogger<RateLimiter<T>>.Instance;
-			this._lastUpdateTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-			this._availablePermits = rateLimit.AmountOfRequests;
-			this._semaphoreSlim = new (1, 1);
-		}
-
-		public async Task TickAsync(CancellationToken cancellationToken = default)
-		{
-			var slim = this._semaphoreSlim;
-			if (slim != null)
+			await slim.WaitAsync(cancellationToken).ConfigureAwait(false);
+			try
 			{
-				await slim.WaitAsync(cancellationToken).ConfigureAwait(false);
-				try
+				var nextRefillDateTime = this._lastUpdateTime + this.RateLimit.PeriodInMilliseconds;
+				var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+				var arePermitsAvailable = this._availablePermits > 0;
+				var isTooEarlyToRefill = now < nextRefillDateTime;
+				if (isTooEarlyToRefill && !arePermitsAvailable)
 				{
-					var nextRefillDateTime = this._lastUpdateTime + this.RateLimit.PeriodInMilliseconds;
-					var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-					var arePermitsAvailable = this._availablePermits > 0;
-					var isTooEarlyToRefill = now < nextRefillDateTime;
-					if (isTooEarlyToRefill && !arePermitsAvailable)
-					{
-						var delay = nextRefillDateTime - now;
-						this.Logger.LogDebug("[{ServiceName}] Waiting {Delay}ms", this._serviceName, delay.ToString());
-						await Task.Delay((int) delay, cancellationToken).ConfigureAwait(false);
-					}
-					else if (isTooEarlyToRefill) // && arePermitsAvailable
-					{
-						this.Logger.LogInformation("[{ServiceName}] Passing", this._serviceName);
-						this._availablePermits--;
-						return;
-					}
+					var delay = nextRefillDateTime - now;
+					this.Logger.LogDebug("[{ServiceName}] Waiting {Delay}ms", this._serviceName, delay.ToString());
+					await Task.Delay((int)delay, cancellationToken).ConfigureAwait(false);
+				}
+				else if (isTooEarlyToRefill) // && arePermitsAvailable
+				{
+					this.Logger.LogInformation("[{ServiceName}] Passing", this._serviceName);
+					this._availablePermits--;
+					return;
+				}
 
-					this._lastUpdateTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-					this._availablePermits = this.RateLimit.AmountOfRequests - 1;
-				}
-				finally
-				{
-					slim.Release();
-				}
+				this._lastUpdateTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+				this._availablePermits = this.RateLimit.AmountOfRequests - 1;
+			}
+			finally
+			{
+				slim.Release();
 			}
 		}
+	}
 
-		/// <inheritdoc />
-		public override string ToString()
-		{
-			return $"[{this._serviceName}] with rate limits {this.RateLimit}";
-		}
+	/// <inheritdoc />
+	public override string ToString()
+	{
+		return $"[{this._serviceName}] with rate limits {this.RateLimit}";
+	}
 
-		/// <inheritdoc />
-		public void Dispose()
-		{
-			var semaphore = this._semaphoreSlim;
-			this._semaphoreSlim = null;
-			semaphore?.Dispose();
-		}
+	/// <inheritdoc />
+	public void Dispose()
+	{
+		var semaphore = this._semaphoreSlim;
+		this._semaphoreSlim = null;
+		semaphore?.Dispose();
 	}
 }

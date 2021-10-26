@@ -16,27 +16,24 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Features;
 
-namespace PaperMalKing.Shikimori.UpdateProvider
+namespace PaperMalKing.Shikimori.UpdateProvider;
+
+public sealed class ShikiExecuteOnStartupService : IExecuteOnStartupService
 {
-	public sealed class ShikiExecuteOnStartupService : IExecuteOnStartupService
+	private readonly ICommandsService _commandsService;
+
+	public ShikiExecuteOnStartupService(ICommandsService commandsService)
 	{
-		private readonly ICommandsService _commandsService;
+		this._commandsService = commandsService;
+	}
 
-		public ShikiExecuteOnStartupService(ICommandsService commandsService)
-		{
-			this._commandsService = commandsService;
-		}
-
-		public Task ExecuteAsync(CancellationToken cancellationToken = default)
-		{
-			this._commandsService.CommandsExtension.RegisterConverter(new FeatureArgumentConverter<ShikiUserFeatures>());
-			return Task.CompletedTask;
-		}
+	public Task ExecuteAsync(CancellationToken cancellationToken = default)
+	{
+		this._commandsService.CommandsExtension.RegisterConverter(new FeatureArgumentConverter<ShikiUserFeatures>());
+		return Task.CompletedTask;
 	}
 }

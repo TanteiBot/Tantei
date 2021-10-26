@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
 using System.Net;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
@@ -33,47 +32,46 @@ using Polly;
 using Polly.Contrib.WaitAndRetry;
 using Polly.Extensions.Http;
 
-namespace PaperMalKing.Shikimori.UpdateProvider
+namespace PaperMalKing.Shikimori.UpdateProvider;
+
+internal class ShikiUpdateProviderConfigurator : IUpdateProviderConfigurator<ShikiUpdateProvider>
 {
-	internal class ShikiUpdateProviderConfigurator : IUpdateProviderConfigurator<ShikiUpdateProvider>
+	/// <inheritdoc />
+	public void ConfigureNonStatic(IConfiguration configuration, IServiceCollection serviceCollection)
+	{ }
+
+	public static void Configure(IConfiguration configuration, IServiceCollection serviceCollection)
 	{
-		/// <inheritdoc />
-		public void ConfigureNonStatic(IConfiguration configuration, IServiceCollection serviceCollection)
-		{ }
+		serviceCollection.AddOptions<ShikiOptions>().Bind(configuration.GetSection(Constants.NAME));
 
-		public static void Configure(IConfiguration configuration, IServiceCollection serviceCollection)
+		var policy = HttpPolicyExtensions.HandleTransientHttpError().OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
+										 .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));
+
+		serviceCollection.AddHttpClient(Constants.NAME).AddPolicyHandler(policy).AddHttpMessageHandler(provider =>
 		{
-			serviceCollection.AddOptions<ShikiOptions>().Bind(configuration.GetSection(Constants.NAME));
-
-			var policy = HttpPolicyExtensions.HandleTransientHttpError().OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
-											 .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));
-
-			serviceCollection.AddHttpClient(Constants.NAME).AddPolicyHandler(policy).AddHttpMessageHandler(provider =>
-			{
-				var logger = provider.GetRequiredService<ILogger<IRateLimiter<ShikiClient>>>();
-				var rl = new RateLimit(90, TimeSpan.FromMinutes(1.05d)); // 90rpm with .05 as inaccuracy
-				return RateLimiterFactory.Create(rl, logger).ToHttpMessageHandler();
-			}).AddHttpMessageHandler(provider =>
-			{
-				var logger = provider.GetRequiredService<ILogger<IRateLimiter<ShikiClient>>>();
-				var rl = new RateLimit(5, TimeSpan.FromSeconds(1.05d)); //5rps with .05 as inaccuracy
-				return RateLimiterFactory.Create(rl, logger).ToHttpMessageHandler();
-			}).ConfigureHttpClient((provider, client) =>
-			{
-				client.DefaultRequestHeaders.UserAgent.Clear();
-				client.DefaultRequestHeaders.UserAgent.ParseAdd($"{provider.GetRequiredService<IOptions<ShikiOptions>>().Value.ShikimoriAppName}");
-				client.BaseAddress = new (Wrapper.Constants.BASE_URL);
-			});
-			serviceCollection.AddSingleton<ShikiClient>(provider =>
-			{
-				var factory = provider.GetRequiredService<IHttpClientFactory>();
-				var logger = provider.GetRequiredService<ILogger<ShikiClient>>();
-				return new(factory.CreateClient(Constants.NAME), logger);
-			});
-			serviceCollection.AddSingleton<IExecuteOnStartupService, ShikiExecuteOnStartupService>();
-			serviceCollection.AddSingleton<IUserFeaturesService<ShikiUserFeatures>, ShikiUserFeaturesService>();
-			serviceCollection.AddSingleton<ShikiUserService>();
-			serviceCollection.AddSingleton<IUpdateProvider, ShikiUpdateProvider>();
-		}
+			var logger = provider.GetRequiredService<ILogger<IRateLimiter<ShikiClient>>>();
+			var rl = new RateLimit(90, TimeSpan.FromMinutes(1.05d)); // 90rpm with .05 as inaccuracy
+			return RateLimiterFactory.Create(rl, logger).ToHttpMessageHandler();
+		}).AddHttpMessageHandler(provider =>
+		{
+			var logger = provider.GetRequiredService<ILogger<IRateLimiter<ShikiClient>>>();
+			var rl = new RateLimit(5, TimeSpan.FromSeconds(1.05d)); //5rps with .05 as inaccuracy
+			return RateLimiterFactory.Create(rl, logger).ToHttpMessageHandler();
+		}).ConfigureHttpClient((provider, client) =>
+		{
+			client.DefaultRequestHeaders.UserAgent.Clear();
+			client.DefaultRequestHeaders.UserAgent.ParseAdd($"{provider.GetRequiredService<IOptions<ShikiOptions>>().Value.ShikimoriAppName}");
+			client.BaseAddress = new(Wrapper.Constants.BASE_URL);
+		});
+		serviceCollection.AddSingleton<ShikiClient>(provider =>
+		{
+			var factory = provider.GetRequiredService<IHttpClientFactory>();
+			var logger = provider.GetRequiredService<ILogger<ShikiClient>>();
+			return new(factory.CreateClient(Constants.NAME), logger);
+		});
+		serviceCollection.AddSingleton<IExecuteOnStartupService, ShikiExecuteOnStartupService>();
+		serviceCollection.AddSingleton<IUserFeaturesService<ShikiUserFeatures>, ShikiUserFeaturesService>();
+		serviceCollection.AddSingleton<ShikiUserService>();
+		serviceCollection.AddSingleton<IUpdateProvider, ShikiUpdateProvider>();
 	}
 }

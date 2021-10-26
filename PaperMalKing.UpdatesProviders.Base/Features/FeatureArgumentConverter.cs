@@ -18,29 +18,26 @@
 
 #endregion
 
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.Entities;
 using Humanizer;
 
-namespace PaperMalKing.UpdatesProviders.Base.Features
+namespace PaperMalKing.UpdatesProviders.Base.Features;
+
+public class FeatureArgumentConverter<T> : IArgumentConverter<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
-    public class FeatureArgumentConverter<T> : IArgumentConverter<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
-    {
-		[SuppressMessage("Microsoft.Design", "CA1031")]
-		public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
-        {
-            try
-            {
-                return Task.FromResult(new Optional<T>(value.DehumanizeTo<T>()));
-            }
-            catch
-            {
-                return Task.FromResult(Optional.FromNoValue<T>());
-            }
-        }
-    }
+	[SuppressMessage("Microsoft.Design", "CA1031")]
+	public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
+	{
+		try
+		{
+			return Task.FromResult(new Optional<T>(value.DehumanizeTo<T>()));
+		}
+		catch
+		{
+			return Task.FromResult(Optional.FromNoValue<T>());
+		}
+	}
 }

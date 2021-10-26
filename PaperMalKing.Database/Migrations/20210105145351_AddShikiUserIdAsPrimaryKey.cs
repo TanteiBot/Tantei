@@ -20,30 +20,30 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PaperMalKing.Database.Migrations
 {
-    public partial class AddShikiUserIdAsPrimaryKey : Migration
-    {
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_ShikiFavourites",
-                table: "ShikiFavourites");
+	public partial class AddShikiUserIdAsPrimaryKey : Migration
+	{
+		protected override void Up(MigrationBuilder migrationBuilder)
+		{
+			migrationBuilder.DropPrimaryKey(
+				name: "PK_ShikiFavourites",
+				table: "ShikiFavourites");
 
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_ShikiFavourites",
-                table: "ShikiFavourites",
-                columns: new[] { "Id", "FavType", "UserId" });
-        }
+			migrationBuilder.AddPrimaryKey(
+				name: "PK_ShikiFavourites",
+				table: "ShikiFavourites",
+				columns: new[] { "Id", "FavType", "UserId" });
+		}
 
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_ShikiFavourites",
-                table: "ShikiFavourites");
+		protected override void Down(MigrationBuilder migrationBuilder)
+		{
+			migrationBuilder.DropPrimaryKey(
+				name: "PK_ShikiFavourites",
+				table: "ShikiFavourites");
 
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_ShikiFavourites",
-                table: "ShikiFavourites",
-                columns: new[] { "Id", "FavType" });
-        }
-    }
+			migrationBuilder.AddPrimaryKey(
+				name: "PK_ShikiFavourites",
+				table: "ShikiFavourites",
+				columns: new[] { "Id", "FavType" });
+		}
+	}
 }

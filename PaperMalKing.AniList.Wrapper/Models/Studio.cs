@@ -19,23 +19,22 @@
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
-namespace PaperMalKing.AniList.Wrapper.Models
+namespace PaperMalKing.AniList.Wrapper.Models;
+
+public sealed class Studio : ISiteUrlable, IIdentifiable
 {
-    public sealed class Studio : ISiteUrlable, IIdentifiable
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; init; } = null!;
+	[JsonPropertyName("name")]
+	public string Name { get; init; } = null!;
 
-        [JsonPropertyName("siteUrl")]
-        public string Url { get; init; } = null!;
+	[JsonPropertyName("siteUrl")]
+	public string Url { get; init; } = null!;
 
-        [JsonPropertyName("media")]
-        public Connection<Media> Media { get; init; } = Connection<Media>.Empty;
-        
-        [JsonPropertyName("isAnimationStudio")]
-        public bool IsAnimationStudio { get; init; }
+	[JsonPropertyName("media")]
+	public Connection<Media> Media { get; init; } = Connection<Media>.Empty;
 
-        [JsonPropertyName("id")]
-        public ulong Id { get; init; }
-    }
+	[JsonPropertyName("isAnimationStudio")]
+	public bool IsAnimationStudio { get; init; }
+
+	[JsonPropertyName("id")]
+	public ulong Id { get; init; }
 }

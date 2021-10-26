@@ -18,25 +18,24 @@
 
 #endregion
 
-namespace PaperMalKing.Options
+namespace PaperMalKing.Options;
+
+public sealed class DiscordOptions
 {
-	public sealed class DiscordOptions
+	public const string Discord = "Discord";
+
+	public string Token { get; set; } = null!;
+
+	public DiscordActivityOptions[] Activities { get; set; } = null!;
+
+	public sealed class DiscordActivityOptions
 	{
-		public const string Discord = "Discord";
+		public string ActivityType { get; set; } = null!;
 
-		public string Token { get; set; } = null!;
+		public string PresenceText { get; set; } = null!;
 
-		public DiscordActivityOptions[] Activities { get; set; } = null!;
+		public int TimeToBeDisplayedInMilliseconds { get; set; }
 
-		public sealed class DiscordActivityOptions
-		{
-			public string ActivityType { get; set; } = null!;
-
-			public string PresenceText { get; set; } = null!;
-
-			public int TimeToBeDisplayedInMilliseconds { get; set; }
-
-			public string Status { get; set; } = null!;
-		}
+		public string Status { get; set; } = null!;
 	}
 }

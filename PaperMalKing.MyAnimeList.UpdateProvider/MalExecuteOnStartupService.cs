@@ -16,27 +16,24 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Features;
 
-namespace PaperMalKing.UpdatesProviders.MyAnimeList
+namespace PaperMalKing.UpdatesProviders.MyAnimeList;
+
+public sealed class MalExecuteOnStartupService : IExecuteOnStartupService
 {
-	public sealed class MalExecuteOnStartupService : IExecuteOnStartupService
+	private readonly ICommandsService _commandsService;
+
+	public MalExecuteOnStartupService(ICommandsService commandsService)
 	{
-		private readonly ICommandsService _commandsService;
+		this._commandsService = commandsService;
+	}
 
-		public MalExecuteOnStartupService(ICommandsService commandsService)
-		{
-			this._commandsService = commandsService;
-		}
-
-		public Task ExecuteAsync(CancellationToken cancellationToken = default)
-		{
-			this._commandsService.CommandsExtension.RegisterConverter(new FeatureArgumentConverter<MalUserFeatures>());
-			return Task.CompletedTask;
-		}
+	public Task ExecuteAsync(CancellationToken cancellationToken = default)
+	{
+		this._commandsService.CommandsExtension.RegisterConverter(new FeatureArgumentConverter<MalUserFeatures>());
+		return Task.CompletedTask;
 	}
 }

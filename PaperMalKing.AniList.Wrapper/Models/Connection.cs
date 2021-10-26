@@ -16,23 +16,21 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.AniList.Wrapper.Models
+namespace PaperMalKing.AniList.Wrapper.Models;
+
+public sealed class Connection<T>
 {
-    public sealed class Connection<T>
-    {
-        [JsonPropertyName("pageInfo")]
-        public PageInfo PageInfo { get; init; } = null!;
+	[JsonPropertyName("pageInfo")]
+	public PageInfo PageInfo { get; init; } = null!;
 
-        [JsonPropertyName("values")]
-        public T[] Nodes { get; init; } = null!;
+	[JsonPropertyName("values")]
+	public T[] Nodes { get; init; } = null!;
 
-        public static readonly Connection<T> Empty = new()
-        {
-            PageInfo = new() {HasNextPage = false},
-            Nodes = Array.Empty<T>()
-        };
-    }
+	public static readonly Connection<T> Empty = new()
+	{
+		PageInfo = new() { HasNextPage = false },
+		Nodes = Array.Empty<T>()
+	};
 }

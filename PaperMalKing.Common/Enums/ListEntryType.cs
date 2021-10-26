@@ -16,11 +16,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.Common.Enums
+namespace PaperMalKing.Common.Enums;
+
+public enum ListEntryType : byte
 {
-	public enum ListEntryType : byte
-	{
-		Anime = 0,
-		Manga = 1
-	}
+	Anime = 0,
+	Manga = 1
 }

@@ -21,32 +21,32 @@
 using System.Text;
 using PaperMalKing.AniList.Wrapper.Models;
 
-namespace PaperMalKing.AniList.Wrapper.GraphQL
+namespace PaperMalKing.AniList.Wrapper.GraphQL;
+
+internal static class FavouritesInfoQueryBuilder
 {
-	internal static class FavouritesInfoQueryBuilder
+	public static string Build(RequestOptions options)
 	{
-		public static string Build(RequestOptions options)
-		{
-			var sb = new StringBuilder();
-			sb.AppendLine(@" query ($page: Int, $animeIds: [Int], $mangaIds: [Int], $charIds: [Int], $staffIds: [Int], $studioIds: [Int]) {
+		var sb = new StringBuilder();
+		sb.AppendLine(@" query ($page: Int, $animeIds: [Int], $mangaIds: [Int], $charIds: [Int], $staffIds: [Int], $studioIds: [Int]) {
                   Animes: Page(page: $page, perPage: 50) {
                     pageInfo{
                       hasNextPage
                     }
                     values: media(type: ANIME, id_in: $animeIds) {");
-			Helpers.AppendMediaFields(sb, options);
-      sb.AppendLine(@"}
+		Helpers.AppendMediaFields(sb, options);
+		sb.AppendLine(@"}
                   }
                   Mangas: Page(page: $page, perPage: 50) {
                     pageInfo{
                       hasNextPage
                     }
                     values: media(type: MANGA, id_in: $mangaIds) {");
-			Helpers.AppendMediaFields(sb, options);
-			sb.AppendLine(@"}
+		Helpers.AppendMediaFields(sb, options);
+		sb.AppendLine(@"}
                   }");
 
-			sb.AppendLine(@"
+		sb.AppendLine(@"
                   Staff: Page(page: $page, perPage: 50) {
                     pageInfo{
                       hasNextPage
@@ -62,12 +62,12 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                         large
                       }
                     ");
-      if ((options & RequestOptions.MediaDescription) != 0)
-        sb.AppendLine("description(asHtml: false)");
+		if ((options & RequestOptions.MediaDescription) != 0)
+			sb.AppendLine("description(asHtml: false)");
 
-			sb.AppendLine(@"}
+		sb.AppendLine(@"}
                   }");
-			sb.AppendLine(@"
+		sb.AppendLine(@"
                   Characters: Page(page: $page, perPage: 50) {
                     pageInfo{
                       hasNextPage
@@ -126,7 +126,6 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                     }
                   }
               }");
-			return sb.ToString();
-		}
+		return sb.ToString();
 	}
 }

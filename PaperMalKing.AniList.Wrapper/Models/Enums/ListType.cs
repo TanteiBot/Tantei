@@ -16,11 +16,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.AniList.Wrapper.Models.Enums
+namespace PaperMalKing.AniList.Wrapper.Models.Enums;
+
+public enum ListType : byte
 {
-    public enum ListType : byte
-    {
-        ANIME = 0,
-        MANGA = 1
-    }
+	ANIME = 0,
+	MANGA = 1
 }

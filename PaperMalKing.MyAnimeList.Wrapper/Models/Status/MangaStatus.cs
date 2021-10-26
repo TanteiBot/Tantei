@@ -16,14 +16,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Status
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Status;
+
+internal enum MangaStatus : byte
 {
-	internal enum MangaStatus : byte
-	{
-		CurrentlyPublishing = 1,
-		FinishedPublishing = 2,
-		NotYetPublished = 3,
-		OnHiatus = 4,
-		Discontinued = 5
-	}
+	CurrentlyPublishing = 1,
+	FinishedPublishing = 2,
+	NotYetPublished = 3,
+	OnHiatus = 4,
+	Discontinued = 5
 }

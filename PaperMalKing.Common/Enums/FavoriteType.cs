@@ -16,15 +16,14 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.Common.Enums
+namespace PaperMalKing.Common.Enums;
+
+public enum FavoriteType : byte
 {
-	public enum FavoriteType : byte
-	{
-		Anime = 0,
-		Manga = 1,
-		Character = 2,
-		Person = 3,
-		BaseList = byte.MaxValue - 1,
-		Base = byte.MaxValue
-	}
+	Anime = 0,
+	Manga = 1,
+	Character = 2,
+	Person = 3,
+	BaseList = byte.MaxValue - 1,
+	Base = byte.MaxValue
 }

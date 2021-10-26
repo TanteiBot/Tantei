@@ -16,9 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System.Threading.Tasks;
+namespace PaperMalKing.UpdatesProviders.Base;
 
-namespace PaperMalKing.UpdatesProviders.Base
-{
-	public delegate Task UpdateFoundEvent(UpdateFoundEventArgs eventArgs);
-}
+public delegate Task UpdateFoundEvent(UpdateFoundEventArgs eventArgs);

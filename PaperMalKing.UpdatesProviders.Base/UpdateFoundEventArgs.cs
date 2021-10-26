@@ -16,25 +16,23 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
 using PaperMalKing.Database.Models;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-namespace PaperMalKing.UpdatesProviders.Base
+namespace PaperMalKing.UpdatesProviders.Base;
+
+public sealed class UpdateFoundEventArgs : EventArgs
 {
-	public sealed class UpdateFoundEventArgs : EventArgs
+	public IUpdate Update { get; }
+
+	public IUpdateProvider UpdateProvider { get; }
+
+	public DiscordUser DiscordUser { get; }
+
+	public UpdateFoundEventArgs(IUpdate update, IUpdateProvider updateProvider, DiscordUser discordUser)
 	{
-		public IUpdate Update { get; }
-
-		public IUpdateProvider UpdateProvider { get; }
-
-		public DiscordUser DiscordUser { get; }
-
-		public UpdateFoundEventArgs(IUpdate update, IUpdateProvider updateProvider, DiscordUser discordUser)
-		{
-			this.Update = update;
-			this.UpdateProvider = updateProvider;
-			this.DiscordUser = discordUser;
-		}
+		this.Update = update;
+		this.UpdateProvider = updateProvider;
+		this.DiscordUser = discordUser;
 	}
 }

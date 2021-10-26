@@ -16,61 +16,59 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 
-namespace PaperMalKing.Common
+namespace PaperMalKing.Common;
+
+public static class EmbedTemplate
 {
-	public static class EmbedTemplate
+	public static DiscordEmbedBuilder CommandErrorEmbed(Command command, DiscordUser user, Exception? ex = null,
+														string? message = null)
 	{
-		public static DiscordEmbedBuilder CommandErrorEmbed(Command command, DiscordUser user, Exception? ex = null,
-			string? message = null)
-		{
-			var errorMessage = message ?? $"{ex?.Message}\nin\n{Formatter.InlineCode(ex?.Source)}";
-			return ErrorEmbed(user, errorMessage, $"Error occured in {command.Name}");
-		}
+		var errorMessage = message ?? $"{ex?.Message}\nin\n{Formatter.InlineCode(ex?.Source)}";
+		return ErrorEmbed(user, errorMessage, $"Error occured in {command.Name}");
+	}
 
-		public static DiscordEmbedBuilder UnknownErrorEmbed(CommandContext context)
-		{
-			return ErrorEmbed(context, $"Unknown error occured, try again later or contact the owner in case of sequential fails", "Unknown Error");
-		}
+	public static DiscordEmbedBuilder UnknownErrorEmbed(CommandContext context)
+	{
+		return ErrorEmbed(context, $"Unknown error occured, try again later or contact the owner in case of sequential fails", "Unknown Error");
+	}
 
-		public static DiscordEmbedBuilder ErrorEmbed(CommandContext context, string errorMessage, string? title = null) =>
-			ErrorEmbed(context.User, errorMessage, title);
+	public static DiscordEmbedBuilder ErrorEmbed(CommandContext context, string errorMessage, string? title = null) =>
+		ErrorEmbed(context.User, errorMessage, title);
 
-		public static DiscordEmbedBuilder ErrorEmbed(DiscordUser user, string errorMessage, string? title = null)
+	public static DiscordEmbedBuilder ErrorEmbed(DiscordUser user, string errorMessage, string? title = null)
+	{
+		var embedBuilder = new DiscordEmbedBuilder
 		{
-			var embedBuilder = new DiscordEmbedBuilder
+			Author = new()
 			{
-				Author = new()
-				{
-					IconUrl = user.AvatarUrl,
-					Name = user.Username
-				},
-				Title = title ?? "Error occured",
-				Description = errorMessage,
-				Timestamp = DateTimeOffset.Now,
-				Color = DiscordColor.Red
-			};
-			return embedBuilder;
-		}
+				IconUrl = user.AvatarUrl,
+				Name = user.Username
+			},
+			Title = title ?? "Error occured",
+			Description = errorMessage,
+			Timestamp = DateTimeOffset.Now,
+			Color = DiscordColor.Red
+		};
+		return embedBuilder;
+	}
 
-		public static DiscordEmbedBuilder SuccessEmbed(CommandContext context, string message) => SuccessEmbed(context.User, message);
-		public static DiscordEmbedBuilder SuccessEmbed(DiscordUser user, string message)
+	public static DiscordEmbedBuilder SuccessEmbed(CommandContext context, string message) => SuccessEmbed(context.User, message);
+	public static DiscordEmbedBuilder SuccessEmbed(DiscordUser user, string message)
+	{
+		var embedBuilder = new DiscordEmbedBuilder
 		{
-			var embedBuilder = new DiscordEmbedBuilder
+			Author = new()
 			{
-				Author = new()
-				{
-					IconUrl = user.AvatarUrl,
-					Name = user.Username
-				},
-				Timestamp = DateTimeOffset.Now,
-				Color = new DiscordColor("#10c710")
-			};
-			return message.Length > 256 ? embedBuilder.WithDescription(message) : embedBuilder.WithTitle(message);
-		}
+				IconUrl = user.AvatarUrl,
+				Name = user.Username
+			},
+			Timestamp = DateTimeOffset.Now,
+			Color = new DiscordColor("#10c710")
+		};
+		return message.Length > 256 ? embedBuilder.WithDescription(message) : embedBuilder.WithTitle(message);
 	}
 }

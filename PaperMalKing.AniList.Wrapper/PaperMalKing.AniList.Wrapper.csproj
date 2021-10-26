@@ -3,11 +3,12 @@
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <OutputType>Library</OutputType>
         <NoWarn>$(NoWarn);CA1041;CA1002;</NoWarn>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="GraphQL.Client" Version="3.2.4"/>
-        <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" Version="3.2.4"/>
+        <PackageReference Include="GraphQL.Client" />
+        <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" />
     </ItemGroup>
 
     <ItemGroup>

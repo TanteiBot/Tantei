@@ -16,15 +16,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+namespace PaperMalKing.Common.RateLimiters;
 
-namespace PaperMalKing.Common.RateLimiters
+public interface IRateLimiter<T>
 {
-	public interface IRateLimiter<T>
-	{
-		RateLimit RateLimit { get; }
+	RateLimit RateLimit { get; }
 
-		Task TickAsync(CancellationToken cancellationToken = default);
-	}
+	Task TickAsync(CancellationToken cancellationToken = default);
 }

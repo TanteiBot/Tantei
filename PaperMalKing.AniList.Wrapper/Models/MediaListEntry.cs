@@ -16,86 +16,86 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Linq;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
 
-namespace PaperMalKing.AniList.Wrapper.Models
+namespace PaperMalKing.AniList.Wrapper.Models;
+
+public sealed class MediaListEntry
 {
-    public sealed class MediaListEntry
-    {
-        private readonly Dictionary<ScoreFormat, byte> _scores = new();
+	private readonly Dictionary<ScoreFormat, byte> _scores = new();
 
-        [JsonPropertyName("status")]
-        public MediaListStatus Status { get; init; }
+	[JsonPropertyName("status")]
+	public MediaListStatus Status { get; init; }
 
-        [JsonPropertyName("repeat")]
-        public ushort Repeat { get; init; }
+	[JsonPropertyName("repeat")]
+	public ushort Repeat { get; init; }
 
-        [JsonPropertyName("notes")]
-        public string? Notes { get; init; }
+	[JsonPropertyName("notes")]
+	public string? Notes { get; init; }
 
-		[SuppressMessage("", "CA2227")]
-		[JsonPropertyName("advancedScores")]
-        public Dictionary<string, float>? AdvancedScores { get; init; }
+	[SuppressMessage("", "CA2227")]
+	[JsonPropertyName("advancedScores")]
+	public Dictionary<string, float>? AdvancedScores { get; init; }
 
-        [JsonPropertyName("point100Score")]
-        public byte Point100Score
-        {
-            [Obsolete("", true)] get => throw new NotSupportedException();
-            init => this._scores.Add(ScoreFormat.POINT_100, value);
-        }
+	[JsonPropertyName("point100Score")]
+	public byte Point100Score
+	{
+		[Obsolete("", true)]
+		get => throw new NotSupportedException();
+		init => this._scores.Add(ScoreFormat.POINT_100, value);
+	}
 
-        [JsonPropertyName("point10Score")]
-        public byte Point10Score
-        {
-            [Obsolete("", true)] get => throw new NotSupportedException();
-            init => this._scores.Add(ScoreFormat.POINT_10, value);
-        }
+	[JsonPropertyName("point10Score")]
+	public byte Point10Score
+	{
+		[Obsolete("", true)]
+		get => throw new NotSupportedException();
+		init => this._scores.Add(ScoreFormat.POINT_10, value);
+	}
 
-        [JsonPropertyName("point5Score")]
-        public byte Point5Score
-        {
-            [Obsolete("", true)] get => throw new NotSupportedException();
-            init => this._scores.Add(ScoreFormat.POINT_5, value);
-        }
+	[JsonPropertyName("point5Score")]
+	public byte Point5Score
+	{
+		[Obsolete("", true)]
+		get => throw new NotSupportedException();
+		init => this._scores.Add(ScoreFormat.POINT_5, value);
+	}
 
-        [JsonPropertyName("point3Score")]
-        public byte Point3Score
-        {
-            [Obsolete("", true)] get => throw new NotSupportedException();
-            init => this._scores.Add(ScoreFormat.POINT_3, value);
-        }
+	[JsonPropertyName("point3Score")]
+	public byte Point3Score
+	{
+		[Obsolete("", true)]
+		get => throw new NotSupportedException();
+		init => this._scores.Add(ScoreFormat.POINT_3, value);
+	}
 
-        [JsonPropertyName("id")]
-        public ulong Id { get; init; }
+	[JsonPropertyName("id")]
+	public ulong Id { get; init; }
 
-        [JsonPropertyName("customLists")]
-        public CustomList[]? CustomLists { get; init; } = Array.Empty<CustomList>();
+	[JsonPropertyName("customLists")]
+	public CustomList[]? CustomLists { get; init; } = Array.Empty<CustomList>();
 
-        public string GetScore(ScoreFormat scoreFormat)
-        {
-            if (this._scores.Values.All(s => s == 0))
-                return "";
-            return scoreFormat switch
-            {
-                ScoreFormat.POINT_100 => $"{this._scores[scoreFormat].ToString()}/100",
-                ScoreFormat.POINT_10_DECIMAL => $"{(this._scores[ScoreFormat.POINT_100] * 1.0d / 10).ToString(CultureInfo.InvariantCulture)}/10",
-                ScoreFormat.POINT_10 => $"{this._scores[scoreFormat].ToString()}/10",
-                ScoreFormat.POINT_5 => $"{this._scores[scoreFormat].ToString()}/5",
-                ScoreFormat.POINT_3 => this._scores[scoreFormat] switch
-                {
-                    1 => ":(",
-                    2 => ":|",
-                    3 => ":)",
-                    _ => throw new ArgumentOutOfRangeException(nameof(scoreFormat), scoreFormat, null)
-                },
-                _ => throw new ArgumentOutOfRangeException(nameof(scoreFormat), scoreFormat, null)
-            };
-        }
-    }
+	public string GetScore(ScoreFormat scoreFormat)
+	{
+		if (this._scores.Values.All(s => s == 0))
+			return "";
+		return scoreFormat switch
+		{
+			ScoreFormat.POINT_100 => $"{this._scores[scoreFormat].ToString()}/100",
+			ScoreFormat.POINT_10_DECIMAL => $"{(this._scores[ScoreFormat.POINT_100] * 1.0d / 10).ToString(CultureInfo.InvariantCulture)}/10",
+			ScoreFormat.POINT_10 => $"{this._scores[scoreFormat].ToString()}/10",
+			ScoreFormat.POINT_5 => $"{this._scores[scoreFormat].ToString()}/5",
+			ScoreFormat.POINT_3 => this._scores[scoreFormat] switch
+			{
+				1 => ":(",
+				2 => ":|",
+				3 => ":)",
+				_ => throw new ArgumentOutOfRangeException(nameof(scoreFormat), scoreFormat, null)
+			},
+			_ => throw new ArgumentOutOfRangeException(nameof(scoreFormat), scoreFormat, null)
+		};
+	}
 }

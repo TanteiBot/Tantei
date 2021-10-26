@@ -16,15 +16,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using HtmlAgilityPack;
@@ -37,111 +32,110 @@ using PaperMalKing.MyAnimeList.Wrapper.Models.Rss;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Rss.Types;
 using PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
-namespace PaperMalKing.MyAnimeList.Wrapper
+namespace PaperMalKing.MyAnimeList.Wrapper;
+
+public sealed class MyAnimeListClient
 {
-	public sealed class MyAnimeListClient
+	private readonly HttpClient _httpClient;
+	private readonly ILogger<MyAnimeListClient> _logger;
+
+	private readonly JsonSerializerOptions _jsonSerializerOptions = new()
 	{
-		private readonly HttpClient _httpClient;
-		private readonly ILogger<MyAnimeListClient> _logger;
-
-		private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+		Converters =
 		{
-			Converters =
+			new JsonNumberToStringConverter(),
+			new JsonToBoolConverter()
+		}
+	};
+
+	private readonly XmlSerializer _xmlSerializer;
+
+	internal MyAnimeListClient(ILogger<MyAnimeListClient> logger, HttpClient httpClient)
+	{
+		this._logger = logger;
+		this._httpClient = httpClient;
+		this._xmlSerializer = new(typeof(Feed));
+	}
+
+	private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken = default)
+	{
+		var response = await this._httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+		return response.EnsureSuccessStatusCode();
+	}
+
+	private async Task<HtmlNode> GetAsHtmlAsync(string url, CancellationToken cancellationToken = default)
+	{
+		using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
+		var doc = new HtmlDocument();
+		await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+		doc.Load(stream);
+		return doc.DocumentNode;
+	}
+
+	[SuppressMessage("Microsoft.Design", "CA1031")]
+	internal async Task<IEnumerable<FeedItem>> GetRecentRssUpdatesAsync<TR>(string username, CancellationToken cancellationToken = default)
+		where TR : struct, IRssFeedType
+	{
+		var rssType = new TR();
+		username = WebUtility.UrlEncode(username);
+		var url = $"{rssType.Url}{username}";
+		using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
+
+		await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+		Feed? feed;
+		try
+		{
+			using var xmlTextReader = new XmlTextReader(stream)
 			{
-				new JsonNumberToStringConverter(),
-				new JsonToBoolConverter()
-			}
-		};
-
-		private readonly XmlSerializer _xmlSerializer;
-
-		internal MyAnimeListClient(ILogger<MyAnimeListClient> logger, HttpClient httpClient)
+				WhitespaceHandling = WhitespaceHandling.Significant,
+				Normalization = true,
+				XmlResolver = null
+			};
+			feed = (Feed?)this._xmlSerializer.Deserialize(xmlTextReader);
+		}
+		catch
 		{
-			this._logger = logger;
-			this._httpClient = httpClient;
-			this._xmlSerializer = new(typeof(Feed));
+			return Enumerable.Empty<FeedItem>();
 		}
 
-		private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken = default)
-		{
-			var response = await this._httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-			return response.EnsureSuccessStatusCode();
-		}
+		return feed?.Items ?? Enumerable.Empty<FeedItem>();
+	}
 
-		private async Task<HtmlNode> GetAsHtmlAsync(string url, CancellationToken cancellationToken = default)
-		{
-			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
-			var doc = new HtmlDocument();
-			await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-			doc.Load(stream);
-			return doc.DocumentNode;
-		}
+	internal async Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default)
+	{
+		if (options == ParserOptions.None)
+			throw new ArgumentException("No reason to parse profile without anime/manga lists and favorites");
+		this._logger.LogDebug("Requesting {@Username} profile", username);
+		username = WebUtility.UrlEncode(username);
+		var requestUrl = Constants.PROFILE_URL + username;
+		var htmlNode = await this.GetAsHtmlAsync(requestUrl, cancellationToken).ConfigureAwait(false);
+		this._logger.LogTrace("Starting parsing {@Username} profile", username);
+		var user = UserProfileParser.Parse(htmlNode, options);
+		this._logger.LogTrace("Ended parsing {@Username} profile", username);
+		return user;
+	}
 
-		[SuppressMessage("Microsoft.Design", "CA1031")]
-		internal async Task<IEnumerable<FeedItem>> GetRecentRssUpdatesAsync<TR>(string username, CancellationToken cancellationToken = default)
-			where TR : struct, IRssFeedType
-		{
-			var rssType = new TR();
-			username = WebUtility.UrlEncode(username);
-			var url = $"{rssType.Url}{username}";
-			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
+	internal async Task<string> GetUsernameAsync(ulong id, CancellationToken cancellationToken = default)
+	{
+		var url = $"{Constants.COMMENTS_URL}{id.ToString()}";
+		this._logger.LogDebug("Requesting username by id {@Id}", id);
+		var htmlNode = await this.GetAsHtmlAsync(url, cancellationToken).ConfigureAwait(false);
+		return CommentsParser.Parse(htmlNode);
+	}
 
-			await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-			Feed? feed;
-			try
-			{
-				using var xmlTextReader = new XmlTextReader(stream)
-				{
-					WhitespaceHandling = WhitespaceHandling.Significant,
-					Normalization = true,
-					XmlResolver = null
-				};
-				feed = (Feed?) this._xmlSerializer.Deserialize(xmlTextReader);
-			}
-			catch
-			{
-				return Enumerable.Empty<FeedItem>();
-			}
+	internal async Task<IReadOnlyList<TE>> GetLatestListUpdatesAsync<TE, TListType>(string username,
+																					CancellationToken cancellationToken = default)
+		where TE : class, IListEntry where TListType : struct, IListType<TE>
+	{
+		var tl = new TListType();
+		this._logger.LogDebug("Requesting {@Username} {@Type} list", username, tl.ListEntryType);
 
-			return feed?.Items ?? Enumerable.Empty<FeedItem>();
-		}
+		username = WebUtility.UrlEncode(username);
+		var url = tl.LatestUpdatesUrl(username);
+		using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-		internal async Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default)
-		{
-			if (options == ParserOptions.None)
-				throw new ArgumentException("No reason to parse profile without anime/manga lists and favorites");
-			this._logger.LogDebug("Requesting {@Username} profile", username);
-			username = WebUtility.UrlEncode(username);
-			var requestUrl = Constants.PROFILE_URL + username;
-			var htmlNode = await this.GetAsHtmlAsync(requestUrl, cancellationToken).ConfigureAwait(false);
-			this._logger.LogTrace("Starting parsing {@Username} profile", username);
-			var user = UserProfileParser.Parse(htmlNode, options);
-			this._logger.LogTrace("Ended parsing {@Username} profile", username);
-			return user;
-		}
-
-		internal async Task<string> GetUsernameAsync(ulong id, CancellationToken cancellationToken = default)
-		{
-			var url = $"{Constants.COMMENTS_URL}{id.ToString()}";
-			this._logger.LogDebug("Requesting username by id {@Id}", id);
-			var htmlNode = await this.GetAsHtmlAsync(url, cancellationToken).ConfigureAwait(false);
-			return CommentsParser.Parse(htmlNode);
-		}
-
-		internal async Task<IReadOnlyList<TE>> GetLatestListUpdatesAsync<TE, TListType>(string username,
-																						CancellationToken cancellationToken = default)
-			where TE : class, IListEntry where TListType : struct, IListType<TE>
-		{
-			var tl = new TListType();
-			this._logger.LogDebug("Requesting {@Username} {@Type} list", username, tl.ListEntryType);
-
-			username = WebUtility.UrlEncode(username);
-			var url = tl.LatestUpdatesUrl(username);
-			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
-
-			await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-			var updates = await JsonSerializer.DeserializeAsync<TE[]>(stream, this._jsonSerializerOptions, cancellationToken).ConfigureAwait(false);
-			return updates ?? Array.Empty<TE>();
-		}
+		await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+		var updates = await JsonSerializer.DeserializeAsync<TE[]>(stream, this._jsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+		return updates ?? Array.Empty<TE>();
 	}
 }

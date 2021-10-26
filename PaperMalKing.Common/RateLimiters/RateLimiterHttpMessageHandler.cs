@@ -16,51 +16,47 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace PaperMalKing.Common.RateLimiters
+namespace PaperMalKing.Common.RateLimiters;
+
+public sealed class RateLimiterHttpMessageHandler<T> : DelegatingHandler
 {
-	public sealed class RateLimiterHttpMessageHandler<T> : DelegatingHandler
+	private IRateLimiter<T> _rateLimiter;
+	private readonly object _lock = new();
+
+	public IRateLimiter<T> RateLimiter
 	{
-		private IRateLimiter<T> _rateLimiter;
-		private readonly object _lock = new();
-
-		public IRateLimiter<T> RateLimiter
+		get => this._rateLimiter;
+		set
 		{
-			get => this._rateLimiter;
-			set
+			var old = this.RateLimiter;
+			lock (this._lock)
 			{
-				var old = this.RateLimiter;
-				lock (this._lock)
-				{
-					this._rateLimiter = value;
-				}
-
-				if (old is IDisposable disposable)
-					disposable.Dispose();
+				this._rateLimiter = value;
 			}
-		}
 
-		internal RateLimiterHttpMessageHandler(IRateLimiter<T> rateLimiter)
-		{
-			this._rateLimiter = rateLimiter;
-		}
-
-		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-																	 CancellationToken cancellationToken)
-		{
-			await this.RateLimiter.TickAsync(cancellationToken).ConfigureAwait(false);
-			return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-		}
-
-		public new void Dispose()
-		{
-			base.Dispose();
-			if (this.RateLimiter is IDisposable disposable)
+			if (old is IDisposable disposable)
 				disposable.Dispose();
 		}
+	}
+
+	internal RateLimiterHttpMessageHandler(IRateLimiter<T> rateLimiter)
+	{
+		this._rateLimiter = rateLimiter;
+	}
+
+	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+																 CancellationToken cancellationToken)
+	{
+		await this.RateLimiter.TickAsync(cancellationToken).ConfigureAwait(false);
+		return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+	}
+
+	public new void Dispose()
+	{
+		base.Dispose();
+		if (this.RateLimiter is IDisposable disposable)
+			disposable.Dispose();
 	}
 }

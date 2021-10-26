@@ -16,27 +16,26 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
+
+internal class BaseListFavorite : BaseFavorite
 {
-	internal class BaseListFavorite : BaseFavorite
+	internal string Type { get; init; }
+
+	internal int StartYear { get; init; }
+
+	internal BaseListFavorite(string type, int startYear, MalUrl url, string name, string? imageUrl) : base(url,
+		name, imageUrl)
 	{
-		internal string Type { get; init; }
-
-		internal int StartYear { get; init; }
-
-		internal BaseListFavorite(string type, int startYear, MalUrl url, string name, string? imageUrl) : base(url,
-			name, imageUrl)
-		{
-			this.Type = type;
-			this.StartYear = startYear;
-		}
-
-		internal BaseListFavorite(string type, int startYear, BaseFavorite baseFav) : this(type, startYear, baseFav.Url,
-			baseFav.Name, baseFav.ImageUrl)
-		{ }
-
-		internal BaseListFavorite(BaseListFavorite other) : this(other.Type, other.StartYear, other.Url, other.Name,
-			other.ImageUrl)
-		{ }
+		this.Type = type;
+		this.StartYear = startYear;
 	}
+
+	internal BaseListFavorite(string type, int startYear, BaseFavorite baseFav) : this(type, startYear, baseFav.Url,
+		baseFav.Name, baseFav.ImageUrl)
+	{ }
+
+	internal BaseListFavorite(BaseListFavorite other) : this(other.Type, other.StartYear, other.Url, other.Name,
+		other.ImageUrl)
+	{ }
 }

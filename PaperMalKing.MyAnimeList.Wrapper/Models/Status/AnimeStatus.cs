@@ -16,12 +16,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Status
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Status;
+
+internal enum AnimeStatus
 {
-	internal enum AnimeStatus
-	{
-		CurrentlyAiring = 1,
-		FinishedAiring = 2,
-		NotYetAired = 3
-	}
+	CurrentlyAiring = 1,
+	FinishedAiring = 2,
+	NotYetAired = 3
 }

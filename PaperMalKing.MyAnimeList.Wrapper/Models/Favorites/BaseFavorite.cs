@@ -16,29 +16,28 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
+
+internal class BaseFavorite
 {
-	internal class BaseFavorite
+	private readonly string? _imageUrl;
+	internal MalUrl Url { get; init; }
+
+	internal string Name { get; init; }
+
+	internal string? ImageUrl
 	{
-		private readonly string? _imageUrl;
-		internal MalUrl Url { get; init; }
-
-		internal string Name { get; init; }
-
-		internal string? ImageUrl
-		{
-			get => this._imageUrl;
-			init => this._imageUrl = value?.ToLargeImage();
-		}
-
-		internal BaseFavorite(MalUrl url, string name, string? imageUrl)
-		{
-			this.Url = url;
-			this.Name = name;
-			this.ImageUrl = imageUrl;
-		}
-
-		internal BaseFavorite(BaseFavorite other) : this(other.Url, other.Name, other.ImageUrl)
-		{ }
+		get => this._imageUrl;
+		init => this._imageUrl = value?.ToLargeImage();
 	}
+
+	internal BaseFavorite(MalUrl url, string name, string? imageUrl)
+	{
+		this.Url = url;
+		this.Name = name;
+		this.ImageUrl = imageUrl;
+	}
+
+	internal BaseFavorite(BaseFavorite other) : this(other.Url, other.Name, other.ImageUrl)
+	{ }
 }

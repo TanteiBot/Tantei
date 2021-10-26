@@ -21,11 +21,11 @@
 using System.Text;
 using PaperMalKing.AniList.Wrapper.Models;
 
-namespace PaperMalKing.AniList.Wrapper.GraphQL
+namespace PaperMalKing.AniList.Wrapper.GraphQL;
+
+internal static class UpdateCheckQueryBuilder
 {
-	internal static class UpdateCheckQueryBuilder
-	{
-		private const string QueryStart = @"
+	private const string QueryStart = @"
           query ($userId: Int, $page: Int, $activitiesFilterTimeStamp: Int, $perChunk: Int, $chunk: Int) {
             User(id: $userId) {
               id
@@ -48,7 +48,7 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
               }
           ";
 
-		private const string FavouritesSubQuery = @"
+	private const string FavouritesSubQuery = @"
               favourites {
                 anime(page: $page, perPage: 25) {
                   pageInfo {
@@ -93,7 +93,7 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
               }
               ";
 
-		private const string AnimeListSubQuery = @"
+	private const string AnimeListSubQuery = @"
             AnimeList: MediaListCollection(userId: $userId, type: ANIME, sort: UPDATED_TIME_DESC, chunk: $chunk, perChunk: $perChunk) {{
               lists {{
                 entries {{
@@ -113,7 +113,7 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
             }}
             ";
 
-		private const string MangaListSubQuery = @"
+	private const string MangaListSubQuery = @"
             MangaList: MediaListCollection(userId: $userId, type: MANGA, sort: UPDATED_TIME_DESC, chunk: $chunk, perChunk: $perChunk) {{
               lists {{
                 entries {{
@@ -133,7 +133,7 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
             }}
             ";
 
-		private const string ReviewsSubQuery = @"
+	private const string ReviewsSubQuery = @"
             ReviewsPage: Page(page: $page, perPage: 50) {
               pageInfo {
                 hasNextPage
@@ -160,66 +160,65 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
             }
             ";
 
-		public static string Build(RequestOptions options)
+	public static string Build(RequestOptions options)
+	{
+		var hasAnime = (options & RequestOptions.AnimeList) != 0;
+		var hasManga = (options & RequestOptions.MangaList) != 0;
+		var hasFavs = (options & RequestOptions.Favourites) != 0;
+
+
+		var hasReview = (options & RequestOptions.Reviews) != 0;
+		var sb = new StringBuilder(QueryStart);
+		if (hasFavs)
 		{
-			var hasAnime = (options & RequestOptions.AnimeList) != 0;
-			var hasManga = (options & RequestOptions.MangaList)  != 0;
-			var hasFavs = (options & RequestOptions.Favourites) != 0;
+			sb.AppendLine(FavouritesSubQuery);
+		}
+		sb.AppendLine("}");
+		if (hasAnime)
+		{
+			sb.AppendLine(string.Format(AnimeListSubQuery,
+				(options & RequestOptions.CustomLists) != 0 ? "customLists(asArray: true)" : string.Empty));
+		}
 
-
-			var hasReview = (options & RequestOptions.Reviews) != 0;
-			var sb = new StringBuilder(QueryStart);
-			if (hasFavs)
-			{
-				sb.AppendLine(FavouritesSubQuery);
-			}
-			sb.AppendLine("}");
-			if (hasAnime)
-			{
-				sb.AppendLine(string.Format(AnimeListSubQuery,
-					(options & RequestOptions.CustomLists) != 0 ? "customLists(asArray: true)" : string.Empty));
-			}
-
-			if (hasManga)
-			{
-				sb.AppendLine(string.Format(MangaListSubQuery, (options & RequestOptions.CustomLists) != 0 ? "customLists(asArray: true)" : string.Empty));
-			}
-			if (hasAnime || hasManga)
-			{
-				sb.AppendLine(@"ActivitiesPage: Page(page: $page, perPage: 50) {
+		if (hasManga)
+		{
+			sb.AppendLine(string.Format(MangaListSubQuery, (options & RequestOptions.CustomLists) != 0 ? "customLists(asArray: true)" : string.Empty));
+		}
+		if (hasAnime || hasManga)
+		{
+			sb.AppendLine(@"ActivitiesPage: Page(page: $page, perPage: 50) {
               pageInfo {
                 hasNextPage
               }");
-				var type = hasAnime switch
-				{
-					true when hasManga => "MEDIA_LIST",
-					true               => "ANIME_LIST",
-					_                  => "MANGA_LIST"
-				};
-				sb.AppendLine($"values: activities(userId: $userId, type: {type}, sort: ID_DESC, createdAt_greater: $activitiesFilterTimeStamp) {{");
-				sb.AppendLine(@"... on ListActivity {
+			var type = hasAnime switch
+			{
+				true when hasManga => "MEDIA_LIST",
+				true => "ANIME_LIST",
+				_ => "MANGA_LIST"
+			};
+			sb.AppendLine($"values: activities(userId: $userId, type: {type}, sort: ID_DESC, createdAt_greater: $activitiesFilterTimeStamp) {{");
+			sb.AppendLine(@"... on ListActivity {
                   status
                   progress
                   createdAt
                   media {
                     ");
-				if(hasAnime)
-					sb.AppendLine("episodes");
-				if (hasManga)
-					sb.AppendLine(@"chapters
+			if (hasAnime)
+				sb.AppendLine("episodes");
+			if (hasManga)
+				sb.AppendLine(@"chapters
                     volumes");
-				Helpers.AppendMediaFields(sb, options);
-				sb.AppendLine(@"}
+			Helpers.AppendMediaFields(sb, options);
+			sb.AppendLine(@"}
                 }
               }
             }");
-			}
-			if (hasReview)
-			{
-				sb.AppendLine(ReviewsSubQuery);
-			}
-			sb.AppendLine("}");
-			return sb.ToString();
 		}
+		if (hasReview)
+		{
+			sb.AppendLine(ReviewsSubQuery);
+		}
+		sb.AppendLine("}");
+		return sb.ToString();
 	}
 }

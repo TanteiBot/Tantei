@@ -16,13 +16,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System.Collections.Generic;
 using DSharpPlus.Entities;
 
-namespace PaperMalKing.UpdatesProviders.Base
+namespace PaperMalKing.UpdatesProviders.Base;
+
+public interface IUpdate
 {
-	public interface IUpdate
-	{
-		IReadOnlyList<DiscordEmbedBuilder> UpdateEmbeds { get; }
-	}
+	IReadOnlyList<DiscordEmbedBuilder> UpdateEmbeds { get; }
 }

@@ -19,17 +19,16 @@
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
 
-namespace PaperMalKing.AniList.Wrapper.Models
+namespace PaperMalKing.AniList.Wrapper.Models;
+
+public sealed class MediaListOptions
 {
-    public sealed class MediaListOptions
-    {
-        [JsonPropertyName("scoreFormat")]
-        public ScoreFormat ScoreFormat { get; init; }
+	[JsonPropertyName("scoreFormat")]
+	public ScoreFormat ScoreFormat { get; init; }
 
-        [JsonPropertyName("animeList")]
-        public MediaListTypeOptions AnimeListOptions { get; init; } = null!;
+	[JsonPropertyName("animeList")]
+	public MediaListTypeOptions AnimeListOptions { get; init; } = null!;
 
-        [JsonPropertyName("mangaList")]
-        public MediaListTypeOptions MangaListOptions { get; init; } = null!;
-    }
+	[JsonPropertyName("mangaList")]
+	public MediaListTypeOptions MangaListOptions { get; init; } = null!;
 }

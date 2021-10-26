@@ -16,10 +16,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-namespace PaperMalKing.AniList.Wrapper.Models.Interfaces
+namespace PaperMalKing.AniList.Wrapper.Models.Interfaces;
+
+internal interface ISiteUrlable
 {
-    internal interface ISiteUrlable
-    {
-        string Url { get; init; }
-    }
+	string Url { get; init; }
 }
