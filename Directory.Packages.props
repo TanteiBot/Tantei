@@ -13,7 +13,7 @@
 
         <!-- GraphQl -->
         <PackageVersion Include="GraphQL.Client" Version="3.2.4"/>
-        <PackageVersion Include="GraphQL.Client.Serializer.SystemTextJson" Version="3.2.4"/>
+        <PackageVersion Include="GraphQL.Client.Serializer.SystemTextJson" Version="4.0.0"/>
 
         <!-- EF Core -->
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.0-rc.2.21480.5"/>
