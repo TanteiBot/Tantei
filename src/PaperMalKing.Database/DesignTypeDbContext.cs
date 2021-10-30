@@ -19,7 +19,7 @@
 using Microsoft.EntityFrameworkCore.Design;
 
 namespace PaperMalKing.Database;
-
+#nullable enable
 public sealed class DesignTypeDbContext : IDesignTimeDbContextFactory<DatabaseContext>
 {
 	public DatabaseContext CreateDbContext(string[] args)
