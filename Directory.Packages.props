@@ -19,6 +19,12 @@
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.0-rc.2.21480.5"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0-rc.2.21480.5"/>
 
+        <!-- Testing -->
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+        <PackageVersion Include="xunit" Version="2.4.1" />
+        <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.3" />
+        <PackageVersion Include="coverlet.collector" Version="3.1.0" />
+
         <PackageVersion Include="Microsoft.Extensions.Hosting" Version="6.0.0-rc.2.21480.5"/>
         <PackageVersion Include="Humanizer.Core" Version="2.11.10"/>
         <PackageVersion Include="Microsoft.Extensions.Configuration" Version="6.0.0-rc.2.21480.5"/>
