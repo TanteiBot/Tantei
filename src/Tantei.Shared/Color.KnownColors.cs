@@ -18,7 +18,7 @@ namespace Tantei.Shared;
 
 public partial struct Color
 {
-#region AniList
+	#region AniList
 
 	public static readonly Color AniListGreen = new(0x7bd555);
 
@@ -30,9 +30,9 @@ public partial struct Color
 
 	public static readonly Color AniListBlue = new(0x3db4f2);
 
-#endregion
+	#endregion
 
-#region Shikimori
+	#region Shikimori
 
 	public static readonly Color ShikimoriGreen = new(0x419541);
 
@@ -42,9 +42,9 @@ public partial struct Color
 
 	public static readonly Color ShikimoriBlue = new(0x176093);
 
-#endregion
+	#endregion
 
-#region MyAnimeList
+	#region MyAnimeList
 
 	public static readonly Color MyAnimeListGreen = new(0x2db039);
 
@@ -56,7 +56,7 @@ public partial struct Color
 
 	public static readonly Color MyAnimeListGrey = new(0xc3c3c3);
 
-#endregion
+	#endregion
 
 	public static readonly Color Black = new(0x23272A);
 }
