@@ -18,45 +18,42 @@ namespace Tantei.Shared;
 
 public partial struct Color
 {
-	#region AniList
+	public static class AniList
+	{
+		public static readonly Color Green = new(0x7bd555);
 
-	public static readonly Color AniListGreen = new(0x7bd555);
+		public static readonly Color Orange = new(0xf79a63);
 
-	public static readonly Color AniListOrange = new(0xf79a63);
+		public static readonly Color Red = new(0xe85d75);
 
-	public static readonly Color AniListRed = new(0xe85d75);
+		public static readonly Color Peach = new(0xfa7a7a);
 
-	public static readonly Color AniListPeach = new(0xfa7a7a);
+		public static readonly Color Blue = new(0x3db4f2);
+	}
 
-	public static readonly Color AniListBlue = new(0x3db4f2);
+	public static class Shikimori
+	{
+		public static readonly Color Green = new(0x419541);
 
-	#endregion
+		public static readonly Color Red = new(0xFC575E);
 
-	#region Shikimori
+		public static readonly Color Grey = new(0x7b8084);
 
-	public static readonly Color ShikimoriGreen = new(0x419541);
+		public static readonly Color Blue = new(0x176093);
+	}
 
-	public static readonly Color ShikimoriRed = new(0xFC575E);
+	public static class MyAnimeList
+	{
+		public static readonly Color Green = new(0x2db039);
 
-	public static readonly Color ShikimoriGrey = new(0x7b8084);
+		public static readonly Color Blue = new(0x26448f);
 
-	public static readonly Color ShikimoriBlue = new(0x176093);
+		public static readonly Color Yellow = new(0xf9d457);
 
-	#endregion
+		public static readonly Color Red = new(0xa12f31);
 
-	#region MyAnimeList
-
-	public static readonly Color MyAnimeListGreen = new(0x2db039);
-
-	public static readonly Color MyAnimeListBlue = new(0x26448f);
-
-	public static readonly Color MyAnimeListYellow = new(0xf9d457);
-
-	public static readonly Color MyAnimeListRed = new(0xa12f31);
-
-	public static readonly Color MyAnimeListGrey = new(0xc3c3c3);
-
-	#endregion
+		public static readonly Color Grey = new(0xc3c3c3);
+	}
 
 	public static readonly Color Black = new(0x23272A);
 }
