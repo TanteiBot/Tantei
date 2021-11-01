@@ -5,4 +5,10 @@
        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Compile Update="Color.KnownColors.cs">
+        <DependentUpon>Color.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

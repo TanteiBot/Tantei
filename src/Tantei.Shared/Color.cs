@@ -11,7 +11,7 @@
 
 namespace Tantei.Shared;
 
-public readonly struct Color : IEquatable<Color>, IComparable<Color>
+public readonly partial struct Color : IEquatable<Color>, IComparable<Color>
 {
 	private const int RgbRedShift = 16;
 	private const int RgbGreenShift = 8;
