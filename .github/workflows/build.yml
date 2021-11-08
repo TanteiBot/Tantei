@@ -13,11 +13,19 @@ on:
 
 jobs:
   build:
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
     env:
       DOTNET_NOLOGO: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: 'csharp'
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v1
         with:
@@ -28,4 +36,6 @@ jobs:
       - name: Build projects
         run: dotnet build --configuration Release --no-restore
       - name: Test
-        run: dotnet test --no-restore --verbosity normal
+        run: dotnet test --no-restore --verbosity normal --logger GitHubActions
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1

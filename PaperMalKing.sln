@@ -35,7 +35,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{E970512D-B479-4616-B280-AB6FC9F3D111}"
 ProjectSection(SolutionItems) = preProject
 	.github/workflows/build.yml = .github/workflows/build.yml
-	.github\workflows\codeql-analysis.yml = .github\workflows\codeql-analysis.yml
 	.github\workflows\lint.yml = .github\workflows\lint.yml
 EndProjectSection
 EndProject
@@ -45,6 +44,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{1ACF
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{01BB0AB0-7792-4D1A-9230-47AACB57FF49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.Shared", "src\Tantei.Shared\Tantei.Shared.csproj", "{020A3C30-CDA4-4567-B1DE-D3FDE0D3ECA7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{77F1361F-61F2-49C7-AB8B-042B973BAFD3}"
+	ProjectSection(SolutionItems) = preProject
+		tests\Directory.Build.props = tests\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.Shared.Tests", "tests\Tantei.Shared.Tests\Tantei.Shared.Tests.csproj", "{6CD8BF1F-A67A-4269-8289-7CAD6A6F0F1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.Core", "src\Tantei.Core\Tantei.Core.csproj", "{3D1E7032-806C-43A0-87EE-C93A59999043}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -92,6 +102,18 @@ Global
 		{C4075A12-12AF-4B81-AD3B-99704DDB7B03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4075A12-12AF-4B81-AD3B-99704DDB7B03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4075A12-12AF-4B81-AD3B-99704DDB7B03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{020A3C30-CDA4-4567-B1DE-D3FDE0D3ECA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{020A3C30-CDA4-4567-B1DE-D3FDE0D3ECA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{020A3C30-CDA4-4567-B1DE-D3FDE0D3ECA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{020A3C30-CDA4-4567-B1DE-D3FDE0D3ECA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CD8BF1F-A67A-4269-8289-7CAD6A6F0F1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CD8BF1F-A67A-4269-8289-7CAD6A6F0F1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CD8BF1F-A67A-4269-8289-7CAD6A6F0F1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CD8BF1F-A67A-4269-8289-7CAD6A6F0F1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D1E7032-806C-43A0-87EE-C93A59999043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D1E7032-806C-43A0-87EE-C93A59999043}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D1E7032-806C-43A0-87EE-C93A59999043}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D1E7032-806C-43A0-87EE-C93A59999043}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -110,5 +132,8 @@ Global
 		{5EEB70A4-2F1E-4165-96B4-B8E344FCD04D} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
 		{F458F4DC-AC3D-4A31-8C05-2DF5B0AA6834} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
 		{792AC781-846C-4D08-B125-9240F976B5B4} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
+		{020A3C30-CDA4-4567-B1DE-D3FDE0D3ECA7} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
+		{6CD8BF1F-A67A-4269-8289-7CAD6A6F0F1C} = {77F1361F-61F2-49C7-AB8B-042B973BAFD3}
+		{3D1E7032-806C-43A0-87EE-C93A59999043} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
 	EndGlobalSection
 EndGlobal

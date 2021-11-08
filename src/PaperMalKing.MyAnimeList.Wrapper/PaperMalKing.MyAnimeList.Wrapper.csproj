@@ -25,4 +25,8 @@
         <PackageReference Include="HtmlAgilityPack" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="PaperMalKing.MyAnimeList.Wrapper.csproj.DotSettings" />
+    </ItemGroup>
+
 </Project>
