@@ -18,6 +18,7 @@ namespace Tantei.Core.Models.Users.AniList;
 
 public enum AniListFavoriteType : byte
 {
+	None = 0,
 	Anime = 1,
 	Manga = 2,
 	Character = 3,

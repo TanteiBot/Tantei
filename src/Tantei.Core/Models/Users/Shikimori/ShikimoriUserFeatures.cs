@@ -18,6 +18,7 @@ using Tantei.Shared;
 
 namespace Tantei.Core.Models.Users.Shikimori;
 
+[Flags]
 public enum ShikimoriUserFeatures : ulong
 {
 	None = 0,

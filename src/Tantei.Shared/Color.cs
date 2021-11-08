@@ -51,4 +51,12 @@ public readonly partial struct Color : IEquatable<Color>, IComparable<Color>
 	public static bool operator !=(Color left, Color right) => !left.Equals(right);
 
 	public override string ToString() => $"#{this.Value:X6}, R: {this.R}, G: {this.G}, B:{this.B}";
+
+	public static bool operator <(Color left, Color right) => left.CompareTo(right) < 0;
+
+	public static bool operator <=(Color left, Color right) => left.CompareTo(right) <= 0;
+
+	public static bool operator >(Color left, Color right) => left.CompareTo(right) > 0;
+
+	public static bool operator >=(Color left, Color right) => left.CompareTo(right) >= 0;
 }

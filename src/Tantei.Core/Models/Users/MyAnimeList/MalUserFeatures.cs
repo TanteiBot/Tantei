@@ -18,6 +18,7 @@ using Tantei.Shared;
 
 namespace Tantei.Core.Models.Users.MyAnimeList;
 
+[Flags]
 public enum MalUserFeatures : ulong
 {
 	None = 0,

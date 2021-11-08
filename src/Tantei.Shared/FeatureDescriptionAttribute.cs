@@ -16,6 +16,7 @@
 
 namespace Tantei.Shared;
 
+[AttributeUsage(AttributeTargets.Field)]
 public sealed class FeatureDescriptionAttribute : Attribute
 {
 	public string Description { get; }

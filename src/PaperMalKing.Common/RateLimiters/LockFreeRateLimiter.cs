@@ -48,7 +48,7 @@ public sealed class LockFreeRateLimiter<T> : IRateLimiter<T>
 	{
 		Interlocked.Exchange(ref this._lastUpdateTime, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 		Interlocked.Exchange(ref this._availablePermits, this.RateLimit.AmountOfRequests);
-		this.Logger.LogInformation($"{this._serviceName} Resetting");
+		this.Logger.LogInformation("{Name} Resetting", this._serviceName);
 	}
 
 	public async Task TickAsync(CancellationToken cancellationToken = default)
