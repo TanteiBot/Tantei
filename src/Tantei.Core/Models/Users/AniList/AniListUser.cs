@@ -14,14 +14,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Scoring;
+namespace Tantei.Core.Models.Users.AniList;
 
-public abstract class BaseScoreSystem<T> : BaseScoreSystem where T : notnull
+public sealed record AniListUser(ulong Id, BotUser BotUser, ulong BotUserId, ulong LastListActivityTimeStamp, ulong LastReviewTimeStamp,
+								 AniListUserFeatures Features)
 {
-	public T UserScore { get; }
-
-	protected BaseScoreSystem(T userScore, string? display) : base(display)
-	{
-		this.UserScore = userScore;
-	}
+	public IList<AniListFavorite> Favorites { get; init; } = Array.Empty<AniListFavorite>();
 }

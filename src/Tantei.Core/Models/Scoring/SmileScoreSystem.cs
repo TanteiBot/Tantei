@@ -26,15 +26,16 @@ public sealed class SmileScoreSystem : BaseScoreSystem<byte>
 		[3] = new(3, ":)")
 	};
 
+	private SmileScoreSystem(byte userScore, string? display) : base(userScore, display)
+	{ }
+
 	public static SmileScoreSystem Create(byte userScore)
 	{
 		if (Scores.TryGetValue(userScore, out var result))
 		{
 			return result;
 		}
+
 		throw new ArgumentOutOfRangeException(nameof(userScore), "Score must be within [0;3] range");
 	}
-
-	private SmileScoreSystem(byte userScore, string? display) : base(userScore, display)
-	{ }
 }

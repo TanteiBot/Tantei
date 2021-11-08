@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-       <OutputType>Library</OutputType>
-       <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <OutputType>Library</OutputType>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Update="Color.KnownColors.cs">
-        <DependentUpon>Color.cs</DependentUpon>
-      </Compile>
+        <Compile Update="Color.KnownColors.cs">
+            <DependentUpon>Color.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
 </Project>

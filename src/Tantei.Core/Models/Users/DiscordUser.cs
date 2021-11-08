@@ -14,14 +14,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Scoring;
+namespace Tantei.Core.Models.Users;
 
-public abstract class BaseScoreSystem<T> : BaseScoreSystem where T : notnull
+public sealed record DiscordUser(ulong Id, BotUser BotUser)
 {
-	public T UserScore { get; }
+	private ulong BotUserId { get; init; }
 
-	protected BaseScoreSystem(T userScore, string? display) : base(display)
-	{
-		this.UserScore = userScore;
-	}
+	public IList<DiscordGuild> Guilds { get; init; } = Array.Empty<DiscordGuild>();
 }

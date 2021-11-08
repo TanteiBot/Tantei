@@ -22,6 +22,9 @@ public sealed class TenPointsScoreSystem : BaseScoreSystem<byte>
 {
 	private static readonly Dictionary<byte, TenPointsScoreSystem> Scores = Generate();
 
+	private TenPointsScoreSystem(byte userScore, string? display) : base(userScore, display)
+	{ }
+
 	private static Dictionary<byte, TenPointsScoreSystem> Generate()
 	{
 		var dict = new Dictionary<byte, TenPointsScoreSystem>(11);
@@ -44,7 +47,4 @@ public sealed class TenPointsScoreSystem : BaseScoreSystem<byte>
 
 		throw new ArgumentOutOfRangeException(nameof(userScore), "Score must be withing range of [0;10]");
 	}
-
-	private TenPointsScoreSystem(byte userScore, string? display) : base(userScore, display)
-	{ }
 }

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.ComponentModel;
 using System.Globalization;
 
 namespace Tantei.Core.Models.Scoring;
@@ -22,6 +21,9 @@ namespace Tantei.Core.Models.Scoring;
 public sealed class OneHundredPointsScoreSystem : BaseScoreSystem<byte>
 {
 	private static readonly Dictionary<byte, OneHundredPointsScoreSystem> Scores = Generate();
+
+	private OneHundredPointsScoreSystem(byte userScore, string? displayString) : base(userScore, displayString)
+	{ }
 
 	private static Dictionary<byte, OneHundredPointsScoreSystem> Generate()
 	{
@@ -45,8 +47,4 @@ public sealed class OneHundredPointsScoreSystem : BaseScoreSystem<byte>
 
 		throw new ArgumentOutOfRangeException(nameof(userScore), "Argument must be within [0;100] range");
 	}
-
-	private OneHundredPointsScoreSystem(byte userScore, string? displayString) : base(userScore, displayString)
-	{ }
-
 }

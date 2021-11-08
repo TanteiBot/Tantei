@@ -22,6 +22,9 @@ public sealed class DecimalTenPointsScoreSystem : BaseScoreSystem<float>
 {
 	private static readonly Dictionary<float, DecimalTenPointsScoreSystem> Scores = Generate();
 
+	private DecimalTenPointsScoreSystem(float userScore, string? display) : base(userScore, display)
+	{ }
+
 	private static Dictionary<float, DecimalTenPointsScoreSystem> Generate()
 	{
 		var dict = new Dictionary<float, DecimalTenPointsScoreSystem>(101);
@@ -57,7 +60,4 @@ public sealed class DecimalTenPointsScoreSystem : BaseScoreSystem<float>
 
 		throw new ArgumentOutOfRangeException(nameof(userScore));
 	}
-
-	private DecimalTenPointsScoreSystem(float userScore, string? display) : base(userScore, display)
-	{ }
 }

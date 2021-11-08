@@ -21,11 +21,13 @@ namespace Tantei.Core.Models.Medias;
 public enum Status : byte
 {
 	Unknown = 0,
+
 	[Description("On-going")]
 	Ongoing = 1,
 	Hiatus = 2,
 	Cancelled = 3,
 	Finished = 4,
+
 	[Description("Not Yet Started")]
 	NotYetStarted = 5
 }

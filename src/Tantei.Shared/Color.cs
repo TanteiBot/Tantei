@@ -42,7 +42,7 @@ public readonly partial struct Color : IEquatable<Color>, IComparable<Color>
 
 	public int CompareTo(Color other) => this.Value.CompareTo(other.Value);
 
-	public override bool Equals(object? obj) => obj is Color other && Equals(other);
+	public override bool Equals(object? obj) => obj is Color other && this.Equals(other);
 
 	public override int GetHashCode() => this.Value.GetHashCode();
 

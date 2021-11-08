@@ -22,6 +22,7 @@ public enum Format : byte
 {
 	Unknown = 0,
 	TV = 1,
+
 	[Description("TV Short")]
 	TVShort = 2,
 	Movie = 3,
@@ -31,8 +32,10 @@ public enum Format : byte
 	Music = 7,
 	Manga = 8,
 	Novel = 9,
+
 	[Description("Light Novel")]
 	LightNovel = 10,
+
 	[Description("One-Shot")]
 	OneShot = 11,
 	Doujinshi = 12,

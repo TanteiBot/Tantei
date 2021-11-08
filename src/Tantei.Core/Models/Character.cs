@@ -19,4 +19,4 @@ namespace Tantei.Core.Models;
 public sealed record Character(string Name, Uri Url, Uri? ImageUrl, Character.MiniMedia From) : INameUrlable, IHasImage
 {
 	public sealed record MiniMedia(string Name, Uri Url) : INameUrlable;
-};
+}

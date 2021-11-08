@@ -19,7 +19,7 @@ namespace Tantei.Shared.Tests;
 public class ColorTests
 {
 	public static IEnumerable<object[]> Data =>
-		new List<object[]>()
+		new List<object[]>
 		{
 			new object[] { Color.AniList.Green.Value, 123, 213, 85 },
 			new object[] { Color.AniList.Orange.Value, 247, 154, 99 },

@@ -18,6 +18,10 @@ namespace Tantei.Core.Models.Scoring;
 
 public abstract class BaseScoreSystem
 {
-	protected BaseScoreSystem(string? displayString) => this.DisplayString = displayString;
 	public string? DisplayString { get; }
+
+	protected BaseScoreSystem(string? displayString)
+	{
+		this.DisplayString = displayString;
+	}
 }

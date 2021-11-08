@@ -19,6 +19,5 @@ using Tantei.Core.Models.Scoring;
 
 namespace Tantei.Core.Models.Updates;
 
-public sealed record ListChangedUpdate
-	(Author Author, ProviderInfo Provider, Media Media, ListEntryStatus Status, BaseScoreSystem Score, DateTimeOffset? TimeStamp = null) : BaseUserUpdate(Author, Provider,
-		TimeStamp, Media.ImageUrl);
+public sealed record ListChangedUpdate(Author Author, ProviderInfo Provider, Media Media, ListEntryStatus Status, BaseScoreSystem Score,
+									   DateTimeOffset? TimeStamp = null) : BaseUserUpdate(Author, Provider, TimeStamp, Media.ImageUrl);

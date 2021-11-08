@@ -14,14 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Scoring;
+namespace Tantei.Core.Models.Users.MyAnimeList;
 
-public abstract class BaseScoreSystem<T> : BaseScoreSystem where T : notnull
+public enum MalFavoriteType : byte
 {
-	public T UserScore { get; }
-
-	protected BaseScoreSystem(T userScore, string? display) : base(display)
-	{
-		this.UserScore = userScore;
-	}
+	Unknown = 0,
+	Anime = 1,
+	Manga = 2,
+	Character = 3,
+	Person = 4
 }

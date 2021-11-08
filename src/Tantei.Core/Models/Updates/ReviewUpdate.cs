@@ -18,6 +18,5 @@ using Tantei.Core.Models.Medias;
 
 namespace Tantei.Core.Models.Updates;
 
-public sealed record ReviewUpdate
-	(Author Author, ProviderInfo Provider, string Content, Media Media, string? Name = null, DateTimeOffset? TimeStamp = null, Uri? ImageUrl = null) : BaseUserUpdate(Author, Provider,
-		TimeStamp, ImageUrl);
+public sealed record ReviewUpdate(Author Author, ProviderInfo Provider, string Content, Media Media, string? Name = null,
+								  DateTimeOffset? TimeStamp = null, Uri? ImageUrl = null) : BaseUserUpdate(Author, Provider, TimeStamp, ImageUrl);

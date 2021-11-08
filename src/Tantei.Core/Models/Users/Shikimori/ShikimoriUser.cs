@@ -14,14 +14,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Scoring;
+namespace Tantei.Core.Models.Users.Shikimori;
 
-public abstract class BaseScoreSystem<T> : BaseScoreSystem where T : notnull
+public sealed record ShikimoriUser(ulong Id, ulong LastHistoryEntryId, ulong BotUserId, BotUser BotUser, ShikimoriUserFeatures Features)
 {
-	public T UserScore { get; }
-
-	protected BaseScoreSystem(T userScore, string? display) : base(display)
-	{
-		this.UserScore = userScore;
-	}
+	public IList<ShikimoriUserFavorite> Favorites { get; init; } = Array.Empty<ShikimoriUserFavorite>();
 }

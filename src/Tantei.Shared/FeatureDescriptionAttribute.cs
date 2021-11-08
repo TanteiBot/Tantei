@@ -14,14 +14,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Scoring;
+namespace Tantei.Shared;
 
-public abstract class BaseScoreSystem<T> : BaseScoreSystem where T : notnull
+public sealed class FeatureDescriptionAttribute : Attribute
 {
-	public T UserScore { get; }
+	public string Description { get; }
 
-	protected BaseScoreSystem(T userScore, string? display) : base(display)
+	public string Summary { get; }
+
+	public FeatureDescriptionAttribute(string description, string summary)
 	{
-		this.UserScore = userScore;
+		this.Description = description ?? throw new ArgumentNullException(nameof(description));
+		this.Summary = summary ?? throw new ArgumentNullException(nameof(summary));
 	}
 }
