@@ -14,11 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Users;
+namespace Tantei.Core.Models.Users.MyAnimeList;
 
-public sealed record DiscordUser(ulong Id, BotUser BotUser)
-{
-	public ulong BotUserId { get; init; }
-
-	public IList<DiscordGuild> Guilds { get; init; } = Array.Empty<DiscordGuild>();
-}
+public sealed record MalUserFavorite(ulong UserId, MalUser User, ulong Id, MalFavoriteType Type);

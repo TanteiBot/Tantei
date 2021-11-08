@@ -16,9 +16,9 @@
 
 namespace Tantei.Core.Models.Users.MyAnimeList;
 
-public sealed record MalUser(BotUser BotUser, ulong Id, string Username, DateTimeOffset LastUpdatedAnimeTimeStamp,
+public sealed record MalUser(BotUser BotUser, ulong BotUserId, ulong Id, string Username, DateTimeOffset LastUpdatedAnimeTimeStamp,
 							 DateTimeOffset LastUpdatedMangaTimeStamp, string LastAnimeUpdateHash, string LastMangaUpdateHash,
 							 MalUserFeatures Features)
 {
-	public IList<MalFavorite> FavoriteAnime { get; init; } = Array.Empty<MalFavorite>();
+	public IList<MalUserFavorite> FavoriteAnime { get; init; } = Array.Empty<MalUserFavorite>();
 }

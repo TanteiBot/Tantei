@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Tantei.Core\Tantei.Core.csproj" />
+	</ItemGroup>
+
+</Project>

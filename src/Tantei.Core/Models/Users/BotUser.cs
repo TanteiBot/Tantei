@@ -16,4 +16,4 @@
 
 namespace Tantei.Core.Models.Users;
 
-public sealed record BotUser(ulong Id, DiscordUser DiscordUser, long LastActivityTimestamp, long LastReviewTimestamp);
+public sealed record BotUser(ulong Id, DiscordUser DiscordUser);

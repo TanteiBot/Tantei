@@ -14,11 +14,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Users;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Tantei.Core.Models.Users;
 
-public sealed record DiscordUser(ulong Id, BotUser BotUser)
+namespace Tantei.Data.ModelConfigurations;
+
+internal class DiscordUserConfiguration : IEntityTypeConfiguration<DiscordUser>
 {
-	public ulong BotUserId { get; init; }
-
-	public IList<DiscordGuild> Guilds { get; init; } = Array.Empty<DiscordGuild>();
+	/// <inheritdoc />
+	public void Configure(EntityTypeBuilder<DiscordUser> builder)
+	{
+		builder.HasKey(x => x.Id);
+		builder.Property(x => x.Id).IsRequired();
+		builder.Property(x => x.Id).ValueGeneratedNever();
+	}
 }

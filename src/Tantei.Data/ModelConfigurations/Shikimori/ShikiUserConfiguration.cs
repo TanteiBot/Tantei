@@ -14,6 +14,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Users.MyAnimeList;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Tantei.Core.Models.Users.Shikimori;
 
-public sealed record MalFavorite(ulong UserId, MalUser User, ulong Id, MalFavoriteType Type);
+namespace Tantei.Data.ModelConfigurations.Shikimori;
+
+internal sealed class ShikiUserConfiguration : IEntityTypeConfiguration<ShikimoriUser>
+{
+	/// <inheritdoc />
+	public void Configure(EntityTypeBuilder<ShikimoriUser> builder)
+	{
+		builder.Property(x => x.Id).ValueGeneratedNever();
+	}
+}

@@ -14,11 +14,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Users;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Tantei.Core.Models.Users.Shikimori;
 
-public sealed record DiscordUser(ulong Id, BotUser BotUser)
+namespace Tantei.Data.ModelConfigurations.Shikimori;
+
+internal sealed class ShikiUserFavoriteConfiguration : IEntityTypeConfiguration<ShikimoriUserFavorite>
 {
-	public ulong BotUserId { get; init; }
-
-	public IList<DiscordGuild> Guilds { get; init; } = Array.Empty<DiscordGuild>();
+	public void Configure(EntityTypeBuilder<ShikimoriUserFavorite> builder)
+	{
+		builder.HasKey(x => new
+		{
+			x.Id,
+			x.Type,
+			x.UserId
+		});
+	}
 }
