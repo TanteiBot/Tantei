@@ -12,6 +12,8 @@
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
         <PathMap>$(MSBuildProjectDirectory)=/$(MSBuildProjectName)</PathMap>
+        <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+        <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
         <NoWarn>$(NoWarn);
             CA1002; <!--Do not expose generic lists-->
             CA1003; <!--Use generic event handler instances-->

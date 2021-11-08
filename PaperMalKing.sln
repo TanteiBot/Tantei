@@ -55,6 +55,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{77F1361F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.Shared.Tests", "tests\Tantei.Shared.Tests\Tantei.Shared.Tests.csproj", "{6CD8BF1F-A67A-4269-8289-7CAD6A6F0F1C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.Core", "src\Tantei.Core\Tantei.Core.csproj", "{3D1E7032-806C-43A0-87EE-C93A59999043}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +111,10 @@ Global
 		{6CD8BF1F-A67A-4269-8289-7CAD6A6F0F1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CD8BF1F-A67A-4269-8289-7CAD6A6F0F1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CD8BF1F-A67A-4269-8289-7CAD6A6F0F1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D1E7032-806C-43A0-87EE-C93A59999043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D1E7032-806C-43A0-87EE-C93A59999043}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D1E7032-806C-43A0-87EE-C93A59999043}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D1E7032-806C-43A0-87EE-C93A59999043}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,5 +135,6 @@ Global
 		{792AC781-846C-4D08-B125-9240F976B5B4} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
 		{020A3C30-CDA4-4567-B1DE-D3FDE0D3ECA7} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
 		{6CD8BF1F-A67A-4269-8289-7CAD6A6F0F1C} = {77F1361F-61F2-49C7-AB8B-042B973BAFD3}
+		{3D1E7032-806C-43A0-87EE-C93A59999043} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
 	EndGlobalSection
 EndGlobal

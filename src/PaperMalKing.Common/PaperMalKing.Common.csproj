@@ -10,7 +10,7 @@
         <PackageReference Include="DSharpPlus.CommandsNext" />
         <PackageReference Include="Humanizer.Core" />
         <PackageReference Include="Microsoft.Extensions.Configuration" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection"  />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Microsoft.Extensions.Http.Polly" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Options" />
