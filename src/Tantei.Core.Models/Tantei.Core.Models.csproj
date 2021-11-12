@@ -1,11 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<ItemGroup>
-		<ProjectReference Include="..\Tantei.Shared\Tantei.Shared.csproj"/>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Users"/>
+		<ProjectReference Include="..\Tantei.Shared\Tantei.Shared.csproj" />
 	</ItemGroup>
 
 
