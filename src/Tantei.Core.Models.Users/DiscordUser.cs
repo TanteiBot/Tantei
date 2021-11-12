@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Users.Shikimori;
+namespace Tantei.Core.Models.Users;
 
-public sealed record ShikimoriUserFavorite(ulong Id, ShikimoriUserFavoriteType Type, ulong UserId, ShikimoriUser User);
+public sealed record DiscordUser(ulong Id, BotUser BotUser)
+{
+	public ulong BotUserId { get; init; }
+
+	public IList<DiscordGuild> Guilds { get; init; } = Array.Empty<DiscordGuild>();
+}

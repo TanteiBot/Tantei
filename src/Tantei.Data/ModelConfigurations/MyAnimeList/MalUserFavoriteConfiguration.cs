@@ -14,11 +14,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Users.MyAnimeList;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Tantei.Core.Models.MyAnimeList.Users;
 
-public sealed record MalUser(BotUser BotUser, ulong Id, string Username, DateTimeOffset LastUpdatedAnimeTimeStamp,
-							 DateTimeOffset LastUpdatedMangaTimeStamp, string LastAnimeUpdateHash, string LastMangaUpdateHash,
-							 MalUserFeatures Features)
+namespace Tantei.Data.ModelConfigurations.MyAnimeList;
+
+internal sealed class MalUserFavoriteConfiguration : IEntityTypeConfiguration<MalUserFavorite>
 {
-	public IList<MalFavorite> FavoriteAnime { get; init; } = Array.Empty<MalFavorite>();
+	/// <inheritdoc />
+	public void Configure(EntityTypeBuilder<MalUserFavorite> builder)
+	{
+		builder.HasKey(x => new
+		{
+			x.Id,
+			x.Type,
+			x.UserId
+		});
+	}
 }

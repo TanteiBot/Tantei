@@ -14,13 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Users.MyAnimeList;
+namespace Tantei.Core.Models.MyAnimeList.Users;
 
-public enum MalFavoriteType : byte
-{
-	Unknown = 0,
-	Anime = 1,
-	Manga = 2,
-	Character = 3,
-	Person = 4
-}
+public sealed record MalUserFavorite(ulong UserId, MalUser User, ulong Id, MalFavoriteType Type);

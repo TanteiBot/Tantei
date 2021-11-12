@@ -16,21 +16,21 @@
 
 using Tantei.Shared;
 
-namespace Tantei.Core.Models.Users.Shikimori;
+namespace Tantei.Core.Models.MyAnimeList.Users;
 
 [Flags]
-public enum ShikimoriUserFeatures : ulong
+public enum MalUserFeatures : ulong
 {
 	None = 0,
 
-	[FeatureDescription("animelist", "track changes in animelist")]
-	AnimeList = 1,
+	[FeatureDescription("anime", "track changes in animelist")]
+	Anime = 1 << 0,
 
-	[FeatureDescription("mangalist", "track changes in mangalist")]
-	MangaList = 1 << 1,
+	[FeatureDescription("manga", "track changes in mangalist")]
+	Manga = 1 << 1,
 
 	[FeatureDescription("favorites", "track changes in favorites")]
-	Favourites = 1 << 2,
+	Favorites = 1 << 2,
 
 	[FeatureDescription("mention", "mention user in update")]
 	Mention = 1 << 3,
@@ -38,12 +38,18 @@ public enum ShikimoriUserFeatures : ulong
 	[FeatureDescription("website", "show name and icon of website in update")]
 	Website = 1 << 4,
 
-	[FeatureDescription("mediaformat", "show format of media in update (tv, movie, manga etc)")]
+	[FeatureDescription("format", "show format of media in update (tv, movie, manga etc)")]
 	MediaFormat = 1 << 5,
 
-	[FeatureDescription("mediastatus", "show status of media in update (ongoing, finished etc)")]
+	[FeatureDescription("status", "show status of media in update (ongoing, finished etc)")]
 	MediaStatus = 1 << 6,
 
-	[FeatureDescription("russian", "show favorites, anime, manga, ranobe titles in russian")]
-	Russian = 1 << 7
+	[FeatureDescription("studio", "show name of studio(s) which made an anime")]
+	Studio = 1 << 7,
+
+	[FeatureDescription("seiyu", "show name of seiyu(s) that voiced character in anime")]
+	Seiyu = 1 << 8,
+
+	[FeatureDescription("mangaka", "show name of mangaka that made a manga")]
+	Mangaka = 1 << 9
 }

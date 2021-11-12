@@ -14,6 +14,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Users;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Tantei.Core.Models.AniList.Users;
 
-public sealed record BotUser(ulong Id, DiscordUser DiscordUser, long LastActivityTimestamp, long LastReviewTimestamp);
+namespace Tantei.Data.ModelConfigurations.AniList;
+
+internal sealed class AniListFavoriteConfiguration : IEntityTypeConfiguration<AniListFavorite>
+{
+	/// <inheritdoc />
+	public void Configure(EntityTypeBuilder<AniListFavorite> builder)
+	{
+		builder.HasKey(x => new
+		{
+			x.Id,
+			x.Type,
+			x.UserId
+		});
+	}
+}
