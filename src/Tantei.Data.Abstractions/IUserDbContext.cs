@@ -15,21 +15,15 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Tantei.Core.Models.MyAnimeList.Users;
+using Tantei.Core.Models.Users;
 
-namespace Tantei.Data.ModelConfigurations.MyAnimeList;
+namespace Tantei.Data.Abstractions;
 
-internal sealed class MalUserFavoriteConfiguration : IEntityTypeConfiguration<MalUserFavorite>
+public interface IUserDbContext<T> where T : class, IUpdateProviderUser
 {
-	/// <inheritdoc />
-	public void Configure(EntityTypeBuilder<MalUserFavorite> builder)
-	{
-		builder.HasKey(x => new
-		{
-			x.Id,
-			x.Type,
-			x.UserId
-		});
-	}
+	DbSet<BotUser> BotUsers { get; }
+
+	DbSet<T> Users { get; }
+
+	int SaveChanges();
 }

@@ -14,6 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Users.AniList;
+namespace Tantei.Core.Models.Shikimori.Users;
 
-public sealed record AniListFavorite(ulong Id, AniListFavoriteType Type, ulong UserId, AniListUser User);
+public sealed record ShikimoriUserFavorite(ulong Id, ShikimoriUserFavoriteType Type, ulong UserId, ShikimoriUser User);

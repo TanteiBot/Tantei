@@ -14,14 +14,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Users.AniList;
+namespace Tantei.Core.Models.Shikimori.Users;
 
-public enum AniListFavoriteType : byte
+public enum ShikimoriUserFavoriteType
 {
 	None = 0,
 	Anime = 1,
 	Manga = 2,
 	Character = 3,
-	Staff = 4,
-	Studio = 5
+	People = 4,
+	Mangaka = 5,
+	Seiyu = 6,
+	Producer = 7
 }

@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Users.AniList;
+using Tantei.Core.Models.Users;
 
-public sealed record AniListUser(ulong Id, BotUser BotUser, ulong BotUserId, ulong LastListActivityTimeStamp, ulong LastReviewTimeStamp,
-								 AniListUserFeatures Features)
+namespace Tantei.Core.Models.Shikimori.Users;
+
+public sealed record ShikimoriUser
+	(ulong Id, ulong LastHistoryEntryId, ulong BotUserId, BotUser BotUser, ShikimoriUserFeatures Features) : IUpdateProviderUser
 {
-	public IList<AniListFavorite> Favorites { get; init; } = Array.Empty<AniListFavorite>();
+	public IList<ShikimoriUserFavorite> Favorites { get; init; } = Array.Empty<ShikimoriUserFavorite>();
 }

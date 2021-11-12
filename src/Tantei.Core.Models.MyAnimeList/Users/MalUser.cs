@@ -14,11 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Tantei.Core.Models.Users.MyAnimeList;
+using Tantei.Core.Models.Users;
+
+namespace Tantei.Core.Models.MyAnimeList.Users;
 
 public sealed record MalUser(BotUser BotUser, ulong BotUserId, ulong Id, string Username, DateTimeOffset LastUpdatedAnimeTimeStamp,
 							 DateTimeOffset LastUpdatedMangaTimeStamp, string LastAnimeUpdateHash, string LastMangaUpdateHash,
-							 MalUserFeatures Features)
+							 MalUserFeatures Features) : IUpdateProviderUser
 {
 	public IList<MalUserFavorite> FavoriteAnime { get; init; } = Array.Empty<MalUserFavorite>();
 }

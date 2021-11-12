@@ -16,7 +16,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Tantei.Core.Models.Users.AniList;
+using Tantei.Core.Models.AniList.Users;
 
 namespace Tantei.Data.ModelConfigurations.AniList;
 

@@ -5,11 +5,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore"/>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Tantei.Core\Tantei.Core.csproj" />
+		<ProjectReference Include="..\Tantei.Core.Models.AniList\Tantei.Core.Models.AniList.csproj"/>
+		<ProjectReference Include="..\Tantei.Core.Models.MyAnimeList\Tantei.Core.Models.MyAnimeList.csproj"/>
+		<ProjectReference Include="..\Tantei.Core.Models.Shikimori\Tantei.Core.Models.Shikimori.csproj"/>
+		<ProjectReference Include="..\Tantei.Core.Models\Tantei.Core.Models.csproj"/>
+		<ProjectReference Include="..\Tantei.Data.Abstractions\Tantei.Data.Abstractions.csproj"/>
 	</ItemGroup>
 
 </Project>

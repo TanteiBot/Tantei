@@ -16,7 +16,7 @@
 
 using Tantei.Shared;
 
-namespace Tantei.Core.Models.Users.AniList;
+namespace Tantei.Core.Models.AniList.Users;
 
 [Flags]
 public enum AniListUserFeatures : ulong

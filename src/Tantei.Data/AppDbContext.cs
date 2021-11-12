@@ -16,26 +16,24 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Tantei.Core.Models.AniList.Users;
+using Tantei.Core.Models.MyAnimeList.Users;
+using Tantei.Core.Models.Shikimori.Users;
 using Tantei.Core.Models.Users;
-using Tantei.Core.Models.Users.AniList;
-using Tantei.Core.Models.Users.MyAnimeList;
-using Tantei.Core.Models.Users.Shikimori;
+using Tantei.Data.Abstractions;
 
 namespace Tantei.Data;
 
-public sealed class AppDbContext : DbContext
+public sealed class AppDbContext : DbContext, IUserDbContext<AniListUser>, IUserDbContext<ShikimoriUser>, IUserDbContext<MalUser>
 {
-	#nullable disable
-	public DbSet<BotUser> Users { get; init; }
+	public DbSet<BotUser> Users => this._users ??= this.Set<BotUser>();
 
-	public DbSet<AniListUser> AniListUsers { get; init; }
+	public DbSet<AniListUser> AniListUsers => this._aniListUsers ??= this.Set<AniListUser>();
 
-	public DbSet<ShikimoriUser> ShikimoriUsers { get; init; }
+	public DbSet<ShikimoriUser> ShikimoriUsers => this._shikimoriUsers ??= this.Set<ShikimoriUser>();
 
-	public DbSet<MalUser> MalUsers { get; init; }
-	#nullable restore
+	public DbSet<MalUser> MalUsers => this._malUsers ??= this.Set<MalUser>();
 
-	/// <inheritdoc />
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		static void RegisterConverter<T>(ValueConverter valueConverter, ModelBuilder modelBuilder)
@@ -55,4 +53,32 @@ public sealed class AppDbContext : DbContext
 		RegisterConverter<DateTimeOffset>(new DateTimeOffsetToBinaryConverter(), modelBuilder);
 		RegisterConverter<ulong>(new ValueConverter<ulong, long>(arg => (long)arg, arg => (ulong)arg), modelBuilder);
 	}
+
+	#region ExplicitImplementations
+
+	DbSet<BotUser> IUserDbContext<AniListUser>.BotUsers => this.Users;
+
+	DbSet<MalUser> IUserDbContext<MalUser>.Users => this.MalUsers;
+
+	DbSet<BotUser> IUserDbContext<MalUser>.BotUsers => this.Users;
+
+	DbSet<ShikimoriUser> IUserDbContext<ShikimoriUser>.Users => this.ShikimoriUsers;
+
+	DbSet<BotUser> IUserDbContext<ShikimoriUser>.BotUsers => this.Users;
+
+	DbSet<AniListUser> IUserDbContext<AniListUser>.Users => this.AniListUsers;
+
+	#endregion
+
+	#region PrivateFields
+
+	private DbSet<BotUser>? _users;
+
+	private DbSet<AniListUser>? _aniListUsers;
+
+	private DbSet<ShikimoriUser>? _shikimoriUsers;
+
+	private DbSet<MalUser>? _malUsers;
+
+	#endregion
 }

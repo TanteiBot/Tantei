@@ -14,22 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Tantei.Core.Models.MyAnimeList.Users;
+namespace Tantei.Core.Models.Users;
 
-namespace Tantei.Data.ModelConfigurations.MyAnimeList;
-
-internal sealed class MalUserFavoriteConfiguration : IEntityTypeConfiguration<MalUserFavorite>
+public interface IUpdateProviderUser
 {
-	/// <inheritdoc />
-	public void Configure(EntityTypeBuilder<MalUserFavorite> builder)
-	{
-		builder.HasKey(x => new
-		{
-			x.Id,
-			x.Type,
-			x.UserId
-		});
-	}
+	ulong Id { get; }
+
+	ulong BotUserId { get; }
+
+	BotUser BotUser { get; }
 }

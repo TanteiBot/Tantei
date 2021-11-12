@@ -16,7 +16,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Tantei.Core.Models.Users.Shikimori;
+using Tantei.Core.Models.Shikimori.Users;
 
 namespace Tantei.Data.ModelConfigurations.Shikimori;
 
