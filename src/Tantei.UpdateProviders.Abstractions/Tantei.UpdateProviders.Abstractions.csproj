@@ -1,10 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore"/>
+		<ProjectReference Include="..\Tantei.Core.Models.Users\Tantei.Core.Models.Users.csproj"/>
+		<ProjectReference Include="..\Tantei.Core.Models\Tantei.Core.Models.csproj"/>
 	</ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Tantei.Core.Models.Users\Tantei.Core.Models.Users.csproj"/>
-	</ItemGroup>
 </Project>

@@ -1,10 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>Library</OutputType>
-        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    </PropertyGroup>
-
     <ItemGroup>
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj"/>
         <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj"/>

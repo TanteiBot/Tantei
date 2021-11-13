@@ -68,6 +68,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.Data.Abstractions", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.Core.Models.Users", "src\Tantei.Core.Models.Users\Tantei.Core.Models.Users.csproj", "{2922C5C1-9332-445A-8BCF-D078A939D248}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.UpdateProviders.Abstractions", "src\Tantei.UpdateProviders.Abstractions\Tantei.UpdateProviders.Abstractions.csproj", "{C58A0934-0B74-437B-8153-BB632045B8C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.UpdateProviders.Base", "src\Tantei.UpdateProviders.Base\Tantei.UpdateProviders.Base.csproj", "{581006C9-3717-408C-9259-A8035F3402C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,6 +154,14 @@ Global
 		{2922C5C1-9332-445A-8BCF-D078A939D248}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2922C5C1-9332-445A-8BCF-D078A939D248}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2922C5C1-9332-445A-8BCF-D078A939D248}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C58A0934-0B74-437B-8153-BB632045B8C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C58A0934-0B74-437B-8153-BB632045B8C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C58A0934-0B74-437B-8153-BB632045B8C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C58A0934-0B74-437B-8153-BB632045B8C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{581006C9-3717-408C-9259-A8035F3402C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{581006C9-3717-408C-9259-A8035F3402C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{581006C9-3717-408C-9259-A8035F3402C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{581006C9-3717-408C-9259-A8035F3402C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -177,5 +189,7 @@ Global
 		{C30AE0DF-02C1-4A64-923D-AD3BF5C3CF56} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
 		{29E37975-9C62-4E74-A56E-7CC3FB87932C} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
 		{2922C5C1-9332-445A-8BCF-D078A939D248} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
+		{C58A0934-0B74-437B-8153-BB632045B8C0} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
+		{581006C9-3717-408C-9259-A8035F3402C0} = {01BB0AB0-7792-4D1A-9230-47AACB57FF49}
 	EndGlobalSection
 EndGlobal
