@@ -28,7 +28,7 @@
 		<PackageVersion Include="GitHubActionsTestLogger" Version="1.2.0"/>
 
 		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="6.0.0"/>
-		<PackageVersion Include="Humanizer.Core" Version="2.11.10"/>
+		<PackageVersion Include="Humanizer.Core" Version="2.13.14"/>
 		<PackageVersion Include="Microsoft.Extensions.Configuration" Version="6.0.0"/>
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0"/>
