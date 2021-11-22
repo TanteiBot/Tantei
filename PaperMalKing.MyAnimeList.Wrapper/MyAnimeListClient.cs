@@ -72,7 +72,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 		{
 			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
 			var doc = new HtmlDocument();
-			await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+			using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 			doc.Load(stream);
 			return doc.DocumentNode;
 		}
@@ -86,7 +86,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 			var url = $"{rssType.Url}{username}";
 			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-			await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+			using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 			Feed? feed;
 			try
 			{
@@ -139,7 +139,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 			var url = tl.LatestUpdatesUrl(username);
 			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-			await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+			using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 			var updates = await JsonSerializer.DeserializeAsync<TE[]>(stream, this._jsonSerializerOptions, cancellationToken).ConfigureAwait(false);
 			return updates ?? Array.Empty<TE>();
 		}

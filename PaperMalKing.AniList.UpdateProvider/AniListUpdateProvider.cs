@@ -65,13 +65,15 @@ namespace PaperMalKing.AniList.UpdateProvider
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			await foreach (var dbUser in db.AniListUsers.Include(au => au.DiscordUser).ThenInclude(du => du.Guilds).Include(au => au.Favourites)
+			foreach (var dbUser in db.AniListUsers.Include(au => au.DiscordUser).ThenInclude(du => du.Guilds).Include(au => au.Favourites)
 										   .Where(du => du.DiscordUser.Guilds.Any()).Where(u => (u.Features & AniListUserFeatures.AnimeList)  != 0 ||
 																								(u.Features & AniListUserFeatures.MangaList)  != 0 ||
 																								(u.Features & AniListUserFeatures.Favourites) != 0 ||
 																								(u.Features & AniListUserFeatures.Reviews)    != 0)
-										   .AsAsyncEnumerable().WithCancellation(cancellationToken))
+										   .ToArray())
 			{
+				if (cancellationToken.IsCancellationRequested)
+					break;
 				this.Logger.LogDebug("Starting to check for updates of {UserId}", dbUser.Id);
 				var allUpdates = new List<DiscordEmbedBuilder>();
 				var recentUserUpdates = await this._client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, cancellationToken).ConfigureAwait(false);

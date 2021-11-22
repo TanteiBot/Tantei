@@ -27,6 +27,7 @@
             CA1805; <!--Do not initialize unnecessarily.-->
             CA1819; <!--Properties should not return arrays-->
             CA1812; <!--Avoid uninstantiated internal classes-->
+            CA1848;
             CA2201; <!--Do not raise reserved exception types-->
             CA2234; <!--Pass System.Uri objects instead of strings-->
         </NoWarn>
