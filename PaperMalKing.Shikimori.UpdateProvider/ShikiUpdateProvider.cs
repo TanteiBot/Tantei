@@ -70,12 +70,14 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
-			await foreach (var dbUser in db.ShikiUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds).Include(u => u.Favourites)
+			foreach (var dbUser in db.ShikiUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds).Include(u => u.Favourites)
 										   .Where(u => u.DiscordUser.Guilds.Any()).Where(u => (u.Features & ShikiUserFeatures.AnimeList) != 0 ||
 																							  (u.Features & ShikiUserFeatures.MangaList) != 0 ||
 																							  (u.Features & ShikiUserFeatures.Favourites) != 0)
-										   .AsAsyncEnumerable().WithCancellation(cancellationToken))
+										   .ToArray())
 			{
+				if (cancellationToken.IsCancellationRequested)
+					break;
 				var totalUpdates = new List<DiscordEmbedBuilder>();
 				var historyUpdates = await this._client
 											   .GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features,

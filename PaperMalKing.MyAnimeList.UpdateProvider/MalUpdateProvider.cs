@@ -130,16 +130,17 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			using var scope = this._provider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
-			await foreach (var dbUser in db.MalUsers.Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas).Include(u => u.FavoriteCharacters)
+			foreach (var dbUser in db.MalUsers.Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas).Include(u => u.FavoriteCharacters)
 										   .Include(u => u.FavoritePeople)
 										   .Where(user => user.DiscordUser.Guilds.Any()).Where(user =>
 														  // Is bitwise to allow executing on server
 														  (user.Features & MalUserFeatures.AnimeList) != 0 ||
 														  (user.Features & MalUserFeatures.MangaList) != 0 ||
 														  (user.Features & MalUserFeatures.Favorites) != 0)
-										   .AsAsyncEnumerable()
-										   .WithCancellation(cancellationToken).ConfigureAwait(false))
+										   .ToArray())
 			{
+				if (cancellationToken.IsCancellationRequested)
+					break;
 				this.Logger.LogDebug("Starting to check for updates for {@Username}", dbUser.Username);
 				User? user = null;
 				using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);

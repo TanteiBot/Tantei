@@ -51,7 +51,7 @@ namespace PaperMalKing.Common.RateLimiters
 		{
 			Interlocked.Exchange(ref this._lastUpdateTime, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 			Interlocked.Exchange(ref this._availablePermits, this.RateLimit.AmountOfRequests);
-			this.Logger.LogInformation($"{this._serviceName} Resetting");
+			this.Logger.LogInformation("{ServiceName} Resetting", this._serviceName);
 		}
 
 		public async Task TickAsync(CancellationToken cancellationToken = default)
