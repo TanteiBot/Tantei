@@ -48,8 +48,9 @@ namespace PaperMalKing.AniList.Wrapper
         }
 
         internal async Task<CheckForUpdatesResponse> CheckForUpdatesAsync(ulong userId, byte page, long activitiesTimeStamp, ushort perChunk,
-            ushort chunk, RequestOptions options, CancellationToken cancellationToken = default)
+            ushort chunk, RequestOptions options, CancellationToken cancellationToken)
         {
+			cancellationToken.ThrowIfCancellationRequested();
             this._logger.LogDebug("Requesting updates check for {UserId}, {Page}", userId, page);
             var request = Requests.CheckForUpdatesRequest(userId, page, activitiesTimeStamp, perChunk, chunk, options);
             var response = await this._client.SendQueryAsync<CheckForUpdatesResponse>(request, cancellationToken).ConfigureAwait(false);

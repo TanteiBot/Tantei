@@ -69,16 +69,18 @@ namespace PaperMalKing.AniList.UpdateProvider
 										   .Where(du => du.DiscordUser.Guilds.Any()).Where(u => (u.Features & AniListUserFeatures.AnimeList)  != 0 ||
 																								(u.Features & AniListUserFeatures.MangaList)  != 0 ||
 																								(u.Features & AniListUserFeatures.Favourites) != 0 ||
-																								(u.Features & AniListUserFeatures.Reviews)    != 0)
-										   .ToArray())
+																								(u.Features & AniListUserFeatures.Reviews)    != 0).ToArray())
 			{
 				if (cancellationToken.IsCancellationRequested)
 					break;
+				using var perUserCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+				perUserCancellationTokenSource.CancelAfter(TimeSpan.FromMinutes(3));
+				var perUserCancellationToken = perUserCancellationTokenSource.Token;
 				this.Logger.LogDebug("Starting to check for updates of {UserId}", dbUser.Id);
 				var allUpdates = new List<DiscordEmbedBuilder>();
-				var recentUserUpdates = await this._client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, cancellationToken).ConfigureAwait(false);
+				var recentUserUpdates = await this._client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, perUserCancellationToken).ConfigureAwait(false);
 				if ((dbUser.Features & AniListUserFeatures.Favourites) != 0)
-					allUpdates.AddRange(await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, cancellationToken).ConfigureAwait(false));
+					allUpdates.AddRange(await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, perUserCancellationToken).ConfigureAwait(false));
 				if ((dbUser.Features & AniListUserFeatures.Reviews) != 0)
 					allUpdates.AddRange(recentUserUpdates.Reviews.Where(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)
 														 .Select(r => r.ToDiscordEmbedBuilder(recentUserUpdates.User)));
@@ -108,11 +110,11 @@ namespace PaperMalKing.AniList.UpdateProvider
 				if ((dbUser.Features & AniListUserFeatures.Website) != 0)
 					allUpdates.ForEach(u => u.WithAniListFooter());
 				allUpdates.Sort((deb1, deb2) => DateTimeOffset.Compare(deb1.Timestamp.GetValueOrDefault(), deb2.Timestamp.GetValueOrDefault()));
-				if (cancellationToken.IsCancellationRequested)
+				if (perUserCancellationToken.IsCancellationRequested)
 				{
 					db.Entry(dbUser).State = EntityState.Unchanged;
 					this.Logger.LogInformation("Cancellation requested. Stopping");
-					continue;
+					break;
 				}
 
 				using var transaction = db.Database.BeginTransaction();
@@ -132,7 +134,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 		}
 
 		private async Task<IReadOnlyList<DiscordEmbedBuilder>> GetFavouritesUpdatesAsync(CombinedRecentUpdatesResponse response, AniListUser user,
-																						 CancellationToken cancellationToken = default)
+																						 CancellationToken cancellationToken)
 		{
 			static ulong[] GetIds(IReadOnlyList<IdentifiableFavourite> collection,
 								  Func<IdentifiableFavourite, bool> predicate)

@@ -78,7 +78,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 
 		public static async Task<CombinedRecentUpdatesResponse> GetAllRecentUserUpdatesAsync(
 			this AniListClient client, AniListUser user, AniListUserFeatures features,
-			CancellationToken cancellationToken = default)
+			CancellationToken cancellationToken)
 		{
 			const ushort initialPerChunkValue = 50;
 			const ushort extendedPerChunkValue = 500;
@@ -89,6 +89,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 			var options = (RequestOptions) features;
 			for (byte page = 1; hasNextPage; page++)
 			{
+				cancellationToken.ThrowIfCancellationRequested();
 				var response = await client.CheckForUpdatesAsync(user.Id, page, user.LastActivityTimestamp, perChunk, chunk, options,
 																 cancellationToken).ConfigureAwait(false);
 				result.Add(response);
