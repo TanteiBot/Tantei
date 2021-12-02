@@ -26,7 +26,8 @@ namespace PaperMalKing.Database.Models.MyAnimeList
 	{
 		public string FromTitleName { get; init; } = null!;
 
-		public string FromTitleUrl { get; init; } = null!;
+		[Obsolete("Mal no longer provides url for favorite characters", true)]
+		public string FromTitleUrl { get; init; } = "";
 
 		[ForeignKey(nameof(User))]
 		public int UserId { get; init; }

@@ -107,7 +107,6 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			ImageUrl = character.ImageUrl,
 			NameUrl = character.Url.Url,
 			FromTitleName = character.FromName,
-			FromTitleUrl = character.FromUrl.Url,
 			User = user,
 			UserId = user.UserId
 		};
@@ -139,7 +138,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			eb.WithTitle(title);
 
 			if (favorite is MalFavoriteCharacter favoriteCharacter)
-				eb.AddField("From", Formatter.MaskedUrl(favoriteCharacter.FromTitleName, new(favoriteCharacter.FromTitleUrl)), true);
+				eb.AddField("From", favoriteCharacter.FromTitleName, true);
 
 			return eb;
 		}

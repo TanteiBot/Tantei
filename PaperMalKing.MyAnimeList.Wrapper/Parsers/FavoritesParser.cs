@@ -18,7 +18,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using HtmlAgilityPack;
+using PaperMalKing.MyAnimeList.Wrapper.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
@@ -29,11 +31,10 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 		{
 			internal static UserFavorites Parse(HtmlNode node)
 			{
-				var favDiv = node.SelectNodes("//div[contains(@class, 'user-favorites ')]/div");
-				var animes = ParseFavoriteAnime(favDiv[0]);
-				var manga = ParseFavoriteManga(favDiv[1]);
-				var characters = ParseFavoriteCharacter(favDiv[2]);
-				var people = ParseFavoritePerson(favDiv[3]);
+				var animes = ParseFavoriteAnime(node);
+				var manga = ParseFavoriteManga(node);
+				var characters = ParseFavoriteCharacter(node);
+				var people = ParseFavoritePerson(node);
 				return new()
 				{
 					FavoriteAnime = animes,
@@ -45,41 +46,60 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 
 			private static IReadOnlyList<FavoriteAnime> ParseFavoriteAnime(HtmlNode parent)
 			{
-				return Parse(parent, "//ul[contains(@class,'anime')]/li",
+				var animeFavoritesNodes = GetFavoritesNodes(parent, "anime_favorites");
+				if (animeFavoritesNodes == null)
+				{
+					return Array.Empty<FavoriteAnime>();
+				}
+				return Parse(animeFavoritesNodes,
 					node => new FavoriteAnime(ParseListEntryFavorite(node)));
 			}
 
 			private static IReadOnlyList<FavoriteManga> ParseFavoriteManga(HtmlNode parent)
 			{
-				return Parse(parent, "//ul[contains(@class,'manga')]/li",
+				var mangaFavoriteNodes = GetFavoritesNodes(parent, "manga_favorites");
+				if (mangaFavoriteNodes == null)
+				{
+					return Array.Empty<FavoriteManga>();
+				}
+				return Parse(mangaFavoriteNodes,
 					node => new FavoriteManga(ParseListEntryFavorite(node)));
 			}
 
 			private static IReadOnlyList<FavoriteCharacter> ParseFavoriteCharacter(HtmlNode parent)
 			{
-				return Parse(parent, "//ul[contains(@class,'characters')]/li", node =>
+				var characterFavoriteNodes = GetFavoritesNodes(parent, "character_favorites");
+				if (characterFavoriteNodes == null)
 				{
-					var hd = new HtmlDocument();
-					hd.LoadHtml(node.InnerHtml);
-					node = hd.DocumentNode;
+					return Array.Empty<FavoriteCharacter>();
+				}
+				return Parse(characterFavoriteNodes, node =>
+				{
 					var baseFav = ParseBaseFavorite(node);
-					var fromNode = node.SelectSingleNode("//div[position() = 2]/span/a");
-					return new FavoriteCharacter(new(Constants.BASE_URL + fromNode.Attributes["href"].Value),
-						fromNode.InnerText.Trim(), baseFav);
+					var fromNode = 	node.ChildNodes.First(x => x.Name == "a").ChildNodes.First(x => x.HasClass("users"));
+					return new FavoriteCharacter(fromNode.InnerText.Trim(), baseFav);
 				});
 			}
 
 			private static IReadOnlyList<FavoritePerson> ParseFavoritePerson(HtmlNode parent)
 			{
-				return Parse(parent, "//ul[contains(@class,'people')]/li",
-					node => new FavoritePerson(ParseBaseFavorite(node)));
+				var personFavoriteNodes = GetFavoritesNodes(parent, "person_favorites");
+				if (personFavoriteNodes == null)
+				{
+					return Array.Empty<FavoritePerson>();
+				}
+				return Parse(personFavoriteNodes, node => new FavoritePerson(ParseBaseFavorite(node)));
 			}
 
-			private static IReadOnlyList<TF> Parse<TF>(HtmlNode parent, string xpath, Func<HtmlNode, TF> func)
+			private static HtmlNodeCollection? GetFavoritesNodes(HtmlNode node, string sectionName)
+			{
+				return node.SelectNodes($"//div[contains(@id, '{sectionName}')]/div/ul/li[contains(@class, 'btn-fav')]");
+			}
+
+			private static IReadOnlyList<TF> Parse<TF>(HtmlNodeCollection nodes, Func<HtmlNode, TF> func)
 				where TF : BaseFavorite
 			{
-				var nodes = parent.SelectNodes(xpath);
-				var favs = nodes?.Count == null || nodes?.Count == 0 ? Array.Empty<TF>() : new TF[nodes!.Count];
+				var favs = nodes.Count == 0 ? Array.Empty<TF>() : new TF[nodes.Count];
 				for (var i = 0; i < favs.Length; i++)
 					favs[i] = func(nodes![i]);
 
@@ -88,28 +108,27 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 
 			private static BaseListFavorite ParseListEntryFavorite(HtmlNode parent)
 			{
-				var hd = new HtmlDocument();
-				hd.LoadHtml(parent.InnerHtml);
-				parent = hd.DocumentNode;
 				var baseFav = ParseBaseFavorite(parent);
+				var aNode = parent.ChildNodes.First(x => x.Name == "a");
 
-				var textNode = parent.SelectSingleNode("//div[position() = 2]/span");
-				var splittedTypeYear = textNode.InnerText.Split(Constants.DOT);
-				var type = splittedTypeYear[0].Trim();
-				var year = int.Parse(splittedTypeYear[1].Trim());
-				return new(type, year, baseFav);
+				var typeYearNode = aNode.ChildNodes.First(x=> x.HasClass("users"));
+				var strings = typeYearNode.InnerText.Split(Constants.DOT);
+
+				return new(strings[0], int.Parse(strings[1]), baseFav);
 			}
 
 			private static BaseFavorite ParseBaseFavorite(HtmlNode parent)
 			{
-				var hd = new HtmlDocument();
-				hd.LoadHtml(parent.InnerHtml);
-				parent = hd.DocumentNode;
-				var imageNode = parent.SelectSingleNode("//div[position() = 1]/a");
-				var imageUrl = imageNode.SelectSingleNode("//img").Attributes["src"].Value;
-				var url = imageNode.Attributes["href"].Value;
-				var name = parent.SelectSingleNode("//div[position() = 2]/a").InnerText;
-				return new(new(url), name, imageUrl);
+				var aNode = parent.ChildNodes.First(x => x.Name == "a");
+				var urlUnparsed = aNode.GetAttributeValue("href", "");
+				if (urlUnparsed.StartsWith("/"))
+				{
+					urlUnparsed = Constants.BASE_URL + urlUnparsed;
+				}
+
+				var titleNode = aNode.ChildNodes.First(x=> x.HasClass("title"));
+				var imageUrlNode = aNode.ChildNodes.First(x => x.HasClass("image"));
+				return new BaseFavorite(new MalUrl(urlUnparsed), titleNode.InnerText, imageUrlNode.GetAttributeValue("data-src", "").Replace("/r/90x140", ""));
 			}
 		}
 	}
