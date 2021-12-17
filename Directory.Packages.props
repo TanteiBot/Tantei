@@ -12,7 +12,8 @@
 		<PackageVersion Include="DSharpPlus.CommandsNext" Version="4.1.0"/>
 
 		<!-- GraphQl -->
-		<PackageVersion Include="GraphQL.Client" Version="4.0.1"/>
+
+		<PackageVersion Include="GraphQL.Client" Version="4.0.2"/>
 		<PackageVersion Include="GraphQL.Client.Serializer.SystemTextJson" Version="4.0.2"/>
 
 		<!-- EF Core -->
