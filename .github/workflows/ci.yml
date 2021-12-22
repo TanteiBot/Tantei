@@ -27,8 +27,8 @@ jobs:
       - name: Check if needed version of .NET is already installed
         run: |
           case $(dotnet --version) in
-          ${{ env.dotnet-version-to-install }}) echo "is-dotnet-version-preinstalled=true" >> $GITHUB_ENV;;
-          *) echo "is-dotnet-version-preinstalled=false" >> $GITHUB_ENV;;
+          ${{ env.dotnet-version-to-install }}) echo "is-dotnet-version-preinstalled=true" >> "$GITHUB_ENV";;
+          *) echo "is-dotnet-version-preinstalled=false" >> "$GITHUB_ENV";;
           esac
 
       - name: Setup .NET SDK
@@ -60,8 +60,8 @@ jobs:
       - name: Check if needed version of .NET is already installed
         run: |
           case $(dotnet --version) in
-          ${{ env.dotnet-version-to-install }}) echo "is-dotnet-version-preinstalled=true" >> $GITHUB_ENV;;
-          *) echo "is-dotnet-version-preinstalled=false" >> $GITHUB_ENV;;
+          ${{ env.dotnet-version-to-install }}) echo "is-dotnet-version-preinstalled=true" >> "$GITHUB_ENV";;
+          *) echo "is-dotnet-version-preinstalled=false" >> "$GITHUB_ENV";;
           esac
 
       - name: Setup .NET SDK
@@ -93,8 +93,8 @@ jobs:
       - name: Check if needed version of .NET is already installed
         run: |
           case $(dotnet --version) in
-          ${{ env.dotnet-version-to-install }}) echo "is-dotnet-version-preinstalled=true" >> $GITHUB_ENV;;
-          *) echo "is-dotnet-version-preinstalled=false" >> $GITHUB_ENV;;
+          ${{ env.dotnet-version-to-install }}) echo "is-dotnet-version-preinstalled=true" >> "$GITHUB_ENV";;
+          *) echo "is-dotnet-version-preinstalled=false" >> "$GITHUB_ENV";;
           esac
 
       - name: Setup .NET SDK
