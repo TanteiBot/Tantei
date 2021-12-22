@@ -1,0 +1,152 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  DOTNET_NOLOGO: true
+  dotnet-version-to-install: '6.*'
+  dotnet-include-prerelease: true
+  artifact-name: "build-${{ github.sha }}"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      output-dir: "./output"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check if needed version of .NET is already installed
+        run: |
+          case "$(dotnet --version)" in
+          "${{ env.dotnet-version-to-install }}") echo "is-dotnet-version-preinstalled=true" >> "$GITHUB_ENV";;
+          *) echo "is-dotnet-version-preinstalled=false" >> "$GITHUB_ENV";;
+          esac
+
+      - name: Setup .NET SDK
+        if: ${{ env.is-dotnet-version-preinstalled == 'false' }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.dotnet-version-to-install }}
+          include-prerelease: ${{ env.dotnet-include-prerelease}}
+
+      - name: Install deps
+        run: dotnet restore
+
+      - name: Build projects
+        run: dotnet build --configuration Release --no-restore --output ${{ env.output-dir }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.artifact-name }}
+          path: ${{ env.output-dir }}
+          if-no-files-found: error
+          retention-days: 1
+  
+  test:
+    name: Test
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if needed version of .NET is already installed
+        run: |
+          case "$(dotnet --version)" in
+          "${{ env.dotnet-version-to-install }}") echo "is-dotnet-version-preinstalled=true" >> "$GITHUB_ENV";;
+          *) echo "is-dotnet-version-preinstalled=false" >> "$GITHUB_ENV";;
+          esac
+
+      - name: Setup .NET SDK
+        if: ${{ env.is-dotnet-version-preinstalled == 'false' }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.dotnet-version-to-install }}
+          include-prerelease: ${{ env.dotnet-include-prerelease}}
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ env.artifact-name }}
+
+      - name: Test
+        run: for t in Tantei*Test*.dll; do dotnet test --no-restore --verbosity normal --logger GitHubActions "${t}"; done
+
+
+  codeQl:
+    name: Run CodeQL analysis
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check if needed version of .NET is already installed
+        run: |
+          case "$(dotnet --version)" in
+          "${{ env.dotnet-version-to-install }}") echo "is-dotnet-version-preinstalled=true" >> "$GITHUB_ENV";;
+          *) echo "is-dotnet-version-preinstalled=false" >> "$GITHUB_ENV";;
+          esac
+
+      - name: Setup .NET SDK
+        if: ${{ env.is-dotnet-version-preinstalled == 'false' }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.dotnet-version-to-install }}
+          include-prerelease: ${{ env.dotnet-include-prerelease}}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: 'csharp'
+          # queries: +security-and-quality
+      
+      - name: Build .NET
+        run: dotnet build
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
+
+  inferSharp:
+    name: Run Infer#
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ env.artifact-name }}
+      
+      - run: mkdir ./createdDlls && mv Tantei* createdDlls
+
+      - name: Run Infer#
+        id: runInferSharp
+        uses: microsoft/infersharpaction@v1.2.1
+        with:
+          binary-path: "./createdDlls"
+ 
+      - name: Infer# analysis results
+        run: echo "${{ steps.runInferSharp.outputs.results }}"    
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Lint Code Base
+        uses: github/super-linter@v4
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # TODO set to true after refactoring
+          VALIDATE_JSCPD: false # Checks code for duplicates
+          VALIDATE_EDITORCONFIG: false
