@@ -90,6 +90,7 @@ jobs:
     name: Run Infer#
     needs: build
     runs-on: ubuntu-latest
+    id: runinfersharp
     steps:
       - name: Download build artifact
         uses: actions/download-artifact@v2
