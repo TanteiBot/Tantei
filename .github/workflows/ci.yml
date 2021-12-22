@@ -73,15 +73,15 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
-        with:
-          languages: 'csharp'
-
       - name: Download build artifact
         uses: actions/download-artifact@v2
         with:
           name: ${{ env.artifact-name }}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: 'csharp'
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
@@ -95,11 +95,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ${{ env.artifact-name }}      
-          
+
       - name: Run Infer#      
         uses: microsoft/infersharpaction@v1.2.1
         with:
           binary-path: "./"
+ 
+      - name: Infer# analysis results
+        run: echo "${{ steps.runinfersharp.outputs.results }}"    
 
   lint:
     runs-on: ubuntu-latest
