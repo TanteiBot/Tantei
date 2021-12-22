@@ -11,7 +11,7 @@ on:
 
 env:
   DOTNET_NOLOGO: true
-  dotnet-version-to-install: '6.x'
+  dotnet-version-to-install: '6.*'
   dotnet-include-prerelease: true
   artifact-name: "build-${{ github.sha }}"
 
@@ -24,7 +24,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Check if needed version of .NET is already installed
+        run: |
+          case $(dotnet --version) in
+          ${{ env.dotnet-version-to-install }}) echo "is-dotnet-version-preinstalled=true" >> $GITHUB_ENV;;
+          *) echo "is-dotnet-version-preinstalled=false" >> $GITHUB_ENV;;
+          esac
+
       - name: Setup .NET SDK
+        if: ${{ env.is-dotnet-version-preinstalled == false }}
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
@@ -49,7 +57,15 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Check if needed version of .NET is already installed
+        run: |
+          case $(dotnet --version) in
+          ${{ env.dotnet-version-to-install }}) echo "is-dotnet-version-preinstalled=true" >> $GITHUB_ENV;;
+          *) echo "is-dotnet-version-preinstalled=false" >> $GITHUB_ENV;;
+          esac
+
       - name: Setup .NET SDK
+        if: ${{ env.is-dotnet-version-preinstalled == false }}
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
@@ -74,7 +90,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Check if needed version of .NET is already installed
+        run: |
+          case $(dotnet --version) in
+          ${{ env.dotnet-version-to-install }}) echo "is-dotnet-version-preinstalled=true" >> $GITHUB_ENV;;
+          *) echo "is-dotnet-version-preinstalled=false" >> $GITHUB_ENV;;
+          esac
+
       - name: Setup .NET SDK
+        if: ${{ env.is-dotnet-version-preinstalled == false }}
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
