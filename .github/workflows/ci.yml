@@ -102,7 +102,7 @@ jobs:
         with:
           name: ${{ env.artifact-name }}
       
-      - run: mkdir ./createdDlls && mv Tantei* createdDlls && mv PaperMalKing* createdDlls
+      - run: mkdir ./createdDlls && mv Tantei* createdDlls
 
       - name: Run Infer#
         id: runInferSharp
