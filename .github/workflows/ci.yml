@@ -84,7 +84,7 @@ jobs:
         uses: github/codeql-action/init@v1
         with:
           languages: 'csharp'
-          queries: +security-and-quality
+          # queries: +security-and-quality
       
       - name: Build .NET
         run: dotnet build
@@ -100,13 +100,15 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v2
         with:
-          name: ${{ env.artifact-name }}      
+          name: ${{ env.artifact-name }}
+      
+      - run: mkdir ./createdDlls && mv Tantei* createdDlls && mv PaperMalKing* createdDlls
 
       - name: Run Infer#
         id: runInferSharp
         uses: microsoft/infersharpaction@v1.2.1
         with:
-          binary-path: "./"
+          binary-path: "./createdDlls"
  
       - name: Infer# analysis results
         run: echo "${{ steps.runInferSharp.outputs.results }}"    
