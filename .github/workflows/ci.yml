@@ -26,7 +26,7 @@ jobs:
 
       - name: Check if needed version of .NET is already installed
         run: |
-          bash case $(dotnet --version) in
+          case $(dotnet --version) in
           ${{ env.dotnet-version-to-install }}) echo "is-dotnet-version-preinstalled=true" >> $GITHUB_ENV;;
           *) echo "is-dotnet-version-preinstalled=false" >> $GITHUB_ENV;;
           esac
@@ -59,7 +59,7 @@ jobs:
     steps:
       - name: Check if needed version of .NET is already installed
         run: |
-          bash case $(dotnet --version) in
+          case $(dotnet --version) in
           ${{ env.dotnet-version-to-install }}) echo "is-dotnet-version-preinstalled=true" >> $GITHUB_ENV;;
           *) echo "is-dotnet-version-preinstalled=false" >> $GITHUB_ENV;;
           esac
@@ -92,7 +92,7 @@ jobs:
 
       - name: Check if needed version of .NET is already installed
         run: |
-          bash case $(dotnet --version) in
+          case $(dotnet --version) in
           ${{ env.dotnet-version-to-install }}) echo "is-dotnet-version-preinstalled=true" >> $GITHUB_ENV;;
           *) echo "is-dotnet-version-preinstalled=false" >> $GITHUB_ENV;;
           esac
