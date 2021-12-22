@@ -66,22 +66,28 @@ jobs:
 
   codeQl:
     name: Run CodeQL analysis
-    needs: build
     permissions:
       security-events: write
       actions: read
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v2
+      - uses: actions/checkout@v2
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v1
         with:
-          name: ${{ env.artifact-name }}
+          dotnet-version: ${{ env.dotnet-version-to-install }}
+          include-prerelease: ${{ env.dotnet-include-prerelease}}
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
         with:
           languages: 'csharp'
+          queries: +security-and-quality
+      
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v1
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
