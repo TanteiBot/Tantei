@@ -32,7 +32,7 @@ jobs:
           esac
 
       - name: Setup .NET SDK
-        if: ${{ env.is-dotnet-version-preinstalled == "false" }}
+        if: ${{ env.is-dotnet-version-preinstalled == 'false' }}
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
@@ -65,7 +65,7 @@ jobs:
           esac
 
       - name: Setup .NET SDK
-        if: ${{ env.is-dotnet-version-preinstalled == "false" }}
+        if: ${{ env.is-dotnet-version-preinstalled == 'false' }}
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
@@ -98,7 +98,7 @@ jobs:
           esac
 
       - name: Setup .NET SDK
-        if: ${{ env.is-dotnet-version-preinstalled == "false" }}
+        if: ${{ env.is-dotnet-version-preinstalled == 'false' }}
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
