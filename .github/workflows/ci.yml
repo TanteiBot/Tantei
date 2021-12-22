@@ -86,8 +86,8 @@ jobs:
           languages: 'csharp'
           queries: +security-and-quality
       
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v1
+      - name: Build .NET
+        run: dotnet build
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
