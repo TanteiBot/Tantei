@@ -102,13 +102,14 @@ jobs:
         with:
           name: ${{ env.artifact-name }}      
 
-      - name: Run Infer#      
+      - name: Run Infer#
+        id: runInferSharp
         uses: microsoft/infersharpaction@v1.2.1
         with:
           binary-path: "./"
  
       - name: Infer# analysis results
-        run: echo "${{ steps.inferSharp.outputs.results }}"    
+        run: echo "${{ steps.runInferSharp.outputs.results }}"    
 
   lint:
     runs-on: ubuntu-latest
