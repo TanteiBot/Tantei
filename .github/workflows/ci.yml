@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install .NET SDK if needed
-        uses: ./.github/workflows/actions/core-setup-dotnet
+        uses: ./.github/actions/core-setup-dotnet
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
@@ -43,14 +43,16 @@ jobs:
           path: ${{ env.output-dir }}
           if-no-files-found: error
           retention-days: 1
-  
+
   test:
     name: Test
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+
       - name: Install .NET SDK if needed
-        uses: ./.github/workflows/actions/core-setup-dotnet
+        uses: ./.github/actions/core-setup-dotnet
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
@@ -75,7 +77,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install .NET SDK if needed
-        uses: ./.github/workflows/actions/core-setup-dotnet
+        uses: ./.github/actions/core-setup-dotnet
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
@@ -85,7 +87,7 @@ jobs:
         with:
           languages: 'csharp'
           # queries: +security-and-quality
-      
+
       - name: Build .NET
         run: dotnet build
 
@@ -101,7 +103,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ${{ env.artifact-name }}
-      
+
       - run: mkdir ./createdDlls && mv Tantei* createdDlls
 
       - name: Run Infer#
@@ -109,7 +111,7 @@ jobs:
         uses: microsoft/infersharpaction@v1.2.1
         with:
           binary-path: "./createdDlls"
- 
+
       - name: Infer# analysis results
         run: echo "${{ steps.runInferSharp.outputs.results }}"    
 
