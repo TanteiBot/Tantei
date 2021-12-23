@@ -24,16 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Check if needed version of .NET is already installed
-        run: |
-          case "$(dotnet --version)" in
-          "${{ env.dotnet-version-to-install }}") echo "is-dotnet-version-preinstalled=true" >> "$GITHUB_ENV";;
-          *) echo "is-dotnet-version-preinstalled=false" >> "$GITHUB_ENV";;
-          esac
-
-      - name: Setup .NET SDK
-        if: ${{ env.is-dotnet-version-preinstalled == 'false' }}
-        uses: actions/setup-dotnet@v1
+      - name: Install .NET SDK if needed
+        uses: ./.github/actions/core-setup-dotnet@master
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
@@ -57,16 +49,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Check if needed version of .NET is already installed
-        run: |
-          case "$(dotnet --version)" in
-          "${{ env.dotnet-version-to-install }}") echo "is-dotnet-version-preinstalled=true" >> "$GITHUB_ENV";;
-          *) echo "is-dotnet-version-preinstalled=false" >> "$GITHUB_ENV";;
-          esac
-
-      - name: Setup .NET SDK
-        if: ${{ env.is-dotnet-version-preinstalled == 'false' }}
-        uses: actions/setup-dotnet@v1
+      - name: Install .NET SDK if needed
+        uses: ./.github/actions/core-setup-dotnet@master
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
@@ -90,16 +74,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Check if needed version of .NET is already installed
-        run: |
-          case "$(dotnet --version)" in
-          "${{ env.dotnet-version-to-install }}") echo "is-dotnet-version-preinstalled=true" >> "$GITHUB_ENV";;
-          *) echo "is-dotnet-version-preinstalled=false" >> "$GITHUB_ENV";;
-          esac
-
-      - name: Setup .NET SDK
-        if: ${{ env.is-dotnet-version-preinstalled == 'false' }}
-        uses: actions/setup-dotnet@v1
+      - name: Install .NET SDK if needed
+        uses: ./.github/actions/core-setup-dotnet@master
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
