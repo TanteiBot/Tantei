@@ -3,11 +3,10 @@ name: CI
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
+
   pull_request:
-    branches:
-      - master
+    branches: [ master ]
 
 env:
   DOTNET_NOLOGO: true
@@ -64,7 +63,7 @@ jobs:
 
       - name: Test
         run: for t in Tantei*Test*.dll; do dotnet test --no-restore --verbosity normal --logger GitHubActions "${t}"; done
-
+        shell: bash
 
   codeQl:
     name: Run CodeQL analysis
