@@ -5,7 +5,7 @@ inputs:
   dotnet-version:
     description: Version of .NET to install
     required: true
-  include-pre-release:
+  include-prerelease:
     description: Allow pre-release version of .NET to be installed
     required: false
     default: false
@@ -26,4 +26,4 @@ runs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ inputs.dotnet-version }}
-        include-prerelease: ${{ inputs.include-pre-release }}
+        include-prerelease: ${{ inputs.include-prerelease }}
