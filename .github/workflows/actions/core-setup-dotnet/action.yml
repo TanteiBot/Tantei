@@ -23,7 +23,7 @@ runs:
         esac
     - name: Install .NET SDK
       if: ${{ steps.versionCheck.outputs.is-dotnet-version-preinstalled == 'false'}}
-      uses: actions/setup-dotnet@1
+      uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ inputs.dotnet-version }}
         include-prerelease: ${{ inputs.include-pre-release }}
