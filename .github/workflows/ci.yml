@@ -3,11 +3,10 @@ name: CI
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
+
   pull_request:
-    branches:
-      - master
+    branches: [ master ]
 
 env:
   DOTNET_NOLOGO: true
@@ -24,16 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Check if needed version of .NET is already installed
-        run: |
-          case "$(dotnet --version)" in
-          "${{ env.dotnet-version-to-install }}") echo "is-dotnet-version-preinstalled=true" >> "$GITHUB_ENV";;
-          *) echo "is-dotnet-version-preinstalled=false" >> "$GITHUB_ENV";;
-          esac
-
-      - name: Setup .NET SDK
-        if: ${{ env.is-dotnet-version-preinstalled == 'false' }}
-        uses: actions/setup-dotnet@v1
+      - name: Install .NET SDK if needed
+        uses: ./.github/actions/core-setup-dotnet
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
@@ -51,22 +42,16 @@ jobs:
           path: ${{ env.output-dir }}
           if-no-files-found: error
           retention-days: 1
-  
+
   test:
     name: Test
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Check if needed version of .NET is already installed
-        run: |
-          case "$(dotnet --version)" in
-          "${{ env.dotnet-version-to-install }}") echo "is-dotnet-version-preinstalled=true" >> "$GITHUB_ENV";;
-          *) echo "is-dotnet-version-preinstalled=false" >> "$GITHUB_ENV";;
-          esac
+      - uses: actions/checkout@v2
 
-      - name: Setup .NET SDK
-        if: ${{ env.is-dotnet-version-preinstalled == 'false' }}
-        uses: actions/setup-dotnet@v1
+      - name: Install .NET SDK if needed
+        uses: ./.github/actions/core-setup-dotnet
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
@@ -78,7 +63,7 @@ jobs:
 
       - name: Test
         run: for t in Tantei*Test*.dll; do dotnet test --no-restore --verbosity normal --logger GitHubActions "${t}"; done
-
+        shell: bash
 
   codeQl:
     name: Run CodeQL analysis
@@ -90,16 +75,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Check if needed version of .NET is already installed
-        run: |
-          case "$(dotnet --version)" in
-          "${{ env.dotnet-version-to-install }}") echo "is-dotnet-version-preinstalled=true" >> "$GITHUB_ENV";;
-          *) echo "is-dotnet-version-preinstalled=false" >> "$GITHUB_ENV";;
-          esac
-
-      - name: Setup .NET SDK
-        if: ${{ env.is-dotnet-version-preinstalled == 'false' }}
-        uses: actions/setup-dotnet@v1
+      - name: Install .NET SDK if needed
+        uses: ./.github/actions/core-setup-dotnet
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
@@ -109,7 +86,7 @@ jobs:
         with:
           languages: 'csharp'
           # queries: +security-and-quality
-      
+
       - name: Build .NET
         run: dotnet build
 
@@ -125,7 +102,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ${{ env.artifact-name }}
-      
+
       - run: mkdir ./createdDlls && mv Tantei* createdDlls
 
       - name: Run Infer#
@@ -133,7 +110,7 @@ jobs:
         uses: microsoft/infersharpaction@v1.2.1
         with:
           binary-path: "./createdDlls"
- 
+
       - name: Infer# analysis results
         run: echo "${{ steps.runInferSharp.outputs.results }}"    
 
