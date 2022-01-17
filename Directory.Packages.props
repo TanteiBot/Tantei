@@ -37,6 +37,6 @@
 		<PackageVersion Include="Microsoft.Extensions.Options" Version="6.0.0"/>
 		<PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0"/>
 		<PackageVersion Include="Polly.Contrib.WaitAndRetry" Version="1.1.1"/>
-		<PackageVersion Include="HtmlAgilityPack" Version="1.11.39"/>
+		<PackageVersion Include="HtmlAgilityPack" Version="1.11.40"/>
 	</ItemGroup>
 </Project>
