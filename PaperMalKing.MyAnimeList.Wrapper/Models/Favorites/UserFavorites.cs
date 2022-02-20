@@ -31,12 +31,15 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites
 
 		internal IReadOnlyList<FavoritePerson> FavoritePeople { get; init; } = null!;
 
+		internal IReadOnlyList<FavoriteCompany> FavoriteCompanies { get; init; } = null!;
+
 		internal static readonly UserFavorites Empty = new()
 		{
 			FavoriteAnime = Array.Empty<FavoriteAnime>(),
 			FavoriteManga = Array.Empty<FavoriteManga>(),
 			FavoriteCharacters = Array.Empty<FavoriteCharacter>(),
-			FavoritePeople = Array.Empty<FavoritePerson>()
+			FavoritePeople = Array.Empty<FavoritePerson>(),
+			FavoriteCompanies = Array.Empty<FavoriteCompany>()
 		};
 	}
 }

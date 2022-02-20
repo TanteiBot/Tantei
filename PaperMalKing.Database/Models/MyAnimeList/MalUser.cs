@@ -50,5 +50,7 @@ namespace PaperMalKing.Database.Models.MyAnimeList
 		public List<MalFavoriteCharacter> FavoriteCharacters { get; set; } = null!;
 
 		public List<MalFavoritePerson> FavoritePeople { get; set; } = null!;
+
+		public List<MalFavoriteCompany> FavoriteCompanies { get; set; } = null!;
 	}
 }

@@ -79,6 +79,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 								 .Include(u => u.FavoriteMangas)
 								 .Include(u => u.FavoriteCharacters)
 								 .Include(u => u.FavoritePeople)
+								 .Include(u => u.FavoriteCompanies)
 								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before enabling features");
@@ -112,6 +113,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 						dbUser.FavoriteMangas = user.Favorites.FavoriteManga.Select(x => x.ToMalFavoriteManga(dbUser)).ToList();
 						dbUser.FavoriteCharacters = user.Favorites.FavoriteCharacters.Select(x => x.ToMalFavoriteCharacter(dbUser)).ToList();
 						dbUser.FavoritePeople = user.Favorites.FavoritePeople.Select(x => x.ToMalFavoritePerson(dbUser)).ToList();
+						dbUser.FavoriteCompanies = user.Favorites.FavoriteCompanies.Select(x => x.ToMalFavoriteCompany(dbUser)).ToList();
 						break;
 					}
 				}
@@ -131,6 +133,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 								 .Include(u => u.FavoriteMangas)
 								 .Include(u => u.FavoriteCharacters)
 								 .Include(u => u.FavoritePeople)
+								 .Include(u => u.FavoriteCompanies)
 								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before disabling features");
@@ -144,6 +147,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				dbUser.FavoriteMangas.Clear();
 				dbUser.FavoriteCharacters.Clear();
 				dbUser.FavoritePeople.Clear();
+				dbUser.FavoriteCompanies.Clear();
 			}
 
 			db.MalUsers.Update(dbUser);

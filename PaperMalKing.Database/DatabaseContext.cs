@@ -47,6 +47,8 @@ namespace PaperMalKing.Database
 
 		public DbSet<MalFavoritePerson> MalFavoritePersons { get; init; } = null!;
 
+		public DbSet<MalFavoriteCompany> MalFavoriteCompanies { get; init; } = null!;
+
 		public DbSet<ShikiUser> ShikiUsers { get; init; } = null!;
 
 		public DbSet<ShikiFavourite> ShikiFavourites { get; init; } = null!;
@@ -132,6 +134,11 @@ namespace PaperMalKing.Database
 				k.UserId
 			});
 			modelBuilder.Entity<MalFavoritePerson>().HasKey(k => new
+			{
+				k.Id,
+				k.UserId
+			});
+			modelBuilder.Entity<MalFavoriteCompany>().HasKey(k => new
 			{
 				k.Id,
 				k.UserId

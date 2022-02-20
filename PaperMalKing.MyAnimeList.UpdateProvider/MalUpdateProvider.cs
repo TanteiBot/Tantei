@@ -131,7 +131,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
 			foreach (var dbUser in db.MalUsers.Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas).Include(u => u.FavoriteCharacters)
-										   .Include(u => u.FavoritePeople)
+										   .Include(u => u.FavoritePeople).Include(u => u.FavoriteCompanies)
 										   .Where(user => user.DiscordUser.Guilds.Any()).Where(user =>
 														  // Is bitwise to allow executing on server
 														  (user.Features & MalUserFeatures.AnimeList) != 0 ||
@@ -228,7 +228,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				using var transaction = db.Database.BeginTransaction();
 				try
 				{
-					db.Entry(dbUser).State = EntityState.Modified;
+					db.MalUsers.Update(dbUser);
 					if (db.SaveChanges() <= 0) throw new Exception("Couldn't save update in Db");
 					transaction.Commit();
 					await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
@@ -301,6 +301,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoriteMangas, user.Favorites.FavoriteManga, user, dbUser));
 			list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoriteCharacters, user.Favorites.FavoriteCharacters, user, dbUser));
 			list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoritePeople, user.Favorites.FavoritePeople, user, dbUser));
+			list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoriteCompanies, user.Favorites.FavoriteCompanies, user, dbUser));
 			list.Sort((b1, b2) => string.Compare(b1.Title, b2.Title, StringComparison.InvariantCultureIgnoreCase));
 			return list.OrderBy(deb => deb.Color.HasValue ? deb.Color.Value.Value : DiscordColor.None.Value).ThenBy(deb => deb.Title).ToArray();
 		}

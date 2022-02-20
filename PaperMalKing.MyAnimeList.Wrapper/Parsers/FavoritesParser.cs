@@ -35,13 +35,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 				var manga = ParseFavoriteManga(node);
 				var characters = ParseFavoriteCharacter(node);
 				var people = ParseFavoritePerson(node);
+				var companies = ParseFavoriteCompanies(node);
 				return new()
 				{
 					FavoriteAnime = animes,
 					FavoriteManga = manga,
 					FavoriteCharacters = characters,
-					FavoritePeople = people
+					FavoritePeople = people,
+					FavoriteCompanies = companies
 				};
+			}
+
+			private static IReadOnlyList<FavoriteCompany> ParseFavoriteCompanies(HtmlNode parent)
+			{
+				var companyFavoritesNodes = GetFavoritesNodes(parent, "company_favorites");
+				if (companyFavoritesNodes is null)
+				{
+					return Array.Empty<FavoriteCompany>();
+				}
+
+				return Parse(companyFavoritesNodes, node => new FavoriteCompany(ParseBaseFavorite(node)));
 			}
 
 			private static IReadOnlyList<FavoriteAnime> ParseFavoriteAnime(HtmlNode parent)

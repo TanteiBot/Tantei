@@ -72,6 +72,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				FavoriteCharacter favoriteCharacter => favoriteCharacter.ToMalFavoriteCharacter(user) as T,
 				FavoriteManga favoriteManga         => favoriteManga.ToMalFavoriteManga(user) as T,
 				FavoritePerson favoritePerson       => favoritePerson.ToMalFavoritePerson(user) as T,
+				FavoriteCompany favoriteCompany		=> favoriteCompany.ToMalFavoriteCompany(user) as T,
 				_                                   => throw new InvalidOperationException()
 			} ?? throw new InvalidOperationException();
 		}
@@ -96,6 +97,16 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			ImageUrl = manga.ImageUrl,
 			NameUrl = manga.Url.Url,
 			StartYear = manga.StartYear,
+			User = user,
+			UserId = user.UserId
+		};
+
+		internal static MalFavoriteCompany ToMalFavoriteCompany(this FavoriteCompany company, MalUser user) => new()
+		{
+			Id = company.Url.Id,
+			Name = company.Name,
+			ImageUrl = company.ImageUrl,
+			NameUrl = company.Url.Url,
 			User = user,
 			UserId = user.UserId
 		};

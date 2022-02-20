@@ -101,6 +101,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			dbUser.FavoriteMangas = mUser.Favorites.FavoriteManga.Select(manga => manga.ToMalFavoriteManga(dbUser)).ToList();
 			dbUser.FavoriteCharacters = mUser.Favorites.FavoriteCharacters.Select(character => character.ToMalFavoriteCharacter(dbUser)).ToList();
 			dbUser.FavoritePeople = mUser.Favorites.FavoritePeople.Select(person => person.ToMalFavoritePerson(dbUser)).ToList();
+			dbUser.FavoriteCompanies = mUser.Favorites.FavoriteCompanies.Select(company => company.ToMalFavoriteCompany(dbUser)).ToList();
 			await db.MalUsers.AddAsync(dbUser).ConfigureAwait(false);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 			return new(dbUser.Username);
