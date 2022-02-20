@@ -28,6 +28,7 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.Hosting;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 using PaperMalKing.Services;
@@ -40,13 +41,15 @@ namespace PaperMalKing.Commands
 	public sealed class UngroupedCommands : BaseCommandModule
 	{
 		private readonly UpdateProvidersConfigurationService _providersConfigurationService;
+		private readonly IHostApplicationLifetime _lifetime;
 
 		private DiscordEmbed? AboutEmbed;
 
 		/// <inheritdoc />
-		public UngroupedCommands(UpdateProvidersConfigurationService providersConfigurationService)
+		public UngroupedCommands(UpdateProvidersConfigurationService providersConfigurationService, IHostApplicationLifetime lifetime)
 		{
 			this._providersConfigurationService = providersConfigurationService;
+			this._lifetime = lifetime;
 		}
 
 		[Command("say")]
@@ -127,7 +130,6 @@ namespace PaperMalKing.Commands
 		[Command("Forcecheck")]
 		[Aliases("fc")]
 		[RequireOwner]
-		[Hidden]
 		public async Task ForceCheckCommand(CommandContext context, [RemainingText, Description("Update provider name")]
 											string name)
 		{
@@ -152,6 +154,15 @@ namespace PaperMalKing.Commands
 			{
 				await context.RespondAsync(embed: EmbedTemplate.ErrorEmbed(context, "Haven't found such update provider")).ConfigureAwait(false);
 			}
+		}
+
+		[Command("stop")]
+		[Aliases("restart")]
+		[RequireOwner]
+		public Task StopBotCommand(CommandContext context)
+		{
+			this._lifetime.StopApplication();
+			return Task.CompletedTask;
 		}
 	}
 }
