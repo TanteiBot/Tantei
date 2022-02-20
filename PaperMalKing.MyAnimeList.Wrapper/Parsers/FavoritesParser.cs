@@ -128,7 +128,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 
 				var titleNode = aNode.ChildNodes.First(x=> x.HasClass("title"));
 				var imageUrlNode = aNode.ChildNodes.First(x => x.HasClass("image"));
-				return new BaseFavorite(new MalUrl(urlUnparsed), titleNode.InnerText, imageUrlNode.GetAttributeValue("data-src", "").Replace("/r/90x140", ""));
+				return new BaseFavorite(new MalUrl(urlUnparsed), titleNode.InnerText, imageUrlNode.GetAttributeValue("data-src", "").Replace("/r/140x220", ""));
 			}
 		}
 	}

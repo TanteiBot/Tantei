@@ -20,16 +20,11 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites
 {
 	internal class BaseFavorite
 	{
-		private readonly string? _imageUrl;
 		internal MalUrl Url { get; init; }
 
 		internal string Name { get; init; }
 
-		internal string? ImageUrl
-		{
-			get => this._imageUrl;
-			init => this._imageUrl = value?.ToLargeImage();
-		}
+		internal string? ImageUrl { get; init; }
 
 		internal BaseFavorite(MalUrl url, string name, string? imageUrl)
 		{
