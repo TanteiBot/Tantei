@@ -21,7 +21,7 @@ jobs:
     env:
       output-dir: "./output"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install .NET SDK if needed
         uses: ./.github/actions/core-setup-dotnet
@@ -48,7 +48,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install .NET SDK if needed
         uses: ./.github/actions/core-setup-dotnet
@@ -73,7 +73,7 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install .NET SDK if needed
         uses: ./.github/actions/core-setup-dotnet
@@ -117,7 +117,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Lint Code Base
         uses: github/super-linter@v4
