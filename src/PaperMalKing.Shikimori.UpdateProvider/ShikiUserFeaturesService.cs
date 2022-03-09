@@ -84,8 +84,8 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 					{
 						if (lastHistoryEntry.HasValue)
 							break;
-						var (data, _) = await this._client.GetUserHistoryAsync(dbUser.Id, 1, 1, HistoryRequestOptions.Any, CancellationToken.None)
-												  .ConfigureAwait(false);
+						var data = (await this._client.GetUserHistoryAsync(dbUser.Id, 1, 1, HistoryRequestOptions.Any, CancellationToken.None)
+												  .ConfigureAwait(false)).Data;
 						lastHistoryEntry = data.MaxBy(h => h.Id)!.Id;
 						break;
 					}
