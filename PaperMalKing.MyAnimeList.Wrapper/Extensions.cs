@@ -32,7 +32,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 	{
 		internal static string ToLargeImage(this string value)
 		{
-			var s = value.Replace("/r/96x136", "").Replace("/r/80x120", "");
+			var s = value.Replace("/r/96x136", "").Replace("/r/80x120", "").Replace("/r/192x272", "");
 			if (!s.Contains("l.jpg") && !s.Contains("characters"))
 				s = s.Replace(".jpg", "l.jpg");
 			var i = s.IndexOf("?s", StringComparison.InvariantCultureIgnoreCase);
