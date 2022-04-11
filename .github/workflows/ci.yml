@@ -36,7 +36,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore --output ${{ env.output-dir }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.artifact-name }}
           path: ${{ env.output-dir }}
