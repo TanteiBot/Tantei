@@ -36,7 +36,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore --output ${{ env.output-dir }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.artifact-name }}
           path: ${{ env.output-dir }}
@@ -57,7 +57,7 @@ jobs:
           include-prerelease: ${{ env.dotnet-include-prerelease}}
 
       - name: Download build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ${{ env.artifact-name }}
 
@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ${{ env.artifact-name }}
 
