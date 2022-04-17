@@ -1,18 +1,5 @@
-// Tantei.
-// Copyright (C) 2021 N0D4N
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as
-// published by the Free Software Foundation, either version 3 of the
-// License, or (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY, without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-// 
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2022 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
@@ -84,9 +71,9 @@ public abstract partial class BaseUpdateProvider<TUser> : IUpdateProvider where 
 			this._currentTask = this.CheckForUpdatesAsync(userDbContext, this._cts.Token);
 			await this._currentTask.ConfigureAwait(false);
 		}
-		#pragma warning disable CA1031
+#pragma warning disable CA1031
 		catch (Exception ex)
-			#pragma warning restore CA1031
+#pragma warning restore CA1031
 		{
 			LogUpdateCheckError(this.Logger, ex);
 		}

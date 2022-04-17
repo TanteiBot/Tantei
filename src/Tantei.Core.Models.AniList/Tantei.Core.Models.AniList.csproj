@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<ItemGroup>
-		<ProjectReference Include="..\Tantei.Core.Models.Users\Tantei.Core.Models.Users.csproj"/>
-		<ProjectReference Include="..\Tantei.Shared\Tantei.Shared.csproj"/>
+		<ProjectReference Include="..\Tantei.Core.Models.Users\Tantei.Core.Models.Users.csproj" />
+		<ProjectReference Include="..\Tantei.Common\Tantei.Common.csproj" />
 	</ItemGroup>
 
 </Project>
