@@ -9,7 +9,7 @@
 
 		<!-- Discord -->
 		<PackageVersion Include="DSharpPlus" Version="4.2.0"/>
-		<PackageVersion Include="DSharpPlus.CommandsNext" Version="4.1.0"/>
+		<PackageVersion Include="DSharpPlus.CommandsNext" Version="4.2.0"/>
 
 		<!-- GraphQl -->
 
