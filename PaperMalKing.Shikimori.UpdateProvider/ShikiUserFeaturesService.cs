@@ -92,7 +92,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 							break;
 						var (data, _) = await this._client.GetUserHistoryAsync(dbUser.Id, 1, 1, HistoryRequestOptions.Any, CancellationToken.None)
 												  .ConfigureAwait(false);
-						lastHistoryEntry = data.MaxBy(h => h.Id).Id;
+						lastHistoryEntry = data.MaxBy(h => h.Id)!.Id;
 						break;
 					}
 					case ShikiUserFeatures.Favourites:

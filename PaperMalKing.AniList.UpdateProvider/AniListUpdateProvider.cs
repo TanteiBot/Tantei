@@ -86,7 +86,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 														 .Select(r => r.ToDiscordEmbedBuilder(recentUserUpdates.User)));
 				foreach (var grouping in recentUserUpdates.Activities.GroupBy(activity => activity.Media.Id))
 				{
-					var lastListActivityOnMedia = grouping.MaxBy(activity => activity.CreatedAtTimestamp);
+					var lastListActivityOnMedia = grouping.MaxBy(activity => activity.CreatedAtTimestamp)!;
 					var mediaListEntry = lastListActivityOnMedia.Media.Type == ListType.ANIME
 						? recentUserUpdates.AnimeList.FirstOrDefault(mle => mle.Id == lastListActivityOnMedia.Media.Id)
 						: recentUserUpdates.MangaList.FirstOrDefault(mle => mle.Id == lastListActivityOnMedia.Media.Id);

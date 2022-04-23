@@ -29,19 +29,16 @@ namespace PaperMalKing.Common
     {
         public static IList<T> Shuffle<T>(this IList<T> list)
         {
-            using var provider = new RNGCryptoServiceProvider();
             var n = list.Count;
             Span<byte> box = stackalloc byte[sizeof(int)];
             while (n > 1)
             {
-                provider.GetBytes(box);
+                RandomNumberGenerator.Fill(box);
                 var bit = BitConverter.ToInt32(box);
                 var k = Math.Abs(bit) % n;
                 n--;
-                var value = list[k];
-                list[k] = list[n];
-                list[n] = value;
-            }
+                (list[k], list[n]) = (list[n], list[k]);
+			}
 
             return list;
         }
@@ -63,11 +60,5 @@ namespace PaperMalKing.Common
             Array.ForEach(array, action);
             return array;
         }
-
-		public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector) where TKey : IComparable<TKey> =>
-            source.Aggregate((accumulator, next) => selector(accumulator).CompareTo(selector(next)) < 0 ? next : accumulator);
-
-        public static TSource MinBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector) where TKey : IComparable<TKey> =>
-            source.Aggregate((accumulator, next) => selector(accumulator).CompareTo(selector(next)) > 0 ? next : accumulator);
-    }
+	}
 }
