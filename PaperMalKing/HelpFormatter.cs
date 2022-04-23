@@ -106,7 +106,7 @@ namespace PaperMalKing
 		/// <returns>This help formatter.</returns>
 		public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
 		{
-			if (this.Command != null)
+			if (this.Command is not null)
 				this.EmbedBuilder.AddField("Subcommands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
 			else
 			{
@@ -115,7 +115,7 @@ namespace PaperMalKing
 				{
 					if (cmd is CommandGroup cGroup)
 					{
-						if (cGroup.Parent != null)
+						if (cGroup.Parent is not null)
 							continue;
 						var chs = cGroup.Children.ToList();
 
@@ -143,7 +143,7 @@ namespace PaperMalKing
 		/// <returns>Data for the help message.</returns>
 		public override CommandHelpMessage Build()
 		{
-			if (this.Command == null)
+			if (this.Command is null)
 				this.EmbedBuilder.WithDescription("List of all commands.");
 
 			return new CommandHelpMessage(embed: this.EmbedBuilder.Build());
@@ -158,7 +158,7 @@ namespace PaperMalKing
 			var cmd = this.Command;
 			var exChecksSb = new StringBuilder();
 
-			while (cmd != null)
+			while (cmd is not null)
 			{
 				if (cmd.ExecutionChecks?.Any() == true)
 				{

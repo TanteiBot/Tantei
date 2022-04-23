@@ -48,7 +48,7 @@ namespace PaperMalKing.UpdatesProviders.Base
 			BaseUser user;
 			try
 			{
-				user = await this.UserService.AddUserAsync(username, ctx.Member.Id, ctx.Member.Guild.Id).ConfigureAwait(false);
+				user = await this.UserService.AddUserAsync(username, ctx.Member!.Id, ctx.Member.Guild.Id).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
