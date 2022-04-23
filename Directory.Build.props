@@ -7,7 +7,7 @@
         <Features>strict</Features>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-        <AnalysisLevel>latest</AnalysisLevel>
+        <AnalysisLevel>5</AnalysisLevel>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
