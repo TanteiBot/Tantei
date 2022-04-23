@@ -134,14 +134,14 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 			{
 				var aNode = parent.ChildNodes.First(x => x.Name == "a");
 				var urlUnparsed = aNode.GetAttributeValue("href", "");
-				if (urlUnparsed.StartsWith("/"))
+				if (urlUnparsed.StartsWith("/", StringComparison.Ordinal))
 				{
 					urlUnparsed = Constants.BASE_URL + urlUnparsed;
 				}
 
 				var titleNode = aNode.ChildNodes.First(x=> x.HasClass("title"));
 				var imageUrlNode = aNode.ChildNodes.First(x => x.HasClass("image"));
-				return new BaseFavorite(new MalUrl(urlUnparsed), titleNode.InnerText, imageUrlNode.GetAttributeValue("data-src", "").Replace("/r/140x220", ""));
+				return new BaseFavorite(new MalUrl(urlUnparsed), titleNode.InnerText, imageUrlNode.GetAttributeValue("data-src", "").Replace("/r/140x220", "", StringComparison.OrdinalIgnoreCase));
 			}
 		}
 	}
