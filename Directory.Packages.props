@@ -17,7 +17,7 @@
 		<PackageVersion Include="GraphQL.Client.Serializer.SystemTextJson" Version="4.0.2"/>
 
 		<!-- EF Core -->
-		<PackageVersion Include="Microsoft.EntityFrameworkCore" Version="6.0.5"/>
+		<PackageVersion Include="Microsoft.EntityFrameworkCore" Version="6.0.6"/>
 		<PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.5"/>
 		<PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.5"/>
 		<PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5"/>
