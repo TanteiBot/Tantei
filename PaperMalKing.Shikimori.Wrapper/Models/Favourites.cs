@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -36,7 +38,10 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 			init
 			{
 				foreach (var entry in value)
+				{
 					entry.GenericType = "animes";
+				}
+
 				this._allFavourites.AddRange(value);
 			}
 		}
@@ -49,7 +54,10 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 			init
 			{
 				foreach (var entry in value)
+				{
 					entry.GenericType = "mangas";
+				}
+
 				this._allFavourites.AddRange(value);
 			}
 		}
@@ -62,7 +70,9 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 			init
 			{
 				foreach (var entry in value)
+				{
 					entry.GenericType = "characters";
+				}
 				this._allFavourites.AddRange(value);
 			}
 		}
@@ -75,7 +85,9 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 			init
 			{
 				foreach (var entry in value)
+				{
 					entry.GenericType = "people";
+				}
 				this._allFavourites.AddRange(value);
 			}
 		}
@@ -89,8 +101,8 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 			{
 				foreach (var entry in value)
 				{
-					entry.SpecificType = "mangaka";
 					entry.GenericType = "people";
+					entry.SpecificType = "Mangaka";
 				}
 
 				this._allFavourites.AddRange(value);
@@ -106,8 +118,8 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 			{
 				foreach (var entry in value)
 				{
-					entry.SpecificType = "seyu";
 					entry.GenericType = "people";
+					entry.SpecificType = "Seyu";
 				}
 
 				this._allFavourites.AddRange(value);
@@ -123,14 +135,31 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 			{
 				foreach (var entry in value)
 				{
-					entry.SpecificType = "producer";
 					entry.GenericType = "people";
+					entry.SpecificType = "Producer";
 				}
 
 				this._allFavourites.AddRange(value);
 			}
 		}
 
-		public static readonly Favourites Empty = new ();
+		[JsonPropertyName("ranobe")]
+		public FavouriteEntry[] Ranobe
+		{
+			[Obsolete("Used only for json serializer", true)]
+			get => throw new NotSupportedException();
+			init
+			{
+				foreach (var entry in value)
+				{
+					entry.GenericType = "mangas";
+					entry.SpecificType = "Ranobe";
+				}
+
+				this._allFavourites.AddRange(value);
+			}
+		}
+
+		public static readonly Favourites Empty = new();
 	}
 }
