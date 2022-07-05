@@ -22,7 +22,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '5.x'
+          dotnet-version: '6.x'
       - name: Install deps
         run: dotnet restore
       - name: Build projects
