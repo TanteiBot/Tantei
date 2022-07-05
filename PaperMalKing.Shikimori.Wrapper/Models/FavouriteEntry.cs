@@ -26,10 +26,10 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 	internal sealed class FavouriteEntry : IEquatable<FavouriteEntry>
 	{
 		[JsonIgnore]
-		public string? GenericType { get; set; }
+		public string? GenericType { get; internal set; }
 
 		[JsonIgnore]
-		public string? SpecificType { get; set; } = null;
+		public string? SpecificType { get; internal set; } = null;
 
 		[JsonPropertyName("id")]
 		public ulong Id { get; init; }
