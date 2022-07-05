@@ -165,6 +165,10 @@ namespace PaperMalKing.Services.Background
 								await this.Client.UpdateStatusAsync(discordActivity, userStatus).ConfigureAwait(false);
 								await Task.Delay(TimeSpan.FromMilliseconds(options.TimeToBeDisplayedInMilliseconds), token).ConfigureAwait(false);
 							}
+							catch (TaskCanceledException)
+							{
+								this._logger.LogInformation("Activity changing canceled");
+							}
 							catch (Exception ex)
 							{
 								this._logger.LogError(ex, "Error occured while updating Discord presence");
