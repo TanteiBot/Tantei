@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using GraphQL.Client.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -78,7 +79,16 @@ namespace PaperMalKing.AniList.UpdateProvider
 				var perUserCancellationToken = perUserCancellationTokenSource.Token;
 				this.Logger.LogDebug("Starting to check for updates of {UserId}", dbUser.Id);
 				var allUpdates = new List<DiscordEmbedBuilder>();
-				var recentUserUpdates = await this._client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, perUserCancellationToken).ConfigureAwait(false);
+				CombinedRecentUpdatesResponse recentUserUpdates;
+				try
+				{
+					recentUserUpdates = await this._client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, perUserCancellationToken)
+												  .ConfigureAwait(false);
+				}
+				catch (GraphQLHttpRequestException ex) when (ex.Message.Contains("NotFound", StringComparison.Ordinal))
+				{
+					continue;
+				}
 				if ((dbUser.Features & AniListUserFeatures.Favourites) != 0)
 					allUpdates.AddRange(await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, perUserCancellationToken).ConfigureAwait(false));
 				if ((dbUser.Features & AniListUserFeatures.Reviews) != 0)
