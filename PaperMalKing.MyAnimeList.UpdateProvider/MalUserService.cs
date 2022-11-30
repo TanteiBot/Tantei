@@ -61,7 +61,8 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			{
 				if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)) // User already in specified guild
 				{
-					return new(dbUser.Username);
+					throw new UserProcessingException(
+						"You already have your account connected. If you want to switch to another account, remove current one, then add the new one.");
 				}
 
 				guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
