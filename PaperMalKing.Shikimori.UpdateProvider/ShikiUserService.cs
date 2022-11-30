@@ -60,8 +60,8 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			if (dbUser != null) // User already in db
 			{
 				if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
-					return new(username);
-
+					throw new UserProcessingException(
+						"You already have your account connected. If you want to switch to another account, remove current one, then add the new one.");
 				guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
 				if (guild == null)
 					throw new UserProcessingException(new(username),
