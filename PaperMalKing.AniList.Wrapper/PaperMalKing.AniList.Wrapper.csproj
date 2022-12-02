@@ -11,9 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-            <_Parameter1>PaperMalKing.AniList.UpdateProvider</_Parameter1>
-        </AssemblyAttribute>
+        <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider" />
     </ItemGroup>
 
     <ItemGroup>
