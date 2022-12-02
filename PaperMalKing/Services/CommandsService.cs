@@ -38,20 +38,18 @@ namespace PaperMalKing.Services
 	public sealed class CommandsService : ICommandsService
 	{
 		private readonly ILogger<CommandsService> _logger;
-		private readonly CommandsOptions _options;
 		public CommandsNextExtension CommandsExtension { get; }
 
 		public CommandsService(IOptions<CommandsOptions> options, IServiceProvider provider, DiscordClient client, ILogger<CommandsService> logger)
 		{
 			this._logger = logger;
 			this._logger.LogTrace("Building Commands service");
-			this._options = options.Value;
 
 			var config = new CommandsNextConfiguration
 			{
-				CaseSensitive = this._options.CaseSensitive,
-				EnableMentionPrefix = this._options.EnableMentionPrefix,
-				StringPrefixes = this._options.Prefixes,
+				CaseSensitive = options.Value.CaseSensitive,
+				EnableMentionPrefix = options.Value.EnableMentionPrefix,
+				StringPrefixes = options.Value.Prefixes,
 				DmHelp = false,
 				Services = provider
 			};

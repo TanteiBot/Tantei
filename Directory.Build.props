@@ -36,11 +36,27 @@
             MA0023; <!--Add RegexOptions.ExplicitCapture-->
             MA0046; <!--Use EventHandler<T> to declare events-->
             MA0051; <!--Method is too long-->
+            
+            S125; <!--Remove this commented out code.-->
+            S2326; <!--'T' is not used in the interface.-->
+            S1075; <!--Refactor your code not to use hardcoded absolute paths or URIs.-->
+            S1135; <!--Complete the task associated to this 'TODO' comment.-->
+            S3218; <!--Rename this method to not shadow the outer class' member with the same name.-->
+            S1854; <!--Remove this useless assignment to local variable 'progress'.-->
+            S4457; <!--Split this method into two, one handling parameters check and the other handling the asynchronous code.-->
+            S3925; <!--Update this implementation of 'ISerializable' to conform to the recommended serialization pattern.-->
+            S112; <!--'System.Exception' should not be thrown by user code.-->
+            S3885; <!--Replace this call to 'Assembly.LoadFile' with 'Assembly.Load'.-->
+            S1481; <!--Remove the unused local variable 's'.-->
         </NoWarn>
     </PropertyGroup>
     
     <ItemGroup>
         <PackageReference Include="Meziantou.Analyzer" Version="1.0.756">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="8.49.0.57237">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

@@ -56,11 +56,11 @@ namespace PaperMalKing.Common.RateLimiters
 			return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 		}
 
-		public new void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-			base.Dispose();
 			if (this.RateLimiter is IDisposable disposable)
 				disposable.Dispose();
+			base.Dispose(disposing);
 		}
 	}
 }

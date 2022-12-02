@@ -132,6 +132,14 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			UserId = user.UserId
 		};
 
+		internal static DiscordEmbedBuilder WithMalUpdateProviderFooter(this DiscordEmbedBuilder builder)
+		{
+			builder.Footer = MalUpdateFooter;
+			return builder;
+		}
+
+		internal static string ToHashString(this (string, string) v) => $"{v.Item1} {v.Item2}";
+
 		internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this IMalFavorite favorite, bool added)
 		{
 			var eb = new DiscordEmbedBuilder
@@ -153,14 +161,6 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 			return eb;
 		}
-
-		internal static DiscordEmbedBuilder WithMalUpdateProviderFooter(this DiscordEmbedBuilder builder)
-		{
-			builder.Footer = MalUpdateFooter;
-			return builder;
-		}
-
-		internal static string ToHashString(this (string, string) v) => $"{v.Item1} {v.Item2}";
 
 		internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this IListEntry listEntry, User user, DateTimeOffset timestamp,
 																  MalUserFeatures features)
@@ -223,7 +223,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			}
 
 			eb.AddField("Progress", userProgressText, true);
-			
+
 			var shortTitle = TitleMediaTypeString(listEntry.Title, listEntry.MediaType, features);
 			string title;
 			if (features.HasFlag(MalUserFeatures.MediaStatus))

@@ -38,8 +38,11 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 	internal class ShikiUpdateProviderConfigurator : IUpdateProviderConfigurator<ShikiUpdateProvider>
 	{
 		/// <inheritdoc />
+		[Obsolete("", true)]
 		public void ConfigureNonStatic(IConfiguration configuration, IServiceCollection serviceCollection)
-		{ }
+		{
+			throw new NotSupportedException();
+		}
 
 		public static void Configure(IConfiguration configuration, IServiceCollection serviceCollection)
 		{

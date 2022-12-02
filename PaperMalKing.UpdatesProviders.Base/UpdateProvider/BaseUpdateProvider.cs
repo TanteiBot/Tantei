@@ -59,6 +59,7 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 			return this._updateCheckingRunningTask;
 		}
 
+		[SuppressMessage("Major Bug", "S3168:\"async\" methods should not return \"void\"")]
 		private async void TimerCallback()
 		{
 			using var cts = new CancellationTokenSource();

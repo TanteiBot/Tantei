@@ -71,7 +71,9 @@ namespace PaperMalKing
 			{
 				var sb = new StringBuilder();
 
+				#pragma warning disable S3267
 				foreach (var ovl in command.Overloads.OrderByDescending(x => x.Priority))
+				#pragma warning restore S3267
 				{
 					sb.Append('`').Append(command.QualifiedName);
 

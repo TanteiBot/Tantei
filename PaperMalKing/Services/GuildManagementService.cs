@@ -33,7 +33,9 @@ namespace PaperMalKing.Services
 {
 	public sealed class GuildManagementService
 	{
+		#pragma warning disable S1450
 		private readonly ILogger<GuildManagementService> _logger;
+		#pragma warning restore S1450
 
 		private readonly IServiceProvider _serviceProvider;
 

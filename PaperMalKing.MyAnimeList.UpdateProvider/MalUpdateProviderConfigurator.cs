@@ -37,8 +37,11 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 	internal sealed class MalUpdateProviderConfigurator : IUpdateProviderConfigurator<MalUpdateProvider>
 	{
 		/// <inheritdoc />
+		[Obsolete("", true)]
 		public void ConfigureNonStatic(IConfiguration configuration, IServiceCollection serviceCollection)
-		{ }
+		{
+			throw new NotSupportedException();
+		}
 
 		public static void Configure(IConfiguration configuration, IServiceCollection services)
 		{

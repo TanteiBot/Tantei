@@ -100,12 +100,12 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				{
 					var latest = list.FirstOrDefault(entry => entry.Id == update.Id);
 					if (latest == null)
-						continue;
-					else
 					{
-						dbUpdateAction(latest.GetHash().ToHashString(), update.UpdateDateTime, dbUser);
-						break;
+						continue;
 					}
+
+					dbUpdateAction(latest.GetHash().ToHashString(), update.UpdateDateTime, dbUser);
+					break;
 				}
 
 				return updates.Select(update => list.First(entry => entry.Id == update.Id)

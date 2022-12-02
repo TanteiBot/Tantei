@@ -76,7 +76,9 @@ namespace PaperMalKing.Services
 					this.AddChannel(channel);
 				}
 
+				#pragma warning disable S3267
 				foreach (var kvp in this._updateProvidersConfigurationService.Providers)
+				#pragma warning restore S3267
 				{
 					var provider = kvp.Value;
 					provider.UpdateFoundEvent += this.PublishUpdates;

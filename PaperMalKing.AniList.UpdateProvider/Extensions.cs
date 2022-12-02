@@ -95,8 +95,15 @@ namespace PaperMalKing.AniList.UpdateProvider
 				result.Add(response);
 				hasNextPage = response.HasNextPage;
 				if (perChunk == initialPerChunkValue)
+				{
 					perChunk = extendedPerChunkValue;
-				else if (perChunk == extendedPerChunkValue) chunk++;
+				}
+				#pragma warning disable S2589
+				else if (perChunk == extendedPerChunkValue)
+				#pragma warning restore S2589
+				{
+					chunk++;
+				}
 			}
 
 			return result;
