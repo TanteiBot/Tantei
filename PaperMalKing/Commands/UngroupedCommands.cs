@@ -82,7 +82,7 @@ namespace PaperMalKing.Commands
 		[Command("About")]
 		[Description("Displays info about bot")]
 		[Aliases("Info")]
-		public async Task AboutCommand(CommandContext context)
+		public Task AboutCommand(CommandContext context)
 		{
 			if (this.AboutEmbed == null)
 			{
@@ -110,7 +110,7 @@ namespace PaperMalKing.Commands
 				Interlocked.Exchange(ref this.AboutEmbed, embedBuilder.Build());
 			}
 
-			await context.RespondAsync(embed: this.AboutEmbed).ConfigureAwait(false);
+			return context.RespondAsync(embed: this.AboutEmbed);
 		}
 
 		[Command("DeleteMessages")]

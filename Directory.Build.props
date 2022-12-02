@@ -48,6 +48,8 @@
             S112; <!--'System.Exception' should not be thrown by user code.-->
             S3885; <!--Replace this call to 'Assembly.LoadFile' with 'Assembly.Load'.-->
             S1481; <!--Remove the unused local variable 's'.-->
+
+            AsyncFixer02; <!--ToArrayAsync should be used instead of -->
         </NoWarn>
     </PropertyGroup>
     
@@ -57,6 +59,10 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="SonarAnalyzer.CSharp" Version="8.49.0.57237">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="AsyncFixer" Version="1.6.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

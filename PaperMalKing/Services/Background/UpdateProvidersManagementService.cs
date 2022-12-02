@@ -51,7 +51,7 @@ namespace PaperMalKing.Services.Background
 			return Task.CompletedTask;
 		}
 
-		public async Task StopAsync(CancellationToken cancellationToken)
+		public Task StopAsync(CancellationToken cancellationToken)
 		{
 			this._logger.LogInformation("Stopping update providers");
 			var tasks = new Task[this._updateProvidersConfigurationService.Providers.Count];
@@ -62,7 +62,7 @@ namespace PaperMalKing.Services.Background
 				tasks[i] = provider.TriggerStoppingAsync();
 			}
 
-			await Task.WhenAll(tasks).ConfigureAwait(false);
+			return Task.WhenAll(tasks);
 		}
 	}
 }
