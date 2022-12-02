@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models
@@ -27,7 +28,9 @@ namespace PaperMalKing.AniList.Wrapper.Models
         public PageInfo PageInfo { get; init; } = null!;
 
         [JsonPropertyName("values")]
+		#pragma warning disable CA1819
         public T[] Nodes { get; init; } = null!;
+		#pragma warning restore CA1819
 
         public static readonly Connection<T> Empty = new()
         {

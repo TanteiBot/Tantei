@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
@@ -62,12 +63,12 @@ namespace PaperMalKing.AniList.Wrapper.Models
 
         [JsonPropertyName("description")]
         public string Description { get; init; } = null!;
-        
+
         [JsonPropertyName("genres")]
-        public string[] Genres { get; init; } = Array.Empty<string>();
+        public IReadOnlyList<string> Genres { get; init; } = Array.Empty<string>();
 
         [JsonPropertyName("tags")]
-        public MediaTag[] Tags { get; init; } = Array.Empty<MediaTag>();
+        public IReadOnlyList<MediaTag> Tags { get; init; } = Array.Empty<MediaTag>();
 
         [JsonPropertyName("studios")]
         public Connection<Studio> Studios { get; init; } = Connection<Studio>.Empty;

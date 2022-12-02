@@ -146,7 +146,7 @@ namespace PaperMalKing.Services.Background
 		{
 			this._logger.LogDebug("Starting {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
 			this._logger.LogInformation("Connecting to Discord");
-			if (this._options.Value.Activities.Length > 1)
+			if (this._options.Value.Activities.Count > 1)
 			{
 				await this.Client.ConnectAsync().ConfigureAwait(false);
 				await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken).ConfigureAwait(false);

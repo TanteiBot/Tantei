@@ -1,33 +1,30 @@
 <Project>
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <LangVersion>9</LangVersion>
+        <LangVersion>10</LangVersion>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>nullable</WarningsAsErrors>
         <Features>strict</Features>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-        <AnalysisLevel>5</AnalysisLevel>
+        <AnalysisLevel>6</AnalysisLevel>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+        <AnalysisMode>All</AnalysisMode>
         <PathMap>$(MSBuildProjectDirectory)=/$(MSBuildProjectName)</PathMap>
         <NoWarn>$(NoWarn);
-            CA1002; <!--Do not expose generic lists-->
             CA1003; <!--Use generic event handler instances-->
             CA1014; <!--Mark assemblies with CLSCompliantAttribute-->
             CA1028; <!--Enum storage should be Int32-->
             CA1032; <!--Implement standard exception constructors-->
-            CA1034; <!--Nested types should not be visible-->
             CA1056; <!--URI properties should not be strings-->
             CA1062; <!--Validate arguments of public methods-->
             CA1305; <!--Specify IFormatProvider-->
             CA1308; <!--Normalize strings to uppercase-->
             CA1309; <!--Use ordinal StringComparison-->
             CA1805; <!--Do not initialize unnecessarily.-->
-            CA1819; <!--Properties should not return arrays-->
             CA1812; <!--Avoid uninstantiated internal classes-->
-            CA1848;
+            CA1848; <!--For improved performance, use the LoggerMessage delegates -->
             CA2201; <!--Do not raise reserved exception types-->
             CA2234; <!--Pass System.Uri objects instead of strings-->
         </NoWarn>

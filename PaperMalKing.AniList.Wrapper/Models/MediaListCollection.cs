@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
@@ -26,7 +27,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
 	public sealed class MediaListCollection
     {
         [JsonPropertyName("lists")]
-        public MediaListGroup[] Lists { get; init; } = Array.Empty<MediaListGroup>();
+        public IReadOnlyList<MediaListGroup> Lists { get; init; } = Array.Empty<MediaListGroup>();
 
         public static readonly MediaListCollection Empty = new ();
 	}

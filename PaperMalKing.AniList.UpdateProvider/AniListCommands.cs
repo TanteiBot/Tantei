@@ -59,6 +59,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 		[Description("Stop sending your updates to this server")]
 		public override Task RemoveUserHereCommand(CommandContext ctx) => base.RemoveUserHereCommand(ctx);
 
+		#pragma warning disable CA1034
 		[Group("features")]
 		[Description("Manage your features for updates send from AniList.co")]
 		[ModuleLifespan(ModuleLifespan.Singleton)]

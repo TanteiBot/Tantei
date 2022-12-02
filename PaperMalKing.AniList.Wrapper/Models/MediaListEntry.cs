@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
@@ -46,28 +47,28 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("point100Score")]
         public byte Point100Score
         {
-            [Obsolete("", true)] get => throw new NotSupportedException();
+            [Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)] get => throw new NotSupportedException();
             init => this._scores.Add(ScoreFormat.POINT_100, value);
         }
 
         [JsonPropertyName("point10Score")]
         public byte Point10Score
         {
-            [Obsolete("", true)] get => throw new NotSupportedException();
+            [Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)] get => throw new NotSupportedException();
             init => this._scores.Add(ScoreFormat.POINT_10, value);
         }
 
         [JsonPropertyName("point5Score")]
         public byte Point5Score
         {
-            [Obsolete("", true)] get => throw new NotSupportedException();
+            [Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)] get => throw new NotSupportedException();
             init => this._scores.Add(ScoreFormat.POINT_5, value);
         }
 
         [JsonPropertyName("point3Score")]
         public byte Point3Score
         {
-            [Obsolete("", true)] get => throw new NotSupportedException();
+            [Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)] get => throw new NotSupportedException();
             init => this._scores.Add(ScoreFormat.POINT_3, value);
         }
 
@@ -75,7 +76,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         public ulong Id { get; init; }
 
         [JsonPropertyName("customLists")]
-        public CustomList[]? CustomLists { get; init; } = Array.Empty<CustomList>();
+        public IReadOnlyList<CustomList>? CustomLists { get; init; } = Array.Empty<CustomList>();
 
         public string GetScore(ScoreFormat scoreFormat)
         {
