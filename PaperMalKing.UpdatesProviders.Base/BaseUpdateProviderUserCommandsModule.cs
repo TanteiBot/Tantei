@@ -28,11 +28,10 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base
 {
-	[SuppressMessage("Microsoft.Design", "CA1051")]
 	public abstract class BaseUpdateProviderUserCommandsModule : BaseCommandModule
 	{
-		protected readonly ILogger<BaseUpdateProviderUserCommandsModule> Logger;
-		protected readonly IUpdateProviderUserService UserService;
+		protected ILogger<BaseUpdateProviderUserCommandsModule> Logger { get; }
+		protected IUpdateProviderUserService UserService { get; }
 
 		/// <inheritdoc />
 		protected BaseUpdateProviderUserCommandsModule(IUpdateProviderUserService userService, ILogger<BaseUpdateProviderUserCommandsModule> logger)

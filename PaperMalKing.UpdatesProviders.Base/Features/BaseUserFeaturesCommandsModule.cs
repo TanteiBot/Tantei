@@ -30,12 +30,10 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features
 {
-	[SuppressMessage("Microsoft.Design", "CA1051")]
-	[SuppressMessage("Microsoft.Design", "CA1308")]
 	public abstract class BaseUserFeaturesCommandsModule<T> : BaseCommandModule where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 	{
-		protected readonly IUserFeaturesService<T> UserFeaturesService;
-		protected readonly ILogger<BaseUserFeaturesCommandsModule<T>> Logger;
+		protected IUserFeaturesService<T> UserFeaturesService { get; }
+		protected ILogger<BaseUserFeaturesCommandsModule<T>> Logger { get; }
 
 		protected BaseUserFeaturesCommandsModule(IUserFeaturesService<T> userFeaturesService, ILogger<BaseUserFeaturesCommandsModule<T>> logger)
 		{

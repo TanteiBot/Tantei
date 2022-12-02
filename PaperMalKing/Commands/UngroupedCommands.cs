@@ -45,7 +45,6 @@ namespace PaperMalKing.Commands
 
 		private DiscordEmbed? AboutEmbed;
 
-		/// <inheritdoc />
 		public UngroupedCommands(UpdateProvidersConfigurationService providersConfigurationService, IHostApplicationLifetime lifetime)
 		{
 			this._providersConfigurationService = providersConfigurationService;
@@ -55,7 +54,6 @@ namespace PaperMalKing.Commands
 		[Command("say")]
 		[Description("Sends embed in selected channel with selected text")]
 		[OwnerOrPermission(Permissions.ManageGuild)]
-		[SuppressMessage("Microsoft.Design", "CA1031")]
 		public async Task SayCommand(CommandContext context, [Description("Channel where the embed will be send")]
 									 DiscordChannel channelToSayIn, [RemainingText, Description("Text to send")]
 									 string messageContent)
@@ -73,7 +71,9 @@ namespace PaperMalKing.Commands
 			{
 				await channelToSayIn.SendMessageAsync(embed: embed).ConfigureAwait(false);
 			}
+			#pragma warning disable CA1031
 			catch
+			#pragma warning restore CA1031
 			{
 				await context.RespondAsync("Couldn't send message. Check permissions for bot and try again.").ConfigureAwait(false);
 			}

@@ -25,8 +25,9 @@ using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-	[SuppressMessage("Naming", "CA1724")]
+	#pragma warning disable CA1724
     public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
+	#pragma warning restore CA1724
     {
         [JsonPropertyName("id")]
         public ulong Id { get; init; }

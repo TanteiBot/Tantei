@@ -26,16 +26,15 @@ using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 {
-	[SuppressMessage("Microsoft.Design", "CA1051")]
 	public abstract class BaseUpdateProvider : IUpdateProvider
 	{
 		private CancellationTokenSource? _cts;
 
-		protected readonly ILogger<BaseUpdateProvider> Logger;
+		protected ILogger<BaseUpdateProvider> Logger { get; }
 
-		protected readonly Timer Timer;
+		protected Timer Timer { get; }
 
-		protected readonly TimeSpan DelayBetweenTimerFires;
+		protected TimeSpan DelayBetweenTimerFires { get; }
 
 		private Task _updateCheckingRunningTask = null!;
 
@@ -60,7 +59,6 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 			return this._updateCheckingRunningTask;
 		}
 
-		[SuppressMessage("Microsoft.Design", "CA1031")]
 		private async void TimerCallback()
 		{
 			using var cts = new CancellationTokenSource();
@@ -71,7 +69,9 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 				this._updateCheckingRunningTask = this.CheckForUpdatesAsync(this._cts.Token);
 				await this._updateCheckingRunningTask.ConfigureAwait(false);
 			}
+			#pragma warning disable CA1031
 			catch (Exception e)
+			#pragma warning restore CA1031
 			{
 				this.Logger.LogError(e, "Exception occured while checking for updates in {@Name} updates provider", this.Name);
 			}

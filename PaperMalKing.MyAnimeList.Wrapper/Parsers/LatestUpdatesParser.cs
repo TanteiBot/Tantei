@@ -25,7 +25,6 @@ using PaperMalKing.MyAnimeList.Wrapper.Models.Progress;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 {
-	[SuppressMessage("Globalization", "CA1307")]
 	internal static class LatestUpdatesParser
 	{
 		private static readonly char[] Numbers = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
@@ -65,13 +64,13 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 			else
 			{
 				progress = ProgressParser.Parse(progressTypeValue.Substring(0, index - 1).Trim());
-				var length = progressTypeValue.IndexOf('/') - index;
+				var length = progressTypeValue.IndexOf('/', StringComparison.Ordinal) - index;
 				if (length > 0)
 					progressValue = int.Parse(progressTypeValue.Substring(index, length));
 			}
 
 			var score = 0;
-			if (!scoreText.Contains('-'))
+			if (!scoreText.Contains('-', StringComparison.Ordinal))
 			{
 				var scoreIndex = scoreText.LastIndexOf(' ');
 				score = int.Parse(scoreText.Substring(scoreIndex));

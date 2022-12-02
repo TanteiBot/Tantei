@@ -23,8 +23,9 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-	[SuppressMessage("Naming", "CA1711")]
+	#pragma warning disable CA1711
 	public sealed class MediaListCollection
+	#pragma warning restore CA1711
     {
         [JsonPropertyName("lists")]
         public IReadOnlyList<MediaListGroup> Lists { get; init; } = Array.Empty<MediaListGroup>();

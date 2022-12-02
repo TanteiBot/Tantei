@@ -30,15 +30,16 @@ namespace PaperMalKing.UpdatesProviders.Base.Features
 {
     public class FeatureArgumentConverter<T> : IArgumentConverter<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
     {
-		[SuppressMessage("Microsoft.Design", "CA1031")]
 		public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
         {
             try
             {
                 return Task.FromResult(new Optional<T>(value.DehumanizeTo<T>()));
             }
-            catch
-            {
+			#pragma warning disable CA1031
+			catch
+			#pragma warning restore CA1031
+			{
                 return Task.FromResult(Optional.FromNoValue<T>());
             }
         }

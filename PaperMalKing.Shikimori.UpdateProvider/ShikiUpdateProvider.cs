@@ -64,7 +64,6 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		public override event UpdateFoundEvent? UpdateFoundEvent;
 
 		/// <inheritdoc />
-		[SuppressMessage("Microsoft.Design", "CA1031")]
 		protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 		{
 			using var scope = this._serviceProvider.CreateScope();
@@ -144,7 +143,9 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 					this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);
 				}
-				catch(Exception ex)
+				#pragma warning disable CA1031
+				catch (Exception ex)
+				#pragma warning restore CA1031
 				{
 					this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
 					throw;

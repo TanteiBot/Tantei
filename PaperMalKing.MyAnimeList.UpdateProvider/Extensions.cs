@@ -162,7 +162,6 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 		internal static string ToHashString(this (string, string) v) => $"{v.Item1} {v.Item2}";
 
-		[SuppressMessage("Maintainability", "CA1508")]
 		internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this IListEntry listEntry, User user, DateTimeOffset timestamp,
 																  MalUserFeatures features)
 		{
@@ -206,7 +205,11 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 															 mle.UserMangaProgress == MangaProgress.PlanToRead, "ch. ");
 					var volumeProgress =
 						SubEntriesProgress(mle.ReadVolumes, mle.TotalVolumes, mle.UserMangaProgress == MangaProgress.PlanToRead, "v.");
-					userProgressText = chapterProgress.Length != 0 || volumeProgress.Length != 0 ? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
+					userProgressText = chapterProgress.Length != 0 || 
+									   #pragma warning disable CA1508
+									   volumeProgress.Length != 0 
+										#pragma warning restore CA1508
+						? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
 					break;
 				}
 				default:

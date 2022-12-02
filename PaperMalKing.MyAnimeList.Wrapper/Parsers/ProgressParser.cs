@@ -22,7 +22,6 @@ using PaperMalKing.MyAnimeList.Wrapper.Models.Progress;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 {
-	[SuppressMessage("Globalization", "CA1307")]
 	internal static class ProgressParser
 	{
 		internal static GenericProgress Parse(string value)
@@ -30,7 +29,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 			value = value.Trim();
 			if (value.Length == 0 || value == "?")
 				return GenericProgress.Reprogressing;
-			value = value.Replace("-", "").Replace(" ", "");
+			value = value.Replace("-", "", StringComparison.Ordinal).Replace(" ", "", StringComparison.Ordinal);
 			if (TryParse<GenericProgress>(value, out var genericResult))
 				return genericResult;
 			if (TryParse<AnimeProgress>(value, out var animeResult))

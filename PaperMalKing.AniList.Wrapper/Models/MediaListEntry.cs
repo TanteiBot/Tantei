@@ -40,7 +40,6 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("notes")]
         public string? Notes { get; init; }
 
-		[SuppressMessage("", "CA2227")]
 		[JsonPropertyName("advancedScores")]
         public Dictionary<string, float>? AdvancedScores { get; init; }
 

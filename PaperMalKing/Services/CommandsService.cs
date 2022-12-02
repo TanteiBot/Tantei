@@ -41,7 +41,6 @@ namespace PaperMalKing.Services
 		private readonly CommandsOptions _options;
 		public CommandsNextExtension CommandsExtension { get; }
 
-		[SuppressMessage("Microsoft.Design", "CA1031")]
 		public CommandsService(IOptions<CommandsOptions> options, IServiceProvider provider, DiscordClient client, ILogger<CommandsService> logger)
 		{
 			this._logger = logger;
@@ -95,7 +94,9 @@ namespace PaperMalKing.Services
 
 						this.CommandsExtension.RegisterCommands(type);
 					}
+					#pragma warning disable CA1031
 					catch (Exception ex)
+					#pragma warning restore CA1031
 					{
 						this._logger.LogError(ex, "Error occured while trying to register {FullName}", type.FullName);
 					}

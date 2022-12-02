@@ -65,7 +65,6 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		/// <inheritdoc />
 		public override event UpdateFoundEvent? UpdateFoundEvent;
 
-		[SuppressMessage("Microsoft.Design", "CA1031")]
 		protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 		{
 #region LocalFuncs
@@ -164,7 +163,9 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					this.Logger.LogError(exception, "Mal server encounters some error, skipping current update check");
 					return;
 				}
+				#pragma warning disable CA1031
 				catch (Exception exception)
+				#pragma warning restore CA1031
 				{
 					this.Logger.LogError(exception, "Encountered unknown error, skipping current update check");
 					return;

@@ -77,7 +77,6 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 			return doc.DocumentNode;
 		}
 
-		[SuppressMessage("Microsoft.Design", "CA1031")]
 		internal async Task<IEnumerable<FeedItem>> GetRecentRssUpdatesAsync<TR>(string username, CancellationToken cancellationToken = default)
 			where TR : struct, IRssFeedType
 		{
@@ -98,7 +97,9 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 				};
 				feed = (Feed?) this._xmlSerializer.Deserialize(xmlTextReader);
 			}
+			#pragma warning disable CA1031
 			catch
+			#pragma warning restore CA1031
 			{
 				return Enumerable.Empty<FeedItem>();
 			}

@@ -141,7 +141,6 @@ namespace PaperMalKing.Services.Background
 			return Task.CompletedTask;
 		}
 
-		[SuppressMessage("Microsoft.Design", "CA1031")]
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
 			this._logger.LogDebug("Starting {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
@@ -169,7 +168,9 @@ namespace PaperMalKing.Services.Background
 							{
 								this._logger.LogInformation("Activity changing canceled");
 							}
+							#pragma warning disable CA1031
 							catch (Exception ex)
+							#pragma warning restore CA1031
 							{
 								this._logger.LogError(ex, "Error occured while updating Discord presence");
 							}

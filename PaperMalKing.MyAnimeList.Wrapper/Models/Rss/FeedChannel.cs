@@ -22,7 +22,6 @@ using System.Xml.Serialization;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss
 {
-	[SuppressMessage("", "CA2227")]
 	[XmlRoot(ElementName = "channel")]
 	public sealed class FeedChannel
 	{
@@ -35,8 +34,9 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss
 		[XmlElement(ElementName = "description")]
 		public string Description { get; set; } = null!;
 
-		[SuppressMessage("Microsoft.Design", "CA1002")]
 		[XmlElement(ElementName = "item")]
+		#pragma warning disable CA2227, CA1002
 		public List<FeedItem> Items { get; set; } = null!;
+		#pragma warning restore CA2227, CA1002
 	}
 }
