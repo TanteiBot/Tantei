@@ -193,17 +193,17 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				case AnimeListEntry ale:
 				{
 					var progress = ale.UserAnimeProgress.Humanize(LetterCasing.Sentence);
-					var episodeProgress = SubEntriesProgress(ale.WatchedEpisodes, ale.TotalEpisodes,
+					string episodeProgress = SubEntriesProgress(ale.WatchedEpisodes, ale.TotalEpisodes,
 															 ale.UserAnimeProgress == AnimeProgress.PlanToWatch, "ep.");
 					userProgressText = episodeProgress.Length != 0 ? $"{progress} - {episodeProgress}" : progress;
 					break;
 				}
 				case MangaListEntry mle:
 				{
-					var progress = mle.UserMangaProgress.Humanize(LetterCasing.Sentence);
-					var chapterProgress = SubEntriesProgress(mle.ReadChapters, mle.TotalChapters,
+					string progress = mle.UserMangaProgress.Humanize(LetterCasing.Sentence)!;
+					string chapterProgress = SubEntriesProgress(mle.ReadChapters, mle.TotalChapters,
 															 mle.UserMangaProgress == MangaProgress.PlanToRead, "ch. ");
-					var volumeProgress =
+					string volumeProgress =
 						SubEntriesProgress(mle.ReadVolumes, mle.TotalVolumes, mle.UserMangaProgress == MangaProgress.PlanToRead, "v.");
 					userProgressText = chapterProgress.Length != 0 || 
 									   #pragma warning disable CA1508

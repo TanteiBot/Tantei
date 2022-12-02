@@ -28,7 +28,7 @@ namespace PaperMalKing.Common.Attributes
             if(string.IsNullOrWhiteSpace(description))
                 throw new ArgumentException(null, nameof(description));
             if(string.IsNullOrWhiteSpace(summary))
-                throw new ArgumentException(null, nameof(summary)); ;
+                throw new ArgumentException(null, nameof(summary));
             this.Description = description;
             this.Summary = summary;
         }

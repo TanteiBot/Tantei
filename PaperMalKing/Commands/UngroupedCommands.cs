@@ -53,7 +53,7 @@ namespace PaperMalKing.Commands
 
 		[Command("say")]
 		[Description("Sends embed in selected channel with selected text")]
-		[OwnerOrPermission(Permissions.ManageGuild)]
+		[OwnerOrPermissions(Permissions.ManageGuild)]
 		public async Task SayCommand(CommandContext context, [Description("Channel where the embed will be send")]
 									 DiscordChannel channelToSayIn, [RemainingText, Description("Text to send")]
 									 string messageContent)

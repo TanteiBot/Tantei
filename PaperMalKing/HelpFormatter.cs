@@ -165,7 +165,7 @@ namespace PaperMalKing
 					if (cmd.ExecutionChecks.Any(x => x is RequireOwnerAttribute))
 						exChecksSb.AppendLine("To execute this command you need to be the owner of the bot.");
 
-					if (cmd.ExecutionChecks.SingleOrDefault(x => x is OwnerOrPermissionAttribute) is OwnerOrPermissionAttribute ownerOrPerms)
+					if (cmd.ExecutionChecks.SingleOrDefault(x => x is OwnerOrPermissionsAttribute) is OwnerOrPermissionsAttribute ownerOrPerms)
 						exChecksSb.AppendLine(
 							$"To execute this command you need to be the owner of the bot or have this permissions {Formatter.InlineCode(ownerOrPerms.Permissions.ToPermissionString())}.");
 				}

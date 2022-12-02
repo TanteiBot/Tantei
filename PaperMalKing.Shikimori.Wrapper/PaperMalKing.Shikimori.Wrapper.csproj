@@ -14,7 +14,16 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj"/>
+        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Models\List\ListType.Anime.cs">
+        <DependentUpon>ListType.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Models\List\ListType.Manga.cs">
+        <DependentUpon>ListType.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

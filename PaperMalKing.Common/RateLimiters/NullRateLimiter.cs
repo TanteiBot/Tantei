@@ -23,9 +23,11 @@ namespace PaperMalKing.Common.RateLimiters
 {
 	public sealed class NullRateLimiter<T> : IRateLimiter<T>
 	{
-		public static readonly NullRateLimiter<T> Instance = new(new(1, 1));
+		#pragma warning disable MA0018
+		public static readonly NullRateLimiter<T> Instance = new(RateLimit.Empty);
+		#pragma warning restore MA0018
 
-		internal NullRateLimiter(RateLimit rateLimit)
+		private NullRateLimiter(RateLimit rateLimit)
 		{
 			this.RateLimit = rateLimit;
 		}

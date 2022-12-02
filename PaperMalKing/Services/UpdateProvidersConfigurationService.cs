@@ -32,7 +32,7 @@ namespace PaperMalKing.Services
 	public sealed class UpdateProvidersConfigurationService
 	{
 		private readonly ILogger<UpdateProvidersConfigurationService> _logger;
-		private readonly Dictionary<string, IUpdateProvider> _providers = new();
+		private readonly Dictionary<string, IUpdateProvider> _providers = new(StringComparer.OrdinalIgnoreCase);
 		private readonly IServiceProvider _serviceProvider;
 
 		public IReadOnlyDictionary<string, IUpdateProvider> Providers => this._providers;

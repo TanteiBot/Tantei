@@ -28,7 +28,7 @@ namespace PaperMalKing.Common.RateLimiters
 			if (rateLimit == null)
 				throw new ArgumentNullException(nameof(rateLimit));
 			if (rateLimit.AmountOfRequests == 0 || rateLimit.PeriodInMilliseconds == 0)
-				return new NullRateLimiter<T>(rateLimit);
+				return NullRateLimiter<T>.Instance;
 
 			return new LockFreeRateLimiter<T>(rateLimit, logger);
 			// return new RateLimiter<T>(rateLimit, logger);

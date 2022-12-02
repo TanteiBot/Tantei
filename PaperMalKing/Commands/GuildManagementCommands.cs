@@ -36,7 +36,7 @@ namespace PaperMalKing.Commands
 	[Aliases("sm", "srvmgm")]
 	[Description("Commands for managing server")]
 	[ModuleLifespan(ModuleLifespan.Singleton)]
-	[OwnerOrPermission(Permissions.ManageGuild)]
+	[OwnerOrPermissions(Permissions.ManageGuild)]
 	public sealed class GuildManagementCommands : BaseCommandModule
 	{
 		private readonly ILogger<GuildManagementCommands> _logger;

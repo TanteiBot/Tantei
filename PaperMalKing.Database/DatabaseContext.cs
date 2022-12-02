@@ -98,8 +98,9 @@ namespace PaperMalKing.Database
 			}
 		}
 
-		/// <inheritdoc />
+		#pragma warning disable MA0051
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		#pragma warning restore MA0051
 		{
 			static void RegisterConverter<T>(ValueConverter valueConverter, ModelBuilder modelBuilder)
 			{

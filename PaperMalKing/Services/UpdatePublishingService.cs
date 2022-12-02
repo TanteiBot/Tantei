@@ -65,7 +65,7 @@ namespace PaperMalKing.Services
 				using var scope = this._serviceProvider.CreateScope();
 				var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 				this._logger.LogDebug("Starting querying posting channels");
-				await foreach (var guild in db.DiscordGuilds.AsNoTracking().AsAsyncEnumerable())
+				await foreach (var guild in db.DiscordGuilds.AsNoTracking().AsAsyncEnumerable().ConfigureAwait(false))
 				{
 					this._logger.LogTrace("Trying to get guild with {Id}", guild.DiscordGuildId);
 					var discordGuild = e.Guilds[guild.DiscordGuildId];

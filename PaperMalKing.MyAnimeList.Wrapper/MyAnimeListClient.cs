@@ -110,7 +110,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 		internal async Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default)
 		{
 			if (options == ParserOptions.None)
-				throw new ArgumentException("No reason to parse profile without anime/manga lists and favorites");
+				throw new ArgumentException("No reason to parse profile without anime/manga lists and favorites", nameof(options)); // TODO Replace with domain exception
 			this._logger.LogDebug("Requesting {@Username} profile", username);
 			username = WebUtility.UrlEncode(username);
 			var requestUrl = Constants.PROFILE_URL + username;

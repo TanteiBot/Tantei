@@ -60,7 +60,7 @@ namespace PaperMalKing.Common.RateLimiters
 					if (isTooEarlyToRefill && !arePermitsAvailable)
 					{
 						var delay = nextRefillDateTime - now;
-						this.Logger.LogDebug("[{ServiceName}] Waiting {Delay}ms", this._serviceName, delay.ToString());
+						this.Logger.LogDebug("[{ServiceName}] Waiting {Delay}ms", this._serviceName, delay);
 						await Task.Delay((int) delay, cancellationToken).ConfigureAwait(false);
 					}
 					else if (isTooEarlyToRefill) // && arePermitsAvailable

@@ -28,7 +28,7 @@ namespace PaperMalKing.Common
 {
 	public static class TypeExtensions
 	{
-		private static readonly Regex HtmlRegex = new("<.*?>", RegexOptions.Compiled);
+		private static readonly Regex HtmlRegex = new("<.*?>", RegexOptions.Compiled, TimeSpan.FromMinutes(5));
 
 		public static string ToFixedWidth(this string s, int newLength)
 		{
