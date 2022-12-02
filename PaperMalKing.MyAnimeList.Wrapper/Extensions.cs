@@ -35,7 +35,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 			var s = value.Replace("/r/96x136", "").Replace("/r/80x120", "").Replace("/r/192x272", "");
 			if (!s.Contains("l.jpg") && !s.Contains("characters"))
 				s = s.Replace(".jpg", "l.jpg");
-			var i = s.IndexOf("?s", StringComparison.InvariantCultureIgnoreCase);
+			var i = s.IndexOf("?s", StringComparison.OrdinalIgnoreCase);
 			return i <=0 ? s : s.Remove(i);
 		}
 

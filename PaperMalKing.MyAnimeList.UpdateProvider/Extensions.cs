@@ -177,7 +177,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				};
 
 			static string TitleMediaTypeString(string title, string mediaType, MalUserFeatures features) =>
-				title.EndsWith(mediaType, StringComparison.InvariantCulture) || title.EndsWith($"({mediaType})", StringComparison.InvariantCulture) || !features.HasFlag(MalUserFeatures.MediaFormat)
+				title.EndsWith(mediaType, StringComparison.OrdinalIgnoreCase) || title.EndsWith($"({mediaType})", StringComparison.OrdinalIgnoreCase) || !features.HasFlag(MalUserFeatures.MediaFormat)
 					? title
 					: $"{title} ({mediaType})";
 
