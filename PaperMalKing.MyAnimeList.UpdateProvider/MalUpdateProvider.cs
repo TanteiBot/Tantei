@@ -302,7 +302,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoriteCharacters, user.Favorites.FavoriteCharacters, user, dbUser));
 			list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoritePeople, user.Favorites.FavoritePeople, user, dbUser));
 			list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoriteCompanies, user.Favorites.FavoriteCompanies, user, dbUser));
-			list.Sort((b1, b2) => string.Compare(b1.Title, b2.Title, StringComparison.InvariantCultureIgnoreCase));
+			list.Sort((b1, b2) => string.Compare(b1.Title, b2.Title, StringComparison.OrdinalIgnoreCase));
 			return list.OrderBy(deb => deb.Color.HasValue ? deb.Color.Value.Value : DiscordColor.None.Value).ThenBy(deb => deb.Title).ToArray();
 		}
 	}

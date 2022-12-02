@@ -76,12 +76,12 @@ namespace PaperMalKing.Services
 			var assemblies = Utils.LoadAndListPmkAssemblies();
 			HashSet<Type> nestedTypesNotToRegister = new();
 
-			foreach (var assembly in assemblies.Where(a => a.FullName?.Contains("PaperMalKing", StringComparison.InvariantCultureIgnoreCase) ?? true))
+			foreach (var assembly in assemblies.Where(a => a.FullName?.Contains("PaperMalKing", StringComparison.OrdinalIgnoreCase) ?? true))
 			{
 				nestedTypesNotToRegister.Clear();
 				this._logger.LogTrace("Found {Assembly} which may contain Commands modules", assembly);
 				foreach (var type in assembly.GetExportedTypes()
-											 .Where(t => t.FullName!.EndsWith("Commands", StringComparison.InvariantCultureIgnoreCase)))
+											 .Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase)))
 				{
 					this._logger.LogTrace("Trying to register {@Type} command module", type);
 					try
@@ -89,7 +89,7 @@ namespace PaperMalKing.Services
 						if (nestedTypesNotToRegister.Contains(type))
 							continue;
 						var nestedTypes = type.GetNestedTypes(BindingFlags.Public)
-											  .Where(t => t.FullName!.EndsWith("Commands", StringComparison.InvariantCultureIgnoreCase));
+											  .Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase));
 						foreach (var nestedType in nestedTypes)
 							nestedTypesNotToRegister.Add(nestedType);
 

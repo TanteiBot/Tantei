@@ -62,7 +62,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Models
 		{
 			unchecked
 			{
-				return ((this.GenericType != null ? this.GenericType.GetHashCode(StringComparison.InvariantCultureIgnoreCase) : 0) * 397) ^ this.Id.GetHashCode();
+				return ((this.GenericType != null ? this.GenericType.GetHashCode(StringComparison.OrdinalIgnoreCase) : 0) * 397) ^ this.Id.GetHashCode();
 			}
 		}
 
