@@ -49,7 +49,7 @@ namespace PaperMalKing.AniList.UpdateProvider
             var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
             var dbUser = await db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds)
                 .FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
-            DiscordGuild guild;
+            DiscordGuild? guild;
             if (dbUser != null) // User already in db
 			{
 				if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
@@ -70,7 +70,7 @@ namespace PaperMalKing.AniList.UpdateProvider
             if (guild == null)
                 throw new UserProcessingException(new(username),
                     "Current server is not in database, ask server administrator to add this server to bot");
-            var dUser = await db.DiscordUsers.FirstOrDefaultAsync(du => du.DiscordUserId == userId).ConfigureAwait(false);
+            var dUser = await db.DiscordUsers.FirstAsync(du => du.DiscordUserId == userId).ConfigureAwait(false);
             var response = await this._client.GetCompleteUserInitialInfoAsync(username).ConfigureAwait(false);
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             dbUser = new()

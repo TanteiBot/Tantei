@@ -106,7 +106,7 @@ namespace PaperMalKing.Services
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var guild = await db.DiscordGuilds.Include(g => g.Users).FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
+			var guild = await db.DiscordGuilds.Include(g => g.Users).FirstAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
 			var user = guild.Users.FirstOrDefault(u => u.DiscordUserId == userId);
 			if (user == null)
 				throw new GuildManagementException("Such user wasn't found as ");
