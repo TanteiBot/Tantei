@@ -53,15 +53,15 @@ namespace PaperMalKing.Services.Background
 			this._options = options;
 
 			this.Client = client;
-			this.Client.Resumed += this.ClientOnResumed;
-			this.Client.Ready += this.ClientOnReady;
-			this.Client.ClientErrored += this.ClientOnClientErrored;
-			this.Client.GuildMemberRemoved += this.ClientOnGuildMemberRemoved;
-			this.Client.GuildDeleted += this.ClientOnGuildDeleted;
+			this.Client.Resumed += this.ClientOnResumedAsync;
+			this.Client.Ready += this.ClientOnReadyAsync;
+			this.Client.ClientErrored += this.ClientOnClientErroredAsync;
+			this.Client.GuildMemberRemoved += this.ClientOnGuildMemberRemovedAsync;
+			this.Client.GuildDeleted += this.ClientOnGuildDeletedAsync;
 			this._logger.LogTrace("Built {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
 		}
 
-		private Task ClientOnGuildDeleted(DiscordClient sender, GuildDeleteEventArgs e)
+		private Task ClientOnGuildDeletedAsync(DiscordClient sender, GuildDeleteEventArgs e)
 		{
 			if (e.Unavailable)
 			{
@@ -91,25 +91,25 @@ namespace PaperMalKing.Services.Background
 			return Task.CompletedTask;
 		}
 
-		private Task ClientOnResumed(DiscordClient sender, ReadyEventArgs e)
+		private Task ClientOnResumedAsync(DiscordClient sender, ReadyEventArgs e)
 		{
 			this._logger.LogInformation("Discord client resumed");
 			return Task.CompletedTask;
 		}
 
-		private Task ClientOnReady(DiscordClient sender, ReadyEventArgs e)
+		private Task ClientOnReadyAsync(DiscordClient sender, ReadyEventArgs e)
 		{
 			this._logger.LogInformation("Discord client is ready");
 			return Task.CompletedTask;
 		}
 
-		private Task ClientOnClientErrored(DiscordClient sender, ClientErrorEventArgs e)
+		private Task ClientOnClientErroredAsync(DiscordClient sender, ClientErrorEventArgs e)
 		{
 			this._logger.LogError(e.Exception, "Discord client errored");
 			return Task.CompletedTask;
 		}
 
-		private Task ClientOnGuildMemberRemoved(DiscordClient sender, GuildMemberRemoveEventArgs e)
+		private Task ClientOnGuildMemberRemovedAsync(DiscordClient sender, GuildMemberRemoveEventArgs e)
 		{
 			_ = Task.Factory.StartNew(async () =>
 			{

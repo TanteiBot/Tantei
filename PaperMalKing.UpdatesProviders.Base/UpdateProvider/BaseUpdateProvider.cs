@@ -56,11 +56,14 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
 		{
 			this._cts?.Cancel();
 			this.Logger.LogInformation("Stopping {Name} update provider", this.Name);
+			#pragma warning disable VSTHRD003
 			return this._updateCheckingRunningTask;
+			#pragma warning restore VSTHRD003
 		}
 
 		[SuppressMessage("Major Bug", "S3168:\"async\" methods should not return \"void\"")]
 		[SuppressMessage("", "AsyncFixer03")]
+		[SuppressMessage("Usage", "VSTHRD100:Avoid async void methods")]
 		private async void TimerCallback()
 		{
 			using var cts = new CancellationTokenSource();

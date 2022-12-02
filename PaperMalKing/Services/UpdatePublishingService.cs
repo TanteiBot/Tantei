@@ -58,7 +58,9 @@ namespace PaperMalKing.Services
 			this._logger.LogTrace("Built {@UpdatePublishingService}", typeof(UpdatePublishingService));
 		}
 
+		#pragma warning disable VSTHRD200
 		private Task DiscordClientOnGuildDownloadCompleted(DiscordClient sender, GuildDownloadCompletedEventArgs e)
+		#pragma warning restore VSTHRD200
 		{
 			_ = Task.Run(async () =>
 			{
@@ -81,7 +83,7 @@ namespace PaperMalKing.Services
 				#pragma warning restore S3267
 				{
 					var provider = kvp.Value;
-					provider.UpdateFoundEvent += this.PublishUpdates;
+					provider.UpdateFoundEvent += this.PublishUpdatesAsync;
 					if (provider is BaseUpdateProvider baseUpdateProvider)
 						baseUpdateProvider.RestartTimer(TimeSpan.FromSeconds(5));
 				}
@@ -105,7 +107,7 @@ namespace PaperMalKing.Services
 			this.AddChannel(updatedValue);
 		}
 
-		private async Task PublishUpdates(UpdateFoundEventArgs args)
+		private async Task PublishUpdatesAsync(UpdateFoundEventArgs args)
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var tasks = new List<Task>(args.DiscordUser.Guilds.Count);

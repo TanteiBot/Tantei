@@ -30,6 +30,7 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features
 {
+	[SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
 	public abstract class BaseUserFeaturesCommandsModule<T> : BaseCommandModule where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 	{
 		protected IUserFeaturesService<T> UserFeaturesService { get; }

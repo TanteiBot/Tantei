@@ -28,6 +28,7 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base
 {
+	[SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
 	public abstract class BaseUpdateProviderUserCommandsModule : BaseCommandModule
 	{
 		protected ILogger<BaseUpdateProviderUserCommandsModule> Logger { get; }

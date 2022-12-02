@@ -95,7 +95,7 @@ namespace PaperMalKing.Shikimori.Wrapper
 			return new(data, hasNextPage);
 		}
 
-		internal Task<UserInfo> GetUserInfo(ulong userId, CancellationToken cancellationToken = default)
+		internal Task<UserInfo> GetUserInfoAsync(ulong userId, CancellationToken cancellationToken = default)
 		{
 			var url = $"{Constants.BASE_USERS_API_URL}/{userId.ToString()}/info";
 			return this._httpClient.GetFromJsonAsync<UserInfo>(url, cancellationToken)!;

@@ -67,8 +67,8 @@ namespace PaperMalKing.Services
 			this.CommandsExtension.RegisterUserFriendlyTypeName<ushort>("unsigned small integer");
 			this.CommandsExtension.RegisterUserFriendlyTypeName<uint>("unsigned integer");
 			this.CommandsExtension.RegisterUserFriendlyTypeName<ulong>("unsigned integer");
-			this.CommandsExtension.CommandErrored += this.CommandsExtensionOnCommandErrored;
-			this.CommandsExtension.CommandExecuted += this.CommandsExtensionOnCommandExecuted;
+			this.CommandsExtension.CommandErrored += this.CommandsExtensionOnCommandErroredAsync;
+			this.CommandsExtension.CommandExecuted += this.CommandsExtensionOnCommandExecutedAsync;
 
 			var assemblies = Utils.LoadAndListPmkAssemblies();
 			HashSet<Type> nestedTypesNotToRegister = new();
@@ -109,13 +109,13 @@ namespace PaperMalKing.Services
 			this._logger.LogTrace("Building Commands service");
 		}
 
-		private Task CommandsExtensionOnCommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
+		private Task CommandsExtensionOnCommandExecutedAsync(CommandsNextExtension sender, CommandExecutionEventArgs e)
 		{
 			this._logger.LogDebug("{Command} was successfully executed by request of {Member}", e.Command, e.Context.Member);
 			return Task.CompletedTask;
 		}
 
-		private Task CommandsExtensionOnCommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
+		private Task CommandsExtensionOnCommandErroredAsync(CommandsNextExtension sender, CommandErrorEventArgs e)
 		{
 			if (e.Exception is CommandNotFoundException ex)
 			{

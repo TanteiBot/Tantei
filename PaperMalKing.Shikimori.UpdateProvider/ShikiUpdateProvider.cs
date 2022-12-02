@@ -108,7 +108,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					FavType = fe.GenericType!,
 					User = dbUser
 				}));
-				var user = await this._client.GetUserInfo(dbUser.Id, cancellationToken).ConfigureAwait(false);
+				var user = await this._client.GetUserInfoAsync(dbUser.Id, cancellationToken).ConfigureAwait(false);
 				totalUpdates.AddRange(removedValues.Select(rf => rf.ToDiscordEmbed(user, false, dbUser.Features)));
 				totalUpdates.AddRange(addedValues.Select(af => af.ToDiscordEmbed(user, true, dbUser.Features)));
 				var groupedHistoryEntries = historyUpdates.GroupSimilarHistoryEntries();

@@ -38,6 +38,7 @@ namespace PaperMalKing.Commands
 {
 	[ModuleLifespan(ModuleLifespan.Singleton)]
 	[SuppressMessage("Performance", "CA1822")]
+	[SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
 	public sealed class UngroupedCommands : BaseCommandModule
 	{
 		private readonly UpdateProvidersConfigurationService _providersConfigurationService;
