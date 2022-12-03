@@ -53,8 +53,8 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.MalUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds)
-								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
+			var dbUser = db.MalUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds)
+								 .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 			DiscordGuild? guild;
 			if (dbUser != null) // User already in DB
 			{
@@ -64,7 +64,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 						"You already have your account connected. If you want to switch to another account, remove current one, then add the new one.");
 				}
 
-				guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
+				guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 				if (guild == null)
 					throw new UserProcessingException(new(username),
 						"Current server is not in database, ask server administrator to add this server to bot");
@@ -74,12 +74,12 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				return new(dbUser.Username);
 			}
 
-			guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
+			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild == null)
 				throw new UserProcessingException(new(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
 
-			var duser = await db.DiscordUsers.FirstOrDefaultAsync(user => user.DiscordUserId == userId).ConfigureAwait(false);
+			var duser = db.DiscordUsers.FirstOrDefault(user => user.DiscordUserId == userId);
 			var mUser = await this._client.GetUserAsync(username, MalUserFeatures.None.GetDefault().ToParserOptions()).ConfigureAwait(false);
 			var now = DateTimeOffset.Now;
 			dbUser = new()
@@ -102,7 +102,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			dbUser.FavoriteCharacters = mUser.Favorites.FavoriteCharacters.Select(character => character.ToMalFavoriteCharacter(dbUser)).ToList();
 			dbUser.FavoritePeople = mUser.Favorites.FavoritePeople.Select(person => person.ToMalFavoritePerson(dbUser)).ToList();
 			dbUser.FavoriteCompanies = mUser.Favorites.FavoriteCompanies.Select(company => company.ToMalFavoriteCompany(dbUser)).ToList();
-			await db.MalUsers.AddAsync(dbUser).ConfigureAwait(false);
+			db.MalUsers.Add(dbUser);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 			return new(dbUser.Username);
 		}
@@ -112,12 +112,12 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var user = await db.MalUsers.Include(malUser => malUser.DiscordUser).ThenInclude(du => du.Guilds).Select(u => new MalUser
+			var user = db.MalUsers.Include(malUser => malUser.DiscordUser).ThenInclude(du => du.Guilds).Select(u => new MalUser
 			{
 				DiscordUser = u.DiscordUser,
 				Username = u.Username,
 				UserId = u.UserId
-			}).FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
+			}).FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 			if (user == null)
 			{
 				throw new UserProcessingException($"You weren't tracked by {Name} update checker");
@@ -132,7 +132,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var user = await db.DiscordUsers.Include(du => du.Guilds).FirstOrDefaultAsync(du => du.DiscordUserId == userId).ConfigureAwait(false);
+			var user = db.DiscordUsers.Include(du => du.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 			if (user == null)
 				throw new UserProcessingException("You weren't registered in bot");
 			var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == guildId);

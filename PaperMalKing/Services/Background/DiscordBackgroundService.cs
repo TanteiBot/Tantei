@@ -72,7 +72,7 @@ namespace PaperMalKing.Services.Background
 				{
 					using var scope = this._provider.CreateScope();
 					var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-					var guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == e.Guild.Id).ConfigureAwait(false);
+					var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == e.Guild.Id);
 					if (guild == null)
 					{
 						this._logger.LogInformation(
@@ -115,8 +115,7 @@ namespace PaperMalKing.Services.Background
 				using var scope = this._provider.CreateScope();
 				var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 				this._logger.LogDebug("User {Member} left guild {Guild}", e.Member, e.Guild);
-				var user = await db.DiscordUsers.Include(u => u.Guilds).FirstOrDefaultAsync(u => u.DiscordUserId == e.Member.Id)
-								   .ConfigureAwait(false);
+				var user = db.DiscordUsers.Include(u => u.Guilds).FirstOrDefault(u => u.DiscordUserId == e.Member.Id);
 				if (user == null)
 				{
 					this._logger.LogDebug("User {Member} that left wasn't saved in db", e.Member);

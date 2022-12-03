@@ -73,14 +73,14 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.MalUsers
+			var dbUser = db.MalUsers
 								 .Include(mu => mu.DiscordUser)
 								 .Include(u => u.FavoriteAnimes)
 								 .Include(u => u.FavoriteMangas)
 								 .Include(u => u.FavoriteCharacters)
 								 .Include(u => u.FavoritePeople)
 								 .Include(u => u.FavoriteCompanies)
-								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
+								 .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before enabling features");
 			var total = features.Aggregate((acc, next) => acc | next);
@@ -127,14 +127,14 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.MalUsers
+			var dbUser = db.MalUsers
 								 .Include(mu => mu.DiscordUser)
 								 .Include(u => u.FavoriteAnimes)
 								 .Include(u => u.FavoriteMangas)
 								 .Include(u => u.FavoriteCharacters)
 								 .Include(u => u.FavoritePeople)
 								 .Include(u => u.FavoriteCompanies)
-								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
+								 .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before disabling features");
 
@@ -154,16 +154,16 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 		}
 
-		public async Task<string> EnabledFeaturesAsync(ulong userId)
+		public ValueTask<string> EnabledFeaturesAsync(ulong userId)
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.MalUsers.Include(mu => mu.DiscordUser).AsNoTrackingWithIdentityResolution()
-								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
+			var dbUser = db.MalUsers.Include(mu => mu.DiscordUser).AsNoTrackingWithIdentityResolution()
+								 .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before checking for enabled features");
 
-			return dbUser.Features.Humanize();
+			return ValueTask.FromResult(dbUser.Features.Humanize());
 		}
 	}
 }

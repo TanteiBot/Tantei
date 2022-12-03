@@ -30,6 +30,6 @@ namespace PaperMalKing.UpdatesProviders.Base.Features
 
         Task DisableFeaturesAsync(IReadOnlyList<T> features, ulong userId);
 
-        Task<string> EnabledFeaturesAsync(ulong userId);
+        ValueTask<string> EnabledFeaturesAsync(ulong userId);
     }
 }
