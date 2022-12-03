@@ -5,15 +5,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-            <_Parameter1>PaperMalKing.MyAnimeList.UpdateProvider</_Parameter1>
-        </AssemblyAttribute>
-        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-            <_Parameter1>PaperMalKing.MyAnimeList.Wrapper.Tests</_Parameter1>
-        </AssemblyAttribute>
-        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-            <_Parameter1>System.Xml.XmlSerializer</_Parameter1>
-        </AssemblyAttribute>
+        <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider" />
+        <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.Wrapper.Tests" />
+        <InternalsVisibleTo Include="System.Xml.XmlSerializer" />
     </ItemGroup>
 
     <ItemGroup>

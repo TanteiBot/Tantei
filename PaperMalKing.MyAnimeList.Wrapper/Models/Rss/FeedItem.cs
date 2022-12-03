@@ -67,7 +67,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss
 
 		[XmlIgnore]
 		public bool IsPlanToCheck =>
-			this._isPlanToCheck ??= this.Description.Contains("plan to", StringComparison.InvariantCultureIgnoreCase);
+			this._isPlanToCheck ??= this.Description.Contains("plan to", StringComparison.OrdinalIgnoreCase);
 
 		[XmlIgnore]
 		public DateTimeOffset PublishingDateTimeOffset =>
