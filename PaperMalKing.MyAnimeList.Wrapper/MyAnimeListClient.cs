@@ -78,11 +78,10 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 		}
 
 		internal async Task<IEnumerable<FeedItem>> GetRecentRssUpdatesAsync<TR>(string username, CancellationToken cancellationToken = default)
-			where TR : struct, IRssFeedType
+			where TR : IRssFeedType
 		{
-			var rssType = new TR();
 			username = WebUtility.UrlEncode(username);
-			var url = $"{rssType.Url}{username}";
+			var url = $"{TR.Url}{username}";
 			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
 			using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -131,13 +130,12 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 
 		internal async Task<IReadOnlyList<TE>> GetLatestListUpdatesAsync<TE, TListType>(string username,
 																						CancellationToken cancellationToken = default)
-			where TE : class, IListEntry where TListType : struct, IListType<TE>
+			where TE : class, IListEntry where TListType : IListType<TE>
 		{
-			var tl = new TListType();
-			this._logger.LogDebug("Requesting {@Username} {@Type} list", username, tl.ListEntryType);
+			this._logger.LogDebug("Requesting {@Username} {@Type} list", username, TListType.ListEntryType);
 
 			username = WebUtility.UrlEncode(username);
-			var url = tl.LatestUpdatesUrl(username);
+			var url = TListType.LatestUpdatesUrl(username);
 			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
 			using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);

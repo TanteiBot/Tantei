@@ -20,10 +20,10 @@ using PaperMalKing.Common.Enums;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss.Types
 {
-	internal readonly struct MangaRssFeed : IRssFeedType
+	internal abstract class MangaRssFeed : IRssFeedType
 	{
-		public string Url => Constants.RSS_MANGA_URL;
+		public static string Url => Constants.RSS_MANGA_URL;
 
-		public ListEntryType Type => ListEntryType.Manga;
+		public static ListEntryType Type => ListEntryType.Manga;
 	}
 }
