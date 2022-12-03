@@ -25,7 +25,6 @@ using DSharpPlus.CommandsNext.Attributes;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
-using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.UpdatesProviders.Base
 {

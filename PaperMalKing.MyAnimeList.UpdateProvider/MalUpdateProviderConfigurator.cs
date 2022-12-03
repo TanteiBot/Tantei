@@ -39,7 +39,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		public static void Configure(IConfiguration configuration, IServiceCollection serviceCollection)
 		{
 			serviceCollection.AddOptions<MalOptions>().Bind(configuration.GetSection(Constants.Name));
-			serviceCollection.AddSingleton(provider => RateLimiterExtensions.ConfigurationLambda<MalOptions, MyAnimeListClient>(provider));
+			serviceCollection.AddSingleton<RateLimiter<MyAnimeListClient>>(RateLimiterExtensions.ConfigurationLambda<MalOptions, MyAnimeListClient>);
 
 			var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError()
 												  .OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
@@ -50,7 +50,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				CookieContainer = new()
 			}).AddHttpMessageHandler(provider =>
 			{
-				var rl = provider.GetRequiredService<IRateLimiter<MyAnimeListClient>>();
+				var rl = provider.GetRequiredService<RateLimiter<MyAnimeListClient>>();
 				return rl.ToHttpMessageHandler();
 			}).ConfigureHttpClient(client =>
 			{

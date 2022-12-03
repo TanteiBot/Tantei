@@ -24,9 +24,9 @@ namespace PaperMalKing.Common.RateLimiters
 	{
 		public static readonly RateLimit Empty = new();
 
-		public long AmountOfRequests { get; }
+		public int AmountOfRequests { get; }
 
-		public long PeriodInMilliseconds { get; }
+		public int PeriodInMilliseconds { get; }
 
 		public RateLimit(int amountOfRequests, int periodInMilliseconds)
 		{
