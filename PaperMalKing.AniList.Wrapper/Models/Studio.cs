@@ -31,7 +31,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
 
         [JsonPropertyName("media")]
         public Connection<Media> Media { get; init; } = Connection<Media>.Empty;
-        
+
         [JsonPropertyName("isAnimationStudio")]
         public bool IsAnimationStudio { get; init; }
 

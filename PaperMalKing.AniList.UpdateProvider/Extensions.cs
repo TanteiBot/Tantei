@@ -280,7 +280,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 										   media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? $"||{t.Name}||" : t.Name));
 				eb.AddField("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 			}
-			
+
 
 			if ((features & AniListUserFeatures.MediaDescription) != 0 && !string.IsNullOrEmpty(media.Description))
 			{
