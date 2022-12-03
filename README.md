@@ -24,7 +24,7 @@ Project is unofficial and is not affiliated with MyAnimeList.net, Shikimori.one,
 License
 ---------------------
 
-Copyright 2021 N0D4N
+Copyright 2021-2022 N0D4N
 
 Licensed under the AGPLv3: https://www.gnu.org/licenses/agpl-3.0.html
 
