@@ -37,15 +37,8 @@ using Polly.Extensions.Http;
 
 namespace PaperMalKing.Shikimori.UpdateProvider
 {
-	internal class ShikiUpdateProviderConfigurator : IUpdateProviderConfigurator<ShikiUpdateProvider>
+	public sealed class ShikiUpdateProviderConfigurator : IUpdateProviderConfigurator<ShikiUpdateProvider>
 	{
-		/// <inheritdoc />
-		[Obsolete("", true)]
-		public void ConfigureNonStatic(IConfiguration configuration, IServiceCollection serviceCollection)
-		{
-			throw new NotSupportedException();
-		}
-
 		public static void Configure(IConfiguration configuration, IServiceCollection serviceCollection)
 		{
 			serviceCollection.AddOptions<ShikiOptions>().Bind(configuration.GetSection(Constants.NAME));

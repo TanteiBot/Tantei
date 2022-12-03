@@ -30,7 +30,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Options;
 using PaperMalKing.UpdatesProviders.Base;
-using PaperMalKing.Utilities;
 
 namespace PaperMalKing.Services
 {
@@ -69,7 +68,7 @@ namespace PaperMalKing.Services
 			this.CommandsExtension.CommandErrored += this.CommandsExtensionOnCommandErroredAsync;
 			this.CommandsExtension.CommandExecuted += this.CommandsExtensionOnCommandExecutedAsync;
 
-			var assemblies = Utils.LoadAndListPmkAssemblies();
+			var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 			HashSet<Type> nestedTypesNotToRegister = new();
 
 			foreach (var assembly in assemblies.Where(a => a.FullName?.Contains("PaperMalKing", StringComparison.OrdinalIgnoreCase) ?? true))
