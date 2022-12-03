@@ -44,7 +44,7 @@ namespace PaperMalKing.Commands
 		private readonly UpdateProvidersConfigurationService _providersConfigurationService;
 		private readonly IHostApplicationLifetime _lifetime;
 
-		private DiscordEmbed? AboutEmbed;
+		private static DiscordEmbed? AboutEmbed;
 
 		public UngroupedCommands(UpdateProvidersConfigurationService providersConfigurationService, IHostApplicationLifetime lifetime)
 		{
@@ -85,7 +85,7 @@ namespace PaperMalKing.Commands
 		[Aliases("Info")]
 		public Task AboutCommand(CommandContext context)
 		{
-			if (this.AboutEmbed == null)
+			if (AboutEmbed == null)
 			{
 				var botVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "";
 				var dotnetVersion = Environment.Version.ToString(3);
@@ -108,10 +108,10 @@ namespace PaperMalKing.Commands
 				}.WithThumbnail(context.Client.CurrentUser.AvatarUrl);
 				embedBuilder.AddField("Links", links, true);
 				embedBuilder.AddField("Versions", versions, true);
-				Interlocked.Exchange(ref this.AboutEmbed, embedBuilder.Build());
+				Interlocked.Exchange(ref AboutEmbed, embedBuilder.Build());
 			}
 
-			return context.RespondAsync(embed: this.AboutEmbed);
+			return context.RespondAsync(embed: AboutEmbed);
 		}
 
 		[Command("DeleteMessages")]
