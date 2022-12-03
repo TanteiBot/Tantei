@@ -42,10 +42,10 @@ namespace PaperMalKing.AniList.Wrapper.Models
 		[JsonPropertyName("description")]
 		public string Description { get; init; } = null!;
 
-		[JsonPropertyName("staff_media")]
+		[JsonPropertyName("staffMedia")]
 		public Connection<Media> StaffMedia { get; init; } = Connection<Media>.Empty;
 
-		[JsonPropertyName("primary_occupations")]
+		[JsonPropertyName("primaryOccupations")]
 		public IReadOnlyList<string> PrimaryOccupations { get; init; } = Array.Empty<string>();
 	}
 }

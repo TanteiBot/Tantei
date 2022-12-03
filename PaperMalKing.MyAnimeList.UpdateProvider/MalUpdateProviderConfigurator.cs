@@ -34,7 +34,7 @@ using Polly.Extensions.Http;
 
 namespace PaperMalKing.UpdatesProviders.MyAnimeList
 {
-	internal sealed class MalUpdateProviderConfigurator : IUpdateProviderConfigurator<MalUpdateProvider>
+	public sealed class MalUpdateProviderConfigurator : IUpdateProviderConfigurator<MalUpdateProvider>
 	{
 		public static void Configure(IConfiguration configuration, IServiceCollection serviceCollection)
 		{

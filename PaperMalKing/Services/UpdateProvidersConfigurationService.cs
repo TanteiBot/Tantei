@@ -24,8 +24,10 @@ using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.AniList.UpdateProvider;
+using PaperMalKing.Shikimori.UpdateProvider;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
-using PaperMalKing.Utilities;
+using PaperMalKing.UpdatesProviders.MyAnimeList;
 
 namespace PaperMalKing.Services
 {
@@ -52,12 +54,9 @@ namespace PaperMalKing.Services
 
 		public static void ConfigureProviders(IConfiguration configuration, IServiceCollection services)
 		{
-			foreach (var assembly in Utils.LoadAndListPmkAssemblies())
-			{
-				foreach (var updateProvider in assembly.GetTypes().Where(t =>
-					t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IUpdateProviderConfigurator<>))))
-					updateProvider.GetMethod("Configure")?.Invoke(null, new object[] {configuration, services});
-			}
+			AniListUpdateProviderConfigurator.Configure(configuration, services);
+			MalUpdateProviderConfigurator.Configure(configuration,services);
+			ShikiUpdateProviderConfigurator.Configure(configuration,services);
 		}
 	}
 }

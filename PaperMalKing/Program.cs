@@ -20,6 +20,7 @@
 
 using System.Threading.Tasks;
 using DSharpPlus;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -38,7 +39,7 @@ namespace PaperMalKing
 		public static Task Main(string[] args)
 		{
 			var host = CreateHostBuilder(args).Build();
-
+			host.Services.GetRequiredService<DatabaseContext>().Database.Migrate();
 			return host.RunAsync();
 		}
 

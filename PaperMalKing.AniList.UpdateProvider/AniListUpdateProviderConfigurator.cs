@@ -33,7 +33,7 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.AniList.UpdateProvider
 {
-    internal class AniListUpdateProviderConfigurator : IUpdateProviderConfigurator<AniListUpdateProvider>
+    public sealed class AniListUpdateProviderConfigurator : IUpdateProviderConfigurator<AniListUpdateProvider>
     {
         public static void Configure(IConfiguration configuration, IServiceCollection serviceCollection)
         {

@@ -111,7 +111,8 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
 
 		private static void FillLesserMediaFields(StringBuilder sb)
 		{
-			sb.Append(@"""values: nodes {
+			sb.Append(@"
+					  values: nodes {
                           title {
                             stylisedRomaji: romaji(stylised: true)
                             romaji(stylised: false)
@@ -122,7 +123,8 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                           }
                           siteUrl
                           format
-                        }""");
+                        }
+						");
 		}
 	}
 }
