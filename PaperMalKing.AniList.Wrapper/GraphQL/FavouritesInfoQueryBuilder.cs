@@ -57,6 +57,10 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                         native
                       }
                       id
+					  primaryOccupations,
+					  staffMedia(sort:POPULARITY_DESC, page: 1, perPage: 1){");
+			FillLesserMediaFields(sb);
+			sb.Append(@"}
                       siteUrl
                       image {
                         large
@@ -82,20 +86,9 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                       image {
                         large
                       }
-                      media(sort: POPULARITY_DESC, page: 1, perPage: 1) {
-                        values: nodes {
-                          title {
-                            stylisedRomaji: romaji(stylised: true)
-                            romaji(stylised: false)
-                            stylisedEnglish: english(stylised: true)
-                            english(stylised: false)
-                            stylisedNative: native(stylised: true)
-                            native(stylised: false)
-                          }
-                          siteUrl
-                          format
-                        }
-                      }
+                      media(sort: POPULARITY_DESC, page: 1, perPage: 1) {");
+			FillLesserMediaFields(sb);
+			sb.Append(@"}
                     }
                   }
                   Studios: Page(page: $page, perPage: 50) {
@@ -106,8 +99,19 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                       name
                       siteUrl
                       id
-                      media(sort: POPULARITY_DESC, isMain: true, page: 1, perPage: 1) {
-                        values: nodes {
+                      media(sort: POPULARITY_DESC, isMain: true, page: 1, perPage: 1) {");
+
+			FillLesserMediaFields(sb);
+			sb.Append(@"}
+                    }
+                  }
+              }");
+			return sb.ToString();
+		}
+
+		private static void FillLesserMediaFields(StringBuilder sb)
+		{
+			sb.Append(@"""values: nodes {
                           title {
                             stylisedRomaji: romaji(stylised: true)
                             romaji(stylised: false)
@@ -117,16 +121,8 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                             native(stylised: false)
                           }
                           siteUrl
-                          image: coverImage {
-                            large: extraLarge
-                          }
                           format
-                        }
-                      }
-                    }
-                  }
-              }");
-			return sb.ToString();
+                        }""");
 		}
 	}
 }

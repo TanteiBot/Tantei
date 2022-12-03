@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021-2022 N0D4N
 // 
@@ -14,28 +15,37 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
+using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-    public sealed class Staff : IImageble, ISiteUrlable, IIdentifiable
-    {
-        [JsonPropertyName("name")]
-        public GenericName Name { get; init; } = null!;
+	public sealed class Staff : IImageble, ISiteUrlable, IIdentifiable
+	{
+		[JsonPropertyName("name")]
+		public GenericName Name { get; init; } = null!;
 
-        [JsonPropertyName("siteUrl")]
-        public string Url { get; init; } = null!;
+		[JsonPropertyName("siteUrl")]
+		public string Url { get; init; } = null!;
 
-        [JsonPropertyName("image")]
-        public Image Image { get; init; } = null!;
+		[JsonPropertyName("image")]
+		public Image Image { get; init; } = null!;
 
-        [JsonPropertyName("id")]
-        public ulong Id { get; init; }
+		[JsonPropertyName("id")]
+		public ulong Id { get; init; }
 
-        [JsonPropertyName("description")]
-        public string Description { get; init; } = null!;
-    }
+		[JsonPropertyName("description")]
+		public string Description { get; init; } = null!;
+
+		[JsonPropertyName("staff_media")]
+		public Connection<Media> StaffMedia { get; init; } = Connection<Media>.Empty;
+
+		[JsonPropertyName("primary_occupations")]
+		public IReadOnlyList<string> PrimaryOccupations { get; init; } = Array.Empty<string>();
+	}
 }
