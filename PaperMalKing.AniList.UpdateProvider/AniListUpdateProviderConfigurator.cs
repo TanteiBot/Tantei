@@ -35,12 +35,6 @@ namespace PaperMalKing.AniList.UpdateProvider
 {
     internal class AniListUpdateProviderConfigurator : IUpdateProviderConfigurator<AniListUpdateProvider>
     {
-        [Obsolete("", true)]
-        public void ConfigureNonStatic(IConfiguration configuration, IServiceCollection serviceCollection)
-        {
-            throw new NotSupportedException();
-        }
-
         public static void Configure(IConfiguration configuration, IServiceCollection serviceCollection)
         {
             serviceCollection.AddOptions<AniListOptions>().Bind(configuration.GetSection(AniListOptions.AniList));

@@ -28,7 +28,6 @@ using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.Shikimori;

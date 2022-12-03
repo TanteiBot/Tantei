@@ -17,7 +17,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss

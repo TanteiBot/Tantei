@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -29,7 +28,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
 {
     public sealed class MediaListEntry
     {
-        private readonly Dictionary<ScoreFormat, byte> _scores = new();
+        private readonly Dictionary<ScoreFormat, byte> _scores = new(4);
 
         [JsonPropertyName("status")]
         public MediaListStatus Status { get; init; }

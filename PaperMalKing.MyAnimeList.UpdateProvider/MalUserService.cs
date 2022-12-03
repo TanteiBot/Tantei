@@ -47,8 +47,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			this._serviceProvider = serviceProvider;
 		}
 
-		/// <inheritdoc />
-		public string Name => Constants.Name;
+		public static string Name => Constants.Name;
 
 		public async Task<BaseUser> AddUserAsync(string username, ulong userId, ulong guildId)
 		{
@@ -121,7 +120,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			}).FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
 			if (user == null)
 			{
-				throw new UserProcessingException($"You weren't tracked by {this.Name} update checker");
+				throw new UserProcessingException($"You weren't tracked by {Name} update checker");
 			}
 
 			db.MalUsers.Remove(user);

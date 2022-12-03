@@ -24,7 +24,6 @@ namespace PaperMalKing.Shikimori.Wrapper.Models.List
 	{
 		protected override string Type => "animes";
 
-		/// <inheritdoc />
 		public override string TotalAmount => $"{this.Episodes.ToString()} ep.";
 
 		[JsonPropertyName("episodes")]

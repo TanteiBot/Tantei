@@ -45,7 +45,6 @@ namespace PaperMalKing.Commands
 
 		private readonly GuildManagementService _managementService;
 
-		/// <inheritdoc />
 		public GuildManagementCommands(ILogger<GuildManagementCommands> logger, GuildManagementService managementService)
 		{
 			this._logger = logger;

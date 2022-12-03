@@ -25,17 +25,17 @@ using DSharpPlus.CommandsNext.Attributes;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
+using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.UpdatesProviders.Base
 {
 	[SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-	public abstract class BaseUpdateProviderUserCommandsModule : BaseCommandModule
+	public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService> : BaseCommandModule where TUpdateProviderUserService: class, IUpdateProviderUserService
 	{
-		protected ILogger<BaseUpdateProviderUserCommandsModule> Logger { get; }
-		protected IUpdateProviderUserService UserService { get; }
+		protected ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService>> Logger { get; }
+		protected TUpdateProviderUserService UserService { get; }
 
-		/// <inheritdoc />
-		protected BaseUpdateProviderUserCommandsModule(IUpdateProviderUserService userService, ILogger<BaseUpdateProviderUserCommandsModule> logger)
+		protected BaseUpdateProviderUserCommandsModule(TUpdateProviderUserService userService, ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService>> logger)
 		{
 			this.UserService = userService;
 			this.Logger = logger;
@@ -44,7 +44,7 @@ namespace PaperMalKing.UpdatesProviders.Base
 		public virtual async Task AddUserCommand(CommandContext ctx, [RemainingText] [Description("Your username")]
 												 string username)
 		{
-			this.Logger.LogInformation("Trying to add {ProviderUsername} {Member} to {Name} update provider",username, ctx.Member,  UserService.Name);
+			this.Logger.LogInformation("Trying to add {ProviderUsername} {Member} to {Name} update provider",username, ctx.Member,  TUpdateProviderUserService.Name);
 			BaseUser user;
 			try
 			{
@@ -54,20 +54,20 @@ namespace PaperMalKing.UpdatesProviders.Base
 			{
 				var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
 				await ctx.RespondAsync(embed: embed.Build()).ConfigureAwait(false);
-				this.Logger.LogError(ex,"Failed to add {ProviderUsername} {Member} to {Name} update provider",username, ctx.Member,  UserService.Name);
+				this.Logger.LogError(ex,"Failed to add {ProviderUsername} {Member} to {Name} update provider",username, ctx.Member,  TUpdateProviderUserService.Name);
 				throw;
 			}
 
-			this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider",username, ctx.Member,  UserService.Name);
+			this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider",username, ctx.Member,  TUpdateProviderUserService.Name);
 
 			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx,
-				$"Successfully added {user.Username} to {this.UserService.Name} update checker")).ConfigureAwait(false);
+				$"Successfully added {user.Username} to {TUpdateProviderUserService.Name} update checker")).ConfigureAwait(false);
 		}
 
 
 		public virtual async Task RemoveUserInGuildCommand(CommandContext ctx)
 		{
-			this.Logger.LogInformation("Trying to remove {Member} from {Name} update provider", ctx.Member, UserService.Name);
+			this.Logger.LogInformation("Trying to remove {Member} from {Name} update provider", ctx.Member, TUpdateProviderUserService.Name);
 			BaseUser user;
 			try
 			{
@@ -77,14 +77,14 @@ namespace PaperMalKing.UpdatesProviders.Base
 			{
 				var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
 				await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
-				this.Logger.LogError(ex,"Failed to remove {Member} from {Name} update provider",ctx.Member,  UserService.Name);
+				this.Logger.LogError(ex,"Failed to remove {Member} from {Name} update provider",ctx.Member,  TUpdateProviderUserService.Name);
 
 				throw;
 			}
-			this.Logger.LogInformation("Successfully removed {Member} from {Name} update provider", ctx.Member, UserService.Name);
+			this.Logger.LogInformation("Successfully removed {Member} from {Name} update provider", ctx.Member, TUpdateProviderUserService.Name);
 
 			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx,
-				$"Successfully removed {user.Username} from {this.UserService.Name} update checker")).ConfigureAwait(false);
+				$"Successfully removed {user.Username} from {TUpdateProviderUserService.Name} update checker")).ConfigureAwait(false);
 		}
 
 		public virtual async Task RemoveUserHereCommand(CommandContext ctx)

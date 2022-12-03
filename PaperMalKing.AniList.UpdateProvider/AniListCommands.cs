@@ -32,7 +32,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 	[Aliases("al")]
 	[Description("Commands for managing user updates from AniList.co")]
 	[ModuleLifespan(ModuleLifespan.Singleton)]
-	public sealed class AniListCommands : BaseUpdateProviderUserCommandsModule
+	public sealed class AniListCommands : BaseUpdateProviderUserCommandsModule<AniListUserService>
 	{
 		public AniListCommands(AniListUserService userService, ILogger<AniListCommands> logger) : base(userService,
 		 logger)

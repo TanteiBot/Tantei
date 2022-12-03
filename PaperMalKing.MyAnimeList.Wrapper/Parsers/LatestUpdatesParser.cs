@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using HtmlAgilityPack;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Models;

@@ -23,7 +23,7 @@ namespace PaperMalKing.UpdatesProviders.Base
 {
 	public interface IUpdateProviderUserService
 	{
-		string Name { get; }
+		abstract static string Name { get; }
 
 		Task<BaseUser> AddUserAsync(string username, ulong userId, ulong guildId);
 

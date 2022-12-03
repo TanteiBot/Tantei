@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Progress;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers

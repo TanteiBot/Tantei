@@ -32,9 +32,8 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 	[Aliases("shiki")]
 	[Description("Commands for managing user updates from Shikimori.one")]
 	[ModuleLifespan(ModuleLifespan.Singleton)]
-	public sealed class ShikiCommands : BaseUpdateProviderUserCommandsModule
+	public sealed class ShikiCommands : BaseUpdateProviderUserCommandsModule<ShikiUserService>
 	{
-		/// <inheritdoc />
 		public ShikiCommands(ShikiUserService userService, ILogger<ShikiCommands> logger) : base(userService, logger)
 		{
 		}

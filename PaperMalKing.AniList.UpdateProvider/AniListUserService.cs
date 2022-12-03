@@ -35,7 +35,7 @@ namespace PaperMalKing.AniList.UpdateProvider
     {
         private readonly AniListClient _client;
         private readonly IServiceProvider _serviceProvider;
-        public string Name => Constants.NAME;
+        public static string Name => Constants.NAME;
 
         public AniListUserService(AniListClient client, IServiceProvider serviceProvider)
         {
@@ -104,7 +104,7 @@ namespace PaperMalKing.AniList.UpdateProvider
             var user = await db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds)
                 .FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
             if (user == null)
-                throw new UserProcessingException($"You weren't tracked by {this.Name} update checker");
+                throw new UserProcessingException($"You weren't tracked by {Name} update checker");
 
             db.AniListUsers.Remove(user);
             await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);

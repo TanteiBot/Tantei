@@ -28,7 +28,6 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
 using Humanizer;
-using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing
