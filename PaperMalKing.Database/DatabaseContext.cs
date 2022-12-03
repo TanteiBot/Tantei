@@ -89,7 +89,7 @@ namespace PaperMalKing.Database
 			{
 				optionsBuilder.UseSqlite(this._connectionString,
 					builder => { builder.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery); });
-				
+
 				SQLitePCL.Batteries_V2.Init();
 				// SQLITE_CONFIG_MULTITHREAD
 				// https://github.com/dotnet/efcore/issues/9994

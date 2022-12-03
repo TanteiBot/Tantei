@@ -57,7 +57,7 @@ namespace PaperMalKing.Services
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
+			var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild != null)
 				throw new GuildManagementException("Server already have channel to post updates into", guildId, channelId);
 
@@ -67,7 +67,7 @@ namespace PaperMalKing.Services
 				PostingChannelId = channelId,
 				Users = Array.Empty<DiscordUser>()
 			};
-			await db.DiscordGuilds.AddAsync(guild).ConfigureAwait(false);
+			db.DiscordGuilds.Add(guild);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 			var chn = await this._discordClient.GetChannelAsync(channelId).ConfigureAwait(false);
 			this._updatePublishingService.AddChannel(chn);
@@ -78,7 +78,7 @@ namespace PaperMalKing.Services
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
+			var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild == null)
 				throw new GuildManagementException("You can't remove this server from posting updates", guildId);
 
@@ -91,7 +91,7 @@ namespace PaperMalKing.Services
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
+			var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild == null)
 				throw new GuildManagementException("You can't update channel for posting updates without setting it first", guildId, channelId);
 			if (guild.PostingChannelId == channelId)
@@ -108,10 +108,10 @@ namespace PaperMalKing.Services
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var guild = await db.DiscordGuilds.Include(g => g.Users).FirstAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
+			var guild = db.DiscordGuilds.Include(g => g.Users).First(g => g.DiscordGuildId == guildId);
 			var user = guild.Users.FirstOrDefault(u => u.DiscordUserId == userId);
 			if (user == null)
-				throw new GuildManagementException("Such user wasn't found as ");
+				throw new GuildManagementException("Such user wasn't found as registered in this guild");
 
 			guild.Users.Remove(user);
 			db.DiscordGuilds.Update(guild);

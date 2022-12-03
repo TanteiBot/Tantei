@@ -70,7 +70,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.AniListUsers.Include(u => u.Favourites).FirstOrDefaultAsync(u => u.DiscordUserId == userId).ConfigureAwait(false);
+			var dbUser = db.AniListUsers.Include(u => u.Favourites).FirstOrDefault(u => u.DiscordUserId == userId);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before enabling features");
 			var total = features.Aggregate((acc, next) => acc | next);
@@ -113,10 +113,10 @@ namespace PaperMalKing.AniList.UpdateProvider
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.AniListUsers.Include(su => su.Favourites).FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
+			var dbUser = db.AniListUsers.Include(su => su.Favourites).FirstOrDefault(su => su.DiscordUserId == userId);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before disabling features");
-			
+
 			var total = features.Aggregate((acc, next) => acc | next);
 
 			dbUser.Features &= ~total;
@@ -127,16 +127,15 @@ namespace PaperMalKing.AniList.UpdateProvider
 			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 		}
 
-		public async Task<string> EnabledFeaturesAsync(ulong userId)
+		public ValueTask<string> EnabledFeaturesAsync(ulong userId)
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.AniListUsers.AsNoTrackingWithIdentityResolution().FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
+			var dbUser = db.AniListUsers.AsNoTrackingWithIdentityResolution().FirstOrDefault(su => su.DiscordUserId == userId);
 			if (dbUser == null)
 				throw new UserFeaturesException("You must register first before checking for enabled features");
 
-			return dbUser.Features.Humanize();
-			
+			return ValueTask.FromResult(dbUser.Features.Humanize());
 		}
 	}
 }

@@ -53,15 +53,14 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var dbUser = await db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds)
-								 .FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
+			var dbUser = db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 			DiscordGuild? guild;
 			if (dbUser != null) // User already in db
 			{
 				if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
 					throw new UserProcessingException(
 						"You already have your account connected. If you want to switch to another account, remove current one, then add the new one.");
-				guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
+				guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 				if (guild == null)
 					throw new UserProcessingException(new(username),
 						"Current server is not in database, ask server administrator to add this server to bot");
@@ -72,11 +71,11 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				return new(username);
 			}
 
-			guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
+			guild =  db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild == null)
 				throw new UserProcessingException(new(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
-			var dUser = await db.DiscordUsers.FirstOrDefaultAsync(du => du.DiscordUserId == userId).ConfigureAwait(false);
+			var dUser = db.DiscordUsers.FirstOrDefault(du => du.DiscordUserId == userId);
 			var shikiUser = await this._client.GetUserAsync(username).ConfigureAwait(false);
 			var history = await this._client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any).ConfigureAwait(false);
 			var favourites = await this._client.GetUserFavouritesAsync(shikiUser.Id).ConfigureAwait(false);
@@ -101,7 +100,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				LastHistoryEntryId = history.Data.Max(he => he.Id)
 			};
 			dbUser.Favourites.ForEach(f => f.User = dbUser);
-			await db.ShikiUsers.AddAsync(dbUser).ConfigureAwait(false);
+			db.ShikiUsers.Add(dbUser);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 			return new(username);
 		}
@@ -111,8 +110,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var user = await db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds)
-							   .FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
+			var user = db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 			if (user == null)
 				throw new UserProcessingException($"You weren't tracked by {Name} update checker");
 
@@ -125,7 +123,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var user = await db.DiscordUsers.Include(du => du.Guilds).FirstOrDefaultAsync(du => du.DiscordUserId == userId).ConfigureAwait(false);
+			var user = db.DiscordUsers.Include(du => du.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 			if (user == null)
 				throw new UserProcessingException("You weren't registered in bot");
 			var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == guildId);

@@ -65,10 +65,10 @@ namespace PaperMalKing.AniList.UpdateProvider
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			foreach (var dbUser in db.AniListUsers.Include(au => au.DiscordUser).ThenInclude(du => du.Guilds).Include(au => au.Favourites)
-										   .Where(du => du.DiscordUser.Guilds.Any()).Where(u => (u.Features & AniListUserFeatures.AnimeList)  != 0 ||
-																								(u.Features & AniListUserFeatures.MangaList)  != 0 ||
-																								(u.Features & AniListUserFeatures.Favourites) != 0 ||
-																								(u.Features & AniListUserFeatures.Reviews)    != 0).ToArray())
+										   .Where(u => u.DiscordUser.Guilds.Any() && ((u.Features & AniListUserFeatures.AnimeList)  != 0 ||
+																					    (u.Features & AniListUserFeatures.MangaList)  != 0 ||
+																					    (u.Features & AniListUserFeatures.Favourites) != 0 ||
+																					    (u.Features & AniListUserFeatures.Reviews)    != 0)).ToArray())
 			{
 				if (cancellationToken.IsCancellationRequested)
 					break;

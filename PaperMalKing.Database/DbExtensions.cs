@@ -45,7 +45,7 @@ namespace PaperMalKing.Database
 			{
 				try
 				{
-					var rows = await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+					var rows = context.SaveChanges();
 					return rows;
 				}
 				catch (SqliteException ex) when (ex.SqliteErrorCode == 5) // Database is locked
