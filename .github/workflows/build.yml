@@ -7,10 +7,12 @@ on:
     branches: 
       - master
       - v2
+      - release/v2
   pull_request:
     branches:
       - master
       - v2
+      - release/v2
 
 jobs: 
   build:
@@ -22,7 +24,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '6.x'
+          dotnet-version: '7.x'
       - name: Install deps
         run: dotnet restore
       - name: Build projects
