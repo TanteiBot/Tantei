@@ -20,7 +20,6 @@ using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Logging;
 using PaperMalKing.Common.Options;
 using PaperMalKing.Common.RateLimiters;
 
@@ -28,7 +27,7 @@ namespace PaperMalKing.Common
 {
 	public static class TypeExtensions
 	{
-		private static readonly Regex HtmlRegex = new("<.*?>", RegexOptions.Compiled);
+		private static readonly Regex HtmlRegex = new("<.*?>", RegexOptions.Compiled, TimeSpan.FromMinutes(5));
 
 		public static string ToFixedWidth(this string s, int newLength)
 		{
@@ -74,10 +73,10 @@ namespace PaperMalKing.Common
 
 		public static string StripHtml(this string value) => HtmlRegex.Replace(value, string.Empty);
 
-		public static IRateLimiter<T> ToRateLimiter<T>(this IRateLimitOptions<T> rateLimitOptions, ILogger<IRateLimiter<T>>? logger)
+		public static RateLimiter<T> ToRateLimiter<T>(this IRateLimitOptions<T> rateLimitOptions)
 		{
 			var rateLimit = new RateLimit(rateLimitOptions.AmountOfRequests, rateLimitOptions.PeriodInMilliseconds);
-			return RateLimiterFactory.Create(rateLimit, logger);
+			return RateLimiterFactory.Create<T>(rateLimit);
 		}
 	}
 }

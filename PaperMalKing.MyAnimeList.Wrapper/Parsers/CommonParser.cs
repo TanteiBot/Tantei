@@ -16,13 +16,14 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
+using System;
 using System.Text.RegularExpressions;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 {
 	internal static class CommonParser
 	{
-		private static readonly Regex IdFromUrlRegex = new(@"(?<=\/)(?<id>\d+)(?=\/)", RegexOptions.Compiled);
+		private static readonly Regex IdFromUrlRegex = new(@"(?<=\/)(?<id>\d+)(?=\/)", RegexOptions.Compiled, TimeSpan.FromSeconds(20));
 
 		internal static int ExtractIdFromMalUrl(string url) => int.Parse(IdFromUrlRegex.Match(url).Groups["id"].Value);
 	}

@@ -58,14 +58,16 @@ namespace PaperMalKing.Services
 			this._logger.LogTrace("Built {@UpdatePublishingService}", typeof(UpdatePublishingService));
 		}
 
+		#pragma warning disable VSTHRD200
 		private Task DiscordClientOnGuildDownloadCompleted(DiscordClient sender, GuildDownloadCompletedEventArgs e)
+		#pragma warning restore VSTHRD200
 		{
 			_ = Task.Run(async () =>
 			{
 				using var scope = this._serviceProvider.CreateScope();
 				var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 				this._logger.LogDebug("Starting querying posting channels");
-				await foreach (var guild in db.DiscordGuilds.AsNoTracking().AsAsyncEnumerable())
+				await foreach (var guild in db.DiscordGuilds.AsNoTracking().AsAsyncEnumerable().ConfigureAwait(false))
 				{
 					this._logger.LogTrace("Trying to get guild with {Id}", guild.DiscordGuildId);
 					var discordGuild = e.Guilds[guild.DiscordGuildId];
@@ -76,10 +78,12 @@ namespace PaperMalKing.Services
 					this.AddChannel(channel);
 				}
 
+				#pragma warning disable S3267
 				foreach (var kvp in this._updateProvidersConfigurationService.Providers)
+				#pragma warning restore S3267
 				{
 					var provider = kvp.Value;
-					provider.UpdateFoundEvent += this.PublishUpdates;
+					provider.UpdateFoundEvent += this.PublishUpdatesAsync;
 					if (provider is BaseUpdateProvider baseUpdateProvider)
 						baseUpdateProvider.RestartTimer(TimeSpan.FromSeconds(5));
 				}
@@ -103,7 +107,7 @@ namespace PaperMalKing.Services
 			this.AddChannel(updatedValue);
 		}
 
-		private async Task PublishUpdates(UpdateFoundEventArgs args)
+		private async Task PublishUpdatesAsync(UpdateFoundEventArgs args)
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var tasks = new List<Task>(args.DiscordUser.Guilds.Count);

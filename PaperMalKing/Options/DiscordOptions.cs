@@ -18,6 +18,8 @@
 
 #endregion
 
+using System.Collections.Generic;
+
 namespace PaperMalKing.Options
 {
 	public sealed class DiscordOptions
@@ -26,9 +28,11 @@ namespace PaperMalKing.Options
 
 		public string Token { get; set; } = null!;
 
-		public DiscordActivityOptions[] Activities { get; set; } = null!;
+		public IReadOnlyList<DiscordActivityOptions> Activities { get; set; } = null!;
 
+		#pragma warning disable CA1034
 		public sealed class DiscordActivityOptions
+		#pragma warning restore CA1034
 		{
 			public string ActivityType { get; set; } = null!;
 

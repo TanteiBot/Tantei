@@ -32,7 +32,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 	[Aliases("mal")]
 	[Description("Commands for managing user updates from MyAnimeList.net")]
 	[ModuleLifespan(ModuleLifespan.Singleton)]
-	public sealed class MalCommands : BaseUpdateProviderUserCommandsModule
+	public sealed class MalCommands : BaseUpdateProviderUserCommandsModule<MalUserService>
 	{
 		/// <inheritdoc />
 		public MalCommands(MalUserService userService, ILogger<MalCommands> logger) : base(userService, logger)
@@ -60,6 +60,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		[Description("Stop sending your updates to this server")]
 		public override Task RemoveUserHereCommand(CommandContext ctx) => base.RemoveUserHereCommand(ctx);
 
+		#pragma warning disable CA1034
 		[Group("features")]
 		[Description("Manage your features for updates send from MyAnimeList.net")]
 		[ModuleLifespan(ModuleLifespan.Singleton)]

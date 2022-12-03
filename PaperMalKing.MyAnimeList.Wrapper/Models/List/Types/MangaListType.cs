@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using PaperMalKing.Common.Enums;
@@ -22,10 +24,10 @@ using static PaperMalKing.MyAnimeList.Wrapper.Constants;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Models.List.Types
 {
-	internal readonly struct MangaListType : IListType<MangaListEntry>
+	internal abstract class MangaListType : IListType<MangaListEntry>
 	{
-		public ListEntryType ListEntryType => ListEntryType.Manga;
+		public static ListEntryType ListEntryType => ListEntryType.Manga;
 
-		public string LatestUpdatesUrl(string username) => MANGA_LIST_URL + username + LATEST_LIST_UPDATES;
+		public static string LatestUpdatesUrl(string username) => MANGA_LIST_URL + username + LATEST_LIST_UPDATES;
 	}
 }

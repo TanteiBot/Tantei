@@ -1,5 +1,4 @@
-﻿#region LICENSE
-// PaperMalKing.
+// Tantei.
 // Copyright (C) 2021 N0D4N
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -8,31 +7,55 @@
 // License, or (at your option) any later version.
 // 
 // This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-// 
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#endregion
+// but WITHOUT ANY WARRANTY
 
+using System;
+using System.Collections.Generic;
 using System.Threading;
+using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 
-namespace PaperMalKing.Common.RateLimiters
-{
-	public sealed class NullRateLimiter<T> : IRateLimiter<T>
-	{
-		public static readonly NullRateLimiter<T> Instance = new(new(1, 1));
+namespace PaperMalKing.Common.RateLimiters;
 
-		internal NullRateLimiter(RateLimit rateLimit)
+internal sealed class NullRateLimiter : RateLimiter
+{
+	private static readonly RateLimiterStatistics Statistics = new()
+	{
+		CurrentAvailablePermits = 0,
+		CurrentQueuedCount = 0,
+		TotalFailedLeases = 0,
+		TotalSuccessfulLeases = 0
+	};
+
+	public static readonly NullRateLimiter Instance = new ();
+
+	private NullRateLimiter()
+	{ }
+
+	public override RateLimiterStatistics? GetStatistics() => Statistics;
+
+	protected override RateLimitLease AttemptAcquireCore(int permitCount) => NullRateLimitLease.Instance;
+
+	protected override ValueTask<RateLimitLease> AcquireAsyncCore(int permitCount, CancellationToken cancellationToken) =>
+		ValueTask.FromResult((RateLimitLease)NullRateLimitLease.Instance);
+
+	public override TimeSpan? IdleDuration => TimeSpan.Zero;
+
+	private sealed class NullRateLimitLease : RateLimitLease
+	{
+		public static readonly NullRateLimitLease Instance = new();
+
+		private NullRateLimitLease()
+		{ }
+
+		public override bool TryGetMetadata(string metadataName, out object? metadata)
 		{
-			this.RateLimit = rateLimit;
+			metadata = null;
+			return false;
 		}
 
-		/// <inheritdoc />
-		public RateLimit RateLimit { get; }
+		public override bool IsAcquired => true;
 
-		public Task TickAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+		public override IEnumerable<string> MetadataNames => Array.Empty<string>();
 	}
 }

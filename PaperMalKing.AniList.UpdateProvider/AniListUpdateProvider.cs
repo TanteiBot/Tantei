@@ -20,7 +20,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,7 +60,6 @@ namespace PaperMalKing.AniList.UpdateProvider
 		public override string Name => Constants.NAME;
 		public override event UpdateFoundEvent? UpdateFoundEvent;
 
-		[SuppressMessage("Microsoft.Design", "CA1031")]
 		protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 		{
 			using var scope = this._serviceProvider.CreateScope();
@@ -135,7 +133,9 @@ namespace PaperMalKing.AniList.UpdateProvider
 					transaction.Commit();
 					await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(allUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				}
+				#pragma warning disable CA1031
 				catch (Exception ex)
+				#pragma warning restore CA1031
 				{
 					this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
 					throw;

@@ -25,7 +25,9 @@ using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 {
+	#pragma warning disable MA0048
 	internal static partial class UserProfileParser
+	#pragma warning restore MA0048
 	{
 		private static class FavoritesParser
 		{

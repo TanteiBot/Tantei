@@ -35,7 +35,7 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                     }
                     values: media(type: ANIME, id_in: $animeIds) {");
 			Helpers.AppendMediaFields(sb, options);
-      sb.AppendLine(@"}
+			sb.AppendLine(@"}
                   }
                   Mangas: Page(page: $page, perPage: 50) {
                     pageInfo{
@@ -62,8 +62,8 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                         large
                       }
                     ");
-      if ((options & RequestOptions.MediaDescription) != 0)
-        sb.AppendLine("description(asHtml: false)");
+			if ((options & RequestOptions.MediaDescription) != 0)
+				sb.AppendLine("description(asHtml: false)");
 
 			sb.AppendLine(@"}
                   }");

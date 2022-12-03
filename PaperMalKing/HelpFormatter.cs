@@ -28,7 +28,6 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
 using Humanizer;
-using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing
@@ -71,7 +70,9 @@ namespace PaperMalKing
 			{
 				var sb = new StringBuilder();
 
+				#pragma warning disable S3267
 				foreach (var ovl in command.Overloads.OrderByDescending(x => x.Priority))
+				#pragma warning restore S3267
 				{
 					sb.Append('`').Append(command.QualifiedName);
 
@@ -165,7 +166,7 @@ namespace PaperMalKing
 					if (cmd.ExecutionChecks.Any(x => x is RequireOwnerAttribute))
 						exChecksSb.AppendLine("To execute this command you need to be the owner of the bot.");
 
-					if (cmd.ExecutionChecks.SingleOrDefault(x => x is OwnerOrPermissionAttribute) is OwnerOrPermissionAttribute ownerOrPerms)
+					if (cmd.ExecutionChecks.SingleOrDefault(x => x is OwnerOrPermissionsAttribute) is OwnerOrPermissionsAttribute ownerOrPerms)
 						exChecksSb.AppendLine(
 							$"To execute this command you need to be the owner of the bot or have this permissions {Formatter.InlineCode(ownerOrPerms.Permissions.ToPermissionString())}.");
 				}

@@ -1,34 +1,73 @@
 <Project>
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <LangVersion>9</LangVersion>
+        <TargetFramework>net7.0</TargetFramework>
+        <LangVersion>11</LangVersion>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>nullable</WarningsAsErrors>
         <Features>strict</Features>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-        <AnalysisLevel>5</AnalysisLevel>
+        <AnalysisLevel>7</AnalysisLevel>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+        <AnalysisMode>All</AnalysisMode>
         <PathMap>$(MSBuildProjectDirectory)=/$(MSBuildProjectName)</PathMap>
         <NoWarn>$(NoWarn);
-            CA1002; <!--Do not expose generic lists-->
             CA1003; <!--Use generic event handler instances-->
             CA1014; <!--Mark assemblies with CLSCompliantAttribute-->
             CA1028; <!--Enum storage should be Int32-->
             CA1032; <!--Implement standard exception constructors-->
-            CA1034; <!--Nested types should not be visible-->
             CA1056; <!--URI properties should not be strings-->
             CA1062; <!--Validate arguments of public methods-->
             CA1305; <!--Specify IFormatProvider-->
             CA1308; <!--Normalize strings to uppercase-->
             CA1805; <!--Do not initialize unnecessarily.-->
-            CA1819; <!--Properties should not return arrays-->
             CA1812; <!--Avoid uninstantiated internal classes-->
-            CA1848;
+            CA1848; <!--For improved performance, use the LoggerMessage delegates -->
             CA2201; <!--Do not raise reserved exception types-->
             CA2234; <!--Pass System.Uri objects instead of strings-->
+            
+            MA0011; <!--Use an overload that has a 'System.IFormatProvider' parameter-->
+            MA0006; <!--Use string.Equals instead of Equals operator -->
+            MA0016; <!--Prefer returning collection abstraction instead of implementation-->
+            MA0018; <!--Do not declare static members on generic types-->
+            MA0026; <!--Fix TODO comment-->
+            MA0023; <!--Add RegexOptions.ExplicitCapture-->
+            MA0046; <!--Use EventHandler<T> to declare events-->
+            MA0051; <!--Method is too long-->
+            
+            S125; <!--Remove this commented out code.-->
+            S2326; <!--'T' is not used in the interface.-->
+            S1075; <!--Refactor your code not to use hardcoded absolute paths or URIs.-->
+            S1135; <!--Complete the task associated to this 'TODO' comment.-->
+            S3218; <!--Rename this method to not shadow the outer class' member with the same name.-->
+            S1854; <!--Remove this useless assignment to local variable 'progress'.-->
+            S4457; <!--Split this method into two, one handling parameters check and the other handling the asynchronous code.-->
+            S3925; <!--Update this implementation of 'ISerializable' to conform to the recommended serialization pattern.-->
+            S112; <!--'System.Exception' should not be thrown by user code.-->
+            S3885; <!--Replace this call to 'Assembly.LoadFile' with 'Assembly.Load'.-->
+            S1481; <!--Remove the unused local variable 's'.-->
+            S2743; <!-- Static fields should not be used in generic types-->
+            AsyncFixer02; <!--ToArrayAsync should be used instead of -->
         </NoWarn>
     </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Meziantou.Analyzer" Version="1.0.756">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="8.49.0.57237">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="AsyncFixer" Version="1.6.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.4.27">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
 </Project>

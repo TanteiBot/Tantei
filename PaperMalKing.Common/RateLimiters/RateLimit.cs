@@ -22,9 +22,11 @@ namespace PaperMalKing.Common.RateLimiters
 {
 	public sealed class RateLimit
 	{
-		public long AmountOfRequests { get; }
+		public static readonly RateLimit Empty = new();
 
-		public long PeriodInMilliseconds { get; }
+		public int AmountOfRequests { get; }
+
+		public int PeriodInMilliseconds { get; }
 
 		public RateLimit(int amountOfRequests, int periodInMilliseconds)
 		{
@@ -39,7 +41,12 @@ namespace PaperMalKing.Common.RateLimiters
 		public RateLimit(int amountOfRequests, TimeSpan period) : this(amountOfRequests, (int) period.TotalMilliseconds)
 		{ }
 
-		/// <inheritdoc />
+		private RateLimit()
+		{
+			this.PeriodInMilliseconds = 0;
+			this.AmountOfRequests = 0;
+		}
+
 		public override string ToString()
 		{
 			return $"{this.AmountOfRequests.ToString()}r per {this.PeriodInMilliseconds.ToString()}ms";

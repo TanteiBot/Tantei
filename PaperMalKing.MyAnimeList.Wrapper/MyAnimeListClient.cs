@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -77,13 +76,11 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 			return doc.DocumentNode;
 		}
 
-		[SuppressMessage("Microsoft.Design", "CA1031")]
 		internal async Task<IEnumerable<FeedItem>> GetRecentRssUpdatesAsync<TR>(string username, CancellationToken cancellationToken = default)
-			where TR : struct, IRssFeedType
+			where TR : IRssFeedType
 		{
-			var rssType = new TR();
 			username = WebUtility.UrlEncode(username);
-			var url = $"{rssType.Url}{username}";
+			var url = $"{TR.Url}{username}";
 			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
 			using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -98,7 +95,9 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 				};
 				feed = (Feed?) this._xmlSerializer.Deserialize(xmlTextReader);
 			}
+			#pragma warning disable CA1031
 			catch
+			#pragma warning restore CA1031
 			{
 				return Enumerable.Empty<FeedItem>();
 			}
@@ -109,7 +108,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 		internal async Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default)
 		{
 			if (options == ParserOptions.None)
-				throw new ArgumentException("No reason to parse profile without anime/manga lists and favorites");
+				throw new ArgumentException("No reason to parse profile without anime/manga lists and favorites", nameof(options)); // TODO Replace with domain exception
 			this._logger.LogDebug("Requesting {@Username} profile", username);
 			username = WebUtility.UrlEncode(username);
 			var requestUrl = Constants.PROFILE_URL + username;
@@ -130,13 +129,12 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 
 		internal async Task<IReadOnlyList<TE>> GetLatestListUpdatesAsync<TE, TListType>(string username,
 																						CancellationToken cancellationToken = default)
-			where TE : class, IListEntry where TListType : struct, IListType<TE>
+			where TE : class, IListEntry where TListType : IListType<TE>
 		{
-			var tl = new TListType();
-			this._logger.LogDebug("Requesting {@Username} {@Type} list", username, tl.ListEntryType);
+			this._logger.LogDebug("Requesting {@Username} {@Type} list", username, TListType.ListEntryType);
 
 			username = WebUtility.UrlEncode(username);
-			var url = tl.LatestUpdatesUrl(username);
+			var url = TListType.LatestUpdatesUrl(username);
 			using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
 			using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);

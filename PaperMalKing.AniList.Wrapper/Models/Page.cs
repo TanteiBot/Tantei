@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models
@@ -27,7 +28,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         public PageInfo PageInfo { get; init; } = null!;
 
         [JsonPropertyName("values")]
-        public T[] Values { get; init; } = null!;
+        public IReadOnlyList<T> Values { get; init; } = null!;
 
         public static readonly Page<T> Empty = new()
         {

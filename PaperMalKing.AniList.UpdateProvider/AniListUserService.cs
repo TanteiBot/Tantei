@@ -35,7 +35,7 @@ namespace PaperMalKing.AniList.UpdateProvider
     {
         private readonly AniListClient _client;
         private readonly IServiceProvider _serviceProvider;
-        public string Name => Constants.NAME;
+        public static string Name => Constants.NAME;
 
         public AniListUserService(AniListClient client, IServiceProvider serviceProvider)
         {
@@ -49,16 +49,21 @@ namespace PaperMalKing.AniList.UpdateProvider
             var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
             var dbUser = await db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds)
                 .FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
-            DiscordGuild guild;
+            DiscordGuild? guild;
             if (dbUser != null) // User already in db
 			{
 				if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
+				{
 					throw new UserProcessingException(
 						"You already have your account connected. If you want to switch to another account, remove current one, then add the new one.");
+
+				}
                 guild = await db.DiscordGuilds.FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
                 if (guild == null)
-                    throw new UserProcessingException(new(username),
+				{
+					throw new UserProcessingException(new(username),
                         "Current server is not in database, ask server administrator to add this server to bot");
+				}
 
                 dbUser.DiscordUser.Guilds.Add(guild);
                 db.AniListUsers.Update(dbUser);
@@ -70,7 +75,7 @@ namespace PaperMalKing.AniList.UpdateProvider
             if (guild == null)
                 throw new UserProcessingException(new(username),
                     "Current server is not in database, ask server administrator to add this server to bot");
-            var dUser = await db.DiscordUsers.FirstOrDefaultAsync(du => du.DiscordUserId == userId).ConfigureAwait(false);
+            var dUser = await db.DiscordUsers.FirstAsync(du => du.DiscordUserId == userId).ConfigureAwait(false);
             var response = await this._client.GetCompleteUserInitialInfoAsync(username).ConfigureAwait(false);
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             dbUser = new()
@@ -99,7 +104,7 @@ namespace PaperMalKing.AniList.UpdateProvider
             var user = await db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds)
                 .FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
             if (user == null)
-                throw new UserProcessingException($"You weren't tracked by {this.Name} update checker");
+                throw new UserProcessingException($"You weren't tracked by {Name} update checker");
 
             db.AniListUsers.Remove(user);
             await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);

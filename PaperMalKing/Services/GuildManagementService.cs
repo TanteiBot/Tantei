@@ -33,7 +33,9 @@ namespace PaperMalKing.Services
 {
 	public sealed class GuildManagementService
 	{
+		#pragma warning disable S1450
 		private readonly ILogger<GuildManagementService> _logger;
+		#pragma warning restore S1450
 
 		private readonly IServiceProvider _serviceProvider;
 
@@ -106,7 +108,7 @@ namespace PaperMalKing.Services
 		{
 			using var scope = this._serviceProvider.CreateScope();
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-			var guild = await db.DiscordGuilds.Include(g => g.Users).FirstOrDefaultAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
+			var guild = await db.DiscordGuilds.Include(g => g.Users).FirstAsync(g => g.DiscordGuildId == guildId).ConfigureAwait(false);
 			var user = guild.Users.FirstOrDefault(u => u.DiscordUserId == userId);
 			if (user == null)
 				throw new GuildManagementException("Such user wasn't found as ");

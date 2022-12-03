@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using PaperMalKing.AniList.Wrapper.Models;
 using PaperMalKing.AniList.Wrapper.Models.Responses;
 
+#pragma warning disable CA1002
 namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses
 {
     public sealed class CombinedFavouritesInfoResponse

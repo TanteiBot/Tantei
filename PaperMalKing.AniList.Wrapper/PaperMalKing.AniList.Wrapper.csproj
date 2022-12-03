@@ -2,12 +2,12 @@
     <PropertyGroup>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <OutputType>Library</OutputType>
-        <NoWarn>$(NoWarn);CA1041;CA1002;</NoWarn>
+        <NoWarn>$(NoWarn);CA1041;</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="GraphQL.Client" Version="3.2.4"/>
-        <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" Version="3.2.4"/>
+        <PackageReference Include="GraphQL.Client" Version="5.1.0" />
+        <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" Version="5.1.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj"/>
+        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
     </ItemGroup>
 
 </Project>

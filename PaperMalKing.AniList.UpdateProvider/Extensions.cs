@@ -39,9 +39,9 @@ namespace PaperMalKing.AniList.UpdateProvider
 {
 	internal static class Extensions
 	{
-		internal static readonly Regex SourceRemovalRegex = new(@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		internal static readonly Regex SourceRemovalRegex = new(@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromSeconds(30));
 
-		internal static readonly Regex EmptyLinesRemovalRegex = new(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline);
+		internal static readonly Regex EmptyLinesRemovalRegex = new(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline, TimeSpan.FromSeconds(30));
 
 		private static readonly string[] IgnoredStartWithRoles = {
 														"Touch-Up",
@@ -95,8 +95,15 @@ namespace PaperMalKing.AniList.UpdateProvider
 				result.Add(response);
 				hasNextPage = response.HasNextPage;
 				if (perChunk == initialPerChunkValue)
+				{
 					perChunk = extendedPerChunkValue;
-				else if (perChunk == extendedPerChunkValue) chunk++;
+				}
+				#pragma warning disable S2589
+				else if (perChunk == extendedPerChunkValue)
+				#pragma warning restore S2589
+				{
+					chunk++;
+				}
 			}
 
 			return result;

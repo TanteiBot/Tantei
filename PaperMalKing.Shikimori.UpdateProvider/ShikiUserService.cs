@@ -39,8 +39,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		private readonly ILogger<ShikiUserService> _logger;
 		private readonly IServiceProvider _serviceProvider;
 
-		/// <inheritdoc />
-		public string Name => Constants.NAME;
+		public static string Name => Constants.NAME;
 
 		public ShikiUserService(ShikiClient client, ILogger<ShikiUserService> logger, IServiceProvider serviceProvider)
 		{
@@ -56,7 +55,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			var dbUser = await db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds)
 								 .FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
-			DiscordGuild guild;
+			DiscordGuild? guild;
 			if (dbUser != null) // User already in db
 			{
 				if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
@@ -115,7 +114,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			var user = await db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds)
 							   .FirstOrDefaultAsync(su => su.DiscordUserId == userId).ConfigureAwait(false);
 			if (user == null)
-				throw new UserProcessingException($"You weren't tracked by {this.Name} update checker");
+				throw new UserProcessingException($"You weren't tracked by {Name} update checker");
 
 			db.ShikiUsers.Remove(user);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);

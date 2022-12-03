@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -30,7 +32,7 @@ namespace PaperMalKing.Common.Attributes
 	/// Defines that command or group of commands can only be executed by owner of the bot or user with specified permissions.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-	public sealed class OwnerOrPermissionAttribute : CheckBaseAttribute
+	public sealed class OwnerOrPermissionsAttribute : CheckBaseAttribute
 	{
 		/// <summary>
 		/// Permissions needed to execute command.
@@ -41,7 +43,7 @@ namespace PaperMalKing.Common.Attributes
 		/// Defines that command or group of commands can only be executed by owner of the bot or user with specified permissions.
 		/// </summary>
 		/// <param name="permissions">Permissions needed to execute command.</param>
-		public OwnerOrPermissionAttribute(Permissions permissions) => this.Permissions = permissions;
+		public OwnerOrPermissionsAttribute(Permissions permissions) => this.Permissions = permissions;
 
 		public override Task<bool> ExecuteCheckAsync([NotNull] CommandContext ctx, bool help)
 		{

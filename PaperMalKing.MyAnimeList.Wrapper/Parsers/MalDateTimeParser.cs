@@ -23,8 +23,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 {
 	internal static class MalDateTimeParser
 	{
-		private static readonly Regex AgoRegex = new("(?<number>[0-9]+) (?<time>[^\\s]+) (ago)", RegexOptions.Compiled);
-
+		private static readonly Regex AgoRegex = new ("(?<number>[0-9]+) (?<time>[^\\s]+) (ago)", RegexOptions.Compiled, TimeSpan.FromSeconds(30));
 
 		internal static DateTimeOffset? ParseOrDefault(string value)
 		{

@@ -32,9 +32,8 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 	[Aliases("shiki")]
 	[Description("Commands for managing user updates from Shikimori.one")]
 	[ModuleLifespan(ModuleLifespan.Singleton)]
-	public sealed class ShikiCommands : BaseUpdateProviderUserCommandsModule
+	public sealed class ShikiCommands : BaseUpdateProviderUserCommandsModule<ShikiUserService>
 	{
-		/// <inheritdoc />
 		public ShikiCommands(ShikiUserService userService, ILogger<ShikiCommands> logger) : base(userService, logger)
 		{
 		}
@@ -58,6 +57,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		[Description("Stop sending your updates to this server")]
 		public override Task RemoveUserHereCommand(CommandContext ctx) => base.RemoveUserHereCommand(ctx);
 
+		#pragma warning disable CA1034
 		[Group("features")]
 		[Description("Manage your features for updates send from Shikimori.one")]
 		[ModuleLifespan(ModuleLifespan.Singleton)]

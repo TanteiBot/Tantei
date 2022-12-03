@@ -20,7 +20,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -64,7 +63,6 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 		public override event UpdateFoundEvent? UpdateFoundEvent;
 
 		/// <inheritdoc />
-		[SuppressMessage("Microsoft.Design", "CA1031")]
 		protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 		{
 			using var scope = this._serviceProvider.CreateScope();
@@ -109,7 +107,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					FavType = fe.GenericType!,
 					User = dbUser
 				}));
-				var user = await this._client.GetUserInfo(dbUser.Id, cancellationToken).ConfigureAwait(false);
+				var user = await this._client.GetUserInfoAsync(dbUser.Id, cancellationToken).ConfigureAwait(false);
 				totalUpdates.AddRange(removedValues.Select(rf => rf.ToDiscordEmbed(user, false, dbUser.Features)));
 				totalUpdates.AddRange(addedValues.Select(af => af.ToDiscordEmbed(user, true, dbUser.Features)));
 				var groupedHistoryEntries = historyUpdates.GroupSimilarHistoryEntries();
@@ -144,7 +142,9 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 					await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 					this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);
 				}
-				catch(Exception ex)
+				#pragma warning disable CA1031
+				catch (Exception ex)
+				#pragma warning restore CA1031
 				{
 					this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
 					throw;

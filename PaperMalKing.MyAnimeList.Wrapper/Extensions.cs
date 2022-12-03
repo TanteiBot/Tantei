@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Models.List;
@@ -27,21 +26,21 @@ using PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
 namespace PaperMalKing.MyAnimeList.Wrapper
 {
-	[SuppressMessage("Globalization", "CA1307")]
 	internal static class Extensions
 	{
 		internal static string ToLargeImage(this string value)
 		{
-			var s = value.Replace("/r/96x136", "").Replace("/r/80x120", "").Replace("/r/192x272", "");
-			if (!s.Contains("l.jpg") && !s.Contains("characters"))
-				s = s.Replace(".jpg", "l.jpg");
+			var s = value.Replace("/r/96x136", "", StringComparison.Ordinal).Replace("/r/80x120", "", StringComparison.Ordinal)
+						 .Replace("/r/192x272", "", StringComparison.Ordinal);
+			if (!s.Contains("l.jpg", StringComparison.Ordinal) && !s.Contains("characters", StringComparison.Ordinal))
+				s = s.Replace(".jpg", "l.jpg", StringComparison.Ordinal);
 			var i = s.IndexOf("?s", StringComparison.OrdinalIgnoreCase);
 			return i <=0 ? s : s.Remove(i);
 		}
 
 		internal static RecentUpdate ToRecentUpdate(this FeedItem feedItem, ListEntryType type)
 		{
-			var index = feedItem.Description.IndexOf('-');
+			var index = feedItem.Description.IndexOf('-', StringComparison.Ordinal);
 			var progressText = feedItem.Description.Substring(0, index - 1).Trim();
 			var progress = ProgressParser.Parse(progressText);
 			var di = feedItem.Description.LastIndexOf("-", StringComparison.OrdinalIgnoreCase);

@@ -47,8 +47,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			this._serviceProvider = serviceProvider;
 		}
 
-		/// <inheritdoc />
-		public string Name => Constants.Name;
+		public static string Name => Constants.Name;
 
 		public async Task<BaseUser> AddUserAsync(string username, ulong userId, ulong guildId)
 		{
@@ -56,7 +55,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			var dbUser = await db.MalUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds)
 								 .FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
-			DiscordGuild guild;
+			DiscordGuild? guild;
 			if (dbUser != null) // User already in DB
 			{
 				if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)) // User already in specified guild
@@ -121,7 +120,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			}).FirstOrDefaultAsync(u => u.DiscordUser.DiscordUserId == userId).ConfigureAwait(false);
 			if (user == null)
 			{
-				throw new UserProcessingException($"You weren't tracked by {this.Name} update checker");
+				throw new UserProcessingException($"You weren't tracked by {Name} update checker");
 			}
 
 			db.MalUsers.Remove(user);

@@ -19,11 +19,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PaperMalKing.Database.Models
 {
 	public sealed class DiscordUser
 	{
+		[SuppressMessage("Minor Code Smell", "S3459:Unassigned members should be removed")]
 		private long BotUserId { get; set; }
 
 		[Key]

@@ -31,27 +31,23 @@ namespace PaperMalKing.Services
 {
 	public sealed class UpdateProvidersConfigurationService
 	{
-		private readonly ILogger<UpdateProvidersConfigurationService> _logger;
-		private readonly Dictionary<string, IUpdateProvider> _providers = new();
-		private readonly IServiceProvider _serviceProvider;
+		private readonly Dictionary<string, IUpdateProvider> _providers = new(StringComparer.OrdinalIgnoreCase);
 
 		public IReadOnlyDictionary<string, IUpdateProvider> Providers => this._providers;
 
 		public UpdateProvidersConfigurationService(ILogger<UpdateProvidersConfigurationService> logger, IServiceProvider serviceProvider)
 		{
-			this._logger = logger;
-			this._logger.LogTrace("Building {@UpdateProvidersConfigurationService}", typeof(UpdateProvidersConfigurationService));
-			this._serviceProvider = serviceProvider;
-			foreach (var updateProvider in this._serviceProvider.GetServices<IUpdateProvider>())
+			logger.LogTrace("Building {@UpdateProvidersConfigurationService}", typeof(UpdateProvidersConfigurationService));
+			foreach (var updateProvider in serviceProvider.GetServices<IUpdateProvider>())
 			{
-				this._logger.LogDebug("Registering {@UpdateProvider} update provider", updateProvider);
+				logger.LogDebug("Registering {@UpdateProvider} update provider", updateProvider);
 				this._providers.Add(updateProvider.Name, updateProvider);
 			}
 
 			if (!this._providers.Any())
-				this._logger.LogCritical("No update providers were registered");
+				logger.LogCritical("No update providers were registered");
 
-			this._logger.LogTrace("Built {@UpdateProvidersConfigurationService}", typeof(UpdateProvidersConfigurationService));
+			logger.LogTrace("Built {@UpdateProvidersConfigurationService}", typeof(UpdateProvidersConfigurationService));
 		}
 
 		public static void ConfigureProviders(IConfiguration configuration, IServiceCollection services)

@@ -90,17 +90,6 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			return acc;
 		}
 
-		public static DiscordEmbedBuilder ToDiscordEmbed(this FavouriteEntry favouriteEntry, UserInfo user, bool added, ShikiUserFeatures features)
-		{
-			var favouriteName = (features & ShikiUserFeatures.Russian) != 0 ? favouriteEntry.RussianName ?? favouriteEntry.Name : favouriteEntry.Name;
-			return new DiscordEmbedBuilder
-				{
-					Url = favouriteEntry.Url,
-					Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
-				}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "removed")} favourite").WithShikiAuthor(user)
-				 .WithColor(added ? Constants.ShikiGreen : Constants.ShikiRed);
-		}
-
 		public static List<List<History>> GroupSimilarHistoryEntries(this List<History> source)
 		{
 			source.Sort((h1, h2) => Comparer<ulong>.Default.Compare(h1.Id, h2.Id));
@@ -179,6 +168,17 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			}
 
 			return eb;
+		}
+
+		public static DiscordEmbedBuilder ToDiscordEmbed(this FavouriteEntry favouriteEntry, UserInfo user, bool added, ShikiUserFeatures features)
+		{
+			var favouriteName = (features & ShikiUserFeatures.Russian) != 0 ? favouriteEntry.RussianName ?? favouriteEntry.Name : favouriteEntry.Name;
+			return new DiscordEmbedBuilder
+				{
+					Url = favouriteEntry.Url,
+					Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
+				}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "removed")} favourite").WithShikiAuthor(user)
+				 .WithColor(added ? Constants.ShikiGreen : Constants.ShikiRed);
 		}
 
 		public static DiscordEmbedBuilder WithShikiUpdateProviderFooter(this DiscordEmbedBuilder eb)

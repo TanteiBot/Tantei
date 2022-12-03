@@ -17,15 +17,16 @@
 #endregion
 
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
-	[SuppressMessage("Naming", "CA1724")]
+	#pragma warning disable CA1724
     public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
+	#pragma warning restore CA1724
     {
         [JsonPropertyName("id")]
         public ulong Id { get; init; }
@@ -62,12 +63,12 @@ namespace PaperMalKing.AniList.Wrapper.Models
 
         [JsonPropertyName("description")]
         public string Description { get; init; } = null!;
-        
+
         [JsonPropertyName("genres")]
-        public string[] Genres { get; init; } = Array.Empty<string>();
+        public IReadOnlyList<string> Genres { get; init; } = Array.Empty<string>();
 
         [JsonPropertyName("tags")]
-        public MediaTag[] Tags { get; init; } = Array.Empty<MediaTag>();
+        public IReadOnlyList<MediaTag> Tags { get; init; } = Array.Empty<MediaTag>();
 
         [JsonPropertyName("studios")]
         public Connection<Studio> Studios { get; init; } = Connection<Studio>.Empty;

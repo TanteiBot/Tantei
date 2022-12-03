@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using PaperMalKing.Common.Enums;
@@ -22,8 +24,15 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss.Types
 {
 	internal interface IRssFeedType
 	{
-		string Url { get; }
+		abstract static string Url { get; }
 
-		ListEntryType Type { get; }
+		abstract static ListEntryType Type { get; }
+
+		internal abstract class Anime : IRssFeedType
+		{
+			public static string Url => Constants.RSS_ANIME_URL;
+
+			public static ListEntryType Type => ListEntryType.Anime;
+		}
 	}
 }

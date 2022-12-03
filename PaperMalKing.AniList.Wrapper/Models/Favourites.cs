@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
 
@@ -34,7 +35,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("anime")]
         public Connection<IdentifiableFavourite> Anime
         {
-            [Obsolete("",true)]get => null!;
+            [Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => null!;
             init
             {
                 if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -46,7 +47,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("manga")]
         public Connection<IdentifiableFavourite> Manga
         {
-            [Obsolete("",true)]get => null!;
+            [Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => null!;
             init
             {
                 if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -59,7 +60,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("characters")]
         public Connection<IdentifiableFavourite> Characters
         {
-            [Obsolete("",true)]get => null!;
+            [Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => null!;
             init
             {
                 if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -72,7 +73,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("staff")]
         public Connection<IdentifiableFavourite> Staff
         {
-            [Obsolete("",true)]get => null!;
+            [Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => null!;
             init
             {
                 if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -85,7 +86,7 @@ namespace PaperMalKing.AniList.Wrapper.Models
         [JsonPropertyName("studios")]
         public Connection<IdentifiableFavourite> Studios
         {
-            [Obsolete("",true)]get => null!;
+            [Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => null!;
             init
             {
                 if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;

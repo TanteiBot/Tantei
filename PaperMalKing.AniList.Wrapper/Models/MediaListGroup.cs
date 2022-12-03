@@ -10,11 +10,12 @@
 // but WITHOUT ANY WARRANTY
 
 using System;
+using System.Collections.Generic;
 
 namespace PaperMalKing.AniList.Wrapper.Models
 {
 	public sealed class MediaListGroup
 	{
-		public MediaListEntry[] Entries { get; init; } = Array.Empty<MediaListEntry>();
+		public IReadOnlyList<MediaListEntry> Entries { get; init; } = Array.Empty<MediaListEntry>();
 	}
 }

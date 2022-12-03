@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,6 +15,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
@@ -38,8 +40,11 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 	internal class ShikiUpdateProviderConfigurator : IUpdateProviderConfigurator<ShikiUpdateProvider>
 	{
 		/// <inheritdoc />
+		[Obsolete("", true)]
 		public void ConfigureNonStatic(IConfiguration configuration, IServiceCollection serviceCollection)
-		{ }
+		{
+			throw new NotSupportedException();
+		}
 
 		public static void Configure(IConfiguration configuration, IServiceCollection serviceCollection)
 		{
@@ -50,19 +55,17 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 
 			serviceCollection.AddHttpClient(Constants.NAME).AddPolicyHandler(policy).AddHttpMessageHandler(provider =>
 			{
-				var logger = provider.GetRequiredService<ILogger<IRateLimiter<ShikiClient>>>();
 				var rl = new RateLimit(90, TimeSpan.FromMinutes(1.05d)); // 90rpm with .05 as inaccuracy
-				return RateLimiterFactory.Create(rl, logger).ToHttpMessageHandler();
+				return RateLimiterFactory.Create<ShikiClient>(rl).ToHttpMessageHandler();
 			}).AddHttpMessageHandler(provider =>
 			{
-				var logger = provider.GetRequiredService<ILogger<IRateLimiter<ShikiClient>>>();
 				var rl = new RateLimit(5, TimeSpan.FromSeconds(1.05d)); //5rps with .05 as inaccuracy
-				return RateLimiterFactory.Create(rl, logger).ToHttpMessageHandler();
+				return RateLimiterFactory.Create<ShikiClient>(rl).ToHttpMessageHandler();
 			}).ConfigureHttpClient((provider, client) =>
 			{
 				client.DefaultRequestHeaders.UserAgent.Clear();
 				client.DefaultRequestHeaders.UserAgent.ParseAdd($"{provider.GetRequiredService<IOptions<ShikiOptions>>().Value.ShikimoriAppName}");
-				client.BaseAddress = new (Wrapper.Constants.BASE_URL);
+				client.BaseAddress = new(Wrapper.Constants.BASE_URL);
 			});
 			serviceCollection.AddSingleton<ShikiClient>(provider =>
 			{

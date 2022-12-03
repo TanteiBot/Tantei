@@ -20,7 +20,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -65,7 +64,6 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 		/// <inheritdoc />
 		public override event UpdateFoundEvent? UpdateFoundEvent;
 
-		[SuppressMessage("Microsoft.Design", "CA1031")]
 		protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 		{
 #region LocalFuncs
@@ -84,13 +82,12 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 			async ValueTask<IReadOnlyList<DiscordEmbedBuilder>> CheckRssListUpdates<TRss, TLe, TL>(
 				MalUser dbUser, User user, DateTimeOffset lastUpdateDateTime, Action<string, DateTimeOffset, MalUser> dbUpdateAction,
-				CancellationToken ct) where TRss : struct, IRssFeedType where TLe : class, IListEntry where TL : struct, IListType<TLe>
+				CancellationToken ct) where TRss : IRssFeedType where TLe : class, IListEntry where TL : IListType<TLe>
 			{
 				var rssUpdates = await this._client.GetRecentRssUpdatesAsync<TRss>(user.Username, ct).ConfigureAwait(false);
 
-				var type = new TRss().Type;
 				var updates = rssUpdates.Where(update => update.PublishingDateTimeOffset > lastUpdateDateTime)
-										.Select(item => item.ToRecentUpdate(type)).OrderByDescending(u => u.UpdateDateTime).ToArray();
+										.Select(item => item.ToRecentUpdate(TRss.Type)).OrderByDescending(u => u.UpdateDateTime).ToArray();
 
 				if (!updates.Any())
 					return Array.Empty<DiscordEmbedBuilder>();
@@ -101,12 +98,12 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				{
 					var latest = list.FirstOrDefault(entry => entry.Id == update.Id);
 					if (latest == null)
-						continue;
-					else
 					{
-						dbUpdateAction(latest.GetHash().ToHashString(), update.UpdateDateTime, dbUser);
-						break;
+						continue;
 					}
+
+					dbUpdateAction(latest.GetHash().ToHashString(), update.UpdateDateTime, dbUser);
+					break;
 				}
 
 				return updates.Select(update => list.First(entry => entry.Id == update.Id)
@@ -116,7 +113,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 			async Task<IReadOnlyList<DiscordEmbedBuilder>> CheckProfileListUpdatesAsync<TLe, TL>(
 				MalUser dbUser, User user, int latestUpdateId, DateTimeOffset latestUpdateDateTime,
 				Action<string, DateTimeOffset, MalUser> dbUpdateAction, CancellationToken ct)
-				where TLe : class, IListEntry where TL : struct, IListType<TLe>
+				where TLe : class, IListEntry where TL : IListType<TLe>
 			{
 				var listUpdates = await this._client.GetLatestListUpdatesAsync<TLe, TL>(user.Username, ct).ConfigureAwait(false);
 				var lastListUpdate = listUpdates.First(u => u.Id == latestUpdateId);
@@ -164,7 +161,9 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 					this.Logger.LogError(exception, "Mal server encounters some error, skipping current update check");
 					return;
 				}
+				#pragma warning disable CA1031
 				catch (Exception exception)
+				#pragma warning restore CA1031
 				{
 					this.Logger.LogError(exception, "Encountered unknown error, skipping current update check");
 					return;

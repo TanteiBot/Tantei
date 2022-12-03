@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // PaperMalKing.
 // Copyright (C) 2021 N0D4N
 // 
@@ -14,23 +15,31 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #endregion
 
 using System;
-using Microsoft.Extensions.Logging;
+using System.Threading.RateLimiting;
 
 namespace PaperMalKing.Common.RateLimiters
 {
 	public static class RateLimiterFactory
 	{
-		public static IRateLimiter<T> Create<T>(RateLimit rateLimit, ILogger<IRateLimiter<T>>? logger = null)
+		public static RateLimiter<T> Create<T>(RateLimit rateLimit)
 		{
 			if (rateLimit == null)
 				throw new ArgumentNullException(nameof(rateLimit));
 			if (rateLimit.AmountOfRequests == 0 || rateLimit.PeriodInMilliseconds == 0)
-				return new NullRateLimiter<T>(rateLimit);
+				return new RateLimiter<T>(NullRateLimiter.Instance);
 
-			return new LockFreeRateLimiter<T>(rateLimit, logger);
+			return new RateLimiter<T>(new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions()
+			{
+				Window = TimeSpan.FromMilliseconds(rateLimit.PeriodInMilliseconds),
+				AutoReplenishment = true,
+				PermitLimit = rateLimit.AmountOfRequests,
+				QueueLimit = 100,
+				QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+			}));
 			// return new RateLimiter<T>(rateLimit, logger);
 		}
 	}

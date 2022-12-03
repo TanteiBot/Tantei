@@ -19,6 +19,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -36,14 +37,14 @@ namespace PaperMalKing.Commands
 	[Aliases("sm", "srvmgm")]
 	[Description("Commands for managing server")]
 	[ModuleLifespan(ModuleLifespan.Singleton)]
-	[OwnerOrPermission(Permissions.ManageGuild)]
+	[OwnerOrPermissions(Permissions.ManageGuild)]
+	[SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
 	public sealed class GuildManagementCommands : BaseCommandModule
 	{
 		private readonly ILogger<GuildManagementCommands> _logger;
 
 		private readonly GuildManagementService _managementService;
 
-		/// <inheritdoc />
 		public GuildManagementCommands(ILogger<GuildManagementCommands> logger, GuildManagementService managementService)
 		{
 			this._logger = logger;

@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -68,7 +67,6 @@ namespace PaperMalKing.Shikimori.Wrapper
 			return favs!;
 		}
 
-		[SuppressMessage("","CA2000")]
 		internal async Task<Paginatable<History[]>> GetUserHistoryAsync(ulong userId, uint page, byte limit, HistoryRequestOptions options, 
 																		CancellationToken cancellationToken = default)
 		{
@@ -76,13 +74,15 @@ namespace PaperMalKing.Shikimori.Wrapper
 			limit = Constants.HISTORY_LIMIT < limit ? Constants.HISTORY_LIMIT : limit;
 			this._logger.LogDebug("Requesting {@UserId} history. Page {@Page}", userId, page);
 
+			#pragma warning disable CA2000
 			using var content = new MultipartFormDataContent
 			{
 				{new StringContent(page.ToString()), "page"},
 				{new StringContent(limit.ToString()), "limit"}
 			};
 			if (options != HistoryRequestOptions.Any) content.Add(new StringContent(options.ToString()), "target_type");
-			
+			#pragma warning restore CA2000
+
 			using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 			{
 				Content = content
@@ -94,7 +94,7 @@ namespace PaperMalKing.Shikimori.Wrapper
 			return new(data, hasNextPage);
 		}
 
-		internal Task<UserInfo> GetUserInfo(ulong userId, CancellationToken cancellationToken = default)
+		internal Task<UserInfo> GetUserInfoAsync(ulong userId, CancellationToken cancellationToken = default)
 		{
 			var url = $"{Constants.BASE_USERS_API_URL}/{userId.ToString()}/info";
 			return this._httpClient.GetFromJsonAsync<UserInfo>(url, cancellationToken)!;

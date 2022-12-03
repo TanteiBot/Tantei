@@ -21,10 +21,10 @@ using static PaperMalKing.MyAnimeList.Wrapper.Constants;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Models.List.Types
 {
-	internal readonly struct AnimeListType : IListType<AnimeListEntry>
+	internal abstract class AnimeListType : IListType<AnimeListEntry>
 	{
-		public string LatestUpdatesUrl(string username) => ANIME_LIST_URL + username + LATEST_LIST_UPDATES;
+		public static string LatestUpdatesUrl(string username) => ANIME_LIST_URL + username + LATEST_LIST_UPDATES;
 
-		public ListEntryType ListEntryType => ListEntryType.Anime;
+		public static ListEntryType ListEntryType => ListEntryType.Anime;
 	}
 }
