@@ -102,7 +102,7 @@ namespace PaperMalKing.Commands
 								Bot version - {botVersion}
 								Commit - {Formatter.MaskedUrl(commitId, new Uri($"{sourceCodeLink}/commit/{commitId.AsSpan(0, 10)}"))}
 								Commit date - {commitDate:s}
-								DSharpPlus version - {context.Client.VersionString}.
+								DSharpPlus version - {context.Client.VersionString}
 								.NET version - {dotnetVersion}
 								""";
 
