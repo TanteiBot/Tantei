@@ -55,9 +55,8 @@ namespace PaperMalKing.Commands
 		[Command("say")]
 		[Description("Sends embed in selected channel with selected text")]
 		[OwnerOrPermissions(Permissions.ManageGuild)]
-		public async Task SayCommand(CommandContext context, [Description("Channel where the embed will be send")]
-									 DiscordChannel channelToSayIn, [RemainingText, Description("Text to send")]
-									 string messageContent)
+		public async Task SayCommand(CommandContext context, [Description("Channel where the embed will be send")] DiscordChannel channelToSayIn,
+									 [RemainingText, Description("Text to send")] string messageContent)
 		{
 			if (string.IsNullOrWhiteSpace(messageContent))
 				throw new ArgumentException("Message's content shouldn't be empty", nameof(messageContent));
@@ -74,7 +73,7 @@ namespace PaperMalKing.Commands
 			}
 			#pragma warning disable CA1031
 			catch
-			#pragma warning restore CA1031
+				#pragma warning restore CA1031
 			{
 				await context.RespondAsync("Couldn't send message. Check permissions for bot and try again.").ConfigureAwait(false);
 			}
@@ -90,13 +89,23 @@ namespace PaperMalKing.Commands
 				var botVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "";
 				var dotnetVersion = Environment.Version.ToString(3);
 
-				const string desc =
-					"Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.\nDeveloped by N0D4N#2281 (<@356518417987141633>).";
-
-				var versions = $"Bot version - {botVersion}." + "\n" + $"DSharpPlus version - {context.Client.VersionString}." + "\n" +
-							   $".NET version - {dotnetVersion}.";
+				var commitId = ThisAssembly.GitCommitId[..10];
+				var commitDate = ThisAssembly.GitCommitDate;
+				const string desc = """
+									Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.
+									Developed by N0D4N#2281 (<@356518417987141633>).
+									""";
 
 				const string sourceCodeLink = "https://github.com/TanteiBot/Tantei";
+
+				var versions = $"""
+								Bot version - {botVersion}
+								Commit - {Formatter.MaskedUrl(commitId, new Uri($"{sourceCodeLink}/commit/{commitId.AsSpan(0, 10)}"))}
+								Commit date - {commitDate:s}
+								DSharpPlus version - {context.Client.VersionString}
+								.NET version - {dotnetVersion}
+								""";
+
 				var links = Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute));
 
 				var embedBuilder = new DiscordEmbedBuilder
@@ -118,8 +127,7 @@ namespace PaperMalKing.Commands
 		[Aliases("dmsg", "rm", "rmm")]
 		[Description("Delete messages by their id")]
 		[RequireOwner]
-		public async Task DeleteMessagesCommand(CommandContext context, [RemainingText, Description("Messages Id's")]
-												params ulong[] messages)
+		public async Task DeleteMessagesCommand(CommandContext context, [RemainingText, Description("Messages Id's")] params ulong[] messages)
 		{
 			var msgsToDelete =
 				(await context.Channel.GetMessagesBeforeAsync(context.Message.Id).ConfigureAwait(false)).Where(x =>
@@ -131,8 +139,7 @@ namespace PaperMalKing.Commands
 		[Command("Forcecheck")]
 		[Aliases("fc")]
 		[RequireOwner]
-		public async Task ForceCheckCommand(CommandContext context, [RemainingText, Description("Update provider name")]
-											string name)
+		public async Task ForceCheckCommand(CommandContext context, [RemainingText, Description("Update provider name")] string name)
 		{
 			name = name.Trim();
 			BaseUpdateProvider? baseUpdateProvider;
