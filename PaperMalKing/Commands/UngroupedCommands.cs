@@ -86,15 +86,14 @@ namespace PaperMalKing.Commands
 		{
 			if (AboutEmbed == null)
 			{
+				var owners = context.Client.CurrentApplication.Owners.Select(x => $"{x.Username}#{x.Discriminator} ({x.Mention})").ToArray();
 				var botVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "";
 				var dotnetVersion = Environment.Version.ToString(3);
 
 				var commitId = ThisAssembly.GitCommitId[..10];
 				var commitDate = ThisAssembly.GitCommitDate;
-				const string desc = """
-									Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.
-									Developed by N0D4N#2281 (<@356518417987141633>).
-									""";
+				const string desc =
+					"Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.";
 
 				const string sourceCodeLink = "https://github.com/TanteiBot/Tantei";
 
@@ -106,17 +105,17 @@ namespace PaperMalKing.Commands
 								.NET version - {dotnetVersion}
 								""";
 
-				var links = Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute));
-
 				var embedBuilder = new DiscordEmbedBuilder
-				{
-					Title = "Info",
-					Url = sourceCodeLink,
-					Description = desc,
-					Color = DiscordColor.DarkBlue,
-				}.WithThumbnail(context.Client.CurrentUser.AvatarUrl);
-				embedBuilder.AddField("Links", links, true);
-				embedBuilder.AddField("Versions", versions, true);
+					{
+						Title = "About",
+						Url = sourceCodeLink,
+						Description = desc,
+						Color = DiscordColor.DarkBlue,
+					}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
+					 .AddField("Links", Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)), true)
+					 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), true)
+					 .AddField("Versions", versions, true);
+
 				Interlocked.Exchange(ref AboutEmbed, embedBuilder.Build());
 			}
 
