@@ -77,7 +77,7 @@ namespace PaperMalKing
 					sb.Append('`').Append(command.QualifiedName);
 
 					foreach (var arg in ovl.Arguments)
-						sb.Append(arg.IsOptional || arg.IsCatchAll ? " [" : " <").Append(arg.Name).Append(arg.IsCatchAll ? "..." : "")
+						sb.Append(arg.IsOptional || arg.IsCatchAll ? " [" : " <").Append(arg.Name).Append(arg.IsCatchAll ? "…" : "")
 						  .Append(arg.IsOptional || arg.IsCatchAll ? ']' : '>');
 
 					sb.Append("`\n");
