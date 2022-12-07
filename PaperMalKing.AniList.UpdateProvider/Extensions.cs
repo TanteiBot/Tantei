@@ -189,11 +189,12 @@ namespace PaperMalKing.AniList.UpdateProvider
 
 		public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this Review review, User user)
 		{
-			return new DiscordEmbedBuilder().WithAniListAuthor(user).WithTitle(
-																			   $"New review on {review.Media.Title.GetTitle(user.Options.TitleLanguage)} ({review.Media.Format?.Humanize(LetterCasing.Sentence)})")
-											.WithThumbnail(review.Media.Image.ImageUrl).WithUrl(review.Url)
-											.WithTimestamp(DateTimeOffset.FromUnixTimeSeconds(review.CreatedAtTimeStamp))
-											.WithDescription(review.Summary);
+			return new DiscordEmbedBuilder()
+				   .WithAniListAuthor(user)
+				   .WithTitle($"New review on {review.Media.Title.GetTitle(user.Options.TitleLanguage)} ({review.Media.Format?.Humanize(LetterCasing.Sentence)})")
+				   .WithThumbnail(review.Media.Image.ImageUrl).WithUrl(review.Url)
+				   .WithTimestamp(DateTimeOffset.FromUnixTimeSeconds(review.CreatedAtTimeStamp))
+				   .WithDescription(review.Summary);
 		}
 
 		public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this ListActivity activity, MediaListEntry mediaListEntry, User user,
@@ -205,7 +206,7 @@ namespace PaperMalKing.AniList.UpdateProvider
 																					   mediaListEntry.Status == MediaListStatus.COMPLETED);
 			var desc = isHiddenProgressPresent switch
 			{
-				true => $"{(isAnime ? $"Watched episode" : $"Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it",
+				true => $"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it",
 				_    => $"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}"
 			};
 			var isAdvancedScoringEnabled =

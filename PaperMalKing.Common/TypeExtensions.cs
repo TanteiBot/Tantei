@@ -30,24 +30,6 @@ namespace PaperMalKing.Common
 		[GeneratedRegex("<.*?>", RegexOptions.Compiled, matchTimeoutMilliseconds:60000/*1m*/)]
 		private static partial Regex HtmlRegex();
 
-		public static string ToFixedWidth(this string s, int newLength)
-		{
-			if (s.Length < newLength)
-				return s.PadRight(newLength);
-
-			if (s.Length > newLength)
-				return s.Substring(0, newLength);
-
-			return s;
-		}
-
-		public static string FirstCharToUpper(this string input)
-		{
-			if (string.IsNullOrWhiteSpace(input))
-				throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input));
-			return char.ToUpperInvariant(input[0]) + input.Substring(1);
-		}
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static string Substring(this string original, string endOfSubstring, bool before)
 		{
@@ -66,7 +48,7 @@ namespace PaperMalKing.Common
 			{
 				var ch = value[i];
 				if (char.IsLetter(ch))
-					return $"{char.ToUpper(ch, cultureInfo).ToString()}{value.Substring(i + 1)}";
+					return $"{char.ToUpper(ch, cultureInfo)}{value.Substring(i + 1)}";
 			}
 
 			return value;
