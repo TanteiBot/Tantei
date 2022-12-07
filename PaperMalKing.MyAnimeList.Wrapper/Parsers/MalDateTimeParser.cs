@@ -21,13 +21,14 @@ using System.Text.RegularExpressions;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
 {
-	internal static class MalDateTimeParser
+	internal static partial class MalDateTimeParser
 	{
-		private static readonly Regex AgoRegex = new ("(?<number>[0-9]+) (?<time>[^\\s]+) (ago)", RegexOptions.Compiled, TimeSpan.FromSeconds(30));
+		[GeneratedRegex("(?<number>[0-9]+) (?<time>[^\\s]+) (ago)", RegexOptions.Compiled, matchTimeoutMilliseconds: 30000 /*30s*/)]
+		private static partial Regex AgoRegex();
 
 		internal static DateTimeOffset? ParseOrDefault(string value)
 		{
-			var agoRegexMatch = AgoRegex.Match(value);
+			var agoRegexMatch = AgoRegex().Match(value);
 			return agoRegexMatch.Success ? AgoParse(agoRegexMatch) : null;
 		}
 

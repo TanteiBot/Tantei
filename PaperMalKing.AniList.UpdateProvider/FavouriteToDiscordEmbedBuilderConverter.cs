@@ -66,8 +66,8 @@ namespace PaperMalKing.AniList.UpdateProvider
 					if ((features & AniListUserFeatures.MediaDescription) != 0 && !string.IsNullOrEmpty(staff.Description))
 					{
 						var mediaDescription = staff.Description.StripHtml();
-						mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
-						mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
+						mediaDescription = SourceRemovalRegex().Replace(mediaDescription, string.Empty);
+						mediaDescription = EmptyLinesRemovalRegex().Replace(mediaDescription, string.Empty);
 						mediaDescription = mediaDescription.Trim().Truncate(350);
 						if (!string.IsNullOrEmpty(mediaDescription))
 							eb.AddField("Description", mediaDescription, false);

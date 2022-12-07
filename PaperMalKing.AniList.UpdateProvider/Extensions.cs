@@ -37,11 +37,13 @@ using PaperMalKing.Database.Models.AniList;
 
 namespace PaperMalKing.AniList.UpdateProvider
 {
-	internal static class Extensions
+	internal static partial class Extensions
 	{
-		internal static readonly Regex SourceRemovalRegex = new(@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromSeconds(30));
+		[GeneratedRegex(@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase, matchTimeoutMilliseconds: 30000/*30s*/)]
+		internal static partial Regex SourceRemovalRegex();
 
-		internal static readonly Regex EmptyLinesRemovalRegex = new(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline, TimeSpan.FromSeconds(30));
+		[GeneratedRegex(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline, matchTimeoutMilliseconds: 30000/*30s*/)]
+		internal static partial Regex EmptyLinesRemovalRegex();
 
 		private static readonly string[] IgnoredStartWithRoles = {
 														"Touch-Up",
@@ -285,8 +287,8 @@ namespace PaperMalKing.AniList.UpdateProvider
 			if ((features & AniListUserFeatures.MediaDescription) != 0 && !string.IsNullOrEmpty(media.Description))
 			{
 				var mediaDescription = media.Description.StripHtml();
-				mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
-				mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
+				mediaDescription = SourceRemovalRegex().Replace(mediaDescription, string.Empty);
+				mediaDescription = EmptyLinesRemovalRegex().Replace(mediaDescription, string.Empty);
 				mediaDescription = Formatter.Strip(mediaDescription).Trim().Truncate(350);
 				if (!string.IsNullOrEmpty(mediaDescription))
 					eb.AddField("Description", mediaDescription, mediaDescription.Length <= InlineFieldValueMaxLength);
