@@ -31,7 +31,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models
 
 		internal string AvatarUrl =>
 			this._avatarUrl ??=
-				$"{Constants.USER_AVATAR}{this.Id.ToString()}.jpg?t={DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()}";
+				$"{Constants.USER_AVATAR}{this.Id}.jpg?t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
 
 		internal int Id { get; init; }
 

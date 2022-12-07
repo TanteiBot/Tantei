@@ -22,6 +22,6 @@ namespace PaperMalKing.Common
 {
 	public static class Helpers
 	{
-		public static string ToDiscordMention(ulong id) => $"<@!{id.ToString(CultureInfo.InvariantCulture)}>";
+		public static string ToDiscordMention(ulong id) => $"<@!{id}>";
 	}
 }

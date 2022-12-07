@@ -99,7 +99,7 @@ namespace PaperMalKing.UpdatesProviders.Base
 				throw;
 			}
 
-			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Now your updates won't appear in this server")).ConfigureAwait(false);
+			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, "Now your updates won't appear in this server")).ConfigureAwait(false);
 		}
 
 		public virtual async Task ListUsersCommand(CommandContext ctx)

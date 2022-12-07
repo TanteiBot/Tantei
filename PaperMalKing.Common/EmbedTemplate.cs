@@ -28,13 +28,17 @@ namespace PaperMalKing.Common
 		public static DiscordEmbedBuilder CommandErrorEmbed(Command command, DiscordUser user, Exception? ex = null,
 			string? message = null)
 		{
-			var errorMessage = message ?? $"{ex?.Message}\nin\n{Formatter.InlineCode(ex?.Source)}";
+			var errorMessage = message ?? $"""
+										   {ex?.Message}
+										   in
+										   {Formatter.InlineCode(ex?.Source)}
+										   """;
 			return ErrorEmbed(user, errorMessage, $"Error occured in {command.Name}");
 		}
 
 		public static DiscordEmbedBuilder UnknownErrorEmbed(CommandContext context)
 		{
-			return ErrorEmbed(context, $"Unknown error occured, try again later or contact the owner in case of sequential fails", "Unknown Error");
+			return ErrorEmbed(context, "Unknown error occured, try again later or contact the owner in case of sequential fails", "Unknown Error");
 		}
 
 		public static DiscordEmbedBuilder ErrorEmbed(CommandContext context, string errorMessage, string? title = null) =>
