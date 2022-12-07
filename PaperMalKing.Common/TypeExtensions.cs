@@ -25,9 +25,10 @@ using PaperMalKing.Common.RateLimiters;
 
 namespace PaperMalKing.Common
 {
-	public static class TypeExtensions
+	public static partial class TypeExtensions
 	{
-		private static readonly Regex HtmlRegex = new("<.*?>", RegexOptions.Compiled, TimeSpan.FromMinutes(5));
+		[GeneratedRegex("<.*?>", RegexOptions.Compiled, matchTimeoutMilliseconds:60000/*1m*/)]
+		private static partial Regex HtmlRegex();
 
 		public static string ToFixedWidth(this string s, int newLength)
 		{
@@ -71,7 +72,7 @@ namespace PaperMalKing.Common
 			return value;
 		}
 
-		public static string StripHtml(this string value) => HtmlRegex.Replace(value, string.Empty);
+		public static string StripHtml(this string value) => HtmlRegex().Replace(value, string.Empty);
 
 		public static RateLimiter<T> ToRateLimiter<T>(this IRateLimitOptions<T> rateLimitOptions)
 		{
