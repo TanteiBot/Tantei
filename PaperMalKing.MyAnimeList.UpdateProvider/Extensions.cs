@@ -151,7 +151,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 
 			var title = favorite switch
 			{
-				IMalListFavorite baseListFavorite => $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear.ToString()}]",
+				IMalListFavorite baseListFavorite => $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear}]",
 				_                                 => favorite.Name
 			};
 			eb.WithTitle(title);
@@ -170,9 +170,9 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				progressedValue switch
 				{
 					0 when totalValue == 0 => string.Empty,
-					_ when progressedValue == totalValue || (isInPlans && progressedValue == 0) => $"{totalValue.ToString()} {ending}",
-					_ when totalValue == 0 => $"{progressedValue.ToString()}/? {ending}",
-					_ => $"{progressedValue.ToString()}/{totalValue.ToString()} {ending}"
+					_ when progressedValue == totalValue || (isInPlans && progressedValue == 0) => $"{totalValue} {ending}",
+					_ when totalValue == 0 => $"{progressedValue}/? {ending}",
+					_ => $"{progressedValue}/{totalValue} {ending}"
 				};
 
 			static string TitleMediaTypeString(string title, string mediaType, MalUserFeatures features) =>

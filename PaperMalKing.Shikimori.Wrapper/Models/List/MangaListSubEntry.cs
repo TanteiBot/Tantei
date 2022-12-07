@@ -25,7 +25,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Models.List
 		protected override string Type => "mangas";
 
 		/// <inheritdoc />
-		public override string TotalAmount => $"{this.Chapters.ToString()} ep., {this.Volumes.ToString()} v.";
+		public override string TotalAmount => $"{this.Chapters} ep., {this.Volumes} v.";
 
 		[JsonPropertyName("volumes")]
 		public int Volumes { get; init; }

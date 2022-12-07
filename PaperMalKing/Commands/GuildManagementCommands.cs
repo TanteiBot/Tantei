@@ -139,7 +139,7 @@ namespace PaperMalKing.Commands
 				throw;
 			}
 
-			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully removed {userId.ToString()} this server from being tracked"))
+			await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully removed {userId} this server from being tracked"))
 					 .ConfigureAwait(false);
 		}
 

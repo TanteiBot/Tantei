@@ -121,7 +121,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 
 		internal async Task<string> GetUsernameAsync(ulong id, CancellationToken cancellationToken = default)
 		{
-			var url = $"{Constants.COMMENTS_URL}{id.ToString()}";
+			var url = $"{Constants.COMMENTS_URL}{id}";
 			this._logger.LogDebug("Requesting username by id {@Id}", id);
 			var htmlNode = await this.GetAsHtmlAsync(url, cancellationToken).ConfigureAwait(false);
 			return CommentsParser.Parse(htmlNode);

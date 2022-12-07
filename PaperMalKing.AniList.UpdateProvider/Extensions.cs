@@ -304,11 +304,11 @@ namespace PaperMalKing.AniList.UpdateProvider
 			var volumes = media.Volumes.GetValueOrDefault();
 			if (episodes == 0 && chapters == 0 && volumes == 0) return eb;
 			var fieldVal = new List<string>(3);
-			if (episodes != 0) fieldVal.Add($"{episodes.ToString()} ep.");
-			if (chapters != 0) fieldVal.Add($"{chapters.ToString()} ch");
-			if (volumes  != 0) fieldVal.Add($"{volumes.ToString()} v.");
+			if (episodes != 0) fieldVal.Add($"{episodes} ep.");
+			if (chapters != 0) fieldVal.Add($"{chapters} ch");
+			if (volumes  != 0) fieldVal.Add($"{volumes} v.");
 			if (fieldVal.Count != 0)
-				eb.AddField("Total", string.Join(", ", fieldVal), true);
+				eb.AddField("Total", string.Join(", ", fieldVal), inline: true);
 
 			return eb;
 		}
