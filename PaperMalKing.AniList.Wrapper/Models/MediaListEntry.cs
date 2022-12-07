@@ -82,10 +82,10 @@ namespace PaperMalKing.AniList.Wrapper.Models
                 return "";
             return scoreFormat switch
             {
-                ScoreFormat.POINT_100 => $"{this._scores[scoreFormat].ToString()}/100",
+                ScoreFormat.POINT_100 => $"{this._scores[scoreFormat]}/100",
                 ScoreFormat.POINT_10_DECIMAL => $"{(this._scores[ScoreFormat.POINT_100] * 1.0d / 10).ToString(CultureInfo.InvariantCulture)}/10",
-                ScoreFormat.POINT_10 => $"{this._scores[scoreFormat].ToString()}/10",
-                ScoreFormat.POINT_5 => $"{this._scores[scoreFormat].ToString()}/5",
+                ScoreFormat.POINT_10 => $"{this._scores[scoreFormat]}/10",
+                ScoreFormat.POINT_5 => $"{this._scores[scoreFormat]}/5",
                 ScoreFormat.POINT_3 => this._scores[scoreFormat] switch
                 {
                     1 => ":(",

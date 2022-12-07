@@ -120,7 +120,7 @@ namespace PaperMalKing.UpdatesProviders.Base
 					}
 
 					sb.AppendLine(
-						$"{i++.ToString()}{user.Username} {(user.DiscordUser == null ? "" : Helpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
+						$"{i++}{user.Username} {(user.DiscordUser == null ? "" : Helpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
 				}
 			}
 			catch (Exception ex)

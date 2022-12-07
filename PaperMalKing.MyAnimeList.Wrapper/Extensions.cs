@@ -50,7 +50,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper
 		}
 
 		internal static (string inRssHash, string inProfileHash) GetHash(int id, int progressValue, GenericProgress progress, int score) =>
-			new($"{id.ToString()}{progressValue.ToString()}", $"{progress.ToString()}{score.ToString()}");
+			new($"{id}{progressValue}", $"{progress}{score}");
 
 		internal static (string inRssHash, string inProfileHash) GetHash(this IListEntry listEntry) =>
 			GetHash(listEntry.Id, listEntry.ProgressedSubEntries, listEntry.UserProgress, listEntry.Score);

@@ -62,7 +62,7 @@ namespace PaperMalKing.Shikimori.Wrapper
 		internal async Task<Favourites> GetUserFavouritesAsync(ulong userId, CancellationToken cancellationToken = default)
 		{
 			this._logger.LogDebug("Requesting {@UserId} favourites", userId);
-			var url = $"{Constants.BASE_USERS_API_URL}/{userId.ToString()}/favourites";
+			var url = $"{Constants.BASE_USERS_API_URL}/{userId}/favourites";
 			var favs = await this._httpClient.GetFromJsonAsync<Favourites>(url, cancellationToken).ConfigureAwait(false);
 			return favs!;
 		}
@@ -70,7 +70,7 @@ namespace PaperMalKing.Shikimori.Wrapper
 		internal async Task<Paginatable<History[]>> GetUserHistoryAsync(ulong userId, uint page, byte limit, HistoryRequestOptions options, 
 																		CancellationToken cancellationToken = default)
 		{
-			var url = $"{Constants.BASE_USERS_API_URL}/{userId.ToString()}/history";
+			var url = $"{Constants.BASE_USERS_API_URL}/{userId}/history";
 			limit = Constants.HISTORY_LIMIT < limit ? Constants.HISTORY_LIMIT : limit;
 			this._logger.LogDebug("Requesting {@UserId} history. Page {@Page}", userId, page);
 
@@ -96,7 +96,7 @@ namespace PaperMalKing.Shikimori.Wrapper
 
 		internal Task<UserInfo> GetUserInfoAsync(ulong userId, CancellationToken cancellationToken = default)
 		{
-			var url = $"{Constants.BASE_USERS_API_URL}/{userId.ToString()}/info";
+			var url = $"{Constants.BASE_USERS_API_URL}/{userId}/info";
 			return this._httpClient.GetFromJsonAsync<UserInfo>(url, cancellationToken)!;
 		}
 	}

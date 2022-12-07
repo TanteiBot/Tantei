@@ -49,7 +49,7 @@ namespace PaperMalKing.Common.RateLimiters
 
 		public override string ToString()
 		{
-			return $"{this.AmountOfRequests.ToString()}r per {this.PeriodInMilliseconds.ToString()}ms";
+			return $"{this.AmountOfRequests}r per {this.PeriodInMilliseconds}ms";
 		}
 	}
 }
