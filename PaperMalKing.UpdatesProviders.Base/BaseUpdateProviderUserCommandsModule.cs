@@ -63,7 +63,6 @@ namespace PaperMalKing.UpdatesProviders.Base
 				$"Successfully added {user.Username} to {TUpdateProviderUserService.Name} update checker")).ConfigureAwait(false);
 		}
 
-
 		public virtual async Task RemoveUserInGuildCommand(CommandContext ctx)
 		{
 			this.Logger.LogInformation("Trying to remove {Member} from {Name} update provider", ctx.Member, TUpdateProviderUserService.Name);
@@ -112,10 +111,10 @@ namespace PaperMalKing.UpdatesProviders.Base
 				{
 					if (sb.Length + user.Username.Length > 2048)
 					{
-						if (sb.Length + "...".Length > 2048)
+						if (sb.Length + "…".Length > 2048)
 							break;
 
-						sb.Append("...");
+						sb.Append("…");
 						break;
 					}
 
