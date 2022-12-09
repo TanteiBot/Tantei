@@ -73,7 +73,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install .NET SDK if needed
-        uses: ./.github/actions/core-setup-dotnet
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
