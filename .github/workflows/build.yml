@@ -1,12 +1,6 @@
 name: .NET build
 
-on: 
-  workflow_dispatch:
-  push:
-    branches: [ '*']
-  pull_request:
-    branches: [ '*']
-
+on: [workflow_dispatch, push, pull_request]
 
 env:
   DOTNET_NOLOGO: true
