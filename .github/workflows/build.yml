@@ -104,7 +104,7 @@ jobs:
 
       - name: Run Infer#
         id: runInferSharp
-        uses: microsoft/infersharpaction@v1.3
+        uses: microsoft/infersharpaction@v1.4
         with:
           binary-path: "./createdDlls"
 
