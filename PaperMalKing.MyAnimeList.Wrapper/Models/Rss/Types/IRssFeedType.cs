@@ -3,19 +3,18 @@
 
 using PaperMalKing.Common.Enums;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss.Types
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss.Types;
+
+internal interface IRssFeedType
 {
-	internal interface IRssFeedType
+	abstract static string Url { get; }
+
+	abstract static ListEntryType Type { get; }
+
+	internal abstract class Anime : IRssFeedType
 	{
-		abstract static string Url { get; }
+		public static string Url => Constants.RSS_ANIME_URL;
 
-		abstract static ListEntryType Type { get; }
-
-		internal abstract class Anime : IRssFeedType
-		{
-			public static string Url => Constants.RSS_ANIME_URL;
-
-			public static ListEntryType Type => ListEntryType.Anime;
-		}
+		public static ListEntryType Type => ListEntryType.Anime;
 	}
 }

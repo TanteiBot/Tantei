@@ -2,25 +2,24 @@
 // Copyright (C) 2021-2022 N0D4N
 using System.ComponentModel;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Progress
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Progress;
+
+internal enum GenericProgress : byte
 {
-	internal enum GenericProgress : byte
-	{
-		Unknown = 0,
+	Unknown = 0,
 
-		CurrentlyInProgress = 1,
+	CurrentlyInProgress = 1,
 
-		Completed = 2,
+	Completed = 2,
 
-		OnHold = 3,
+	OnHold = 3,
 
-		Dropped = 4,
+	Dropped = 4,
 
-		InPlans = 6,
+	InPlans = 6,
 
-		[Description("Re-progressing")]
-		Reprogressing = 7,
+	[Description("Re-progressing")]
+	Reprogressing = 7,
 
-		All = byte.MaxValue
-	}
+	All = byte.MaxValue
 }

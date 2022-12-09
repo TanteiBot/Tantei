@@ -3,18 +3,17 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace PaperMalKing.UpdatesProviders.Base
+namespace PaperMalKing.UpdatesProviders.Base;
+
+public interface IUpdateProviderUserService
 {
-	public interface IUpdateProviderUserService
-	{
-		abstract static string Name { get; }
+	abstract static string Name { get; }
 
-		Task<BaseUser> AddUserAsync(string username, ulong userId, ulong guildId);
+	Task<BaseUser> AddUserAsync(string username, ulong userId, ulong guildId);
 
-		Task<BaseUser> RemoveUserAsync(ulong userId);
+	Task<BaseUser> RemoveUserAsync(ulong userId);
 
-		Task RemoveUserHereAsync(ulong userId, ulong guildId);
+	Task RemoveUserHereAsync(ulong userId, ulong guildId);
 
-		IAsyncEnumerable<BaseUser> ListUsersAsync(ulong guildId);
-	}
+	IAsyncEnumerable<BaseUser> ListUsersAsync(ulong guildId);
 }

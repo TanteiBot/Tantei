@@ -4,16 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace PaperMalKing.UpdatesProviders.Base.Features
+namespace PaperMalKing.UpdatesProviders.Base.Features;
+
+// ReSharper disable once TypeParameterCanBeVariant
+public interface IUserFeaturesService<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
-    // ReSharper disable once TypeParameterCanBeVariant
-    public interface IUserFeaturesService<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
-    {
-        IReadOnlyDictionary<T, (string,string)> Descriptions { get; }
-        Task EnableFeaturesAsync(IReadOnlyList<T> features, ulong userId);
+	IReadOnlyDictionary<T, (string,string)> Descriptions { get; }
+	Task EnableFeaturesAsync(IReadOnlyList<T> features, ulong userId);
 
-        Task DisableFeaturesAsync(IReadOnlyList<T> features, ulong userId);
+	Task DisableFeaturesAsync(IReadOnlyList<T> features, ulong userId);
 
-        ValueTask<string> EnabledFeaturesAsync(ulong userId);
-    }
+	ValueTask<string> EnabledFeaturesAsync(ulong userId);
 }

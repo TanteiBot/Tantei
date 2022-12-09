@@ -3,27 +3,26 @@
 
 using System.Collections.Generic;
 
-namespace PaperMalKing.Options
+namespace PaperMalKing.Options;
+
+public sealed class DiscordOptions
 {
-	public sealed class DiscordOptions
-	{
-		public const string Discord = "Discord";
+	public const string Discord = "Discord";
 
-		public string Token { get; set; } = null!;
+	public string Token { get; set; } = null!;
 
-		public IReadOnlyList<DiscordActivityOptions> Activities { get; set; } = null!;
+	public IReadOnlyList<DiscordActivityOptions> Activities { get; set; } = null!;
 
-		#pragma warning disable CA1034
-		public sealed class DiscordActivityOptions
+	#pragma warning disable CA1034
+	public sealed class DiscordActivityOptions
 		#pragma warning restore CA1034
-		{
-			public string ActivityType { get; set; } = null!;
+	{
+		public string ActivityType { get; set; } = null!;
 
-			public string PresenceText { get; set; } = null!;
+		public string PresenceText { get; set; } = null!;
 
-			public int TimeToBeDisplayedInMilliseconds { get; set; }
+		public int TimeToBeDisplayedInMilliseconds { get; set; }
 
-			public string Status { get; set; } = null!;
-		}
+		public string Status { get; set; } = null!;
 	}
 }

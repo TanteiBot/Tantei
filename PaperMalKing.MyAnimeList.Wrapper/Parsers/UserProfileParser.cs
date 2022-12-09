@@ -5,29 +5,28 @@ using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
+namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
+
+internal static partial class UserProfileParser
 {
-	internal static partial class UserProfileParser
+	internal static User Parse(HtmlNode node, ParserOptions options)
 	{
-		internal static User Parse(HtmlNode node, ParserOptions options)
+		var reportUrl = node.SelectSingleNode("//a[contains(@class, 'header-right')]").Attributes["href"].Value;
+		var li = reportUrl.LastIndexOf('=');
+
+		var id = int.Parse(reportUrl.Substring(li + 1));
+		var url = node.SelectSingleNode("//meta[@property='og:url']").Attributes["content"].Value;
+		var username = url.Substring(url.LastIndexOf('/') + 1);
+		var favorites = options.HasFlag(ParserOptions.Favorites) ? FavoritesParser.Parse(node) : UserFavorites.Empty;
+		//var rssNode = node.SelectSingleNode("//div[@class = 'user-profile-sns']");
+
+		return new()
 		{
-			var reportUrl = node.SelectSingleNode("//a[contains(@class, 'header-right')]").Attributes["href"].Value;
-			var li = reportUrl.LastIndexOf('=');
-
-			var id = int.Parse(reportUrl.Substring(li + 1));
-			var url = node.SelectSingleNode("//meta[@property='og:url']").Attributes["content"].Value;
-			var username = url.Substring(url.LastIndexOf('/') + 1);
-			var favorites = options.HasFlag(ParserOptions.Favorites) ? FavoritesParser.Parse(node) : UserFavorites.Empty;
-			//var rssNode = node.SelectSingleNode("//div[@class = 'user-profile-sns']");
-
-			return new()
-			{
-				Favorites = favorites,
-				Username = username,
-				Id = id,
-				LatestAnimeUpdate = options.HasFlag(ParserOptions.AnimeList)? LatestUpdatesParser.Parse(node, ListEntryType.Anime) : null,
-				LatestMangaUpdate = options.HasFlag(ParserOptions.MangaList)? LatestUpdatesParser.Parse(node, ListEntryType.Manga) : null
-			};
-		}
+			Favorites = favorites,
+			Username = username,
+			Id = id,
+			LatestAnimeUpdate = options.HasFlag(ParserOptions.AnimeList)? LatestUpdatesParser.Parse(node, ListEntryType.Anime) : null,
+			LatestMangaUpdate = options.HasFlag(ParserOptions.MangaList)? LatestUpdatesParser.Parse(node, ListEntryType.Manga) : null
+		};
 	}
 }

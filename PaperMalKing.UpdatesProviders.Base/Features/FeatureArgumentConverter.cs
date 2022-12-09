@@ -8,22 +8,21 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.Entities;
 using Humanizer;
 
-namespace PaperMalKing.UpdatesProviders.Base.Features
+namespace PaperMalKing.UpdatesProviders.Base.Features;
+
+public class FeatureArgumentConverter<T> : IArgumentConverter<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
-    public class FeatureArgumentConverter<T> : IArgumentConverter<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
-    {
-		public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
-        {
-            try
-            {
-                return Task.FromResult(new Optional<T>(value.DehumanizeTo<T>()));
-            }
-			#pragma warning disable CA1031
-			catch
+	public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
+	{
+		try
+		{
+			return Task.FromResult(new Optional<T>(value.DehumanizeTo<T>()));
+		}
+		#pragma warning disable CA1031
+		catch
 			#pragma warning restore CA1031
-			{
-                return Task.FromResult(Optional.FromNoValue<T>());
-            }
-        }
-    }
+		{
+			return Task.FromResult(Optional.FromNoValue<T>());
+		}
+	}
 }

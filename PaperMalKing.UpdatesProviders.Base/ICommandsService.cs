@@ -2,10 +2,9 @@
 // Copyright (C) 2021-2022 N0D4N
 using DSharpPlus.CommandsNext;
 
-namespace PaperMalKing.UpdatesProviders.Base
+namespace PaperMalKing.UpdatesProviders.Base;
+
+public interface ICommandsService
 {
-	public interface ICommandsService
-	{
-		CommandsNextExtension CommandsExtension { get; }
-	}
+	CommandsNextExtension CommandsExtension { get; }
 }

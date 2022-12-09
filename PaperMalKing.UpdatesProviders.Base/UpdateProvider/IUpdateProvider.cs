@@ -2,13 +2,12 @@
 // Copyright (C) 2021-2022 N0D4N
 using System.Threading.Tasks;
 
-namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider
-{
-	public interface IUpdateProvider
-	{
-		string Name { get; }
-		event UpdateFoundEvent UpdateFoundEvent;
+namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-		public Task TriggerStoppingAsync();
-	}
+public interface IUpdateProvider
+{
+	string Name { get; }
+	event UpdateFoundEvent UpdateFoundEvent;
+
+	public Task TriggerStoppingAsync();
 }

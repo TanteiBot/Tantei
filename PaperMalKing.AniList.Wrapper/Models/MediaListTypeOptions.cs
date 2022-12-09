@@ -2,11 +2,10 @@
 // Copyright (C) 2021-2022 N0D4N
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.AniList.Wrapper.Models
+namespace PaperMalKing.AniList.Wrapper.Models;
+
+public sealed class MediaListTypeOptions
 {
-    public sealed class MediaListTypeOptions
-    {
-        [JsonPropertyName("advancedScoringEnabled")]
-        public bool IsAdvancedScoringEnabled { get; init; }
-    }
+	[JsonPropertyName("advancedScoringEnabled")]
+	public bool IsAdvancedScoringEnabled { get; init; }
 }

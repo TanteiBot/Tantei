@@ -3,13 +3,12 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Parsers
-{
-	internal static partial class CommonParser
-	{
-		[GeneratedRegex(@"(?<=\/)(?<id>\d+)(?=\/)", RegexOptions.Compiled, matchTimeoutMilliseconds: 20000 /*20s*/)]
-		private static partial Regex IdFromUrlRegex();
+namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
-		internal static int ExtractIdFromMalUrl(string url) => int.Parse(IdFromUrlRegex().Match(url).Groups["id"].Value);
-	}
+internal static partial class CommonParser
+{
+	[GeneratedRegex(@"(?<=\/)(?<id>\d+)(?=\/)", RegexOptions.Compiled, matchTimeoutMilliseconds: 20000 /*20s*/)]
+	private static partial Regex IdFromUrlRegex();
+
+	internal static int ExtractIdFromMalUrl(string url) => int.Parse(IdFromUrlRegex().Match(url).Groups["id"].Value);
 }

@@ -18,88 +18,87 @@ using PaperMalKing.Database;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-namespace PaperMalKing.Services
+namespace PaperMalKing.Services;
+
+public sealed class UpdatePublishingService
 {
-	public sealed class UpdatePublishingService
+	private readonly ILogger<UpdatePublishingService> _logger;
+	private readonly DiscordClient _discordClient;
+	private readonly IServiceProvider _serviceProvider;
+	private readonly UpdateProvidersConfigurationService _updateProvidersConfigurationService;
+	private readonly ConcurrentDictionary<ulong, UpdatePoster> _updatePosters = new();
+
+	public UpdatePublishingService(ILogger<UpdatePublishingService> logger, DiscordClient discordClient, IServiceProvider serviceProvider,
+								   UpdateProvidersConfigurationService updateProvidersConfigurationService)
 	{
-		private readonly ILogger<UpdatePublishingService> _logger;
-		private readonly DiscordClient _discordClient;
-		private readonly IServiceProvider _serviceProvider;
-		private readonly UpdateProvidersConfigurationService _updateProvidersConfigurationService;
-		private readonly ConcurrentDictionary<ulong, UpdatePoster> _updatePosters = new();
+		this._logger = logger;
+		this._logger.LogTrace("Building {@UpdatePublishingService}", typeof(UpdatePublishingService));
 
-		public UpdatePublishingService(ILogger<UpdatePublishingService> logger, DiscordClient discordClient, IServiceProvider serviceProvider,
-									   UpdateProvidersConfigurationService updateProvidersConfigurationService)
-		{
-			this._logger = logger;
-			this._logger.LogTrace("Building {@UpdatePublishingService}", typeof(UpdatePublishingService));
+		this._discordClient = discordClient;
+		this._serviceProvider = serviceProvider;
+		this._updateProvidersConfigurationService = updateProvidersConfigurationService;
+		this._discordClient.GuildDownloadCompleted += this.DiscordClientOnGuildDownloadCompleted;
+		this._logger.LogTrace("Built {@UpdatePublishingService}", typeof(UpdatePublishingService));
+	}
 
-			this._discordClient = discordClient;
-			this._serviceProvider = serviceProvider;
-			this._updateProvidersConfigurationService = updateProvidersConfigurationService;
-			this._discordClient.GuildDownloadCompleted += this.DiscordClientOnGuildDownloadCompleted;
-			this._logger.LogTrace("Built {@UpdatePublishingService}", typeof(UpdatePublishingService));
-		}
-
-		#pragma warning disable VSTHRD200
-		private Task DiscordClientOnGuildDownloadCompleted(DiscordClient sender, GuildDownloadCompletedEventArgs e)
+	#pragma warning disable VSTHRD200
+	private Task DiscordClientOnGuildDownloadCompleted(DiscordClient sender, GuildDownloadCompletedEventArgs e)
 		#pragma warning restore VSTHRD200
-		{
-			_ = Task.Run(async () =>
-			{
-				using var scope = this._serviceProvider.CreateScope();
-				var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-				this._logger.LogDebug("Starting querying posting channels");
-				foreach (var guild in db.DiscordGuilds.AsNoTracking().ToArray())
-				{
-					this._logger.LogTrace("Trying to get guild with {Id}", guild.DiscordGuildId);
-					var discordGuild = e.Guilds[guild.DiscordGuildId];
-					this._logger.LogTrace(@"Loaded guild {Guild}", discordGuild);
-					var channel = discordGuild.GetChannel(guild.PostingChannelId) ??
-								  (await discordGuild.GetChannelsAsync().ConfigureAwait(false)).First(ch => ch.Id == guild.PostingChannelId);
-					this._logger.LogTrace("Loaded channel {Channel} in guild {DiscordGuild}", channel, discordGuild);
-					this.AddChannel(channel);
-				}
-
-				#pragma warning disable S3267
-				foreach (var kvp in this._updateProvidersConfigurationService.Providers)
-				#pragma warning restore S3267
-				{
-					var provider = kvp.Value;
-					provider.UpdateFoundEvent += this.PublishUpdatesAsync;
-					if (provider is BaseUpdateProvider baseUpdateProvider)
-						baseUpdateProvider.RestartTimer(TimeSpan.FromSeconds(5));
-				}
-
-				this._logger.LogDebug("Ended querying posting channels");
-				this._discordClient.GuildDownloadCompleted -= this.DiscordClientOnGuildDownloadCompleted;
-			}).ContinueWith(task => this._logger.LogError(task.Exception, "Task on loading channels to post to failed"), CancellationToken.None,
-				TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
-			return Task.CompletedTask;
-		}
-
-
-		public void RemoveChannel(ulong id) => this._updatePosters.TryRemove(id, out _);
-
-		public bool AddChannel(DiscordChannel channel) => this._updatePosters.TryAdd(channel.Id,
-			new(this._serviceProvider.GetRequiredService<ILogger<UpdatePoster>>(), channel));
-
-		public void UpdateChannel(ulong key, DiscordChannel updatedValue)
-		{
-			this._updatePosters.Remove(key, out _);
-			this.AddChannel(updatedValue);
-		}
-
-		private async Task PublishUpdatesAsync(UpdateFoundEventArgs args)
+	{
+		_ = Task.Run(async () =>
 		{
 			using var scope = this._serviceProvider.CreateScope();
-			var tasks = new List<Task>(args.DiscordUser.Guilds.Count);
-			foreach (var guild in args.DiscordUser.Guilds)
+			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+			this._logger.LogDebug("Starting querying posting channels");
+			foreach (var guild in db.DiscordGuilds.AsNoTracking().ToArray())
 			{
-				tasks.Add(this._updatePosters[guild.PostingChannelId].PostUpdatesAsync(args.Update.UpdateEmbeds));
+				this._logger.LogTrace("Trying to get guild with {Id}", guild.DiscordGuildId);
+				var discordGuild = e.Guilds[guild.DiscordGuildId];
+				this._logger.LogTrace(@"Loaded guild {Guild}", discordGuild);
+				var channel = discordGuild.GetChannel(guild.PostingChannelId) ??
+							  (await discordGuild.GetChannelsAsync().ConfigureAwait(false)).First(ch => ch.Id == guild.PostingChannelId);
+				this._logger.LogTrace("Loaded channel {Channel} in guild {DiscordGuild}", channel, discordGuild);
+				this.AddChannel(channel);
 			}
 
-			await Task.WhenAll(tasks).ConfigureAwait(false);
+			#pragma warning disable S3267
+			foreach (var kvp in this._updateProvidersConfigurationService.Providers)
+				#pragma warning restore S3267
+			{
+				var provider = kvp.Value;
+				provider.UpdateFoundEvent += this.PublishUpdatesAsync;
+				if (provider is BaseUpdateProvider baseUpdateProvider)
+					baseUpdateProvider.RestartTimer(TimeSpan.FromSeconds(5));
+			}
+
+			this._logger.LogDebug("Ended querying posting channels");
+			this._discordClient.GuildDownloadCompleted -= this.DiscordClientOnGuildDownloadCompleted;
+		}).ContinueWith(task => this._logger.LogError(task.Exception, "Task on loading channels to post to failed"), CancellationToken.None,
+			TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
+		return Task.CompletedTask;
+	}
+
+
+	public void RemoveChannel(ulong id) => this._updatePosters.TryRemove(id, out _);
+
+	public bool AddChannel(DiscordChannel channel) => this._updatePosters.TryAdd(channel.Id,
+		new(this._serviceProvider.GetRequiredService<ILogger<UpdatePoster>>(), channel));
+
+	public void UpdateChannel(ulong key, DiscordChannel updatedValue)
+	{
+		this._updatePosters.Remove(key, out _);
+		this.AddChannel(updatedValue);
+	}
+
+	private async Task PublishUpdatesAsync(UpdateFoundEventArgs args)
+	{
+		using var scope = this._serviceProvider.CreateScope();
+		var tasks = new List<Task>(args.DiscordUser.Guilds.Count);
+		foreach (var guild in args.DiscordUser.Guilds)
+		{
+			tasks.Add(this._updatePosters[guild.PostingChannelId].PostUpdatesAsync(args.Update.UpdateEmbeds));
 		}
+
+		await Task.WhenAll(tasks).ConfigureAwait(false);
 	}
 }

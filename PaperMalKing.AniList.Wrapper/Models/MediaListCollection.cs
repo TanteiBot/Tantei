@@ -4,15 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.AniList.Wrapper.Models
-{
-	#pragma warning disable CA1711
-	public sealed class MediaListCollection
+namespace PaperMalKing.AniList.Wrapper.Models;
+#pragma warning disable CA1711
+public sealed class MediaListCollection
 	#pragma warning restore CA1711
-    {
-        [JsonPropertyName("lists")]
-        public IReadOnlyList<MediaListGroup> Lists { get; init; } = Array.Empty<MediaListGroup>();
+{
+	[JsonPropertyName("lists")]
+	public IReadOnlyList<MediaListGroup> Lists { get; init; } = Array.Empty<MediaListGroup>();
 
-        public static readonly MediaListCollection Empty = new ();
-	}
+	public static readonly MediaListCollection Empty = new ();
 }

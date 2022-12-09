@@ -3,12 +3,11 @@
 using PaperMalKing.Common.Enums;
 using static PaperMalKing.MyAnimeList.Wrapper.Constants;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.List.Types
-{
-	internal abstract class AnimeListType : IListType<AnimeListEntry>
-	{
-		public static string LatestUpdatesUrl(string username) => ANIME_LIST_URL + username + LATEST_LIST_UPDATES;
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.List.Types;
 
-		public static ListEntryType ListEntryType => ListEntryType.Anime;
-	}
+internal abstract class AnimeListType : IListType<AnimeListEntry>
+{
+	public static string LatestUpdatesUrl(string username) => ANIME_LIST_URL + username + LATEST_LIST_UPDATES;
+
+	public static ListEntryType ListEntryType => ListEntryType.Anime;
 }

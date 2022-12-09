@@ -9,14 +9,13 @@
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites
-{
-	internal sealed class FavoriteCompany : BaseFavorite
-	{
-		internal FavoriteCompany(MalUrl url, string name, string? imageUrl) : base(url, name, imageUrl)
-		{ }
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 
-		internal FavoriteCompany(BaseFavorite other) : base(other)
-		{ }
-	}
+internal sealed class FavoriteCompany : BaseFavorite
+{
+	internal FavoriteCompany(MalUrl url, string name, string? imageUrl) : base(url, name, imageUrl)
+	{ }
+
+	internal FavoriteCompany(BaseFavorite other) : base(other)
+	{ }
 }

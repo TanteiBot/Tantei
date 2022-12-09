@@ -3,23 +3,22 @@
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
-namespace PaperMalKing.AniList.Wrapper.Models
+namespace PaperMalKing.AniList.Wrapper.Models;
+
+public sealed class Character : IImageble, ISiteUrlable, IIdentifiable
 {
-    public sealed class Character : IImageble, ISiteUrlable, IIdentifiable
-    {
-        [JsonPropertyName("name")]
-        public GenericName Name { get; init; } = null!;
+	[JsonPropertyName("name")]
+	public GenericName Name { get; init; } = null!;
 
-        [JsonPropertyName("siteUrl")]
-        public string Url { get; init; } = null!;
+	[JsonPropertyName("siteUrl")]
+	public string Url { get; init; } = null!;
 
-        [JsonPropertyName("image")]
-        public Image Image { get; init; } = null!;
+	[JsonPropertyName("image")]
+	public Image Image { get; init; } = null!;
 
-        [JsonPropertyName("media")]
-        public Page<Media> Media { get; init; } = null!;
+	[JsonPropertyName("media")]
+	public Page<Media> Media { get; init; } = null!;
 
-        [JsonPropertyName("id")]
-        public ulong Id { get; init; }
-    }
+	[JsonPropertyName("id")]
+	public ulong Id { get; init; }
 }

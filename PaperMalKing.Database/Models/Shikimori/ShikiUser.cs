@@ -5,22 +5,21 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PaperMalKing.Database.Models.Shikimori
+namespace PaperMalKing.Database.Models.Shikimori;
+
+public sealed class ShikiUser
 {
-	public sealed class ShikiUser
-	{
-		[Key]
-		[DatabaseGenerated(DatabaseGeneratedOption.None)]
-		public ulong Id { get; init; }
+	[Key]
+	[DatabaseGenerated(DatabaseGeneratedOption.None)]
+	public ulong Id { get; init; }
 
-		public ulong LastHistoryEntryId { get; set; }
+	public ulong LastHistoryEntryId { get; set; }
 
-		public ulong DiscordUserId { get; init; }
+	public ulong DiscordUserId { get; init; }
 
-		public ShikiUserFeatures Features { get; set; }
+	public ShikiUserFeatures Features { get; set; }
 
-		public DiscordUser DiscordUser { get; init; } = null!;
+	public DiscordUser DiscordUser { get; init; } = null!;
 
-		public List<ShikiFavourite> Favourites { get; set; } = null!;
-	}
+	public List<ShikiFavourite> Favourites { get; set; } = null!;
 }

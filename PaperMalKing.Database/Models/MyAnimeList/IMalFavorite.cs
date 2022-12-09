@@ -1,19 +1,18 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
-namespace PaperMalKing.Database.Models.MyAnimeList
+namespace PaperMalKing.Database.Models.MyAnimeList;
+
+public interface IMalFavorite
 {
-	public interface IMalFavorite
-	{
-		public int UserId { get; init; }
+	public int UserId { get; init; }
 
-		public int Id { get; init; }
+	public int Id { get; init; }
 		
-		public string? ImageUrl { get; init; }
+	public string? ImageUrl { get; init; }
 
-		public string Name { get; init; }
+	public string Name { get; init; }
 
-		public string NameUrl { get; init; }
+	public string NameUrl { get; init; }
 
-		public MalUser User { get; init; }
-	}
+	public MalUser User { get; init; }
 }

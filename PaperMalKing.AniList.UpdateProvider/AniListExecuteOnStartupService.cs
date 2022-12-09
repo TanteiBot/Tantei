@@ -7,21 +7,20 @@ using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Features;
 
-namespace PaperMalKing.AniList.UpdateProvider
+namespace PaperMalKing.AniList.UpdateProvider;
+
+public sealed class AniListExecuteOnStartupService : IExecuteOnStartupService
 {
-	public sealed class AniListExecuteOnStartupService : IExecuteOnStartupService
+	private readonly ICommandsService _commandsService;
+
+	public AniListExecuteOnStartupService(ICommandsService commandsService)
 	{
-		private readonly ICommandsService _commandsService;
+		this._commandsService = commandsService;
+	}
 
-		public AniListExecuteOnStartupService(ICommandsService commandsService)
-		{
-			this._commandsService = commandsService;
-		}
-
-		public Task ExecuteAsync(CancellationToken cancellationToken = default)
-		{
-			this._commandsService.CommandsExtension.RegisterConverter(new FeatureArgumentConverter<AniListUserFeatures>());
-			return Task.CompletedTask;
-		}
+	public Task ExecuteAsync(CancellationToken cancellationToken = default)
+	{
+		this._commandsService.CommandsExtension.RegisterConverter(new FeatureArgumentConverter<AniListUserFeatures>());
+		return Task.CompletedTask;
 	}
 }

@@ -7,38 +7,37 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace PaperMalKing.Data
+namespace PaperMalKing.Data;
+
+public sealed class UpdatePoster
 {
-	public sealed class UpdatePoster
+	private readonly SemaphoreSlim _semaphore;
+
+	private readonly ILogger<UpdatePoster> _logger;
+	private readonly DiscordChannel _channel;
+
+	public UpdatePoster(ILogger<UpdatePoster> logger, DiscordChannel channel)
 	{
-		private readonly SemaphoreSlim _semaphore;
+		this._logger = logger;
+		this._channel = channel;
+		this._semaphore = new(1, 1);
+	}
 
-		private readonly ILogger<UpdatePoster> _logger;
-		private readonly DiscordChannel _channel;
-
-		public UpdatePoster(ILogger<UpdatePoster> logger, DiscordChannel channel)
+	public async Task PostUpdatesAsync(IReadOnlyList<DiscordEmbedBuilder> embeds)
+	{
+		await this._semaphore.WaitAsync().ConfigureAwait(false);
+		try
 		{
-			this._logger = logger;
-			this._channel = channel;
-			this._semaphore = new(1, 1);
+			for (var i = 0; i < embeds.Count; i++)
+			{
+				var embed = embeds[i];
+				this._logger.LogTrace("Posting update to {Channel} - {@Embed}", this._channel, embed);
+				await this._channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
+			}
 		}
-
-		public async Task PostUpdatesAsync(IReadOnlyList<DiscordEmbedBuilder> embeds)
+		finally
 		{
-			await this._semaphore.WaitAsync().ConfigureAwait(false);
-			try
-			{
-				for (var i = 0; i < embeds.Count; i++)
-				{
-					var embed = embeds[i];
-					this._logger.LogTrace("Posting update to {Channel} - {@Embed}", this._channel, embed);
-					await this._channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
-				}
-			}
-			finally
-			{
-				this._semaphore.Release();
-			}
+			this._semaphore.Release();
 		}
 	}
 }

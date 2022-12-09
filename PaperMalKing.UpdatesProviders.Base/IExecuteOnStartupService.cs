@@ -3,10 +3,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PaperMalKing.UpdatesProviders.Base
+namespace PaperMalKing.UpdatesProviders.Base;
+
+public interface IExecuteOnStartupService
 {
-	public interface IExecuteOnStartupService
-	{
-		Task ExecuteAsync(CancellationToken cancellationToken = default);
-	}
+	Task ExecuteAsync(CancellationToken cancellationToken = default);
 }

@@ -3,14 +3,13 @@
 
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.AniList.Wrapper.Models
-{
-	public sealed class StaffEdge
-	{
-		[JsonPropertyName("role")]
-		public string Role { get; init; } = null!;
+namespace PaperMalKing.AniList.Wrapper.Models;
 
-		[JsonPropertyName("node")]
-		public Staff Staff { get; init; } = null!;
-	}
+public sealed class StaffEdge
+{
+	[JsonPropertyName("role")]
+	public string Role { get; init; } = null!;
+
+	[JsonPropertyName("node")]
+	public Staff Staff { get; init; } = null!;
 }

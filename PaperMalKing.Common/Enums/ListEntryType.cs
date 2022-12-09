@@ -1,10 +1,9 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
-namespace PaperMalKing.Common.Enums
+namespace PaperMalKing.Common.Enums;
+
+public enum ListEntryType : byte
 {
-	public enum ListEntryType : byte
-	{
-		Anime = 0,
-		Manga = 1
-	}
+	Anime = 0,
+	Manga = 1
 }

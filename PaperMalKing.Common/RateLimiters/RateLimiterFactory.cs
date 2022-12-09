@@ -4,26 +4,25 @@
 using System;
 using System.Threading.RateLimiting;
 
-namespace PaperMalKing.Common.RateLimiters
-{
-	public static class RateLimiterFactory
-	{
-		public static RateLimiter<T> Create<T>(RateLimit rateLimit)
-		{
-			if (rateLimit == null)
-				throw new ArgumentNullException(nameof(rateLimit));
-			if (rateLimit.AmountOfRequests == 0 || rateLimit.PeriodInMilliseconds == 0)
-				return new RateLimiter<T>(NullRateLimiter.Instance);
+namespace PaperMalKing.Common.RateLimiters;
 
-			return new RateLimiter<T>(new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions()
-			{
-				Window = TimeSpan.FromMilliseconds(rateLimit.PeriodInMilliseconds),
-				AutoReplenishment = true,
-				PermitLimit = rateLimit.AmountOfRequests,
-				QueueLimit = 100,
-				QueueProcessingOrder = QueueProcessingOrder.OldestFirst
-			}));
-			// return new RateLimiter<T>(rateLimit, logger);
-		}
+public static class RateLimiterFactory
+{
+	public static RateLimiter<T> Create<T>(RateLimit rateLimit)
+	{
+		if (rateLimit == null)
+			throw new ArgumentNullException(nameof(rateLimit));
+		if (rateLimit.AmountOfRequests == 0 || rateLimit.PeriodInMilliseconds == 0)
+			return new RateLimiter<T>(NullRateLimiter.Instance);
+
+		return new RateLimiter<T>(new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions()
+		{
+			Window = TimeSpan.FromMilliseconds(rateLimit.PeriodInMilliseconds),
+			AutoReplenishment = true,
+			PermitLimit = rateLimit.AmountOfRequests,
+			QueueLimit = 100,
+			QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+		}));
+		// return new RateLimiter<T>(rateLimit, logger);
 	}
 }

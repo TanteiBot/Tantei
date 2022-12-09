@@ -2,12 +2,11 @@
 // Copyright (C) 2021-2022 N0D4N
 using PaperMalKing.Common.Enums;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss.Types
-{
-	internal abstract class MangaRssFeed : IRssFeedType
-	{
-		public static string Url => Constants.RSS_MANGA_URL;
+namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss.Types;
 
-		public static ListEntryType Type => ListEntryType.Manga;
-	}
+internal abstract class MangaRssFeed : IRssFeedType
+{
+	public static string Url => Constants.RSS_MANGA_URL;
+
+	public static ListEntryType Type => ListEntryType.Manga;
 }

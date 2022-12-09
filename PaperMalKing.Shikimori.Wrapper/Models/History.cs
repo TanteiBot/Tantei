@@ -3,19 +3,18 @@
 using System;
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.Shikimori.Wrapper.Models
+namespace PaperMalKing.Shikimori.Wrapper.Models;
+
+internal sealed class History
 {
-	internal sealed class History
-	{
-		[JsonPropertyName("id")]
-		public ulong Id { get; init; }
+	[JsonPropertyName("id")]
+	public ulong Id { get; init; }
 
-		[JsonPropertyName("created_at")]
-		public DateTimeOffset CreatedAt { get; init; }
+	[JsonPropertyName("created_at")]
+	public DateTimeOffset CreatedAt { get; init; }
 
-		[JsonPropertyName("description")]
-		public string Description { get; init; } = null!;
+	[JsonPropertyName("description")]
+	public string Description { get; init; } = null!;
 
-		public HistoryTarget? Target { get; init; }
-	}
+	public HistoryTarget? Target { get; init; }
 }

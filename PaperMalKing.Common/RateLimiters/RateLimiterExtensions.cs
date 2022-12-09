@@ -6,21 +6,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Common.Options;
 
-namespace PaperMalKing.Common.RateLimiters
+namespace PaperMalKing.Common.RateLimiters;
+
+public static class RateLimiterExtensions
 {
-	public static class RateLimiterExtensions
-	{
-		public static RateLimiterHttpMessageHandler ToHttpMessageHandler(this RateLimiter rateLimiter) =>
-			new(rateLimiter);
+	public static RateLimiterHttpMessageHandler ToHttpMessageHandler(this RateLimiter rateLimiter) =>
+		new(rateLimiter);
 
-		public static RateLimiter<T> ToRateLimiter<T>(this RateLimit rateLimit) =>
-			RateLimiterFactory.Create<T>(rateLimit);
+	public static RateLimiter<T> ToRateLimiter<T>(this RateLimit rateLimit) =>
+		RateLimiterFactory.Create<T>(rateLimit);
 
-		public static RateLimiter<T> ConfigurationLambda<TO, T>(IServiceProvider servicesProvider)
+	public static RateLimiter<T> ConfigurationLambda<TO, T>(IServiceProvider servicesProvider)
 		where TO : class, IRateLimitOptions<T>
-		{
-			var options = servicesProvider.GetRequiredService<IOptions<TO>>();
-			return options.Value.ToRateLimiter();
-		}
+	{
+		var options = servicesProvider.GetRequiredService<IOptions<TO>>();
+		return options.Value.ToRateLimiter();
 	}
 }

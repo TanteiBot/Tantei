@@ -4,15 +4,14 @@
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
-namespace PaperMalKing.UpdatesProviders.Base
-{
-	public class BaseUpdate : IUpdate
-	{
-		public BaseUpdate(IReadOnlyList<DiscordEmbedBuilder> updateEmbeds)
-		{
-			this.UpdateEmbeds = updateEmbeds;
-		}
+namespace PaperMalKing.UpdatesProviders.Base;
 
-		public IReadOnlyList<DiscordEmbedBuilder> UpdateEmbeds { get; }
+public class BaseUpdate : IUpdate
+{
+	public BaseUpdate(IReadOnlyList<DiscordEmbedBuilder> updateEmbeds)
+	{
+		this.UpdateEmbeds = updateEmbeds;
 	}
+
+	public IReadOnlyList<DiscordEmbedBuilder> UpdateEmbeds { get; }
 }

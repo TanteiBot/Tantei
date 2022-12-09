@@ -4,11 +4,11 @@
 using System.Text;
 using PaperMalKing.AniList.Wrapper.Models;
 
-namespace PaperMalKing.AniList.Wrapper.GraphQL
+namespace PaperMalKing.AniList.Wrapper.GraphQL;
+
+internal static class Helpers
 {
-	internal static class Helpers
-	{
-		private const string Media = @"
+	private const string Media = @"
                       title {
                         stylisedRomaji: romaji(stylised: true)
                         romaji(stylised: false)
@@ -25,44 +25,44 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                         large: extraLarge
                       }";
 
-		internal static StringBuilder AppendMediaFields(StringBuilder sb, RequestOptions options)
-		{
-			sb.AppendLine(Media);
-			if ((options & RequestOptions.MediaDescription) != 0)
-				sb.AppendLine("description(asHtml: false)");
+	internal static StringBuilder AppendMediaFields(StringBuilder sb, RequestOptions options)
+	{
+		sb.AppendLine(Media);
+		if ((options & RequestOptions.MediaDescription) != 0)
+			sb.AppendLine("description(asHtml: false)");
 
-			if ((options & RequestOptions.Genres) != 0)
-				sb.AppendLine("genres");
-			if ((options & RequestOptions.Tags) != 0)
-				sb.AppendLine(@"tags{
+		if ((options & RequestOptions.Genres) != 0)
+			sb.AppendLine("genres");
+		if ((options & RequestOptions.Tags) != 0)
+			sb.AppendLine(@"tags{
                       name
                       rank
                       isMediaSpoiler
                     }");
 
-			if ((options & RequestOptions.MediaFormat) != 0)
-				sb.AppendLine(@"format
+		if ((options & RequestOptions.MediaFormat) != 0)
+			sb.AppendLine(@"format
         countryOfOrigin");
-			if ((options & RequestOptions.MediaStatus) != 0)
-				sb.AppendLine("status(version: 2)");
-			if ((options & RequestOptions.Genres) != 0)
-				sb.AppendLine("genres");
-			if ((options & RequestOptions.Tags) != 0)
-				sb.AppendLine(@"tags{
+		if ((options & RequestOptions.MediaStatus) != 0)
+			sb.AppendLine("status(version: 2)");
+		if ((options & RequestOptions.Genres) != 0)
+			sb.AppendLine("genres");
+		if ((options & RequestOptions.Tags) != 0)
+			sb.AppendLine(@"tags{
                       name
                       rank
                       isMediaSpoiler
                     }");
-			if ((options & RequestOptions.Studio) != 0)
-				sb.AppendLine(@"studios(sort: FAVOURITES_DESC, isMain: true){
+		if ((options & RequestOptions.Studio) != 0)
+			sb.AppendLine(@"studios(sort: FAVOURITES_DESC, isMain: true){
                       values: nodes{
                         name
                         siteUrl
 						isAnimationStudio
                       }
                     }");
-			if ((options & RequestOptions.Mangaka) != 0)
-				sb.AppendLine(@"staff(sort: FAVOURITES_DESC, page: 1, perPage: 5){
+		if ((options & RequestOptions.Mangaka) != 0)
+			sb.AppendLine(@"staff(sort: FAVOURITES_DESC, page: 1, perPage: 5){
                       values: edges{
                         role
                         node{
@@ -74,7 +74,6 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL
                         }
                       }
                     }");
-			return sb;
-		}
+		return sb;
 	}
 }

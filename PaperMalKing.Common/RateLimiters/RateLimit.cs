@@ -2,38 +2,37 @@
 // Copyright (C) 2021-2022 N0D4N
 using System;
 
-namespace PaperMalKing.Common.RateLimiters
+namespace PaperMalKing.Common.RateLimiters;
+
+public sealed class RateLimit
 {
-	public sealed class RateLimit
+	public static readonly RateLimit Empty = new();
+
+	public int AmountOfRequests { get; }
+
+	public int PeriodInMilliseconds { get; }
+
+	public RateLimit(int amountOfRequests, int periodInMilliseconds)
 	{
-		public static readonly RateLimit Empty = new();
+		if (amountOfRequests <= 0)
+			throw new ArgumentException("Amount of requests must be a number bigger than 0", nameof(amountOfRequests));
+		if (periodInMilliseconds <= 0)
+			throw new ArgumentException("Period of time in milliseconds must be bigger than 0", nameof(periodInMilliseconds));
+		this.AmountOfRequests = amountOfRequests;
+		this.PeriodInMilliseconds = periodInMilliseconds;
+	}
 
-		public int AmountOfRequests { get; }
+	public RateLimit(int amountOfRequests, TimeSpan period) : this(amountOfRequests, (int) period.TotalMilliseconds)
+	{ }
 
-		public int PeriodInMilliseconds { get; }
+	private RateLimit()
+	{
+		this.PeriodInMilliseconds = 0;
+		this.AmountOfRequests = 0;
+	}
 
-		public RateLimit(int amountOfRequests, int periodInMilliseconds)
-		{
-			if (amountOfRequests <= 0)
-				throw new ArgumentException("Amount of requests must be a number bigger than 0", nameof(amountOfRequests));
-			if (periodInMilliseconds <= 0)
-				throw new ArgumentException("Period of time in milliseconds must be bigger than 0", nameof(periodInMilliseconds));
-			this.AmountOfRequests = amountOfRequests;
-			this.PeriodInMilliseconds = periodInMilliseconds;
-		}
-
-		public RateLimit(int amountOfRequests, TimeSpan period) : this(amountOfRequests, (int) period.TotalMilliseconds)
-		{ }
-
-		private RateLimit()
-		{
-			this.PeriodInMilliseconds = 0;
-			this.AmountOfRequests = 0;
-		}
-
-		public override string ToString()
-		{
-			return $"{this.AmountOfRequests}r per {this.PeriodInMilliseconds}ms";
-		}
+	public override string ToString()
+	{
+		return $"{this.AmountOfRequests}r per {this.PeriodInMilliseconds}ms";
 	}
 }

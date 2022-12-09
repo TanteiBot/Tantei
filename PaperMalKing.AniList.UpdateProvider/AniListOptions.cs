@@ -2,12 +2,11 @@
 // Copyright (C) 2021-2022 N0D4N
 using PaperMalKing.Common.Options;
 
-namespace PaperMalKing.AniList.UpdateProvider
-{
-    internal sealed class AniListOptions : ITimerOptions<AniListUpdateProvider>
-    {
-        public int DelayBetweenChecksInMilliseconds { get; init; }
+namespace PaperMalKing.AniList.UpdateProvider;
 
-        public const string AniList = Constants.NAME;
-    }
+internal sealed class AniListOptions : ITimerOptions<AniListUpdateProvider>
+{
+	public int DelayBetweenChecksInMilliseconds { get; init; }
+
+	public const string AniList = Constants.NAME;
 }

@@ -3,16 +3,15 @@
 
 using System.Collections.Generic;
 
-namespace PaperMalKing.Options
+namespace PaperMalKing.Options;
+
+public sealed class CommandsOptions
 {
-	public sealed class CommandsOptions
-	{
-		public const string Commands = "Discord:Commands";
+	public const string Commands = "Discord:Commands";
 
-		public IReadOnlyList<string> Prefixes { get; set; } = null!;
+	public IReadOnlyList<string> Prefixes { get; set; } = null!;
 
-		public bool EnableMentionPrefix { get; set; }
+	public bool EnableMentionPrefix { get; set; }
 
-		public bool CaseSensitive { get; set; }
-	}
+	public bool CaseSensitive { get; set; }
 }

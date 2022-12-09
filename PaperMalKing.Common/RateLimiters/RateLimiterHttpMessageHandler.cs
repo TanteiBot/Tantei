@@ -7,38 +7,37 @@ using System.Threading;
 using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 
-namespace PaperMalKing.Common.RateLimiters
+namespace PaperMalKing.Common.RateLimiters;
+
+public sealed class RateLimiterHttpMessageHandler : DelegatingHandler
 {
-	public sealed class RateLimiterHttpMessageHandler : DelegatingHandler
+	public RateLimiter RateLimiter { get; }
+
+	internal RateLimiterHttpMessageHandler(RateLimiter rateLimiter)
 	{
-		public RateLimiter RateLimiter { get; }
+		this.RateLimiter = rateLimiter;
+	}
 
-		internal RateLimiterHttpMessageHandler(RateLimiter rateLimiter)
+	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+	{
+		while (!cancellationToken.IsCancellationRequested)
 		{
-			this.RateLimiter = rateLimiter;
-		}
-
-		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-		{
-			while (!cancellationToken.IsCancellationRequested)
+			using (var rateLimitLease = await this.RateLimiter.AcquireAsync(1, cancellationToken).ConfigureAwait(false))
 			{
-				using (var rateLimitLease = await this.RateLimiter.AcquireAsync(1, cancellationToken).ConfigureAwait(false))
+				if (rateLimitLease.IsAcquired)
 				{
-					if (rateLimitLease.IsAcquired)
-					{
-						return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-					}
+					return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 				}
 			}
-
-			cancellationToken.ThrowIfCancellationRequested();
-			throw new UnreachableException();
 		}
 
-		protected override void Dispose(bool disposing)
-		{
-			RateLimiter.Dispose();
-			base.Dispose(disposing);
-		}
+		cancellationToken.ThrowIfCancellationRequested();
+		throw new UnreachableException();
+	}
+
+	protected override void Dispose(bool disposing)
+	{
+		RateLimiter.Dispose();
+		base.Dispose(disposing);
 	}
 }
