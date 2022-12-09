@@ -1,35 +1,113 @@
 name: .NET build
 
 on: 
-  workflow_dispatch:
-  
-  push:
-    branches: 
-      - master
-      - v2
-      - release/v2
-  pull_request:
-    branches:
-      - master
-      - v2
-      - release/v2
+  workflow_dispatch
+  push
+  pull_request
 
-jobs: 
+
+env:
+  DOTNET_NOLOGO: true
+  dotnet-version-to-install: '7.*'
+  dotnet-include-prerelease: false
+  artifact-name: "build-${{ github.sha }}"
+
+jobs:
   build:
+    name: Build
+    runs-on: ubuntu-latest
     env:
-      DOTNET_NOLOGO: true
+      output-dir: "./output"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install .NET SDK if needed
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.dotnet-version-to-install }}
+          include-prerelease: ${{ env.dotnet-include-prerelease}}
+
+      - name: Install deps
+        run: dotnet restore
+
+      - name: Build projects
+        run: dotnet build --configuration Release --no-restore --output ${{ env.output-dir }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.artifact-name }}
+          path: ${{ env.output-dir }}
+          if-no-files-found: error
+          retention-days: 1
+
+  test:
+    name: Test
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Setup .NET SDK
+
+      - name: Install .NET SDK if needed
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '7.x'
-      - name: Install deps
-        run: dotnet restore
-      - name: Build projects
-        run: dotnet build --configuration Release --no-restore
+          dotnet-version: ${{ env.dotnet-version-to-install }}
+          include-prerelease: ${{ env.dotnet-include-prerelease}}
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.artifact-name }}
+
       - name: Test
-        run: dotnet test --no-restore --verbosity normal
+        run: for t in Tantei*Test*.dll; do dotnet test --no-restore --verbosity normal --logger GitHubActions "${t}"; done
+        shell: bash
+
+  codeQl:
+    name: Run CodeQL analysis
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install .NET SDK if needed
+        uses: ./.github/actions/core-setup-dotnet
+        with:
+          dotnet-version: ${{ env.dotnet-version-to-install }}
+          include-prerelease: ${{ env.dotnet-include-prerelease}}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: 'csharp'
+          # queries: +security-and-quality
+
+      - name: Build .NET
+        run: dotnet build
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+  inferSharp:
+    name: Run Infer#
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.artifact-name }}
+
+      - run: mkdir ./createdDlls && mv Tantei* createdDlls
+
+      - name: Run Infer#
+        id: runInferSharp
+        uses: microsoft/infersharpaction@v1.3
+        with:
+          binary-path: "./createdDlls"
+
+      - name: Infer# analysis results
+        run: echo "${{ steps.runInferSharp.outputs.results }}"  
