@@ -64,7 +64,7 @@ jobs:
           name: ${{ env.artifact-name }}
 
       - name: Test
-        run: for t in Tantei*Test*.dll; do dotnet test --no-restore --verbosity normal --logger GitHubActions "${t}"; done
+        run: for t in PaperMalKing*Test*.dll; do dotnet test --no-restore --verbosity normal --logger GitHubActions "${t}"; done
         shell: bash
 
   codeQl:
@@ -106,7 +106,7 @@ jobs:
         with:
           name: ${{ env.artifact-name }}
 
-      - run: mkdir ./createdDlls && mv Tantei* createdDlls
+      - run: mkdir ./createdDlls && mv PaperMalKing* createdDlls
 
       - name: Run Infer#
         id: runInferSharp
