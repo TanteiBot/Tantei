@@ -31,11 +31,6 @@ namespace PaperMalKing.Shikimori.Wrapper
 	{
 		private readonly HttpClient _httpClient;
 		private readonly ILogger<ShikiClient> _logger;
-		
-		private static readonly MultipartFormDataContent UserCachedContent = new()
-		{
-			{new StringContent("1"), "is_nickname"}
-		};
 
 		public ShikiClient(HttpClient httpClient, ILogger<ShikiClient> logger)
 		{
@@ -49,10 +44,13 @@ namespace PaperMalKing.Shikimori.Wrapper
 
 			nickname = WebUtility.UrlEncode(nickname);
 			var url = $"{Constants.BASE_USERS_API_URL}/{nickname}";
-			
+
 			using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 			{
-				Content = UserCachedContent
+				Content = new MultipartFormDataContent()
+				{
+					{ new StringContent("1"), "is_nickname" }
+				}
 			};
 
 			using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);

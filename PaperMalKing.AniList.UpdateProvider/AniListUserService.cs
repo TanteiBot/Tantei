@@ -74,19 +74,27 @@ namespace PaperMalKing.AniList.UpdateProvider
             if (guild == null)
                 throw new UserProcessingException(new(username),
                     "Current server is not in database, ask server administrator to add this server to bot");
-            var dUser = db.DiscordUsers.FirstOrDefault(du => du.DiscordUserId == userId);
+            var dUser = db.DiscordUsers.Include(x=>x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
             var response = await this._client.GetCompleteUserInitialInfoAsync(username).ConfigureAwait(false);
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+			if (dUser == null)
+			{
+				dUser = new()
+				{
+					Guilds = new DiscordGuild[1] { guild },
+					DiscordUserId = userId,
+					BotUser = new()
+				};
+			}
+			else if(dUser.Guilds.All(x => x.DiscordGuildId != guildId))
+			{
+					dUser.Guilds.Add(guild);
+			}
             dbUser = new()
             {
                 Favourites = response.Favourites.Select(f => new AniListFavourite {Id = f.Id, FavouriteType = (FavouriteType) f.Type}).ToList(),
                 Id = response.UserId!.Value,
-                DiscordUser = dUser ?? new()
-				{
-					Guilds = new DiscordGuild[1]{guild},
-					DiscordUserId = userId,
-					BotUser = new()
-				},
+                DiscordUser = dUser,
                 LastActivityTimestamp = now,
                 LastReviewTimestamp = now
             };

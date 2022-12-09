@@ -79,19 +79,27 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList
 				throw new UserProcessingException(new(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
 
-			var duser = db.DiscordUsers.FirstOrDefault(user => user.DiscordUserId == userId);
+			var duser = db.DiscordUsers.Include(x=>x.Guilds).FirstOrDefault(user => user.DiscordUserId == userId);
 			var mUser = await this._client.GetUserAsync(username, MalUserFeatures.None.GetDefault().ToParserOptions()).ConfigureAwait(false);
 			var now = DateTimeOffset.Now;
+			if (duser == null)
+			{
+				duser = new()
+				{
+					Guilds = new DiscordGuild[1] { guild },
+					DiscordUserId = userId,
+					BotUser = new()
+				};
+			}
+			else if(duser.Guilds.All(x => x.DiscordGuildId != guildId))
+			{
+				duser.Guilds.Add(guild);
+			}
 			dbUser = new()
 			{
 				UserId = mUser.Id,
 				Username = mUser.Username,
-				DiscordUser = duser ?? new()
-				{
-					Guilds = new DiscordGuild[1] {guild},
-					DiscordUserId = userId,
-					BotUser = new()
-				},
+				DiscordUser = duser,
 				LastUpdatedAnimeListTimestamp = now,
 				LastUpdatedMangaListTimestamp = now,
 				LastAnimeUpdateHash = mUser.LatestAnimeUpdate?.Hash.ToHashString() ?? "",

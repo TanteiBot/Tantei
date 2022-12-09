@@ -75,10 +75,23 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 			if (guild == null)
 				throw new UserProcessingException(new(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
-			var dUser = db.DiscordUsers.FirstOrDefault(du => du.DiscordUserId == userId);
+			var dUser = db.DiscordUsers.Include(x=>x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 			var shikiUser = await this._client.GetUserAsync(username).ConfigureAwait(false);
 			var history = await this._client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any).ConfigureAwait(false);
 			var favourites = await this._client.GetUserFavouritesAsync(shikiUser.Id).ConfigureAwait(false);
+			if (dUser == null)
+			{
+				dUser = new()
+				{
+					BotUser = new(),
+					Guilds = new DiscordGuild[1] { guild },
+					DiscordUserId = userId,
+				};
+			}
+			else if(dUser.Guilds.All(x => x.DiscordGuildId != guildId))
+			{
+				dUser.Guilds.Add(guild);
+			}
 			dbUser = new()
 			{
 				Favourites = favourites.AllFavourites.Select(f => new ShikiFavourite()
@@ -90,12 +103,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider
 				}).ToList(),
 				Id = shikiUser.Id,
 				Features = ShikiUserFeatures.None.GetDefault(),
-				DiscordUser = dUser ?? new()
-				{
-					BotUser = new(),
-					Guilds = new DiscordGuild[1] {guild},
-					DiscordUserId = userId,
-				},
+				DiscordUser = dUser,
 				DiscordUserId = userId,
 				LastHistoryEntryId = history.Data.Max(he => he.Id)
 			};
