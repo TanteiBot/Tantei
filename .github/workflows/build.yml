@@ -20,7 +20,8 @@ jobs:
       output-dir: "./output"
     steps:
       - uses: actions/checkout@v3
-
+        with:
+          fetch-depth: 0
       - name: Install .NET SDK if needed
         uses: actions/setup-dotnet@v3
         with:
@@ -47,7 +48,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
+        with:
+          fetch-depth: 0
       - name: Install .NET SDK if needed
         uses: actions/setup-dotnet@v3
         with:
@@ -72,7 +74,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
+        with:
+          fetch-depth: 0
       - name: Install .NET SDK if needed
         uses: ./.github/actions/core-setup-dotnet
         with:
