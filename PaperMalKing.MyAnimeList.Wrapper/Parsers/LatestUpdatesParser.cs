@@ -10,7 +10,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
 internal static class LatestUpdatesParser
 {
-	private static readonly char[] Numbers = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+	private static readonly char[] Numbers = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
 	private const string BaseSelectorStart = "//div[contains(@class, 'updates ";
 	private const string BaseSelectorEnd = "')]/div[1]";
@@ -23,7 +23,7 @@ internal static class LatestUpdatesParser
 		{
 			ListEntryType.Anime => AnimeSelector,
 			ListEntryType.Manga => MangaSelector,
-			_                   => throw new ArgumentOutOfRangeException(nameof(listEntryType), listEntryType, null)
+			_ => throw new ArgumentOutOfRangeException(nameof(listEntryType), listEntryType, null)
 		};
 		var dataNode = node.SelectSingleNode(selector);
 		if (dataNode == null)

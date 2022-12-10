@@ -51,12 +51,12 @@ internal static class Extensions
 	{
 		return baseFavorite switch
 		{
-			FavoriteAnime favoriteAnime         => favoriteAnime.ToMalFavoriteAnime(user) as T,
+			FavoriteAnime favoriteAnime => favoriteAnime.ToMalFavoriteAnime(user) as T,
 			FavoriteCharacter favoriteCharacter => favoriteCharacter.ToMalFavoriteCharacter(user) as T,
-			FavoriteManga favoriteManga         => favoriteManga.ToMalFavoriteManga(user) as T,
-			FavoritePerson favoritePerson       => favoritePerson.ToMalFavoritePerson(user) as T,
-			FavoriteCompany favoriteCompany     => favoriteCompany.ToMalFavoriteCompany(user) as T,
-			_                                   => throw new InvalidOperationException()
+			FavoriteManga favoriteManga => favoriteManga.ToMalFavoriteManga(user) as T,
+			FavoritePerson favoritePerson => favoritePerson.ToMalFavoritePerson(user) as T,
+			FavoriteCompany favoriteCompany => favoriteCompany.ToMalFavoriteCompany(user) as T,
+			_ => throw new InvalidOperationException()
 		} ?? throw new InvalidOperationException();
 	}
 
@@ -135,7 +135,7 @@ internal static class Extensions
 		var title = favorite switch
 		{
 			IMalListFavorite baseListFavorite => $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear}]",
-			_                                 => favorite.Name
+			_ => favorite.Name
 		};
 		eb.WithTitle(title);
 
@@ -152,10 +152,10 @@ internal static class Extensions
 		static string SubEntriesProgress(int progressedValue, int totalValue, bool isInPlans, string ending) =>
 			progressedValue switch
 			{
-				0 when totalValue == 0                                                      => string.Empty,
+				0 when totalValue == 0 => string.Empty,
 				_ when progressedValue == totalValue || (isInPlans && progressedValue == 0) => $"{totalValue} {ending}",
-				_ when totalValue == 0                                                      => $"{progressedValue}/? {ending}",
-				_                                                                           => $"{progressedValue}/{totalValue} {ending}"
+				_ when totalValue == 0 => $"{progressedValue}/? {ending}",
+				_ => $"{progressedValue}/{totalValue} {ending}"
 			};
 
 		static string TitleMediaTypeString(string title, string mediaType, MalUserFeatures features) =>
@@ -174,35 +174,35 @@ internal static class Extensions
 		switch (listEntry)
 		{
 			case AnimeListEntry ale:
-			{
-				var progress = ale.UserAnimeProgress.Humanize(LetterCasing.Sentence);
-				string episodeProgress = SubEntriesProgress(ale.WatchedEpisodes, ale.TotalEpisodes,
-					ale.UserAnimeProgress == AnimeProgress.PlanToWatch, "ep.");
-				userProgressText = episodeProgress.Length != 0 ? $"{progress} - {episodeProgress}" : progress;
-				break;
-			}
+				{
+					var progress = ale.UserAnimeProgress.Humanize(LetterCasing.Sentence);
+					string episodeProgress = SubEntriesProgress(ale.WatchedEpisodes, ale.TotalEpisodes,
+						ale.UserAnimeProgress == AnimeProgress.PlanToWatch, "ep.");
+					userProgressText = episodeProgress.Length != 0 ? $"{progress} - {episodeProgress}" : progress;
+					break;
+				}
 			case MangaListEntry mle:
-			{
-				string progress = mle.UserMangaProgress.Humanize(LetterCasing.Sentence)!;
-				string chapterProgress = SubEntriesProgress(mle.ReadChapters, mle.TotalChapters,
-					mle.UserMangaProgress == MangaProgress.PlanToRead, "ch. ");
-				string volumeProgress =
-					SubEntriesProgress(mle.ReadVolumes, mle.TotalVolumes, mle.UserMangaProgress == MangaProgress.PlanToRead, "v.");
-				userProgressText = chapterProgress.Length != 0 || 
-								   #pragma warning disable CA1508
-								   volumeProgress.Length != 0 
-					#pragma warning restore CA1508
-					? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
-				break;
-			}
+				{
+					string progress = mle.UserMangaProgress.Humanize(LetterCasing.Sentence)!;
+					string chapterProgress = SubEntriesProgress(mle.ReadChapters, mle.TotalChapters,
+						mle.UserMangaProgress == MangaProgress.PlanToRead, "ch. ");
+					string volumeProgress =
+						SubEntriesProgress(mle.ReadVolumes, mle.TotalVolumes, mle.UserMangaProgress == MangaProgress.PlanToRead, "v.");
+					userProgressText = chapterProgress.Length != 0 ||
+#pragma warning disable CA1508
+									   volumeProgress.Length != 0
+#pragma warning restore CA1508
+						? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
+					break;
+				}
 			default:
-			{
-				var progress = listEntry.UserProgress.Humanize(LetterCasing.Sentence);
-				var sep = SubEntriesProgress(listEntry.ProgressedSubEntries, listEntry.TotalSubEntries,
-					listEntry.UserProgress == GenericProgress.InPlans, "");
-				userProgressText = sep.Length != 0 ? $"{progress} - {sep}" : progress;
-				break;
-			}
+				{
+					var progress = listEntry.UserProgress.Humanize(LetterCasing.Sentence);
+					var sep = SubEntriesProgress(listEntry.ProgressedSubEntries, listEntry.TotalSubEntries,
+						listEntry.UserProgress == GenericProgress.InPlans, "");
+					userProgressText = sep.Length != 0 ? $"{progress} - {sep}" : progress;
+					break;
+				}
 		}
 
 		eb.AddField("Progress", userProgressText, true);
@@ -215,7 +215,7 @@ internal static class Extensions
 			{
 				AnimeListEntry animeListEntry => animeListEntry.AnimeAiringStatus.Humanize(LetterCasing.Sentence),
 				MangaListEntry mangaListEntry => mangaListEntry.MangaPublishingStatus.Humanize(LetterCasing.Sentence),
-				_                             => listEntry.Status.Humanize(LetterCasing.Sentence),
+				_ => listEntry.Status.Humanize(LetterCasing.Sentence),
 			};
 			title = $"{shortTitle} [{entryStatus}]";
 		}

@@ -18,7 +18,7 @@ public sealed class FeedChannel
 	public string Description { get; set; } = null!;
 
 	[XmlElement(ElementName = "item")]
-	#pragma warning disable CA2227, CA1002
+#pragma warning disable CA2227, CA1002
 	public List<FeedItem> Items { get; set; } = null!;
-	#pragma warning restore CA2227, CA1002
+#pragma warning restore CA2227, CA1002
 }

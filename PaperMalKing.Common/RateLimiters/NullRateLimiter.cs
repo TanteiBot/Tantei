@@ -27,7 +27,7 @@ internal sealed class NullRateLimiter : RateLimiter
 		TotalSuccessfulLeases = 0
 	};
 
-	public static readonly NullRateLimiter Instance = new ();
+	public static readonly NullRateLimiter Instance = new();
 
 	private NullRateLimiter()
 	{ }

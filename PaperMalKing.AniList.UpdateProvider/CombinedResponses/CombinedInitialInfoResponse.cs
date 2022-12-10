@@ -14,7 +14,7 @@ internal sealed class CombinedInitialInfoResponse
 	public void Add(User user)
 	{
 		this.UserId ??= user.Id;
-            
+
 		this.Favourites.AddRange(user.Favourites.AllFavourites);
 	}
 }

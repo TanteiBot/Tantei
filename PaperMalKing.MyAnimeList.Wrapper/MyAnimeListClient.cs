@@ -77,11 +77,11 @@ public sealed class MyAnimeListClient
 				Normalization = true,
 				XmlResolver = null
 			};
-			feed = (Feed?) this._xmlSerializer.Deserialize(xmlTextReader);
+			feed = (Feed?)this._xmlSerializer.Deserialize(xmlTextReader);
 		}
-		#pragma warning disable CA1031
+#pragma warning disable CA1031
 		catch
-			#pragma warning restore CA1031
+#pragma warning restore CA1031
 		{
 			return Enumerable.Empty<FeedItem>();
 		}

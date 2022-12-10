@@ -116,7 +116,7 @@ internal static class Extensions
 		dict.TryAdd(desc.LastIndexOf("прочитан", StringComparison.OrdinalIgnoreCase), ProgressType.Completed);
 		dict.TryAdd(desc.LastIndexOf("перечитываю", StringComparison.OrdinalIgnoreCase), ProgressType.InProgress);
 		var progress = dict.OrderByDescending(kvp => kvp.Key).First().Value;
-			
+
 		eb.WithColor(Colors[progress]);
 		var firstTarget = first?.Target;
 		if (firstTarget == null)
@@ -142,9 +142,9 @@ internal static class Extensions
 		{
 			var episodes = firstTarget switch
 			{
-				_ when firstTarget.Episodes      != 0 => firstTarget.Episodes.Value,
+				_ when firstTarget.Episodes != 0 => firstTarget.Episodes.Value,
 				_ when firstTarget.EpisodesAired != 0 => firstTarget.EpisodesAired!.Value,
-				_                                     => 0
+				_ => 0
 			};
 			if (episodes != 0)
 				eb.AddField("Total", $"{episodes} ep.", true);
@@ -157,10 +157,10 @@ internal static class Extensions
 	{
 		var favouriteName = (features & ShikiUserFeatures.Russian) != 0 ? favouriteEntry.RussianName ?? favouriteEntry.Name : favouriteEntry.Name;
 		return new DiscordEmbedBuilder
-			{
-				Url = favouriteEntry.Url,
-				Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
-			}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "removed")} favourite").WithShikiAuthor(user)
+		{
+			Url = favouriteEntry.Url,
+			Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
+		}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "removed")} favourite").WithShikiAuthor(user)
 			 .WithColor(added ? Constants.ShikiGreen : Constants.ShikiRed);
 	}
 

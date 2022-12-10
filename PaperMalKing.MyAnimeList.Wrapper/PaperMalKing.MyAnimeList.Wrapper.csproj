@@ -5,17 +5,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider" />
-        <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.Wrapper.Tests" />
-        <InternalsVisibleTo Include="System.Xml.XmlSerializer" />
+        <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider"/>
+        <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.Wrapper.Tests"/>
+        <InternalsVisibleTo Include="System.Xml.XmlSerializer"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
+        <PackageReference Include="HtmlAgilityPack"/>
     </ItemGroup>
 
 </Project>

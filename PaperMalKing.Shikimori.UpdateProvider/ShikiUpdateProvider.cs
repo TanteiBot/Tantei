@@ -53,8 +53,8 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 		foreach (var dbUser in db.ShikiUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds).Include(u => u.Favourites)
 								 .Where(u => u.DiscordUser.Guilds.Any() && ((u.Features & ShikiUserFeatures.AnimeList) != 0 ||
-																		    (u.Features & ShikiUserFeatures.MangaList) != 0 ||
-																		    (u.Features & ShikiUserFeatures.Favourites) != 0)).OrderBy(x=>x.Id).ToArray())
+																			(u.Features & ShikiUserFeatures.MangaList) != 0 ||
+																			(u.Features & ShikiUserFeatures.Favourites) != 0)).OrderBy(x => x.Id).ToArray())
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;
@@ -109,7 +109,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				continue;
 			}
 
-			if((dbUser.Features & ShikiUserFeatures.Mention) != 0)
+			if ((dbUser.Features & ShikiUserFeatures.Mention) != 0)
 				totalUpdates.ForEach(deb => deb.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
 
 			if ((dbUser.Features & ShikiUserFeatures.Website) != 0)
@@ -124,9 +124,9 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);
 			}
-			#pragma warning disable CA1031
+#pragma warning disable CA1031
 			catch (Exception ex)
-				#pragma warning restore CA1031
+#pragma warning restore CA1031
 			{
 				this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
 				throw;

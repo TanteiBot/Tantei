@@ -73,9 +73,9 @@ public sealed class CommandsService : ICommandsService
 
 					this.CommandsExtension.RegisterCommands(type);
 				}
-				#pragma warning disable CA1031
+#pragma warning disable CA1031
 				catch (Exception ex)
-					#pragma warning restore CA1031
+#pragma warning restore CA1031
 				{
 					this._logger.LogError(ex, "Error occured while trying to register {FullName}", type.FullName);
 				}

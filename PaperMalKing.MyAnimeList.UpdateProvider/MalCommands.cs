@@ -43,7 +43,7 @@ public sealed class MalCommands : BaseUpdateProviderUserCommandsModule<MalUserSe
 	[Description("Stop sending your updates to this server")]
 	public override Task RemoveUserHereCommand(CommandContext ctx) => base.RemoveUserHereCommand(ctx);
 
-	#pragma warning disable CA1034
+#pragma warning disable CA1034
 	[Group("features")]
 	[Description("Manage your features for updates send from MyAnimeList.net")]
 	[ModuleLifespan(ModuleLifespan.Singleton)]

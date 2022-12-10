@@ -18,6 +18,6 @@ public sealed class ShikiFavourite
 	public string Name { get; init; } = null!;
 
 	public ulong UserId { get; init; }
-		
+
 	public ShikiUser User { get; set; } = null!;
 }

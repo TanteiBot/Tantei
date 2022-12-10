@@ -7,7 +7,7 @@ public interface IMalFavorite
 	public int UserId { get; init; }
 
 	public int Id { get; init; }
-		
+
 	public string? ImageUrl { get; init; }
 
 	public string Name { get; init; }
