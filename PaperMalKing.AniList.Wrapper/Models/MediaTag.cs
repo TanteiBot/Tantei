@@ -8,7 +8,7 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 public sealed class MediaTag
 {
 	[JsonPropertyName("name")]
-	public string Name { get; init; } = null!;
+	public required string Name { get; init; }
 
 	[JsonPropertyName("rank")]
 	public byte Rank { get; init; }

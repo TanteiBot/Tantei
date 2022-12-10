@@ -9,16 +9,16 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss;
 public sealed class FeedChannel
 {
 	[XmlElement(ElementName = "title")]
-	public string Title { get; set; } = null!;
+	public required string Title { get; set; }
 
 	[XmlElement(ElementName = "link")]
-	public string Link { get; set; } = null!;
+	public required string Link { get; set; }
 
 	[XmlElement(ElementName = "description")]
-	public string Description { get; set; } = null!;
+	public required string Description { get; set; }
 
 	[XmlElement(ElementName = "item")]
 	#pragma warning disable CA2227, CA1002
-	public List<FeedItem> Items { get; set; } = null!;
+	public required List<FeedItem> Items { get; set; }
 	#pragma warning restore CA2227, CA1002
 }

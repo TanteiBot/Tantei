@@ -50,9 +50,9 @@ public sealed class MalFavoriteCompany : IMalFavorite, IEquatable<MalFavoriteCom
 
 	public string? ImageUrl { get; init; }
 
-	public string Name { get; init; } = null!;
+	public required string Name { get; init; }
 
-	public string NameUrl { get; init; } = null!;
+	public required string NameUrl { get; init; }
 
-	public MalUser User { get; init; } = null!;
+	public required MalUser User { get; init; }
 }

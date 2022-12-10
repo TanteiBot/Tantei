@@ -21,7 +21,7 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 public sealed class CustomList
 {
 	[JsonPropertyName("name")]
-	public string Name { get; init; } = null!;
+	public required string Name { get; init; }
 
 	[JsonPropertyName("enabled")]
 	public bool Enabled { get; init; }

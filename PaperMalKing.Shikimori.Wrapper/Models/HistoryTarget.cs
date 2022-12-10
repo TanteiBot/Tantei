@@ -14,7 +14,7 @@ internal class HistoryTarget
 	public ListEntryType Type { get; init; }
 
 	[JsonPropertyName("status")]
-	public string Status { get; init; } = null!;
+	public required string Status { get; init; }
 
 	[JsonPropertyName("id")]
 	public ulong Id { get; init; }
@@ -48,11 +48,11 @@ internal class HistoryTarget
 	public string? Kind { get; init; }
 
 	[JsonPropertyName("name")]
-	public string Name { get; init; } = null!;
+	public required string Name { get; init; }
 
 	[JsonPropertyName("russian")]
-	public string? RussianName { get; init; } = null!;
+	public string? RussianName { get; init; }
 
 	[JsonIgnore]
-	public string ImageUrl { get; init; } = null!;
+	public required string ImageUrl { get; init; }
 }

@@ -13,7 +13,7 @@ internal class UserInfo
 	public ulong Id { get; init; }
 
 	[JsonPropertyName("nickname")]
-	public string Nickname { get; init; } = null!;
+	public required string Nickname { get; init; }
 
 	public string Url => $"{Constants.BASE_URL}/{WebUtility.UrlEncode(this.Nickname)}";
 

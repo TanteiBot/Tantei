@@ -35,14 +35,14 @@ internal sealed class AnimeListEntry : IListEntry
 	GenericProgress IListEntry.UserProgress => this.UserAnimeProgress.ToGeneric();
 
 	[JsonPropertyName("anime_title")]
-	public string Title { get; init; } = null!;
+	public required string Title { get; init; }
 
 	[JsonPropertyName("score")]
 	public int Score { get; init; }
 
 	[JsonConverter(typeof(JsonNumberToStringConverter))]
 	[JsonPropertyName("tags")]
-	public string Tags { get; init; } = null!;
+	public required string Tags { get; init; }
 
 	[JsonPropertyName("is_rewatching")]
 	[JsonConverter(typeof(JsonToBoolConverter))]
@@ -71,5 +71,5 @@ internal sealed class AnimeListEntry : IListEntry
 	}
 
 	[JsonPropertyName("anime_media_type_string")]
-	public string MediaType { get; init; } = null!;
+	public required string MediaType { get; init; }
 }

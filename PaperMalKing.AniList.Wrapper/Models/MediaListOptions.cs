@@ -11,8 +11,8 @@ public sealed class MediaListOptions
 	public ScoreFormat ScoreFormat { get; init; }
 
 	[JsonPropertyName("animeList")]
-	public MediaListTypeOptions AnimeListOptions { get; init; } = null!;
+	public required MediaListTypeOptions AnimeListOptions { get; init; }
 
 	[JsonPropertyName("mangaList")]
-	public MediaListTypeOptions MangaListOptions { get; init; } = null!;
+	public required MediaListTypeOptions MangaListOptions { get; init; }
 }

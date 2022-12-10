@@ -14,10 +14,10 @@ internal abstract class BaseListSubEntry
 	public ulong Id { get; init; }
 
 	[JsonPropertyName("name")]
-	public string Name { get; init; } = null!;
+	public required string Name { get; init; }
 
 	[JsonPropertyName("kind")]
-	public string Kind { get; init; } = null!;
+	public required string Kind { get; init; }
 
 	[JsonPropertyName("status")]
 	public SubEntryReleasingStatus Status { get; init; }

@@ -8,7 +8,7 @@ namespace PaperMalKing.Database.Models.MyAnimeList;
 
 public sealed class MalFavoriteCharacter : IMalFavorite, IEquatable<MalFavoriteCharacter>
 {
-	public string FromTitleName { get; init; } = null!;
+	public required string FromTitleName { get; init; }
 
 	[Obsolete("Mal no longer provides url for favorite characters", true)]
 	public string FromTitleUrl { get; init; } = "";
@@ -21,16 +21,16 @@ public sealed class MalFavoriteCharacter : IMalFavorite, IEquatable<MalFavoriteC
 	public int Id { get; init; }
 
 	/// <inheritdoc />
-	public string? ImageUrl { get; init; }
+	public required string? ImageUrl { get; init; }
 
 	/// <inheritdoc />
-	public string Name { get; init; } = null!;
+	public required string Name { get; init; }
 
 	/// <inheritdoc />
-	public string NameUrl { get; init; } = null!;
+	public required string NameUrl { get; init; }
 
 	/// <inheritdoc />
-	public MalUser User { get; init; } = null!;
+	public required MalUser User { get; init; }
 
 	/// <inheritdoc />
 	public bool Equals(MalFavoriteCharacter? other)

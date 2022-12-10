@@ -47,14 +47,14 @@ internal sealed class MangaListEntry : IListEntry
 	GenericProgress IListEntry.UserProgress => this.UserMangaProgress.ToGeneric();
 
 	[JsonPropertyName("manga_title")]
-	public string Title { get; init; } = null!;
+	public required string Title { get; init; }
 
 	[JsonPropertyName("score")]
 	public int Score { get; init; }
 
 	[JsonConverter(typeof(JsonNumberToStringConverter))]
 	[JsonPropertyName("tags")]
-	public string Tags { get; init; } = null!;
+	public required string Tags { get; init; }
 
 	int IListEntry.ProgressedSubEntries => this.ReadChapters;
 
@@ -77,5 +77,5 @@ internal sealed class MangaListEntry : IListEntry
 	}
 
 	[JsonPropertyName("manga_media_type_string")]
-	public string MediaType { get; init; } = null!;
+	public required string MediaType { get; init; }
 }

@@ -8,10 +8,10 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 public sealed class Studio : ISiteUrlable, IIdentifiable
 {
 	[JsonPropertyName("name")]
-	public string Name { get; init; } = null!;
+	public required string Name { get; init; }
 
 	[JsonPropertyName("siteUrl")]
-	public string Url { get; init; } = null!;
+	public required string Url { get; init; }
 
 	[JsonPropertyName("media")]
 	public Connection<Media> Media { get; init; } = Connection<Media>.Empty;

@@ -11,7 +11,7 @@ public sealed class CheckForUpdatesResponse
 							   this.Reviews.PageInfo.HasNextPage;
 
 	[JsonPropertyName("User")]
-	public User User { get; init; } = null!;
+	public required User User { get; init; }
 
 	[JsonPropertyName("AnimeList")]
 	public MediaListCollection AnimeList { get; init; } = MediaListCollection.Empty;

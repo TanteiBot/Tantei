@@ -11,7 +11,7 @@ public sealed class GenericName
 	public string? Full { get; init; }
 
 	[JsonPropertyName("native")]
-	public string Native { get; init; } = null!;
+	public required string Native { get; init; }
 
 	public string GetName(TitleLanguage language)
 	{

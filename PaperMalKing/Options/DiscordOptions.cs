@@ -9,20 +9,20 @@ public sealed class DiscordOptions
 {
 	public const string Discord = "Discord";
 
-	public string Token { get; set; } = null!;
+	public required string Token { get; set; }
 
-	public IReadOnlyList<DiscordActivityOptions> Activities { get; set; } = null!;
+	public required IReadOnlyList<DiscordActivityOptions> Activities { get; set; }
 
 	#pragma warning disable CA1034
 	public sealed class DiscordActivityOptions
 		#pragma warning restore CA1034
 	{
-		public string ActivityType { get; set; } = null!;
+		public required string ActivityType { get; set; }
 
-		public string PresenceText { get; set; } = null!;
+		public required string PresenceText { get; set; }
 
 		public int TimeToBeDisplayedInMilliseconds { get; set; }
 
-		public string Status { get; set; } = null!;
+		public required string Status { get; set; }
 	}
 }

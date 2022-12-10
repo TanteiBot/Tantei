@@ -19,16 +19,16 @@ public sealed class MalFavoriteAnime : IMalListFavorite, IEquatable<MalFavoriteA
 	public string? ImageUrl { get; init; }
 
 	/// <inheritdoc />
-	public string Name { get; init; } = null!;
+	public required string Name { get; init; }
 
 	/// <inheritdoc />
-	public string NameUrl { get; init; } = null!;
+	public required string NameUrl { get; init; }
 
 	/// <inheritdoc />
-	public MalUser User { get; init; } = null!;
+	public required MalUser User { get; init; }
 
 	/// <inheritdoc />
-	public string Type { get; init; } = null!;
+	public required string Type { get; init; }
 
 	/// <inheritdoc />
 	public int StartYear { get; init; }

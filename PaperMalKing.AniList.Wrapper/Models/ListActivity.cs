@@ -7,14 +7,14 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 public sealed class ListActivity
 {
 	[JsonPropertyName("status")]
-	public string Status { get; init; } = null!;
+	public required string Status { get; init; }
 
 	[JsonPropertyName("progress")]
-	public string? Progress { get; init; } = null!;
+	public string? Progress { get; init; }
 
 	[JsonPropertyName("createdAt")]
 	public long CreatedAtTimestamp { get; init; }
 
 	[JsonPropertyName("media")]
-	public Media Media { get; init; } = null!;
+	public required Media Media { get; init; }
 }

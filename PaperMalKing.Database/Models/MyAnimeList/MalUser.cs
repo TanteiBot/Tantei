@@ -9,31 +9,31 @@ namespace PaperMalKing.Database.Models.MyAnimeList;
 
 public sealed class MalUser
 {
-	public DiscordUser DiscordUser { get; init; } = null!;
+	public required DiscordUser DiscordUser { get; init; }
 
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	[Key]
 	public int UserId { get; init; }
 
-	public string Username { get; set; } = null!;
+	public required string Username { get; set; }
 
 	public DateTimeOffset LastUpdatedAnimeListTimestamp { get; set; }
 
 	public DateTimeOffset LastUpdatedMangaListTimestamp { get; set; }
 
-	public string LastAnimeUpdateHash { get; set; } = null!;
+	public required string LastAnimeUpdateHash { get; set; }
 
-	public string LastMangaUpdateHash { get; set; } = null!;
-		
+	public required string LastMangaUpdateHash { get; set; }
+
 	public MalUserFeatures Features { get; set; }
-		
-	public List<MalFavoriteAnime> FavoriteAnimes { get; set; } = null!;
 
-	public List<MalFavoriteManga> FavoriteMangas { get; set; } = null!;
+	public required List<MalFavoriteAnime> FavoriteAnimes { get; set; }
 
-	public List<MalFavoriteCharacter> FavoriteCharacters { get; set; } = null!;
+	public required List<MalFavoriteManga> FavoriteMangas { get; set; }
 
-	public List<MalFavoritePerson> FavoritePeople { get; set; } = null!;
+	public required List<MalFavoriteCharacter> FavoriteCharacters { get; set; }
 
-	public List<MalFavoriteCompany> FavoriteCompanies { get; set; } = null!;
+	public required List<MalFavoritePerson> FavoritePeople { get; set; }
+
+	public required List<MalFavoriteCompany> FavoriteCompanies { get; set; }
 }

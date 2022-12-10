@@ -15,31 +15,31 @@ namespace PaperMalKing.Database;
 
 public class DatabaseContext : DbContext
 {
-	public DbSet<BotUser> BotUsers { get; init; } = null!;
+	public required DbSet<BotUser> BotUsers { get; init; }
 
-	public DbSet<DiscordGuild> DiscordGuilds { get; init; } = null!;
+	public required DbSet<DiscordGuild> DiscordGuilds { get; init; }
 
-	public DbSet<DiscordUser> DiscordUsers { get; init; } = null!;
+	public required DbSet<DiscordUser> DiscordUsers { get; init; }
 
-	public DbSet<MalUser> MalUsers { get; init; } = null!;
+	public required DbSet<MalUser> MalUsers { get; init; }
 
-	public DbSet<MalFavoriteAnime> MalFavoriteAnimes { get; init; } = null!;
+	public required DbSet<MalFavoriteAnime> MalFavoriteAnimes { get; init; } 
 
-	public DbSet<MalFavoriteManga> MalFavoriteMangas { get; init; } = null!;
+	public required DbSet<MalFavoriteManga> MalFavoriteMangas { get; init; } 
 
-	public DbSet<MalFavoriteCharacter> MalFavoriteCharacters { get; init; } = null!;
+	public required DbSet<MalFavoriteCharacter> MalFavoriteCharacters { get; init; } 
 
-	public DbSet<MalFavoritePerson> MalFavoritePersons { get; init; } = null!;
+	public required DbSet<MalFavoritePerson> MalFavoritePersons { get; init; }
 
-	public DbSet<MalFavoriteCompany> MalFavoriteCompanies { get; init; } = null!;
+	public required DbSet<MalFavoriteCompany> MalFavoriteCompanies { get; init; } 
 
-	public DbSet<ShikiUser> ShikiUsers { get; init; } = null!;
+	public required DbSet<ShikiUser> ShikiUsers { get; init; }
 
-	public DbSet<ShikiFavourite> ShikiFavourites { get; init; } = null!;
+	public required DbSet<ShikiFavourite> ShikiFavourites { get; init; }
 
-	public DbSet<AniListUser> AniListUsers { get; init; } = null!;
+	public required DbSet<AniListUser> AniListUsers { get; init; }
 
-	public DbSet<AniListFavourite> AniListFavourites { get; init; } = null!;
+	public required DbSet<AniListFavourite> AniListFavourites { get; init; } 
 
 	private readonly string _connectionString;
 

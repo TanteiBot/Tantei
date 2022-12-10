@@ -1,5 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
+
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
@@ -11,20 +12,20 @@ public sealed class User : ISiteUrlable, IImageble
 	public ulong Id { get; init; }
 
 	[JsonPropertyName("name")]
-	public string Name { get; init; } = null!;
+	public required string Name { get; init; }
 
 	[JsonPropertyName("siteUrl")]
-	public string Url { get; init; } = null!;
+	public required string Url { get; init; }
 
 	[JsonPropertyName("image")]
-	public Image Image { get; init; } = null!;
+	public required Image Image { get; init; }
 
 	[JsonPropertyName("options")]
-	public UserOptions Options { get; init; } = null!;
+	public required UserOptions Options { get; init; }
 
 	[JsonPropertyName("mediaListOptions")]
-	public MediaListOptions MediaListOptions { get; init; } = null!;
+	public required MediaListOptions MediaListOptions { get; init; }
 
 	[JsonPropertyName("favourites")]
-	public Favourites Favourites { get; init; } = null!;
+	public required Favourites Favourites { get; init; }
 }

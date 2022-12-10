@@ -7,5 +7,5 @@ namespace PaperMalKing.AniList.Wrapper.Models.Responses;
 public sealed class InitialUserInfoResponse
 {
 	[JsonPropertyName("User")]
-	public User User { get; init; } = null!;
+	public required User User { get; init; }
 }

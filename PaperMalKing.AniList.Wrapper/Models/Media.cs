@@ -15,19 +15,19 @@ public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 	public ulong Id { get; init; }
 
 	[JsonPropertyName("title")]
-	public MediaTitle Title { get; init; } = null!;
+	public required MediaTitle Title { get; init; }
 
 	[JsonPropertyName("type")]
 	public ListType Type { get; init; }
 
 	[JsonPropertyName("siteUrl")]
-	public string Url { get; init; } = null!;
+	public required string Url { get; init; }
 
 	[JsonPropertyName("format")]
 	public MediaFormat? Format { get; init; }
 
 	[JsonPropertyName("countryOfOrigin")]
-	public string CountryOfOrigin { get; init; } = null!;
+	public required string CountryOfOrigin { get; init; }
 
 	[JsonPropertyName("status")]
 	public MediaStatus Status { get; init; }
@@ -42,10 +42,10 @@ public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 	public ushort? Volumes { get; init; }
 
 	[JsonPropertyName("image")]
-	public Image Image { get; init; } = null!;
+	public required Image Image { get; init; }
 
 	[JsonPropertyName("description")]
-	public string Description { get; init; } = null!;
+	public required string Description { get; init; }
 
 	[JsonPropertyName("genres")]
 	public IReadOnlyList<string> Genres { get; init; } = Array.Empty<string>();

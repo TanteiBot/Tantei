@@ -21,33 +21,33 @@ public sealed class FeedItem
 	///     Contains title of entity and its type divided by " - "
 	/// </summary>
 	[XmlElement(ElementName = "title")]
-	public string Title { get; set; } = null!;
+	public required string Title { get; set; }
 
 	/// <summary>
 	///     Link to entity on MyAnimeList
 	/// </summary>
 	[XmlElement(ElementName = "link")]
-	public string Link { get; set; } = null!;
+	public required string Link { get; set; }
 
 	/// <summary>
 	///     <see cref="Link" />
 	/// </summary>
 	[XmlElement(ElementName = "guid")]
 	[Obsolete("Use link property")]
-	public string ItemGuid { get; set; } = null!;
+	public required string ItemGuid { get; set; }
 
 	/// <summary>
 	///     Contains info about update such as status of entity and amount of watched/read episodes/chapters
 	///     <example>Completed - 12 of 12 episodes</example>
 	/// </summary>
 	[XmlElement(ElementName = "description")]
-	public string Description { get; set; } = null!;
+	public required string Description { get; set; }
 
 	/// <summary>
 	///     String with date and time when user 'applied' update
 	/// </summary>
 	[XmlElement(ElementName = "pubDate")]
-	public string PubDateString { get; set; } = null!;
+	public required string PubDateString { get; set; }
 
 	[XmlIgnore]
 	public bool IsPlanToCheck =>

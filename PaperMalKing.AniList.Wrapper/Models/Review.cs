@@ -13,13 +13,13 @@ public sealed class Review : ISiteUrlable
 	public long CreatedAtTimeStamp { get; init; }
 
 	[JsonPropertyName("siteUrl")]
-	public string Url { get; init; } = null!;
+	public required string Url { get; init; }
 
 	[JsonPropertyName("summary")]
 	public string? Summary { get; init; }
 
 	[JsonPropertyName("media")]
-	public Media Media { get; init; } = null!;
+	public required Media Media { get; init; }
 
 	[JsonPropertyName("format")]
 	public MediaFormat Format { get; init; }

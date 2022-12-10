@@ -9,7 +9,7 @@ internal sealed class User
 {
 	private string? _avatarUrl;
 	private string? _profileUrl;
-	internal string Username { get; init; } = null!;
+	internal required string Username { get; init; }
 
 	internal string ProfileUrl => this._profileUrl ??= $"{Constants.PROFILE_URL}{this.Username}";
 
@@ -27,5 +27,5 @@ internal sealed class User
 
 	internal LatestInProfileUpdate? LatestAnimeUpdate { get; init; }
 
-	internal UserFavorites Favorites { get; init; } = null!;
+	internal required UserFavorites Favorites { get; init; }
 }
