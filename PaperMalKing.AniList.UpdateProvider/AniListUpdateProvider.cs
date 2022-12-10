@@ -45,6 +45,10 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
+		if (this.UpdateFoundEvent is null)
+		{
+			return;
+		}
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		foreach (var dbUser in db.AniListUsers.Include(au => au.DiscordUser).ThenInclude(du => du.Guilds).Include(au => au.Favourites)
@@ -114,7 +118,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				db.Entry(dbUser).State = EntityState.Modified;
 				if (db.SaveChanges() <= 0) throw new Exception("Couldn't save updates to database");
 				transaction.Commit();
-				await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(allUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
+				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(allUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 			}
 			#pragma warning disable CA1031
 			catch (Exception ex)

@@ -29,7 +29,7 @@ public abstract class BaseUserFeaturesCommandsModule<T> : BaseCommandModule wher
 	{
 		if (!features.Any())
 			return;
-		this.Logger.LogInformation("Trying to enable {Features} feature for {Username}", features!, context.Member!.DisplayName);
+		this.Logger.LogInformation("Trying to enable {Features} feature for {Username}", features, context.Member!.DisplayName);
 		try
 		{
 			await this.UserFeaturesService.EnableFeaturesAsync(features, context.User.Id).ConfigureAwait(false);
@@ -53,7 +53,7 @@ public abstract class BaseUserFeaturesCommandsModule<T> : BaseCommandModule wher
 	{
 		if (!features.Any())
 			return;
-		this.Logger.LogInformation("Trying to disable {Features} feature for {Username}", features!, context.Member!.DisplayName);
+		this.Logger.LogInformation("Trying to disable {Features} feature for {Username}", features, context.Member!.DisplayName);
 		try
 		{
 			await this.UserFeaturesService.DisableFeaturesAsync(features, context.User.Id).ConfigureAwait(false);

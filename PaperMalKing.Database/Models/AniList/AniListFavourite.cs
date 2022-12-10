@@ -18,5 +18,5 @@ public sealed class AniListFavourite
 
 	public ulong UserId { get; set; }
 
-	public required AniListUser User { get; set; }
+	public AniListUser User { get; set; } = null!;
 }

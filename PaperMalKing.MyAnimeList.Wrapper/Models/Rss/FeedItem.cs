@@ -34,7 +34,7 @@ public sealed class FeedItem
 	/// </summary>
 	[XmlElement(ElementName = "guid")]
 	[Obsolete("Use link property")]
-	public required string ItemGuid { get; set; }
+	public string ItemGuid { get; set; } = null!;
 
 	/// <summary>
 	///     Contains info about update such as status of entity and amount of watched/read episodes/chapters

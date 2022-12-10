@@ -38,7 +38,7 @@ public sealed class ShikiClient
 		};
 
 		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-		return (await response!.Content.ReadFromJsonAsync<User>((JsonSerializerOptions?)null, cancellationToken).ConfigureAwait(false))!;
+		return (await response.Content.ReadFromJsonAsync<User>((JsonSerializerOptions?)null, cancellationToken).ConfigureAwait(false))!;
 	}
 
 	internal async Task<Favourites> GetUserFavouritesAsync(ulong userId, CancellationToken cancellationToken = default)

@@ -19,5 +19,5 @@ public sealed class ShikiFavourite
 
 	public ulong UserId { get; init; }
 
-	public required ShikiUser User { get; set; }
+	public ShikiUser User { get; set; } = null!;
 }

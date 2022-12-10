@@ -15,31 +15,31 @@ namespace PaperMalKing.Database;
 
 public class DatabaseContext : DbContext
 {
-	public required DbSet<BotUser> BotUsers { get; init; }
+	public DbSet<BotUser> BotUsers => this.Set<BotUser>();
 
-	public required DbSet<DiscordGuild> DiscordGuilds { get; init; }
+	public DbSet<DiscordGuild> DiscordGuilds => this.Set<DiscordGuild>();
 
-	public required DbSet<DiscordUser> DiscordUsers { get; init; }
+	public DbSet<DiscordUser> DiscordUsers => this.Set<DiscordUser>();
 
-	public required DbSet<MalUser> MalUsers { get; init; }
+	public DbSet<MalUser> MalUsers => this.Set<MalUser>();
 
-	public required DbSet<MalFavoriteAnime> MalFavoriteAnimes { get; init; } 
+	public DbSet<MalFavoriteAnime> MalFavoriteAnimes => this.Set<MalFavoriteAnime>();
 
-	public required DbSet<MalFavoriteManga> MalFavoriteMangas { get; init; } 
+	public DbSet<MalFavoriteManga> MalFavoriteMangas=> this.Set<MalFavoriteManga>();
 
-	public required DbSet<MalFavoriteCharacter> MalFavoriteCharacters { get; init; } 
+	public DbSet<MalFavoriteCharacter> MalFavoriteCharacters => this.Set<MalFavoriteCharacter>();
 
-	public required DbSet<MalFavoritePerson> MalFavoritePersons { get; init; }
+	public DbSet<MalFavoritePerson> MalFavoritePersons => this.Set<MalFavoritePerson>();
 
-	public required DbSet<MalFavoriteCompany> MalFavoriteCompanies { get; init; } 
+	public DbSet<MalFavoriteCompany> MalFavoriteCompanies => this.Set<MalFavoriteCompany>();
 
-	public required DbSet<ShikiUser> ShikiUsers { get; init; }
+	public DbSet<ShikiUser> ShikiUsers => this.Set<ShikiUser>();
 
-	public required DbSet<ShikiFavourite> ShikiFavourites { get; init; }
+	public DbSet<ShikiFavourite> ShikiFavourites => this.Set<ShikiFavourite>();
 
-	public required DbSet<AniListUser> AniListUsers { get; init; }
+	public DbSet<AniListUser> AniListUsers => this.Set<AniListUser>();
 
-	public required DbSet<AniListFavourite> AniListFavourites { get; init; } 
+	public DbSet<AniListFavourite> AniListFavourites => this.Set<AniListFavourite>();
 
 	private readonly string _connectionString;
 

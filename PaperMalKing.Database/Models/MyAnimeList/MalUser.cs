@@ -21,19 +21,19 @@ public sealed class MalUser
 
 	public DateTimeOffset LastUpdatedMangaListTimestamp { get; set; }
 
-	public required string LastAnimeUpdateHash { get; set; }
+	public string LastAnimeUpdateHash { get; set; } = null!;
 
-	public required string LastMangaUpdateHash { get; set; }
+	public string LastMangaUpdateHash { get; set; } = null!;
 
 	public MalUserFeatures Features { get; set; }
 
-	public required List<MalFavoriteAnime> FavoriteAnimes { get; set; }
+	public List<MalFavoriteAnime> FavoriteAnimes { get; set; } = null!;
 
-	public required List<MalFavoriteManga> FavoriteMangas { get; set; }
+	public List<MalFavoriteManga> FavoriteMangas { get; set; } = null!;
 
-	public required List<MalFavoriteCharacter> FavoriteCharacters { get; set; }
+	public List<MalFavoriteCharacter> FavoriteCharacters { get; set; } = null!;
 
-	public required List<MalFavoritePerson> FavoritePeople { get; set; }
+	public List<MalFavoritePerson> FavoritePeople { get; set; } = null!;
 
-	public required List<MalFavoriteCompany> FavoriteCompanies { get; set; }
+	public List<MalFavoriteCompany> FavoriteCompanies { get; set; } = null!;
 }
