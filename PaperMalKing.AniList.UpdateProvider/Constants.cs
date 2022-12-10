@@ -7,7 +7,7 @@ namespace PaperMalKing.AniList.UpdateProvider;
 internal static class Constants
 {
 	public const string NAME = "AniList";
-        
+
 	public const string URL = "https://anilist.co";
 
 	public const string ICON_URL = "https://anilist.co/img/icons/android-chrome-512x512.png";

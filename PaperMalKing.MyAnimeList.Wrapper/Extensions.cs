@@ -19,7 +19,7 @@ internal static class Extensions
 		if (!s.Contains("l.jpg", StringComparison.Ordinal) && !s.Contains("characters", StringComparison.Ordinal))
 			s = s.Replace(".jpg", "l.jpg", StringComparison.Ordinal);
 		var i = s.IndexOf("?s", StringComparison.OrdinalIgnoreCase);
-		return i <=0 ? s : s.Remove(i);
+		return i <= 0 ? s : s.Remove(i);
 	}
 
 	internal static RecentUpdate ToRecentUpdate(this FeedItem feedItem, ListEntryType type)

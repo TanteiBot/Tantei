@@ -9,7 +9,7 @@ namespace PaperMalKing.UpdatesProviders.Base.Features;
 // ReSharper disable once TypeParameterCanBeVariant
 public interface IUserFeaturesService<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
-	IReadOnlyDictionary<T, (string,string)> Descriptions { get; }
+	IReadOnlyDictionary<T, (string, string)> Descriptions { get; }
 	Task EnableFeaturesAsync(IReadOnlyList<T> features, ulong userId);
 
 	Task DisableFeaturesAsync(IReadOnlyList<T> features, ulong userId);

@@ -82,9 +82,9 @@ public class DatabaseContext : DbContext
 		}
 	}
 
-	#pragma warning disable MA0051
+#pragma warning disable MA0051
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
-		#pragma warning restore MA0051
+#pragma warning restore MA0051
 	{
 		static void RegisterConverter<T>(ValueConverter valueConverter, ModelBuilder modelBuilder)
 		{
@@ -101,7 +101,7 @@ public class DatabaseContext : DbContext
 		base.OnModelCreating(modelBuilder);
 
 		// Constant value because default in app can be changed anytime
-		modelBuilder.Entity<MalUser>().Property(mu => mu.Features).HasDefaultValue((MalUserFeatures) 127ul); 
+		modelBuilder.Entity<MalUser>().Property(mu => mu.Features).HasDefaultValue((MalUserFeatures)127ul);
 
 		modelBuilder.Entity<MalFavoriteAnime>().HasKey(k => new
 		{
@@ -132,7 +132,7 @@ public class DatabaseContext : DbContext
 		modelBuilder.Entity<ShikiUser>().HasKey(k => k.Id);
 
 		modelBuilder.Entity<ShikiUser>().Property(u => u.Features)
-					.HasDefaultValue((ShikiUserFeatures) 127ul); // Constant value because default in app can be changed anytime
+					.HasDefaultValue((ShikiUserFeatures)127ul); // Constant value because default in app can be changed anytime
 
 		modelBuilder.Entity<ShikiFavourite>().HasKey(k => new
 		{
@@ -143,7 +143,7 @@ public class DatabaseContext : DbContext
 
 		modelBuilder.Entity<AniListUser>().HasKey(k => k.Id);
 
-		modelBuilder.Entity<AniListUser>().Property(u => u.Features).HasDefaultValue((AniListUserFeatures) 127ul);
+		modelBuilder.Entity<AniListUser>().Property(u => u.Features).HasDefaultValue((AniListUserFeatures)127ul);
 		modelBuilder.Entity<AniListFavourite>().HasKey(k => new
 		{
 			k.Id,
@@ -154,7 +154,7 @@ public class DatabaseContext : DbContext
 		var dtoConverter = new DateTimeOffsetToBinaryConverter();
 		RegisterConverter<DateTimeOffset>(dtoConverter, modelBuilder);
 
-		var ulongConverter = new ValueConverter<ulong, long>(ul => (long) ul, l => (ulong) l);
+		var ulongConverter = new ValueConverter<ulong, long>(ul => (long)ul, l => (ulong)l);
 		RegisterConverter<ulong>(ulongConverter, modelBuilder);
 
 		var favConverter = new EnumToNumberConverter<FavoriteType, byte>();

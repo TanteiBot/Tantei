@@ -18,9 +18,9 @@ public class FeatureArgumentConverter<T> : IArgumentConverter<T> where T : unman
 		{
 			return Task.FromResult(new Optional<T>(value.DehumanizeTo<T>()));
 		}
-		#pragma warning disable CA1031
+#pragma warning disable CA1031
 		catch
-			#pragma warning restore CA1031
+#pragma warning restore CA1031
 		{
 			return Task.FromResult(Optional.FromNoValue<T>());
 		}

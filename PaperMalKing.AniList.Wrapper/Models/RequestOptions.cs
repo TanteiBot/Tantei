@@ -8,16 +8,16 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 [Flags]
 public enum RequestOptions : ulong
 {
-	AnimeList = 1        << 0,
-	MangaList = 1        << 1,
-	Favourites = 1       << 2,
-	MediaFormat = 1      << 5,
-	MediaStatus = 1      << 6,
+	AnimeList = 1 << 0,
+	MangaList = 1 << 1,
+	Favourites = 1 << 2,
+	MediaFormat = 1 << 5,
+	MediaStatus = 1 << 6,
 	MediaDescription = 1 << 7,
-	Genres = 1           << 8,
-	Tags = 1             << 9,
-	Studio = 1           << 10,
-	Mangaka = 1          << 11,
-	Reviews = 1          << 12,
-	CustomLists = 1		 << 13
+	Genres = 1 << 8,
+	Tags = 1 << 9,
+	Studio = 1 << 10,
+	Mangaka = 1 << 11,
+	Reviews = 1 << 12,
+	CustomLists = 1 << 13
 }
