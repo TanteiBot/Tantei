@@ -38,28 +38,28 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  test:
-    name: Test
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Install .NET SDK if needed
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ env.dotnet-version-to-install }}
-          include-prerelease: ${{ env.dotnet-include-prerelease}}
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.artifact-name }}
-
-      - name: Test
-        run: for t in PaperMalKing*Test*.dll; do dotnet test --no-restore --verbosity normal --logger GitHubActions "${t}"; done
-        shell: bash
+#  test:
+#    name: Test
+#    needs: build
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 0
+#      - name: Install .NET SDK if needed
+#        uses: actions/setup-dotnet@v3
+#        with:
+#          dotnet-version: ${{ env.dotnet-version-to-install }}
+#          include-prerelease: ${{ env.dotnet-include-prerelease}}
+#
+#      - name: Download build artifact
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: ${{ env.artifact-name }}
+#
+#      - name: Test
+#        run: for t in PaperMalKing*Test*.dll; do dotnet test --no-restore --verbosity normal --logger GitHubActions "${t}"; done
+#        shell: bash
 
   codeQl:
     name: Run CodeQL analysis
@@ -108,5 +108,7 @@ jobs:
         with:
           binary-path: "./createdDlls"
 
-      - name: Infer# analysis results
-        run: echo "${{ steps.runInferSharp.outputs.results }}"  
+      - name: Upload SARIF output to GitHub Security Center
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: infer-out/report.sarif
