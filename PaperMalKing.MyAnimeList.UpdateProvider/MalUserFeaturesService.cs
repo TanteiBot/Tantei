@@ -64,7 +64,7 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 					   .Include(u => u.FavoritePeople)
 					   .Include(u => u.FavoriteCompanies)
 					   .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
-		if (dbUser == null)
+		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
 		var total = features.Aggregate((acc, next) => acc | next);
 		User? user = null;
@@ -118,7 +118,7 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 					   .Include(u => u.FavoritePeople)
 					   .Include(u => u.FavoriteCompanies)
 					   .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
-		if (dbUser == null)
+		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before disabling features");
 
 		var total = features.Aggregate((acc, next) => acc | next);
@@ -143,7 +143,7 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var dbUser = db.MalUsers.Include(mu => mu.DiscordUser).AsNoTrackingWithIdentityResolution()
 					   .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
-		if (dbUser == null)
+		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before checking for enabled features");
 
 		return ValueTask.FromResult(dbUser.Features.Humanize());

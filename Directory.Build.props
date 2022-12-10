@@ -20,7 +20,6 @@
             CA1056; <!--URI properties should not be strings-->
             CA1062; <!--Validate arguments of public methods-->
             CA1305; <!--Specify IFormatProvider-->
-            CA1308; <!--Normalize strings to uppercase-->
             CA1805; <!--Do not initialize unnecessarily.-->
             CA1812; <!--Avoid uninstantiated internal classes-->
             CA1848; <!--For improved performance, use the LoggerMessage delegates -->

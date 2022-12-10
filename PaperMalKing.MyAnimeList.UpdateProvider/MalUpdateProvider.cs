@@ -80,7 +80,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			foreach (var update in updates)
 			{
 				var latest = list.FirstOrDefault(entry => entry.Id == update.Id);
-				if (latest == null)
+				if (latest is null)
 				{
 					continue;
 				}

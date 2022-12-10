@@ -39,7 +39,7 @@ public sealed class GuildManagementCommands : BaseCommandModule
 	public async Task SetChannelCommand(CommandContext ctx, [Description("Channel updates should be posted")]
 										DiscordChannel? channel = null)
 	{
-		if (channel == null)
+		if (channel is null)
 			channel = ctx.Channel;
 		try
 		{
@@ -65,7 +65,7 @@ public sealed class GuildManagementCommands : BaseCommandModule
 	public async Task UpdateChannelCommand(CommandContext ctx, [Description("New channel where updates should be posted")]
 										   DiscordChannel? channel = null)
 	{
-		if (channel == null)
+		if (channel is null)
 			channel = ctx.Channel;
 		try
 		{

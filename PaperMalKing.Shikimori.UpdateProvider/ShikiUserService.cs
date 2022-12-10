@@ -45,7 +45,7 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 				throw new UserProcessingException(
 					"You already have your account connected. If you want to switch to another account, remove current one, then add the new one.");
 			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-			if (guild == null)
+			if (guild is null)
 				throw new UserProcessingException(new(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
 
@@ -56,14 +56,14 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 		}
 
 		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-		if (guild == null)
+		if (guild is null)
 			throw new UserProcessingException(new(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
 		var dUser = db.DiscordUsers.Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 		var shikiUser = await this._client.GetUserAsync(username).ConfigureAwait(false);
 		var history = await this._client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any).ConfigureAwait(false);
 		var favourites = await this._client.GetUserFavouritesAsync(shikiUser.Id).ConfigureAwait(false);
-		if (dUser == null)
+		if (dUser is null)
 		{
 			dUser = new()
 			{
@@ -103,7 +103,7 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var user = db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
-		if (user == null)
+		if (user is null)
 			throw new UserProcessingException($"You weren't tracked by {Name} update checker");
 
 		db.ShikiUsers.Remove(user);
@@ -116,10 +116,10 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var user = db.DiscordUsers.Include(du => du.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
-		if (user == null)
+		if (user is null)
 			throw new UserProcessingException("You weren't registered in bot");
 		var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-		if (guild == null)
+		if (guild is null)
 			throw new UserProcessingException("You weren't registered in this server");
 
 		user.Guilds.Remove(guild);

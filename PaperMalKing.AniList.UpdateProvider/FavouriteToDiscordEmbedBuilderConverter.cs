@@ -57,7 +57,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 				}
 
 				var mostPopularWork = staff.StaffMedia.Nodes.FirstOrDefault();
-				if (mostPopularWork != null)
+				if (mostPopularWork is not null)
 				{
 					eb.AddShortMediaLink("Most popular work", mostPopularWork, user.Options.TitleLanguage);
 				}

@@ -49,7 +49,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 			}
 
 			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-			if (guild == null)
+			if (guild is null)
 				throw new UserProcessingException(new(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
 			dbUser.DiscordUser.Guilds.Add(guild);
@@ -59,14 +59,14 @@ public sealed class MalUserService : IUpdateProviderUserService
 		}
 
 		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-		if (guild == null)
+		if (guild is null)
 			throw new UserProcessingException(new(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
 
 		var duser = db.DiscordUsers.Include(x => x.Guilds).FirstOrDefault(user => user.DiscordUserId == userId);
 		var mUser = await this._client.GetUserAsync(username, MalUserFeatures.None.GetDefault().ToParserOptions()).ConfigureAwait(false);
 		var now = DateTimeOffset.Now;
-		if (duser == null)
+		if (duser is null)
 		{
 			duser = new()
 			{
@@ -110,7 +110,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 			Username = u.Username,
 			UserId = u.UserId
 		}).FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
-		if (user == null)
+		if (user is null)
 		{
 			throw new UserProcessingException($"You weren't tracked by {Name} update checker");
 		}
@@ -125,10 +125,10 @@ public sealed class MalUserService : IUpdateProviderUserService
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var user = db.DiscordUsers.Include(du => du.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
-		if (user == null)
+		if (user is null)
 			throw new UserProcessingException("You weren't registered in bot");
 		var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-		if (guild == null)
+		if (guild is null)
 			throw new UserProcessingException("You weren't registered in this server");
 
 		user.Guilds.Remove(guild);

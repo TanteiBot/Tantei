@@ -56,7 +56,7 @@ public sealed class DiscordBackgroundService : BackgroundService
 				using var scope = this._provider.CreateScope();
 				var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 				var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == e.Guild.Id);
-				if (guild == null)
+				if (guild is null)
 				{
 					this._logger.LogInformation(
 						"Bot was removed from guild {Guild} but since guild wasn't in database there is nothing to remove", e.Guild);
@@ -99,14 +99,14 @@ public sealed class DiscordBackgroundService : BackgroundService
 			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 			this._logger.LogDebug("User {Member} left guild {Guild}", e.Member, e.Guild);
 			var user = db.DiscordUsers.Include(u => u.Guilds).FirstOrDefault(u => u.DiscordUserId == e.Member.Id);
-			if (user == null)
+			if (user is null)
 			{
 				this._logger.LogDebug("User {Member} that left wasn't saved in db", e.Member);
 			}
 			else
 			{
 				var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == e.Guild.Id);
-				if (guild == null)
+				if (guild is null)
 				{
 					this._logger.LogDebug("User {Member} that left guild {Guild} didn't have posting updates in it", e.Member, e.Guild);
 					return;

@@ -103,7 +103,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 				}
 
 				sb.AppendLine(
-					$"{i++}{user.Username} {(user.DiscordUser == null ? "" : Helpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
+					$"{i++}{user.Username} {(user.DiscordUser is null ? "" : Helpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
 			}
 		}
 		catch (Exception ex)

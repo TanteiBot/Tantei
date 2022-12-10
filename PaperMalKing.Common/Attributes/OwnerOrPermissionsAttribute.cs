@@ -40,7 +40,7 @@ public sealed class OwnerOrPermissionsAttribute : CheckBaseAttribute
 			return Task.FromResult(true);
 
 		var usr = ctx.Member;
-		if (usr == null)
+		if (usr is null)
 			return Task.FromResult(false);
 		var pusr = ctx.Channel.PermissionsFor(usr);
 
