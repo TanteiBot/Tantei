@@ -7,15 +7,15 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 
 internal sealed class UserFavorites
 {
-	internal IReadOnlyList<FavoriteAnime> FavoriteAnime { get; init; } = null!;
+	internal required IReadOnlyList<FavoriteAnime> FavoriteAnime { get; init; }
 
-	internal IReadOnlyList<FavoriteManga> FavoriteManga { get; init; } = null!;
+	internal required IReadOnlyList<FavoriteManga> FavoriteManga { get; init; }
 
-	internal IReadOnlyList<FavoriteCharacter> FavoriteCharacters { get; init; } = null!;
+	internal required IReadOnlyList<FavoriteCharacter> FavoriteCharacters { get; init; }
 
-	internal IReadOnlyList<FavoritePerson> FavoritePeople { get; init; } = null!;
+	internal required IReadOnlyList<FavoritePerson> FavoritePeople { get; init; }
 
-	internal IReadOnlyList<FavoriteCompany> FavoriteCompanies { get; init; } = null!;
+	internal required IReadOnlyList<FavoriteCompany> FavoriteCompanies { get; init; }
 
 	internal static readonly UserFavorites Empty = new()
 	{

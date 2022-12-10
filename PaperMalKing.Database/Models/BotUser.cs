@@ -12,5 +12,5 @@ public sealed class BotUser
 	[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 	public long UserId { get; internal init; }
 
-	public DiscordUser DiscordUser { get; init; } = null!;
+	public DiscordUser? DiscordUser { get; init; }
 }

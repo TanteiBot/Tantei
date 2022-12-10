@@ -115,7 +115,7 @@ internal static class Extensions
 
 		dict.TryAdd(desc.LastIndexOf("прочитан", StringComparison.OrdinalIgnoreCase), ProgressType.Completed);
 		dict.TryAdd(desc.LastIndexOf("перечитываю", StringComparison.OrdinalIgnoreCase), ProgressType.InProgress);
-		var progress = dict.OrderByDescending(kvp => kvp.Key).First().Value;
+		var progress = dict.MaxBy(kvp => kvp.Key).Value;
 
 		eb.WithColor(Colors[progress]);
 		var firstTarget = first?.Target;
@@ -136,15 +136,15 @@ internal static class Extensions
 
 		if (firstTarget.Chapters.HasValue && firstTarget.Chapters != 0)
 		{
-			eb.AddField("Total", $"{firstTarget.Chapters.Value} ch. {firstTarget.Volumes!.Value} v.", true);
+			eb.AddField("Total", $"{firstTarget.Chapters.Value} ch. {firstTarget.Volumes.GetValueOrDefault()} v.", true);
 		}
 		else if (firstTarget.Episodes.HasValue)
 		{
 			var episodes = firstTarget switch
 			{
-				_ when firstTarget.Episodes != 0 => firstTarget.Episodes.Value,
-				_ when firstTarget.EpisodesAired != 0 => firstTarget.EpisodesAired!.Value,
-				_ => 0
+				_ when firstTarget.Episodes      != 0 => firstTarget.Episodes.Value,
+				_ when firstTarget.EpisodesAired != 0 => firstTarget.EpisodesAired.GetValueOrDefault(),
+				_                                     => 0
 			};
 			if (episodes != 0)
 				eb.AddField("Total", $"{episodes} ep.", true);

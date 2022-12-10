@@ -9,13 +9,13 @@ namespace PaperMalKing.Database.Models.MyAnimeList;
 
 public sealed class MalUser
 {
-	public DiscordUser DiscordUser { get; init; } = null!;
+	public required DiscordUser DiscordUser { get; init; }
 
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	[Key]
 	public int UserId { get; init; }
 
-	public string Username { get; set; } = null!;
+	public required string Username { get; set; }
 
 	public DateTimeOffset LastUpdatedAnimeListTimestamp { get; set; }
 

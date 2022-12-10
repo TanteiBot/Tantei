@@ -19,8 +19,7 @@ public sealed class Favourites
 	[JsonPropertyName("anime")]
 	public Connection<IdentifiableFavourite> Anime
 	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
-		get => null!;
+		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
 			if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -32,8 +31,7 @@ public sealed class Favourites
 	[JsonPropertyName("manga")]
 	public Connection<IdentifiableFavourite> Manga
 	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
-		get => null!;
+		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
 			if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -46,8 +44,7 @@ public sealed class Favourites
 	[JsonPropertyName("characters")]
 	public Connection<IdentifiableFavourite> Characters
 	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
-		get => null!;
+		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
 			if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -60,8 +57,7 @@ public sealed class Favourites
 	[JsonPropertyName("staff")]
 	public Connection<IdentifiableFavourite> Staff
 	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
-		get => null!;
+		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
 			if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -74,8 +70,7 @@ public sealed class Favourites
 	[JsonPropertyName("studios")]
 	public Connection<IdentifiableFavourite> Studios
 	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
-		get => null!;
+		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
 			if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -85,5 +80,10 @@ public sealed class Favourites
 		}
 	}
 
-	public static readonly Favourites Empty = new() { HasNextPage = false };
+	public static readonly Favourites Empty = new() {HasNextPage = false};
+
+	private static Connection<IdentifiableFavourite> ThrowNotSupportedException()
+	{
+		throw new NotSupportedException("You shouldn't access this property");
+	}
 }

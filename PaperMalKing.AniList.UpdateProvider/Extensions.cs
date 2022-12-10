@@ -223,7 +223,7 @@ internal static partial class Extensions
 		if (!string.IsNullOrEmpty(mediaListEntry.Notes)) eb.AddField("Notes", mediaListEntry.Notes.Truncate(1023), true);
 		if ((features & AniListUserFeatures.CustomLists) != 0 && mediaListEntry.CustomLists?.Any(x => x.Enabled) == true)
 		{
-			eb.AddField("Custom lists", string.Join(", ", mediaListEntry.CustomLists!.Where(x => x.Enabled).Select(x => x.Name)), true);
+			eb.AddField("Custom lists", string.Join(", ", mediaListEntry.CustomLists.Where(x=>x.Enabled).Select(x => x.Name)), true);
 		}
 		return eb.EnrichWithMediaInfo(activity.Media, user, features);
 	}

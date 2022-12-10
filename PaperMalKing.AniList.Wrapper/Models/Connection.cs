@@ -8,12 +8,12 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 public sealed class Connection<T>
 {
 	[JsonPropertyName("pageInfo")]
-	public PageInfo PageInfo { get; init; } = null!;
+	public required PageInfo PageInfo { get; init; }
 
 	[JsonPropertyName("values")]
-#pragma warning disable CA1819
-	public T[] Nodes { get; init; } = null!;
-#pragma warning restore CA1819
+	#pragma warning disable CA1819
+	public required T[] Nodes { get; init; }
+	#pragma warning restore CA1819
 
 	public static readonly Connection<T> Empty = new()
 	{

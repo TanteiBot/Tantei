@@ -99,7 +99,7 @@ internal static partial class UserProfileParser
 		{
 			var favs = nodes.Count == 0 ? Array.Empty<TF>() : new TF[nodes.Count];
 			for (var i = 0; i < favs.Length; i++)
-				favs[i] = func(nodes![i]);
+				favs[i] = func(nodes[i]);
 
 			return favs;
 		}

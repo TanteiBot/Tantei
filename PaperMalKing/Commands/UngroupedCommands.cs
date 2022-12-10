@@ -49,7 +49,7 @@ public sealed class UngroupedCommands : BaseCommandModule
 										.Replace("@here", "@\u200bhere", StringComparison.Ordinal),
 			Timestamp = DateTime.Now,
 			Color = DiscordColor.Blue
-		}.WithAuthor($"{context.Member!.Username}#{context.Member.Discriminator}", iconUrl: context.Member!.AvatarUrl);
+		}.WithAuthor($"{context.User.Username}#{context.User.Discriminator}", iconUrl: context.User.AvatarUrl);
 		try
 		{
 			await channelToSayIn.SendMessageAsync(embed: embed).ConfigureAwait(false);

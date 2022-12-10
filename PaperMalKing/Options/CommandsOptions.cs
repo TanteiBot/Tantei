@@ -9,7 +9,7 @@ public sealed class CommandsOptions
 {
 	public const string Commands = "Discord:Commands";
 
-	public IReadOnlyList<string> Prefixes { get; set; } = null!;
+	public required IReadOnlyList<string> Prefixes { get; set; }
 
 	public bool EnableMentionPrefix { get; set; }
 

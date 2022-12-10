@@ -48,6 +48,10 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 	/// <inheritdoc />
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
+		if (this.UpdateFoundEvent is null)
+		{
+			return;
+		}
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
@@ -93,8 +97,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			totalUpdates.AddRange(removedValues.Select(rf => rf.ToDiscordEmbed(user, false, dbUser.Features)));
 			totalUpdates.AddRange(addedValues.Select(af => af.ToDiscordEmbed(user, true, dbUser.Features)));
 			var groupedHistoryEntries = historyUpdates.GroupSimilarHistoryEntries();
-			foreach (var group in groupedHistoryEntries)
-				totalUpdates.Add(group.ToDiscordEmbed(user, dbUser.Features));
+			totalUpdates.AddRange(groupedHistoryEntries.Select(group => group.ToDiscordEmbed(user, dbUser.Features)));
 			if (historyUpdates.Any())
 			{
 				var lastHistoryEntryId = historyUpdates.Max(h => h.Id);
@@ -121,7 +124,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				db.ShikiUsers.Update(dbUser);
 				if (db.SaveChanges() <= 0) throw new Exception("Couldn't save update in DB");
 				transaction.Commit();
-				await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
+				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);
 			}
 #pragma warning disable CA1031

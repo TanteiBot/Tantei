@@ -8,16 +8,16 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 public sealed class Character : IImageble, ISiteUrlable, IIdentifiable
 {
 	[JsonPropertyName("name")]
-	public GenericName Name { get; init; } = null!;
+	public required GenericName Name { get; init; }
 
 	[JsonPropertyName("siteUrl")]
-	public string Url { get; init; } = null!;
+	public required string Url { get; init; }
 
 	[JsonPropertyName("image")]
-	public Image Image { get; init; } = null!;
+	public required Image Image { get; init; }
 
 	[JsonPropertyName("media")]
-	public Page<Media> Media { get; init; } = null!;
+	public required Page<Media> Media { get; init; }
 
 	[JsonPropertyName("id")]
 	public ulong Id { get; init; }

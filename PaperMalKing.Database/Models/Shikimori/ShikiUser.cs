@@ -19,7 +19,7 @@ public sealed class ShikiUser
 
 	public ShikiUserFeatures Features { get; set; }
 
-	public DiscordUser DiscordUser { get; init; } = null!;
+	public required DiscordUser DiscordUser { get; init; }
 
-	public List<ShikiFavourite> Favourites { get; set; } = null!;
+	public required List<ShikiFavourite> Favourites { get; set; }
 }

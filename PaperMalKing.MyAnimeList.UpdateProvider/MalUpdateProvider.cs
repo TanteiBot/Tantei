@@ -107,6 +107,10 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 		#endregion
 
+		if (this.UpdateFoundEvent is null)
+		{
+			return;
+		}
 		using var scope = this._provider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
@@ -163,7 +167,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 						CheckRssListUpdates<AnimeRssFeed, AnimeListEntry, AnimeListType>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp,
 							DbAnimeUpdateAction, ct).ConfigureAwait(false),
 					true when dbUser.LastAnimeUpdateHash.Substring(" ", false) != user.LatestAnimeUpdate!.Hash.inProfileHash => await
-						CheckProfileListUpdatesAsync<AnimeListEntry, AnimeListType>(dbUser, user, user!.LatestAnimeUpdate.Id,
+						CheckProfileListUpdatesAsync<AnimeListEntry, AnimeListType>(dbUser, user, user.LatestAnimeUpdate.Id,
 							dbUser.LastUpdatedAnimeListTimestamp, DbAnimeUpdateAction,
 							ct).ConfigureAwait(false),
 					_ => Array.Empty<DiscordEmbedBuilder>()
@@ -177,7 +181,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 						CheckRssListUpdates<MangaRssFeed, MangaListEntry, MangaListType>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp,
 							DbMangaUpdateAction, ct).ConfigureAwait(false),
 					true when dbUser.LastMangaUpdateHash.Substring(" ", false) != user.LatestMangaUpdate!.Hash.inProfileHash => await
-						CheckProfileListUpdatesAsync<MangaListEntry, MangaListType>(dbUser, user, user!.LatestMangaUpdate.Id,
+						CheckProfileListUpdatesAsync<MangaListEntry, MangaListType>(dbUser, user, user.LatestMangaUpdate.Id,
 							dbUser.LastUpdatedMangaListTimestamp, DbMangaUpdateAction,
 							ct).ConfigureAwait(false),
 					_ => Array.Empty<DiscordEmbedBuilder>()
@@ -186,7 +190,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 			var totalUpdates = favoritesUpdates.Concat(animeListUpdates).Concat(mangaListUpdates)
 											   .OrderBy(b => b.Timestamp ?? DateTimeOffset.MinValue).ToArray();
-			if (!totalUpdates.Any() || this.UpdateFoundEvent == null)
+			if (!totalUpdates.Any())
 			{
 				db.Entry(dbUser).State = EntityState.Unchanged;
 				this.Logger.LogDebug("Ended checking updates for {@Username} with no updates found", dbUser.Username);
@@ -213,7 +217,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				db.MalUsers.Update(dbUser);
 				if (db.SaveChanges() <= 0) throw new Exception("Couldn't save update in Db");
 				transaction.Commit();
-				await this.UpdateFoundEvent!.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
+				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				this.Logger.LogDebug("Ended checking updates for {@Username} with {@Updates} updates found", dbUser.Username, totalUpdates.Length);
 			}
 			catch (Exception ex)

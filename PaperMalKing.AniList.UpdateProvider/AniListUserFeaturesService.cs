@@ -41,7 +41,7 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 		{
 			var name = enumVal.ToString();
 			var fieldVal = ti.DeclaredMembers.First(xm => xm.Name == name);
-			var attribute = fieldVal!.GetCustomAttribute<FeatureDescriptionAttribute>()!;
+			var attribute = fieldVal.GetCustomAttribute<FeatureDescriptionAttribute>()!;
 
 			this.Descriptions[enumVal] = (attribute.Description, attribute.Summary);
 		}

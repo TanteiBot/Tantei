@@ -13,9 +13,9 @@ public sealed class ShikiFavourite
 
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
-	public string FavType { get; init; } = null!;
+	public required string FavType { get; init; }
 
-	public string Name { get; init; } = null!;
+	public required string Name { get; init; }
 
 	public ulong UserId { get; init; }
 

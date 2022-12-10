@@ -11,19 +11,19 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 public sealed class Staff : IImageble, ISiteUrlable, IIdentifiable
 {
 	[JsonPropertyName("name")]
-	public GenericName Name { get; init; } = null!;
+	public required GenericName Name { get; init; }
 
 	[JsonPropertyName("siteUrl")]
-	public string Url { get; init; } = null!;
+	public required string Url { get; init; }
 
 	[JsonPropertyName("image")]
-	public Image Image { get; init; } = null!;
+	public required Image Image { get; init; } 
 
 	[JsonPropertyName("id")]
 	public ulong Id { get; init; }
 
 	[JsonPropertyName("description")]
-	public string Description { get; init; } = null!;
+	public required string Description { get; init; } 
 
 	[JsonPropertyName("staffMedia")]
 	public Connection<Media> StaffMedia { get; init; } = Connection<Media>.Empty;

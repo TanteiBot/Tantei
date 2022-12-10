@@ -9,10 +9,10 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Rss;
 public sealed class Feed
 {
 	[XmlElement(ElementName = "channel")]
-	public FeedChannel Channel { get; set; } = null!;
+	public required FeedChannel Channel { get; set; }
 
 	[XmlAttribute(AttributeName = "version")]
-	public string Version { get; set; } = null!;
+	public required string Version { get; set; }
 
 	[XmlIgnore]
 	public IReadOnlyList<FeedItem> Items => this.Channel.Items;

@@ -19,7 +19,7 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 
 	protected TimeSpan DelayBetweenTimerFires { get; }
 
-	private Task _updateCheckingRunningTask = null!;
+	private Task _updateCheckingRunningTask = Task.CompletedTask;
 
 	protected BaseUpdateProvider(ILogger<BaseUpdateProvider> logger, TimeSpan delayBetweenTimerFires)
 	{

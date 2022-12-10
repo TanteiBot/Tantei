@@ -18,10 +18,10 @@ internal sealed class FavouriteEntry : IEquatable<FavouriteEntry>
 	public ulong Id { get; init; }
 
 	[JsonPropertyName("name")]
-	public string Name { get; init; } = null!;
+	public required string Name { get; init; }
 
 	[JsonPropertyName("russian")]
-	public string? RussianName { get; init; } = null!;
+	public string? RussianName { get; init; }
 
 	public string? ImageUrl => Utils.GetImageUrl(this.GenericType!, this.Id);
 

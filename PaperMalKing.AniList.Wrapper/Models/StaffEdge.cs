@@ -8,8 +8,8 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 public sealed class StaffEdge
 {
 	[JsonPropertyName("role")]
-	public string Role { get; init; } = null!;
+	public required string Role { get; init; }
 
 	[JsonPropertyName("node")]
-	public Staff Staff { get; init; } = null!;
+	public required Staff Staff { get; init; }
 }

@@ -14,7 +14,7 @@ internal sealed class History
 	public DateTimeOffset CreatedAt { get; init; }
 
 	[JsonPropertyName("description")]
-	public string Description { get; init; } = null!;
+	public required string Description { get; init; }
 
 	public HistoryTarget? Target { get; init; }
 }

@@ -18,7 +18,7 @@ public sealed class DiscordUser
 	public ulong DiscordUserId { get; init; }
 
 	[ForeignKey(nameof(BotUserId))]
-	public BotUser BotUser { get; set; } = null!;
+	public required BotUser BotUser { get; set; }
 
-	public ICollection<DiscordGuild> Guilds { get; init; } = null!;
+	public required ICollection<DiscordGuild> Guilds { get; init; }
 }
