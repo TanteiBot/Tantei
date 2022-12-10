@@ -132,7 +132,7 @@ public sealed class DiscordBackgroundService : BackgroundService
 			await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken).ConfigureAwait(false);
 			_ = Task.Factory.StartNew(async cancellationToken =>
 			{
-				var token = (CancellationToken) (cancellationToken ?? CancellationToken.None);
+				var token = (CancellationToken)(cancellationToken ?? CancellationToken.None);
 				while (!token.IsCancellationRequested)
 				{
 					foreach (var options in this._options.Value.Activities)
@@ -149,9 +149,9 @@ public sealed class DiscordBackgroundService : BackgroundService
 						{
 							this._logger.LogInformation("Activity changing canceled");
 						}
-						#pragma warning disable CA1031
+#pragma warning disable CA1031
 						catch (Exception ex)
-							#pragma warning restore CA1031
+#pragma warning restore CA1031
 						{
 							this._logger.LogError(ex, "Error occured while updating Discord presence");
 						}

@@ -13,8 +13,8 @@ public sealed class JsonToBoolConverter : JsonConverter<bool>
 	{
 		JsonTokenType.Number => reader.GetByte() == 1,
 		JsonTokenType.String => reader.GetString() == "1",
-		JsonTokenType.True   => true,
-		_                    => false
+		JsonTokenType.True => true,
+		_ => false
 	};
 
 	/// <inheritdoc />

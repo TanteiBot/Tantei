@@ -13,9 +13,9 @@ public sealed class DiscordOptions
 
 	public required IReadOnlyList<DiscordActivityOptions> Activities { get; set; }
 
-	#pragma warning disable CA1034
+#pragma warning disable CA1034
 	public sealed class DiscordActivityOptions
-		#pragma warning restore CA1034
+#pragma warning restore CA1034
 	{
 		public required string ActivityType { get; set; }
 

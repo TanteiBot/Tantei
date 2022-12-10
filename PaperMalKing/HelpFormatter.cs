@@ -43,7 +43,7 @@ public sealed class HelpFormatter : BaseHelpFormatter
 
 		this.EmbedBuilder.WithDescription($"{Formatter.InlineCode(command.Name)}: {command.Description ?? "No description provided."}");
 
-		if (command is CommandGroup {IsExecutableWithoutSubcommands: true})
+		if (command is CommandGroup { IsExecutableWithoutSubcommands: true })
 			this.EmbedBuilder.WithDescription($"{this.EmbedBuilder.Description}\n\nThis group can be executed as a standalone command.");
 
 		if (command.Aliases?.Any() == true)
@@ -53,9 +53,9 @@ public sealed class HelpFormatter : BaseHelpFormatter
 		{
 			var sb = new StringBuilder();
 
-			#pragma warning disable S3267
+#pragma warning disable S3267
 			foreach (var ovl in command.Overloads.OrderByDescending(x => x.Priority))
-				#pragma warning restore S3267
+#pragma warning restore S3267
 			{
 				sb.Append('`').Append(command.QualifiedName);
 

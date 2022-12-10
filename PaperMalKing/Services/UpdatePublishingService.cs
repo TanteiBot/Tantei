@@ -41,9 +41,9 @@ public sealed class UpdatePublishingService
 		this._logger.LogTrace("Built {@UpdatePublishingService}", typeof(UpdatePublishingService));
 	}
 
-	#pragma warning disable VSTHRD200
+#pragma warning disable VSTHRD200
 	private Task DiscordClientOnGuildDownloadCompleted(DiscordClient sender, GuildDownloadCompletedEventArgs e)
-		#pragma warning restore VSTHRD200
+#pragma warning restore VSTHRD200
 	{
 		_ = Task.Run(async () =>
 		{
@@ -61,9 +61,9 @@ public sealed class UpdatePublishingService
 				this.AddChannel(channel);
 			}
 
-			#pragma warning disable S3267
+#pragma warning disable S3267
 			foreach (var kvp in this._updateProvidersConfigurationService.Providers)
-				#pragma warning restore S3267
+#pragma warning restore S3267
 			{
 				var provider = kvp.Value;
 				provider.UpdateFoundEvent += this.PublishUpdatesAsync;

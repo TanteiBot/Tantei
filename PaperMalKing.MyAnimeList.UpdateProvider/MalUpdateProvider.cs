@@ -49,7 +49,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
-#region LocalFuncs
+		#region LocalFuncs
 
 		static void DbAnimeUpdateAction(string h, DateTimeOffset dto, MalUser u)
 		{
@@ -102,10 +102,10 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var lastListUpdate = listUpdates.First(u => u.Id == latestUpdateId);
 			dbUpdateAction(lastListUpdate.GetHash().ToHashString(), latestUpdateDateTime, dbUser);
 
-			return new[] {lastListUpdate.ToDiscordEmbedBuilder(user, DateTimeOffset.Now, dbUser.Features)};
+			return new[] { lastListUpdate.ToDiscordEmbedBuilder(user, DateTimeOffset.Now, dbUser.Features) };
 		}
 
-#endregion
+		#endregion
 
 		if (this.UpdateFoundEvent is null)
 		{
@@ -138,19 +138,19 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
 			{
 				this.Logger.LogError(exception, "User with username {@Username} not found", dbUser.Username);
-				dbUser.Username = await this._client.GetUsernameAsync((ulong) dbUser.UserId, ct).ConfigureAwait(false);
+				dbUser.Username = await this._client.GetUsernameAsync((ulong)dbUser.UserId, ct).ConfigureAwait(false);
 				db.MalUsers.Update(dbUser);
 				await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 				return;
 			}
-			catch (HttpRequestException exception) when ((int?) exception.StatusCode >= 500)
+			catch (HttpRequestException exception) when ((int?)exception.StatusCode >= 500)
 			{
 				this.Logger.LogError(exception, "Mal server encounters some error, skipping current update check");
 				return;
 			}
-			#pragma warning disable CA1031
+#pragma warning disable CA1031
 			catch (Exception exception)
-				#pragma warning restore CA1031
+#pragma warning restore CA1031
 			{
 				this.Logger.LogError(exception, "Encountered unknown error, skipping current update check");
 				return;
@@ -220,7 +220,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				this.Logger.LogDebug("Ended checking updates for {@Username} with {@Updates} updates found", dbUser.Username, totalUpdates.Length);
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
 				throw;

@@ -38,6 +38,6 @@ public sealed class IdentifiableFavourite : IIdentifiable, IEquatable<Identifiab
 
 	public override int GetHashCode()
 	{
-		return HashCode.Combine(this.Id, (int) this.Type);
+		return HashCode.Combine(this.Id, (int)this.Type);
 	}
 }

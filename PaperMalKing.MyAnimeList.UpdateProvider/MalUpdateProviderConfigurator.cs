@@ -48,7 +48,7 @@ public sealed class MalUpdateProviderConfigurator : IUpdateProviderConfigurator<
 			return new(logger, factory.CreateClient(MalOptions.MyAnimeList));
 		});
 		serviceCollection.AddSingleton<IExecuteOnStartupService, MalExecuteOnStartupService>();
-		serviceCollection.AddSingleton<IUserFeaturesService<MalUserFeatures>,MalUserFeaturesService>();
+		serviceCollection.AddSingleton<IUserFeaturesService<MalUserFeatures>, MalUserFeaturesService>();
 		serviceCollection.AddSingleton<MalUserService>();
 		serviceCollection.AddSingleton<IUpdateProvider, MalUpdateProvider>();
 	}

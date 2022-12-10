@@ -17,7 +17,7 @@ public sealed class Connection<T>
 
 	public static readonly Connection<T> Empty = new()
 	{
-		PageInfo = new() {HasNextPage = false},
+		PageInfo = new() { HasNextPage = false },
 		Nodes = Array.Empty<T>()
 	};
 }

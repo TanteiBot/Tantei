@@ -17,11 +17,11 @@ public sealed class GenericName
 	{
 		return language switch
 		{
-			TitleLanguage.ROMAJI_STYLISED when this.Full != null  => this.Full,
-			TitleLanguage.ENGLISH when this.Full != null          => this.Full,
+			TitleLanguage.ROMAJI_STYLISED when this.Full != null => this.Full,
+			TitleLanguage.ENGLISH when this.Full != null => this.Full,
 			TitleLanguage.ENGLISH_STYLISED when this.Full != null => this.Full,
-			TitleLanguage.ROMAJI when this.Full != null           => this.Full,
-			_                                                     => this.Native
+			TitleLanguage.ROMAJI when this.Full != null => this.Full,
+			_ => this.Native
 		};
 	}
 }

@@ -157,10 +157,10 @@ internal static class Extensions
 	{
 		var favouriteName = (features & ShikiUserFeatures.Russian) != 0 ? favouriteEntry.RussianName ?? favouriteEntry.Name : favouriteEntry.Name;
 		return new DiscordEmbedBuilder
-			{
-				Url = favouriteEntry.Url,
-				Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
-			}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "removed")} favourite").WithShikiAuthor(user)
+		{
+			Url = favouriteEntry.Url,
+			Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
+		}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "removed")} favourite").WithShikiAuthor(user)
 			 .WithColor(added ? Constants.ShikiGreen : Constants.ShikiRed);
 	}
 

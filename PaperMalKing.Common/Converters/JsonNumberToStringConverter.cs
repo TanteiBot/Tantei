@@ -14,7 +14,7 @@ public sealed class JsonNumberToStringConverter : JsonConverter<string>
 	{
 		JsonTokenType.Number => reader.GetDouble().ToString(CultureInfo.InvariantCulture),
 		JsonTokenType.String => reader.GetString(),
-		_                    => ""
+		_ => ""
 	};
 
 	/// <inheritdoc />

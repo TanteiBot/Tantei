@@ -63,7 +63,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 			throw new UserProcessingException(new(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
 
-		var duser = db.DiscordUsers.Include(x=>x.Guilds).FirstOrDefault(user => user.DiscordUserId == userId);
+		var duser = db.DiscordUsers.Include(x => x.Guilds).FirstOrDefault(user => user.DiscordUserId == userId);
 		var mUser = await this._client.GetUserAsync(username, MalUserFeatures.None.GetDefault().ToParserOptions()).ConfigureAwait(false);
 		var now = DateTimeOffset.Now;
 		if (duser == null)
@@ -75,7 +75,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 				BotUser = new()
 			};
 		}
-		else if(duser.Guilds.All(x => x.DiscordGuildId != guildId))
+		else if (duser.Guilds.All(x => x.DiscordGuildId != guildId))
 		{
 			duser.Guilds.Add(guild);
 		}
@@ -142,11 +142,11 @@ public sealed class MalUserService : IUpdateProviderUserService
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		return db.MalUsers.Include(malUser => malUser.DiscordUser).ThenInclude(du => du.Guilds).Select(u => new MalUser
-				 {
-					 DiscordUser = u.DiscordUser,
-					 Username = u.Username,
-					 LastUpdatedAnimeListTimestamp = u.LastUpdatedAnimeListTimestamp
-				 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastUpdatedAnimeListTimestamp)
+		{
+			DiscordUser = u.DiscordUser,
+			Username = u.Username,
+			LastUpdatedAnimeListTimestamp = u.LastUpdatedAnimeListTimestamp
+		}).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastUpdatedAnimeListTimestamp)
 				 .Select(mu => new BaseUser(mu.Username, mu.DiscordUser)).AsNoTracking().AsAsyncEnumerable();
 	}
 }

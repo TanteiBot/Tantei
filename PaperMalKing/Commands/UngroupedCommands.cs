@@ -54,9 +54,9 @@ public sealed class UngroupedCommands : BaseCommandModule
 		{
 			await channelToSayIn.SendMessageAsync(embed: embed).ConfigureAwait(false);
 		}
-		#pragma warning disable CA1031
+#pragma warning disable CA1031
 		catch
-			#pragma warning restore CA1031
+#pragma warning restore CA1031
 		{
 			await context.RespondAsync("Couldn't send message. Check permissions for bot and try again.").ConfigureAwait(false);
 		}
@@ -89,12 +89,12 @@ public sealed class UngroupedCommands : BaseCommandModule
 								""";
 
 			var embedBuilder = new DiscordEmbedBuilder
-				{
-					Title = "About",
-					Url = sourceCodeLink,
-					Description = desc,
-					Color = DiscordColor.DarkBlue,
-				}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
+			{
+				Title = "About",
+				Url = sourceCodeLink,
+				Description = desc,
+				Color = DiscordColor.DarkBlue,
+			}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
 				 .AddField("Links", Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)), true)
 				 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), true)
 				 .AddField("Versions", versions, true);

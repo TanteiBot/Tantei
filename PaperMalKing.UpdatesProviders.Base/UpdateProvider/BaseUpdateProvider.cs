@@ -39,9 +39,9 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 	{
 		this._cts?.Cancel();
 		this.Logger.LogInformation("Stopping {Name} update provider", this.Name);
-		#pragma warning disable VSTHRD003
+#pragma warning disable VSTHRD003
 		return this._updateCheckingRunningTask;
-		#pragma warning restore VSTHRD003
+#pragma warning restore VSTHRD003
 	}
 
 	[SuppressMessage("Major Bug", "S3168:\"async\" methods should not return \"void\"")]
@@ -57,9 +57,9 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 			this._updateCheckingRunningTask = this.CheckForUpdatesAsync(this._cts.Token);
 			await this._updateCheckingRunningTask.ConfigureAwait(false);
 		}
-		#pragma warning disable CA1031
+#pragma warning disable CA1031
 		catch (Exception e)
-			#pragma warning restore CA1031
+#pragma warning restore CA1031
 		{
 			this.Logger.LogError(e, "Exception occured while checking for updates in {@Name} updates provider", this.Name);
 		}

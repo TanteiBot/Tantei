@@ -29,28 +29,32 @@ public sealed class MediaListEntry
 	[JsonPropertyName("point100Score")]
 	public byte Point100Score
 	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)] get => throw new NotSupportedException();
+		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
+		get => throw new NotSupportedException();
 		init => this._scores.Add(ScoreFormat.POINT_100, value);
 	}
 
 	[JsonPropertyName("point10Score")]
 	public byte Point10Score
 	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)] get => throw new NotSupportedException();
+		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
+		get => throw new NotSupportedException();
 		init => this._scores.Add(ScoreFormat.POINT_10, value);
 	}
 
 	[JsonPropertyName("point5Score")]
 	public byte Point5Score
 	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)] get => throw new NotSupportedException();
+		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
+		get => throw new NotSupportedException();
 		init => this._scores.Add(ScoreFormat.POINT_5, value);
 	}
 
 	[JsonPropertyName("point3Score")]
 	public byte Point3Score
 	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)] get => throw new NotSupportedException();
+		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
+		get => throw new NotSupportedException();
 		init => this._scores.Add(ScoreFormat.POINT_3, value);
 	}
 
@@ -66,10 +70,10 @@ public sealed class MediaListEntry
 			return "";
 		return scoreFormat switch
 		{
-			ScoreFormat.POINT_100        => $"{this._scores[scoreFormat]}/100",
+			ScoreFormat.POINT_100 => $"{this._scores[scoreFormat]}/100",
 			ScoreFormat.POINT_10_DECIMAL => $"{(this._scores[ScoreFormat.POINT_100] * 1.0d / 10).ToString(CultureInfo.InvariantCulture)}/10",
-			ScoreFormat.POINT_10         => $"{this._scores[scoreFormat]}/10",
-			ScoreFormat.POINT_5          => $"{this._scores[scoreFormat]}/5",
+			ScoreFormat.POINT_10 => $"{this._scores[scoreFormat]}/10",
+			ScoreFormat.POINT_5 => $"{this._scores[scoreFormat]}/5",
 			ScoreFormat.POINT_3 => this._scores[scoreFormat] switch
 			{
 				1 => ":(",

@@ -55,11 +55,11 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 			return new(username);
 		}
 
-		guild =  db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
+		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild == null)
 			throw new UserProcessingException(new(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
-		var dUser = db.DiscordUsers.Include(x=>x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
+		var dUser = db.DiscordUsers.Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 		var shikiUser = await this._client.GetUserAsync(username).ConfigureAwait(false);
 		var history = await this._client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any).ConfigureAwait(false);
 		var favourites = await this._client.GetUserFavouritesAsync(shikiUser.Id).ConfigureAwait(false);
@@ -72,7 +72,7 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 				DiscordUserId = userId,
 			};
 		}
-		else if(dUser.Guilds.All(x => x.DiscordGuildId != guildId))
+		else if (dUser.Guilds.All(x => x.DiscordGuildId != guildId))
 		{
 			dUser.Guilds.Add(guild);
 		}
@@ -133,10 +133,10 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		return db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).Select(su => new
-				 {
-					 su.DiscordUser,
-					 su.LastHistoryEntryId
-				 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastHistoryEntryId)
+		{
+			su.DiscordUser,
+			su.LastHistoryEntryId
+		}).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastHistoryEntryId)
 				 .Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking().AsAsyncEnumerable();
 	}
 }

@@ -10,7 +10,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 #pragma warning disable MA0048
 internal static partial class UserProfileParser
-	#pragma warning restore MA0048
+#pragma warning restore MA0048
 {
 	private static class FavoritesParser
 	{
@@ -74,7 +74,7 @@ internal static partial class UserProfileParser
 			return Parse(characterFavoriteNodes, node =>
 			{
 				var baseFav = ParseBaseFavorite(node);
-				var fromNode = 	node.ChildNodes.First(x => x.Name == "a").ChildNodes.First(x => x.HasClass("users"));
+				var fromNode = node.ChildNodes.First(x => x.Name == "a").ChildNodes.First(x => x.HasClass("users"));
 				return new FavoriteCharacter(fromNode.InnerText.Trim(), baseFav);
 			});
 		}
@@ -109,7 +109,7 @@ internal static partial class UserProfileParser
 			var baseFav = ParseBaseFavorite(parent);
 			var aNode = parent.ChildNodes.First(x => x.Name == "a");
 
-			var typeYearNode = aNode.ChildNodes.First(x=> x.HasClass("users"));
+			var typeYearNode = aNode.ChildNodes.First(x => x.HasClass("users"));
 			var strings = typeYearNode.InnerText.Split(Constants.DOT);
 
 			return new(strings[0], int.Parse(strings[1]), baseFav);
@@ -124,7 +124,7 @@ internal static partial class UserProfileParser
 				urlUnparsed = Constants.BASE_URL + urlUnparsed;
 			}
 
-			var titleNode = aNode.ChildNodes.First(x=> x.HasClass("title"));
+			var titleNode = aNode.ChildNodes.First(x => x.HasClass("title"));
 			var imageUrlNode = aNode.ChildNodes.First(x => x.HasClass("image"));
 			return new BaseFavorite(new MalUrl(urlUnparsed), titleNode.InnerText, imageUrlNode.GetAttributeValue("data-src", "").Replace("/r/140x220", "", StringComparison.OrdinalIgnoreCase));
 		}

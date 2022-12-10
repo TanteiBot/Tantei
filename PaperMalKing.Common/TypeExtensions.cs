@@ -11,14 +11,14 @@ namespace PaperMalKing.Common;
 
 public static partial class TypeExtensions
 {
-	[GeneratedRegex("<.*?>", RegexOptions.Compiled, matchTimeoutMilliseconds:60000/*1m*/)]
+	[GeneratedRegex("<.*?>", RegexOptions.Compiled, matchTimeoutMilliseconds: 60000/*1m*/)]
 	private static partial Regex HtmlRegex();
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static string Substring(this string original, string endOfSubstring, bool before)
 	{
 		var index = original.IndexOf(endOfSubstring, StringComparison.OrdinalIgnoreCase);
-		var result = before ? original.Substring(0, index) : original.Substring(index+1, original.Length - index - 1);
+		var result = before ? original.Substring(0, index) : original.Substring(index + 1, original.Length - index - 1);
 		return result;
 	}
 

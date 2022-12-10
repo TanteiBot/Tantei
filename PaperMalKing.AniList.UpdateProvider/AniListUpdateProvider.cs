@@ -52,10 +52,10 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		foreach (var dbUser in db.AniListUsers.Include(au => au.DiscordUser).ThenInclude(du => du.Guilds).Include(au => au.Favourites)
-								 .Where(u => u.DiscordUser.Guilds.Any() && ((u.Features & AniListUserFeatures.AnimeList)  != 0 ||
-																		    (u.Features & AniListUserFeatures.MangaList)  != 0 ||
-																		    (u.Features & AniListUserFeatures.Favourites) != 0 ||
-																		    (u.Features & AniListUserFeatures.Reviews)    != 0)).ToArray())
+								 .Where(u => u.DiscordUser.Guilds.Any() && ((u.Features & AniListUserFeatures.AnimeList) != 0 ||
+																			(u.Features & AniListUserFeatures.MangaList) != 0 ||
+																			(u.Features & AniListUserFeatures.Favourites) != 0 ||
+																			(u.Features & AniListUserFeatures.Reviews) != 0)).ToArray())
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;
@@ -85,7 +85,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				var mediaListEntry = lastListActivityOnMedia.Media.Type == ListType.ANIME
 					? recentUserUpdates.AnimeList.FirstOrDefault(mle => mle.Id == lastListActivityOnMedia.Media.Id)
 					: recentUserUpdates.MangaList.FirstOrDefault(mle => mle.Id == lastListActivityOnMedia.Media.Id);
-				if(mediaListEntry != null)
+				if (mediaListEntry != null)
 					allUpdates.Add(lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser.Features));
 			}
 
@@ -99,7 +99,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			var lastActivityTimestamp = recentUserUpdates.Activities.Any() ? recentUserUpdates.Activities.Max(a => a.CreatedAtTimestamp) : 0L;
 			var lastReviewTimeStamp = recentUserUpdates.Reviews.Any() ? recentUserUpdates.Reviews.Max(r => r.CreatedAtTimeStamp) : 0L;
 			if (dbUser.LastActivityTimestamp < lastActivityTimestamp) dbUser.LastActivityTimestamp = lastActivityTimestamp;
-			if (dbUser.LastReviewTimestamp   < lastReviewTimeStamp) dbUser.LastReviewTimestamp = lastReviewTimeStamp;
+			if (dbUser.LastReviewTimestamp < lastReviewTimeStamp) dbUser.LastReviewTimestamp = lastReviewTimeStamp;
 			if ((dbUser.Features & AniListUserFeatures.Mention) != 0)
 				allUpdates.ForEach(u => u.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
 			if ((dbUser.Features & AniListUserFeatures.Website) != 0)
@@ -120,9 +120,9 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				transaction.Commit();
 				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(allUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 			}
-			#pragma warning disable CA1031
+#pragma warning disable CA1031
 			catch (Exception ex)
-				#pragma warning restore CA1031
+#pragma warning restore CA1031
 			{
 				this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
 				throw;
@@ -162,23 +162,23 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		var convFavs = user.Favourites.Select(f => new IdentifiableFavourite()
 		{
 			Id = f.Id,
-			Type = (Wrapper.Models.Enums.FavouriteType) f.FavouriteType
+			Type = (Wrapper.Models.Enums.FavouriteType)f.FavouriteType
 		}).ToArray();
 
 		var (addedValues, removedValues) = convFavs.GetDifference(response.Favourites);
 		if (cancellationToken.IsCancellationRequested || (!addedValues.Any() && !removedValues.Any()))
 			return Array.Empty<DiscordEmbedBuilder>();
 
-		user.Favourites.RemoveAll(f => removedValues.Any(rv => rv.Id == f.Id && rv.Type == (Wrapper.Models.Enums.FavouriteType) f.FavouriteType));
+		user.Favourites.RemoveAll(f => removedValues.Any(rv => rv.Id == f.Id && rv.Type == (Wrapper.Models.Enums.FavouriteType)f.FavouriteType));
 		user.Favourites.AddRange(addedValues.Select(av => new AniListFavourite()
-			{User = user, UserId = user.Id, Id = av.Id, FavouriteType = (FavouriteType) av.Type}));
+		{ User = user, UserId = user.Id, Id = av.Id, FavouriteType = (FavouriteType)av.Type }));
 
 		var changedValues = new List<IdentifiableFavourite>(addedValues);
 		changedValues.AddRange(removedValues);
-		var animeIds = GetIds(changedValues, f => f.Type  == Wrapper.Models.Enums.FavouriteType.Anime);
-		var mangaIds = GetIds(changedValues, f => f.Type  == Wrapper.Models.Enums.FavouriteType.Manga);
-		var charIds = GetIds(changedValues, f => f.Type   == Wrapper.Models.Enums.FavouriteType.Characters);
-		var staffIds = GetIds(changedValues, f => f.Type  == Wrapper.Models.Enums.FavouriteType.Staff);
+		var animeIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Anime);
+		var mangaIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Manga);
+		var charIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Characters);
+		var staffIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Staff);
 		var studioIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Studios);
 		var hasNextPage = true;
 		var combinedResponse = new CombinedFavouritesInfoResponse();
@@ -186,7 +186,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		for (byte page = 1; hasNextPage; page++)
 		{
 			var favouritesInfo =
-				await this._client.FavouritesInfoAsync(page, animeIds, mangaIds, charIds, staffIds, studioIds, (RequestOptions) user.Features,
+				await this._client.FavouritesInfoAsync(page, animeIds, mangaIds, charIds, staffIds, studioIds, (RequestOptions)user.Features,
 					cancellationToken).ConfigureAwait(false);
 			combinedResponse.Add(favouritesInfo);
 			hasNextPage = favouritesInfo.HasNextPage;
