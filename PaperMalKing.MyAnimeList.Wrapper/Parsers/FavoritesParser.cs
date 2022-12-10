@@ -45,7 +45,7 @@ internal static partial class UserProfileParser
 		private static IReadOnlyList<FavoriteAnime> ParseFavoriteAnime(HtmlNode parent)
 		{
 			var animeFavoritesNodes = GetFavoritesNodes(parent, "anime_favorites");
-			if (animeFavoritesNodes == null)
+			if (animeFavoritesNodes is null)
 			{
 				return Array.Empty<FavoriteAnime>();
 			}
@@ -56,7 +56,7 @@ internal static partial class UserProfileParser
 		private static IReadOnlyList<FavoriteManga> ParseFavoriteManga(HtmlNode parent)
 		{
 			var mangaFavoriteNodes = GetFavoritesNodes(parent, "manga_favorites");
-			if (mangaFavoriteNodes == null)
+			if (mangaFavoriteNodes is null)
 			{
 				return Array.Empty<FavoriteManga>();
 			}
@@ -67,7 +67,7 @@ internal static partial class UserProfileParser
 		private static IReadOnlyList<FavoriteCharacter> ParseFavoriteCharacter(HtmlNode parent)
 		{
 			var characterFavoriteNodes = GetFavoritesNodes(parent, "character_favorites");
-			if (characterFavoriteNodes == null)
+			if (characterFavoriteNodes is null)
 			{
 				return Array.Empty<FavoriteCharacter>();
 			}
@@ -82,7 +82,7 @@ internal static partial class UserProfileParser
 		private static IReadOnlyList<FavoritePerson> ParseFavoritePerson(HtmlNode parent)
 		{
 			var personFavoriteNodes = GetFavoritesNodes(parent, "person_favorites");
-			if (personFavoriteNodes == null)
+			if (personFavoriteNodes is null)
 			{
 				return Array.Empty<FavoritePerson>();
 			}

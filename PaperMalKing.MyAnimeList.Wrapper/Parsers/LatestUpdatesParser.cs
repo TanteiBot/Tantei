@@ -26,7 +26,7 @@ internal static class LatestUpdatesParser
 			_ => throw new ArgumentOutOfRangeException(nameof(listEntryType), listEntryType, null)
 		};
 		var dataNode = node.SelectSingleNode(selector);
-		if (dataNode == null)
+		if (dataNode is null)
 			return null;
 		var hd = new HtmlDocument();
 		hd.LoadHtml(dataNode.InnerHtml);

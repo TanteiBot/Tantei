@@ -33,7 +33,7 @@ public sealed class AniListUserService : IUpdateProviderUserService
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var dbUser = db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 		DiscordGuild? guild;
-		if (dbUser != null) // User already in db
+		if (dbUser is not null) // User already in db
 		{
 			if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
 			{
@@ -42,7 +42,7 @@ public sealed class AniListUserService : IUpdateProviderUserService
 
 			}
 			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-			if (guild == null)
+			if (guild is null)
 			{
 				throw new UserProcessingException(new(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
@@ -55,13 +55,13 @@ public sealed class AniListUserService : IUpdateProviderUserService
 		}
 
 		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-		if (guild == null)
+		if (guild is null)
 			throw new UserProcessingException(new(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
 		var dUser = db.DiscordUsers.Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 		var response = await this._client.GetCompleteUserInitialInfoAsync(username).ConfigureAwait(false);
 		var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-		if (dUser == null)
+		if (dUser is null)
 		{
 			dUser = new()
 			{
@@ -97,7 +97,7 @@ public sealed class AniListUserService : IUpdateProviderUserService
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var user = db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
-		if (user == null)
+		if (user is null)
 			throw new UserProcessingException($"You weren't tracked by {Name} update checker");
 
 		db.AniListUsers.Remove(user);
@@ -110,10 +110,10 @@ public sealed class AniListUserService : IUpdateProviderUserService
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var user = db.DiscordUsers.Include(du => du.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
-		if (user == null)
+		if (user is null)
 			throw new UserProcessingException("You weren't registered in bot");
 		var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-		if (guild == null)
+		if (guild is null)
 			throw new UserProcessingException("You weren't registered in this server");
 
 		user.Guilds.Remove(guild);

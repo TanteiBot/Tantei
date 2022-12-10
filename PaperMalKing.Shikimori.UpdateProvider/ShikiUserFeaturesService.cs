@@ -57,7 +57,7 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var dbUser = db.ShikiUsers.Include(su => su.Favourites)
 					   .FirstOrDefault(su => su.DiscordUserId == userId);
-		if (dbUser == null)
+		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
 		var total = features.Aggregate((acc, next) => acc | next);
 		var lastHistoryEntry = new ulong?();
@@ -103,7 +103,7 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var dbUser = db.ShikiUsers.Include(su => su.Favourites).FirstOrDefault(su => su.DiscordUserId == userId);
-		if (dbUser == null)
+		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before disabling features");
 
 		var total = features.Aggregate((acc, next) => acc | next);
@@ -121,7 +121,7 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var dbUser = db.ShikiUsers.AsNoTrackingWithIdentityResolution().FirstOrDefault(su => su.DiscordUserId == userId);
-		if (dbUser == null)
+		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before checking for enabled features");
 
 		return ValueTask.FromResult(dbUser.Features.Humanize());

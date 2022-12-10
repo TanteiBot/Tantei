@@ -85,7 +85,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				var mediaListEntry = lastListActivityOnMedia.Media.Type == ListType.ANIME
 					? recentUserUpdates.AnimeList.FirstOrDefault(mle => mle.Id == lastListActivityOnMedia.Media.Id)
 					: recentUserUpdates.MangaList.FirstOrDefault(mle => mle.Id == lastListActivityOnMedia.Media.Id);
-				if (mediaListEntry != null)
+				if (mediaListEntry is not null)
 					allUpdates.Add(lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser.Features));
 			}
 

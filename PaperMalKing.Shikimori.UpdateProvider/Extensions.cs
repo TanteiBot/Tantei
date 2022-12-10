@@ -119,7 +119,7 @@ internal static class Extensions
 
 		eb.WithColor(Colors[progress]);
 		var firstTarget = first?.Target;
-		if (firstTarget == null)
+		if (firstTarget is null)
 			return eb;
 
 		var titleSb = new StringBuilder();

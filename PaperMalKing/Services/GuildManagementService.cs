@@ -62,7 +62,7 @@ public sealed class GuildManagementService
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-		if (guild == null)
+		if (guild is null)
 			throw new GuildManagementException("You can't remove this server from posting updates", guildId);
 
 		db.DiscordGuilds.Remove(guild);
@@ -75,7 +75,7 @@ public sealed class GuildManagementService
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-		if (guild == null)
+		if (guild is null)
 			throw new GuildManagementException("You can't update channel for posting updates without setting it first", guildId, channelId);
 		if (guild.PostingChannelId == channelId)
 			throw new GuildManagementException("You can't update channel to the same channel", guildId, channelId);
@@ -93,7 +93,7 @@ public sealed class GuildManagementService
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		var guild = db.DiscordGuilds.Include(g => g.Users).First(g => g.DiscordGuildId == guildId);
 		var user = guild.Users.FirstOrDefault(u => u.DiscordUserId == userId);
-		if (user == null)
+		if (user is null)
 			throw new GuildManagementException("Such user wasn't found as registered in this guild");
 
 		guild.Users.Remove(user);

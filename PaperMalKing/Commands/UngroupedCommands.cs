@@ -67,7 +67,7 @@ public sealed class UngroupedCommands : BaseCommandModule
 	[Aliases("Info")]
 	public Task AboutCommand(CommandContext context)
 	{
-		if (AboutEmbed == null)
+		if (AboutEmbed is null)
 		{
 			var owners = context.Client.CurrentApplication.Owners.Select(x => $"{x.Username}#{x.Discriminator} ({x.Mention})").ToArray();
 			var botVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "";
