@@ -60,7 +60,7 @@ public sealed class MyAnimeListClient
 		return doc.DocumentNode;
 	}
 
-	internal async Task<IEnumerable<FeedItem>> GetRecentRssUpdatesAsync<TR>(string username, CancellationToken cancellationToken = default)
+	internal async Task<IReadOnlyList<FeedItem>> GetRecentRssUpdatesAsync<TR>(string username, CancellationToken cancellationToken = default)
 		where TR : IRssFeedType
 	{
 		username = WebUtility.UrlEncode(username);
@@ -83,10 +83,10 @@ public sealed class MyAnimeListClient
 		catch
 #pragma warning restore CA1031
 		{
-			return Enumerable.Empty<FeedItem>();
+			return Array.Empty<FeedItem>();
 		}
 
-		return feed?.Items ?? Enumerable.Empty<FeedItem>();
+		return feed?.Items ?? Array.Empty<FeedItem>();
 	}
 
 	internal async Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default)

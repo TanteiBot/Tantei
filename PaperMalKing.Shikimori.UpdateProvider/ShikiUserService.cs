@@ -128,7 +128,7 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 	}
 
 	/// <inheritdoc />
-	public IAsyncEnumerable<BaseUser> ListUsersAsync(ulong guildId)
+	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
@@ -137,6 +137,6 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 			su.DiscordUser,
 			su.LastHistoryEntryId
 		}).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastHistoryEntryId)
-				 .Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking().AsAsyncEnumerable();
+				 .Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking().ToArray();
 	}
 }

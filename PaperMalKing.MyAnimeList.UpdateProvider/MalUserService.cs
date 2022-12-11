@@ -137,7 +137,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 	}
 
 	/// <inheritdoc />
-	public IAsyncEnumerable<BaseUser> ListUsersAsync(ulong guildId)
+	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
@@ -147,6 +147,6 @@ public sealed class MalUserService : IUpdateProviderUserService
 			Username = u.Username,
 			LastUpdatedAnimeListTimestamp = u.LastUpdatedAnimeListTimestamp
 		}).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastUpdatedAnimeListTimestamp)
-				 .Select(mu => new BaseUser(mu.Username, mu.DiscordUser)).AsNoTracking().AsAsyncEnumerable();
+				 .Select(mu => new BaseUser(mu.Username, mu.DiscordUser)).AsNoTracking().ToArray();
 	}
 }

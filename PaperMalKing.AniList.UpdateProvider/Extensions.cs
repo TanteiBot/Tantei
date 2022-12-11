@@ -213,7 +213,7 @@ internal static partial class Extensions
 		{
 			var sb = new StringBuilder();
 			foreach (var (key, value) in mediaListEntry.AdvancedScores?.Where(e => e.Value != 0f) ??
-										 Enumerable.Empty<KeyValuePair<string, float>>())
+										 Array.Empty<KeyValuePair<string, float>>())
 				sb.AppendLine($"{key}: {value:0.#}");
 			eb.AddField("Advanced scoring", sb.ToString(), true);
 		}
