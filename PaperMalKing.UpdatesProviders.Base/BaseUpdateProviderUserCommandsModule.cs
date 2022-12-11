@@ -91,7 +91,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		try
 		{
 			var i = 1;
-			await foreach (var user in this.UserService.ListUsersAsync(ctx.Guild.Id).ConfigureAwait(false))
+			foreach (var user in this.UserService.ListUsers(ctx.Guild.Id))
 			{
 				if (sb.Length + user.Username.Length > 2048)
 				{

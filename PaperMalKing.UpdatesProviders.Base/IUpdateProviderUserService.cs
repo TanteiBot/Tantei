@@ -15,5 +15,5 @@ public interface IUpdateProviderUserService
 
 	Task RemoveUserHereAsync(ulong userId, ulong guildId);
 
-	IAsyncEnumerable<BaseUser> ListUsersAsync(ulong guildId);
+	IReadOnlyList<BaseUser> ListUsers(ulong guildId);
 }

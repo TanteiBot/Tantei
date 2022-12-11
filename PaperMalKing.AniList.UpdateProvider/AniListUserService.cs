@@ -121,7 +121,7 @@ public sealed class AniListUserService : IUpdateProviderUserService
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 	}
 
-	public IAsyncEnumerable<BaseUser> ListUsersAsync(ulong guildId)
+	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
@@ -130,6 +130,6 @@ public sealed class AniListUserService : IUpdateProviderUserService
 			su.DiscordUser,
 			su.LastActivityTimestamp
 		}).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastActivityTimestamp)
-				 .Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking().AsAsyncEnumerable();
+				 .Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking().ToArray();
 	}
 }
