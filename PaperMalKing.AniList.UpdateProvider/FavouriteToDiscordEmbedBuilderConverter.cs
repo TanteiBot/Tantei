@@ -81,7 +81,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 	{
 		var eb = new DiscordEmbedBuilder().WithAniListAuthor(user).WithColor(added ? Constants.AniListBlue : Constants.AniListRed)
 										  .WithDescription($"{(added ? "Added" : "Removed")} favourite").WithUrl(value.Url);
-		if (value is IImageble imageble) eb.WithThumbnail(imageble.Image.ImageUrl);
+		if (value is IImageble imageble) eb.WithThumbnail(imageble.Image?.ImageUrl);
 		return eb;
 	}
 

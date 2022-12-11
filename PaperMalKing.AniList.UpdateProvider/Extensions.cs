@@ -168,14 +168,14 @@ internal static partial class Extensions
 	}
 
 	public static DiscordEmbedBuilder WithAniListAuthor(this DiscordEmbedBuilder embedBuilder, User user) =>
-		embedBuilder.WithAuthor(user.Name, user.Url, user.Image.ImageUrl);
+		embedBuilder.WithAuthor(user.Name, user.Url, user.Image?.ImageUrl);
 
 	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this Review review, User user)
 	{
 		return new DiscordEmbedBuilder()
 			   .WithAniListAuthor(user)
 			   .WithTitle($"New review on {review.Media.Title.GetTitle(user.Options.TitleLanguage)} ({review.Media.Format?.Humanize(LetterCasing.Sentence)})")
-			   .WithThumbnail(review.Media.Image.ImageUrl).WithUrl(review.Url)
+			   .WithThumbnail(review.Media.Image?.ImageUrl).WithUrl(review.Url)
 			   .WithTimestamp(DateTimeOffset.FromUnixTimeSeconds(review.CreatedAtTimeStamp))
 			   .WithDescription(review.Summary);
 	}
@@ -204,7 +204,7 @@ internal static partial class Extensions
 				 .WithMediaTitle(activity.Media, user.Options.TitleLanguage, features)
 				 .WithDescription(desc)
 				 .WithColor(Colors[mediaListEntry.Status])
-				 .WithThumbnail(activity.Media.Image.ImageUrl);
+				 .WithThumbnail(activity.Media.Image?.ImageUrl);
 		var score = mediaListEntry.GetScore(user.MediaListOptions.ScoreFormat);
 		if (!string.IsNullOrEmpty(score))
 			eb.AddField("Score", score, true);

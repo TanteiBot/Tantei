@@ -10,7 +10,7 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 public sealed class Page<T>
 {
 	[JsonPropertyName("pageInfo")]
-	public required PageInfo PageInfo { get; init; }
+	public PageInfo? PageInfo { get; init; }
 
 	[JsonPropertyName("values")]
 	public required IReadOnlyList<T> Values { get; init; }

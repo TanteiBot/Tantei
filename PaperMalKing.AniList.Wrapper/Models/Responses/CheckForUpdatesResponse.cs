@@ -7,8 +7,8 @@ namespace PaperMalKing.AniList.Wrapper.Models.Responses;
 public sealed class CheckForUpdatesResponse
 {
 	public bool HasNextPage => this.User.Favourites.HasNextPage ||
-							   this.ListActivities.PageInfo.HasNextPage ||
-							   this.Reviews.PageInfo.HasNextPage;
+							   this.ListActivities.PageInfo!.HasNextPage ||
+							   this.Reviews.PageInfo!.HasNextPage;
 
 	[JsonPropertyName("User")]
 	public required User User { get; init; }

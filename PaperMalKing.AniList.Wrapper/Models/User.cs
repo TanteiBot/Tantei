@@ -18,7 +18,7 @@ public sealed class User : ISiteUrlable, IImageble
 	public required string Url { get; init; }
 
 	[JsonPropertyName("image")]
-	public required Image Image { get; init; }
+	public Image? Image { get; init; }
 
 	[JsonPropertyName("options")]
 	public required UserOptions Options { get; init; }

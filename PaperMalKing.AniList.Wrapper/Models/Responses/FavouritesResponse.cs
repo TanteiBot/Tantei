@@ -6,11 +6,11 @@ namespace PaperMalKing.AniList.Wrapper.Models.Responses;
 
 public sealed class FavouritesResponse
 {
-	public bool HasNextPage => this.Anime.PageInfo.HasNextPage ||
-							   this.Manga.PageInfo.HasNextPage ||
-							   this.Characters.PageInfo.HasNextPage ||
-							   this.Staff.PageInfo.HasNextPage ||
-							   this.Studios.PageInfo.HasNextPage;
+	public bool HasNextPage => this.Anime.PageInfo!.HasNextPage ||
+							   this.Manga.PageInfo!.HasNextPage ||
+							   this.Characters.PageInfo!.HasNextPage ||
+							   this.Staff.PageInfo!.HasNextPage ||
+							   this.Studios.PageInfo!.HasNextPage;
 
 	[JsonPropertyName("Animes")]
 	public Page<Media> Anime { get; init; } = Page<Media>.Empty;

@@ -8,7 +8,7 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 public sealed class Connection<T>
 {
 	[JsonPropertyName("pageInfo")]
-	public required PageInfo PageInfo { get; init; }
+	public PageInfo? PageInfo { get; init; }
 
 	[JsonPropertyName("values")]
 	#pragma warning disable CA1819

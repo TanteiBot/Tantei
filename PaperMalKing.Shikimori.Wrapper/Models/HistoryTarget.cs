@@ -54,5 +54,5 @@ internal class HistoryTarget
 	public string? RussianName { get; init; }
 
 	[JsonIgnore]
-	public required string ImageUrl { get; init; }
+	public string ImageUrl { get; init; } = null!;
 }

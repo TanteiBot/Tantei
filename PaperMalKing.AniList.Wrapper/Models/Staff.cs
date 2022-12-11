@@ -17,13 +17,13 @@ public sealed class Staff : IImageble, ISiteUrlable, IIdentifiable
 	public required string Url { get; init; }
 
 	[JsonPropertyName("image")]
-	public required Image Image { get; init; } 
+	public Image? Image { get; init; }
 
 	[JsonPropertyName("id")]
 	public ulong Id { get; init; }
 
 	[JsonPropertyName("description")]
-	public required string Description { get; init; } 
+	public string? Description { get; init; } 
 
 	[JsonPropertyName("staffMedia")]
 	public Connection<Media> StaffMedia { get; init; } = Connection<Media>.Empty;

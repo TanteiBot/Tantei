@@ -22,7 +22,7 @@ public sealed class Favourites
 		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
-			if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
+			if (value.PageInfo!.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
 			Array.ForEach(value.Nodes, fav => fav.Type = FavouriteType.Anime);
 			this._allFavourites.AddRange(value.Nodes);
 		}
@@ -34,7 +34,7 @@ public sealed class Favourites
 		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
-			if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
+			if (value.PageInfo!.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
 
 			Array.ForEach(value.Nodes, fav => fav.Type = FavouriteType.Manga);
 			this._allFavourites.AddRange(value.Nodes);
@@ -47,7 +47,7 @@ public sealed class Favourites
 		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
-			if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
+			if (value.PageInfo!.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
 
 			Array.ForEach(value.Nodes, fav => fav.Type = FavouriteType.Characters);
 			this._allFavourites.AddRange(value.Nodes);
@@ -60,7 +60,7 @@ public sealed class Favourites
 		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
-			if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
+			if (value.PageInfo!.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
 
 			Array.ForEach(value.Nodes, fav => fav.Type = FavouriteType.Staff);
 			this._allFavourites.AddRange(value.Nodes);
@@ -73,7 +73,7 @@ public sealed class Favourites
 		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
-			if (value.PageInfo.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
+			if (value.PageInfo!.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
 
 			Array.ForEach(value.Nodes, fav => fav.Type = FavouriteType.Studios);
 			this._allFavourites.AddRange(value.Nodes);
