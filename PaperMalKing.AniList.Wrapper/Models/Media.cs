@@ -27,7 +27,7 @@ public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 	public MediaFormat? Format { get; init; }
 
 	[JsonPropertyName("countryOfOrigin")]
-	public required string CountryOfOrigin { get; init; }
+	public string? CountryOfOrigin { get; init; }
 
 	[JsonPropertyName("status")]
 	public MediaStatus Status { get; init; }
@@ -42,10 +42,10 @@ public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 	public ushort? Volumes { get; init; }
 
 	[JsonPropertyName("image")]
-	public required Image Image { get; init; }
+	public Image? Image { get; init; }
 
 	[JsonPropertyName("description")]
-	public required string Description { get; init; }
+	public string? Description { get; init; }
 
 	[JsonPropertyName("genres")]
 	public IReadOnlyList<string> Genres { get; init; } = Array.Empty<string>();

@@ -14,7 +14,7 @@ public sealed class Character : IImageble, ISiteUrlable, IIdentifiable
 	public required string Url { get; init; }
 
 	[JsonPropertyName("image")]
-	public required Image Image { get; init; }
+	public Image? Image { get; init; }
 
 	[JsonPropertyName("media")]
 	public required Page<Media> Media { get; init; }
