@@ -4,16 +4,16 @@ on:
   -workflow_dispatch:
   -push: 
     branches:
-      -dev
-      -master
-      -release*
-      -main
+      - dev
+      - master
+      - release/*
+      - main
   -pull_request:
     branches:
-      -dev
-      -master
-      -release*
-      -main
+      - dev
+      - master
+      - release/*
+      - main
 
 env:
   DOTNET_NOLOGO: true
