@@ -52,6 +52,9 @@
             S2743; <!-- Static fields should not be used in generic types-->
             AsyncFixer02; <!--ToArrayAsync should be used instead of -->
         </NoWarn>
+        <WarningsNotAsErrors>
+            MA0048 <!--File name must match type name-->
+        </WarningsNotAsErrors>
     </PropertyGroup>
 
     <ItemGroup>

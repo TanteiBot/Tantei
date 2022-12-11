@@ -4,11 +4,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="System.Text.Json"/>
-        <ProjectReference Include="..\PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj"/>
-        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj"/>
-        <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj"/>
-        <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj"/>
+        <InternalsVisibleTo Include="System.Text.Json" />
+        <ProjectReference Include="..\PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj" />
+        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+        <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
+        <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
     </ItemGroup>
 
 </Project>

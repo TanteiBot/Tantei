@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj"/>
-        <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj"/>
+        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+        <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
     </ItemGroup>
 
 </Project>

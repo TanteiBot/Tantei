@@ -4,9 +4,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Net;
+using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
@@ -15,13 +15,11 @@ using PaperMalKing.Services;
 
 namespace PaperMalKing.Commands;
 
-[Group("ServerManagement")]
-[Aliases("sm", "srvmgm")]
-[Description("Commands for managing server")]
-[ModuleLifespan(ModuleLifespan.Singleton)]
+[SlashCommandGroup("ServerManagement", "Commands for managing server", true)]
+[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [OwnerOrPermissions(Permissions.ManageGuild)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-public sealed class GuildManagementCommands : BaseCommandModule
+public sealed class GuildManagementCommands : ApplicationCommandModule
 {
 	private readonly ILogger<GuildManagementCommands> _logger;
 
@@ -33,11 +31,9 @@ public sealed class GuildManagementCommands : BaseCommandModule
 		this._managementService = managementService;
 	}
 
-	[Command("set")]
-	[Aliases("s", "st")]
-	[Description("Sets channel to post updates to")]
-	public async Task SetChannelCommand(CommandContext ctx, [Description("Channel updates should be posted")]
-										DiscordChannel? channel = null)
+	[SlashCommand("set", "Sets channel to post updates to", true)]
+	public async Task SetChannelCommand(InteractionContext ctx,
+										[Option("channel", "Channel updates should be posted", autocomplete: false)] DiscordChannel? channel = null)
 	{
 		if (channel is null)
 			channel = ctx.Channel;
@@ -52,18 +48,16 @@ public sealed class GuildManagementCommands : BaseCommandModule
 		catch (Exception ex)
 		{
 			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-			await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
+			await ctx.CreateResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully set {channel}")).ConfigureAwait(false);
+		await ctx.CreateResponseAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully set {channel}")).ConfigureAwait(false);
 	}
 
-	[Command("update")]
-	[Aliases("u")]
-	[Description("Updates channel where updates are posted")]
-	public async Task UpdateChannelCommand(CommandContext ctx, [Description("New channel where updates should be posted")]
-										   DiscordChannel? channel = null)
+	[SlashCommand("update", "Updates channel where updates are posted", true)]
+	public async Task UpdateChannelCommand(InteractionContext ctx,
+										   [Option("channel", "New channel where updates should be posted")] DiscordChannel? channel = null)
 	{
 		if (channel is null)
 			channel = ctx.Channel;
@@ -78,16 +72,15 @@ public sealed class GuildManagementCommands : BaseCommandModule
 		catch (Exception ex)
 		{
 			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-			await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
+			await ctx.CreateResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully updated to {channel}")).ConfigureAwait(false);
+		await ctx.CreateResponseAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully updated to {channel}")).ConfigureAwait(false);
 	}
 
-	[Command("removeserver")]
-	[Description("Remove this server from being tracked")]
-	public async Task RemoveGuildCommand(CommandContext ctx)
+	[SlashCommand("removeserver", "Remove this server from being tracked", true)]
+	public async Task RemoveGuildCommand(InteractionContext ctx)
 	{
 		try
 		{
@@ -96,36 +89,34 @@ public sealed class GuildManagementCommands : BaseCommandModule
 		catch (Exception ex)
 		{
 			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-			await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
+			await ctx.CreateResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, "Successfully removed this server from being tracked"))
+		await ctx.CreateResponseAsync(embed: EmbedTemplate.SuccessEmbed(ctx, "Successfully removed this server from being tracked"))
 				 .ConfigureAwait(false);
 	}
 
-	[Command("forseremoveuser")]
-	[Aliases("frmu")]
-	[Description("Remove this user from being tracked in this server")]
-	public async Task ForceRemoveUserCommand(CommandContext ctx, [Description("Discord user's id which should be to removed from being tracked")]
-											 ulong userId)
+	[SlashCommand("forceremoveuserById", "Remove this user from being tracked in this server", true)]
+	public async Task ForceRemoveUserCommand(InteractionContext ctx,
+											 [Option("userId", "Discord user's id which should be to removed from being tracked")] long userId)
 	{
 		try
 		{
-			await this._managementService.RemoveUserAsync(ctx.Guild.Id, userId).ConfigureAwait(false);
+			await this._managementService.RemoveUserAsync(ctx.Guild.Id, (ulong)userId).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
 			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-			await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
+			await ctx.CreateResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await ctx.RespondAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully removed {userId} this server from being tracked"))
+		await ctx.CreateResponseAsync(embed: EmbedTemplate.SuccessEmbed(ctx, $"Successfully removed {userId} this server from being tracked"))
 				 .ConfigureAwait(false);
 	}
 
-	[Command("forseremoveuser")]
-	public Task ForceRemoveUserCommand(CommandContext ctx, [Description("Discord user to remove from being tracked")]
-									   DiscordUser user) => this.ForceRemoveUserCommand(ctx, user.Id);
+	[SlashCommand("forceremoveuser", "Remove this user from being tracked in this server")]
+	public Task ForceRemoveUserCommand(InteractionContext ctx, [Option("user", "Discord user to remove from being tracked")] DiscordUser user) =>
+		this.ForceRemoveUserCommand(ctx, (long)user.Id);
 }

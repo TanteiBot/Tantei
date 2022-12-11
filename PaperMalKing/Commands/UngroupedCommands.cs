@@ -8,9 +8,9 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Hosting;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
@@ -19,10 +19,10 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.Commands;
 
-[ModuleLifespan(ModuleLifespan.Singleton)]
+[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [SuppressMessage("Performance", "CA1822")]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-public sealed class UngroupedCommands : BaseCommandModule
+public sealed class UngroupedCommands : ApplicationCommandModule
 {
 	private readonly UpdateProvidersConfigurationService _providersConfigurationService;
 	private readonly IHostApplicationLifetime _lifetime;
@@ -35,11 +35,10 @@ public sealed class UngroupedCommands : BaseCommandModule
 		this._lifetime = lifetime;
 	}
 
-	[Command("say")]
-	[Description("Sends embed in selected channel with selected text")]
+	[SlashCommand("say", "Sends embed in selected channel with selected text", true)]
 	[OwnerOrPermissions(Permissions.ManageGuild)]
-	public async Task SayCommand(CommandContext context, [Description("Channel where the embed will be send")] DiscordChannel channelToSayIn,
-								 [RemainingText, Description("Text to send")] string messageContent)
+	public async Task SayCommand(InteractionContext context, [Option("channel", "Channel where the embed will be send")] DiscordChannel channelToSayIn,
+								 [Option("text", "Text to send")] string messageContent)
 	{
 		if (string.IsNullOrWhiteSpace(messageContent))
 			throw new ArgumentException("Message's content shouldn't be empty", nameof(messageContent));
@@ -58,14 +57,12 @@ public sealed class UngroupedCommands : BaseCommandModule
 		catch
 #pragma warning restore CA1031
 		{
-			await context.RespondAsync("Couldn't send message. Check permissions for bot and try again.").ConfigureAwait(false);
+			await context.CreateResponseAsync("Couldn't send message. Check permissions for bot and try again.").ConfigureAwait(false);
 		}
 	}
 
-	[Command("About")]
-	[Description("Displays info about bot")]
-	[Aliases("Info")]
-	public Task AboutCommand(CommandContext context)
+	[SlashCommand("About","Displays info about bot", true)]
+	public Task AboutCommand(InteractionContext context)
 	{
 		if (AboutEmbed is null)
 		{
@@ -102,26 +99,12 @@ public sealed class UngroupedCommands : BaseCommandModule
 			Interlocked.Exchange(ref AboutEmbed, embedBuilder.Build());
 		}
 
-		return context.RespondAsync(embed: AboutEmbed);
+		return context.CreateResponseAsync(embed: AboutEmbed);
 	}
 
-	[Command("DeleteMessages")]
-	[Aliases("dmsg", "rm", "rmm")]
-	[Description("Delete messages by their id")]
-	[RequireOwner]
-	public async Task DeleteMessagesCommand(CommandContext context, [RemainingText, Description("Messages Id's")] params ulong[] messages)
-	{
-		var msgsToDelete =
-			(await context.Channel.GetMessagesBeforeAsync(context.Message.Id).ConfigureAwait(false)).Where(x =>
-				x.Author.IsCurrent && messages.Contains(x.Id));
-		foreach (var msg in msgsToDelete)
-			await context.Channel.DeleteMessageAsync(msg).ConfigureAwait(false);
-	}
-
-	[Command("Forcecheck")]
-	[Aliases("fc")]
-	[RequireOwner]
-	public async Task ForceCheckCommand(CommandContext context, [RemainingText, Description("Update provider name")] string name)
+	[SlashCommand("Forcecheck", "Forcefully starts checking for updates in provider", true)]
+	[SlashRequireOwner]
+	public async Task ForceCheckCommand(InteractionContext context, [Option("name", "Update provider name")] string name)
 	{
 		name = name.Trim();
 		BaseUpdateProvider? baseUpdateProvider;
@@ -138,18 +121,17 @@ public sealed class UngroupedCommands : BaseCommandModule
 		if (baseUpdateProvider != null)
 		{
 			baseUpdateProvider.RestartTimer(TimeSpan.Zero);
-			await context.RespondAsync(embed: EmbedTemplate.SuccessEmbed(context, "Success")).ConfigureAwait(false);
+			await context.CreateResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Success")).ConfigureAwait(false);
 		}
 		else
 		{
-			await context.RespondAsync(embed: EmbedTemplate.ErrorEmbed(context, "Haven't found such update provider")).ConfigureAwait(false);
+			await context.CreateResponseAsync(embed: EmbedTemplate.ErrorEmbed(context, "Haven't found such update provider")).ConfigureAwait(false);
 		}
 	}
 
-	[Command("stop")]
-	[Aliases("restart")]
-	[RequireOwner]
-	public Task StopBotCommand(CommandContext context)
+	[SlashCommand("restart", "Exits bot", true)]
+	[SlashRequireOwner]
+	public Task StopBotCommand(InteractionContext _)
 	{
 		this._lifetime.StopApplication();
 		return Task.CompletedTask;

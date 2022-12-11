@@ -7,8 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.EventArgs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Options;
@@ -19,37 +19,19 @@ namespace PaperMalKing.Services;
 public sealed class CommandsService : ICommandsService
 {
 	private readonly ILogger<CommandsService> _logger;
-	public CommandsNextExtension CommandsExtension { get; }
+	public SlashCommandsExtension SlashCommandsExtension { get; }
 
 	public CommandsService(IOptions<CommandsOptions> options, IServiceProvider provider, DiscordClient client, ILogger<CommandsService> logger)
 	{
 		this._logger = logger;
 		this._logger.LogTrace("Building Commands service");
 
-		var config = new CommandsNextConfiguration
+		this.SlashCommandsExtension = client.UseSlashCommands(new SlashCommandsConfiguration()
 		{
-			CaseSensitive = options.Value.CaseSensitive,
-			EnableMentionPrefix = options.Value.EnableMentionPrefix,
-			StringPrefixes = options.Value.Prefixes,
-			DmHelp = false,
 			Services = provider
-		};
-
-		this.CommandsExtension = client.UseCommandsNext(config);
-		this.CommandsExtension.SetHelpFormatter<HelpFormatter>();
-		this.CommandsExtension.RegisterUserFriendlyTypeName<string>("text");
-		this.CommandsExtension.RegisterUserFriendlyTypeName<float>("floating point number");
-		this.CommandsExtension.RegisterUserFriendlyTypeName<double>("floating point number");
-		this.CommandsExtension.RegisterUserFriendlyTypeName<sbyte>("small integer");
-		this.CommandsExtension.RegisterUserFriendlyTypeName<short>("small integer");
-		this.CommandsExtension.RegisterUserFriendlyTypeName<int>("integer");
-		this.CommandsExtension.RegisterUserFriendlyTypeName<long>("integer");
-		this.CommandsExtension.RegisterUserFriendlyTypeName<byte>("unsigned small integer");
-		this.CommandsExtension.RegisterUserFriendlyTypeName<ushort>("unsigned small integer");
-		this.CommandsExtension.RegisterUserFriendlyTypeName<uint>("unsigned integer");
-		this.CommandsExtension.RegisterUserFriendlyTypeName<ulong>("unsigned integer");
-		this.CommandsExtension.CommandErrored += this.CommandsExtensionOnCommandErroredAsync;
-		this.CommandsExtension.CommandExecuted += this.CommandsExtensionOnCommandExecutedAsync;
+		});
+		this.SlashCommandsExtension.SlashCommandErrored += this.SlashCommandsExtensionOnSlashCommandErroredAsync;
+		this.SlashCommandsExtension.SlashCommandExecuted += this.SlashCommandsExtensionOnSlashCommandExecutedAsync;
 
 		var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 		HashSet<Type> nestedTypesNotToRegister = new();
@@ -58,8 +40,7 @@ public sealed class CommandsService : ICommandsService
 		{
 			nestedTypesNotToRegister.Clear();
 			this._logger.LogTrace("Found {Assembly} which may contain Commands modules", assembly);
-			foreach (var type in assembly.GetExportedTypes()
-										 .Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase)))
+			foreach (var type in assembly.GetExportedTypes().Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase)))
 			{
 				this._logger.LogTrace("Trying to register {@Type} command module", type);
 				try
@@ -71,11 +52,11 @@ public sealed class CommandsService : ICommandsService
 					foreach (var nestedType in nestedTypes)
 						nestedTypesNotToRegister.Add(nestedType);
 
-					this.CommandsExtension.RegisterCommands(type);
+					this.SlashCommandsExtension.RegisterCommands(type);
 				}
-#pragma warning disable CA1031
+				#pragma warning disable CA1031
 				catch (Exception ex)
-#pragma warning restore CA1031
+					#pragma warning restore CA1031
 				{
 					this._logger.LogError(ex, "Error occured while trying to register {FullName}", type.FullName);
 				}
@@ -84,27 +65,18 @@ public sealed class CommandsService : ICommandsService
 			}
 		}
 
-		if (!this.CommandsExtension.RegisteredCommands.Any())
-			this._logger.LogCritical("No commands were registered");
-
-		this._logger.LogTrace("Building Commands service");
+		this._logger.LogTrace("Building Commands service finished");
 	}
 
-	private Task CommandsExtensionOnCommandExecutedAsync(CommandsNextExtension sender, CommandExecutionEventArgs e)
+	private Task SlashCommandsExtensionOnSlashCommandExecutedAsync(SlashCommandsExtension sender, SlashCommandExecutedEventArgs e)
 	{
-		this._logger.LogDebug("{Command} was successfully executed by request of {Member}", e.Command, e.Context.Member);
+		this._logger.LogDebug("{Command} was successfully executed by request of {Member}", e.Context.CommandName, e.Context.Member);
 		return Task.CompletedTask;
 	}
 
-	private Task CommandsExtensionOnCommandErroredAsync(CommandsNextExtension sender, CommandErrorEventArgs e)
+	private Task SlashCommandsExtensionOnSlashCommandErroredAsync(SlashCommandsExtension sender, SlashCommandErrorEventArgs e)
 	{
-		if (e.Exception is CommandNotFoundException ex)
-		{
-			this._logger.LogDebug(ex, "Command wasn't found");
-			return Task.CompletedTask;
-		}
-
-		this._logger.LogError(e.Exception, "{Command} errored with exception while trying to be executed by {Member}", e.Command,
+		this._logger.LogError(e.Exception, "{Command} errored with exception while trying to be executed by {Member}", e.Context.CommandName,
 			e.Context.Member);
 		return Task.CompletedTask;
 	}
