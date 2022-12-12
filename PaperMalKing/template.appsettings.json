@@ -23,20 +23,11 @@
             },
             {
                 "ActivityType": "Playing",
-                "PresenceText": "github.com/N0D4N/PaperMalKing",
+                "PresenceText": "github.com/TanteiBot/Tantei",
                 "TimeToBeDisplayedInMilliseconds": 300000,
                 "Status": "Online"
             }
-        ],
-        "Commands": {
-            "Prefixes": [
-                "aa",
-                "---"
-            ],
-            "EnableMentionPrefix": true,
-            "CaseSensitive": false,
-            "DmHelp": false
-        }
+        ]
     },
     "Database": {
         "ConnectionString": "Data Source=/path/to/db/db.db"
