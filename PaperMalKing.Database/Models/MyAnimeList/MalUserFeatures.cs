@@ -10,18 +10,18 @@ namespace PaperMalKing.Database.Models.MyAnimeList;
 public enum MalUserFeatures : ulong
 {
 	None = 0,
-	[FeatureDescription("animelist", "track changes in animelist")]
+	[FeatureDescription("animelist", "Track changes in AnimeList")]
 	AnimeList = 1,
-	[FeatureDescription("mangalist", "track changes in mangalist")]
+	[FeatureDescription("mangalist", "Track changes in MangaList")]
 	MangaList = 1 << 1,
-	[FeatureDescription("favorites", "track changes in favorites")]
+	[FeatureDescription("favorites", "Track changes in favorites")]
 	Favorites = 1 << 2,
-	[FeatureDescription("mention", "mention user in update")]
+	[FeatureDescription("mention", "Mention user in update")]
 	Mention = 1 << 3,
-	[FeatureDescription("website", "show name and icon of website in update")]
+	[FeatureDescription("website", "Show name and icon of website in update")]
 	Website = 1 << 4,
-	[FeatureDescription("mediaformat", "show format of media in update (tv, movie, manga etc)")]
+	[FeatureDescription("media format", "Show format of media in update (TV, Movie, Manga etc)")]
 	MediaFormat = 1 << 5,
-	[FeatureDescription("mediastatus", "show status of media in update (ongoing, finished etc)")]
+	[FeatureDescription("media status", "show status of media in update (Currently airing, Finished airing etc)")]
 	MediaStatus = 1 << 6
 }

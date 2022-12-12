@@ -26,7 +26,7 @@ public sealed class FeaturesChoiceProvider<T> : IChoiceProvider where T : unmana
 
 	private static Task<IEnumerable<DiscordApplicationCommandOptionChoice>> CreateChoicesAsync()
 	{
-		var choices = FeaturesHelper<T>.FeaturesInfo.Values.Select(x => new DiscordApplicationCommandOptionChoice(x.Description, x.Description))
+		var choices = FeaturesHelper<T>.FeaturesInfo.Values.Select(x => new DiscordApplicationCommandOptionChoice($"{x.Description}: {x.Summary}", x.Description))
 									   .ToArray().AsReadOnly();
 		return Task.FromResult<IEnumerable<DiscordApplicationCommandOptionChoice>>(choices);
 	}

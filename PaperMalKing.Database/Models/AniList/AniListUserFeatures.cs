@@ -11,45 +11,45 @@ public enum AniListUserFeatures : ulong
 {
 	None = 0,
 
-	[FeatureDescription("animelist", "track changes in animelist")]
+	[FeatureDescription("animelist", "Track changes in AnimeList")]
 	AnimeList = 1,
 
-	[FeatureDescription("mangalist", "track changes in mangalist")]
+	[FeatureDescription("mangalist", "Track changes in MangaList")]
 	MangaList = 1 << 1,
 
-	[FeatureDescription("favourites", "track changes in favourites")]
+	[FeatureDescription("favourites", "Track changes in favourites")]
 	Favourites = 1 << 2,
 
-	[FeatureDescription("mention", "mention user in update")]
+	[FeatureDescription("mention", "Mention user in update")]
 	Mention = 1 << 3,
 
 	[FeatureDescription("website", "show name and icon of website in update")]
 	Website = 1 << 4,
 
-	[FeatureDescription("mediaformat", "show format of media in update (tv, movie, manga etc)")]
+	[FeatureDescription("media format", "Show format of media in update (TV, Movie, Manga etc)")]
 	MediaFormat = 1 << 5,
 
-	[FeatureDescription("mediastatus", "show status of media in update (ongoing, finished etc)")]
+	[FeatureDescription("media status", "Show status of media in update (Releasing, Finished etc)")]
 	MediaStatus = 1 << 6,
 
-	[FeatureDescription("description", "show description of anime and manga")]
+	[FeatureDescription("description", "Show description of anime and manga")]
 	MediaDescription = 1 << 7,
 
-	[FeatureDescription("genres", "show genres of anime and manga")]
+	[FeatureDescription("genres", "Show genres of anime and manga")]
 	Genres = 1 << 8,
 
-	[FeatureDescription("tags", "show tags of anime and manga")]
+	[FeatureDescription("tags", "Show tags of anime and manga")]
 	Tags = 1 << 9,
 
-	[FeatureDescription("studio", "show studio that made anime")]
+	[FeatureDescription("studio", "Show studio that made anime")]
 	Studio = 1 << 10,
 
-	[FeatureDescription("mangaka", "show mangaka that made manga")]
+	[FeatureDescription("mangaka", "Show mangaka that made manga")]
 	Mangaka = 1 << 11,
 
-	[FeatureDescription("reviews", "track user reviews")]
+	[FeatureDescription("reviews", "Track user reviews")]
 	Reviews = 1 << 12,
 
-	[FeatureDescription("customlists", "show to which custom lists entry belongs to")]
+	[FeatureDescription("custom lists", "Show to which custom lists entry belongs to")]
 	CustomLists = 1 << 13
 }
