@@ -137,8 +137,10 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			}
 			catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
 			{
-				this.Logger.LogError(exception, "User with username {@Username} not found", dbUser.Username);
-				dbUser.Username = await this._client.GetUsernameAsync((ulong)dbUser.UserId, ct).ConfigureAwait(false);
+				this.Logger.LogWarning(exception, "User with username {@Username} not found", dbUser.Username);
+				var username = await this._client.GetUsernameAsync((ulong)dbUser.UserId, ct).ConfigureAwait(false);
+				this.Logger.LogInformation("New username for user with {FormerUsername} is {CurrentUsername}", dbUser.Username, username);
+				dbUser.Username = username;
 				db.MalUsers.Update(dbUser);
 				await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 				return;
