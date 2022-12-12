@@ -34,7 +34,6 @@ public static class Program
 			var config = hostContext.Configuration;
 
 			services.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord));
-			services.AddOptions<CommandsOptions>().Bind(config.GetSection(CommandsOptions.Commands));
 			services.AddOptions<DatabaseOptions>().Bind(config.GetSection(DatabaseOptions.Database));
 			services.AddSingleton<DiscordClient>(provider =>
 			{
@@ -42,7 +41,7 @@ public static class Program
 				var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
 				var cfg = new DiscordConfiguration
 				{
-					Intents = DiscordIntents.Guilds | DiscordIntents.GuildMembers | DiscordIntents.GuildMessages,
+					Intents = DiscordIntents.Guilds | DiscordIntents.GuildMembers,
 					Token = options.Value.Token,
 					AutoReconnect = true,
 					LoggerFactory = loggerFactory,

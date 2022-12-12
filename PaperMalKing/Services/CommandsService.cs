@@ -10,8 +10,6 @@ using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PaperMalKing.Options;
 using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Services;
@@ -21,12 +19,12 @@ public sealed class CommandsService : ICommandsService
 	private readonly ILogger<CommandsService> _logger;
 	public SlashCommandsExtension SlashCommandsExtension { get; }
 
-	public CommandsService(IOptions<CommandsOptions> options, IServiceProvider provider, DiscordClient client, ILogger<CommandsService> logger)
+	public CommandsService(IServiceProvider provider, DiscordClient client, ILogger<CommandsService> logger)
 	{
 		this._logger = logger;
 		this._logger.LogTrace("Building Commands service");
 
-		this.SlashCommandsExtension = client.UseSlashCommands(new SlashCommandsConfiguration()
+		this.SlashCommandsExtension = client.UseSlashCommands(new ()
 		{
 			Services = provider
 		});
