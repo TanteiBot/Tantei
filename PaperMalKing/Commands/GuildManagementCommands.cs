@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.Net;
 using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
@@ -15,7 +14,7 @@ using PaperMalKing.Services;
 
 namespace PaperMalKing.Commands;
 
-[SlashCommandGroup("ServerManagement", "Commands for managing server", true)]
+[SlashCommandGroup("sm", "Commands for managing server", true)]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [OwnerOrPermissions(Permissions.ManageGuild)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
