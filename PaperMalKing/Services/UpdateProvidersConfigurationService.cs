@@ -37,8 +37,8 @@ public sealed class UpdateProvidersConfigurationService
 
 	public static void ConfigureProviders(IConfiguration configuration, IServiceCollection services)
 	{
-		//AniListUpdateProviderConfigurator.Configure(configuration, services);
-		//MalUpdateProviderConfigurator.Configure(configuration, services);
+		AniListUpdateProviderConfigurator.Configure(configuration, services);
+		MalUpdateProviderConfigurator.Configure(configuration, services);
 		ShikiUpdateProviderConfigurator.Configure(configuration, services);
 	}
 }
