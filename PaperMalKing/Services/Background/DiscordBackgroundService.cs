@@ -54,17 +54,9 @@ public sealed class DiscordBackgroundService : BackgroundService
 			_ = Task.Factory.StartNew(async () =>
 			{
 				using var scope = this._provider.CreateScope();
-				var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-				var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == e.Guild.Id);
-				if (guild is null)
-				{
-					this._logger.LogInformation(
-						"Bot was removed from guild {Guild} but since guild wasn't in database there is nothing to remove", e.Guild);
-					return;
-				}
-
-				db.DiscordGuilds.Remove(guild);
-				await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
+				this._logger.LogInformation("Bot was removed from {Guild}", e.Guild);
+				var gms = scope.ServiceProvider.GetRequiredService<GuildManagementService>();
+				await gms.RemoveGuildAsync(e.Guild.Id).ConfigureAwait(false);
 			}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Current).ContinueWith(
 				task => this._logger.LogError(task.Exception, "Task on removing guild from db faulted"), CancellationToken.None,
 				TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);

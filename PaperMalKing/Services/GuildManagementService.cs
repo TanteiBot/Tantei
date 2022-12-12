@@ -16,9 +16,7 @@ namespace PaperMalKing.Services;
 
 public sealed class GuildManagementService
 {
-#pragma warning disable S1450
 	private readonly ILogger<GuildManagementService> _logger;
-#pragma warning restore S1450
 
 	private readonly IServiceProvider _serviceProvider;
 
@@ -43,6 +41,8 @@ public sealed class GuildManagementService
 		var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild != null)
 			throw new GuildManagementException("Server already have channel to post updates into", guildId, channelId);
+		this._logger.LogInformation("Setting channel for guild {Guild} at {Channel}", this._discordClient.Guilds[guildId],
+			this._discordClient.Guilds[guildId].Channels[channelId]);
 
 		guild = new()
 		{
@@ -64,6 +64,7 @@ public sealed class GuildManagementService
 		var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
 			throw new GuildManagementException("You can't remove this server from posting updates", guildId);
+		this._logger.LogInformation("Removing guild with {Id}", guildId);
 
 		db.DiscordGuilds.Remove(guild);
 		this._updatePublishingService.RemoveChannel(guild.PostingChannelId);
@@ -80,6 +81,11 @@ public sealed class GuildManagementService
 		if (guild.PostingChannelId == channelId)
 			throw new GuildManagementException("You can't update channel to the same channel", guildId, channelId);
 
+		var discordGuild = this._discordClient.Guilds[guildId];
+		discordGuild.Channels.TryGetValue(guild.PostingChannelId, out var currentChannel);
+		discordGuild.Channels.TryGetValue(channelId, out var newChannel);
+		this._logger.LogInformation("Updating channel of {Guild} from {CurrentChannel} to {NewChannel}", this._discordClient.Guilds[guildId],
+			(currentChannel ?? (object)guild.PostingChannelId), newChannel ?? (object)channelId);
 		var opci = guild.PostingChannelId;
 		guild.PostingChannelId = channelId;
 		db.DiscordGuilds.Update(guild);
@@ -96,6 +102,7 @@ public sealed class GuildManagementService
 		if (user is null)
 			throw new GuildManagementException("Such user wasn't found as registered in this guild");
 
+		this._logger.LogInformation("Removing {User}", user);
 		guild.Users.Remove(user);
 		db.DiscordGuilds.Update(guild);
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
