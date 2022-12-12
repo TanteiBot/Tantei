@@ -79,7 +79,11 @@ public sealed class UpdatePublishingService
 	}
 
 
-	public void RemoveChannel(ulong id) => this._updatePosters.TryRemove(id, out _);
+	public void RemoveChannel(ulong id)
+	{
+		this._updatePosters.TryRemove(id, out var updatePoster);
+		updatePoster?.Dispose();
+	}
 
 	public bool AddChannel(DiscordChannel channel) => this._updatePosters.TryAdd(channel.Id,
 		new(this._serviceProvider.GetRequiredService<ILogger<UpdatePoster>>(), channel));

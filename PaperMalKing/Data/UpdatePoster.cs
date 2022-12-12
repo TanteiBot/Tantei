@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.Data;
 
-public sealed class UpdatePoster
+public sealed class UpdatePoster : IDisposable
 {
 	private readonly SemaphoreSlim _semaphore;
 
@@ -39,5 +40,11 @@ public sealed class UpdatePoster
 		{
 			this._semaphore.Release();
 		}
+	}
+
+	public void Dispose()
+	{
+		var semaphore = this._semaphore;
+		semaphore.Dispose();
 	}
 }
