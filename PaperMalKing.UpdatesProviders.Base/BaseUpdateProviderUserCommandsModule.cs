@@ -98,7 +98,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 					if (sb.Length + "…".Length > 2048)
 						break;
 
-					sb.Append("…");
+					sb.Append('…');
 					break;
 				}
 
