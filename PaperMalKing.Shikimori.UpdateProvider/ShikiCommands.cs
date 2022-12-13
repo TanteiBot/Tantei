@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.UpdatesProviders.Base;
@@ -12,6 +13,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider;
 
 [SlashCommandGroup("shiki", "Commands for interacting with Shikimori.one")]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
+[GuildOnly, SlashRequireGuild]
 public sealed class ShikiCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from Shikimori.one")]

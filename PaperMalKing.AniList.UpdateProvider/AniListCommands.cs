@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base;
@@ -12,6 +13,7 @@ namespace PaperMalKing.AniList.UpdateProvider;
 
 [SlashCommandGroup("anilist", "Commands for interacting with AniList.co")]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
+[GuildOnly, SlashRequireGuild]
 public sealed class AniListCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from AniList.co", true)]

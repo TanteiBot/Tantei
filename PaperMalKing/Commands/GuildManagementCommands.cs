@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
@@ -18,6 +19,7 @@ namespace PaperMalKing.Commands;
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [OwnerOrPermissions(Permissions.ManageGuild)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
+[GuildOnly, SlashRequireGuild]
 public sealed class GuildManagementCommands : ApplicationCommandModule
 {
 	private readonly ILogger<GuildManagementCommands> _logger;

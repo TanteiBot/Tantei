@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.UpdatesProviders.Base;
@@ -12,6 +13,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList;
 
 [SlashCommandGroup("mal", "Commands for interacting with MyAnimeList.net", true)]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
+[GuildOnly, SlashRequireGuild]
 public sealed class MalCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from MyAnimeList.net", true)]
