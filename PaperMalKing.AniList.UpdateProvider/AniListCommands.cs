@@ -22,7 +22,7 @@ public sealed class AniListCommands : ApplicationCommandModule
 		{ }
 
 		[SlashCommand("add", "Add your AniList account to being tracked", true)]
-		public override Task AddUserCommand(InteractionContext ctx, [Option(nameof(username), "Your username on AniList")] string username) =>
+		public override Task AddUserCommand(InteractionContext ctx, [Option(nameof(username), "Your username on AniList")] string? username = null) =>
 			base.AddUserCommand(ctx, username);
 
 		[SlashCommand("remove", "Remove your AniList account updates from being tracked", true)]

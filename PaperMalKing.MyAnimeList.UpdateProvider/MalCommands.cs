@@ -22,7 +22,7 @@ public sealed class MalCommands : ApplicationCommandModule
 		{ }
 
 		[SlashCommand("add", "Add your MyAnimeList account to being tracked", true)]
-		public override Task AddUserCommand(InteractionContext ctx, [Option("username", "Your username on MyAnimeList.net")] string username) =>
+		public override Task AddUserCommand(InteractionContext ctx, [Option("username", "Your username on MyAnimeList.net")] string? username = null) =>
 			base.AddUserCommand(ctx, username);
 
 		[SlashCommand("remove", "Remove your MyAnimeList account updates from being tracked", true)]

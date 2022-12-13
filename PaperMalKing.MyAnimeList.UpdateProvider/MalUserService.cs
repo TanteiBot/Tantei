@@ -33,7 +33,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 
 	public static string Name => Constants.Name;
 
-	public async Task<BaseUser> AddUserAsync(string username, ulong userId, ulong guildId)
+	public async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
@@ -50,7 +50,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 
 			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
-				throw new UserProcessingException(new(username),
+				throw new UserProcessingException(new(username ?? ""),
 					"Current server is not in database, ask server administrator to add this server to bot");
 			dbUser.DiscordUser.Guilds.Add(guild);
 			db.MalUsers.Update(dbUser);
@@ -60,9 +60,12 @@ public sealed class MalUserService : IUpdateProviderUserService
 
 		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
-			throw new UserProcessingException(new(username),
+			throw new UserProcessingException(new(username?? ""),
 				"Current server is not in database, ask server administrator to add this server to bot");
-
+		if (string.IsNullOrWhiteSpace(username))
+		{
+			throw new UserProcessingException(new(""), "You must provide username if you arent already tracked by this bot");
+		}
 		var duser = db.DiscordUsers.Include(x => x.Guilds).FirstOrDefault(user => user.DiscordUserId == userId);
 		var mUser = await this._client.GetUserAsync(username, MalUserFeatures.None.GetDefault().ToParserOptions()).ConfigureAwait(false);
 		var now = DateTimeOffset.Now;

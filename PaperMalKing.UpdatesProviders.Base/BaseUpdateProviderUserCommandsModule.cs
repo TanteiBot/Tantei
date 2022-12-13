@@ -23,13 +23,13 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		this.Logger = logger;
 	}
 
-	public virtual async Task AddUserCommand(InteractionContext ctx, string username)
+	public virtual async Task AddUserCommand(InteractionContext ctx, string? username = null)
 	{
 		this.Logger.LogInformation("Trying to add {ProviderUsername} {Member} to {Name} update provider", username, ctx.Member, TUpdateProviderUserService.Name);
 		BaseUser user;
 		try
 		{
-			user = await this.UserService.AddUserAsync(username, ctx.Member!.Id, ctx.Member.Guild.Id).ConfigureAwait(false);
+			user = await this.UserService.AddUserAsync(ctx.Member!.Id, ctx.Member.Guild.Id, username).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{

@@ -33,7 +33,7 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 	}
 
 	/// <inheritdoc />
-	public async Task<BaseUser> AddUserAsync(string username, ulong userId, ulong guildId)
+	public async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
@@ -46,19 +46,23 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 					"You already have your account connected. If you want to switch to another account, remove current one, then add the new one.");
 			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
-				throw new UserProcessingException(new(username),
+				throw new UserProcessingException(new(username ?? ""),
 					"Current server is not in database, ask server administrator to add this server to bot");
 
 			dbUser.DiscordUser.Guilds.Add(guild);
 			db.ShikiUsers.Update(dbUser);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-			return new(username);
+			return new(username ?? "");
 		}
 
 		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
-			throw new UserProcessingException(new(username),
+			throw new UserProcessingException(new(username ?? ""),
 				"Current server is not in database, ask server administrator to add this server to bot");
+		if (string.IsNullOrWhiteSpace(username))
+		{
+			throw new UserProcessingException(new(""), "You must provide username if you arent already tracked by this bot");
+		}
 		var dUser = db.DiscordUsers.Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 		var shikiUser = await this._client.GetUserAsync(username).ConfigureAwait(false);
 		var history = await this._client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any).ConfigureAwait(false);
