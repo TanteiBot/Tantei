@@ -21,6 +21,7 @@ namespace PaperMalKing.Commands;
 
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
+[SuppressMessage("Performance", "CA1822:Mark members as static")]
 public sealed class UngroupedCommands : ApplicationCommandModule
 {
 	private static DiscordEmbed? AboutEmbed;
