@@ -9,6 +9,7 @@ internal static class Queries
           query ($username: String, $favouritePage: Int) {
             User(name: $username) {
               id
+			  siteUrl
               favourites {
                 anime(page: $favouritePage, perPage: 25) {
                   pageInfo {

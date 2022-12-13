@@ -194,8 +194,8 @@ internal static partial class Extensions
 		};
 		var isAdvancedScoringEnabled =
 			(isAnime
-				? user.MediaListOptions.AnimeListOptions.IsAdvancedScoringEnabled
-				: user.MediaListOptions.MangaListOptions.IsAdvancedScoringEnabled) &&
+				? user.MediaListOptions!.AnimeListOptions.IsAdvancedScoringEnabled
+				: user.MediaListOptions!.MangaListOptions.IsAdvancedScoringEnabled) &&
 			mediaListEntry.AdvancedScores?.Values.Any(s => s != 0) == true;
 		var eb = new DiscordEmbedBuilder()
 				 .WithAniListAuthor(user)
