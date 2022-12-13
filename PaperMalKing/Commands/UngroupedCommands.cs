@@ -20,20 +20,10 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 namespace PaperMalKing.Commands;
 
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-[SuppressMessage("Performance", "CA1822")]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
 public sealed class UngroupedCommands : ApplicationCommandModule
 {
-	private readonly UpdateProvidersConfigurationService _providersConfigurationService;
-	private readonly IHostApplicationLifetime _lifetime;
-
 	private static DiscordEmbed? AboutEmbed;
-
-	public UngroupedCommands(UpdateProvidersConfigurationService providersConfigurationService, IHostApplicationLifetime lifetime)
-	{
-		this._providersConfigurationService = providersConfigurationService;
-		this._lifetime = lifetime;
-	}
 
 	[SlashCommand("say", "Sends embed in selected channel with selected text", true)]
 	[OwnerOrPermissions(Permissions.ManageGuild)]
@@ -100,40 +90,5 @@ public sealed class UngroupedCommands : ApplicationCommandModule
 		}
 
 		return context.CreateResponseAsync(embed: AboutEmbed);
-	}
-
-	[SlashCommand("Forcecheck", "Forcefully starts checking for updates in provider", true)]
-	[SlashRequireOwner]
-	public async Task ForceCheckCommand(InteractionContext context, [Option("name", "Update provider name")] string name)
-	{
-		name = name.Trim();
-		BaseUpdateProvider? baseUpdateProvider;
-		if (this._providersConfigurationService.Providers.TryGetValue(name, out var provider) && provider is BaseUpdateProvider bup)
-		{
-			baseUpdateProvider = bup;
-		}
-		else
-		{
-			var upc = this._providersConfigurationService.Providers.Values.FirstOrDefault(p => p.Name.Where(char.IsUpper).ToString() == name);
-			baseUpdateProvider = upc as BaseUpdateProvider;
-		}
-
-		if (baseUpdateProvider != null)
-		{
-			baseUpdateProvider.RestartTimer(TimeSpan.Zero);
-			await context.CreateResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Success")).ConfigureAwait(false);
-		}
-		else
-		{
-			await context.CreateResponseAsync(embed: EmbedTemplate.ErrorEmbed(context, "Haven't found such update provider")).ConfigureAwait(false);
-		}
-	}
-
-	[SlashCommand("restart", "Exits bot", true)]
-	[SlashRequireOwner]
-	public Task StopBotCommand(InteractionContext _)
-	{
-		this._lifetime.StopApplication();
-		return Task.CompletedTask;
 	}
 }
