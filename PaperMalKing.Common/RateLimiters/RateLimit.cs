@@ -4,7 +4,9 @@ using System;
 
 namespace PaperMalKing.Common.RateLimiters;
 
+#pragma warning disable CA1724
 public sealed class RateLimit
+#pragma warning restore
 {
 	public static readonly RateLimit Empty = new();
 

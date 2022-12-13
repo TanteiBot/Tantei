@@ -29,11 +29,12 @@ public sealed class ShikiClient
 		nickname = WebUtility.UrlEncode(nickname);
 		var url = $"{Constants.BASE_USERS_API_URL}/{nickname}";
 
+		using var stringContent = new StringContent("1");
 		using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 		{
 			Content = new MultipartFormDataContent()
 			{
-				{ new StringContent("1"), "is_nickname" }
+				{ stringContent, "is_nickname" }
 			}
 		};
 

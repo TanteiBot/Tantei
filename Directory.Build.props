@@ -25,6 +25,9 @@
             CA1848; <!--For improved performance, use the LoggerMessage delegates -->
             CA2201; <!--Do not raise reserved exception types-->
             CA2234; <!--Pass System.Uri objects instead of strings-->
+            CA1826; <!--Do not use Enumerable methods on indexable collections. Instead use the collection directly.-->
+            CA1308; <!--In method 'GetEmbedFormat', replace the call to 'ToLowerInvariant' with 'ToUpperInvariant'-->
+
 
             MA0011; <!--Use an overload that has a 'System.IFormatProvider' parameter-->
             MA0006; <!--Use string.Equals instead of Equals operator -->

@@ -74,4 +74,13 @@ internal sealed class HeaderBasedRateLimitMessageHandler : DelegatingHandler
 			this._semaphoreSlim.Release();
 		}
 	}
+
+	protected override void Dispose(bool disposing)
+	{
+		base.Dispose(disposing);
+		if (disposing)
+		{
+			this._semaphoreSlim.Dispose();
+		}
+	}
 }
