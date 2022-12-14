@@ -27,7 +27,7 @@ public sealed class AniListUserService : IUpdateProviderUserService
 		this._serviceProvider = serviceProvider;
 	}
 
-	public async Task<BaseUser> AddUserAsync(string username, ulong userId, ulong guildId)
+	public async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
 		using var scope = this._serviceProvider.CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
@@ -44,16 +44,20 @@ public sealed class AniListUserService : IUpdateProviderUserService
 			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
 			{
-				throw new UserProcessingException(new(username),
+				throw new UserProcessingException(new(username ?? ""),
 					"Current server is not in database, ask server administrator to add this server to bot");
 			}
 
 			dbUser.DiscordUser.Guilds.Add(guild);
 			db.AniListUsers.Update(dbUser);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-			return new(username);
+			return new(username ?? "");
 		}
 
+		if (string.IsNullOrWhiteSpace(username))
+		{
+			throw new UserProcessingException(new(""), "You must provide username if you arent already tracked by this bot");
+		}
 		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
 			throw new UserProcessingException(new(username),

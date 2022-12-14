@@ -2,8 +2,8 @@
 // Copyright (C) 2021-2022 N0D4N
 
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.UpdatesProviders.Base;
@@ -11,66 +11,59 @@ using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.UpdatesProviders.MyAnimeList;
 
-[Group(Constants.Name)]
-[Aliases("mal")]
-[Description("Commands for managing user updates from MyAnimeList.net")]
-[ModuleLifespan(ModuleLifespan.Singleton)]
-public sealed class MalCommands : BaseUpdateProviderUserCommandsModule<MalUserService>
+[SlashCommandGroup("mal", "Commands for interacting with MyAnimeList.net", true)]
+[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
+[GuildOnly, SlashRequireGuild]
+public sealed class MalCommands : ApplicationCommandModule
 {
-	/// <inheritdoc />
-	public MalCommands(MalUserService userService, ILogger<MalCommands> logger) : base(userService, logger)
+	[SlashCommandGroup("user", "Commands for managing user updates from MyAnimeList.net", true)]
+	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
+	public sealed class MalUserCommands : BaseUpdateProviderUserCommandsModule<MalUserService>
 	{
+		public MalUserCommands(MalUserService userService, ILogger<MalUserCommands> logger) : base(userService, logger)
+		{ }
+
+		[SlashCommand("add", "Add your MyAnimeList account to being tracked", true)]
+		public override Task AddUserCommand(InteractionContext ctx, [Option("username", "Your username on MyAnimeList.net")] string? username = null) =>
+			base.AddUserCommand(ctx, username);
+
+		[SlashCommand("remove", "Remove your MyAnimeList account updates from being tracked", true)]
+		public override Task RemoveUserInGuildCommand(InteractionContext ctx) => base.RemoveUserInGuildCommand(ctx);
+
+		[SlashCommand("list", "List accounts of all tracked user's on MyAnimeList in this server", true)]
+		public override Task ListUsersCommand(InteractionContext ctx) => base.ListUsersCommand(ctx);
+
+		[SlashCommand("removehere", "Stop sending your updates to this server", true)]
+		public override Task RemoveUserHereCommand(InteractionContext ctx) => base.RemoveUserHereCommand(ctx);
 	}
 
-	[Command("add")]
-	[Description("Add your MyAnimeList account to being tracked")]
-	public override Task AddUserCommand(CommandContext ctx, [Description("Your username on MyAnimeList.net")]
-										string username)
-		=> base.AddUserCommand(ctx, username);
-
-	[Command("remove")]
-	[Aliases("rm")]
-	[Description("Remove your MyAnimeList account updates from being tracked")]
-	public override Task RemoveUserInGuildCommand(CommandContext ctx) => base.RemoveUserInGuildCommand(ctx);
-
-	[Command("list")]
-	[Aliases("l")]
-	[Description("List accounts of all tracked user's on MyAnimeList in this server")]
-	public override Task ListUsersCommand(CommandContext ctx) => base.ListUsersCommand(ctx);
-
-	[Command("removehere")]
-	[Aliases("rmh")]
-	[Description("Stop sending your updates to this server")]
-	public override Task RemoveUserHereCommand(CommandContext ctx) => base.RemoveUserHereCommand(ctx);
-
-#pragma warning disable CA1034
-	[Group("features")]
-	[Description("Manage your features for updates send from MyAnimeList.net")]
-	[ModuleLifespan(ModuleLifespan.Singleton)]
+	[SlashCommandGroup("features", "Manage your features for updates send from MyAnimeList.net", true)]
+	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 	public sealed class MalUserFeaturesCommands : BaseUserFeaturesCommandsModule<MalUserFeatures>
 	{
-		public MalUserFeaturesCommands(IUserFeaturesService<MalUserFeatures> userFeaturesService, ILogger<MalUserFeaturesCommands> logger) :
-			base(userFeaturesService, logger)
+		public MalUserFeaturesCommands(IUserFeaturesService<MalUserFeatures> userFeaturesService, ILogger<MalUserFeaturesCommands> logger) : base(
+			userFeaturesService, logger)
+		{ }
+
+		[SlashCommand("enable", "Enable features for your updates", true)]
+		public override Task EnableFeatureCommand(InteractionContext context,
+												  [ChoiceProvider(typeof(FeaturesChoiceProvider<MalUserFeatures>)),
+												   Option("feature", "Feature to enable")]
+												  string unparsedFeature)
 		{
+			return base.EnableFeatureCommand(context, unparsedFeature);
 		}
 
-		[Command("enable")]
-		[Description("Enable features for your updates")]
-		public override Task EnableFeatureCommand(CommandContext context, [Description("Features to enable")] params MalUserFeatures[] features)
-			=> base.EnableFeatureCommand(context, features);
+		[SlashCommand("disable", "Disable features for your updates", true)]
+		public override Task DisableFeatureCommand(InteractionContext context,
+												   [ChoiceProvider(typeof(FeaturesChoiceProvider<MalUserFeatures>)),
+												    Option("feature", "Feature to enable")]
+												   string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);
 
-		[Command("disable")]
-		[Description("Disable features for your updates")]
-		public override Task DisableFeatureCommand(CommandContext context, [Description("Features to disable")] params MalUserFeatures[] features)
-			=> base.DisableFeatureCommand(context, features);
+		[SlashCommand("enabled", "Show features that are enabled for yourself", true)]
+		public override Task EnabledFeaturesCommand(InteractionContext context) => base.EnabledFeaturesCommand(context);
 
-		[Command("enabled")]
-		[Description("Show features that are enabled for yourself")]
-		public override Task EnabledFeaturesCommand(CommandContext context) => base.EnabledFeaturesCommand(context);
-
-		[Command("list")]
-		[Aliases("all")]
-		[Description("Show all features that are available for updates from MyAnimeList.net")]
-		public override Task ListFeaturesCommand(CommandContext context) => base.ListFeaturesCommand(context);
+		[SlashCommand("list", "Show all features that are available for updates from MyAnimeList.net", true)]
+		public override Task ListFeaturesCommand(InteractionContext context) => base.ListFeaturesCommand(context);
 	}
 }

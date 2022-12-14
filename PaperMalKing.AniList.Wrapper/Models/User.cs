@@ -12,7 +12,7 @@ public sealed class User : ISiteUrlable, IImageble
 	public ulong Id { get; init; }
 
 	[JsonPropertyName("name")]
-	public required string Name { get; init; }
+	public string? Name { get; init; }
 
 	[JsonPropertyName("siteUrl")]
 	public required string Url { get; init; }
@@ -21,10 +21,10 @@ public sealed class User : ISiteUrlable, IImageble
 	public Image? Image { get; init; }
 
 	[JsonPropertyName("options")]
-	public required UserOptions Options { get; init; }
+	public UserOptions Options { get; init; } = null!;
 
 	[JsonPropertyName("mediaListOptions")]
-	public required MediaListOptions MediaListOptions { get; init; }
+	public MediaListOptions? MediaListOptions { get; init; }
 
 	[JsonPropertyName("favourites")]
 	public required Favourites Favourites { get; init; }

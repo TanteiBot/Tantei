@@ -6,8 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.SlashCommands;
 
 namespace PaperMalKing.Common.Attributes;
 
@@ -15,7 +14,7 @@ namespace PaperMalKing.Common.Attributes;
 /// Defines that command or group of commands can only be executed by owner of the bot or user with specified permissions.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-public sealed class OwnerOrPermissionsAttribute : CheckBaseAttribute
+public sealed class OwnerOrPermissionsAttribute : SlashCheckBaseAttribute
 {
 	/// <summary>
 	/// Permissions needed to execute command.
@@ -28,7 +27,7 @@ public sealed class OwnerOrPermissionsAttribute : CheckBaseAttribute
 	/// <param name="permissions">Permissions needed to execute command.</param>
 	public OwnerOrPermissionsAttribute(Permissions permissions) => this.Permissions = permissions;
 
-	public override Task<bool> ExecuteCheckAsync([NotNull] CommandContext ctx, bool help)
+	public override Task<bool> ExecuteChecksAsync([NotNull] InteractionContext ctx)
 	{
 		var app = ctx.Client.CurrentApplication;
 		var me = ctx.Client.CurrentUser;

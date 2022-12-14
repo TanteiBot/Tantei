@@ -5,17 +5,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DSharpPlus"/>
-        <PackageReference Include="DSharpPlus.CommandsNext"/>
-        <PackageReference Include="Humanizer.Core"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
-        <PackageReference Include="Microsoft.Extensions.Http.Polly"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
-        <PackageReference Include="Microsoft.Extensions.Options"/>
-        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions"/>
-        <PackageReference Include="Polly.Contrib.WaitAndRetry"/>
-        <PackageReference Include="System.Threading.RateLimiting"/>
+        <PackageReference Include="DSharpPlus" />
+        <PackageReference Include="DSharpPlus.SlashCommands" />
+        <PackageReference Include="Humanizer.Core" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Microsoft.Extensions.Http.Polly" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Options" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+        <PackageReference Include="Polly.Contrib.WaitAndRetry" />
+        <PackageReference Include="System.Threading.RateLimiting" />
     </ItemGroup>
 
 </Project>
