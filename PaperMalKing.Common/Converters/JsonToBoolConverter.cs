@@ -8,7 +8,6 @@ namespace PaperMalKing.Common.Converters;
 
 public sealed class JsonToBoolConverter : JsonConverter<bool>
 {
-	/// <inheritdoc />
 	public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => reader.TokenType switch
 	{
 		JsonTokenType.Number => reader.GetByte() == 1,
@@ -17,7 +16,6 @@ public sealed class JsonToBoolConverter : JsonConverter<bool>
 		_ => false
 	};
 
-	/// <inheritdoc />
 	public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options) =>
 		writer.WriteBoolean("is_reprogressing", value);
 }

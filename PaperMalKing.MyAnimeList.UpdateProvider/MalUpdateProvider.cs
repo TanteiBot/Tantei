@@ -33,7 +33,6 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 	private readonly IOptions<MalOptions> _options;
 
-	/// <inheritdoc />
 	public override string Name => Constants.Name;
 
 	public MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOptions<MalOptions> options, MyAnimeListClient client, IDbContextFactory<DatabaseContext> dbContextFactory)
@@ -44,7 +43,6 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		this._dbContextFactory = dbContextFactory;
 	}
 
-	/// <inheritdoc />
 	public override event UpdateFoundEvent? UpdateFoundEvent;
 
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)

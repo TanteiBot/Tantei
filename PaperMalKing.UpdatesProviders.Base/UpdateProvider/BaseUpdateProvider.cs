@@ -28,13 +28,10 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 		this.Timer = new(_ => this.TimerCallback(), null, Timeout.Infinite, Timeout.Infinite);
 	}
 
-	/// <inheritdoc />
 	public abstract string Name { get; }
 
-	/// <inheritdoc />
 	public abstract event UpdateFoundEvent? UpdateFoundEvent;
 
-	/// <inheritdoc />
 	public Task TriggerStoppingAsync()
 	{
 		this._cts?.Cancel();

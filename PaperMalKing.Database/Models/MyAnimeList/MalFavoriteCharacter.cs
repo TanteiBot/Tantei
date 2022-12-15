@@ -20,19 +20,14 @@ public sealed class MalFavoriteCharacter : IMalFavorite, IEquatable<MalFavoriteC
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	public int Id { get; init; }
 
-	/// <inheritdoc />
 	public required string? ImageUrl { get; init; }
 
-	/// <inheritdoc />
 	public required string Name { get; init; }
 
-	/// <inheritdoc />
 	public required string NameUrl { get; init; }
 
-	/// <inheritdoc />
 	public required MalUser User { get; init; }
 
-	/// <inheritdoc />
 	public bool Equals(MalFavoriteCharacter? other)
 	{
 		if (ReferenceEquals(null, other))
@@ -42,10 +37,8 @@ public sealed class MalFavoriteCharacter : IMalFavorite, IEquatable<MalFavoriteC
 		return this.UserId == other.UserId && this.Id == other.Id;
 	}
 
-	/// <inheritdoc />
 	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is MalFavoriteCharacter other && Equals(other);
 
-	/// <inheritdoc />
 	public override int GetHashCode()
 	{
 		unchecked

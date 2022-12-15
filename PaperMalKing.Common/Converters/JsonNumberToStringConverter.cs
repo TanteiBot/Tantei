@@ -9,7 +9,6 @@ namespace PaperMalKing.Common.Converters;
 
 public sealed class JsonNumberToStringConverter : JsonConverter<string>
 {
-	/// <inheritdoc />
 	public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => reader.TokenType switch
 	{
 		JsonTokenType.Number => reader.GetDouble().ToString(CultureInfo.InvariantCulture),
@@ -17,7 +16,6 @@ public sealed class JsonNumberToStringConverter : JsonConverter<string>
 		_ => ""
 	};
 
-	/// <inheritdoc />
 	public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
 	{
 		writer.WriteString("", value);

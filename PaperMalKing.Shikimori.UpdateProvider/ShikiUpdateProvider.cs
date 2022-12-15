@@ -29,7 +29,6 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
 
-	/// <inheritdoc />
 	public ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptions<ShikiOptions> options, ShikiClient client,
 							   IDbContextFactory<DatabaseContext> dbContextFactory) : base(logger,
 		TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
@@ -39,13 +38,10 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 		this._dbContextFactory = dbContextFactory;
 	}
 
-	/// <inheritdoc />
 	public override string Name => Constants.NAME;
 
-	/// <inheritdoc />
 	public override event UpdateFoundEvent? UpdateFoundEvent;
 
-	/// <inheritdoc />
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
 		if (this.UpdateFoundEvent is null)

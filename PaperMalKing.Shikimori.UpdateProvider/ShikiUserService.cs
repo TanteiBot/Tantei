@@ -32,7 +32,6 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 		this._dbContextFactory = dbContextFactory;
 	}
 
-	/// <inheritdoc />
 	public async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
@@ -100,7 +99,6 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 		return new(username);
 	}
 
-	/// <inheritdoc />
 	public async Task<BaseUser> RemoveUserAsync(ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
@@ -128,7 +126,6 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 	}
 
-	/// <inheritdoc />
 	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();

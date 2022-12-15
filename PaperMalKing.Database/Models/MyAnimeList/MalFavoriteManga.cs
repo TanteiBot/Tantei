@@ -15,25 +15,18 @@ public sealed class MalFavoriteManga : IMalListFavorite, IEquatable<MalFavoriteM
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	public int Id { get; init; }
 
-	/// <inheritdoc />
 	public string? ImageUrl { get; init; }
 
-	/// <inheritdoc />
 	public required string Name { get; init; }
 
-	/// <inheritdoc />
 	public required string NameUrl { get; init; }
 
-	/// <inheritdoc />
 	public required MalUser User { get; init; }
 
-	/// <inheritdoc />
 	public required string Type { get; init; }
 
-	/// <inheritdoc />
 	public int StartYear { get; init; }
 
-	/// <inheritdoc />
 	public bool Equals(MalFavoriteManga? other)
 	{
 		if (ReferenceEquals(null, other))
@@ -43,10 +36,8 @@ public sealed class MalFavoriteManga : IMalListFavorite, IEquatable<MalFavoriteM
 		return this.UserId == other.UserId && this.Id == other.Id;
 	}
 
-	/// <inheritdoc />
 	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is MalFavoriteManga other && Equals(other);
 
-	/// <inheritdoc />
 	public override int GetHashCode()
 	{
 		unchecked

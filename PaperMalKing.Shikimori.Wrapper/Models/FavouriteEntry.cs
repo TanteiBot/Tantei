@@ -27,7 +27,6 @@ internal sealed class FavouriteEntry : IEquatable<FavouriteEntry>
 
 	public string? Url => Utils.GetUrl(this.GenericType!, this.Id);
 
-	/// <inheritdoc />
 	public bool Equals(FavouriteEntry? other)
 	{
 		if (ReferenceEquals(null, other))
@@ -37,10 +36,8 @@ internal sealed class FavouriteEntry : IEquatable<FavouriteEntry>
 		return this.GenericType == other.GenericType && this.Id == other.Id;
 	}
 
-	/// <inheritdoc />
 	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is FavouriteEntry other && this.Equals(other);
 
-	/// <inheritdoc />
 	public override int GetHashCode()
 	{
 		unchecked

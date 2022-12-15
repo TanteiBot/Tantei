@@ -101,7 +101,6 @@ public sealed class MalUserService : IUpdateProviderUserService
 		return new(dbUser.Username);
 	}
 
-	/// <inheritdoc />
 	public async Task<BaseUser> RemoveUserAsync(ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
@@ -136,7 +135,6 @@ public sealed class MalUserService : IUpdateProviderUserService
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 	}
 
-	/// <inheritdoc />
 	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
