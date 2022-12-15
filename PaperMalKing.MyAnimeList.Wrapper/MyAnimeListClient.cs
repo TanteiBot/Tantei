@@ -23,10 +23,11 @@ namespace PaperMalKing.MyAnimeList.Wrapper;
 
 public sealed class MyAnimeListClient
 {
-	private readonly HttpClient _httpClient;
+	private readonly HttpClient _unofficialApiHttpClient;
+	private readonly HttpClient _officialApiHttpClient;
 	private readonly ILogger<MyAnimeListClient> _logger;
 
-	private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+	private static readonly JsonSerializerOptions JsonSerializerOptions = new()
 	{
 		Converters =
 		{
@@ -37,16 +38,17 @@ public sealed class MyAnimeListClient
 
 	private readonly XmlSerializer _xmlSerializer;
 
-	internal MyAnimeListClient(ILogger<MyAnimeListClient> logger, HttpClient httpClient)
+	internal MyAnimeListClient(ILogger<MyAnimeListClient> logger, HttpClient unofficialApiHttpClient, HttpClient officialApiHttpClient)
 	{
 		this._logger = logger;
-		this._httpClient = httpClient;
+		this._unofficialApiHttpClient = unofficialApiHttpClient;
+		this._officialApiHttpClient = officialApiHttpClient;
 		this._xmlSerializer = new(typeof(Feed));
 	}
 
 	private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken = default)
 	{
-		var response = await this._httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+		var response = await this._unofficialApiHttpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 		return response.EnsureSuccessStatusCode();
 	}
 
@@ -121,7 +123,7 @@ public sealed class MyAnimeListClient
 		using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
 		using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-		var updates = await JsonSerializer.DeserializeAsync<TE[]>(stream, this._jsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+		var updates = await JsonSerializer.DeserializeAsync<TE[]>(stream, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
 		return updates ?? Array.Empty<TE>();
 	}
 }
