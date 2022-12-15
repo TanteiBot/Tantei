@@ -186,7 +186,6 @@ public sealed class DiscordBackgroundService : BackgroundService
 		return (new(options.PresenceText, activityType), status);
 	}
 
-	/// <inheritdoc />
 	public override void Dispose()
 	{
 		base.Dispose();

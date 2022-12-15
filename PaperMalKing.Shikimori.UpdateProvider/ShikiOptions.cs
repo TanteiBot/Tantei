@@ -11,6 +11,5 @@ internal sealed class ShikiOptions : ITimerOptions<ShikiUpdateProvider>
 
 	public required string ShikimoriAppName { get; init; }
 
-	/// <inheritdoc />
 	public int DelayBetweenChecksInMilliseconds { get; init; }
 }

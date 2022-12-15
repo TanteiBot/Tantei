@@ -8,7 +8,6 @@ internal sealed class MangaListSubEntry : BaseListSubEntry
 {
 	protected override string Type => "mangas";
 
-	/// <inheritdoc />
 	public override string TotalAmount => $"{this.Chapters} ep., {this.Volumes} v.";
 
 	[JsonPropertyName("volumes")]
