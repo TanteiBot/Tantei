@@ -9,9 +9,9 @@ internal sealed class MalOptions : IRateLimitOptions<MyAnimeListClient>, ITimerO
 {
 	public const string MyAnimeList = Constants.Name;
 
-	public int AmountOfRequests { get; init; }
+	public required int AmountOfRequests { get; init; }
 
-	public int PeriodInMilliseconds { get; init; }
+	public required int PeriodInMilliseconds { get; init; }
 
-	public int DelayBetweenChecksInMilliseconds { get; init; }
+	public required int DelayBetweenChecksInMilliseconds { get; init; }
 }
