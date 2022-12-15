@@ -26,17 +26,17 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 	private readonly IOptions<ShikiOptions> _options;
 
 	private readonly ShikiClient _client;
+	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
-	private readonly IServiceProvider _serviceProvider;
 
 	/// <inheritdoc />
 	public ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptions<ShikiOptions> options, ShikiClient client,
-							   IServiceProvider serviceProvider) : base(logger,
+							   IDbContextFactory<DatabaseContext> dbContextFactory) : base(logger,
 		TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 	{
 		this._options = options;
 		this._client = client;
-		this._serviceProvider = serviceProvider;
+		this._dbContextFactory = dbContextFactory;
 	}
 
 	/// <inheritdoc />
@@ -52,8 +52,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 		{
 			return;
 		}
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 
 		foreach (var dbUser in db.ShikiUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds).Include(u => u.Favourites)
 								 .Where(u => u.DiscordUser.Guilds.Any() && ((u.Features & ShikiUserFeatures.AnimeList) != 0 ||

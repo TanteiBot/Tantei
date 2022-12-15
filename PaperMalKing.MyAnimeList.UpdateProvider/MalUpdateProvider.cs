@@ -30,18 +30,18 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList;
 internal sealed class MalUpdateProvider : BaseUpdateProvider
 {
 	private readonly MyAnimeListClient _client;
+	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 	private readonly IOptions<MalOptions> _options;
-	private readonly IServiceProvider _provider;
 
 	/// <inheritdoc />
 	public override string Name => Constants.Name;
 
-	public MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOptions<MalOptions> options, MyAnimeListClient client, IServiceProvider provider)
+	public MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOptions<MalOptions> options, MyAnimeListClient client, IDbContextFactory<DatabaseContext> dbContextFactory)
 		: base(logger, TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 	{
 		this._options = options;
 		this._client = client;
-		this._provider = provider;
+		this._dbContextFactory = dbContextFactory;
 	}
 
 	/// <inheritdoc />
@@ -111,8 +111,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		{
 			return;
 		}
-		using var scope = this._provider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 
 		foreach (var dbUser in db.MalUsers.Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas).Include(u => u.FavoriteCharacters)
 								 .Include(u => u.FavoritePeople).Include(u => u.FavoriteCompanies)

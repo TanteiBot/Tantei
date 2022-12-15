@@ -22,19 +22,18 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 {
 	private readonly ShikiClient _client;
 	private readonly ILogger<ShikiUserFeaturesService> _logger;
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
-	public ShikiUserFeaturesService(ShikiClient client, ILogger<ShikiUserFeaturesService> logger, IServiceProvider serviceProvider)
+	public ShikiUserFeaturesService(ShikiClient client, ILogger<ShikiUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
 	{
 		this._client = client;
 		this._logger = logger;
-		this._serviceProvider = serviceProvider;
+		this._dbContextFactory = dbContextFactory;
 	}
 
 	public async Task EnableFeaturesAsync(ShikiUserFeatures feature, ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.ShikiUsers.Include(su => su.Favourites)
 					   .FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
@@ -75,8 +74,7 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 
 	public async Task DisableFeaturesAsync(ShikiUserFeatures feature, ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.ShikiUsers.Include(su => su.Favourites).FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before disabling features");
@@ -94,8 +92,7 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 
 	public ValueTask<string> EnabledFeaturesAsync(ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.ShikiUsers.AsNoTrackingWithIdentityResolution().FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before checking for enabled features");

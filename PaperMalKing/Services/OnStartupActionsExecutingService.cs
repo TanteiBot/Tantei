@@ -28,8 +28,8 @@ public sealed class OnStartupActionsExecutingService : IHostedService
 		scope.ServiceProvider.GetRequiredService<ICommandsService>();
 		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 		await db.Database.MigrateAsync(CancellationToken.None).ConfigureAwait(false);
-		var s = this._serviceProvider.GetRequiredService<UpdatePublishingService>();
-		var services = this._serviceProvider.GetServices<IExecuteOnStartupService>();
+		var s = scope.ServiceProvider.GetRequiredService<UpdatePublishingService>();
+		var services = scope.ServiceProvider.GetServices<IExecuteOnStartupService>();
 		foreach (var service in services)
 		{
 			if (cancellationToken.IsCancellationRequested)

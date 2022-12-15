@@ -21,22 +21,21 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 {
 	private readonly ShikiClient _client;
 	private readonly ILogger<ShikiUserService> _logger;
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
 	public static string Name => Constants.NAME;
 
-	public ShikiUserService(ShikiClient client, ILogger<ShikiUserService> logger, IServiceProvider serviceProvider)
+	public ShikiUserService(ShikiClient client, ILogger<ShikiUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
 	{
 		this._client = client;
 		this._logger = logger;
-		this._serviceProvider = serviceProvider;
+		this._dbContextFactory = dbContextFactory;
 	}
 
 	/// <inheritdoc />
 	public async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 		DiscordGuild? guild;
 		if (dbUser != null) // User already in db
@@ -104,8 +103,7 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 	/// <inheritdoc />
 	public async Task<BaseUser> RemoveUserAsync(ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var user = db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 		if (user is null)
 			throw new UserProcessingException($"You weren't tracked by {Name} update checker");
@@ -117,8 +115,7 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 
 	public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var user = db.DiscordUsers.Include(du => du.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 		if (user is null)
 			throw new UserProcessingException("You weren't registered in bot");
@@ -134,13 +131,12 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 	/// <inheritdoc />
 	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		return db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).Select(su => new
-		{
-			su.DiscordUser,
-			su.LastHistoryEntryId
-		}).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastHistoryEntryId)
+				 {
+					 su.DiscordUser,
+					 su.LastHistoryEntryId
+				 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastHistoryEntryId)
 				 .Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking().ToArray();
 	}
 }

@@ -21,22 +21,21 @@ public sealed class MalUserService : IUpdateProviderUserService
 	private readonly MyAnimeListClient _client;
 
 	private readonly ILogger<MalUserService> _logger;
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
 
-	public MalUserService(MyAnimeListClient client, ILogger<MalUserService> logger, IServiceProvider serviceProvider)
+	public MalUserService(MyAnimeListClient client, ILogger<MalUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
 	{
 		this._client = client;
 		this._logger = logger;
-		this._serviceProvider = serviceProvider;
+		this._dbContextFactory = dbContextFactory;
 	}
 
 	public static string Name => Constants.Name;
 
 	public async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.MalUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds)
 					   .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 		DiscordGuild? guild;
@@ -105,8 +104,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 	/// <inheritdoc />
 	public async Task<BaseUser> RemoveUserAsync(ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var user = db.MalUsers.Include(malUser => malUser.DiscordUser).ThenInclude(du => du.Guilds).Select(u => new MalUser
 		{
 			DiscordUser = u.DiscordUser,
@@ -125,8 +123,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 
 	public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var user = db.DiscordUsers.Include(du => du.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 		if (user is null)
 			throw new UserProcessingException("You weren't registered in bot");
@@ -142,14 +139,13 @@ public sealed class MalUserService : IUpdateProviderUserService
 	/// <inheritdoc />
 	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		return db.MalUsers.Include(malUser => malUser.DiscordUser).ThenInclude(du => du.Guilds).Select(u => new MalUser
-		{
-			DiscordUser = u.DiscordUser,
-			Username = u.Username,
-			LastUpdatedAnimeListTimestamp = u.LastUpdatedAnimeListTimestamp
-		}).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastUpdatedAnimeListTimestamp)
+				 {
+					 DiscordUser = u.DiscordUser,
+					 Username = u.Username,
+					 LastUpdatedAnimeListTimestamp = u.LastUpdatedAnimeListTimestamp
+				 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastUpdatedAnimeListTimestamp)
 				 .Select(mu => new BaseUser(mu.Username, mu.DiscordUser)).AsNoTracking().ToArray();
 	}
 }

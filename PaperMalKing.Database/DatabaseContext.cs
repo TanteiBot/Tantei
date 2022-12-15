@@ -1,5 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
+
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ public class DatabaseContext : DbContext
 
 	public DbSet<MalFavoriteAnime> MalFavoriteAnimes => this.Set<MalFavoriteAnime>();
 
-	public DbSet<MalFavoriteManga> MalFavoriteMangas=> this.Set<MalFavoriteManga>();
+	public DbSet<MalFavoriteManga> MalFavoriteMangas => this.Set<MalFavoriteManga>();
 
 	public DbSet<MalFavoriteCharacter> MalFavoriteCharacters => this.Set<MalFavoriteCharacter>();
 
@@ -41,50 +42,12 @@ public class DatabaseContext : DbContext
 
 	public DbSet<AniListFavourite> AniListFavourites => this.Set<AniListFavourite>();
 
-	private readonly string _connectionString;
+	public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
+	{ }
 
-	/// <summary>
-	/// Used for migrations
-	/// </summary>
-	internal DatabaseContext()
-	{
-		this._connectionString = "Data Source=migrations.db";
-	}
-
-	internal DatabaseContext(string connectionString)
-	{
-		this._connectionString = connectionString;
-	}
-
-	public DatabaseContext(IOptions<DatabaseOptions> config)
-	{
-		this._connectionString = config.Value.ConnectionString;
-	}
-
-	public DatabaseContext(DbContextOptions<DatabaseContext> options, IOptions<DatabaseOptions> config) : base(options)
-	{
-		this._connectionString = config.Value.ConnectionString;
-	}
-
-	/// <inheritdoc />
-	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-	{
-		if (!optionsBuilder.IsConfigured)
-		{
-			optionsBuilder.UseSqlite(this._connectionString,
-				builder => { builder.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery); });
-
-			SQLitePCL.Batteries_V2.Init();
-			// SQLITE_CONFIG_MULTITHREAD
-			// https://github.com/dotnet/efcore/issues/9994
-			// https://sqlite.org/threadsafe.html
-			SQLitePCL.raw.sqlite3_config(2);
-		}
-	}
-
-#pragma warning disable MA0051
+	#pragma warning disable MA0051
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
-#pragma warning restore MA0051
+		#pragma warning restore MA0051
 	{
 		static void RegisterConverter<T>(ValueConverter valueConverter, ModelBuilder modelBuilder)
 		{

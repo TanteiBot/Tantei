@@ -30,7 +30,11 @@ public static class Program
 	{
 		return Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
 		{
-			services.AddDbContext<DatabaseContext>();
+			services.AddDbContextFactory<DatabaseContext>((services, builder) =>
+			{
+				var options = services.GetRequiredService<IOptions<DatabaseOptions>>();
+				builder.UseSqlite(options.Value.ConnectionString);
+			});
 			var config = hostContext.Configuration;
 
 			services.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord));
@@ -60,11 +64,21 @@ public static class Program
 			services.AddHostedService<UpdateProvidersManagementService>();
 			services.AddHostedService<DiscordBackgroundService>();
 			services.AddHostedService<OnStartupActionsExecutingService>();
+			RunSQLiteConfiguration();
 		}).UseSerilog((context, _, configuration) =>
 		{
 			configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo.Console(
 				outputTemplate:
 				"[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {Level:u3}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}");
 		});
+	}
+
+	private static void RunSQLiteConfiguration()
+	{
+		SQLitePCL.Batteries_V2.Init();
+		// SQLITE_CONFIG_MULTITHREAD
+		// https://github.com/dotnet/efcore/issues/9994
+		// https://sqlite.org/threadsafe.html
+		SQLitePCL.raw.sqlite3_config(2);
 	}
 }
