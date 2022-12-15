@@ -24,19 +24,21 @@ public sealed class UpdatePublishingService
 {
 	private readonly ILogger<UpdatePublishingService> _logger;
 	private readonly DiscordClient _discordClient;
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 	private readonly UpdateProvidersConfigurationService _updateProvidersConfigurationService;
+	private readonly ILoggerFactory _loggerFactory;
 	private readonly ConcurrentDictionary<ulong, UpdatePoster> _updatePosters = new();
 
-	public UpdatePublishingService(ILogger<UpdatePublishingService> logger, DiscordClient discordClient, IServiceProvider serviceProvider,
-								   UpdateProvidersConfigurationService updateProvidersConfigurationService)
+	public UpdatePublishingService(ILogger<UpdatePublishingService> logger, DiscordClient discordClient, IDbContextFactory<DatabaseContext> dbContextFactory,
+								   UpdateProvidersConfigurationService updateProvidersConfigurationService, ILoggerFactory loggerFactory)
 	{
 		this._logger = logger;
 		this._logger.LogTrace("Building {@UpdatePublishingService}", typeof(UpdatePublishingService));
 
 		this._discordClient = discordClient;
-		this._serviceProvider = serviceProvider;
+		this._dbContextFactory = dbContextFactory;
 		this._updateProvidersConfigurationService = updateProvidersConfigurationService;
+		this._loggerFactory = loggerFactory;
 		this._discordClient.GuildDownloadCompleted += this.DiscordClientOnGuildDownloadCompleted;
 		this._logger.LogTrace("Built {@UpdatePublishingService}", typeof(UpdatePublishingService));
 	}
@@ -47,8 +49,7 @@ public sealed class UpdatePublishingService
 	{
 		_ = Task.Run(async () =>
 		{
-			using var scope = this._serviceProvider.CreateScope();
-			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+			using var db = this._dbContextFactory.CreateDbContext();
 			this._logger.LogDebug("Starting querying posting channels");
 			foreach (var guild in db.DiscordGuilds.AsNoTracking().ToArray())
 			{
@@ -86,7 +87,7 @@ public sealed class UpdatePublishingService
 	}
 
 	public bool AddChannel(DiscordChannel channel) => this._updatePosters.TryAdd(channel.Id,
-		new(this._serviceProvider.GetRequiredService<ILogger<UpdatePoster>>(), channel));
+		new(this._loggerFactory.CreateLogger<UpdatePoster>(), channel));
 
 	public void UpdateChannel(ulong key, DiscordChannel updatedValue)
 	{
@@ -96,7 +97,6 @@ public sealed class UpdatePublishingService
 
 	private async Task PublishUpdatesAsync(UpdateFoundEventArgs args)
 	{
-		using var scope = this._serviceProvider.CreateScope();
 		var tasks = new List<Task>(args.DiscordUser.Guilds.Count);
 		foreach (var guild in args.DiscordUser.Guilds)
 		{

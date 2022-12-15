@@ -22,19 +22,21 @@ public sealed class DiscordBackgroundService : BackgroundService
 {
 	private readonly ILogger<DiscordBackgroundService> _logger;
 	private readonly IOptions<DiscordOptions> _options;
-	private readonly IServiceProvider _provider;
 	private readonly DiscordClient Client;
+	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
+	private readonly GuildManagementService _guildManagementService;
 
-	public DiscordBackgroundService(IServiceProvider provider, IOptions<DiscordOptions> options, ILogger<DiscordBackgroundService> logger,
-									DiscordClient client)
+	public DiscordBackgroundService(IOptions<DiscordOptions> options, ILogger<DiscordBackgroundService> logger, DiscordClient client,
+									IDbContextFactory<DatabaseContext> dbContextFactory, GuildManagementService guildManagementService)
 	{
 		this._logger = logger;
 
 		this._logger.LogTrace("Building {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
-		this._provider = provider;
 		this._options = options;
 
 		this.Client = client;
+		this._dbContextFactory = dbContextFactory;
+		this._guildManagementService = guildManagementService;
 		this.Client.Resumed += this.ClientOnResumedAsync;
 		this.Client.Ready += this.ClientOnReadyAsync;
 		this.Client.ClientErrored += this.ClientOnClientErroredAsync;
@@ -53,10 +55,8 @@ public sealed class DiscordBackgroundService : BackgroundService
 		{
 			_ = Task.Factory.StartNew(async () =>
 			{
-				using var scope = this._provider.CreateScope();
 				this._logger.LogInformation("Bot was removed from {Guild}", e.Guild);
-				var gms = scope.ServiceProvider.GetRequiredService<GuildManagementService>();
-				await gms.RemoveGuildAsync(e.Guild.Id).ConfigureAwait(false);
+				await this._guildManagementService.RemoveGuildAsync(e.Guild.Id).ConfigureAwait(false);
 			}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Current).ContinueWith(
 				task => this._logger.LogError(task.Exception, "Task on removing guild from db faulted"), CancellationToken.None,
 				TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
@@ -87,8 +87,7 @@ public sealed class DiscordBackgroundService : BackgroundService
 	{
 		_ = Task.Factory.StartNew(async () =>
 		{
-			using var scope = this._provider.CreateScope();
-			var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+			using var db = this._dbContextFactory.CreateDbContext();
 			this._logger.LogDebug("User {Member} left guild {Guild}", e.Member, e.Guild);
 			var user = db.DiscordUsers.Include(u => u.Guilds).FirstOrDefault(u => u.DiscordUserId == e.Member.Id);
 			if (user is null)

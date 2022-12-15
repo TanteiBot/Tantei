@@ -22,20 +22,19 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 {
 	private readonly MyAnimeListClient _client;
 	private readonly ILogger<MalUserFeaturesService> _logger;
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
 
-	public MalUserFeaturesService(MyAnimeListClient client, ILogger<MalUserFeaturesService> logger, IServiceProvider serviceProvider)
+	public MalUserFeaturesService(MyAnimeListClient client, ILogger<MalUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
 	{
 		this._client = client;
 		this._logger = logger;
-		this._serviceProvider = serviceProvider;
+		this._dbContextFactory = dbContextFactory;
 	}
 
 	public async Task EnableFeaturesAsync(MalUserFeatures feature, ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.MalUsers.Include(mu => mu.DiscordUser).Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas)
 					   .Include(u => u.FavoriteCharacters).Include(u => u.FavoritePeople).Include(u => u.FavoriteCompanies)
 					   .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
@@ -88,8 +87,7 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 
 	public async Task DisableFeaturesAsync(MalUserFeatures feature, ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.MalUsers.Include(mu => mu.DiscordUser).Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas)
 					   .Include(u => u.FavoriteCharacters).Include(u => u.FavoritePeople).Include(u => u.FavoriteCompanies)
 					   .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
@@ -113,8 +111,7 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 
 	public ValueTask<string> EnabledFeaturesAsync(ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.MalUsers.Include(mu => mu.DiscordUser).AsNoTrackingWithIdentityResolution()
 					   .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 		if (dbUser is null)

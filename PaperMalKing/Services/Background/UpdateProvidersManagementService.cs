@@ -13,17 +13,15 @@ namespace PaperMalKing.Services.Background;
 public sealed class UpdateProvidersManagementService : IHostedService
 {
 	private readonly ILogger<UpdateProvidersManagementService> _logger;
-	private readonly IServiceProvider _serviceProvider;
 	private readonly UpdateProvidersConfigurationService _updateProvidersConfigurationService;
 
 
-	public UpdateProvidersManagementService(ILogger<UpdateProvidersManagementService> logger, IServiceProvider serviceProvider,
+	public UpdateProvidersManagementService(ILogger<UpdateProvidersManagementService> logger,
 											UpdateProvidersConfigurationService updateProvidersConfigurationService)
 	{
 		this._logger = logger;
 
 		this._logger.LogTrace("Building {@UpdateProvidersManagementService}", typeof(UpdateProvidersManagementService));
-		this._serviceProvider = serviceProvider;
 		this._updateProvidersConfigurationService = updateProvidersConfigurationService;
 		this._logger.LogTrace("Built {@UpdateProvidersManagementService}", typeof(UpdateProvidersManagementService));
 	}

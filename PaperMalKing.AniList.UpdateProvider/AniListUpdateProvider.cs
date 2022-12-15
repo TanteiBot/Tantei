@@ -29,15 +29,15 @@ namespace PaperMalKing.AniList.UpdateProvider;
 internal sealed class AniListUpdateProvider : BaseUpdateProvider
 {
 	private readonly AniListClient _client;
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
 	public AniListUpdateProvider(ILogger<AniListUpdateProvider> logger, IOptions<AniListOptions> options, AniListClient client,
-								 IServiceProvider serviceProvider) : base(logger,
+								 IDbContextFactory<DatabaseContext> dbContextFactory) : base(logger,
 		TimeSpan
 			.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 	{
 		this._client = client;
-		this._serviceProvider = serviceProvider;
+		this._dbContextFactory = dbContextFactory;
 	}
 
 	public override string Name => Constants.NAME;
@@ -49,8 +49,8 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		{
 			return;
 		}
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+
+		using var db = this._dbContextFactory.CreateDbContext();
 		foreach (var dbUser in db.AniListUsers.Include(au => au.DiscordUser).ThenInclude(du => du.Guilds).Include(au => au.Favourites)
 								 .Where(u => u.DiscordUser.Guilds.Any() && ((u.Features & AniListUserFeatures.AnimeList) != 0 ||
 																			(u.Features & AniListUserFeatures.MangaList) != 0 ||

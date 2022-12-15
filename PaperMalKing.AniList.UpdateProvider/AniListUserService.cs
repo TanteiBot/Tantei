@@ -18,19 +18,18 @@ namespace PaperMalKing.AniList.UpdateProvider;
 public sealed class AniListUserService : IUpdateProviderUserService
 {
 	private readonly AniListClient _client;
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 	public static string Name => Constants.NAME;
 
-	public AniListUserService(AniListClient client, IServiceProvider serviceProvider)
+	public AniListUserService(AniListClient client, IDbContextFactory<DatabaseContext> dbContextFactory)
 	{
 		this._client = client;
-		this._serviceProvider = serviceProvider;
+		this._dbContextFactory = dbContextFactory;
 	}
 
 	public async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 		DiscordGuild? guild;
 		if (dbUser is not null) // User already in db
@@ -98,8 +97,7 @@ public sealed class AniListUserService : IUpdateProviderUserService
 
 	public async Task<BaseUser> RemoveUserAsync(ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var user = db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 		if (user is null)
 			throw new UserProcessingException($"You weren't tracked by {Name} update checker");
@@ -111,8 +109,7 @@ public sealed class AniListUserService : IUpdateProviderUserService
 
 	public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var user = db.DiscordUsers.Include(du => du.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 		if (user is null)
 			throw new UserProcessingException("You weren't registered in bot");
@@ -127,13 +124,12 @@ public sealed class AniListUserService : IUpdateProviderUserService
 
 	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		return db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).Select(su => new
-		{
-			su.DiscordUser,
-			su.LastActivityTimestamp
-		}).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastActivityTimestamp)
+				 {
+					 su.DiscordUser,
+					 su.LastActivityTimestamp
+				 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastActivityTimestamp)
 				 .Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking().ToArray();
 	}
 }

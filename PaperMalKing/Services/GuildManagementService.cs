@@ -17,18 +17,17 @@ namespace PaperMalKing.Services;
 public sealed class GuildManagementService
 {
 	private readonly ILogger<GuildManagementService> _logger;
-
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
 	private readonly UpdatePublishingService _updatePublishingService;
 	private readonly DiscordClient _discordClient;
 
-	public GuildManagementService(ILogger<GuildManagementService> logger, IServiceProvider serviceProvider,
+	public GuildManagementService(ILogger<GuildManagementService> logger, IDbContextFactory<DatabaseContext> dbContextFactory,
 								  UpdatePublishingService updatePublishingService, DiscordClient discordClient)
 	{
 		this._logger = logger;
+		this._dbContextFactory = dbContextFactory;
 		this._logger.LogTrace("Building {@GuildManagementService}", typeof(GuildManagementService));
-		this._serviceProvider = serviceProvider;
 		this._updatePublishingService = updatePublishingService;
 		this._discordClient = discordClient;
 		this._logger.LogTrace("Built {@GuildManagementService}", typeof(GuildManagementService));
@@ -36,8 +35,7 @@ public sealed class GuildManagementService
 
 	public async Task<DiscordGuild> SetChannelAsync(ulong guildId, ulong channelId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild != null)
 			throw new GuildManagementException("Server already have channel to post updates into", guildId, channelId);
@@ -59,8 +57,7 @@ public sealed class GuildManagementService
 
 	public async Task RemoveGuildAsync(ulong guildId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
 			throw new GuildManagementException("You can't remove this server from posting updates", guildId);
@@ -73,8 +70,7 @@ public sealed class GuildManagementService
 
 	public async Task UpdateChannelAsync(ulong guildId, ulong channelId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
 			throw new GuildManagementException("You can't update channel for posting updates without setting it first", guildId, channelId);
@@ -95,8 +91,7 @@ public sealed class GuildManagementService
 
 	public async Task RemoveUserAsync(ulong guildId, ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var guild = db.DiscordGuilds.Include(g => g.Users).First(g => g.DiscordGuildId == guildId);
 		var user = guild.Users.FirstOrDefault(u => u.DiscordUserId == userId);
 		if (user is null)

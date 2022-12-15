@@ -21,19 +21,18 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 {
 	private readonly AniListClient _client;
 	private readonly ILogger<AniListUserFeaturesService> _logger;
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
-	public AniListUserFeaturesService(AniListClient client, ILogger<AniListUserFeaturesService> logger, IServiceProvider serviceProvider)
+	public AniListUserFeaturesService(AniListClient client, ILogger<AniListUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
 	{
 		this._client = client;
 		this._logger = logger;
-		this._serviceProvider = serviceProvider;
+		this._dbContextFactory = dbContextFactory;
 	}
 
 	public async Task EnableFeaturesAsync(AniListUserFeatures feature, ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.AniListUsers.Include(u => u.Favourites).FirstOrDefault(u => u.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
@@ -78,8 +77,7 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 
 	public async Task DisableFeaturesAsync(AniListUserFeatures feature, ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.AniListUsers.Include(su => su.Favourites).FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before disabling features");
@@ -94,8 +92,7 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 
 	public ValueTask<string> EnabledFeaturesAsync(ulong userId)
 	{
-		using var scope = this._serviceProvider.CreateScope();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.AniListUsers.AsNoTrackingWithIdentityResolution().FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before checking for enabled features");

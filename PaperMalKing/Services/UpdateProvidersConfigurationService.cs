@@ -20,10 +20,10 @@ public sealed class UpdateProvidersConfigurationService
 
 	public IReadOnlyDictionary<string, IUpdateProvider> Providers => this._providers;
 
-	public UpdateProvidersConfigurationService(ILogger<UpdateProvidersConfigurationService> logger, IServiceProvider serviceProvider)
+	public UpdateProvidersConfigurationService(ILogger<UpdateProvidersConfigurationService> logger, IEnumerable<IUpdateProvider> updateProviders)
 	{
 		logger.LogTrace("Building {@UpdateProvidersConfigurationService}", typeof(UpdateProvidersConfigurationService));
-		foreach (var updateProvider in serviceProvider.GetServices<IUpdateProvider>())
+		foreach (var updateProvider in updateProviders)
 		{
 			logger.LogDebug("Registering {@UpdateProvider} update provider", updateProvider);
 			this._providers.Add(updateProvider.Name, updateProvider);
