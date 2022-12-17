@@ -55,10 +55,11 @@ public sealed class MalUpdateProviderConfigurator : IUpdateProviderConfigurator<
 		serviceCollection.AddSingleton<IUpdateProvider, MalUpdateProvider>();
 	}
 
-	private static HttpClientHandler HttpClientHandlerFactory() => new HttpClientHandler
+	private static SocketsHttpHandler HttpClientHandlerFactory() => new()
 	{
 		UseCookies = true,
-		CookieContainer = new()
+		CookieContainer = new(),
+		PooledConnectionLifetime = TimeSpan.FromMinutes(15)
 	};
 
 	private static RateLimiterHttpMessageHandler GetRateLimiterHandler(IServiceProvider provider) =>
