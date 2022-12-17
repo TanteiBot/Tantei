@@ -27,10 +27,11 @@ public sealed class MalUpdateProviderConfigurator : IUpdateProviderConfigurator<
 		var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError()
 											  .OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
 											  .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));
-		serviceCollection.AddHttpClient(MalOptions.MyAnimeList).AddPolicyHandler(retryPolicy).ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+		serviceCollection.AddHttpClient(MalOptions.MyAnimeList).AddPolicyHandler(retryPolicy).ConfigurePrimaryHttpMessageHandler(_ => new SocketsHttpHandler()
 		{
 			UseCookies = true,
-			CookieContainer = new()
+			CookieContainer = new(),
+			PooledConnectionLifetime = TimeSpan.FromMinutes(15)
 		}).AddHttpMessageHandler(provider =>
 		{
 			var rl = provider.GetRequiredService<RateLimiter<MyAnimeListClient>>();
