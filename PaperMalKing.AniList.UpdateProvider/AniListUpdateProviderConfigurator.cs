@@ -22,7 +22,10 @@ public sealed class AniListUpdateProviderConfigurator : IUpdateProviderConfigura
 	{
 		serviceCollection.AddOptions<AniListOptions>().Bind(configuration.GetSection(AniListOptions.AniList));
 
-		serviceCollection.AddHttpClient(Constants.NAME).AddHttpMessageHandler(provider =>
+		serviceCollection.AddHttpClient(Constants.NAME).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler()
+		{
+			PooledConnectionLifetime = TimeSpan.FromMinutes(30),
+		}).AddHttpMessageHandler(provider =>
 		{
 			var rlLogger = provider.GetRequiredService<ILogger<HeaderBasedRateLimitMessageHandler>>();
 			var rl = new HeaderBasedRateLimitMessageHandler(rlLogger);

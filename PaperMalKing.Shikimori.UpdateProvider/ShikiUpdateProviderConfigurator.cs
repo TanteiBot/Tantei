@@ -28,7 +28,10 @@ public sealed class ShikiUpdateProviderConfigurator : IUpdateProviderConfigurato
 		var policy = HttpPolicyExtensions.HandleTransientHttpError().OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
 										 .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));
 
-		serviceCollection.AddHttpClient(Constants.NAME).AddPolicyHandler(policy).AddHttpMessageHandler(provider =>
+		serviceCollection.AddHttpClient(Constants.NAME).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler()
+		{
+			PooledConnectionLifetime = TimeSpan.FromMinutes(15),
+		}).AddPolicyHandler(policy).AddHttpMessageHandler(provider =>
 		{
 			var rl = new RateLimit(90, TimeSpan.FromMinutes(1.05d)); // 90rpm with .05 as inaccuracy
 			return RateLimiterFactory.Create<ShikiClient>(rl).ToHttpMessageHandler();
