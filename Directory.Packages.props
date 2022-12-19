@@ -11,7 +11,7 @@
         <PackageVersion Include="Serilog.Sinks.Console" Version="4.1.0"/>
         <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0"/>
         <!-- Discord -->
-        <PackageVersion Include="DSharpPlus" Version="4.3.0-nightly-01215"/>
+        <PackageVersion Include="DSharpPlus" Version="4.3.0-nightly-01223"/>
         <PackageVersion Include="DSharpPlus.SlashCommands" Version="4.3.0-nightly-01215"/>
         <!-- GraphQl -->
         <PackageVersion Include="GraphQL.Client" Version="5.1.0"/>
