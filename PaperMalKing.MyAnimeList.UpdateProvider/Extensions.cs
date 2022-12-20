@@ -287,7 +287,8 @@ internal static class Extensions
 
 		if ((features & MalUserFeatures.Synopsis) != 0 && !string.IsNullOrWhiteSpace(listEntry.Node.Synopsis))
 		{
-			AddAsFieldOrTruncateToDescription(eb, "Synopsis", listEntry.Node.Synopsis);
+			var shortSynopsis = listEntry.Node.Synopsis.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+			AddAsFieldOrTruncateToDescription(eb, "Synopsis", shortSynopsis[0], false);
 		}
 
 		if ((features & MalUserFeatures.Studio) != 0 && listEntry is AnimeListEntry aListEntry &&
@@ -313,10 +314,10 @@ internal static class Extensions
 		return eb;
 	}
 
-	private static DiscordEmbedBuilder AddAsFieldOrTruncateToDescription(DiscordEmbedBuilder eb, string fieldName, string fieldValue)
+	private static DiscordEmbedBuilder AddAsFieldOrTruncateToDescription(DiscordEmbedBuilder eb, string fieldName, string fieldValue, bool inline = true)
 	{
 		if (fieldValue.Length <= 1024)
-			eb.AddField(fieldName, fieldValue, true);
+			eb.AddField(fieldName, fieldValue, inline);
 		else
 		{
 			var l = eb.Description?.Length ?? 0;
