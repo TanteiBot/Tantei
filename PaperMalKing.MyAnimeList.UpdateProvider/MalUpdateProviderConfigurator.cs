@@ -36,11 +36,10 @@ public sealed class MalUpdateProviderConfigurator : IUpdateProviderConfigurator<
 							 client.DefaultRequestHeaders.UserAgent.ParseAdd(
 								 "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0");
 						 });
-		serviceCollection.AddHttpClient(Constants.OfficialApiHeaderName).AddPolicyHandler(retryPolicy)
+		serviceCollection.AddHttpClient(Constants.OfficialApiHttpClientName).AddPolicyHandler(retryPolicy)
 						 .ConfigurePrimaryHttpMessageHandler(_ => HttpClientHandlerFactory()).AddHttpMessageHandler(GetRateLimiterHandler)
 						 .ConfigureHttpClient((provider, client) =>
 						 {
-							 client.BaseAddress = new Uri(PaperMalKing.MyAnimeList.Wrapper.Constants.BASE_OFFICIAL_API_URL);
 							 var options = provider.GetRequiredService<IOptions<MalOptions>>().Value;
 							 client.DefaultRequestHeaders.Add(Constants.OfficialApiHeaderName, options.ClientId);
 						 });

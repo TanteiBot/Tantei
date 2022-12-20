@@ -15,6 +15,6 @@ internal abstract class BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, T
 	[JsonPropertyName("node")]
 	public required TNode Node { get; init; }
 
-	[JsonPropertyName("status")]
+	[JsonPropertyName("list_status")]
 	public required TStatus Status { get; init; }
 }

@@ -244,7 +244,7 @@ internal static class Extensions
 
 		eb.AddField("Progress", userProgressText, true);
 
-		var shortTitle = TitleMediaTypeString(listEntry.Node.Title, listEntry.Node.MediaType.ToString(), features);
+		var shortTitle = TitleMediaTypeString(listEntry.Node.Title, listEntry.Node.MediaType.Humanize(), features);
 		string title;
 		if (features.HasFlag(MalUserFeatures.MediaStatus))
 		{
@@ -267,7 +267,7 @@ internal static class Extensions
 		else
 			eb.Description = Formatter.MaskedUrl(title, new Uri(listEntry.Node.Url));
 
-		if ((features & MalUserFeatures.Tags) != 0 && listEntry.Status.Tags?.Count is not null or 0)
+		if ((features & MalUserFeatures.Tags) != 0 && listEntry.Status.Tags?.Count is not null and not 0)
 		{
 			var joinedTags = string.Join(',', listEntry.Status.Tags);
 			AddAsFieldOrTruncateToDescription(eb, "Tags", joinedTags);

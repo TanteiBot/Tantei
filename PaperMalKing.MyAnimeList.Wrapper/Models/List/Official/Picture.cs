@@ -10,5 +10,6 @@ internal sealed class Picture
 	[JsonPropertyName("large")]
 	public string? Large { get; init; }
 
+	[JsonPropertyName("medium")]
 	public required string Medium { get; init; }
 }

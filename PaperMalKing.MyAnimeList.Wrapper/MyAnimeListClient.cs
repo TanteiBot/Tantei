@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -85,13 +86,13 @@ public sealed class MyAnimeListClient
 		this._logger.LogDebug("Requesting {@Username} {@Type} list", username, TListType.ListEntryType);
 
 		username = WebUtility.UrlEncode(username);
-		var url = TListType.LatestUpdatesUrl(username, requestOptions);
+		var url = $"{Constants.BASE_OFFICIAL_API_URL}{TListType.LatestUpdatesUrl(username, requestOptions)}";
 		using var response = await this._officialApiHttpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-		using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-		var updates = await JsonSerializer
-							.DeserializeAsync<ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>>(stream,
-								JsonSerializerOptions.Default, cancellationToken).ConfigureAwait(false);
+		var updates = await response.Content
+									.ReadFromJsonAsync<ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>>(
+										JsonSerializerOptions.Default, cancellationToken).ConfigureAwait(false);
+		
 		return updates?.Data ?? Array.Empty<TE>();
 	}
 

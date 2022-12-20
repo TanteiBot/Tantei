@@ -77,7 +77,12 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var listUpdates = await this._client
 										.GetLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(user.Username,
 											dbUser.Features.ToRequestOptions<TRO>(), ct).ConfigureAwait(false);
-			dbUpdateAction(dbUser, user, latestUpdateDateTime);
+			if (listUpdates.Count == 0)
+			{
+				return Array.Empty<DiscordEmbedBuilder>();
+			}
+			var newLatestUpdateTimeStamp = listUpdates.MaxBy(x => x.Status.UpdatedAt)!.Status.UpdatedAt;
+			dbUpdateAction(dbUser, user, newLatestUpdateTimeStamp);
 
 			return listUpdates.Where(x => x.Status.UpdatedAt > latestUpdateDateTime).Select(x =>
 				x.ToDiscordEmbedBuilder<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(user, dbUser.Features)).ToArray();
