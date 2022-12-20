@@ -51,6 +51,8 @@
             S3885; <!--Replace this call to 'Assembly.LoadFile' with 'Assembly.Load'.-->
             S1481; <!--Remove the unused local variable 's'.-->
             S2743; <!-- Static fields should not be used in generic types-->
+            S3241; <!--Change return type to 'void'; not a single caller uses the returned value.-->
+            
             AsyncFixer02; <!--ToArrayAsync should be used instead of -->
         </NoWarn>
         <WarningsNotAsErrors>

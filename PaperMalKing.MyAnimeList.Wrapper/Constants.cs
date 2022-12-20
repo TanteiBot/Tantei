@@ -12,15 +12,7 @@ internal static class Constants
 
 	internal const string COMMENTS_URL = BASE_URL + "/comments.php?id=";
 
-	internal const string RSS_ANIME_URL = "https://myanimelist.net/rss.php?type=rw&u=";
-
-	internal const string RSS_MANGA_URL = "https://myanimelist.net/rss.php?type=rm&u=";
-
-	internal const string ANIME_LIST_URL = BASE_URL + "/animelist/";
-
-	internal const string MANGA_LIST_URL = BASE_URL + "/mangalist/";
-
-	internal const string LATEST_LIST_UPDATES = "/load.json?order=5&status=7";
+	internal const string BASE_OFFICIAL_API_URL = "https://api.myanimelist.net/v2";
 
 	// Discord doesn't support .ico formats in footer icons
 	internal const string FAV_ICON = "https://pbs.twimg.com/profile_images/1190380284295950339/Py6XnxvH_200x200.jpg";

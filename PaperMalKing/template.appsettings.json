@@ -35,7 +35,8 @@
     "MyAnimeList": {
         "AmountOfRequests": 1,
         "PeriodInMilliseconds": 2500,
-        "DelayBetweenChecksInMilliseconds": 60000
+        "DelayBetweenChecksInMilliseconds": 60000,
+	    "ClientId": ""
     },
     "Shikimori": {
         "ShikimoriAppName": "ShikiAppName",

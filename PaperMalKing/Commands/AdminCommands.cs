@@ -11,7 +11,6 @@ using Microsoft.Extensions.Hosting;
 using PaperMalKing.Common;
 using PaperMalKing.Services;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
-using Polly;
 
 namespace PaperMalKing.Commands;
 

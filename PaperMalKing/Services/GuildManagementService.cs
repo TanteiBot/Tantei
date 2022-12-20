@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;

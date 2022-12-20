@@ -21,7 +21,7 @@ public sealed class DiscordOptions
 
 		public required string PresenceText { get; set; }
 
-		public int TimeToBeDisplayedInMilliseconds { get; set; }
+		public required int TimeToBeDisplayedInMilliseconds { get; set; }
 
 		public required string Status { get; set; }
 	}

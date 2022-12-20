@@ -3,15 +3,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
 using PaperMalKing.Database.Models.MyAnimeList;
+using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List;
-using PaperMalKing.MyAnimeList.Wrapper.Models.Progress;
+using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.AnimeList;
+using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.Base;
+using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.MangaList;
 using WConstants = PaperMalKing.MyAnimeList.Wrapper.Constants;
 
 
@@ -25,16 +30,13 @@ internal static class Extensions
 		Text = Constants.Name
 	};
 
-	private static readonly Dictionary<GenericProgress, DiscordColor> Colors = new()
+	private static readonly Dictionary<byte, DiscordColor> Colors = new()
 	{
-		{GenericProgress.CurrentlyInProgress, Constants.MalGreen},
-		{GenericProgress.Completed, Constants.MalBlue},
-		{GenericProgress.OnHold, Constants.MalYellow},
-		{GenericProgress.Dropped, Constants.MalRed},
-		{GenericProgress.InPlans, Constants.MalGrey},
-		{GenericProgress.Reprogressing, Constants.MalGreen},
-		{GenericProgress.All, Constants.MalBlack},
-		{GenericProgress.Unknown, Constants.MalBlack}
+		{(byte)AnimeListStatus.watching, Constants.MalGreen},
+		{(byte)AnimeListStatus.completed, Constants.MalBlue},
+		{(byte)AnimeListStatus.on_hold, Constants.MalYellow},
+		{(byte)AnimeListStatus.dropped, Constants.MalRed},
+		{(byte)AnimeListStatus.plan_to_watch, Constants.MalGrey},
 	};
 
 	internal static ParserOptions ToParserOptions(this MalUserFeatures features)
@@ -45,6 +47,44 @@ internal static class Extensions
 		if (features.HasFlag(MalUserFeatures.Favorites)) options |= ParserOptions.Favorites;
 
 		return options;
+	}
+
+	internal static TRequestOptions ToRequestOptions<TRequestOptions>(this MalUserFeatures features) where TRequestOptions : unmanaged, Enum
+	{
+		Debug.Assert(typeof(TRequestOptions) == typeof(AnimeFieldsToRequest) || typeof(TRequestOptions) == typeof(MangaFieldsToRequest));
+		AnimeFieldsToRequest fields = default;
+		if ((features & MalUserFeatures.Synopsis) != 0)
+		{
+			fields |= AnimeFieldsToRequest.Synopsis;
+		}
+
+		if ((features & MalUserFeatures.Genres) != 0)
+		{
+			fields |= AnimeFieldsToRequest.Genres;
+		}
+
+		if ((features & MalUserFeatures.Tags) != 0)
+		{
+			fields |= AnimeFieldsToRequest.Tags;
+		}
+
+		if ((features & MalUserFeatures.Comments) != 0)
+		{
+			fields |= AnimeFieldsToRequest.Comments;
+		}
+
+		if (typeof(TRequestOptions) == typeof(MangaFieldsToRequest) && (features & MalUserFeatures.Mangakas) != 0)
+		{
+			var mangaFields = Unsafe.As<AnimeFieldsToRequest, MangaFieldsToRequest>(ref fields);
+			mangaFields |= MangaFieldsToRequest.Authors;
+			return Unsafe.As<MangaFieldsToRequest, TRequestOptions>(ref mangaFields);
+		}
+		if((features & MalUserFeatures.Studio) != 0)
+		{
+			fields |= AnimeFieldsToRequest.Studio;
+		}
+
+		return Unsafe.As<AnimeFieldsToRequest, TRequestOptions>(ref fields);
 	}
 
 	internal static T ToDbFavorite<T>(this BaseFavorite baseFavorite, MalUser user) where T : class, IMalFavorite
@@ -121,8 +161,6 @@ internal static class Extensions
 		return builder;
 	}
 
-	internal static string ToHashString(this (string, string) v) => $"{v.Item1} {v.Item2}";
-
 	internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this IMalFavorite favorite, bool added)
 	{
 		var eb = new DiscordEmbedBuilder
@@ -145,11 +183,15 @@ internal static class Extensions
 		return eb;
 	}
 
-	internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this IListEntry listEntry, User user, DateTimeOffset timestamp,
-															  MalUserFeatures features)
+	internal static DiscordEmbedBuilder ToDiscordEmbedBuilder<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(this TLe listEntry, User user, MalUserFeatures features) where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
+																						where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
+																						where TStatus : BaseListEntryStatus<TListStatus>
+																						where TMediaType : unmanaged, Enum
+																						where TNodeStatus : unmanaged, Enum
+																						where TListStatus : unmanaged, Enum
 	{
 		[return: NotNull]
-		static string SubEntriesProgress(int progressedValue, int totalValue, bool isInPlans, string ending) =>
+		static string SubEntriesProgress(ulong progressedValue, ulong totalValue, bool isInPlans, string ending) =>
 			progressedValue switch
 			{
 				0 when totalValue == 0 => string.Empty,
@@ -163,31 +205,31 @@ internal static class Extensions
 				? title
 				: $"{title} ({mediaType})";
 
-		var eb = new DiscordEmbedBuilder().WithThumbnail(listEntry.ImageUrl).WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl)
-										  .WithTimestamp(timestamp);
+		var eb = new DiscordEmbedBuilder().WithThumbnail(listEntry.Node.Picture?.Large ?? listEntry.Node.Picture?.Medium)
+										  .WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl).WithTimestamp(listEntry.Status.UpdatedAt);
 
 
-		if (listEntry.Score != 0)
-			eb.AddField("Score", listEntry.Score.ToString(), true);
+		if (listEntry.Status.Score != 0)
+			eb.AddField("Score", listEntry.Status.Score.ToString(), true);
 
 		string userProgressText;
 		switch (listEntry)
 		{
 			case AnimeListEntry ale:
 				{
-					var progress = ale.UserAnimeProgress.Humanize(LetterCasing.Sentence);
-					string episodeProgress = SubEntriesProgress(ale.WatchedEpisodes, ale.TotalEpisodes,
-						ale.UserAnimeProgress == AnimeProgress.PlanToWatch, "ep.");
+					var progress = ale.Status.Status.Humanize(LetterCasing.Sentence);
+					string episodeProgress = SubEntriesProgress(ale.Status.EpisodesWatched, ale.Node.Episodes,
+						ale.Status.Status == AnimeListStatus.plan_to_watch, "ep.");
 					userProgressText = episodeProgress.Length != 0 ? $"{progress} - {episodeProgress}" : progress;
 					break;
 				}
 			case MangaListEntry mle:
 				{
-					string progress = mle.UserMangaProgress.Humanize(LetterCasing.Sentence)!;
-					string chapterProgress = SubEntriesProgress(mle.ReadChapters, mle.TotalChapters,
-						mle.UserMangaProgress == MangaProgress.PlanToRead, "ch. ");
+					string progress = mle.Status.Status.Humanize(LetterCasing.Sentence)!;
+					string chapterProgress = SubEntriesProgress(mle.Status.ChaptersRead, mle.Node.TotalChapters,
+						mle.Status.Status == MangaListStatus.plan_to_read, "ch. ");
 					string volumeProgress =
-						SubEntriesProgress(mle.ReadVolumes, mle.TotalVolumes, mle.UserMangaProgress == MangaProgress.PlanToRead, "v.");
+						SubEntriesProgress(mle.Status.ReadVolumes, mle.Node.TotalVolumes, mle.Status.Status == MangaListStatus.plan_to_read, "v.");
 					userProgressText = chapterProgress.Length != 0 ||
 #pragma warning disable CA1508
 									   volumeProgress.Length != 0
@@ -196,26 +238,22 @@ internal static class Extensions
 					break;
 				}
 			default:
-				{
-					var progress = listEntry.UserProgress.Humanize(LetterCasing.Sentence);
-					var sep = SubEntriesProgress(listEntry.ProgressedSubEntries, listEntry.TotalSubEntries,
-						listEntry.UserProgress == GenericProgress.InPlans, "");
-					userProgressText = sep.Length != 0 ? $"{progress} - {sep}" : progress;
-					break;
-				}
+			{
+				throw new UnreachableException("We shouldnt have any other entry type other than Anime and Manga");
+			}
 		}
 
 		eb.AddField("Progress", userProgressText, true);
 
-		var shortTitle = TitleMediaTypeString(listEntry.Title, listEntry.MediaType, features);
+		var shortTitle = TitleMediaTypeString(listEntry.Node.Title, listEntry.Node.MediaType.Humanize(), features);
 		string title;
 		if (features.HasFlag(MalUserFeatures.MediaStatus))
 		{
 			var entryStatus = listEntry switch
 			{
-				AnimeListEntry animeListEntry => animeListEntry.AnimeAiringStatus.Humanize(LetterCasing.Sentence),
-				MangaListEntry mangaListEntry => mangaListEntry.MangaPublishingStatus.Humanize(LetterCasing.Sentence),
-				_ => listEntry.Status.Humanize(LetterCasing.Sentence),
+				AnimeListEntry animeListEntry => animeListEntry.Node.Status.Humanize(LetterCasing.Sentence),
+				MangaListEntry mangaListEntry => mangaListEntry.Node.Status.Humanize(LetterCasing.Sentence),
+				_                             => throw new UnreachableException()
 			};
 			title = $"{shortTitle} [{entryStatus}]";
 		}
@@ -224,30 +262,67 @@ internal static class Extensions
 
 		if (title.Length <= 256)
 		{
-			eb.Url = listEntry.Url;
+			eb.Url = listEntry.Node.Url;
 			eb.Title = title;
 		}
 		else
-			eb.Description = Formatter.MaskedUrl(title, new Uri(listEntry.Url));
+			eb.Description = Formatter.MaskedUrl(title, new Uri(listEntry.Node.Url));
 
-		if (listEntry.Tags.Length != 0)
+		if ((features & MalUserFeatures.Tags) != 0 && listEntry.Status.Tags?.Count is not null and not 0)
 		{
-			if (listEntry.Tags.Length <= 1024)
-				eb.AddField("Tags", listEntry.Tags, true);
-			else
-			{
-				var l = eb.Description?.Length ?? 0;
-				var descToAdd = $"Tags\n{listEntry.Tags}".Truncate(2048 - l - 1, Truncator.FixedNumberOfCharacters);
-				if (string.IsNullOrEmpty(eb.Description))
-					eb.WithDescription(descToAdd);
-				else
-					eb.Description += descToAdd;
-			}
+			var joinedTags = string.Join(", ", listEntry.Status.Tags);
+			AddAsFieldOrTruncateToDescription(eb, "Tags", joinedTags);
 		}
 
+		if ((features & MalUserFeatures.Comments) != 0 && !string.IsNullOrWhiteSpace(listEntry.Status.Comments))
+		{
+			AddAsFieldOrTruncateToDescription(eb, "Comments", listEntry.Status.Comments);
+		}
 
-		eb.WithTitle(title);
-		eb.WithColor(Colors[listEntry.UserProgress]);
+		if ((features & MalUserFeatures.Genres) != 0 && listEntry.Node.Genres?.Count is not null and not 0)
+		{
+			var genres = string.Join(", ", listEntry.Node.Genres.Take(7).Select(x => x.Name.Humanize(LetterCasing.Title)));
+			AddAsFieldOrTruncateToDescription(eb, "Genres", genres);
+		}
+
+		if ((features & MalUserFeatures.Studio) != 0 && listEntry is AnimeListEntry aListEntry &&
+		    aListEntry.Node.Studios?.Count is not null and not 0)
+		{
+			var studios = string.Join(", ", aListEntry.Node.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
+			AddAsFieldOrTruncateToDescription(eb, "Studio".ToQuantity(aListEntry.Node.Studios.Count, ShowQuantityAs.None), studios);
+		}
+
+		if ((features & MalUserFeatures.Mangakas) != 0 && listEntry is MangaListEntry mListEntry &&
+		    mListEntry.Node.Authors?.Count is not null and not 0)
+		{
+			var authors = string.Join(", ", mListEntry.Node.Authors.Take(7).Select(x =>
+			{
+				var name =
+					$"{(x.Person.LastName?.Length is not null and not 0 ? $"{x.Person.LastName}, {x.Person.FirstName}" : x.Person.FirstName)} ({x.Role})";
+				return Formatter.MaskedUrl(name, new Uri(x.Person.Url));
+			}));
+			AddAsFieldOrTruncateToDescription(eb, "Authors", authors);
+		}
+
+		eb.WithColor(Colors[listEntry.Status.GetStatusAsUnderlyingType()]);
 		return eb;
 	}
+
+	private static DiscordEmbedBuilder AddAsFieldOrTruncateToDescription(DiscordEmbedBuilder eb, string fieldName, string fieldValue)
+	{
+		if (fieldValue.Length <= 1024)
+			eb.AddField(fieldName, fieldValue, true);
+		else
+		{
+			var l = eb.Description?.Length ?? 0;
+			var descToAdd = $"{fieldName}\n{fieldValue}".Truncate(2048 - l - 1, Truncator.FixedNumberOfCharacters);
+			if (string.IsNullOrEmpty(eb.Description))
+				eb.WithDescription(descToAdd);
+			else
+				eb.Description += $"{'\n'}descToAdd";
+		}
+
+		return eb;
+	}
+
 }

@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.Extensions.Options;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.AniList;
