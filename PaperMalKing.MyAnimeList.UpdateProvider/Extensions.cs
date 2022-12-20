@@ -285,6 +285,11 @@ internal static class Extensions
 			AddAsFieldOrTruncateToDescription(eb, "Genres", genres);
 		}
 
+		if ((features & MalUserFeatures.Synopsis) != 0 && !string.IsNullOrWhiteSpace(listEntry.Node.Synopsis))
+		{
+			AddAsFieldOrTruncateToDescription(eb, "Synopsis", listEntry.Node.Synopsis);
+		}
+
 		if ((features & MalUserFeatures.Studio) != 0 && listEntry is AnimeListEntry aListEntry &&
 		    aListEntry.Node.Studios?.Count is not null and not 0)
 		{
