@@ -19,13 +19,13 @@ internal sealed class User
 
 	internal int Id { get; init; }
 
-	internal bool HasPublicAnimeUpdates => this.LatestAnimeUpdate is not null;
+	internal bool HasPublicAnimeUpdates => this.LatestAnimeUpdateHash is not null;
 
-	internal bool HasPublicMangaUpdates => this.LatestMangaUpdate is not null;
+	internal bool HasPublicMangaUpdates => this.LatestMangaUpdateHash is not null;
 
-	internal LatestInProfileUpdate? LatestMangaUpdate { get; init; }
+	internal string? LatestMangaUpdateHash { get; init; }
 
-	internal LatestInProfileUpdate? LatestAnimeUpdate { get; init; }
+	internal string? LatestAnimeUpdateHash { get; init; }
 
 	internal required UserFavorites Favorites { get; init; }
 }

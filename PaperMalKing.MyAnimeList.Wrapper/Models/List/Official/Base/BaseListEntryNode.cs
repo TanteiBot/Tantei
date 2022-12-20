@@ -30,5 +30,7 @@ internal abstract class BaseListEntryNode<TMediaType, TStatus> where TMediaType 
 	[JsonPropertyName("status"), JsonConverter(typeof(JsonStringEnumConverter))]
 	public required TStatus Status { get; init; }
 
+	public abstract string Url { get; }
+
 	public abstract uint TotalSubEntries { get; }
 }

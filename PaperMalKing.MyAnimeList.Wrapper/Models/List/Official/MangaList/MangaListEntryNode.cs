@@ -9,6 +9,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.MangaList;
 
 internal sealed class MangaListEntryNode : BaseListEntryNode<MangaMediaType, MangaPublishingStatus>
 {
+	private string? _url = null;
 	public override uint TotalSubEntries => this.TotalChapters;
 
 	[JsonPropertyName("num_volumes")]
@@ -16,7 +17,9 @@ internal sealed class MangaListEntryNode : BaseListEntryNode<MangaMediaType, Man
 
 	[JsonPropertyName("num_chapters")]
 	public required uint TotalChapters { get; init; }
-	
+
 	[JsonPropertyName("authors")]
 	public IReadOnlyList<Author>? Authors { get; init; }
+
+	public override string Url => this._url ??= $"{Constants.BASE_URL}/manga/{Id}";
 }

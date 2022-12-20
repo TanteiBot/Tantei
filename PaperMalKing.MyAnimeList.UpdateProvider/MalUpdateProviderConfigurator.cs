@@ -40,6 +40,7 @@ public sealed class MalUpdateProviderConfigurator : IUpdateProviderConfigurator<
 						 .ConfigurePrimaryHttpMessageHandler(_ => HttpClientHandlerFactory()).AddHttpMessageHandler(GetRateLimiterHandler)
 						 .ConfigureHttpClient((provider, client) =>
 						 {
+							 client.BaseAddress = new Uri(PaperMalKing.MyAnimeList.Wrapper.Constants.BASE_OFFICIAL_API_URL);
 							 var options = provider.GetRequiredService<IOptions<MalOptions>>().Value;
 							 client.DefaultRequestHeaders.Add(Constants.OfficialApiHeaderName, options.ClientId);
 						 });

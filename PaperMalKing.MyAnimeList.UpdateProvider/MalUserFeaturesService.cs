@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.MyAnimeList;
@@ -50,7 +49,7 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 			{
 				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None)
 								 .ConfigureAwait(false);
-				dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdate?.Hash.ToHashString() ?? "";
+				dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdateHash ?? "";
 				dbUser.LastUpdatedAnimeListTimestamp = now;
 				break;
 			}
@@ -58,7 +57,7 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 			{
 				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None)
 								 .ConfigureAwait(false);
-				dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdate?.Hash.ToHashString() ?? "";
+				dbUser.LastMangaUpdateHash = user.LatestMangaUpdateHash ?? "";
 				dbUser.LastUpdatedMangaListTimestamp = now;
 				break;
 			}

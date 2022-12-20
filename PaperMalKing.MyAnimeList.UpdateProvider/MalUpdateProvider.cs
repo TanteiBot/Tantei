@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Common;
@@ -19,9 +18,10 @@ using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List;
+using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.AnimeList;
+using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.Base;
+using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.MangaList;
 using PaperMalKing.MyAnimeList.Wrapper.Models.List.Types;
-using PaperMalKing.MyAnimeList.Wrapper.Models.Rss.Types;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
@@ -35,8 +35,9 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 	public override string Name => Constants.Name;
 
-	public MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOptions<MalOptions> options, MyAnimeListClient client, IDbContextFactory<DatabaseContext> dbContextFactory)
-		: base(logger, TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
+	public MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOptions<MalOptions> options, MyAnimeListClient client,
+							 IDbContextFactory<DatabaseContext> dbContextFactory) : base(logger,
+		TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 	{
 		this._options = options;
 		this._client = client;
@@ -47,78 +48,56 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
-		#region LocalFuncs
+#region LocalFuncs
 
-		static void DbAnimeUpdateAction(string h, DateTimeOffset dto, MalUser u)
+		static void DbAnimeUpdateAction(MalUser u, User user, DateTimeOffset timestamp)
 		{
-			u.LastAnimeUpdateHash = h;
-			u.LastUpdatedAnimeListTimestamp = dto;
+			u.LastAnimeUpdateHash = user.LatestAnimeUpdateHash!;
+			u.LastUpdatedAnimeListTimestamp = timestamp;
 		}
 
-		static void DbMangaUpdateAction(string h, DateTimeOffset dto, MalUser u)
+		static void DbMangaUpdateAction(MalUser u, User user, DateTimeOffset timestamp)
 		{
-			u.LastMangaUpdateHash = h;
-			u.LastUpdatedMangaListTimestamp = dto;
+			u.LastMangaUpdateHash = user.LatestMangaUpdateHash!;
+			u.LastUpdatedMangaListTimestamp = timestamp;
 		}
 
-		async ValueTask<IReadOnlyList<DiscordEmbedBuilder>> CheckRssListUpdates<TRss, TLe, TL>(
-			MalUser dbUser, User user, DateTimeOffset lastUpdateDateTime, Action<string, DateTimeOffset, MalUser> dbUpdateAction,
-			CancellationToken ct) where TRss : IRssFeedType where TLe : class, IListEntry where TL : IListType<TLe>
+		async Task<IReadOnlyList<DiscordEmbedBuilder>>
+			CheckLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
+				MalUser dbUser, User user, DateTimeOffset latestUpdateDateTime, Action<MalUser, User, DateTimeOffset> dbUpdateAction,
+				CancellationToken ct) where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
+									  where TL : IListType
+									  where TRO : unmanaged, Enum
+									  where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
+									  where TStatus : BaseListEntryStatus<TListStatus>
+									  where TMediaType : unmanaged, Enum
+									  where TNodeStatus : unmanaged, Enum
+									  where TListStatus : unmanaged, Enum
 		{
-			var rssUpdates = await this._client.GetRecentRssUpdatesAsync<TRss>(user.Username, ct).ConfigureAwait(false);
+			var listUpdates = await this._client
+										.GetLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(user.Username,
+											dbUser.Features.ToRequestOptions<TRO>(), ct).ConfigureAwait(false);
+			dbUpdateAction(dbUser, user, latestUpdateDateTime);
 
-			var updates = rssUpdates.Where(update => update.PublishingDateTimeOffset > lastUpdateDateTime)
-									.Select(item => item.ToRecentUpdate(TRss.Type)).OrderByDescending(u => u.UpdateDateTime).ToArray();
-
-			if (!updates.Any())
-				return Array.Empty<DiscordEmbedBuilder>();
-
-			var list = await this._client.GetLatestListUpdatesAsync<TLe, TL>(user.Username, ct).ConfigureAwait(false);
-
-			foreach (var update in updates)
-			{
-				var latest = list.FirstOrDefault(entry => entry.Id == update.Id);
-				if (latest is null)
-				{
-					continue;
-				}
-
-				dbUpdateAction(latest.GetHash().ToHashString(), update.UpdateDateTime, dbUser);
-				break;
-			}
-
-			return updates.Select(update => list.First(entry => entry.Id == update.Id)
-												.ToDiscordEmbedBuilder(user, update.UpdateDateTime, dbUser.Features)).ToArray();
+			return listUpdates.Where(x => x.Status.UpdatedAt > latestUpdateDateTime).Select(x =>
+				x.ToDiscordEmbedBuilder<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(user, dbUser.Features)).ToArray();
 		}
 
-		async Task<IReadOnlyList<DiscordEmbedBuilder>> CheckProfileListUpdatesAsync<TLe, TL>(
-			MalUser dbUser, User user, int latestUpdateId, DateTimeOffset latestUpdateDateTime,
-			Action<string, DateTimeOffset, MalUser> dbUpdateAction, CancellationToken ct)
-			where TLe : class, IListEntry where TL : IListType<TLe>
-		{
-			var listUpdates = await this._client.GetLatestListUpdatesAsync<TLe, TL>(user.Username, ct).ConfigureAwait(false);
-			var lastListUpdate = listUpdates.First(u => u.Id == latestUpdateId);
-			dbUpdateAction(lastListUpdate.GetHash().ToHashString(), latestUpdateDateTime, dbUser);
-
-			return new[] { lastListUpdate.ToDiscordEmbedBuilder(user, DateTimeOffset.Now, dbUser.Features) };
-		}
-
-		#endregion
+#endregion
 
 		if (this.UpdateFoundEvent is null)
 		{
 			return;
 		}
+
 		using var db = this._dbContextFactory.CreateDbContext();
 
 		foreach (var dbUser in db.MalUsers.Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas).Include(u => u.FavoriteCharacters)
-								 .Include(u => u.FavoritePeople).Include(u => u.FavoriteCompanies)
-								 .Where(user => user.DiscordUser.Guilds.Any()).Where(user =>
-									 // Is bitwise to allow executing on server
-									 (user.Features & MalUserFeatures.AnimeList) != 0 ||
-									 (user.Features & MalUserFeatures.MangaList) != 0 ||
-									 (user.Features & MalUserFeatures.Favorites) != 0)
-								 .ToArray())
+								 .Include(u => u.FavoritePeople).Include(u => u.FavoriteCompanies).Where(user => user.DiscordUser.Guilds.Any()).Where(
+									 user =>
+										 // Is bitwise to allow executing on server
+										 (user.Features & MalUserFeatures.AnimeList) != 0 || (user.Features & MalUserFeatures.MangaList) != 0 ||
+										 (user.Features & MalUserFeatures.Favorites) != 0).ToArray())
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;
@@ -147,9 +126,9 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				this.Logger.LogError(exception, "Mal server encounters some error, skipping current update check");
 				return;
 			}
-#pragma warning disable CA1031
+			#pragma warning disable CA1031
 			catch (Exception exception)
-#pragma warning restore CA1031
+				#pragma warning restore CA1031
 			{
 				this.Logger.LogError(exception, "Encountered unknown error, skipping current update check");
 				return;
@@ -162,13 +141,9 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var animeListUpdates = dbUser.Features.HasFlag(MalUserFeatures.AnimeList)
 				? user.HasPublicAnimeUpdates switch
 				{
-					true when dbUser.LastAnimeUpdateHash.Substring(" ", true) != user.LatestAnimeUpdate!.Hash.inRssHash => await
-						CheckRssListUpdates<AnimeRssFeed, AnimeListEntry, AnimeListType>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp,
-							DbAnimeUpdateAction, ct).ConfigureAwait(false),
-					true when dbUser.LastAnimeUpdateHash.Substring(" ", false) != user.LatestAnimeUpdate!.Hash.inProfileHash => await
-						CheckProfileListUpdatesAsync<AnimeListEntry, AnimeListType>(dbUser, user, user.LatestAnimeUpdate.Id,
-							dbUser.LastUpdatedAnimeListTimestamp, DbAnimeUpdateAction,
-							ct).ConfigureAwait(false),
+					true when dbUser.LastAnimeUpdateHash != user.LatestAnimeUpdateHash => await CheckLatestListUpdatesAsync<AnimeListEntry,
+						AnimeListType, AnimeFieldsToRequest, AnimeListEntryNode, AnimeListEntryStatus, AnimeMediaType, AnimeAiringStatus,
+						AnimeListStatus>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp, DbAnimeUpdateAction, ct).ConfigureAwait(false),
 					_ => Array.Empty<DiscordEmbedBuilder>()
 				}
 				: Array.Empty<DiscordEmbedBuilder>();
@@ -176,19 +151,15 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var mangaListUpdates = dbUser.Features.HasFlag(MalUserFeatures.MangaList)
 				? user.HasPublicMangaUpdates switch
 				{
-					true when dbUser.LastMangaUpdateHash.Substring(" ", true) != user.LatestMangaUpdate!.Hash.inRssHash => await
-						CheckRssListUpdates<MangaRssFeed, MangaListEntry, MangaListType>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp,
-							DbMangaUpdateAction, ct).ConfigureAwait(false),
-					true when dbUser.LastMangaUpdateHash.Substring(" ", false) != user.LatestMangaUpdate!.Hash.inProfileHash => await
-						CheckProfileListUpdatesAsync<MangaListEntry, MangaListType>(dbUser, user, user.LatestMangaUpdate.Id,
-							dbUser.LastUpdatedMangaListTimestamp, DbMangaUpdateAction,
-							ct).ConfigureAwait(false),
+					true when dbUser.LastMangaUpdateHash != user.LatestMangaUpdateHash => await CheckLatestListUpdatesAsync<MangaListEntry,
+						MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus, MangaMediaType, MangaPublishingStatus,
+						MangaListStatus>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp, DbMangaUpdateAction, ct).ConfigureAwait(false),
 					_ => Array.Empty<DiscordEmbedBuilder>()
 				}
 				: Array.Empty<DiscordEmbedBuilder>();
 
-			var totalUpdates = favoritesUpdates.Concat(animeListUpdates).Concat(mangaListUpdates)
-											   .OrderBy(b => b.Timestamp ?? DateTimeOffset.MinValue).ToArray();
+			var totalUpdates = favoritesUpdates.Concat(animeListUpdates).Concat(mangaListUpdates).OrderBy(b => b.Timestamp ?? DateTimeOffset.MinValue)
+											   .ToArray();
 			if (!totalUpdates.Any())
 			{
 				db.Entry(dbUser).State = EntityState.Unchanged;

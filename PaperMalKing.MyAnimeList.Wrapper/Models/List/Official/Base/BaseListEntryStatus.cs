@@ -3,12 +3,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.Base;
 
 internal abstract class BaseListEntryStatus<TListStatus> where TListStatus : unmanaged, Enum
 {
+	public byte GetStatusAsUnderlyingType()
+	{
+		Debug.Assert(Enum.GetUnderlyingType(typeof(TListStatus)) == typeof(byte));
+		var status = this.Status;
+		return Unsafe.As<TListStatus, byte>(ref status);
+	}
+	
 	[JsonPropertyName("status"), JsonConverter(typeof(JsonStringEnumConverter))]
 	public required TListStatus Status { get; init; }
 

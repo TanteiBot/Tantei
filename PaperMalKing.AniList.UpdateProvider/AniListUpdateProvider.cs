@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using GraphQL.Client.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.AniList.UpdateProvider.CombinedResponses;

@@ -23,5 +23,17 @@ public enum MalUserFeatures : ulong
 	[FeatureDescription("media format", "Show format of media in update (TV, Movie, Manga etc)")]
 	MediaFormat = 1 << 5,
 	[FeatureDescription("media status", "show status of media in update (Currently airing, Finished airing etc)")]
-	MediaStatus = 1 << 6
+	MediaStatus = 1 << 6,
+	[FeatureDescription("genres", "Show genres of media in update")]
+	Genres = 1 << 7,
+	[FeatureDescription("synopsis", "Show synopsis of media in update")]
+	Synopsis = 1 << 8,
+	[FeatureDescription("studios", "Show studios that made anime in update")]
+	Studio = 1 << 9,
+	[FeatureDescription("mangakas", "Show mangakas that made manga in update")]
+	Mangakas = 1 << 10,
+	[FeatureDescription("tags", "Show tags of list entry in update")]
+	Tags = 1 << 11,
+	[FeatureDescription("comments", "Show comments of list entry in update")]
+	Comments = 1 << 12
 }

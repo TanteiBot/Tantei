@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
@@ -88,8 +87,8 @@ public sealed class MalUserService : IUpdateProviderUserService
 			DiscordUser = duser,
 			LastUpdatedAnimeListTimestamp = now,
 			LastUpdatedMangaListTimestamp = now,
-			LastAnimeUpdateHash = mUser.LatestAnimeUpdate?.Hash.ToHashString() ?? "",
-			LastMangaUpdateHash = mUser.LatestMangaUpdate?.Hash.ToHashString() ?? ""
+			LastAnimeUpdateHash = mUser.LatestAnimeUpdateHash ?? "",
+			LastMangaUpdateHash = mUser.LatestMangaUpdateHash ?? ""
 		};
 		dbUser.FavoriteAnimes = mUser.Favorites.FavoriteAnime.Select(anime => anime.ToMalFavoriteAnime(dbUser)).ToList();
 		dbUser.FavoriteMangas = mUser.Favorites.FavoriteManga.Select(manga => manga.ToMalFavoriteManga(dbUser)).ToList();

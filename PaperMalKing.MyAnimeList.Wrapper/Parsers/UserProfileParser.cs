@@ -25,8 +25,8 @@ internal static partial class UserProfileParser
 			Favorites = favorites,
 			Username = username,
 			Id = id,
-			LatestAnimeUpdate = options.HasFlag(ParserOptions.AnimeList) ? LatestUpdatesParser.Parse(node, ListEntryType.Anime) : null,
-			LatestMangaUpdate = options.HasFlag(ParserOptions.MangaList) ? LatestUpdatesParser.Parse(node, ListEntryType.Manga) : null
+			LatestAnimeUpdateHash = options.HasFlag(ParserOptions.AnimeList) ? LatestUpdatesParser.Parse(node, ListEntryType.Anime) : null,
+			LatestMangaUpdateHash = options.HasFlag(ParserOptions.MangaList) ? LatestUpdatesParser.Parse(node, ListEntryType.Manga) : null
 		};
 	}
 }

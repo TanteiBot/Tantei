@@ -11,11 +11,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
-using Microsoft.Extensions.Hosting;
-using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
-using PaperMalKing.Services;
-using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.Commands;
 
