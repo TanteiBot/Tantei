@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -269,13 +270,38 @@ internal static class Extensions
 
 		if ((features & MalUserFeatures.Tags) != 0 && listEntry.Status.Tags?.Count is not null and not 0)
 		{
-			var joinedTags = string.Join(',', listEntry.Status.Tags);
+			var joinedTags = string.Join(", ", listEntry.Status.Tags);
 			AddAsFieldOrTruncateToDescription(eb, "Tags", joinedTags);
 		}
 
 		if ((features & MalUserFeatures.Comments) != 0 && !string.IsNullOrWhiteSpace(listEntry.Status.Comments))
 		{
 			AddAsFieldOrTruncateToDescription(eb, "Comments", listEntry.Status.Comments);
+		}
+
+		if ((features & MalUserFeatures.Genres) != 0 && listEntry.Node.Genres?.Count is not null and not 0)
+		{
+			var genres = string.Join(", ", listEntry.Node.Genres.Take(7).Select(x => x.Name.Humanize(LetterCasing.Title)));
+			AddAsFieldOrTruncateToDescription(eb, "Genres", genres);
+		}
+
+		if ((features & MalUserFeatures.Studio) != 0 && listEntry is AnimeListEntry aListEntry &&
+		    aListEntry.Node.Studios?.Count is not null and not 0)
+		{
+			var studios = string.Join(", ", aListEntry.Node.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
+			AddAsFieldOrTruncateToDescription(eb, "Studio".ToQuantity(aListEntry.Node.Studios.Count, ShowQuantityAs.None), studios);
+		}
+
+		if ((features & MalUserFeatures.Mangakas) != 0 && listEntry is MangaListEntry mListEntry &&
+		    mListEntry.Node.Authors?.Count is not null and not 0)
+		{
+			var authors = string.Join(", ", mListEntry.Node.Authors.Take(7).Select(x =>
+			{
+				var name =
+					$"{(x.Person.LastName?.Length is not null and not 0 ? $"{x.Person.LastName}, {x.Person.FirstName}" : x.Person.FirstName)} ({x.Role})";
+				return Formatter.MaskedUrl(name, new Uri(x.Person.Url));
+			}));
+			AddAsFieldOrTruncateToDescription(eb, "Authors", authors);
 		}
 
 		eb.WithColor(Colors[listEntry.Status.GetStatusAsUnderlyingType()]);

@@ -7,6 +7,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.MangaList;
 
 internal sealed class Person
 {
+	private string? _url;
 	[JsonPropertyName("id")]
 	public required uint Id { get; init; }
 
@@ -15,4 +16,6 @@ internal sealed class Person
 
 	[JsonPropertyName("last_name")]
 	public string? LastName { get; init; }
+
+	public string Url => this._url ??= $"{Constants.BASE_URL}/people/{Id}";
 }
