@@ -30,6 +30,8 @@ public sealed class UngroupedCommands : ApplicationCommandModule
 	{
 		if (string.IsNullOrWhiteSpace(messageContent))
 			throw new ArgumentException("Message's content shouldn't be empty", nameof(messageContent));
+		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
+
 		var embed = new DiscordEmbedBuilder
 		{
 			Description = messageContent.Replace("@everyone", "@\u200beveryone", StringComparison.Ordinal)
@@ -45,7 +47,7 @@ public sealed class UngroupedCommands : ApplicationCommandModule
 		catch
 #pragma warning restore CA1031
 		{
-			await context.CreateResponseAsync("Couldn't send message. Check permissions for bot and try again.").ConfigureAwait(false);
+			await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Couldn't send message. Check permissions for bot and try again.")).ConfigureAwait(false);
 		}
 	}
 

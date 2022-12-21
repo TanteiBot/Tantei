@@ -24,17 +24,17 @@ public sealed class AniListCommands : ApplicationCommandModule
 		{ }
 
 		[SlashCommand("add", "Add your AniList account to being tracked", true)]
-		public override Task AddUserCommand(InteractionContext ctx, [Option(nameof(username), "Your username on AniList")] string? username = null) =>
-			base.AddUserCommand(ctx, username);
+		public override Task AddUserCommand(InteractionContext context, [Option(nameof(username), "Your username on AniList")] string? username = null) =>
+			base.AddUserCommand(context, username);
 
 		[SlashCommand("remove", "Remove your AniList account updates from being tracked", true)]
-		public override Task RemoveUserInGuildCommand(InteractionContext ctx) => base.RemoveUserInGuildCommand(ctx);
+		public override Task RemoveUserInGuildCommand(InteractionContext context) => base.RemoveUserInGuildCommand(context);
 
 		[SlashCommand("list", "List accounts of all tracked users on AniList in this server")]
-		public override Task ListUsersCommand(InteractionContext ctx) => base.ListUsersCommand(ctx);
+		public override Task ListUsersCommand(InteractionContext context) => base.ListUsersCommand(context);
 
 		[SlashCommand("removehere", "Stop sending your updates to this server", true)]
-		public override Task RemoveUserHereCommand(InteractionContext ctx) => base.RemoveUserHereCommand(ctx);
+		public override Task RemoveUserHereCommand(InteractionContext context) => base.RemoveUserHereCommand(context);
 	}
 
 	[SlashCommandGroup("features", "Manage your features for updates send from AniList.co", true)]

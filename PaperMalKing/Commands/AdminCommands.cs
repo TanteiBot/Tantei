@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Hosting;
@@ -34,6 +35,8 @@ public sealed class AdminCommands : ApplicationCommandModule
 	{
 		name = name.Trim();
 		BaseUpdateProvider? baseUpdateProvider;
+		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
+
 		if (this._providersConfigurationService.Providers.TryGetValue(name, out var provider) && provider is BaseUpdateProvider bup)
 		{
 			baseUpdateProvider = bup;
@@ -47,11 +50,11 @@ public sealed class AdminCommands : ApplicationCommandModule
 		if (baseUpdateProvider != null)
 		{
 			baseUpdateProvider.RestartTimer(TimeSpan.Zero);
-			await context.CreateResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Success")).ConfigureAwait(false);
+			await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Success")).ConfigureAwait(false);
 		}
 		else
 		{
-			await context.CreateResponseAsync(embed: EmbedTemplate.ErrorEmbed(context, "Haven't found such update provider")).ConfigureAwait(false);
+			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed(context, "Haven't found such update provider")).ConfigureAwait(false);
 		}
 	}
 

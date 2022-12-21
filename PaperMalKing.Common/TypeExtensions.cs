@@ -3,6 +3,9 @@
 
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 using PaperMalKing.Common.Options;
 using PaperMalKing.Common.RateLimiters;
 
@@ -35,5 +38,10 @@ public static partial class TypeExtensions
 	{
 		var rateLimit = new RateLimit(rateLimitOptions.AmountOfRequests, rateLimitOptions.PeriodInMilliseconds);
 		return RateLimiterFactory.Create<T>(rateLimit);
+	}
+
+	public static Task<DiscordMessage> EditResponseAsync(this InteractionContext context, DiscordEmbed embed)
+	{
+		return context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
 	}
 }

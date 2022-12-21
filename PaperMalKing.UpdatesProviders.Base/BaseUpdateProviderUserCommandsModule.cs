@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
@@ -23,73 +24,79 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		this.Logger = logger;
 	}
 
-	public virtual async Task AddUserCommand(InteractionContext ctx, string? username = null)
+	public virtual async Task AddUserCommand(InteractionContext context, string? username = null)
 	{
-		this.Logger.LogInformation("Trying to add {ProviderUsername} {Member} to {Name} update provider", username, ctx.Member, TUpdateProviderUserService.Name);
+		this.Logger.LogInformation("Trying to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member, TUpdateProviderUserService.Name);
 		BaseUser user;
+		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
+
 		try
 		{
-			user = await this.UserService.AddUserAsync(ctx.Member!.Id, ctx.Member.Guild.Id, username).ConfigureAwait(false);
+			user = await this.UserService.AddUserAsync(context.Member!.Id, context.Member.Guild.Id, username).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-			await ctx.CreateResponseAsync(embed: embed.Build()).ConfigureAwait(false);
-			this.Logger.LogError(ex, "Failed to add {ProviderUsername} {Member} to {Name} update provider", username, ctx.Member, TUpdateProviderUserService.Name);
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			await context.EditResponseAsync(embed: embed.Build()).ConfigureAwait(false);
+			this.Logger.LogError(ex, "Failed to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member, TUpdateProviderUserService.Name);
 			throw;
 		}
 
-		this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider", username, ctx.Member, TUpdateProviderUserService.Name);
+		this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider", username, context.Member, TUpdateProviderUserService.Name);
 
-		await ctx.CreateResponseAsync(embed: EmbedTemplate.SuccessEmbed(ctx,
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context,
 			$"Successfully added {user.Username} to {TUpdateProviderUserService.Name} update checker")).ConfigureAwait(false);
 	}
 
-	public virtual async Task RemoveUserInGuildCommand(InteractionContext ctx)
+	public virtual async Task RemoveUserInGuildCommand(InteractionContext context)
 	{
-		this.Logger.LogInformation("Trying to remove {Member} from {Name} update provider", ctx.Member, TUpdateProviderUserService.Name);
+		this.Logger.LogInformation("Trying to remove {Member} from {Name} update provider", context.Member, TUpdateProviderUserService.Name);
 		BaseUser user;
+		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
+
 		try
 		{
-			user = await this.UserService.RemoveUserAsync(ctx.User.Id).ConfigureAwait(false);
+			user = await this.UserService.RemoveUserAsync(context.User.Id).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-			await ctx.CreateResponseAsync(embed: embed).ConfigureAwait(false);
-			this.Logger.LogError(ex, "Failed to remove {Member} from {Name} update provider", ctx.Member, TUpdateProviderUserService.Name);
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
+			this.Logger.LogError(ex, "Failed to remove {Member} from {Name} update provider", context.Member, TUpdateProviderUserService.Name);
 
 			throw;
 		}
-		this.Logger.LogInformation("Successfully removed {Member} from {Name} update provider", ctx.Member, TUpdateProviderUserService.Name);
+		this.Logger.LogInformation("Successfully removed {Member} from {Name} update provider", context.Member, TUpdateProviderUserService.Name);
 
-		await ctx.CreateResponseAsync(embed: EmbedTemplate.SuccessEmbed(ctx,
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context,
 			$"Successfully removed {user.Username} from {TUpdateProviderUserService.Name} update checker")).ConfigureAwait(false);
 	}
 
-	public virtual async Task RemoveUserHereCommand(InteractionContext ctx)
+	public virtual async Task RemoveUserHereCommand(InteractionContext context)
 	{
+		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		try
 		{
-			await this.UserService.RemoveUserHereAsync(ctx.User.Id, ctx.Guild.Id).ConfigureAwait(false);
+			await this.UserService.RemoveUserHereAsync(context.User.Id, context.Guild.Id).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-			await ctx.CreateResponseAsync(embed: embed).ConfigureAwait(false);
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await ctx.CreateResponseAsync(embed: EmbedTemplate.SuccessEmbed(ctx, "Now your updates won't appear in this server")).ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Now your updates won't appear in this server")).ConfigureAwait(false);
 	}
 
-	public virtual async Task ListUsersCommand(InteractionContext ctx)
+	public virtual async Task ListUsersCommand(InteractionContext context)
 	{
+		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		var sb = new StringBuilder();
 		try
 		{
 			var i = 1;
-			foreach (var user in this.UserService.ListUsers(ctx.Guild.Id))
+			foreach (var user in this.UserService.ListUsers(context.Guild.Id))
 			{
 				if (sb.Length + user.Username.Length > 2048)
 				{
@@ -106,11 +113,11 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ctx, ex.Message) : EmbedTemplate.UnknownErrorEmbed(ctx);
-			await ctx.CreateResponseAsync(embed: embed).ConfigureAwait(false);
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await ctx.CreateResponseAsync(embed: EmbedTemplate.SuccessEmbed(ctx, "Users").WithDescription(sb.ToString())).ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Users").WithDescription(sb.ToString())).ConfigureAwait(false);
 	}
 }
