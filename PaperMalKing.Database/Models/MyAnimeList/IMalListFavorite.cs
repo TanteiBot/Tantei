@@ -6,5 +6,5 @@ public interface IMalListFavorite : IMalFavorite
 {
 	public string Type { get; init; }
 
-	public int StartYear { get; init; }
+	public uint StartYear { get; init; }
 }

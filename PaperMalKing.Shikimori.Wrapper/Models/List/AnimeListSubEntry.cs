@@ -11,5 +11,5 @@ internal sealed class AnimeListSubEntry : BaseListSubEntry
 	public override string TotalAmount => $"{this.Episodes} ep.";
 
 	[JsonPropertyName("episodes")]
-	public int Episodes { get; init; }
+	public uint Episodes { get; init; }
 }

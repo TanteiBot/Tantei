@@ -25,7 +25,7 @@ public sealed class MalFavoriteAnime : IMalListFavorite, IEquatable<MalFavoriteA
 
 	public required string Type { get; init; }
 
-	public int StartYear { get; init; }
+	public uint StartYear { get; init; }
 
 	public bool Equals(MalFavoriteAnime? other)
 	{

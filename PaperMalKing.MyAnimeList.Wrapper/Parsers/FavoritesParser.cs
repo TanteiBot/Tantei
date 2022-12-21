@@ -112,7 +112,7 @@ internal static partial class UserProfileParser
 			var typeYearNode = aNode.ChildNodes.First(x => x.HasClass("users"));
 			var strings = typeYearNode.InnerText.Split(Constants.DOT);
 
-			return new(strings[0], int.Parse(strings[1]), baseFav);
+			return new(strings[0], uint.Parse(strings[1]), baseFav);
 		}
 
 		private static BaseFavorite ParseBaseFavorite(HtmlNode parent)

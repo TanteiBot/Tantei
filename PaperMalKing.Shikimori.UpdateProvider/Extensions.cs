@@ -142,9 +142,9 @@ internal static class Extensions
 		{
 			var episodes = firstTarget switch
 			{
-				_ when firstTarget.Episodes      != 0 => firstTarget.Episodes.Value,
-				_ when firstTarget.EpisodesAired != 0 => firstTarget.EpisodesAired.GetValueOrDefault(),
-				_                                     => 0
+				_ when firstTarget.Episodes      != 0u => firstTarget.Episodes.Value,
+				_ when firstTarget.EpisodesAired != 0u => firstTarget.EpisodesAired.GetValueOrDefault(),
+				_                                     => 0u
 			};
 			if (episodes != 0)
 				eb.AddField("Total", $"{episodes} ep.", true);

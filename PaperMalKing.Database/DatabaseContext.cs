@@ -54,8 +54,8 @@ public class DatabaseContext : DbContext
 		modelBuilder.Entity<MalUser>(mu =>
 		{
 			mu.Property(u => u.Features).HasDefaultValue((MalUserFeatures)127ul);
-			mu.Property(u => u.LastUpdatedMangaListTimestamp).HasConversion(new DateTimeOffsetToBinaryConverter());
-			mu.Property(u => u.LastUpdatedAnimeListTimestamp).HasConversion(new DateTimeOffsetToBinaryConverter());
+			mu.Property(u => u.LastUpdatedMangaListTimestamp).HasConversion<DateTimeOffsetToBinaryConverter>();
+			mu.Property(u => u.LastUpdatedAnimeListTimestamp).HasConversion<DateTimeOffsetToBinaryConverter>();
 		});
 
 		modelBuilder.Entity<MalFavoriteAnime>().HasKey(k => new
