@@ -17,7 +17,7 @@ internal sealed class User
 		this._avatarUrl ??=
 			$"{Constants.USER_AVATAR}{this.Id}.jpg?t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
 
-	internal int Id { get; init; }
+	internal uint Id { get; init; }
 
 	internal bool HasPublicAnimeUpdates => this.LatestAnimeUpdateHash is not null;
 

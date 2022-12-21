@@ -6,10 +6,10 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models;
 
 internal sealed class MalUrl
 {
-	private int? _id;
+	private uint? _id;
 	internal string Url { get; }
 
-	internal int Id => this._id ??= CommonParser.ExtractIdFromMalUrl(this.Url);
+	internal uint Id => this._id ??= CommonParser.ExtractIdFromMalUrl(this.Url);
 
 	public MalUrl(string url)
 	{

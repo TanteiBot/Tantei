@@ -7,7 +7,7 @@ using PaperMalKing.Common.Attributes;
 namespace PaperMalKing.Database.Models.Shikimori;
 
 [Flags]
-public enum ShikiUserFeatures : ulong
+public enum ShikiUserFeatures : long
 {
 	None = 0,
 

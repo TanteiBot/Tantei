@@ -14,11 +14,11 @@ public sealed class MalFavoriteCharacter : IMalFavorite, IEquatable<MalFavoriteC
 	public string FromTitleUrl { get; init; } = "";
 
 	[ForeignKey(nameof(User))]
-	public int UserId { get; init; }
+	public uint UserId { get; init; }
 
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
-	public int Id { get; init; }
+	public uint Id { get; init; }
 
 	public required string? ImageUrl { get; init; }
 
@@ -39,13 +39,7 @@ public sealed class MalFavoriteCharacter : IMalFavorite, IEquatable<MalFavoriteC
 
 	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is MalFavoriteCharacter other && Equals(other);
 
-	public override int GetHashCode()
-	{
-		unchecked
-		{
-			return (this.UserId * 397) ^ this.Id;
-		}
-	}
+	public override int GetHashCode() => HashCode.Combine(this.UserId, this.Id);
 
 	public static bool operator ==(MalFavoriteCharacter? left, MalFavoriteCharacter? right) => Equals(left, right);
 

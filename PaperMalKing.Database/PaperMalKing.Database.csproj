@@ -16,4 +16,8 @@
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="UlongConverter.cs" />
+    </ItemGroup>
+
 </Project>

@@ -7,7 +7,7 @@ using PaperMalKing.Common.Attributes;
 namespace PaperMalKing.Database.Models.MyAnimeList;
 
 [Flags]
-public enum MalUserFeatures : ulong
+public enum MalUserFeatures : long
 {
 	None = 0,
 	[FeatureDescription("animelist", "Track changes in AnimeList")]
