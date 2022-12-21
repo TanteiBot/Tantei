@@ -5,6 +5,8 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Humanizer;
 using Microsoft.Extensions.Logging;
@@ -30,6 +32,7 @@ public abstract class BaseUserFeaturesCommandsModule<T> : ApplicationCommandModu
 		var feature = FeaturesHelper<T>.Parse(unparsedFeature);
 
 		this.Logger.LogInformation("Trying to enable {Features} feature for {Username}", feature, context.Member!.DisplayName);
+		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		try
 		{
 			await this.UserFeaturesService.EnableFeaturesAsync(feature, context.User.Id).ConfigureAwait(false);
@@ -39,13 +42,15 @@ public abstract class BaseUserFeaturesCommandsModule<T> : ApplicationCommandModu
 			var embed = ex is UserFeaturesException ufe
 				? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed enabling {feature.Humanize().ToLowerInvariant()}")
 				: EmbedTemplate.UnknownErrorEmbed(context);
-			await context.CreateResponseAsync(embed: embed.Build()).ConfigureAwait(false);
+			await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build())).ConfigureAwait(false);
 			this.Logger.LogError(ex, "Failed to enable {Features} for {Username}", feature, context.Member.DisplayName);
 			throw;
 		}
 
 		this.Logger.LogInformation("Successfully enabled {Features} feature for {Username}", feature, context.Member.DisplayName);
-		await context.CreateResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, $"Successfully enabled {feature.Humanize()} for you"))
+		await context.EditResponseAsync(
+						 new DiscordWebhookBuilder().AddEmbed(EmbedTemplate.SuccessEmbed(context,
+							 $"Successfully enabled {feature.Humanize()} for you")))
 					 .ConfigureAwait(false);
 	}
 
