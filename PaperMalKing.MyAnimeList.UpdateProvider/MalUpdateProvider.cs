@@ -56,6 +56,10 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			u.LastUpdatedAnimeListTimestamp = timestamp;
 		}
 
+		static void DbAnimeUpdateHashAction(MalUser u, User user) => u.LastAnimeUpdateHash = user.LatestAnimeUpdateHash!;
+
+		static void DbMangaUpdateHashAction(MalUser u, User user) => u.LastMangaUpdateHash = user.LatestMangaUpdateHash!;
+
 		static void DbMangaUpdateAction(MalUser u, User user, DateTimeOffset timestamp)
 		{
 			u.LastMangaUpdateHash = user.LatestMangaUpdateHash!;
@@ -64,7 +68,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 		async Task<IReadOnlyList<DiscordEmbedBuilder>>
 			CheckLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
-				MalUser dbUser, User user, DateTimeOffset latestUpdateDateTime, Action<MalUser, User, DateTimeOffset> dbUpdateAction,
+				MalUser dbUser, User user, DateTimeOffset latestUpdateDateTime, Action<MalUser, User, DateTimeOffset> dbUpdateAction, Action<MalUser, User> updateHashAction,
 				CancellationToken ct) where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 									  where TL : IListType
 									  where TRO : unmanaged, Enum
@@ -79,6 +83,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 											dbUser.Features.ToRequestOptions<TRO>(), ct).ConfigureAwait(false);
 			if (listUpdates.Count == 0)
 			{
+				updateHashAction(dbUser, user);
 				return Array.Empty<DiscordEmbedBuilder>();
 			}
 			var newLatestUpdateTimeStamp = listUpdates.MaxBy(x => x.Status.UpdatedAt)!.Status.UpdatedAt;
@@ -148,7 +153,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				{
 					true when dbUser.LastAnimeUpdateHash != user.LatestAnimeUpdateHash => await CheckLatestListUpdatesAsync<AnimeListEntry,
 						AnimeListType, AnimeFieldsToRequest, AnimeListEntryNode, AnimeListEntryStatus, AnimeMediaType, AnimeAiringStatus,
-						AnimeListStatus>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp, DbAnimeUpdateAction, ct).ConfigureAwait(false),
+						AnimeListStatus>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp, DbAnimeUpdateAction, DbAnimeUpdateHashAction, ct).ConfigureAwait(false),
 					_ => Array.Empty<DiscordEmbedBuilder>()
 				}
 				: Array.Empty<DiscordEmbedBuilder>();
@@ -158,7 +163,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				{
 					true when dbUser.LastMangaUpdateHash != user.LatestMangaUpdateHash => await CheckLatestListUpdatesAsync<MangaListEntry,
 						MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus, MangaMediaType, MangaPublishingStatus,
-						MangaListStatus>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp, DbMangaUpdateAction, ct).ConfigureAwait(false),
+						MangaListStatus>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp, DbMangaUpdateAction, DbMangaUpdateHashAction, ct).ConfigureAwait(false),
 					_ => Array.Empty<DiscordEmbedBuilder>()
 				}
 				: Array.Empty<DiscordEmbedBuilder>();
@@ -167,6 +172,11 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 											   .ToArray();
 			if (!totalUpdates.Any())
 			{
+				if (db.Entry(dbUser).State == EntityState.Modified)
+				{
+					await db.SaveChangesAndThrowOnNoneAsync(cancellationToken).ConfigureAwait(false);
+					continue;
+				}
 				db.Entry(dbUser).State = EntityState.Unchanged;
 				this.Logger.LogDebug("Ended checking updates for {@Username} with no updates found", dbUser.Username);
 				continue;
