@@ -30,7 +30,10 @@ internal static class LatestUpdatesParser
 		var hd = new HtmlDocument();
 		hd.LoadHtml(dataNode.InnerHtml);
 		dataNode = hd.DocumentNode;
-		var dataText = dataNode.SelectSingleNode("//div[1]/div[2]").InnerText.Replace(" ", "", StringComparison.Ordinal);
+		var link = dataNode.SelectSingleNode("//a").Attributes["href"].Value;
+		var id = CommonParser.ExtractIdFromMalUrl(link);
+
+		var dataText = dataNode.SelectSingleNode("//div[1]/div[2]").InnerText.Replace(" ", "", StringComparison.Ordinal) + id.ToString();
 		Debug.Assert(dataText.Length < 100, "We rely on progress string being small");
 
 		Span<byte> shaHashDestination = stackalloc byte[SHA256.HashSizeInBytes];
