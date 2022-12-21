@@ -4,6 +4,7 @@
 using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -33,7 +34,10 @@ public static class Program
 			services.AddDbContextFactory<DatabaseContext>((services, builder) =>
 			{
 				var options = services.GetRequiredService<IOptions<DatabaseOptions>>();
-				builder.UseSqlite(options.Value.ConnectionString);
+				builder.UseSqlite(options.Value.ConnectionString, builder =>
+				{
+					builder.MigrationsAssembly("PaperMalKing.Database.Migrations");
+				});
 			});
 			var config = hostContext.Configuration;
 
