@@ -2,15 +2,14 @@
 
 #nullable disable
 
-namespace PaperMalKing.Database.Migrations
-{
-	/// <inheritdoc />
-	public partial class UseMoreUnsignedIntegerTypes : Migration
-	{
-		protected override void Up(MigrationBuilder migrationBuilder)
-		{ }
+namespace PaperMalKing.Database.Migrations;
 
-		protected override void Down(MigrationBuilder migrationBuilder)
-		{ }
-	}
+/// <inheritdoc />
+public partial class UseMoreUnsignedIntegerTypes : Migration
+{
+	protected override void Up(MigrationBuilder migrationBuilder)
+	{ }
+
+	protected override void Down(MigrationBuilder migrationBuilder)
+	{ }
 }
