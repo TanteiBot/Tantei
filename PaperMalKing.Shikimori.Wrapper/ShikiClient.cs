@@ -42,7 +42,7 @@ public sealed class ShikiClient
 		return (await response.Content.ReadFromJsonAsync<User>((JsonSerializerOptions?)null, cancellationToken).ConfigureAwait(false))!;
 	}
 
-	internal async Task<Favourites> GetUserFavouritesAsync(ulong userId, CancellationToken cancellationToken = default)
+	internal async Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default)
 	{
 		this._logger.LogDebug("Requesting {@UserId} favourites", userId);
 		var url = $"{Constants.BASE_USERS_API_URL}/{userId}/favourites";
@@ -50,7 +50,7 @@ public sealed class ShikiClient
 		return favs!;
 	}
 
-	internal async Task<Paginatable<History[]>> GetUserHistoryAsync(ulong userId, uint page, byte limit, HistoryRequestOptions options,
+	internal async Task<Paginatable<History[]>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options,
 																	CancellationToken cancellationToken = default)
 	{
 		var url = $"{Constants.BASE_USERS_API_URL}/{userId}/history";
@@ -77,7 +77,7 @@ public sealed class ShikiClient
 		return new(data, hasNextPage);
 	}
 
-	internal Task<UserInfo> GetUserInfoAsync(ulong userId, CancellationToken cancellationToken = default)
+	internal Task<UserInfo> GetUserInfoAsync(uint userId, CancellationToken cancellationToken = default)
 	{
 		var url = $"{Constants.BASE_USERS_API_URL}/{userId}/info";
 		return this._httpClient.GetFromJsonAsync<UserInfo>(url, cancellationToken)!;

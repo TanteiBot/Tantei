@@ -32,6 +32,14 @@ namespace PaperMalKing.Database.CompiledModels
                 "DiscordUserId",
                 typeof(ulong));
 
+            var favoritesIdHash = runtimeEntityType.AddProperty(
+                "FavoritesIdHash",
+                typeof(string),
+                propertyInfo: typeof(MalUser).GetProperty("FavoritesIdHash", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MalUser).GetField("<FavoritesIdHash>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                valueGenerated: ValueGenerated.OnAdd);
+            favoritesIdHash.AddAnnotation("Relational:DefaultValue", "");
+
             var features = runtimeEntityType.AddProperty(
                 "Features",
                 typeof(MalUserFeatures),

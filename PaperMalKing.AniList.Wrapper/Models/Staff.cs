@@ -20,7 +20,7 @@ public sealed class Staff : IImageble, ISiteUrlable, IIdentifiable
 	public Image? Image { get; init; }
 
 	[JsonPropertyName("id")]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	[JsonPropertyName("description")]
 	public string? Description { get; init; } 

@@ -59,7 +59,7 @@ public sealed class MediaListEntry
 	}
 
 	[JsonPropertyName("id")]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	[JsonPropertyName("customLists")]
 	public IReadOnlyList<CustomList>? CustomLists { get; init; } = Array.Empty<CustomList>();

@@ -20,5 +20,5 @@ public sealed class Character : IImageble, ISiteUrlable, IIdentifiable
 	public required Page<Media> Media { get; init; }
 
 	[JsonPropertyName("id")]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 }

@@ -10,7 +10,7 @@ internal class UserInfo
 	private string? _imageUrl;
 
 	[JsonPropertyName("id")]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	[JsonPropertyName("nickname")]
 	public required string Nickname { get; init; }

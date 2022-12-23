@@ -29,7 +29,7 @@ namespace PaperMalKing.Database.CompiledModels
 
             var botUserId = runtimeEntityType.AddProperty(
                 "BotUserId",
-                typeof(ulong),
+                typeof(uint),
                 propertyInfo: typeof(DiscordUser).GetProperty("BotUserId", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DiscordUser).GetField("<BotUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 

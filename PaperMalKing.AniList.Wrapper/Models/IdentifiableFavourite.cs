@@ -19,7 +19,7 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 public sealed class IdentifiableFavourite : IIdentifiable, IEquatable<IdentifiableFavourite>
 {
 	[JsonPropertyName("id")]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	[JsonIgnore]
 	public FavouriteType Type { get; set; }

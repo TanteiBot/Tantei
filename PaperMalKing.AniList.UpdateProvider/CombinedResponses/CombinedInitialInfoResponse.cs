@@ -7,7 +7,7 @@ namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses;
 
 internal sealed class CombinedInitialInfoResponse
 {
-	public ulong? UserId = null;
+	public uint? UserId = null;
 
 	public readonly List<IdentifiableFavourite> Favourites = new();
 

@@ -27,6 +27,8 @@ public sealed class MalUser
 
 	public MalUserFeatures Features { get; set; }
 
+	public string FavoritesIdHash { get; set; } = null!;
+
 	public List<MalFavoriteAnime> FavoriteAnimes { get; set; } = null!;
 
 	public List<MalFavoriteManga> FavoriteMangas { get; set; } = null!;

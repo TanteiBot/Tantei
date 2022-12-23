@@ -38,7 +38,7 @@ internal static class Extensions
 	public static DiscordEmbedBuilder WithShikiAuthor(this DiscordEmbedBuilder builder, UserInfo user) =>
 		builder.WithAuthor(user.Nickname, user.Url, user.ImageUrl);
 
-	public static async Task<List<History>> GetAllUserHistoryAfterEntryAsync(this ShikiClient client, ulong userId, ulong limitHistoryEntryId,
+	public static async Task<List<History>> GetAllUserHistoryAfterEntryAsync(this ShikiClient client, uint userId, ulong limitHistoryEntryId,
 																			 ShikiUserFeatures features,
 																			 CancellationToken cancellationToken = default)
 	{

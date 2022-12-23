@@ -25,4 +25,7 @@ internal sealed class UserFavorites
 		FavoritePeople = Array.Empty<FavoritePerson>(),
 		FavoriteCompanies = Array.Empty<FavoriteCompany>()
 	};
+
+	internal int Count =>
+		this.FavoriteAnime.Count + this.FavoriteManga.Count + this.FavoriteCharacters.Count + this.FavoritePeople.Count + this.FavoriteCompanies.Count;
 }

@@ -9,7 +9,7 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 public sealed class User : ISiteUrlable, IImageble
 {
 	[JsonPropertyName("id")]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	[JsonPropertyName("name")]
 	public string? Name { get; init; }

@@ -9,7 +9,7 @@ public sealed class ShikiFavourite
 {
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -17,7 +17,7 @@ public sealed class ShikiFavourite
 
 	public required string Name { get; init; }
 
-	public ulong UserId { get; init; }
+	public uint UserId { get; init; }
 
 	public ShikiUser User { get; set; } = null!;
 }

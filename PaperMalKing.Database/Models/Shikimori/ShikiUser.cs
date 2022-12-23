@@ -11,7 +11,7 @@ public sealed class ShikiUser
 {
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	public ulong LastHistoryEntryId { get; set; }
 
@@ -20,6 +20,8 @@ public sealed class ShikiUser
 	public ShikiUserFeatures Features { get; set; }
 
 	public required DiscordUser DiscordUser { get; init; }
+
+	public string FavouritesIdHash { get; set; } = null!;
 
 	public required List<ShikiFavourite> Favourites { get; set; }
 }

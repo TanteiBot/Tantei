@@ -31,6 +31,10 @@ public static class CollectionExtensions
 	{
 		var originalHs = new HashSet<T>(original);
 		var resultingHs = new HashSet<T>(resulting);
+		if (originalHs.SetEquals(resultingHs))
+		{
+			return (Array.Empty<T>(), Array.Empty<T>());
+		}
 		originalHs.ExceptWith(resulting);
 		resultingHs.ExceptWith(original);
 		var added = resultingHs.ToArray() ?? Array.Empty<T>();
