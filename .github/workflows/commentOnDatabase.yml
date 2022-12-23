@@ -15,7 +15,8 @@ jobs:
   comment:
     name: Comment
     runs-on: ubuntu-latest
-    uses: peter-evans/create-or-update-comment@v2
-    with:
-      issue-number: {{ github.event.pull_request.number }}
-      comment: Looks like you changed something in PaperMalKing.Database project. Make sure to run EF core tool to optimize model.
+    steps:
+      uses: peter-evans/create-or-update-comment@v2
+      with:
+        issue-number: {{ github.event.pull_request.number }}
+        comment: Looks like you changed something in PaperMalKing.Database project. Make sure to run EF core tool to optimize model.
