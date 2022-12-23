@@ -36,8 +36,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{E970512D-B479-4616-B280-AB6FC9F3D111}"
 ProjectSection(SolutionItems) = preProject
 	.github/workflows/build.yml = .github/workflows/build.yml
-	.github/dependabot.yml = .github/dependabot.yml 
+	.github/dependabot.yml = .github/dependabot.yml
+	.github\workflows\commentOnDatabase.yml = .github\workflows\commentOnDatabase.yml
 EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Database.Migrations", "PaperMalKing.Database.Migrations\PaperMalKing.Database.Migrations.csproj", "{0615E56A-0908-4115-A91E-79BB6B1DB177}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Database.CompiledModels", "PaperMalKing.Database.CompiledModels\PaperMalKing.Database.CompiledModels.csproj", "{C1E1E287-5351-455F-AADD-F2FD509CD84A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +90,14 @@ Global
 		{C4075A12-12AF-4B81-AD3B-99704DDB7B03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4075A12-12AF-4B81-AD3B-99704DDB7B03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4075A12-12AF-4B81-AD3B-99704DDB7B03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0615E56A-0908-4115-A91E-79BB6B1DB177}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0615E56A-0908-4115-A91E-79BB6B1DB177}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0615E56A-0908-4115-A91E-79BB6B1DB177}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0615E56A-0908-4115-A91E-79BB6B1DB177}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1E1E287-5351-455F-AADD-F2FD509CD84A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1E1E287-5351-455F-AADD-F2FD509CD84A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1E1E287-5351-455F-AADD-F2FD509CD84A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1E1E287-5351-455F-AADD-F2FD509CD84A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

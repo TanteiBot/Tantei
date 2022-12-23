@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <NoWarn>$(NoWarn);MA0048;S1186</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
+using PaperMalKing.Database.CompiledModels;
 using PaperMalKing.Options;
 using PaperMalKing.Services;
 using PaperMalKing.Services.Background;
@@ -33,7 +34,10 @@ public static class Program
 			services.AddDbContextFactory<DatabaseContext>((services, builder) =>
 			{
 				var options = services.GetRequiredService<IOptions<DatabaseOptions>>();
-				builder.UseSqlite(options.Value.ConnectionString);
+				builder.UseSqlite(options.Value.ConnectionString, builder =>
+				{
+					builder.MigrationsAssembly("PaperMalKing.Database.Migrations");
+				}).UseModel(DatabaseContextModel.Instance);
 			});
 			var config = hostContext.Configuration;
 

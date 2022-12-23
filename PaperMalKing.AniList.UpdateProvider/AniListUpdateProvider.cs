@@ -54,7 +54,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 								 .Where(u => u.DiscordUser.Guilds.Any() && ((u.Features & AniListUserFeatures.AnimeList) != 0 ||
 																			(u.Features & AniListUserFeatures.MangaList) != 0 ||
 																			(u.Features & AniListUserFeatures.Favourites) != 0 ||
-																			(u.Features & AniListUserFeatures.Reviews) != 0)).ToArray())
+																			(u.Features & AniListUserFeatures.Reviews) != 0)).OrderBy(x=>EF.Functions.Random()).ToArray())
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;

@@ -5,9 +5,9 @@ namespace PaperMalKing.Database.Models.MyAnimeList;
 
 public interface IMalFavorite
 {
-	public int UserId { get; init; }
+	public uint UserId { get; init; }
 
-	public int Id { get; init; }
+	public uint Id { get; init; }
 
 	public string? ImageUrl { get; init; }
 

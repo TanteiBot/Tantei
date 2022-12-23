@@ -33,16 +33,16 @@ internal class HistoryTarget
 	}
 
 	[JsonPropertyName("episodes")]
-	public int? Episodes { get; init; }
+	public uint? Episodes { get; init; }
 
 	[JsonPropertyName("episodes_aired")]
-	public int? EpisodesAired { get; init; }
+	public uint? EpisodesAired { get; init; }
 
 	[JsonPropertyName("volumes")]
-	public int? Volumes { get; init; }
+	public uint? Volumes { get; init; }
 
 	[JsonPropertyName("chapters")]
-	public int? Chapters { get; init; }
+	public uint? Chapters { get; init; }
 
 	[JsonPropertyName("kind")]
 	public string? Kind { get; init; }

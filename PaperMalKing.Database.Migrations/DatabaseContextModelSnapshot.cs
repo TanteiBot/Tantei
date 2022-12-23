@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PaperMalKing.Database;
 
+#nullable disable
+
 namespace PaperMalKing.Database.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
@@ -12,15 +14,14 @@ namespace PaperMalKing.Database.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "5.0.9");
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.1");
 
             modelBuilder.Entity("DiscordGuildDiscordUser", b =>
                 {
-                    b.Property<long>("GuildsDiscordGuildId")
+                    b.Property<ulong>("GuildsDiscordGuildId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long>("UsersDiscordUserId")
+                    b.Property<ulong>("UsersDiscordUserId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("GuildsDiscordGuildId", "UsersDiscordUserId");
@@ -32,13 +33,13 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.AniList.AniListFavourite", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<ulong>("Id")
                         .HasColumnType("INTEGER");
 
                     b.Property<byte>("FavouriteType")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long>("UserId")
+                    b.Property<ulong>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id", "FavouriteType", "UserId");
@@ -50,10 +51,10 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.AniList.AniListUser", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<ulong>("Id")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long>("DiscordUserId")
+                    b.Property<ulong>("DiscordUserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<ulong>("Features")
@@ -76,7 +77,7 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.BotUser", b =>
                 {
-                    b.Property<long>("UserId")
+                    b.Property<ulong>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -87,10 +88,10 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.DiscordGuild", b =>
                 {
-                    b.Property<long>("DiscordGuildId")
+                    b.Property<ulong>("DiscordGuildId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long>("PostingChannelId")
+                    b.Property<ulong>("PostingChannelId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("DiscordGuildId");
@@ -100,10 +101,10 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.DiscordUser", b =>
                 {
-                    b.Property<long>("DiscordUserId")
+                    b.Property<ulong>("DiscordUserId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long>("BotUserId")
+                    b.Property<ulong>("BotUserId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("DiscordUserId");
@@ -116,10 +117,10 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalFavoriteAnime", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<uint>("Id")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UserId")
+                    b.Property<uint>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ImageUrl")
@@ -133,7 +134,7 @@ namespace PaperMalKing.Database.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("StartYear")
+                    b.Property<uint>("StartYear")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Type")
@@ -149,10 +150,10 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalFavoriteCharacter", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<uint>("Id")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UserId")
+                    b.Property<uint>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FromTitleName")
@@ -183,10 +184,10 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalFavoriteCompany", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<uint>("Id")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UserId")
+                    b.Property<uint>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ImageUrl")
@@ -209,10 +210,10 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalFavoriteManga", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<uint>("Id")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UserId")
+                    b.Property<uint>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ImageUrl")
@@ -226,7 +227,7 @@ namespace PaperMalKing.Database.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("StartYear")
+                    b.Property<uint>("StartYear")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Type")
@@ -242,10 +243,10 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalFavoritePerson", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<uint>("Id")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UserId")
+                    b.Property<uint>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ImageUrl")
@@ -268,10 +269,10 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalUser", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<uint>("UserId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long?>("DiscordUserId")
+                    b.Property<ulong>("DiscordUserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<ulong>("Features")
@@ -306,13 +307,13 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.Shikimori.ShikiFavourite", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<ulong>("Id")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FavType")
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("UserId")
+                    b.Property<ulong>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
@@ -328,10 +329,10 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.Shikimori.ShikiUser", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<ulong>("Id")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long>("DiscordUserId")
+                    b.Property<ulong>("DiscordUserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<ulong>("Features")
@@ -339,7 +340,7 @@ namespace PaperMalKing.Database.Migrations
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(127ul);
 
-                    b.Property<long>("LastHistoryEntryId")
+                    b.Property<ulong>("LastHistoryEntryId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -456,7 +457,9 @@ namespace PaperMalKing.Database.Migrations
                 {
                     b.HasOne("PaperMalKing.Database.Models.DiscordUser", "DiscordUser")
                         .WithMany()
-                        .HasForeignKey("DiscordUserId");
+                        .HasForeignKey("DiscordUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("DiscordUser");
                 });
@@ -490,8 +493,7 @@ namespace PaperMalKing.Database.Migrations
 
             modelBuilder.Entity("PaperMalKing.Database.Models.BotUser", b =>
                 {
-                    b.Navigation("DiscordUser")
-                        .IsRequired();
+                    b.Navigation("DiscordUser");
                 });
 
             modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalUser", b =>

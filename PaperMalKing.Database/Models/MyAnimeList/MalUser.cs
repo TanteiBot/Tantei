@@ -13,7 +13,7 @@ public sealed class MalUser
 
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	[Key]
-	public int UserId { get; init; }
+	public uint UserId { get; init; }
 
 	public required string Username { get; set; }
 

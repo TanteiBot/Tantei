@@ -9,11 +9,11 @@ namespace PaperMalKing.Database.Models.MyAnimeList;
 public sealed class MalFavoriteManga : IMalListFavorite, IEquatable<MalFavoriteManga>
 {
 	[ForeignKey(nameof(User))]
-	public int UserId { get; init; }
+	public uint UserId { get; init; }
 
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
-	public int Id { get; init; }
+	public uint Id { get; init; }
 
 	public string? ImageUrl { get; init; }
 
@@ -25,7 +25,7 @@ public sealed class MalFavoriteManga : IMalListFavorite, IEquatable<MalFavoriteM
 
 	public required string Type { get; init; }
 
-	public int StartYear { get; init; }
+	public uint StartYear { get; init; }
 
 	public bool Equals(MalFavoriteManga? other)
 	{
@@ -38,13 +38,7 @@ public sealed class MalFavoriteManga : IMalListFavorite, IEquatable<MalFavoriteM
 
 	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is MalFavoriteManga other && Equals(other);
 
-	public override int GetHashCode()
-	{
-		unchecked
-		{
-			return (this.UserId * 397) ^ this.Id;
-		}
-	}
+	public override int GetHashCode() => HashCode.Combine(this.UserId, this.Id);
 
 	public static bool operator ==(MalFavoriteManga? left, MalFavoriteManga? right) => Equals(left, right);
 

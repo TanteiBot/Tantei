@@ -52,7 +52,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 		foreach (var dbUser in db.ShikiUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds).Include(u => u.Favourites)
 								 .Where(u => u.DiscordUser.Guilds.Any() && ((u.Features & ShikiUserFeatures.AnimeList) != 0 ||
 																			(u.Features & ShikiUserFeatures.MangaList) != 0 ||
-																			(u.Features & ShikiUserFeatures.Favourites) != 0)).OrderBy(x => x.Id).ToArray())
+																			(u.Features & ShikiUserFeatures.Favourites) != 0)).OrderBy(x => EF.Functions.Random()).ToArray())
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;

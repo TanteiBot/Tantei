@@ -11,8 +11,8 @@ internal sealed class MangaListSubEntry : BaseListSubEntry
 	public override string TotalAmount => $"{this.Chapters} ep., {this.Volumes} v.";
 
 	[JsonPropertyName("volumes")]
-	public int Volumes { get; init; }
+	public uint Volumes { get; init; }
 
 	[JsonPropertyName("chapters")]
-	public int Chapters { get; init; }
+	public uint Chapters { get; init; }
 }
