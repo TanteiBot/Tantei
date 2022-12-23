@@ -18,6 +18,6 @@ internal abstract class AnimeListType : IListType
 		Debug.Assert(typeof(TRequestOptions) == typeof(AnimeFieldsToRequest));
 		var fields = Unsafe.As<TRequestOptions, AnimeFieldsToRequest>(ref options);
 		return
-			$"/users/{username}/animelist?fields=list_status{{status,score,num_episodes_watched,is_rewatching,num_times_rewatched,updated_at{(fields.Has(Tags) ? ",tags" : "")}{(fields.Has(Comments) ? ",comments" : "")}}},id,title,main_picture,media_type,status,num_episodes,studios{(fields.Has(Synopsis) ? ",synopsis" : "")}{(fields.Has(Genres) ? ",genres{name}" : "")}&limit=1000&sort=list_updated_at&nsfw=true";
+			$"/users/{username}/animelist?fields=list_status{{status,score,num_episodes_watched,is_rewatching,num_times_rewatched,updated_at{(fields.Has(Tags) ? ",tags" : "")}{(fields.Has(Comments) ? ",comments" : "")}{(fields.Has(Dates) ? ",start_date,finish_date" : "")}}},id,title,main_picture,media_type,status,num_episodes,studios{(fields.Has(Synopsis) ? ",synopsis" : "")}{(fields.Has(Genres) ? ",genres{name}" : "")}&limit=1000&sort=list_updated_at&nsfw=true";
 	}
 }
