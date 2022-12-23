@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+using PaperMalKing.MyAnimeList.Wrapper.Converters;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.Base;
 
@@ -17,7 +18,7 @@ internal abstract class BaseListEntryStatus<TListStatus> where TListStatus : unm
 		var status = this.Status;
 		return Unsafe.As<TListStatus, byte>(ref status);
 	}
-	
+
 	[JsonPropertyName("status"), JsonConverter(typeof(JsonStringEnumConverter))]
 	public required TListStatus Status { get; init; }
 
@@ -38,4 +39,10 @@ internal abstract class BaseListEntryStatus<TListStatus> where TListStatus : unm
 
 	[JsonPropertyName("updated_at")]
 	public required DateTimeOffset UpdatedAt { get; init; }
+
+	[JsonPropertyName("start_date"), JsonConverter(typeof(DateOnlyFromMalConverter))]
+	public DateOnly? StartDate { get; init; }
+
+	[JsonPropertyName("finish_date"), JsonConverter(typeof(DateOnlyFromMalConverter))]
+	public DateOnly? FinishDate { get; init; }
 }

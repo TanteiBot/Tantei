@@ -36,8 +36,8 @@ internal static class LatestUpdatesParser
 		var dataText = dataNode.SelectSingleNode("//div[1]/div[2]").InnerText.Replace(" ", "", StringComparison.Ordinal) + id.ToString();
 		Debug.Assert(dataText.Length < 100, "We rely on progress string being small");
 
-		Span<byte> shaHashDestination = stackalloc byte[SHA256.HashSizeInBytes];
-		Span<byte> utf8Destination = stackalloc byte[Encoding.UTF8.GetMaxByteCount(dataText.Length)];
+		scoped Span<byte> shaHashDestination = stackalloc byte[SHA256.HashSizeInBytes];
+		scoped Span<byte> utf8Destination = stackalloc byte[Encoding.UTF8.GetMaxByteCount(dataText.Length)];
 		Encoding.UTF8.GetBytes(dataText, utf8Destination);
 		SHA256.HashData(utf8Destination, shaHashDestination);
 

@@ -13,7 +13,7 @@ public static class CollectionExtensions
 	public static IList<T> Shuffle<T>(this IList<T> list)
 	{
 		var n = list.Count;
-		Span<byte> box = stackalloc byte[sizeof(int)];
+		scoped Span<byte> box = stackalloc byte[sizeof(int)];
 		while (n > 1)
 		{
 			RandomNumberGenerator.Fill(box);
