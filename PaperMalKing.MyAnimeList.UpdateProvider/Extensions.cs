@@ -190,7 +190,6 @@ internal static class Extensions
 																						where TNodeStatus : unmanaged, Enum
 																						where TListStatus : unmanaged, Enum
 	{
-		[return: NotNull]
 		static string SubEntriesProgress(ulong progressedValue, ulong totalValue, bool isInPlans, string ending) =>
 			progressedValue switch
 			{
@@ -289,6 +288,28 @@ internal static class Extensions
 		{
 			var shortSynopsis = listEntry.Node.Synopsis.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 			AddAsFieldOrTruncateToDescription(eb, "Synopsis", shortSynopsis[0], false);
+		}
+
+		if ((features & MalUserFeatures.Dates) != 0 && (listEntry.Status.StartDate is not null || listEntry.Status.FinishDate is not null))
+		{
+			var isStartNull = listEntry.Status.StartDate is null;
+			var isFinishNull = listEntry.Status.FinishDate is null;
+			var fieldTitle = (isStartNull, isFinishNull) switch
+			{
+				(false, false) => "Start Date - Finish Date",
+				(false, true)  => "Start Date",
+				(true, false)  => "Finish Date",
+				_              => throw new UnreachableException()
+			};
+			var format = "dd/MM/yyyy";
+			var value = (isStartNull, isFinishNull) switch
+			{
+				(false, false) => $"{listEntry.Status.StartDate!.Value.ToString(format)} - {listEntry.Status.FinishDate!.Value.ToString(format)}",
+				(false, true)  => listEntry.Status.StartDate!.Value.ToString(format),
+				(true, false)  => listEntry.Status.FinishDate!.Value.ToString(format),
+				_              => throw new UnreachableException()
+			};
+			eb.AddField(fieldTitle, value, false);
 		}
 
 		if ((features & MalUserFeatures.Studio) != 0 && listEntry is AnimeListEntry aListEntry &&

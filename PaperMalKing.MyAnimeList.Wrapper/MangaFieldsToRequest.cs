@@ -12,5 +12,6 @@ internal enum MangaFieldsToRequest : byte
 	Genres = 1 << 1,
 	Tags = 1 << 2,
 	Comments = 1 << 3,
-	Authors = 1 << 4
+	Dates = 1 << 4,
+	Authors = 1 << 5,
 }

@@ -35,5 +35,7 @@ public enum MalUserFeatures : ulong
 	[FeatureDescription("tags", "Show tags of list entry in update")]
 	Tags = 1 << 11,
 	[FeatureDescription("comments", "Show comments of list entry in update")]
-	Comments = 1 << 12
+	Comments = 1 << 12,
+	[FeatureDescription("dates", "Show start and finish dates of list entry")]
+	Dates = 1 << 13
 }

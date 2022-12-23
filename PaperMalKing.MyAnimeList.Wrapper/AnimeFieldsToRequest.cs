@@ -12,5 +12,6 @@ internal enum AnimeFieldsToRequest : byte
 	Genres = 1 << 1,
 	Tags = 1 << 2,
 	Comments = 1 << 3,
-	Studio = 1 << 4,
+	Dates = 1 << 4,
+	Studio = 1 << 5,
 }
