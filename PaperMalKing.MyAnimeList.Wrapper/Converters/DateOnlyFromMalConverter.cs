@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -24,6 +23,7 @@ public sealed class DateOnlyFromMalConverter : JsonConverter<DateOnly?>
 
 		scoped Span<char> buffer = stackalloc char[MaxDateLength];
 		reader.CopyString(buffer);
+		buffer = buffer.Trim(stackalloc char[2]{' ', '\0'});
 		for (var i = 0; i < Formats.Count; i++)
 		{
 			if (DateOnly.TryParseExact(buffer, Formats[i], out var result))
