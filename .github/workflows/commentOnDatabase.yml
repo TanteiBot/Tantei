@@ -7,7 +7,7 @@ on:
       - master
       - release/*
       - main
-    types: [opened]
+    types: [opened, reopened]
     paths:
       - 'PaperMalKing.Database/**'
 
