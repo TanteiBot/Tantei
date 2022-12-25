@@ -102,7 +102,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 									 user =>
 										 // Is bitwise to allow executing on server
 										 (user.Features & MalUserFeatures.AnimeList) != 0 || (user.Features & MalUserFeatures.MangaList) != 0 ||
-										 (user.Features & MalUserFeatures.Favorites) != 0).OrderBy(x=> EF.Functions.Random()).ToArray())
+										 (user.Features & MalUserFeatures.Favorites) != 0).ToArray())
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;
