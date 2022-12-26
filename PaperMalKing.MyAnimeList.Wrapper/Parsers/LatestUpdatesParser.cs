@@ -33,14 +33,8 @@ internal static class LatestUpdatesParser
 		var link = dataNode.SelectSingleNode("//a").Attributes["href"].Value;
 		var id = CommonParser.ExtractIdFromMalUrl(link);
 
-		var dataText = dataNode.SelectSingleNode("//div[1]/div[2]").InnerText.Replace(" ", "", StringComparison.Ordinal) + id.ToString();
-		Debug.Assert(dataText.Length < 100, "We rely on progress string being small");
+		var dataText = $"{new StringBuilder(dataNode.SelectSingleNode("//div[1]/div[2]").InnerText).Replace(" ", "").Replace("\n", "").ToString().ToUpperInvariant()}::{id}" ;
 
-		scoped Span<byte> shaHashDestination = stackalloc byte[SHA256.HashSizeInBytes];
-		scoped Span<byte> utf8Destination = stackalloc byte[Encoding.UTF8.GetMaxByteCount(dataText.Length)];
-		Encoding.UTF8.GetBytes(dataText, utf8Destination);
-		SHA256.HashData(utf8Destination, shaHashDestination);
-
-		return Convert.ToHexString(shaHashDestination);
+		return dataText;
 	}
 }
