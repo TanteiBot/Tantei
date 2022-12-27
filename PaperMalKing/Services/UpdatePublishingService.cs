@@ -54,7 +54,7 @@ public sealed class UpdatePublishingService
 			{
 				this._logger.LogTrace("Trying to get guild with {Id}", guild.DiscordGuildId);
 				var discordGuild = e.Guilds[guild.DiscordGuildId];
-				this._logger.LogTrace(@"Loaded guild {Guild}", discordGuild);
+				this._logger.LogTrace("Loaded guild {Guild}", discordGuild);
 				var channel = discordGuild.GetChannel(guild.PostingChannelId) ??
 							  (await discordGuild.GetChannelsAsync().ConfigureAwait(false)).First(ch => ch.Id == guild.PostingChannelId);
 				this._logger.LogTrace("Loaded channel {Channel} in guild {DiscordGuild}", channel, discordGuild);
