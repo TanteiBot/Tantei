@@ -11,102 +11,127 @@ internal static class FavouritesInfoQueryBuilder
 	public static string Build(RequestOptions options)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine(@" query ($page: Int, $animeIds: [Int], $mangaIds: [Int], $charIds: [Int], $staffIds: [Int], $studioIds: [Int]) {
-                  Animes: Page(page: $page, perPage: 50) {
-                    pageInfo{
-                      hasNextPage
-                    }
-                    values: media(type: ANIME, id_in: $animeIds) {");
+		sb.AppendLine(
+			"""
+			query ($page: Int, $animeIds: [Int], $mangaIds: [Int], $charIds: [Int], $staffIds: [Int], $studioIds: [Int]) {
+				Animes: Page(page: $page, perPage: 50) {
+					pageInfo{
+						hasNextPage
+					}
+			values: media(type: ANIME, id_in: $animeIds) {
+			""");
 		Helpers.AppendMediaFields(sb, options);
-		sb.AppendLine(@"}
-                  }
-                  Mangas: Page(page: $page, perPage: 50) {
-                    pageInfo{
-                      hasNextPage
-                    }
-                    values: media(type: MANGA, id_in: $mangaIds) {");
+		sb.AppendLine(
+			"""
+			}
+			}
+			Mangas: Page(page: $page, perPage: 50) {
+				pageInfo{
+					hasNextPage
+				}
+				values: media(type: MANGA, id_in: $mangaIds) {
+			""");
 		Helpers.AppendMediaFields(sb, options);
-		sb.AppendLine(@"}
-                  }");
+		sb.AppendLine(
+			"""
+			}
+			}
+			""");
 
-		sb.AppendLine(@"
-                  Staff: Page(page: $page, perPage: 50) {
-                    pageInfo{
-                      hasNextPage
-                    }
-                    values: staff(id_in: $staffIds) {
-                      name {
-                        full
-                        native
-                      }
-                      id
-					  primaryOccupations,
-					  staffMedia(sort:POPULARITY_DESC, page: 1, perPage: 1){");
+		sb.AppendLine(
+			"""
+			Staff: Page(page: $page, perPage: 50) {
+				pageInfo{
+					hasNextPage
+				}
+				values: staff(id_in: $staffIds) {
+					name {
+						full
+						native
+					}
+					id
+					primaryOccupations,
+					staffMedia(sort:POPULARITY_DESC, page: 1, perPage: 1){
+			""");
 		FillLesserMediaFields(sb);
-		sb.Append(@"}
-                      siteUrl
-                      image {
-                        large
-                      }
-                    ");
+		sb.Append(
+			"""
+			}
+			siteUrl
+			image {
+				large
+			}
+			""");
 		if ((options & RequestOptions.MediaDescription) != 0)
 			sb.AppendLine("description(asHtml: false)");
 
-		sb.AppendLine(@"}
-                  }");
-		sb.AppendLine(@"
-                  Characters: Page(page: $page, perPage: 50) {
-                    pageInfo{
-                      hasNextPage
-                    }
-                    values: characters(id_in: $charIds) {
-                      name {
-                        full
-                        native
-                      }
-                      siteUrl
-                      id
-                      image {
-                        large
-                      }
-                      media(sort: POPULARITY_DESC, page: 1, perPage: 1) {");
+		sb.AppendLine(
+			"""
+			}
+			}
+			""");
+		sb.AppendLine(
+			"""
+			Characters: Page(page: $page, perPage: 50) {
+				pageInfo{
+					hasNextPage
+				}
+				values: characters(id_in: $charIds) {
+					name {
+						full
+						native
+					}
+					siteUrl
+					id
+					image {
+					large
+				}
+			media(sort: POPULARITY_DESC, page: 1, perPage: 1) {
+			""");
 		FillLesserMediaFields(sb);
-		sb.Append(@"}
-                    }
-                  }
-                  Studios: Page(page: $page, perPage: 50) {
-                    pageInfo{
-                      hasNextPage
-                    }
-                    values: studios(id_in: $studioIds) {
-                      name
-                      siteUrl
-                      id
-                      media(sort: POPULARITY_DESC, isMain: true, page: 1, perPage: 1) {");
+		sb.Append(
+			"""
+			}
+			}
+			}
+			Studios: Page(page: $page, perPage: 50) {
+				pageInfo{
+					hasNextPage
+				}
+				values: studios(id_in: $studioIds) {
+					name
+					siteUrl
+					id
+					media(sort: POPULARITY_DESC, isMain: true, page: 1, perPage: 1) {
+			""");
 
 		FillLesserMediaFields(sb);
-		sb.Append(@"}
-                    }
-                  }
-              }");
+		sb.Append(
+			"""
+			}
+			}
+			}
+			}
+			""");
 		return sb.ToString();
 	}
 
 	private static void FillLesserMediaFields(StringBuilder sb)
 	{
-		sb.Append(@"
-					  values: nodes {
-                          title {
-                            stylisedRomaji: romaji(stylised: true)
-                            romaji(stylised: false)
-                            stylisedEnglish: english(stylised: true)
-                            english(stylised: false)
-                            stylisedNative: native(stylised: true)
-                            native(stylised: false)
-                          }
-                          siteUrl
-                          format
-                        }
-						");
+		sb.Append(
+			"""
+			values: nodes {
+				title {
+					stylisedRomaji: romaji(stylised: true)
+					romaji(stylised: false)
+					stylisedEnglish: english(stylised: true)
+					english(stylised: false)
+					stylisedNative: native(stylised: true)
+					native(stylised: false)
+				}
+			siteUrl
+			format
+			}						
+			""");
 	}
 }
