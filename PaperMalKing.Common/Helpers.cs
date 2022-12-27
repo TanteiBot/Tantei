@@ -2,10 +2,8 @@
 // Copyright (C) 2021-2022 N0D4N
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Buffers.Binary;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace PaperMalKing.Common;
 
@@ -13,17 +11,25 @@ public static class Helpers
 {
 	public static string ToDiscordMention(ulong id) => $"<@!{id}>";
 
-	public static string FavoritesHash(IReadOnlyList<FavoriteIdType> ids)
+	public static string FavoritesHash(ReadOnlySpan<FavoriteIdType> ids)
 	{
-		scoped Span<byte> shaHashDestination = stackalloc byte[SHA256.HashSizeInBytes];
-		const int maxIdLength = 15; // "4294967295,255)".Length
+		Span<byte> shaHashDestination = stackalloc byte[SHA512.HashSizeInBytes];
+		Span<byte> buffer = stackalloc byte[sizeof(uint) + 1 + sizeof(byte) + 1];
+		buffer[^3] = (byte)',';
+		buffer[^1] = (byte)')';
 
-		const int maxOnStackSize = 512;
-		var count = (ids.Count * maxIdLength) + 1;
-		scoped Span<byte> asciiDestination = count > maxOnStackSize ? new byte[maxOnStackSize] : stackalloc byte[maxOnStackSize];
-		var idsString = string.Join("", ids.OrderBy(x=>x.Id).Select(x => $"{x.Id},{x.Type})"));
-		Encoding.ASCII.GetBytes(idsString, asciiDestination);
-		SHA256.HashData(asciiDestination, shaHashDestination);
+		using var incrementalHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512);
+		for (var i = 0; i < ids.Length; i++)
+		{
+			var id = ids[i];
+			BinaryPrimitives.WriteUInt32LittleEndian(buffer,id.Id);
+
+			buffer[^2] = id.Type;
+
+			incrementalHash.AppendData(buffer);
+		}
+
+		incrementalHash.GetCurrentHash(shaHashDestination);
 		return Convert.ToHexString(shaHashDestination);
 	}
 }

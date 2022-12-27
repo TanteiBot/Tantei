@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
@@ -353,19 +354,19 @@ internal static class Extensions
 		return eb;
 	}
 
-	internal static IReadOnlyList<FavoriteIdType> GetFavoriteIdTypesFromFavorites(this UserFavorites favorites)
+	internal static ReadOnlySpan<FavoriteIdType> GetFavoriteIdTypesFromFavorites(this UserFavorites favorites)
 	{
-		static void Add(List<FavoriteIdType> aggregator, IReadOnlyList<BaseFavorite> favs, byte type)
+		static void Add(List<FavoriteIdType> aggregator, IReadOnlyList<BaseFavorite> favs, FavoriteType type)
 		{
-			aggregator.AddRange(favs.Select(x=>new FavoriteIdType(x.Url!.Id, type)));
+			aggregator.AddRange(favs.Select(x=>new FavoriteIdType(x.Url!.Id, (byte)type)));
 		}
 		var result = new List<FavoriteIdType>(favorites.Count);
-		Add(result,favorites.FavoriteAnime, (byte)FavoriteType.Anime);
-		Add(result,favorites.FavoriteManga, (byte)FavoriteType.Manga);
-		Add(result,favorites.FavoriteCharacters, (byte)FavoriteType.Character);
-		Add(result,favorites.FavoritePeople, (byte)FavoriteType.Person);
-		Add(result,favorites.FavoriteCompanies, (byte)FavoriteType.Company);
-		return result;
+		Add(result,favorites.FavoriteAnime, FavoriteType.Anime);
+		Add(result,favorites.FavoriteManga, FavoriteType.Manga);
+		Add(result,favorites.FavoriteCharacters, FavoriteType.Character);
+		Add(result,favorites.FavoritePeople, FavoriteType.Person);
+		Add(result,favorites.FavoriteCompanies, FavoriteType.Company);
+		return CollectionsMarshal.AsSpan(result);
 	}
 
 	internal static List<T> AddRangeF<T>(this List<T> list, IQueryable<T> second)

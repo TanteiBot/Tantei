@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -198,15 +199,15 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				this.Logger.LogDebug("Ended checking updates for {@Username} with {@Updates} updates found", dbUser.Username, totalUpdates.Length);
 				if (isFavoritesHashMismatch)
 				{
-					Expression<Func<IMalFavorite, FavoriteIdType>> Selector(byte type) => x => new FavoriteIdType(x.Id, type);
+					Expression<Func<IMalFavorite, FavoriteIdType>> Selector(FavoriteType type) => x => new FavoriteIdType(x.Id,(byte) type);
 
-					var fit = db.MalFavoriteAnimes.Select(Selector((byte)FavoriteType.Anime)).ToList()
-								.AddRangeF(db.MalFavoriteMangas.Select(Selector((byte)FavoriteType.Manga)))
-								.AddRangeF(db.MalFavoriteCharacters.Select(Selector((byte)FavoriteType.Character)))
-								.AddRangeF(db.MalFavoritePersons.Select(Selector((byte)FavoriteType.Person)))
-								.AddRangeF(db.MalFavoriteCompanies.Select(Selector((byte)FavoriteType.Company)));
-					
-					dbUser.FavoritesIdHash = Helpers.FavoritesHash(fit);
+					var fit = db.MalFavoriteAnimes.Select(Selector(FavoriteType.Anime)).ToList()
+								.AddRangeF(db.MalFavoriteMangas.Select(Selector(FavoriteType.Manga)))
+								.AddRangeF(db.MalFavoriteCharacters.Select(Selector(FavoriteType.Character)))
+								.AddRangeF(db.MalFavoritePersons.Select(Selector(FavoriteType.Person)))
+								.AddRangeF(db.MalFavoriteCompanies.Select(Selector(FavoriteType.Company)));
+
+					dbUser.FavoritesIdHash = Helpers.FavoritesHash(CollectionsMarshal.AsSpan(fit));
 					db.SaveChanges();
 				}
 			}
