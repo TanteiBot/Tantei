@@ -54,6 +54,11 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 			this._updateCheckingRunningTask = this.CheckForUpdatesAsync(this._cts.Token);
 			await this._updateCheckingRunningTask.ConfigureAwait(false);
 		}
+		catch (TaskCanceledException) when (cts.IsCancellationRequested)
+		{
+			// Ignore
+			// We were cancelled
+		}
 #pragma warning disable CA1031
 		catch (Exception e)
 #pragma warning restore CA1031
