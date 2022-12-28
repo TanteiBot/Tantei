@@ -27,5 +27,5 @@ public sealed class User : ISiteUrlable, IImageble
 	public MediaListOptions? MediaListOptions { get; init; }
 
 	[JsonPropertyName("favourites")]
-	public required Favourites Favourites { get; init; }
+	public Favourites Favourites { get; init; } = Favourites.Empty;
 }
