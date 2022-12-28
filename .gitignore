@@ -7,7 +7,7 @@
 config.json
 config.yml
 appsettings.json
-
+makefile.p
 # Empty database is distributed with releases
 empty_database.db
 

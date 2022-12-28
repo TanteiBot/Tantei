@@ -22,12 +22,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="$(SolutionDir)\Scripts\autorestart.ps1">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Include="$(SolutionDir)\Scripts\autorestart.sh">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
         <None Update="template.appsettings.json" CopyToPublishDirectory="Always">
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
