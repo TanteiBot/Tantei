@@ -170,6 +170,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 											   .ToArray();
 			if (!totalUpdates.Any())
 			{
+				db.Entry(dbUser).State = EntityState.Unchanged;
 				this.Logger.LogDebug("Ended checking updates for {@Username} with no updates found", dbUser.Username);
 				continue;
 			}
