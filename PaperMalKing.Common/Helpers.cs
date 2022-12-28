@@ -3,6 +3,7 @@
 
 using System;
 using System.Buffers.Binary;
+using System.Diagnostics;
 using System.Security.Cryptography;
 
 namespace PaperMalKing.Common;
@@ -30,6 +31,7 @@ public static class Helpers
 			incrementalHash.AppendData(buffer);
 		}
 
+		Debug.Assert(incrementalHash.HashLengthInBytes == shaHashDestination.Length);
 		incrementalHash.GetCurrentHash(shaHashDestination);
 		return $"{ids.Length}:{Convert.ToHexString(shaHashDestination)}";
 	}
