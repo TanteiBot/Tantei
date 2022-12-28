@@ -42,23 +42,23 @@ public sealed class AniListUserService : IUpdateProviderUserService
 			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
 			{
-				throw new UserProcessingException(new(username ?? ""),
+				throw new UserProcessingException(BaseUser.FromUsername(username), 
 					"Current server is not in database, ask server administrator to add this server to bot");
 			}
 
 			dbUser.DiscordUser.Guilds.Add(guild);
 			db.AniListUsers.Update(dbUser);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-			return new(username ?? "");
+			return BaseUser.FromUsername(username);
 		}
 
 		if (string.IsNullOrWhiteSpace(username))
 		{
-			throw new UserProcessingException(new(""), "You must provide username if you arent already tracked by this bot");
+			throw new UserProcessingException(BaseUser.Empty, "You must provide username if you arent already tracked by this bot");
 		}
 		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
-			throw new UserProcessingException(new(username),
+			throw new UserProcessingException(BaseUser.FromUsername(username), 
 				"Current server is not in database, ask server administrator to add this server to bot");
 		var dUser = db.DiscordUsers.Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 		var response = await this._client.GetCompleteUserInitialInfoAsync(username).ConfigureAwait(false);
@@ -91,7 +91,7 @@ public sealed class AniListUserService : IUpdateProviderUserService
 		});
 		db.AniListUsers.Add(dbUser);
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-		return new(username);
+		return BaseUser.FromUsername(username);
 	}
 
 	public async Task<BaseUser> RemoveUserAsync(ulong userId)
@@ -103,7 +103,7 @@ public sealed class AniListUserService : IUpdateProviderUserService
 
 		db.AniListUsers.Remove(user);
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-		return new("");
+		return BaseUser.Empty;
 	}
 
 	public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
@@ -124,11 +124,10 @@ public sealed class AniListUserService : IUpdateProviderUserService
 	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		return db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).Select(su => new
+		return db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).OrderByDescending(u => u.LastActivityTimestamp).Select(su => new
 				 {
-					 su.DiscordUser,
-					 su.LastActivityTimestamp
-				 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastActivityTimestamp)
+					 su.DiscordUser
+				 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
 				 .Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking().ToArray();
 	}
 }

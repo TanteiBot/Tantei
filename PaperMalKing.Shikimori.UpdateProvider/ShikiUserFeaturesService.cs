@@ -32,8 +32,7 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 	public async Task EnableFeaturesAsync(ShikiUserFeatures feature, ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.ShikiUsers.Include(su => su.Favourites)
-					   .FirstOrDefault(su => su.DiscordUserId == userId);
+		var dbUser = db.ShikiUsers.FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
 		var lastHistoryEntry = new ulong?();
@@ -73,7 +72,7 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 	public async Task DisableFeaturesAsync(ShikiUserFeatures feature, ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.ShikiUsers.Include(su => su.Favourites).FirstOrDefault(su => su.DiscordUserId == userId);
+		var dbUser = db.ShikiUsers.FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before disabling features");
 
@@ -81,7 +80,7 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 		dbUser.Features &= ~feature;
 		if (feature == ShikiUserFeatures.Favourites)
 		{
-			dbUser.Favourites.Clear();
+			db.ShikiFavourites.Where(x => x.UserId == dbUser.Id).ExecuteDelete();
 		}
 
 		db.ShikiUsers.Update(dbUser);

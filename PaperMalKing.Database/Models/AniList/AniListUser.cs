@@ -25,5 +25,5 @@ public sealed class AniListUser
 
 	public required DiscordUser DiscordUser { get; init; }
 
-	public required List<AniListFavourite> Favourites { get; init; }
+	public required List<AniListFavourite> Favourites { get; set; }
 }

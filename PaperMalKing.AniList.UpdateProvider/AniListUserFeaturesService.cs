@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2022 N0D4N
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 	public async Task EnableFeaturesAsync(AniListUserFeatures feature, ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.AniListUsers.Include(u => u.Favourites).FirstOrDefault(u => u.DiscordUserId == userId);
+		var dbUser = db.AniListUsers.FirstOrDefault(u => u.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
 		dbUser.Features |= feature;
@@ -49,6 +50,7 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 			{
 				var fr = await this._client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites, CancellationToken.None)
 								   .ConfigureAwait(false);
+				dbUser.Favourites ??= new List<AniListFavourite>(fr.Favourites.Count);
 				dbUser.Favourites.Clear();
 				dbUser.Favourites.AddRange(fr.Favourites.Select(f => new AniListFavourite
 				{
@@ -77,13 +79,16 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 	public async Task DisableFeaturesAsync(AniListUserFeatures feature, ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.AniListUsers.Include(su => su.Favourites).FirstOrDefault(su => su.DiscordUserId == userId);
+		var dbUser = db.AniListUsers.FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before disabling features");
 
 		dbUser.Features &= ~feature;
 		if (feature == AniListUserFeatures.Favourites)
+		{
+			db.Entry(dbUser).Collection(x=>x.Favourites).Load();
 			dbUser.Favourites.Clear();
+		}
 
 		db.AniListUsers.Update(dbUser);
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
@@ -92,7 +97,7 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 	public ValueTask<string> EnabledFeaturesAsync(ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.AniListUsers.AsNoTrackingWithIdentityResolution().FirstOrDefault(su => su.DiscordUserId == userId);
+		var dbUser = db.AniListUsers.AsNoTracking().FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before checking for enabled features");
 

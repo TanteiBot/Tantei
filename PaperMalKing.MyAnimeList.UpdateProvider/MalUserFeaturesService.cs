@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Humanizer;
@@ -34,9 +35,7 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 	public async Task EnableFeaturesAsync(MalUserFeatures feature, ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.MalUsers.Include(mu => mu.DiscordUser).Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas)
-					   .Include(u => u.FavoriteCharacters).Include(u => u.FavoritePeople).Include(u => u.FavoriteCompanies)
-					   .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
+		var dbUser = db.MalUsers.FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
 		User? user = null;
@@ -87,9 +86,7 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 	public async Task DisableFeaturesAsync(MalUserFeatures feature, ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.MalUsers.Include(mu => mu.DiscordUser).Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas)
-					   .Include(u => u.FavoriteCharacters).Include(u => u.FavoritePeople).Include(u => u.FavoriteCompanies)
-					   .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
+		var dbUser = db.MalUsers.FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before disabling features");
 
@@ -97,11 +94,12 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 		dbUser.Features &= ~feature;
 		if (feature == MalUserFeatures.Favorites)
 		{
-			dbUser.FavoriteAnimes.Clear();
-			dbUser.FavoriteMangas.Clear();
-			dbUser.FavoriteCharacters.Clear();
-			dbUser.FavoritePeople.Clear();
-			dbUser.FavoriteCompanies.Clear();
+			Expression<Func<IMalFavorite,bool>> filter = x => x.UserId == dbUser.UserId;
+			db.MalFavoriteAnimes.Where(filter).ExecuteDelete();
+			db.MalFavoriteMangas.Where(filter).ExecuteDelete();
+			db.MalFavoriteCharacters.Where(filter).ExecuteDelete();
+			db.MalFavoritePersons.Where(filter).ExecuteDelete();
+			db.MalFavoriteCompanies.Where(filter).ExecuteDelete();
 		}
 
 		db.MalUsers.Update(dbUser);
@@ -111,8 +109,7 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 	public ValueTask<string> EnabledFeaturesAsync(ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.MalUsers.Include(mu => mu.DiscordUser).AsNoTrackingWithIdentityResolution()
-					   .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
+		var dbUser = db.MalUsers.AsNoTracking().FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before checking for enabled features");
 
