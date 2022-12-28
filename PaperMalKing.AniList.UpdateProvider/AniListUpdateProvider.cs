@@ -49,7 +49,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		}
 
 		using var db = this._dbContextFactory.CreateDbContext();
-		foreach (var dbUser in db.AniListUsers.Include(au => au.DiscordUser).ThenInclude(du => du.Guilds).Include(au => au.Favourites).Where(u =>
+		foreach (var dbUser in db.AniListUsers.Where(u =>
 					 u.DiscordUser.Guilds.Any() && ((u.Features & AniListUserFeatures.AnimeList) != 0 ||
 												    (u.Features & AniListUserFeatures.MangaList) != 0 ||
 												    (u.Features & AniListUserFeatures.Favourites) != 0 ||
@@ -100,6 +100,8 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				continue;
 			}
 
+			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
+			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
 			var lastActivityTimestamp = recentUserUpdates.Activities.Any() ? recentUserUpdates.Activities.Max(a => a.CreatedAtTimestamp) : 0L;
 			var lastReviewTimeStamp = recentUserUpdates.Reviews.Any() ? recentUserUpdates.Reviews.Max(r => r.CreatedAtTimeStamp) : 0L;
 			if (dbUser.LastActivityTimestamp < lastActivityTimestamp) dbUser.LastActivityTimestamp = lastActivityTimestamp;
