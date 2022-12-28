@@ -170,15 +170,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 											   .ToArray();
 			if (!totalUpdates.Any())
 			{
-				Expression<Func<IMalFavorite, FavoriteIdType>> Selector(FavoriteType type) => x => new FavoriteIdType(x.Id,(byte) type);
-
-				var fit = db.MalFavoriteAnimes.Select(Selector(FavoriteType.Anime)).ToList()
-							.AddRangeF(db.MalFavoriteMangas.Select(Selector(FavoriteType.Manga)))
-							.AddRangeF(db.MalFavoriteCharacters.Select(Selector(FavoriteType.Character)))
-							.AddRangeF(db.MalFavoritePersons.Select(Selector(FavoriteType.Person)))
-							.AddRangeF(db.MalFavoriteCompanies.Select(Selector(FavoriteType.Company)));
-
-				dbUser.FavoritesIdHash = Helpers.FavoritesHash(CollectionsMarshal.AsSpan(fit));
+				dbUser.FavoritesIdHash = Helpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites());
 				db.SaveChanges();
 				this.Logger.LogDebug("Ended checking updates for {@Username} with no updates found", dbUser.Username);
 				continue;

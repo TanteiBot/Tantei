@@ -95,8 +95,8 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 
 			if (!allUpdates.Any())
 			{
-				dbUser.FavouritesIdHash = Helpers.FavoritesHash(db.AniListFavourites.Where(x => x.UserId == dbUser.Id)
-																  .Select(x => new FavoriteIdType(x.Id, (byte)x.FavouriteType)).ToArray());
+				dbUser.FavouritesIdHash = Helpers.FavoritesHash(recentUserUpdates.Favourites.Select(x => new FavoriteIdType(x.Id, (byte)x.Type))
+																				 .OrderBy(x => x.Id).ToArray());
 				db.SaveChanges();
 
 				this.Logger.LogTrace("No updates found for {Username}", recentUserUpdates.User.Name);
