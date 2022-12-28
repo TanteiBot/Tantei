@@ -170,17 +170,6 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 											   .ToArray();
 			if (!totalUpdates.Any())
 			{
-				Expression<Func<IMalFavorite, FavoriteIdType>> Selector(FavoriteType type) => x => new FavoriteIdType(x.Id,(byte) type);
-
-				Expression<Func<IMalFavorite,bool>> predicate = x=>x.UserId == dbUser.UserId;
-				var fit = db.MalFavoriteAnimes.Where(predicate).Select(Selector(FavoriteType.Anime)).ToList()
-							.AddRangeF(db.MalFavoriteMangas.Where(predicate).Select(Selector(FavoriteType.Manga)))
-							.AddRangeF(db.MalFavoriteCharacters.Where(predicate).Select(Selector(FavoriteType.Character)))
-							.AddRangeF(db.MalFavoritePersons.Where(predicate).Select(Selector(FavoriteType.Person)))
-							.AddRangeF(db.MalFavoriteCompanies.Where(predicate).Select(Selector(FavoriteType.Company)));
-
-				dbUser.FavoritesIdHash = Helpers.FavoritesHash(CollectionsMarshal.AsSpan(fit));
-				db.SaveChanges();
 				this.Logger.LogDebug("Ended checking updates for {@Username} with no updates found", dbUser.Username);
 				continue;
 			}
@@ -210,12 +199,13 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				if (isFavoritesHashMismatch)
 				{
 					Expression<Func<IMalFavorite, FavoriteIdType>> Selector(FavoriteType type) => x => new FavoriteIdType(x.Id,(byte) type);
+					Expression<Func<IMalFavorite,bool>> predicate = x=>x.UserId == dbUser.UserId;
 
-					var fit = db.MalFavoriteAnimes.Select(Selector(FavoriteType.Anime)).ToList()
-								.AddRangeF(db.MalFavoriteMangas.Select(Selector(FavoriteType.Manga)))
-								.AddRangeF(db.MalFavoriteCharacters.Select(Selector(FavoriteType.Character)))
-								.AddRangeF(db.MalFavoritePersons.Select(Selector(FavoriteType.Person)))
-								.AddRangeF(db.MalFavoriteCompanies.Select(Selector(FavoriteType.Company)));
+					var fit = db.MalFavoriteAnimes.Where(predicate).Select(Selector(FavoriteType.Anime)).ToList()
+								.AddRangeF(db.MalFavoriteMangas.Where(predicate).Select(Selector(FavoriteType.Manga)))
+								.AddRangeF(db.MalFavoriteCharacters.Where(predicate).Select(Selector(FavoriteType.Character)))
+								.AddRangeF(db.MalFavoritePersons.Where(predicate).Select(Selector(FavoriteType.Person)))
+								.AddRangeF(db.MalFavoriteCompanies.Where(predicate).Select(Selector(FavoriteType.Company)));
 
 					dbUser.FavoritesIdHash = Helpers.FavoritesHash(CollectionsMarshal.AsSpan(fit));
 					db.SaveChanges();
