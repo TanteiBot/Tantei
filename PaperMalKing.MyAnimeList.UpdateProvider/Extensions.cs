@@ -354,7 +354,7 @@ internal static class Extensions
 		return eb;
 	}
 
-	internal static ReadOnlySpan<FavoriteIdType> GetFavoriteIdTypesFromFavorites(this UserFavorites favorites)
+	internal static Span<FavoriteIdType> GetFavoriteIdTypesFromFavorites(this UserFavorites favorites)
 	{
 		static void Add(List<FavoriteIdType> aggregator, IReadOnlyList<BaseFavorite> favs, FavoriteType type)
 		{

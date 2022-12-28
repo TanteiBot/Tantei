@@ -110,6 +110,12 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				transaction.Commit();
 				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);
+				if (isfavouritesMismatch)
+				{
+					dbUser.FavouritesIdHash = Helpers.FavoritesHash(db.ShikiFavourites.Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id)
+																	  .Select(x => new FavoriteIdType(x.Id, (byte)x.FavType[0])).ToArray());
+					db.SaveChanges();
+				}
 			}
 			#pragma warning disable CA1031
 			catch (Exception ex)

@@ -11,10 +11,11 @@ public static class Helpers
 {
 	public static string ToDiscordMention(ulong id) => $"<@!{id}>";
 
-	public static string FavoritesHash(ReadOnlySpan<FavoriteIdType> ids)
+	public static string FavoritesHash(Span<FavoriteIdType> ids)
 	{
 		Span<byte> shaHashDestination = stackalloc byte[SHA512.HashSizeInBytes];
 		Span<byte> buffer = stackalloc byte[sizeof(uint) + 1 + sizeof(byte) + 1];
+		ids.Sort();
 		buffer[^3] = (byte)',';
 		buffer[^1] = (byte)')';
 
