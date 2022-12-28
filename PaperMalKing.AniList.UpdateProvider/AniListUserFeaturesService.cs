@@ -48,7 +48,7 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 			}
 			case AniListUserFeatures.Favourites:
 			{
-				var fr = await this._client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites, CancellationToken.None)
+				var fr = await this._client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites | AniListUserFeatures.AnimeList, CancellationToken.None)
 								   .ConfigureAwait(false);
 				dbUser.Favourites ??= new List<AniListFavourite>(fr.Favourites.Count);
 				dbUser.Favourites.Clear();
