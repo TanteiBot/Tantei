@@ -31,6 +31,6 @@ public static class Helpers
 		}
 
 		incrementalHash.GetCurrentHash(shaHashDestination);
-		return Convert.ToHexString(shaHashDestination);
+		return $"{ids.Length}:{Convert.ToHexString(shaHashDestination)}";
 	}
 }
