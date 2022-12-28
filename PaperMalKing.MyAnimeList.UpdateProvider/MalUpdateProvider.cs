@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -81,6 +83,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			{
 				return Array.Empty<DiscordEmbedBuilder>();
 			}
+
 			var newLatestUpdateTimeStamp = listUpdates.MaxBy(x => x.Status.UpdatedAt)!.Status.UpdatedAt;
 			dbUpdateAction(dbUser, user, newLatestUpdateTimeStamp);
 
@@ -97,12 +100,11 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 		using var db = this._dbContextFactory.CreateDbContext();
 
-		foreach (var dbUser in db.MalUsers.Include(u => u.FavoriteAnimes).Include(u => u.FavoriteMangas).Include(u => u.FavoriteCharacters)
-								 .Include(u => u.FavoritePeople).Include(u => u.FavoriteCompanies).Where(user => user.DiscordUser.Guilds.Any()).Where(
-									 user =>
-										 // Is bitwise to allow executing on server
-										 (user.Features & MalUserFeatures.AnimeList) != 0 || (user.Features & MalUserFeatures.MangaList) != 0 ||
-										 (user.Features & MalUserFeatures.Favorites) != 0).ToArray())
+		var users = db.MalUsers.Where(user => user.DiscordUser.Guilds.Any()).Where(user =>
+			// Is bitwise to allow executing on server
+			(user.Features & MalUserFeatures.AnimeList) != 0 || (user.Features & MalUserFeatures.MangaList) != 0 ||
+			(user.Features & MalUserFeatures.Favorites) != 0).OrderBy(x => EF.Functions.Random()).ToArray();
+		foreach (var dbUser in users)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;
@@ -119,7 +121,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
 			{
 				this.Logger.LogWarning(exception, "User with username {@Username} not found", dbUser.Username);
-				var username = await this._client.GetUsernameAsync((ulong)dbUser.UserId, ct).ConfigureAwait(false);
+				var username = await this._client.GetUsernameAsync(dbUser.UserId, ct).ConfigureAwait(false);
 				this.Logger.LogInformation("New username for user with {FormerUsername} is {CurrentUsername}", dbUser.Username, username);
 				dbUser.Username = username;
 				db.MalUsers.Update(dbUser);
@@ -139,8 +141,9 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				return;
 			}
 
-			var favoritesUpdates = dbUser.Features.HasFlag(MalUserFeatures.Favorites)
-				? this.CheckFavoritesUpdates(dbUser, user)
+			var isFavoritesHashMismatch = dbUser.FavoritesIdHash != Helpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites());
+			var favoritesUpdates = dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch
+				? this.CheckFavoritesUpdates(dbUser, user, db)
 				: Array.Empty<DiscordEmbedBuilder>();
 
 			var animeListUpdates = dbUser.Features.HasFlag(MalUserFeatures.AnimeList)
@@ -172,8 +175,8 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				continue;
 			}
 
-			await db.Entry(dbUser).Reference(u => u.DiscordUser).LoadAsync(ct).ConfigureAwait(false);
-			await db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).LoadAsync(ct).ConfigureAwait(false);
+			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
+			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
 			if (dbUser.Features.HasFlag(MalUserFeatures.Mention))
 				totalUpdates.ForEach(b => b.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), true));
 			if (dbUser.Features.HasFlag(MalUserFeatures.Website))
@@ -194,6 +197,19 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				transaction.Commit();
 				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				this.Logger.LogDebug("Ended checking updates for {@Username} with {@Updates} updates found", dbUser.Username, totalUpdates.Length);
+				if (isFavoritesHashMismatch)
+				{
+					Expression<Func<IMalFavorite, FavoriteIdType>> Selector(FavoriteType type) => x => new FavoriteIdType(x.Id,(byte) type);
+
+					var fit = db.MalFavoriteAnimes.Select(Selector(FavoriteType.Anime)).ToList()
+								.AddRangeF(db.MalFavoriteMangas.Select(Selector(FavoriteType.Manga)))
+								.AddRangeF(db.MalFavoriteCharacters.Select(Selector(FavoriteType.Character)))
+								.AddRangeF(db.MalFavoritePersons.Select(Selector(FavoriteType.Person)))
+								.AddRangeF(db.MalFavoriteCompanies.Select(Selector(FavoriteType.Company)));
+
+					dbUser.FavoritesIdHash = Helpers.FavoritesHash(CollectionsMarshal.AsSpan(fit));
+					db.SaveChanges();
+				}
 			}
 			catch (Exception ex)
 			{
@@ -203,22 +219,25 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		}
 	}
 
-	private IReadOnlyList<DiscordEmbedBuilder> CheckFavoritesUpdates(MalUser dbUser, User user)
+	private IReadOnlyList<DiscordEmbedBuilder> CheckFavoritesUpdates(MalUser dbUser, User user, DatabaseContext db)
 	{
-		IReadOnlyList<DiscordEmbedBuilder> ToDiscordEmbedBuilders<TDbf, TWf>(List<TDbf> original, IReadOnlyList<TWf> resulting, User user,
+		IReadOnlyList<DiscordEmbedBuilder> ToDiscordEmbedBuilders<TDbf, TWf>(DbSet<TDbf> dbSet, IReadOnlyList<TWf> resulting, User user,
 																			 MalUser dbUser) where TDbf : class, IMalFavorite, IEquatable<TDbf>
 																							 where TWf : BaseFavorite
 		{
-			var sor = original.Select(favorite => favorite.Id).OrderBy(i => i).ToArray();
+			var withUserQuery = dbSet.Where(x => x.UserId == user.Id);
+			var dbIds = withUserQuery.Select(x => x.Id).OrderBy(x => x).ToArray();
 			var sr = resulting.Select(fav => fav.Url.Id).OrderBy(i => i).ToArray();
-			if (!original.Any() && !resulting.Any() || sor.SequenceEqual(sr))
+			if ((!dbIds.Any() && !resulting.Any()) || dbIds.SequenceEqual(sr))
 			{
 				this.Logger.LogTrace("Didn't find any {@Name} updates for {@Username}", typeof(TWf).Name, dbUser.Username);
 				return Array.Empty<DiscordEmbedBuilder>();
 			}
 
+			var dbEntries = withUserQuery.ToList();
+
 			var cResulting = resulting.Select(favorite => favorite.ToDbFavorite<TDbf>(dbUser)).ToArray();
-			var (addedValues, removedValues) = original.GetDifference(cResulting);
+			var (addedValues, removedValues) = dbEntries.GetDifference(cResulting);
 			if (!addedValues.Any() && !removedValues.Any())
 			{
 				this.Logger.LogTrace("Didn't find any {@Name} updates for {@Username}", typeof(TWf).Name, dbUser.Username);
@@ -241,16 +260,16 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var toRm = new TDbf[removedValues.Count];
 			for (var i = 0; i < removedValues.Count; i++)
 			{
-				var fav = original.First(favorite => favorite.Id == removedValues[i].Id);
+				var fav = dbEntries.First(favorite => favorite.Id == removedValues[i].Id);
 				toRm[i] = fav;
 				var deb = fav.ToDiscordEmbedBuilder(false);
 				deb.WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl);
 				result.Add(deb);
 			}
 
-			original.AddRange(addedValues);
+			dbSet.AddRange(addedValues);
 			foreach (var t in toRm)
-				original.Remove(t);
+				dbSet.Remove(t);
 
 			return result;
 		}
@@ -258,11 +277,11 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		this.Logger.LogTrace("Checking favorites updates of {@Username}", dbUser.Username);
 
 		var list = new List<DiscordEmbedBuilder>(0);
-		list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoriteAnimes, user.Favorites.FavoriteAnime, user, dbUser));
-		list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoriteMangas, user.Favorites.FavoriteManga, user, dbUser));
-		list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoriteCharacters, user.Favorites.FavoriteCharacters, user, dbUser));
-		list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoritePeople, user.Favorites.FavoritePeople, user, dbUser));
-		list.AddRange(ToDiscordEmbedBuilders(dbUser.FavoriteCompanies, user.Favorites.FavoriteCompanies, user, dbUser));
+		list.AddRange(ToDiscordEmbedBuilders(db.MalFavoriteAnimes, user.Favorites.FavoriteAnime, user, dbUser));
+		list.AddRange(ToDiscordEmbedBuilders(db.MalFavoriteMangas, user.Favorites.FavoriteManga, user, dbUser));
+		list.AddRange(ToDiscordEmbedBuilders(db.MalFavoriteCharacters, user.Favorites.FavoriteCharacters, user, dbUser));
+		list.AddRange(ToDiscordEmbedBuilders(db.MalFavoritePersons, user.Favorites.FavoritePeople, user, dbUser));
+		list.AddRange(ToDiscordEmbedBuilders(db.MalFavoriteCompanies, user.Favorites.FavoriteCompanies, user, dbUser));
 		list.Sort((b1, b2) => string.Compare(b1.Title, b2.Title, StringComparison.OrdinalIgnoreCase));
 		return list.OrderBy(deb => deb.Color.HasValue ? deb.Color.Value.Value : DiscordColor.None.Value).ThenBy(deb => deb.Title).ToArray();
 	}

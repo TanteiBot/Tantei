@@ -10,7 +10,7 @@ namespace PaperMalKing.Database.Models;
 public sealed class DiscordUser
 {
 	[SuppressMessage("Minor Code Smell", "S3459:Unassigned members should be removed")]
-	private ulong BotUserId { get; set; }
+	private uint BotUserId { get; set; }
 
 	[Key]
 	[Required]

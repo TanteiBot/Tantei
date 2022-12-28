@@ -7,9 +7,11 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
+using PaperMalKing.Common;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
@@ -190,7 +192,7 @@ internal static class Extensions
 																						where TNodeStatus : unmanaged, Enum
 																						where TListStatus : unmanaged, Enum
 	{
-		static string SubEntriesProgress(ulong progressedValue, ulong totalValue, bool isInPlans, string ending) =>
+		static string SubEntriesProgress(ulong progressedValue, uint totalValue, bool isInPlans, string ending) =>
 			progressedValue switch
 			{
 				0 when totalValue == 0 => string.Empty,
@@ -352,4 +354,24 @@ internal static class Extensions
 		return eb;
 	}
 
+	internal static Span<FavoriteIdType> GetFavoriteIdTypesFromFavorites(this UserFavorites favorites)
+	{
+		static void Add(List<FavoriteIdType> aggregator, IReadOnlyList<BaseFavorite> favs, FavoriteType type)
+		{
+			aggregator.AddRange(favs.Select(x=>new FavoriteIdType(x.Url!.Id, (byte)type)));
+		}
+		var result = new List<FavoriteIdType>(favorites.Count);
+		Add(result,favorites.FavoriteAnime, FavoriteType.Anime);
+		Add(result,favorites.FavoriteManga, FavoriteType.Manga);
+		Add(result,favorites.FavoriteCharacters, FavoriteType.Character);
+		Add(result,favorites.FavoritePeople, FavoriteType.Person);
+		Add(result,favorites.FavoriteCompanies, FavoriteType.Company);
+		return CollectionsMarshal.AsSpan(result);
+	}
+
+	internal static List<T> AddRangeF<T>(this List<T> list, IQueryable<T> second)
+	{
+		list.AddRange(second.ToArray());
+		return list;
+	}
 }

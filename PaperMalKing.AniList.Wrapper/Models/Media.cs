@@ -12,7 +12,7 @@ public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 #pragma warning restore CA1724
 {
 	[JsonPropertyName("id")]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	[JsonPropertyName("title")]
 	public required MediaTitle Title { get; init; }

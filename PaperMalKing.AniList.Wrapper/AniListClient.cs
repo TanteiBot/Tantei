@@ -31,7 +31,7 @@ public sealed class AniListClient
 		return response.Data;
 	}
 
-	internal async Task<CheckForUpdatesResponse> CheckForUpdatesAsync(ulong userId, byte page, long activitiesTimeStamp, ushort perChunk,
+	internal async Task<CheckForUpdatesResponse> CheckForUpdatesAsync(uint userId, byte page, long activitiesTimeStamp, ushort perChunk,
 																	  ushort chunk, RequestOptions options, CancellationToken cancellationToken)
 	{
 		cancellationToken.ThrowIfCancellationRequested();
@@ -41,8 +41,8 @@ public sealed class AniListClient
 		return response.Data;
 	}
 
-	internal async Task<FavouritesResponse> FavouritesInfoAsync(byte page, ulong[] animeIds, ulong[] mangaIds, ulong[] charIds, ulong[] staffIds,
-																ulong[] studioIds, RequestOptions options, CancellationToken cancellationToken = default)
+	internal async Task<FavouritesResponse> FavouritesInfoAsync(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds,
+																uint[] studioIds, RequestOptions options, CancellationToken cancellationToken = default)
 	{
 		if (!animeIds.Any() && !mangaIds.Any() && !charIds.Any() && !staffIds.Any() && !staffIds.Any() && !studioIds.Any())
 			return FavouritesResponse.Empty;

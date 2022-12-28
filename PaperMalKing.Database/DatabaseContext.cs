@@ -53,6 +53,7 @@ public class DatabaseContext : DbContext
 			mu.Property(u => u.Features).HasDefaultValue((MalUserFeatures)127ul);
 			mu.Property(u => u.LastUpdatedMangaListTimestamp).HasConversion<DateTimeOffsetToBinaryConverter>();
 			mu.Property(u => u.LastUpdatedAnimeListTimestamp).HasConversion<DateTimeOffsetToBinaryConverter>();
+			mu.Property(p => p.FavoritesIdHash).HasDefaultValue("");
 		});
 
 		modelBuilder.Entity<MalFavoriteAnime>().HasKey(k => new
@@ -81,11 +82,12 @@ public class DatabaseContext : DbContext
 			k.UserId
 		});
 
-		modelBuilder.Entity<ShikiUser>().HasKey(k => k.Id);
-
-		modelBuilder.Entity<ShikiUser>().Property(u => u.Features)
-					.HasDefaultValue((ShikiUserFeatures)127UL); // Constant value because default in app can be changed anytime
-
+		modelBuilder.Entity<ShikiUser>(su =>
+		{
+			su.HasKey(k => k.Id);
+			su.Property(u => u.Features).HasDefaultValue((ShikiUserFeatures)127UL); // Constant value because default in app can be changed anytime
+			su.Property(x => x.FavouritesIdHash).HasDefaultValue("");
+		});
 		modelBuilder.Entity<ShikiFavourite>().HasKey(k => new
 		{
 			k.Id,
@@ -93,9 +95,14 @@ public class DatabaseContext : DbContext
 			k.UserId
 		});
 
-		modelBuilder.Entity<AniListUser>().HasKey(k => k.Id);
+		modelBuilder.Entity<AniListUser>(au =>
+		{
+			au.HasKey(k => k.Id);
+			au.Property(u => u.Features).HasDefaultValue((AniListUserFeatures)127ul);
+			au.Property(x => x.FavouritesIdHash).HasDefaultValue("");
+		});
 
-		modelBuilder.Entity<AniListUser>().Property(u => u.Features).HasDefaultValue((AniListUserFeatures)127ul);
+
 		modelBuilder.Entity<AniListFavourite>().HasKey(k => new
 		{
 			k.Id,

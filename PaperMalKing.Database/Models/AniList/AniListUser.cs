@@ -11,7 +11,7 @@ public sealed class AniListUser
 {
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	public long LastActivityTimestamp { get; set; }
 
@@ -19,9 +19,11 @@ public sealed class AniListUser
 
 	public ulong DiscordUserId { get; init; }
 
+	public string FavouritesIdHash { get; set; } = null!;
+
 	public AniListUserFeatures Features { get; set; }
 
 	public required DiscordUser DiscordUser { get; init; }
 
-	public required List<AniListFavourite> Favourites { get; init; }
+	public required List<AniListFavourite> Favourites { get; set; }
 }

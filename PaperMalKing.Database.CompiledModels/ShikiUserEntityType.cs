@@ -22,7 +22,7 @@ namespace PaperMalKing.Database.CompiledModels
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
-                typeof(ulong),
+                typeof(uint),
                 propertyInfo: typeof(ShikiUser).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiUser).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
@@ -32,6 +32,14 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(ulong),
                 propertyInfo: typeof(ShikiUser).GetProperty("DiscordUserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
+            var favouritesIdHash = runtimeEntityType.AddProperty(
+                "FavouritesIdHash",
+                typeof(string),
+                propertyInfo: typeof(ShikiUser).GetProperty("FavouritesIdHash", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(ShikiUser).GetField("<FavouritesIdHash>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                valueGenerated: ValueGenerated.OnAdd);
+            favouritesIdHash.AddAnnotation("Relational:DefaultValue", "");
 
             var features = runtimeEntityType.AddProperty(
                 "Features",

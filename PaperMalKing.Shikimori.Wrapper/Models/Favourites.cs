@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models;
 
-internal sealed class Favourites
+internal sealed class Favourites : IJsonOnDeserialized
 {
 	private readonly List<FavouriteEntry> _allFavourites = new(20);
 
@@ -144,4 +144,9 @@ internal sealed class Favourites
 	}
 
 	public static readonly Favourites Empty = new();
+
+	public void OnDeserialized()
+	{
+		this._allFavourites.Sort((f,s) => f.Id.CompareTo(s.Id));
+	}
 }

@@ -48,21 +48,21 @@ public sealed class MalUserService : IUpdateProviderUserService
 
 			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
-				throw new UserProcessingException(new(username ?? ""),
+				throw new UserProcessingException(BaseUser.FromUsername(username), 
 					"Current server is not in database, ask server administrator to add this server to bot");
 			dbUser.DiscordUser.Guilds.Add(guild);
 			db.MalUsers.Update(dbUser);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-			return new(dbUser.Username);
+			return BaseUser.FromUsername(dbUser.Username);
 		}
 
 		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
-			throw new UserProcessingException(new(username?? ""),
+			throw new UserProcessingException(BaseUser.FromUsername(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
 		if (string.IsNullOrWhiteSpace(username))
 		{
-			throw new UserProcessingException(new(""), "You must provide username if you arent already tracked by this bot");
+			throw new UserProcessingException(BaseUser.Empty, "You must provide username if you arent already tracked by this bot");
 		}
 		var duser = db.DiscordUsers.Include(x => x.Guilds).FirstOrDefault(user => user.DiscordUserId == userId);
 		var mUser = await this._client.GetUserAsync(username, MalUserFeatures.None.GetDefault().ToParserOptions()).ConfigureAwait(false);
@@ -97,18 +97,13 @@ public sealed class MalUserService : IUpdateProviderUserService
 		dbUser.FavoriteCompanies = mUser.Favorites.FavoriteCompanies.Select(company => company.ToMalFavoriteCompany(dbUser)).ToList();
 		db.MalUsers.Add(dbUser);
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-		return new(dbUser.Username);
+		return BaseUser.FromUsername(dbUser.Username);
 	}
 
 	public async Task<BaseUser> RemoveUserAsync(ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var user = db.MalUsers.Include(malUser => malUser.DiscordUser).ThenInclude(du => du.Guilds).Select(u => new MalUser
-		{
-			DiscordUser = u.DiscordUser,
-			Username = u.Username,
-			UserId = u.UserId
-		}).FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
+		var user = db.MalUsers.FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 		if (user is null)
 		{
 			throw new UserProcessingException($"You weren't tracked by {Name} update checker");
@@ -116,7 +111,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 
 		db.MalUsers.Remove(user);
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-		return new(user.Username);
+		return BaseUser.FromUsername(user.Username);
 	}
 
 	public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
@@ -137,7 +132,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		return db.MalUsers.Include(malUser => malUser.DiscordUser).ThenInclude(du => du.Guilds).Select(u => new MalUser
+		return db.MalUsers.Include(malUser => malUser.DiscordUser).Select(u => new MalUser
 				 {
 					 DiscordUser = u.DiscordUser,
 					 Username = u.Username,

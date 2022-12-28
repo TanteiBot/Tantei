@@ -15,7 +15,7 @@ internal sealed class FavouriteEntry : IEquatable<FavouriteEntry>
 	public string? SpecificType { get; internal set; } = null;
 
 	[JsonPropertyName("id")]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	[JsonPropertyName("name")]
 	public required string Name { get; init; }

@@ -22,7 +22,7 @@ namespace PaperMalKing.Database.CompiledModels
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
-                typeof(ulong),
+                typeof(uint),
                 propertyInfo: typeof(AniListFavourite).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListFavourite).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
@@ -36,7 +36,7 @@ namespace PaperMalKing.Database.CompiledModels
 
             var userId = runtimeEntityType.AddProperty(
                 "UserId",
-                typeof(ulong),
+                typeof(uint),
                 propertyInfo: typeof(AniListFavourite).GetProperty("UserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListFavourite).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw);

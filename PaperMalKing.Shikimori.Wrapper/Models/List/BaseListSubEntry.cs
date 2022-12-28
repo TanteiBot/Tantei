@@ -11,7 +11,7 @@ internal abstract class BaseListSubEntry
 	public abstract string TotalAmount { get; }
 
 	[JsonPropertyName("id")]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	[JsonPropertyName("name")]
 	public required string Name { get; init; }

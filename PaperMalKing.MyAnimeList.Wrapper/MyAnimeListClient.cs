@@ -63,7 +63,7 @@ public sealed class MyAnimeListClient
 		return user;
 	}
 
-	internal async Task<string> GetUsernameAsync(ulong id, CancellationToken cancellationToken = default)
+	internal async Task<string> GetUsernameAsync(uint id, CancellationToken cancellationToken = default)
 	{
 		var url = $"{Constants.COMMENTS_URL}{id}";
 		this._logger.LogDebug("Requesting username by id {@Id}", id);

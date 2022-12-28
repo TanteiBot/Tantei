@@ -8,7 +8,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Models.List;
 internal abstract class BaseListEntry<T> where T : BaseListSubEntry
 {
 	[JsonPropertyName("id")]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	[JsonPropertyName("score")]
 	public byte Score { get; init; }

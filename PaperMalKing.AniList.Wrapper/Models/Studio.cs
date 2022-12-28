@@ -20,5 +20,5 @@ public sealed class Studio : ISiteUrlable, IIdentifiable
 	public bool IsAnimationStudio { get; init; }
 
 	[JsonPropertyName("id")]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 }
