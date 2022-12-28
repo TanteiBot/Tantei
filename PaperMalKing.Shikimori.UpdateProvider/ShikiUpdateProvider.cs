@@ -72,6 +72,9 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			if (!historyUpdates.Any() && !addedValues.Any() && !removedValues.Any())
 			{
 				this.Logger.LogDebug("No updates found for {@Id}", dbUser.Id);
+				dbUser.FavouritesIdHash = Helpers.FavoritesHash(db.ShikiFavourites.Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id)
+																  .Select(x => new FavoriteIdType(x.Id, (byte)x.FavType[0])).ToArray());
+				db.SaveChanges();
 				continue;
 			}
 
