@@ -131,14 +131,9 @@ internal static partial class Extensions
 					default:
 						return DefaultFormatting(media);
 				}
-			case "KR":
-				switch (media.Format)
+			case "KR" when media.Format is MediaFormat.MANGA or MediaFormat.ONE_SHOT:
 				{
-					case MediaFormat.MANGA:
-					case MediaFormat.ONE_SHOT:
-						return "Manhwa";
-					default:
-						return DefaultFormatting(media);
+					return "Manhwa";
 				}
 			default:
 				return DefaultFormatting(media);
@@ -240,7 +235,7 @@ internal static partial class Extensions
 							   .Select(studio => Formatter.MaskedUrl(studio.Name, new Uri(studio.Url))).ToArray();
 			var text = string.Join(", ", studios);
 			if (!string.IsNullOrEmpty(text))
-				eb.AddField($"Made by {"studio".ToQuantity(studios.Length, ShowQuantityAs.None)}", text, true);
+				eb.AddField("Made by", text, true);
 		}
 
 		if (!isAnime && (features & AniListUserFeatures.Mangaka) != 0)

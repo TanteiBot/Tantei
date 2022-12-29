@@ -348,7 +348,7 @@ internal static class Extensions
 			if (string.IsNullOrEmpty(eb.Description))
 				eb.WithDescription(descToAdd);
 			else
-				eb.Description += $"{'\n'}descToAdd";
+				eb.Description += $"{'\n'}{descToAdd}";
 		}
 
 		return eb;
