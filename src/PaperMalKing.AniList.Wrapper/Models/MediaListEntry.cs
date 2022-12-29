@@ -1,5 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,8 +13,6 @@ namespace PaperMalKing.AniList.Wrapper.Models;
 
 public sealed class MediaListEntry
 {
-	private readonly Dictionary<ScoreFormat, byte> _scores = new(4);
-
 	[JsonPropertyName("status")]
 	public MediaListStatus Status { get; init; }
 
@@ -27,36 +26,20 @@ public sealed class MediaListEntry
 	public Dictionary<string, float>? AdvancedScores { get; init; }
 
 	[JsonPropertyName("point100Score")]
-	public byte Point100Score
-	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
-		get => throw new NotSupportedException();
-		init => this._scores.Add(ScoreFormat.POINT_100, value);
-	}
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public byte Point100Score { get; init; }
 
 	[JsonPropertyName("point10Score")]
-	public byte Point10Score
-	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
-		get => throw new NotSupportedException();
-		init => this._scores.Add(ScoreFormat.POINT_10, value);
-	}
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public byte Point10Score { get; init; }
 
 	[JsonPropertyName("point5Score")]
-	public byte Point5Score
-	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
-		get => throw new NotSupportedException();
-		init => this._scores.Add(ScoreFormat.POINT_5, value);
-	}
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public byte Point5Score { get; init; }
 
 	[JsonPropertyName("point3Score")]
-	public byte Point3Score
-	{
-		[Obsolete("", true), EditorBrowsable(EditorBrowsableState.Never)]
-		get => throw new NotSupportedException();
-		init => this._scores.Add(ScoreFormat.POINT_3, value);
-	}
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public byte Point3Score { get; init; }
 
 	[JsonPropertyName("id")]
 	public uint Id { get; init; }
@@ -66,15 +49,15 @@ public sealed class MediaListEntry
 
 	public string GetScore(ScoreFormat scoreFormat)
 	{
-		if (this._scores.Values.All(s => s == 0))
+		if (this.Point3Score is 0 && this.Point5Score is 0 && this.Point10Score is 0 && this.Point100Score is 0)
 			return "";
 		return scoreFormat switch
 		{
-			ScoreFormat.POINT_100 => $"{this._scores[scoreFormat]}/100",
-			ScoreFormat.POINT_10_DECIMAL => $"{(this._scores[ScoreFormat.POINT_100] * 1.0d / 10).ToString(CultureInfo.InvariantCulture)}/10",
-			ScoreFormat.POINT_10 => $"{this._scores[scoreFormat]}/10",
-			ScoreFormat.POINT_5 => $"{this._scores[scoreFormat]}/5",
-			ScoreFormat.POINT_3 => this._scores[scoreFormat] switch
+			ScoreFormat.POINT_100        => $"{this.Point100Score}/100",
+			ScoreFormat.POINT_10_DECIMAL => $"{(this.Point100Score * 1.0d / 10).ToString(CultureInfo.InvariantCulture)}/10",
+			ScoreFormat.POINT_10         => $"{this.Point10Score}/10",
+			ScoreFormat.POINT_5          => $"{this.Point5Score}/5",
+			ScoreFormat.POINT_3 => this.Point3Score switch
 			{
 				1 => ":(",
 				2 => ":|",

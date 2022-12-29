@@ -284,7 +284,7 @@ internal static partial class Extensions
 		var chapters = media.Chapters.GetValueOrDefault();
 		var volumes = media.Volumes.GetValueOrDefault();
 		if (episodes == 0 && chapters == 0 && volumes == 0) return eb;
-		var fieldVal = new List<string>(3);
+		var fieldVal = new List<string>(2);
 		if (episodes != 0) fieldVal.Add($"{episodes} ep.");
 		if (chapters != 0) fieldVal.Add($"{chapters} ch");
 		if (volumes != 0) fieldVal.Add($"{volumes} v.");
