@@ -159,7 +159,7 @@ internal static class Extensions
 		return new DiscordEmbedBuilder
 		{
 			Url = favouriteEntry.Url,
-			Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
+			Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType)?.ToFirstCharUpperCase()}]"
 		}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favourite").WithShikiAuthor(user)
 			 .WithColor(added ? Constants.ShikiGreen : Constants.ShikiRed);
 	}

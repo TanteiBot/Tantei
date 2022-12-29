@@ -282,7 +282,7 @@ internal static class Extensions
 
 		if ((features & MalUserFeatures.Genres) != 0 && listEntry.Node.Genres?.Count is not null and not 0)
 		{
-			var genres = string.Join(", ", listEntry.Node.Genres.Take(7).Select(x => x.Name.Humanize(LetterCasing.Title)));
+			var genres = string.Join(", ", listEntry.Node.Genres.Take(7).Select(x => x.Name.ToFirstCharUpperCase()));
 			AddAsFieldOrTruncateToDescription(eb, "Genres", genres);
 		}
 
@@ -318,7 +318,7 @@ internal static class Extensions
 		    aListEntry.Node.Studios?.Count is not null and not 0)
 		{
 			var studios = string.Join(", ", aListEntry.Node.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
-			AddAsFieldOrTruncateToDescription(eb, "Studio".ToQuantity(aListEntry.Node.Studios.Count, ShowQuantityAs.None), studios);
+			AddAsFieldOrTruncateToDescription(eb, "Studios", studios);
 		}
 
 		if ((features & MalUserFeatures.Mangakas) != 0 && listEntry is MangaListEntry mListEntry &&

@@ -111,6 +111,8 @@ internal static partial class Extensions
 
 	public static string? GetEmbedFormat(this Media media)
 	{
+		static string? DefaultFormatting(Media media) => media.Format?.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+
 		switch (media.CountryOfOrigin)
 		{
 			case "CN":
@@ -127,7 +129,7 @@ internal static partial class Extensions
 					case MediaFormat.ONE_SHOT:
 						return "Manhua";
 					default:
-						return media.Format?.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+						return DefaultFormatting(media);
 				}
 			case "KR":
 				switch (media.Format)
@@ -136,10 +138,10 @@ internal static partial class Extensions
 					case MediaFormat.ONE_SHOT:
 						return "Manhwa";
 					default:
-						return media.Format?.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+						return DefaultFormatting(media);
 				}
 			default:
-				return media.Format?.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+				return DefaultFormatting(media);
 		}
 	}
 
