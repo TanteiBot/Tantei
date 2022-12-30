@@ -246,6 +246,11 @@ internal static class Extensions
 
 		eb.AddField("Progress", userProgressText, true);
 
+		if (listEntry.Status.ReprogressTimes > 0)
+		{
+			eb.AddField($"{(listEntry is AnimeListEntry ? "Rewatch" : "Reread")} times", listEntry.Status.ReprogressTimes.ToString());
+		}
+
 		var shortTitle = TitleMediaTypeString(listEntry.Node.Title, listEntry.Node.MediaType.Humanize(), features);
 		string title;
 		if (features.HasFlag(MalUserFeatures.MediaStatus))

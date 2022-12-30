@@ -10,9 +10,9 @@ internal sealed class MangaListEntryStatus : BaseListEntryStatus<MangaListStatus
 {
 	public override ulong ProgressedSubEntries { get; }
 
-	public override bool IsReprogressing { get; }
+	public override bool IsReprogressing => this.IsRereading;
 
-	public override ulong ReprogressTimes { get; }
+	public override ulong ReprogressTimes => this.TimesReread;
 
 	[JsonPropertyName("num_volumes_read")]
 	public required ulong ReadVolumes { get; init; }
