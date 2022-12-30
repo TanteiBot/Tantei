@@ -55,7 +55,7 @@ public static partial class TypeExtensions
 		return string.Create(str.Length, str, (span, s) =>
 		{
 			span[0] = char.ToUpperInvariant(s[0]);
-			s.AsSpan().CopyTo(span.Slice(1));
+			s.AsSpan(1).CopyTo(span.Slice(1));
 		});
 	}
 }
