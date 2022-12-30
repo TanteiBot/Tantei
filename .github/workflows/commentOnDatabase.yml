@@ -9,7 +9,7 @@ on:
       - main
     types: [opened, reopened]
     paths:
-      - 'PaperMalKing.Database/**'
+      - '**/PaperMalKing.Database/**'
 
 jobs:
   comment:

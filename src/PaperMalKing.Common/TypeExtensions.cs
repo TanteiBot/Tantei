@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
 
+using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -43,5 +44,18 @@ public static partial class TypeExtensions
 	public static Task<DiscordMessage> EditResponseAsync(this InteractionContext context, DiscordEmbed embed)
 	{
 		return context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+	}
+
+	public static string ToFirstCharUpperCase(this string? str)
+	{
+		if (str is null)
+		{
+			return "";
+		}
+		return string.Create(str.Length, str, (span, s) =>
+		{
+			span[0] = char.ToUpperInvariant(s[0]);
+			s.AsSpan().CopyTo(span.Slice(1));
+		});
 	}
 }

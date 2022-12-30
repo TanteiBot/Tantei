@@ -87,8 +87,8 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			{
 				var lastListActivityOnMedia = grouping.MaxBy(activity => activity.CreatedAtTimestamp)!;
 				var mediaListEntry = lastListActivityOnMedia.Media.Type == ListType.ANIME
-					? recentUserUpdates.AnimeList.FirstOrDefault(mle => mle.Id == lastListActivityOnMedia.Media.Id)
-					: recentUserUpdates.MangaList.FirstOrDefault(mle => mle.Id == lastListActivityOnMedia.Media.Id);
+					? recentUserUpdates.AnimeList.Find(mle => mle.Id == lastListActivityOnMedia.Media.Id)
+					: recentUserUpdates.MangaList.Find(mle => mle.Id == lastListActivityOnMedia.Media.Id);
 				if (mediaListEntry is not null)
 					allUpdates.Add(lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser.Features));
 			}
@@ -193,7 +193,8 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		db.AniListFavourites.RemoveRange(removedValues.Select(FavouritesSelector(user)));
 		db.AniListFavourites.AddRange(addedValues.Select(FavouritesSelector(user)));
 
-		var changedValues = new List<IdentifiableFavourite>(addedValues);
+		var changedValues = new List<IdentifiableFavourite>(addedValues.Count + removedValues.Count);
+		changedValues.AddRange(addedValues);
 		changedValues.AddRange(removedValues);
 		var animeIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Anime);
 		var mangaIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Manga);

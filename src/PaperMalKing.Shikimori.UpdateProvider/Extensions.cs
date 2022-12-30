@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Humanizer;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Database.Models.Shikimori;
@@ -28,11 +29,19 @@ internal static class Extensions
 
 	private static readonly Dictionary<ProgressType, DiscordColor> Colors = new()
 	{
-		{ProgressType.Completed, Constants.ShikiGreen},
-		{ProgressType.Dropped, Constants.ShikiRed},
-		{ProgressType.InPlans, Constants.ShikiBlue},
-		{ProgressType.InProgress, Constants.ShikiBlue},
-		{ProgressType.OnHold, Constants.ShikiGrey}
+		{ ProgressType.Completed, Constants.ShikiGreen },
+		{ ProgressType.Dropped, Constants.ShikiRed },
+		{ ProgressType.InPlans, Constants.ShikiBlue },
+		{ ProgressType.InProgress, Constants.ShikiBlue },
+		{ ProgressType.OnHold, Constants.ShikiGrey }
+	};
+
+	private static readonly (string, ProgressType)[] Progresses = new[]
+	{
+		("смотрю", ProgressType.InProgress), ("пересматриваю", ProgressType.InProgress), ("запланировано", ProgressType.InPlans),
+		("брошено", ProgressType.Dropped), ("просмотрены", ProgressType.InProgress), ("просмотрен", ProgressType.Completed),
+		("отложено", ProgressType.OnHold), ("прочитан", ProgressType.Completed), ("перечитываю", ProgressType.InProgress),
+		("читаю", ProgressType.InProgress)
 	};
 
 	public static DiscordEmbedBuilder WithShikiAuthor(this DiscordEmbedBuilder builder, UserInfo user) =>
@@ -99,52 +108,56 @@ internal static class Extensions
 
 	public static DiscordEmbedBuilder ToDiscordEmbed(this List<History> history, UserInfo user, ShikiUserFeatures features)
 	{
+		static ProgressType CalculateProgressType(List<History> histories)
+		{
+			for (var i = histories.Count - 1; i >= 0; i--)
+			{
+				foreach (var (d, prog) in Progresses)
+				{
+					if (histories[i].Description.Contains(d, StringComparison.OrdinalIgnoreCase))
+					{
+						return prog;
+					}
+				}
+			}
+
+			return ProgressType.InProgress;
+		}
+
 		var first = history[0];
 		var ruCulture = CultureInfo.GetCultureInfo("ru-RU");
 		var eb = new DiscordEmbedBuilder().WithTimestamp(first.CreatedAt).WithShikiAuthor(user).WithColor(Constants.ShikiBlue);
 		var desc = string.Join("; ", history.Select(h => h.Description)).StripHtml().ToSentenceCase(ruCulture)!;
 		eb.WithDescription(desc);
 
-		var dict = new Dictionary<int, ProgressType>();
-		dict.TryAdd(desc.LastIndexOf("смотрю", StringComparison.OrdinalIgnoreCase), ProgressType.InProgress);
-		dict.TryAdd(desc.LastIndexOf("пересматриваю", StringComparison.OrdinalIgnoreCase), ProgressType.InProgress);
-		dict.TryAdd(desc.LastIndexOf("запланировано", StringComparison.OrdinalIgnoreCase), ProgressType.InPlans);
-		dict.TryAdd(desc.LastIndexOf("брошено", StringComparison.OrdinalIgnoreCase), ProgressType.Dropped);
-		dict.TryAdd(desc.LastIndexOf("просмотрен", StringComparison.OrdinalIgnoreCase), ProgressType.Completed);
-		dict.TryAdd(desc.LastIndexOf("отложено", StringComparison.OrdinalIgnoreCase), ProgressType.OnHold);
 
-		dict.TryAdd(desc.LastIndexOf("прочитан", StringComparison.OrdinalIgnoreCase), ProgressType.Completed);
-		dict.TryAdd(desc.LastIndexOf("перечитываю", StringComparison.OrdinalIgnoreCase), ProgressType.InProgress);
-		var progress = dict.MaxBy(kvp => kvp.Key).Value;
-
-		eb.WithColor(Colors[progress]);
-		var firstTarget = first?.Target;
-		if (firstTarget is null)
+		eb.WithColor(Colors[CalculateProgressType(history)]);
+		var target = history.Find(x => x.Target is not null)?.Target;
+		if (target is null)
 			return eb;
 
 		var titleSb = new StringBuilder();
 		if ((features & ShikiUserFeatures.Russian) != 0)
-			titleSb.Append(firstTarget.RussianName ?? firstTarget.Name);
+			titleSb.Append(target.RussianName ?? target.Name);
 		else
-			titleSb.Append(firstTarget.Name);
+			titleSb.Append(target.Name);
 		if ((features & ShikiUserFeatures.MediaFormat) != 0)
-			titleSb.Append($" ({(firstTarget.Kind ?? "Unknown").Humanize(LetterCasing.Sentence)})");
+			titleSb.Append($" ({(target.Kind ?? "Unknown").Humanize(LetterCasing.Sentence)})");
 		if ((features & ShikiUserFeatures.MediaStatus) != 0)
-			titleSb.AppendLine($" [{firstTarget.Status.Humanize(LetterCasing.Sentence)}]");
-		eb.WithTitle(titleSb.ToString())
-		  .WithUrl(firstTarget.Url).WithThumbnail(firstTarget.ImageUrl);
+			titleSb.AppendLine($" [{target.Status.Humanize(LetterCasing.Sentence)}]");
+		eb.WithTitle(titleSb.ToString()).WithUrl(target.Url).WithThumbnail(target.ImageUrl);
 
-		if (firstTarget.Chapters.HasValue && firstTarget.Chapters != 0)
+		if (target.Chapters.HasValue && target.Chapters != 0)
 		{
-			eb.AddField("Total", $"{firstTarget.Chapters.Value} ch. {firstTarget.Volumes.GetValueOrDefault()} v.", true);
+			eb.AddField("Total", $"{target.Chapters.Value} ch. {target.Volumes.GetValueOrDefault()} v.", true);
 		}
-		else if (firstTarget.Episodes.HasValue)
+		else if (target.Episodes.HasValue)
 		{
-			var episodes = firstTarget switch
+			var episodes = target switch
 			{
-				_ when firstTarget.Episodes      != 0u => firstTarget.Episodes.Value,
-				_ when firstTarget.EpisodesAired != 0u => firstTarget.EpisodesAired.GetValueOrDefault(),
-				_                                     => 0u
+				_ when target.Episodes != 0u      => target.Episodes.Value,
+				_ when target.EpisodesAired != 0u => target.EpisodesAired.GetValueOrDefault(),
+				_                                      => 0u
 			};
 			if (episodes != 0)
 				eb.AddField("Total", $"{episodes} ep.", true);
@@ -157,10 +170,10 @@ internal static class Extensions
 	{
 		var favouriteName = (features & ShikiUserFeatures.Russian) != 0 ? favouriteEntry.RussianName ?? favouriteEntry.Name : favouriteEntry.Name;
 		return new DiscordEmbedBuilder
-		{
-			Url = favouriteEntry.Url,
-			Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType).Humanize(LetterCasing.Sentence)}]"
-		}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favourite").WithShikiAuthor(user)
+			{
+				Url = favouriteEntry.Url,
+				Title = $"{favouriteName} [{(favouriteEntry.GenericType ?? favouriteEntry.SpecificType)?.ToFirstCharUpperCase()}]"
+			}.WithThumbnail(favouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favourite").WithShikiAuthor(user)
 			 .WithColor(added ? Constants.ShikiGreen : Constants.ShikiRed);
 	}
 

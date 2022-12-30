@@ -111,6 +111,8 @@ internal static partial class Extensions
 
 	public static string? GetEmbedFormat(this Media media)
 	{
+		static string? DefaultFormatting(Media media) => media.Format?.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+
 		switch (media.CountryOfOrigin)
 		{
 			case "CN":
@@ -127,19 +129,14 @@ internal static partial class Extensions
 					case MediaFormat.ONE_SHOT:
 						return "Manhua";
 					default:
-						return media.Format?.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+						return DefaultFormatting(media);
 				}
-			case "KR":
-				switch (media.Format)
+			case "KR" when media.Format is MediaFormat.MANGA or MediaFormat.ONE_SHOT:
 				{
-					case MediaFormat.MANGA:
-					case MediaFormat.ONE_SHOT:
-						return "Manhwa";
-					default:
-						return media.Format?.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+					return "Manhwa";
 				}
 			default:
-				return media.Format?.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+				return DefaultFormatting(media);
 		}
 	}
 
@@ -238,7 +235,7 @@ internal static partial class Extensions
 							   .Select(studio => Formatter.MaskedUrl(studio.Name, new Uri(studio.Url))).ToArray();
 			var text = string.Join(", ", studios);
 			if (!string.IsNullOrEmpty(text))
-				eb.AddField($"Made by {"studio".ToQuantity(studios.Length, ShowQuantityAs.None)}", text, true);
+				eb.AddField("Made by", text, true);
 		}
 
 		if (!isAnime && (features & AniListUserFeatures.Mangaka) != 0)
@@ -287,7 +284,7 @@ internal static partial class Extensions
 		var chapters = media.Chapters.GetValueOrDefault();
 		var volumes = media.Volumes.GetValueOrDefault();
 		if (episodes == 0 && chapters == 0 && volumes == 0) return eb;
-		var fieldVal = new List<string>(3);
+		var fieldVal = new List<string>(2);
 		if (episodes != 0) fieldVal.Add($"{episodes} ep.");
 		if (chapters != 0) fieldVal.Add($"{chapters} ch");
 		if (volumes != 0) fieldVal.Add($"{volumes} v.");
