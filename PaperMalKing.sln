@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 		version.json = version.json
 		Directory.Packages.props = Directory.Packages.props
+		makefile = makefile
+		makefile.p = makefile.p
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Common", "src\PaperMalKing.Common\PaperMalKing.Common.csproj", "{CB810595-A680-4680-86DF-2D847E2D00B9}"

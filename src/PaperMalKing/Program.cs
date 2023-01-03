@@ -4,6 +4,7 @@
 using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,6 @@ public static class Program
 	public static Task Main(string[] args)
 	{
 		var host = CreateHostBuilder(args).Build();
-		host.Services.GetRequiredService<DatabaseContext>().Database.Migrate();
 		return host.RunAsync();
 	}
 
@@ -33,16 +33,11 @@ public static class Program
 		{
 			services.AddDbContextFactory<DatabaseContext>((services, builder) =>
 			{
-				var options = services.GetRequiredService<IOptions<DatabaseOptions>>();
-				builder.UseSqlite(options.Value.ConnectionString, builder =>
-				{
-					builder.MigrationsAssembly("PaperMalKing.Database.Migrations");
-				}).UseModel(DatabaseContextModel.Instance);
+				builder.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("Default")).UseModel(DatabaseContextModel.Instance);
 			});
 			var config = hostContext.Configuration;
 
 			services.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord));
-			services.AddOptions<DatabaseOptions>().Bind(config.GetSection(DatabaseOptions.Database));
 			services.AddSingleton<DiscordClient>(provider =>
 			{
 				var options = provider.GetRequiredService<IOptions<DiscordOptions>>();

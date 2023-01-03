@@ -29,8 +29,8 @@
             }
         ]
     },
-    "Database": {
-        "ConnectionString": "Data Source=/path/to/db/db.db"
+    "ConnectionStrings": {
+        "Default": "Data Source=/path/to/db/db.db"
     },
     "MyAnimeList": {
         "AmountOfRequests": 1,

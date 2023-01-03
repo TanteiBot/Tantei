@@ -26,8 +26,6 @@ public sealed class OnStartupActionsExecutingService : IHostedService
 		using var scope = this._serviceProvider.CreateScope();
 
 		scope.ServiceProvider.GetRequiredService<ICommandsService>();
-		var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-		await db.Database.MigrateAsync(CancellationToken.None).ConfigureAwait(false);
 		var s = scope.ServiceProvider.GetRequiredService<UpdatePublishingService>();
 		var services = scope.ServiceProvider.GetServices<IExecuteOnStartupService>();
 		foreach (var service in services)
