@@ -6,6 +6,7 @@
         <WarningsAsErrors>nullable</WarningsAsErrors>
         <Features>strict</Features>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <DebugType>portable</DebugType>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AnalysisLevel>7</AnalysisLevel>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
