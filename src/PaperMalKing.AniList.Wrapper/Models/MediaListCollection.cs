@@ -2,12 +2,13 @@
 // Copyright (C) 2021-2022 N0D4N
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
-#pragma warning disable CA1711
+
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix")]
 public sealed class MediaListCollection
-#pragma warning restore CA1711
 {
 	[JsonPropertyName("lists")]
 	public IReadOnlyList<MediaListGroup> Lists { get; init; } = Array.Empty<MediaListGroup>();

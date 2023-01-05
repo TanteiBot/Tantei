@@ -30,7 +30,9 @@ namespace PaperMalKing.Database.CompiledModels
 
             var discordUserId = runtimeEntityType.AddProperty(
                 "DiscordUserId",
-                typeof(ulong));
+                typeof(ulong),
+                propertyInfo: typeof(MalUser).GetProperty("DiscordUserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MalUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var favoritesIdHash = runtimeEntityType.AddProperty(
                 "FavoritesIdHash",
@@ -85,7 +87,11 @@ namespace PaperMalKing.Database.CompiledModels
             runtimeEntityType.SetPrimaryKey(key);
 
             var index = runtimeEntityType.AddIndex(
-                new[] { discordUserId });
+                new[] { discordUserId },
+                unique: true);
+
+            var index0 = runtimeEntityType.AddIndex(
+                new[] { features });
 
             return runtimeEntityType;
         }
@@ -96,6 +102,7 @@ namespace PaperMalKing.Database.CompiledModels
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty("DiscordUserId")! })!,
                 principalEntityType,
                 deleteBehavior: DeleteBehavior.Cascade,
+                unique: true,
                 required: true);
 
             var discordUser = declaringEntityType.AddNavigation("DiscordUser",

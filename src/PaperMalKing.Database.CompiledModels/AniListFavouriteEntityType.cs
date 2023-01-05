@@ -69,7 +69,7 @@ namespace PaperMalKing.Database.CompiledModels
             var favourites = principalEntityType.AddNavigation("Favourites",
                 runtimeForeignKey,
                 onDependent: false,
-                typeof(List<AniListFavourite>),
+                typeof(IList<AniListFavourite>),
                 propertyInfo: typeof(AniListUser).GetProperty("Favourites", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListUser).GetField("<Favourites>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 

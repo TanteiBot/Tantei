@@ -75,7 +75,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 
 			var isFavouritesHashMismatch = dbUser.FavouritesIdHash !=
 										   Helpers.FavoritesHash(recentUserUpdates.Favourites.Select(x => new FavoriteIdType(x.Id, (byte)x.Type))
-																			      .OrderBy(x => x.Id).ToArray());
+																			      .OrderBy(x => x.Id).ThenBy(x=>x.Type).ToArray());
 
 			if ((dbUser.Features & AniListUserFeatures.Favourites) != 0 && isFavouritesHashMismatch)
 				allUpdates.AddRange(await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, db, perUserCancellationToken)
@@ -110,7 +110,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				allUpdates.ForEach(u => u.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
 			if ((dbUser.Features & AniListUserFeatures.Website) != 0)
 				allUpdates.ForEach(u => u.WithAniListFooter());
-			allUpdates.Sort((deb1, deb2) => DateTimeOffset.Compare(deb1.Timestamp.GetValueOrDefault(), deb2.Timestamp.GetValueOrDefault()));
+			allUpdates.SortBy(u => u.Timestamp.GetValueOrDefault());
 			if (perUserCancellationToken.IsCancellationRequested)
 			{
 				db.Entry(dbUser).State = EntityState.Unchanged;
@@ -118,16 +118,13 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				break;
 			}
 
-			using var transaction = db.Database.BeginTransaction();
 			try
 			{
-				db.Entry(dbUser).State = EntityState.Modified;
 				if (db.SaveChanges() <= 0) throw new Exception("Couldn't save updates to database");
-				transaction.Commit();
 				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(allUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				if (isFavouritesHashMismatch)
 				{
-					dbUser.FavouritesIdHash = Helpers.FavoritesHash(db.AniListFavourites.Where(x => x.UserId == dbUser.Id)
+					dbUser.FavouritesIdHash = Helpers.FavoritesHash(db.AniListFavourites.Where(x => x.UserId == dbUser.Id).OrderBy(x=>x.Id).ThenBy(x=>x.FavouriteType)
 																	  .Select(x => new FavoriteIdType(x.Id, (byte)x.FavouriteType)).ToArray());
 					db.SaveChanges();
 				}
@@ -223,7 +220,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			user.Features);
 		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Studios, Wrapper.Models.Enums.FavouriteType.Studios, response.User,
 			user.Features);
-		results.Sort((b1, b2) => b1.Color.Value.Value.CompareTo(b2.Color.Value.Value));
+		results.SortBy(x => x.Color.Value.Value);
 		return results;
 	}
 }

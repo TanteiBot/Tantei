@@ -50,13 +50,11 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 			{
 				var fr = await this._client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites | AniListUserFeatures.AnimeList, CancellationToken.None)
 								   .ConfigureAwait(false);
-				dbUser.Favourites ??= new List<AniListFavourite>(fr.Favourites.Count);
-				dbUser.Favourites.Clear();
-				dbUser.Favourites.AddRange(fr.Favourites.Select(f => new AniListFavourite
+				dbUser.Favourites = fr.Favourites.Select(f => new AniListFavourite
 				{
 					Id = f.Id,
 					FavouriteType = (FavouriteType)f.Type
-				}).ToList());
+				}).ToList();
 				break;
 			}
 			case AniListUserFeatures.Reviews:
@@ -70,9 +68,6 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 				break;
 			}
 		}
-
-
-		db.AniListUsers.Update(dbUser);
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 	}
 
@@ -90,17 +85,16 @@ public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUse
 			dbUser.Favourites.Clear();
 		}
 
-		db.AniListUsers.Update(dbUser);
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 	}
 
 	public ValueTask<string> EnabledFeaturesAsync(ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.AniListUsers.AsNoTracking().FirstOrDefault(su => su.DiscordUserId == userId);
-		if (dbUser is null)
+		var features = db.AniListUsers.AsNoTracking().Where(u => u.DiscordUser.DiscordUserId == userId).Select(x=> new AniListUserFeatures?(x.Features)).FirstOrDefault();
+		if (!features.HasValue)
 			throw new UserFeaturesException("You must register first before checking for enabled features");
 
-		return ValueTask.FromResult(dbUser.Features.Humanize());
+		return ValueTask.FromResult(features.Value.Humanize());
 	}
 }

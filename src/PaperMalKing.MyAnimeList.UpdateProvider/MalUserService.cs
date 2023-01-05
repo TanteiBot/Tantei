@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.MyAnimeList;
@@ -36,7 +37,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.MalUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds)
-					   .FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
+					   .FirstOrDefault(u => u.DiscordUserId == userId);
 		DiscordGuild? guild;
 		if (dbUser != null) // User already in DB
 		{
@@ -51,7 +52,6 @@ public sealed class MalUserService : IUpdateProviderUserService
 				throw new UserProcessingException(BaseUser.FromUsername(username), 
 					"Current server is not in database, ask server administrator to add this server to bot");
 			dbUser.DiscordUser.Guilds.Add(guild);
-			db.MalUsers.Update(dbUser);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 			return BaseUser.FromUsername(dbUser.Username);
 		}
@@ -88,7 +88,8 @@ public sealed class MalUserService : IUpdateProviderUserService
 			LastUpdatedAnimeListTimestamp = now,
 			LastUpdatedMangaListTimestamp = now,
 			LastAnimeUpdateHash = mUser.LatestAnimeUpdateHash ?? "",
-			LastMangaUpdateHash = mUser.LatestMangaUpdateHash ?? ""
+			LastMangaUpdateHash = mUser.LatestMangaUpdateHash ?? "",
+			FavoritesIdHash = Helpers.FavoritesHash(mUser.Favorites.GetFavoriteIdTypesFromFavorites())
 		};
 		dbUser.FavoriteAnimes = mUser.Favorites.FavoriteAnime.Select(anime => anime.ToMalFavoriteAnime(dbUser)).ToList();
 		dbUser.FavoriteMangas = mUser.Favorites.FavoriteManga.Select(manga => manga.ToMalFavoriteManga(dbUser)).ToList();
@@ -103,7 +104,7 @@ public sealed class MalUserService : IUpdateProviderUserService
 	public async Task<BaseUser> RemoveUserAsync(ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var user = db.MalUsers.FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
+		var user = db.MalUsers.FirstOrDefault(u => u.DiscordUserId == userId);
 		if (user is null)
 		{
 			throw new UserProcessingException($"You weren't tracked by {Name} update checker");
@@ -125,7 +126,6 @@ public sealed class MalUserService : IUpdateProviderUserService
 			throw new UserProcessingException("You weren't registered in this server");
 
 		user.Guilds.Remove(guild);
-		db.DiscordUsers.Update(user);
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 	}
 

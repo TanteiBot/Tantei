@@ -13,10 +13,8 @@ using System;
 
 namespace PaperMalKing.Database.Models.MyAnimeList;
 
-public sealed class MalFavoriteCompany : IMalFavorite, IEquatable<MalFavoriteCompany>
+public sealed class MalFavoriteCompany : BaseMalFavorite, IEquatable<MalFavoriteCompany>
 {
-	public uint UserId { get; init; }
-
 	public bool Equals(MalFavoriteCompany? other)
 	{
 		if (ReferenceEquals(null, other))
@@ -39,14 +37,4 @@ public sealed class MalFavoriteCompany : IMalFavorite, IEquatable<MalFavoriteCom
 	public static bool operator ==(MalFavoriteCompany? left, MalFavoriteCompany? right) => Equals(left, right);
 
 	public static bool operator !=(MalFavoriteCompany? left, MalFavoriteCompany? right) => !Equals(left, right);
-
-	public uint Id { get; init; }
-
-	public string? ImageUrl { get; init; }
-
-	public required string Name { get; init; }
-
-	public required string NameUrl { get; init; }
-
-	public required MalUser User { get; init; }
 }

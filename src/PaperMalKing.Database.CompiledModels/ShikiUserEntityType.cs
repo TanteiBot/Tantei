@@ -60,7 +60,11 @@ namespace PaperMalKing.Database.CompiledModels
             runtimeEntityType.SetPrimaryKey(key);
 
             var index = runtimeEntityType.AddIndex(
-                new[] { discordUserId });
+                new[] { discordUserId },
+                unique: true);
+
+            var index0 = runtimeEntityType.AddIndex(
+                new[] { features });
 
             return runtimeEntityType;
         }
@@ -71,6 +75,7 @@ namespace PaperMalKing.Database.CompiledModels
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty("DiscordUserId")! })!,
                 principalEntityType,
                 deleteBehavior: DeleteBehavior.Cascade,
+                unique: true,
                 required: true);
 
             var discordUser = declaringEntityType.AddNavigation("DiscordUser",

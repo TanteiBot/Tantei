@@ -32,13 +32,12 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 
 	public abstract event UpdateFoundEvent? UpdateFoundEvent;
 
+	[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks")]
 	public Task TriggerStoppingAsync()
 	{
 		this._cts?.Cancel();
 		this.Logger.LogInformation("Stopping {Name} update provider", this.Name);
-#pragma warning disable VSTHRD003
 		return this._updateCheckingRunningTask;
-#pragma warning restore VSTHRD003
 	}
 
 	[SuppressMessage("Major Bug", "S3168:\"async\" methods should not return \"void\"")]

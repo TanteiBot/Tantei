@@ -53,7 +53,7 @@ internal sealed class HeaderBasedRateLimitMessageHandler : DelegatingHandler
 
 				response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-				if (response.StatusCode == HttpStatusCode.TooManyRequests && response.Headers.RetryAfter?.Delta != null)
+				if (response is { StatusCode: HttpStatusCode.TooManyRequests, Headers.RetryAfter.Delta: { } })
 				{
 					var delay = response.Headers.RetryAfter.Delta.Value.Add(TimeSpan.FromSeconds(1));
 					this._logger.LogInformation("Got 429'd waiting {Delay}", delay);

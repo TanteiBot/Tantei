@@ -2,6 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <LangVersion>11</LangVersion>
+        <OutputType>Library</OutputType>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>nullable</WarningsAsErrors>
         <Features>strict</Features>
@@ -26,7 +27,6 @@
             CA1848; <!--For improved performance, use the LoggerMessage delegates -->
             CA2201; <!--Do not raise reserved exception types-->
             CA2234; <!--Pass System.Uri objects instead of strings-->
-            CA1826; <!--Do not use Enumerable methods on indexable collections. Instead use the collection directly.-->
             CA1308; <!--In method replace the call to 'ToLowerInvariant' with 'ToUpperInvariant'-->
             CA1000; <!--Do not declare static members on generic types-->
             CA1034; <!--Do not nest type. Alternatively, change its accessibility so that it is not externally visible.-->
@@ -40,7 +40,6 @@
             MA0046; <!--Use EventHandler<T> to declare events-->
             MA0051; <!--Method is too long-->
 
-            S125; <!--Remove this commented out code.-->
             S2326; <!--'T' is not used in the interface.-->
             S1075; <!--Refactor your code not to use hardcoded absolute paths or URIs.-->
             S1135; <!--Complete the task associated to this 'TODO' comment.-->
@@ -49,8 +48,6 @@
             S4457; <!--Split this method into two, one handling parameters check and the other handling the asynchronous code.-->
             S3925; <!--Update this implementation of 'ISerializable' to conform to the recommended serialization pattern.-->
             S112; <!--'System.Exception' should not be thrown by user code.-->
-            S3885; <!--Replace this call to 'Assembly.LoadFile' with 'Assembly.Load'.-->
-            S1481; <!--Remove the unused local variable 's'.-->
             S2743; <!-- Static fields should not be used in generic types-->
             S3241; <!--Change return type to 'void'; not a single caller uses the returned value.-->
             

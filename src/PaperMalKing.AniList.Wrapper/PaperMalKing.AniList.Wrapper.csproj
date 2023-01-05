@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-        <OutputType>Library</OutputType>
         <NoWarn>$(NoWarn);CA1041;</NoWarn>
     </PropertyGroup>
 

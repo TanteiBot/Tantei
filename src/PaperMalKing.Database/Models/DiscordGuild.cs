@@ -15,5 +15,5 @@ public sealed class DiscordGuild
 
 	public ulong PostingChannelId { get; set; }
 
-	public required ICollection<DiscordUser> Users { get; init; }
+	public required IList<DiscordUser> Users { get; init; }
 }

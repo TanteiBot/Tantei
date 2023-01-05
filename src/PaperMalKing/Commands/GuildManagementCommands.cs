@@ -40,6 +40,13 @@ public sealed class GuildManagementCommands : ApplicationCommandModule
 
 		if (channel is null)
 			channel = context.Channel;
+		if (channel.IsCategory || channel.IsThread)
+		{
+			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed(context, "You cant set posting channel to category or to a thread"))
+						 .ConfigureAwait(false);
+			return;
+		}
+
 		try
 		{
 			var perms = channel.PermissionsFor(context.Guild.CurrentMember);
@@ -65,6 +72,13 @@ public sealed class GuildManagementCommands : ApplicationCommandModule
 		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		if (channel is null)
 			channel = context.Channel;
+		if (channel.IsCategory || channel.IsThread)
+		{
+			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed(context, "You cant set posting channel to category or to a thread"))
+						 .ConfigureAwait(false);
+			return;
+		}
+
 		try
 		{
 			var perms = channel.PermissionsFor(context.Guild.CurrentMember);
@@ -99,7 +113,7 @@ public sealed class GuildManagementCommands : ApplicationCommandModule
 		}
 
 		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Successfully removed this server from being tracked"))
-				 .ConfigureAwait(false);
+					 .ConfigureAwait(false);
 	}
 
 	[SlashCommand("forceremoveuserById", "Remove this user from being tracked in this server", true)]
@@ -120,7 +134,7 @@ public sealed class GuildManagementCommands : ApplicationCommandModule
 		}
 
 		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, $"Successfully removed {userId} this server from being tracked"))
-				 .ConfigureAwait(false);
+					 .ConfigureAwait(false);
 	}
 
 	[SlashCommand("forceremoveuser", "Remove this user from being tracked in this server")]

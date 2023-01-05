@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -65,7 +66,6 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 
 		if (lastHistoryEntry.HasValue)
 			dbUser.LastHistoryEntryId = lastHistoryEntry.Value;
-		db.ShikiUsers.Update(dbUser);
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 	}
 
@@ -83,17 +83,16 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 			db.ShikiFavourites.Where(x => x.UserId == dbUser.Id).ExecuteDelete();
 		}
 
-		db.ShikiUsers.Update(dbUser);
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 	}
 
 	public ValueTask<string> EnabledFeaturesAsync(ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.ShikiUsers.AsNoTrackingWithIdentityResolution().FirstOrDefault(su => su.DiscordUserId == userId);
-		if (dbUser is null)
+		var features = db.ShikiUsers.AsNoTracking().Where(u => u.DiscordUser.DiscordUserId == userId).Select(x=>new ShikiUserFeatures?(x.Features)).FirstOrDefault();
+		if (!features.HasValue)
 			throw new UserFeaturesException("You must register first before checking for enabled features");
 
-		return ValueTask.FromResult(dbUser.Features.Humanize());
+		return ValueTask.FromResult(features.Value.Humanize());
 	}
 }

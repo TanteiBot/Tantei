@@ -78,8 +78,6 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 			}
 		}
 
-
-		db.MalUsers.Update(dbUser);
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 	}
 
@@ -94,25 +92,19 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 		dbUser.Features &= ~feature;
 		if (feature == MalUserFeatures.Favorites)
 		{
-			Expression<Func<IMalFavorite,bool>> filter = x => x.UserId == dbUser.UserId;
-			db.MalFavoriteAnimes.Where(filter).ExecuteDelete();
-			db.MalFavoriteMangas.Where(filter).ExecuteDelete();
-			db.MalFavoriteCharacters.Where(filter).ExecuteDelete();
-			db.MalFavoritePersons.Where(filter).ExecuteDelete();
-			db.MalFavoriteCompanies.Where(filter).ExecuteDelete();
+			db.BaseMalFavorites.Where(x => x.UserId == dbUser.UserId).ExecuteDelete();
 		}
 
-		db.MalUsers.Update(dbUser);
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 	}
 
 	public ValueTask<string> EnabledFeaturesAsync(ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.MalUsers.AsNoTracking().FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
-		if (dbUser is null)
+		var features = db.MalUsers.AsNoTracking().Where(u => u.DiscordUser.DiscordUserId == userId).Select(x=>new MalUserFeatures?(x.Features)).FirstOrDefault();
+		if (!features.HasValue)
 			throw new UserFeaturesException("You must register first before checking for enabled features");
 
-		return ValueTask.FromResult(dbUser.Features.Humanize());
+		return ValueTask.FromResult(features.Value.Humanize());
 	}
 }

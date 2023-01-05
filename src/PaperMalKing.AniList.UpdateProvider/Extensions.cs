@@ -83,9 +83,7 @@ internal static partial class Extensions
 			{
 				perChunk = extendedPerChunkValue;
 			}
-#pragma warning disable S2589
-			else if (perChunk == extendedPerChunkValue)
-#pragma warning restore S2589
+			else
 			{
 				chunk++;
 			}

@@ -20,5 +20,5 @@ public sealed class DiscordUser
 	[ForeignKey(nameof(BotUserId))]
 	public required BotUser BotUser { get; set; }
 
-	public required ICollection<DiscordGuild> Guilds { get; init; }
+	public required IList<DiscordGuild> Guilds { get; init; }
 }

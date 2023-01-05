@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Cryptography;
 
@@ -40,6 +41,39 @@ public static class CollectionExtensions
 		var added = resultingHs.ToArray() ?? Array.Empty<T>();
 		var removed = originalHs.ToArray() ?? Array.Empty<T>();
 		return (added, removed);
+	}
+
+	[SuppressMessage("Design", "CA1002:Do not expose generic lists")]
+	public static List<TEntity> SortBy<TEntity, TProperty>(this List<TEntity> source, Func<TEntity, TProperty> selector) where TProperty : IComparable<TProperty>
+	{
+		source.Sort((f, s) => selector(f).CompareTo(selector(s)));
+		return source;
+	}
+
+	[SuppressMessage("Design", "CA1002:Do not expose generic lists")]
+	public static List<TEntity> SortByDescending<TEntity, TProperty>(this List<TEntity> source, Func<TEntity, TProperty> selector) where TProperty : IComparable<TProperty>
+	{
+		source.Sort((f, s) => -selector(f).CompareTo(selector(s)));
+		return source;
+	}
+
+	[SuppressMessage("Design", "CA1002:Do not expose generic lists")]
+	public static List<TEntity> SortByThenBy<TEntity, TProperty, TOtherProperty>(this List<TEntity> source, Func<TEntity, TProperty> firstSelector, Func<TEntity, TOtherProperty> secondSelector) where TProperty : IComparable<TProperty> where TOtherProperty: IComparable<TOtherProperty>
+	{
+		source.Sort((f, s) =>
+		{
+			var r = firstSelector(f).CompareTo(firstSelector(s));
+			return r == 0 ? secondSelector(f).CompareTo(secondSelector(s)) : r;
+		});
+		return source;
+	}
+
+	public static void ForEach<T>(this IList<T> list, Action<T> action)
+	{
+		for (var i = 0; i < list.Count; i++)
+		{
+			action(list[i]);
+		}
 	}
 
 	public static T[] ForEach<T>(this T[] array, Action<T> action)

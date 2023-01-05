@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
-
-using System.Threading.Tasks;
+#pragma warning disable CA1852
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,67 +16,53 @@ using PaperMalKing.Services.Background;
 using PaperMalKing.UpdatesProviders.Base;
 using Serilog;
 
-namespace PaperMalKing;
-
-public static class Program
+await Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
 {
-	public static Task Main(string[] args)
+	services.AddDbContextFactory<DatabaseContext>((services, builder) =>
 	{
-		var host = CreateHostBuilder(args).Build();
-		return host.RunAsync();
-	}
+		builder.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("Default"),
+			o => o.MigrationsAssembly("PaperMalKing.Database.Migrations")).UseModel(DatabaseContextModel.Instance);
+	});
+	var config = hostContext.Configuration;
 
-	private static IHostBuilder CreateHostBuilder(string[] args)
+	services.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord));
+	services.AddSingleton<DiscordClient>(provider =>
 	{
-		return Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
+		var options = provider.GetRequiredService<IOptions<DiscordOptions>>();
+		var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
+		var cfg = new DiscordConfiguration
 		{
-			services.AddDbContextFactory<DatabaseContext>((services, builder) =>
-			{
-				builder.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("Default")).UseModel(DatabaseContextModel.Instance);
-			});
-			var config = hostContext.Configuration;
+			Intents = DiscordIntents.Guilds | DiscordIntents.GuildMembers,
+			Token = options.Value.Token,
+			AutoReconnect = true,
+			LoggerFactory = loggerFactory,
+			ReconnectIndefinitely = true,
+			MessageCacheSize = 256,
+			MinimumLogLevel = LogLevel.Trace
+		};
+		return new(cfg);
+	});
+	services.AddSingleton<UpdatePublishingService>();
+	services.AddSingleton<ICommandsService, CommandsService>();
+	services.AddSingleton<UpdateProvidersConfigurationService>();
+	services.AddSingleton<GuildManagementService>();
+	UpdateProvidersConfigurationService.ConfigureProviders(config, services);
 
-			services.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord));
-			services.AddSingleton<DiscordClient>(provider =>
-			{
-				var options = provider.GetRequiredService<IOptions<DiscordOptions>>();
-				var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-				var cfg = new DiscordConfiguration
-				{
-					Intents = DiscordIntents.Guilds | DiscordIntents.GuildMembers,
-					Token = options.Value.Token,
-					AutoReconnect = true,
-					LoggerFactory = loggerFactory,
-					ReconnectIndefinitely = true,
-					MessageCacheSize = 256,
-					MinimumLogLevel = LogLevel.Trace
-				};
-				return new(cfg);
-			});
-			services.AddSingleton<UpdatePublishingService>();
-			services.AddSingleton<ICommandsService, CommandsService>();
-			services.AddSingleton<UpdateProvidersConfigurationService>();
-			services.AddSingleton<GuildManagementService>();
-			UpdateProvidersConfigurationService.ConfigureProviders(config, services);
+	services.AddHostedService<UpdateProvidersManagementService>();
+	services.AddHostedService<DiscordBackgroundService>();
+	services.AddHostedService<OnStartupActionsExecutingService>();
+	RunSQLiteConfiguration();
+}).UseSerilog((context, _, configuration) =>
+{
+	configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo.Console(
+		outputTemplate: "[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {Level:u3}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}");
+}).Build().RunAsync().ConfigureAwait(false);
 
-			services.AddHostedService<UpdateProvidersManagementService>();
-			services.AddHostedService<DiscordBackgroundService>();
-			services.AddHostedService<OnStartupActionsExecutingService>();
-			RunSQLiteConfiguration();
-		}).UseSerilog((context, _, configuration) =>
-		{
-			configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo.Console(
-				outputTemplate:
-				"[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {Level:u3}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}");
-		});
-	}
-
-	private static void RunSQLiteConfiguration()
-	{
-		SQLitePCL.Batteries_V2.Init();
-		// SQLITE_CONFIG_MULTITHREAD
-		// https://github.com/dotnet/efcore/issues/9994
-		// https://sqlite.org/threadsafe.html
-		SQLitePCL.raw.sqlite3_config(2);
-	}
+static void RunSQLiteConfiguration()
+{
+	SQLitePCL.Batteries_V2.Init();
+	// SQLITE_CONFIG_MULTITHREAD
+	// https://github.com/dotnet/efcore/issues/9994
+	// https://sqlite.org/threadsafe.html
+	SQLitePCL.raw.sqlite3_config(2);
 }

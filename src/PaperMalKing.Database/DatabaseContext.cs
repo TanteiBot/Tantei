@@ -10,7 +10,7 @@ using PaperMalKing.Database.Models.Shikimori;
 
 namespace PaperMalKing.Database;
 
-public class DatabaseContext : DbContext
+public sealed class DatabaseContext : DbContext
 {
 	public DbSet<BotUser> BotUsers => this.Set<BotUser>();
 
@@ -19,6 +19,8 @@ public class DatabaseContext : DbContext
 	public DbSet<DiscordUser> DiscordUsers => this.Set<DiscordUser>();
 
 	public DbSet<MalUser> MalUsers => this.Set<MalUser>();
+
+	public DbSet<BaseMalFavorite> BaseMalFavorites => this.Set<BaseMalFavorite>();
 
 	public DbSet<MalFavoriteAnime> MalFavoriteAnimes => this.Set<MalFavoriteAnime>();
 
@@ -41,73 +43,99 @@ public class DatabaseContext : DbContext
 	public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
 	{ }
 
-	#pragma warning disable MA0051
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
-		#pragma warning restore MA0051
 	{
 		base.OnModelCreating(modelBuilder);
 
-		// Constant value because default in app can be changed anytime
 		modelBuilder.Entity<MalUser>(mu =>
 		{
+			// Constant value because default in app can be changed anytime
+			mu.HasOne(x => x.DiscordUser).WithOne().HasForeignKey<MalUser>(x => x.DiscordUserId);
 			mu.Property(u => u.Features).HasDefaultValue((MalUserFeatures)127ul);
 			mu.Property(u => u.LastUpdatedMangaListTimestamp).HasConversion<DateTimeOffsetToBinaryConverter>();
 			mu.Property(u => u.LastUpdatedAnimeListTimestamp).HasConversion<DateTimeOffsetToBinaryConverter>();
 			mu.Property(p => p.FavoritesIdHash).HasDefaultValue("");
+			mu.HasIndex(x => x.Features);
+			mu.HasIndex(x => x.DiscordUserId);
 		});
 
-		modelBuilder.Entity<MalFavoriteAnime>().HasKey(k => new
+		modelBuilder.Entity<DiscordGuild>(dg =>
 		{
-			k.Id,
-			k.UserId
+			dg.HasIndex(x => x.DiscordGuildId);
 		});
-		modelBuilder.Entity<MalFavoriteManga>().HasKey(k => new
+
+		modelBuilder.Entity<DiscordUser>(dg =>
 		{
-			k.Id,
-			k.UserId
+			dg.HasIndex(x => x.DiscordUserId);
 		});
-		modelBuilder.Entity<MalFavoriteCharacter>().HasKey(k => new
+
+		modelBuilder.Entity<BaseMalFavorite>(bmf =>
 		{
-			k.Id,
-			k.UserId
+			bmf.UseTphMappingStrategy();
+			bmf.HasKey(k => new
+			{
+				k.Id,
+				k.UserId,
+				k.FavoriteType
+			});
+			bmf.HasDiscriminator(x=>x.FavoriteType)
+			   .HasValue<MalFavoriteAnime>(MalFavoriteType.Anime)
+			   .HasValue<MalFavoriteManga>(MalFavoriteType.Manga)
+			   .HasValue<MalFavoriteCharacter>(MalFavoriteType.Character)
+			   .HasValue<MalFavoritePerson>(MalFavoriteType.Person)
+			   .HasValue<MalFavoriteCompany>(MalFavoriteType.Company);
+			bmf.HasIndex(x => x.UserId);
+			bmf.HasIndex(x=>x.FavoriteType);
+			bmf.HasIndex(x => x.Id);
+			bmf.ToTable("MalFavorites");
 		});
-		modelBuilder.Entity<MalFavoritePerson>().HasKey(k => new
-		{
-			k.Id,
-			k.UserId
-		});
-		modelBuilder.Entity<MalFavoriteCompany>().HasKey(k => new
-		{
-			k.Id,
-			k.UserId
-		});
+
+		modelBuilder.Entity<MalFavoriteAnime>().HasOne(x => x.User).WithMany(x => x.FavoriteAnimes).HasForeignKey(x => x.UserId);
+		modelBuilder.Entity<MalFavoriteManga>().HasOne(x => x.User).WithMany(x => x.FavoriteMangas).HasForeignKey(x => x.UserId);
+		modelBuilder.Entity<MalFavoriteCharacter>().HasOne(x => x.User).WithMany(x => x.FavoriteCharacters).HasForeignKey(x => x.UserId);
+		modelBuilder.Entity<MalFavoritePerson>().HasOne(x => x.User).WithMany(x => x.FavoritePeople).HasForeignKey(x => x.UserId);
+		modelBuilder.Entity<MalFavoriteCompany>().HasOne(x => x.User).WithMany(x => x.FavoriteCompanies).HasForeignKey(x => x.UserId);
 
 		modelBuilder.Entity<ShikiUser>(su =>
 		{
+			su.HasOne(x => x.DiscordUser).WithOne().HasForeignKey<ShikiUser>(x => x.DiscordUserId);
 			su.HasKey(k => k.Id);
 			su.Property(u => u.Features).HasDefaultValue((ShikiUserFeatures)127UL); // Constant value because default in app can be changed anytime
 			su.Property(x => x.FavouritesIdHash).HasDefaultValue("");
+			su.HasIndex(x => x.Features);
+			su.HasIndex(x => x.DiscordUserId);
 		});
-		modelBuilder.Entity<ShikiFavourite>().HasKey(k => new
+		modelBuilder.Entity<ShikiFavourite>(sf =>
 		{
-			k.Id,
-			k.FavType,
-			k.UserId
+			sf.HasKey(k => new
+			{
+				k.Id,
+				k.FavType,
+				k.UserId
+			});
+			sf.HasIndex(p => p.UserId);
 		});
 
 		modelBuilder.Entity<AniListUser>(au =>
 		{
+			au.HasOne(x => x.DiscordUser).WithOne().HasForeignKey<AniListUser>(x => x.DiscordUserId);
 			au.HasKey(k => k.Id);
 			au.Property(u => u.Features).HasDefaultValue((AniListUserFeatures)127ul);
 			au.Property(x => x.FavouritesIdHash).HasDefaultValue("");
+			au.HasIndex(x => x.Features);
+			au.HasIndex(x => x.DiscordUserId);
 		});
 
 
-		modelBuilder.Entity<AniListFavourite>().HasKey(k => new
+		modelBuilder.Entity<AniListFavourite>(af =>
 		{
-			k.Id,
-			k.FavouriteType,
-			k.UserId
+			af.HasKey(k => new
+			{
+				k.Id,
+				k.FavouriteType,
+				k.UserId
+			});
+			af.HasIndex(x => x.UserId);
 		});
 	}
 }

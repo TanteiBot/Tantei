@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Data;
 using PaperMalKing.Database;
+using PaperMalKing.Exceptions;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
@@ -38,13 +39,11 @@ public sealed class UpdatePublishingService
 		this._dbContextFactory = dbContextFactory;
 		this._updateProvidersConfigurationService = updateProvidersConfigurationService;
 		this._loggerFactory = loggerFactory;
-		this._discordClient.GuildDownloadCompleted += this.DiscordClientOnGuildDownloadCompleted;
+		this._discordClient.GuildDownloadCompleted += this.DiscordClientOnGuildDownloadCompletedAsync;
 		this._logger.LogTrace("Built {@UpdatePublishingService}", typeof(UpdatePublishingService));
 	}
 
-#pragma warning disable VSTHRD200
-	private Task DiscordClientOnGuildDownloadCompleted(DiscordClient sender, GuildDownloadCompletedEventArgs e)
-#pragma warning restore VSTHRD200
+	private Task DiscordClientOnGuildDownloadCompletedAsync(DiscordClient sender, GuildDownloadCompletedEventArgs e)
 	{
 		_ = Task.Run(async () =>
 		{
@@ -72,7 +71,7 @@ public sealed class UpdatePublishingService
 			}
 
 			this._logger.LogDebug("Ended querying posting channels");
-			this._discordClient.GuildDownloadCompleted -= this.DiscordClientOnGuildDownloadCompleted;
+			this._discordClient.GuildDownloadCompleted -= this.DiscordClientOnGuildDownloadCompletedAsync;
 		}).ContinueWith(task => this._logger.LogError(task.Exception, "Task on loading channels to post to failed"), CancellationToken.None,
 			TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
 		return Task.CompletedTask;
@@ -81,8 +80,14 @@ public sealed class UpdatePublishingService
 
 	public void RemoveChannel(ulong id)
 	{
-		this._updatePosters.TryRemove(id, out var updatePoster);
-		updatePoster?.Dispose();
+		if (this._updatePosters.TryRemove(id, out var updatePoster))
+		{
+			updatePoster.Dispose();
+		}
+		else
+		{
+			throw new GuildManagementException("Couldnt remove or update channel");
+		}
 	}
 
 	public bool AddChannel(DiscordChannel channel) => this._updatePosters.TryAdd(channel.Id,
@@ -90,7 +95,8 @@ public sealed class UpdatePublishingService
 
 	public void UpdateChannel(ulong key, DiscordChannel updatedValue)
 	{
-		this._updatePosters.Remove(key, out _);
+		this.RemoveChannel(key);
+
 		this.AddChannel(updatedValue);
 	}
 

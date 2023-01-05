@@ -1,12 +1,13 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using PaperMalKing.AniList.Wrapper.Models;
 using PaperMalKing.AniList.Wrapper.Models.Responses;
 
-#pragma warning disable CA1002
 namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses;
 
+[SuppressMessage("Design", "CA1002:Do not expose generic lists")]
 public sealed class CombinedFavouritesInfoResponse
 {
 	public List<Media> Anime { get; } = new();

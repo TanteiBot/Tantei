@@ -23,6 +23,7 @@ internal sealed class Favourites : IJsonOnDeserialized
 			foreach (var entry in value)
 			{
 				entry.GenericType = "animes";
+				entry.SpecificType = "Anime";
 			}
 
 			this._allFavourites.AddRange(value);
@@ -39,6 +40,7 @@ internal sealed class Favourites : IJsonOnDeserialized
 			foreach (var entry in value)
 			{
 				entry.GenericType = "mangas";
+				entry.SpecificType = "Manga";
 			}
 
 			this._allFavourites.AddRange(value);
@@ -55,6 +57,7 @@ internal sealed class Favourites : IJsonOnDeserialized
 			foreach (var entry in value)
 			{
 				entry.GenericType = "characters";
+				entry.SpecificType = "Character";
 			}
 			this._allFavourites.AddRange(value);
 		}
@@ -70,6 +73,7 @@ internal sealed class Favourites : IJsonOnDeserialized
 			foreach (var entry in value)
 			{
 				entry.GenericType = "people";
+				entry.SpecificType = "Person";
 			}
 			this._allFavourites.AddRange(value);
 		}
@@ -145,8 +149,8 @@ internal sealed class Favourites : IJsonOnDeserialized
 
 	public static readonly Favourites Empty = new();
 
-	public void OnDeserialized()
+	void IJsonOnDeserialized.OnDeserialized()
 	{
-		this._allFavourites.Sort((f,s) => f.Id.CompareTo(s.Id));
+		this._allFavourites.Sort();
 	}
 }
