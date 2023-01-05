@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,10 +36,11 @@ public sealed class UpdateProvidersConfigurationService
 		logger.LogTrace("Built {@UpdateProvidersConfigurationService}", typeof(UpdateProvidersConfigurationService));
 	}
 
+	[SuppressMessage("Major Code Smell", "S125:Sections of code should not be commented out")]
 	public static void ConfigureProviders(IConfiguration configuration, IServiceCollection services)
 	{
-		AniListUpdateProviderConfigurator.Configure(configuration, services);
+		//AniListUpdateProviderConfigurator.Configure(configuration, services);
 		MalUpdateProviderConfigurator.Configure(configuration, services);
-		ShikiUpdateProviderConfigurator.Configure(configuration, services);
+		//ShikiUpdateProviderConfigurator.Configure(configuration, services);
 	}
 }

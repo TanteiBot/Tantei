@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
@@ -168,7 +169,10 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var updatesCount = animeListUpdates.Count + mangaListUpdates.Count + favoritesUpdates.Count;
 			if (updatesCount == 0)
 			{
-				db.Entry(dbUser).State = EntityState.Unchanged;
+				#pragma warning disable S125
+				//db.Entry(dbUser).State = EntityState.Unchanged;
+				#pragma warning restore S125
+				db.SaveChanges();
 				this.Logger.LogDebug("Ended checking updates for {@Username} with no updates found", dbUser.Username);
 				continue;
 			}
@@ -212,6 +216,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		}
 	}
 
+	[SuppressMessage("Major Code Smell", "S125:Sections of code should not be commented out")]
 	private IReadOnlyList<DiscordEmbedBuilder> CheckFavoritesUpdates(MalUser dbUser, User user, DatabaseContext db)
 	{
 		IReadOnlyList<DiscordEmbedBuilder> ToDiscordEmbedBuilders<TDbf, TWf>(DbSet<TDbf> dbSet, IReadOnlyList<TWf> resulting, User user,
@@ -233,11 +238,11 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var (addedValues, removedValues) = dbEntries.GetDifference(cResulting);
 			if (!addedValues.Any() && !removedValues.Any())
 			{
-				this.Logger.LogTrace("Didn't find any {@Name} updates for {@Username}", typeof(TWf).Name, dbUser.Username);
+				this.Logger.LogDebug("Didn't find any {@Name} updates for {@Username}", typeof(TWf).Name, dbUser.Username);
 				return Array.Empty<DiscordEmbedBuilder>();
 			}
 
-			this.Logger.LogTrace("Found {@AddedCount} new favorites, {@RemovedCount} removed favorites of type {@Type} of {@Username}",
+			this.Logger.LogDebug("Found {@AddedCount} new favorites, {@RemovedCount} removed favorites of type {@Type} of {@Username}",
 				addedValues.Count, removedValues.Count, typeof(TWf), dbUser.Username);
 
 			var result = new List<DiscordEmbedBuilder>(addedValues.Count + removedValues.Count);
@@ -247,7 +252,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				var fav = cResulting.First(favorite => favorite.Id == addedValues[i].Id);
 				var deb = fav.ToDiscordEmbedBuilder(true);
 				deb.WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl);
-				result.Add(deb);
+				//result.Add(deb);
 			}
 
 			var toRm = new TDbf[removedValues.Count];
@@ -257,12 +262,16 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				toRm[i] = fav;
 				var deb = fav.ToDiscordEmbedBuilder(false);
 				deb.WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl);
-				result.Add(deb);
+				//result.Add(deb);
 			}
 
+			foreach (var baseMalFavorite in addedValues)
+			{
+				Logger.LogInformation("adding {Name}",baseMalFavorite.Name);
+			}
 			dbSet.AddRange(addedValues);
-			foreach (var t in toRm)
-				dbSet.Remove(t);
+			//foreach (var t in toRm)
+				//dbSet.Remove(t);
 
 			return result;
 		}
