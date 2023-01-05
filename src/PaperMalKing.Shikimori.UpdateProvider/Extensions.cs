@@ -47,7 +47,7 @@ internal static class Extensions
 	public static DiscordEmbedBuilder WithShikiAuthor(this DiscordEmbedBuilder builder, UserInfo user) =>
 		builder.WithAuthor(user.Nickname, user.Url, user.ImageUrl);
 
-	public static async Task<List<History>> GetAllUserHistoryAfterEntryAsync(this ShikiClient client, uint userId, ulong limitHistoryEntryId,
+	public static async Task<IReadOnlyList<History>> GetAllUserHistoryAfterEntryAsync(this ShikiClient client, uint userId, ulong limitHistoryEntryId,
 																			 ShikiUserFeatures features,
 																			 CancellationToken cancellationToken = default)
 	{
@@ -62,8 +62,8 @@ internal static class Extensions
 		};
 
 		var (data, hasNextPage) = await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken).ConfigureAwait(false);
-		var unpaginatedRes = data.Where(e => e.Id > limitHistoryEntryId).ToList();
-		if (unpaginatedRes.Count != data.Length || !hasNextPage)
+		var unpaginatedRes = data.Where(e => e.Id > limitHistoryEntryId).ToArray();
+		if (unpaginatedRes.Length != data.Length || !hasNextPage)
 			return unpaginatedRes;
 
 		var acc = new List<History>(50);
@@ -82,12 +82,11 @@ internal static class Extensions
 		return acc;
 	}
 
-	public static List<List<History>> GroupSimilarHistoryEntries(this List<History> source)
+	public static List<List<History>> GroupSimilarHistoryEntries(this IReadOnlyList<History> source)
 	{
-		source.Sort((h1, h2) => Comparer<ulong>.Default.Compare(h1.Id, h2.Id));
 		var res = new List<List<History>>(5);
 		var group = new List<History>(1);
-		foreach (var he in source)
+		foreach (var he in source.OrderBy(x=>x.Id))
 		{
 			if (!group.Any() || group.TrueForAll(hge => hge.Target?.Id == he.Target?.Id))
 				group.Add(he);

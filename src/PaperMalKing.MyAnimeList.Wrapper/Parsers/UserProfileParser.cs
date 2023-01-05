@@ -18,7 +18,6 @@ internal static partial class UserProfileParser
 		var url = node.SelectSingleNode("//meta[@property='og:url']").Attributes["content"].Value;
 		var username = url.Substring(url.LastIndexOf('/') + 1);
 		var favorites = options.HasFlag(ParserOptions.Favorites) ? FavoritesParser.Parse(node) : UserFavorites.Empty;
-		//var rssNode = node.SelectSingleNode("//div[@class = 'user-profile-sns']");
 
 		return new()
 		{

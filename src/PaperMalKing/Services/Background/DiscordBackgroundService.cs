@@ -103,7 +103,6 @@ public sealed class DiscordBackgroundService : BackgroundService
 				}
 
 				user.Guilds.Remove(guild);
-				db.Update(user);
 				await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 			}
 		}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Current).ContinueWith(

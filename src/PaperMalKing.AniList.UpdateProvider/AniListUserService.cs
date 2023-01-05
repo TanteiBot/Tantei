@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PaperMalKing.AniList.Wrapper;
+using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.AniList;
@@ -47,7 +48,6 @@ public sealed class AniListUserService : IUpdateProviderUserService
 			}
 
 			dbUser.DiscordUser.Guilds.Add(guild);
-			db.AniListUsers.Update(dbUser);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 			return BaseUser.FromUsername(username);
 		}
@@ -82,7 +82,8 @@ public sealed class AniListUserService : IUpdateProviderUserService
 			Id = response.UserId!.Value,
 			DiscordUser = dUser,
 			LastActivityTimestamp = now,
-			LastReviewTimestamp = now
+			LastReviewTimestamp = now,
+			FavouritesIdHash = Helpers.FavoritesHash(response.Favourites.Select(x=>new FavoriteIdType(x.Id,(byte)x.Type)).ToArray())
 		};
 		dbUser.Favourites.ForEach(f =>
 		{
@@ -117,7 +118,6 @@ public sealed class AniListUserService : IUpdateProviderUserService
 			throw new UserProcessingException("You weren't registered in this server");
 
 		user.Guilds.Remove(guild);
-		db.DiscordUsers.Update(user);
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 	}
 

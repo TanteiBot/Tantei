@@ -2,11 +2,12 @@
 // Copyright (C) 2021-2022 N0D4N
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models;
 
-internal sealed class FavouriteEntry : IEquatable<FavouriteEntry>
+internal sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<FavouriteEntry>, IComparable
 {
 	[JsonIgnore]
 	public string? GenericType { get; internal set; }
@@ -40,13 +41,54 @@ internal sealed class FavouriteEntry : IEquatable<FavouriteEntry>
 
 	public override int GetHashCode()
 	{
-		unchecked
-		{
-			return ((this.GenericType != null ? this.GenericType.GetHashCode(StringComparison.OrdinalIgnoreCase) : 0) * 397) ^ this.Id.GetHashCode();
-		}
+		return HashCode.Combine(GenericType, Id);
 	}
 
 	public static bool operator ==(FavouriteEntry? left, FavouriteEntry? right) => Equals(left, right);
 
 	public static bool operator !=(FavouriteEntry? left, FavouriteEntry? right) => !Equals(left, right);
+
+	public int CompareTo(FavouriteEntry? other)
+	{
+		if (ReferenceEquals(this, other))
+		{
+			return 0;
+		}
+
+		if (ReferenceEquals(null, other))
+		{
+			return 1;
+		}
+
+		var genericTypeComparison = string.Compare(this.GenericType, other.GenericType, StringComparison.Ordinal);
+		if (genericTypeComparison != 0)
+		{
+			return genericTypeComparison;
+		}
+
+		return this.Id.CompareTo(other.Id);
+	}
+
+	public int CompareTo(object? obj)
+	{
+		if (ReferenceEquals(null, obj))
+		{
+			return 1;
+		}
+
+		if (ReferenceEquals(this, obj))
+		{
+			return 0;
+		}
+
+		return obj is FavouriteEntry other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(FavouriteEntry)}", nameof(obj));
+	}
+
+	public static bool operator <(FavouriteEntry? left, FavouriteEntry? right) => Comparer<FavouriteEntry>.Default.Compare(left, right) < 0;
+
+	public static bool operator >(FavouriteEntry? left, FavouriteEntry? right) => Comparer<FavouriteEntry>.Default.Compare(left, right) > 0;
+
+	public static bool operator <=(FavouriteEntry? left, FavouriteEntry? right) => Comparer<FavouriteEntry>.Default.Compare(left, right) <= 0;
+
+	public static bool operator >=(FavouriteEntry? left, FavouriteEntry? right) => Comparer<FavouriteEntry>.Default.Compare(left, right) >= 0;
 }

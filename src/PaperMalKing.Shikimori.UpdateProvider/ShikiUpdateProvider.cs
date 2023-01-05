@@ -58,7 +58,6 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;
-			var totalUpdates = new List<DiscordEmbedBuilder>();
 			var historyUpdates = await this._client
 										   .GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken)
 										   .ConfigureAwait(false);
@@ -74,7 +73,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				this.Logger.LogDebug("No updates found for {@Id}", dbUser.Id);
 				continue;
 			}
-
+			var totalUpdates = new List<DiscordEmbedBuilder>(historyUpdates.Count + addedValues.Count + removedValues.Count);
 			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
 			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
 			var user = await this._client.GetUserInfoAsync(dbUser.Id, cancellationToken).ConfigureAwait(false);
@@ -102,17 +101,14 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			if ((dbUser.Features & ShikiUserFeatures.Website) != 0)
 				totalUpdates.ForEach(deb => deb.WithShikiUpdateProviderFooter());
 
-			using var transaction = db.Database.BeginTransaction();
 			try
 			{
-				db.ShikiUsers.Update(dbUser);
 				if (db.SaveChanges() <= 0) throw new Exception("Couldn't save update in DB");
-				transaction.Commit();
 				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);
 				if (isfavouritesMismatch)
 				{
-					dbUser.FavouritesIdHash = Helpers.FavoritesHash(db.ShikiFavourites.Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id)
+					dbUser.FavouritesIdHash = Helpers.FavoritesHash(db.ShikiFavourites.Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id).ThenBy(x=>x.FavType)
 																	  .Select(x => new FavoriteIdType(x.Id, (byte)x.FavType[0])).ToArray());
 					db.SaveChanges();
 				}
@@ -142,22 +138,25 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 		}
 
 		var favs = await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken).ConfigureAwait(false);
-		var isFavouritesMismatch = dbUser.FavouritesIdHash !=
-								   Helpers.FavoritesHash(favs.AllFavourites.Select(x => new FavoriteIdType(x.Id, (byte)x.GenericType![0])).ToArray());
+		var isFavouritesMismatch = dbUser.FavouritesIdHash != Helpers.FavoritesHash(favs.AllFavourites.OrderBy(x => x.Id).ThenBy(x => x.GenericType)
+																						.Select(
+																							x => new FavoriteIdType(x.Id, (byte)x.GenericType![0]))
+																						.ToArray());
 		if (!isFavouritesMismatch)
 		{
 			return (Array.Empty<FavouriteEntry>(), Array.Empty<FavouriteEntry>(), isFavouritesMismatch);
 		}
 
-		var dbFavs = db.ShikiFavourites.Where(x => x.UserId == dbUser.Id).Select(f => new FavouriteEntry
+		var dbFavs = db.ShikiFavourites.Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id).ThenBy(x=>x.FavType).Select(f => new FavouriteEntry
 		{
 			Id = f.Id,
 			Name = f.Name,
 			GenericType = f.FavType
-		}).OrderBy(x => x.Id).ToArray();
+		}).ToArray();
 		if ((!favs.AllFavourites.Any() && !dbFavs.Any()) || favs.AllFavourites.SequenceEqual(dbFavs))
 		{
-			//Debug.Assert(!isFavouritesMismatch);
+			//
+			// -------------Debug .Assert ( !  isFavouritesMismatch )
 			return (Array.Empty<FavouriteEntry>(), Array.Empty<FavouriteEntry>(), isFavouritesMismatch);
 		}
 

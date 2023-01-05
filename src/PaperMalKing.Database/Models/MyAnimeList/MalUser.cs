@@ -9,6 +9,9 @@ namespace PaperMalKing.Database.Models.MyAnimeList;
 
 public sealed class MalUser
 {
+	public ulong DiscordUserId { get; init; }
+
+	[ForeignKey(nameof(DiscordUserId))]
 	public required DiscordUser DiscordUser { get; init; }
 
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -29,13 +32,13 @@ public sealed class MalUser
 
 	public string FavoritesIdHash { get; set; } = null!;
 
-	public List<MalFavoriteAnime> FavoriteAnimes { get; set; } = null!;
+	public IList<MalFavoriteAnime> FavoriteAnimes { get; set; } = null!;
 
-	public List<MalFavoriteManga> FavoriteMangas { get; set; } = null!;
+	public IList<MalFavoriteManga> FavoriteMangas { get; set; } = null!;
 
-	public List<MalFavoriteCharacter> FavoriteCharacters { get; set; } = null!;
+	public IList<MalFavoriteCharacter> FavoriteCharacters { get; set; } = null!;
 
-	public List<MalFavoritePerson> FavoritePeople { get; set; } = null!;
+	public IList<MalFavoritePerson> FavoritePeople { get; set; } = null!;
 
-	public List<MalFavoriteCompany> FavoriteCompanies { get; set; } = null!;
+	public IList<MalFavoriteCompany> FavoriteCompanies { get; set; } = null!;
 }

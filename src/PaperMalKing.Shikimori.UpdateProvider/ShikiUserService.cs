@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.Shikimori;
@@ -47,7 +48,6 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 					"Current server is not in database, ask server administrator to add this server to bot");
 
 			dbUser.DiscordUser.Guilds.Add(guild);
-			db.ShikiUsers.Update(dbUser);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 			return BaseUser.FromUsername(username);
 		}
@@ -90,7 +90,8 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 			Features = ShikiUserFeatures.None.GetDefault(),
 			DiscordUser = dUser,
 			DiscordUserId = userId,
-			LastHistoryEntryId = history.Data.Max(he => he.Id)
+			LastHistoryEntryId = history.Data.Max(he => he.Id),
+			FavouritesIdHash = Helpers.FavoritesHash(favourites.AllFavourites.Select(x=> new FavoriteIdType(x.Id, (byte)x.GenericType![0])).ToArray())
 		};
 		dbUser.Favourites.ForEach(f => f.User = dbUser);
 		db.ShikiUsers.Add(dbUser);
@@ -121,7 +122,6 @@ public sealed class ShikiUserService : IUpdateProviderUserService
 			throw new UserProcessingException("You weren't registered in this server");
 
 		user.Guilds.Remove(guild);
-		db.DiscordUsers.Update(user);
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 	}
 

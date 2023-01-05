@@ -23,5 +23,5 @@ public sealed class ShikiUser
 
 	public string FavouritesIdHash { get; set; } = null!;
 
-	public required List<ShikiFavourite> Favourites { get; set; }
+	public required IList<ShikiFavourite> Favourites { get; set; }
 }

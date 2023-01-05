@@ -2,15 +2,15 @@
 // Copyright (C) 2021-2022 N0D4N
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HtmlAgilityPack;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
-#pragma warning disable MA0048
+[SuppressMessage("Design", "MA0048:File name must match type name")]
 internal static partial class UserProfileParser
-#pragma warning restore MA0048
 {
 	private static class FavoritesParser
 	{
@@ -112,7 +112,7 @@ internal static partial class UserProfileParser
 			var typeYearNode = aNode.ChildNodes.First(x => x.HasClass("users"));
 			var strings = typeYearNode.InnerText.Split(Constants.DOT);
 
-			return new(strings[0], uint.Parse(strings[1]), baseFav);
+			return new(strings[0], ushort.Parse(strings[1]), baseFav);
 		}
 
 		private static BaseFavorite ParseBaseFavorite(HtmlNode parent)

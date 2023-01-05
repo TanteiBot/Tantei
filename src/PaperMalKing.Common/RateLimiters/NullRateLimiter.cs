@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.RateLimiting;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ internal sealed class NullRateLimiter : RateLimiter
 		TotalSuccessfulLeases = 0
 	};
 
-	public static readonly NullRateLimiter Instance = new();
+	public static NullRateLimiter Instance { get; }= new();
 
 	private NullRateLimiter()
 	{ }

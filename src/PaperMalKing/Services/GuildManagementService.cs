@@ -83,9 +83,8 @@ public sealed class GuildManagementService
 			(currentChannel ?? (object)guild.PostingChannelId), newChannel ?? (object)channelId);
 		var opci = guild.PostingChannelId;
 		guild.PostingChannelId = channelId;
-		db.DiscordGuilds.Update(guild);
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-		this._updatePublishingService.UpdateChannel(opci, await this._discordClient.GetChannelAsync(opci).ConfigureAwait(false));
+		this._updatePublishingService.UpdateChannel(opci, await this._discordClient.GetChannelAsync(channelId).ConfigureAwait(false));
 	}
 
 	public async Task RemoveUserAsync(ulong guildId, ulong userId)
@@ -98,7 +97,6 @@ public sealed class GuildManagementService
 
 		this._logger.LogInformation("Removing {User}", user);
 		guild.Users.Remove(user);
-		db.DiscordGuilds.Update(guild);
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 	}
 }

@@ -7,7 +7,7 @@ using PaperMalKing.Common.Enums;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models;
 
-internal class HistoryTarget
+internal sealed class HistoryTarget
 {
 	private readonly string _url = null!;
 

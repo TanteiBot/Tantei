@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -89,7 +90,7 @@ internal static class Extensions
 		return Unsafe.As<AnimeFieldsToRequest, TRequestOptions>(ref fields);
 	}
 
-	internal static T ToDbFavorite<T>(this BaseFavorite baseFavorite, MalUser user) where T : class, IMalFavorite
+	internal static T ToDbFavorite<T>(this PaperMalKing.MyAnimeList.Wrapper.Models.Favorites.BaseFavorite baseFavorite, MalUser user) where T : BaseMalFavorite
 	{
 		return baseFavorite switch
 		{
@@ -163,7 +164,7 @@ internal static class Extensions
 		return builder;
 	}
 
-	internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this IMalFavorite favorite, bool added)
+	internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this BaseMalFavorite favorite, bool added)
 	{
 		var eb = new DiscordEmbedBuilder
 		{
@@ -174,7 +175,7 @@ internal static class Extensions
 
 		var title = favorite switch
 		{
-			IMalListFavorite baseListFavorite => $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear}]",
+			BaseMalListFavorite baseListFavorite => $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear}]",
 			_ => favorite.Name
 		};
 		eb.WithTitle(title);
@@ -195,9 +196,9 @@ internal static class Extensions
 		static string SubEntriesProgress(ulong progressedValue, uint totalValue, bool isInPlans, string ending) =>
 			progressedValue switch
 			{
-				0 when totalValue == 0 => string.Empty,
-				_ when progressedValue == totalValue || (isInPlans && progressedValue == 0) => $"{totalValue} {ending}",
-				_ when totalValue == 0 => $"{progressedValue}/? {ending}",
+				0ul when totalValue == 0u => string.Empty,
+				_ when progressedValue == totalValue || (isInPlans && progressedValue == 0ul) => $"{totalValue} {ending}",
+				_ when totalValue == 0u => $"{progressedValue}/? {ending}",
 				_ => $"{progressedValue}/{totalValue} {ending}"
 			};
 
@@ -230,11 +231,10 @@ internal static class Extensions
 					string chapterProgress = SubEntriesProgress(mle.Status.ChaptersRead, mle.Node.TotalChapters,
 						mle.Status.Status == MangaListStatus.plan_to_read, "ch. ");
 					string volumeProgress =
-						SubEntriesProgress(mle.Status.ReadVolumes, mle.Node.TotalVolumes, mle.Status.Status == MangaListStatus.plan_to_read, "v.");
-					userProgressText = chapterProgress.Length != 0 ||
-#pragma warning disable CA1508
-									   volumeProgress.Length != 0
-#pragma warning restore CA1508
+						SubEntriesProgress(mle.Status.VolumesRead, mle.Node.TotalVolumes, mle.Status.Status == MangaListStatus.plan_to_read, "v.");
+					#pragma warning disable CA1508
+					userProgressText = volumeProgress.Length != 0 || chapterProgress.Length != 0
+						#pragma warning restore CA1508
 						? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
 					break;
 				}
@@ -361,22 +361,17 @@ internal static class Extensions
 
 	internal static Span<FavoriteIdType> GetFavoriteIdTypesFromFavorites(this UserFavorites favorites)
 	{
-		static void Add(List<FavoriteIdType> aggregator, IReadOnlyList<BaseFavorite> favs, FavoriteType type)
+		static void Add(List<FavoriteIdType> aggregator, IReadOnlyList<PaperMalKing.MyAnimeList.Wrapper.Models.Favorites.BaseFavorite> favs, MalFavoriteType type)
 		{
 			aggregator.AddRange(favs.Select(x=>new FavoriteIdType(x.Url!.Id, (byte)type)));
 		}
 		var result = new List<FavoriteIdType>(favorites.Count);
-		Add(result,favorites.FavoriteAnime, FavoriteType.Anime);
-		Add(result,favorites.FavoriteManga, FavoriteType.Manga);
-		Add(result,favorites.FavoriteCharacters, FavoriteType.Character);
-		Add(result,favorites.FavoritePeople, FavoriteType.Person);
-		Add(result,favorites.FavoriteCompanies, FavoriteType.Company);
+		Add(result,favorites.FavoriteAnime, MalFavoriteType.Anime);
+		Add(result,favorites.FavoriteManga, MalFavoriteType.Manga);
+		Add(result,favorites.FavoriteCharacters, MalFavoriteType.Character);
+		Add(result,favorites.FavoritePeople, MalFavoriteType.Person);
+		Add(result,favorites.FavoriteCompanies, MalFavoriteType.Company);
+		result.Sort();
 		return CollectionsMarshal.AsSpan(result);
-	}
-
-	internal static List<T> AddRangeF<T>(this List<T> list, IQueryable<T> second)
-	{
-		list.AddRange(second.ToArray());
-		return list;
 	}
 }

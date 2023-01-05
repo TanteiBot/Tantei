@@ -18,59 +18,21 @@ namespace PaperMalKing.Database.CompiledModels
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.MyAnimeList.MalFavoriteAnime",
                 typeof(MalFavoriteAnime),
-                baseEntityType);
-
-            var id = runtimeEntityType.AddProperty(
-                "Id",
-                typeof(uint),
-                propertyInfo: typeof(MalFavoriteAnime).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteAnime).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
-
-            var userId = runtimeEntityType.AddProperty(
-                "UserId",
-                typeof(uint),
-                propertyInfo: typeof(MalFavoriteAnime).GetProperty("UserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteAnime).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
-
-            var imageUrl = runtimeEntityType.AddProperty(
-                "ImageUrl",
-                typeof(string),
-                propertyInfo: typeof(MalFavoriteAnime).GetProperty("ImageUrl", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteAnime).GetField("<ImageUrl>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-
-            var name = runtimeEntityType.AddProperty(
-                "Name",
-                typeof(string),
-                propertyInfo: typeof(MalFavoriteAnime).GetProperty("Name", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteAnime).GetField("<Name>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-
-            var nameUrl = runtimeEntityType.AddProperty(
-                "NameUrl",
-                typeof(string),
-                propertyInfo: typeof(MalFavoriteAnime).GetProperty("NameUrl", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteAnime).GetField("<NameUrl>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                baseEntityType,
+                discriminatorProperty: "FavoriteType",
+                discriminatorValue: MalFavoriteType.Anime);
 
             var startYear = runtimeEntityType.AddProperty(
                 "StartYear",
-                typeof(uint),
-                propertyInfo: typeof(MalFavoriteAnime).GetProperty("StartYear", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteAnime).GetField("<StartYear>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                typeof(ushort),
+                propertyInfo: typeof(BaseMalListFavorite).GetProperty("StartYear", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(BaseMalListFavorite).GetField("<StartYear>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var type = runtimeEntityType.AddProperty(
                 "Type",
                 typeof(string),
-                propertyInfo: typeof(MalFavoriteAnime).GetProperty("Type", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteAnime).GetField("<Type>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-
-            var key = runtimeEntityType.AddKey(
-                new[] { id, userId });
-            runtimeEntityType.SetPrimaryKey(key);
-
-            var index = runtimeEntityType.AddIndex(
-                new[] { userId });
+                propertyInfo: typeof(BaseMalListFavorite).GetProperty("Type", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(BaseMalListFavorite).GetField("<Type>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             return runtimeEntityType;
         }
@@ -87,13 +49,13 @@ namespace PaperMalKing.Database.CompiledModels
                 runtimeForeignKey,
                 onDependent: true,
                 typeof(MalUser),
-                propertyInfo: typeof(MalFavoriteAnime).GetProperty("User", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteAnime).GetField("<User>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                propertyInfo: typeof(BaseMalFavorite).GetProperty("User", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(BaseMalFavorite).GetField("<User>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var favoriteAnimes = principalEntityType.AddNavigation("FavoriteAnimes",
                 runtimeForeignKey,
                 onDependent: false,
-                typeof(List<MalFavoriteAnime>),
+                typeof(IList<MalFavoriteAnime>),
                 propertyInfo: typeof(MalUser).GetProperty("FavoriteAnimes", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(MalUser).GetField("<FavoriteAnimes>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
@@ -105,7 +67,7 @@ namespace PaperMalKing.Database.CompiledModels
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
-            runtimeEntityType.AddAnnotation("Relational:TableName", "MalFavoriteAnimes");
+            runtimeEntityType.AddAnnotation("Relational:TableName", "MalFavorites");
             runtimeEntityType.AddAnnotation("Relational:ViewName", null);
             runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
 

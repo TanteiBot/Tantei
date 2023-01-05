@@ -39,7 +39,7 @@ public abstract class BaseUserFeaturesCommandsModule<T> : ApplicationCommandModu
 		catch (Exception ex)
 		{
 			var embed = ex is UserFeaturesException ufe
-				? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed enabling {feature.Humanize().ToLowerInvariant()}")
+				? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed enabling {feature.Humanize()}")
 				: EmbedTemplate.UnknownErrorEmbed(context);
 			await context.EditResponseAsync(embed: embed.Build()).ConfigureAwait(false);
 			this.Logger.LogError(ex, "Failed to enable {Features} for {Username}", feature, context.Member.DisplayName);
@@ -63,7 +63,7 @@ public abstract class BaseUserFeaturesCommandsModule<T> : ApplicationCommandModu
 		catch (Exception ex)
 		{
 			var embed = ex is UserFeaturesException ufe
-				? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed disabling {feature.Humanize().ToLowerInvariant()}")
+				? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed disabling {feature.Humanize()}")
 				: EmbedTemplate.UnknownErrorEmbed(context);
 			await context.EditResponseAsync(embed: embed.Build()).ConfigureAwait(false);
 			this.Logger.LogError(ex, "Failed to disable {Features} for {Username}", feature, context.Member.DisplayName);

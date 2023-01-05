@@ -36,6 +36,9 @@ namespace PaperMalKing.Database.CompiledModels
                 new[] { discordGuildId });
             runtimeEntityType.SetPrimaryKey(key);
 
+            var index = runtimeEntityType.AddIndex(
+                new[] { discordGuildId });
+
             return runtimeEntityType;
         }
 
@@ -50,7 +53,7 @@ namespace PaperMalKing.Database.CompiledModels
                     declaringEntityType)!,
                 true,
                 false,
-                typeof(ICollection<DiscordUser>),
+                typeof(IList<DiscordUser>),
                 propertyInfo: typeof(DiscordGuild).GetProperty("Users", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DiscordGuild).GetField("<Users>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 

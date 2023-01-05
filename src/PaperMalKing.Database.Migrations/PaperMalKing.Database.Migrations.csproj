@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
         <NoWarn>$(NoWarn);MA0048;S1186</NoWarn>
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>

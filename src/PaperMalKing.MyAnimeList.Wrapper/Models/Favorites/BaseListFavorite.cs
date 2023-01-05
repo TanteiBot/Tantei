@@ -6,16 +6,16 @@ internal class BaseListFavorite : BaseFavorite
 {
 	internal string Type { get; init; }
 
-	internal uint StartYear { get; init; }
+	internal ushort StartYear { get; init; }
 
-	internal BaseListFavorite(string type, uint startYear, MalUrl url, string name, string? imageUrl) : base(url,
+	internal BaseListFavorite(string type, ushort startYear, MalUrl url, string name, string? imageUrl) : base(url,
 		name, imageUrl)
 	{
 		this.Type = type;
 		this.StartYear = startYear;
 	}
 
-	internal BaseListFavorite(string type, uint startYear, BaseFavorite baseFav) : this(type, startYear, baseFav.Url,
+	internal BaseListFavorite(string type, ushort startYear, BaseFavorite baseFav) : this(type, startYear, baseFav.Url,
 		baseFav.Name, baseFav.ImageUrl)
 	{ }
 

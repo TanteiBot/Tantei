@@ -7,7 +7,5 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 public interface IUpdateProviderConfigurator<T> where T : IUpdateProvider
 {
-	#pragma warning disable CA1000
 	abstract static void Configure(IConfiguration configuration, IServiceCollection serviceCollection);
-	#pragma warning restore CA1000
 }

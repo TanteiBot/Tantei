@@ -23,6 +23,5 @@ public static class RateLimiterFactory
 			QueueLimit = 100,
 			QueueProcessingOrder = QueueProcessingOrder.OldestFirst
 		}));
-		// return new RateLimiter<T>(rateLimit, logger);
 	}
 }

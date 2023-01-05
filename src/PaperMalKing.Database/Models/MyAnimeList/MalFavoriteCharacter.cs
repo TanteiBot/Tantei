@@ -6,27 +6,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PaperMalKing.Database.Models.MyAnimeList;
 
-public sealed class MalFavoriteCharacter : IMalFavorite, IEquatable<MalFavoriteCharacter>
+public sealed class MalFavoriteCharacter : BaseMalFavorite, IEquatable<MalFavoriteCharacter>
 {
 	public required string FromTitleName { get; init; }
-
-	[Obsolete("Mal no longer provides url for favorite characters", true)]
-	public string FromTitleUrl { get; init; } = "";
-
-	[ForeignKey(nameof(User))]
-	public uint UserId { get; init; }
-
-	[Key]
-	[DatabaseGenerated(DatabaseGeneratedOption.None)]
-	public uint Id { get; init; }
-
-	public required string? ImageUrl { get; init; }
-
-	public required string Name { get; init; }
-
-	public required string NameUrl { get; init; }
-
-	public required MalUser User { get; init; }
 
 	public bool Equals(MalFavoriteCharacter? other)
 	{

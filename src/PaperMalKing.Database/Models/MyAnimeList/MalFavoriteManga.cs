@@ -6,27 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PaperMalKing.Database.Models.MyAnimeList;
 
-public sealed class MalFavoriteManga : IMalListFavorite, IEquatable<MalFavoriteManga>
+public sealed class MalFavoriteManga : BaseMalListFavorite, IEquatable<MalFavoriteManga>
 {
-	[ForeignKey(nameof(User))]
-	public uint UserId { get; init; }
-
-	[Key]
-	[DatabaseGenerated(DatabaseGeneratedOption.None)]
-	public uint Id { get; init; }
-
-	public string? ImageUrl { get; init; }
-
-	public required string Name { get; init; }
-
-	public required string NameUrl { get; init; }
-
-	public required MalUser User { get; init; }
-
-	public required string Type { get; init; }
-
-	public uint StartYear { get; init; }
-
 	public bool Equals(MalFavoriteManga? other)
 	{
 		if (ReferenceEquals(null, other))

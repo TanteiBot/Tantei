@@ -18,59 +18,15 @@ namespace PaperMalKing.Database.CompiledModels
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.MyAnimeList.MalFavoriteCharacter",
                 typeof(MalFavoriteCharacter),
-                baseEntityType);
-
-            var id = runtimeEntityType.AddProperty(
-                "Id",
-                typeof(uint),
-                propertyInfo: typeof(MalFavoriteCharacter).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteCharacter).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
-
-            var userId = runtimeEntityType.AddProperty(
-                "UserId",
-                typeof(uint),
-                propertyInfo: typeof(MalFavoriteCharacter).GetProperty("UserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteCharacter).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                baseEntityType,
+                discriminatorProperty: "FavoriteType",
+                discriminatorValue: MalFavoriteType.Character);
 
             var fromTitleName = runtimeEntityType.AddProperty(
                 "FromTitleName",
                 typeof(string),
                 propertyInfo: typeof(MalFavoriteCharacter).GetProperty("FromTitleName", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(MalFavoriteCharacter).GetField("<FromTitleName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-
-            var fromTitleUrl = runtimeEntityType.AddProperty(
-                "FromTitleUrl",
-                typeof(string),
-                propertyInfo: typeof(MalFavoriteCharacter).GetProperty("FromTitleUrl", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteCharacter).GetField("<FromTitleUrl>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-
-            var imageUrl = runtimeEntityType.AddProperty(
-                "ImageUrl",
-                typeof(string),
-                propertyInfo: typeof(MalFavoriteCharacter).GetProperty("ImageUrl", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteCharacter).GetField("<ImageUrl>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-
-            var name = runtimeEntityType.AddProperty(
-                "Name",
-                typeof(string),
-                propertyInfo: typeof(MalFavoriteCharacter).GetProperty("Name", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteCharacter).GetField("<Name>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-
-            var nameUrl = runtimeEntityType.AddProperty(
-                "NameUrl",
-                typeof(string),
-                propertyInfo: typeof(MalFavoriteCharacter).GetProperty("NameUrl", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteCharacter).GetField("<NameUrl>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-
-            var key = runtimeEntityType.AddKey(
-                new[] { id, userId });
-            runtimeEntityType.SetPrimaryKey(key);
-
-            var index = runtimeEntityType.AddIndex(
-                new[] { userId });
 
             return runtimeEntityType;
         }
@@ -87,13 +43,13 @@ namespace PaperMalKing.Database.CompiledModels
                 runtimeForeignKey,
                 onDependent: true,
                 typeof(MalUser),
-                propertyInfo: typeof(MalFavoriteCharacter).GetProperty("User", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalFavoriteCharacter).GetField("<User>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                propertyInfo: typeof(BaseMalFavorite).GetProperty("User", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(BaseMalFavorite).GetField("<User>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var favoriteCharacters = principalEntityType.AddNavigation("FavoriteCharacters",
                 runtimeForeignKey,
                 onDependent: false,
-                typeof(List<MalFavoriteCharacter>),
+                typeof(IList<MalFavoriteCharacter>),
                 propertyInfo: typeof(MalUser).GetProperty("FavoriteCharacters", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(MalUser).GetField("<FavoriteCharacters>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
@@ -105,7 +61,7 @@ namespace PaperMalKing.Database.CompiledModels
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
-            runtimeEntityType.AddAnnotation("Relational:TableName", "MalFavoriteCharacters");
+            runtimeEntityType.AddAnnotation("Relational:TableName", "MalFavorites");
             runtimeEntityType.AddAnnotation("Relational:ViewName", null);
             runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
 

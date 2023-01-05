@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace PaperMalKing.Common.RateLimiters;
 
-public class RateLimiter<T> : RateLimiter
+public sealed class RateLimiter<T> : RateLimiter
 {
 	private readonly RateLimiter _rateLimiterImplementation;
 
