@@ -57,6 +57,10 @@
             MA0048 <!--File name must match type name-->
         </WarningsNotAsErrors>
     </PropertyGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="$(AssemblyName).Tests"/>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Meziantou.Analyzer">

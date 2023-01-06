@@ -14,6 +14,8 @@ empty_database.db
 # Output folder is one where files get published
 output/
 
+PaperMalKing.MyAnimeList.Wrapper.Tests/
+
 # User-specific files
 *.rsuser
 *.suo
