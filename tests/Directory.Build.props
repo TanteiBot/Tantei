@@ -1,0 +1,18 @@
+<Project>
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\'))" />
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <Using Include="Xunit" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="xunit" />
+        <PackageReference Include="xunit.runner.visualstudio" />
+        <PackageReference Include="coverlet.collector" />
+        <PackageReference Include="GitHubActionsTestLogger" />
+    </ItemGroup>
+</Project>
