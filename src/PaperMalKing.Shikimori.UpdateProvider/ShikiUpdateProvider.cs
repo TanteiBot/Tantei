@@ -138,7 +138,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 		}
 
 		var favs = await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken).ConfigureAwait(false);
-		var isFavouritesMismatch = dbUser.FavouritesIdHash != Helpers.FavoritesHash(favs.AllFavourites.OrderBy(x => x.Id).ThenBy(x => x.GenericType)
+		var isFavouritesMismatch = dbUser.FavouritesIdHash != Helpers.FavoritesHash(favs.AllFavourites.OrderBy(x => x.Id).ThenBy(x => x.GenericType, StringComparer.Ordinal)
 																						.Select(
 																							x => new FavoriteIdType(x.Id, (byte)x.GenericType![0]))
 																						.ToArray());
