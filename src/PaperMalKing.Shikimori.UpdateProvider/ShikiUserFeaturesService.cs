@@ -17,7 +17,7 @@ using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
-public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFeatures>
+internal sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFeatures>
 {
 	private readonly ShikiClient _client;
 	private readonly ILogger<ShikiUserFeaturesService> _logger;
@@ -36,7 +36,7 @@ public sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserFea
 		var dbUser = db.ShikiUsers.FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
-		var lastHistoryEntry = new ulong?();
+		var lastHistoryEntry = new uint?();
 		dbUser.Features |= feature;
 			switch (feature)
 			{

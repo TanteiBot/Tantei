@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.Data;
 
-public sealed class UpdatePoster : IDisposable
+internal sealed class UpdatePoster : IDisposable
 {
 	private readonly SemaphoreSlim _semaphore;
 

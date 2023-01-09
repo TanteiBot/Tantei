@@ -7,7 +7,7 @@ using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class Review : ISiteUrlable
+internal sealed class Review : ISiteUrlable
 {
 	[JsonPropertyName("createdAt")]
 	public long CreatedAtTimeStamp { get; init; }

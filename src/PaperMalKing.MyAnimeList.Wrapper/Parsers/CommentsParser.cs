@@ -6,7 +6,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
 internal static class CommentsParser
 {
-	internal static string Parse(HtmlNode node)
+	public static string Parse(HtmlNode node)
 	{
 		var text = node.SelectSingleNode("//a[contains(@href,'profile')]").GetAttributeValue("href",null);
 		return text.Substring(text.LastIndexOf('/') + 1);

@@ -51,7 +51,7 @@ namespace PaperMalKing.Database.CompiledModels
 
             var lastHistoryEntryId = runtimeEntityType.AddProperty(
                 "LastHistoryEntryId",
-                typeof(ulong),
+                typeof(uint),
                 propertyInfo: typeof(ShikiUser).GetProperty("LastHistoryEntryId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiUser).GetField("<LastHistoryEntryId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 

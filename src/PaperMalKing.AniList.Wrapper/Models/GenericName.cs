@@ -5,7 +5,7 @@ using PaperMalKing.AniList.Wrapper.Models.Enums;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class GenericName
+internal sealed class GenericName
 {
 	[JsonPropertyName("full")]
 	public string? Full { get; init; }

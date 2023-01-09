@@ -20,7 +20,7 @@ namespace PaperMalKing.Commands;
 [OwnerOrPermissions(Permissions.ManageGuild)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
 [GuildOnly, SlashRequireGuild]
-public sealed class GuildManagementCommands : ApplicationCommandModule
+internal sealed class GuildManagementCommands : ApplicationCommandModule
 {
 	private readonly ILogger<GuildManagementCommands> _logger;
 

@@ -6,7 +6,7 @@ using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class User : ISiteUrlable, IImageble
+internal sealed class User : ISiteUrlable, IImageble
 {
 	[JsonPropertyName("id")]
 	public uint Id { get; init; }

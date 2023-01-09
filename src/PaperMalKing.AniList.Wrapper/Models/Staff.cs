@@ -8,7 +8,7 @@ using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class Staff : IImageble, ISiteUrlable, IIdentifiable
+internal sealed class Staff : IImageble, ISiteUrlable, IIdentifiable
 {
 	[JsonPropertyName("name")]
 	public required GenericName Name { get; init; }

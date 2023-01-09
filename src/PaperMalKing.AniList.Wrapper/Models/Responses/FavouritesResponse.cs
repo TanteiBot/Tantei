@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models.Responses;
 
-public sealed class FavouritesResponse
+internal sealed class FavouritesResponse
 {
 	public bool HasNextPage => this.Anime.PageInfo!.HasNextPage ||
 							   this.Manga.PageInfo!.HasNextPage ||

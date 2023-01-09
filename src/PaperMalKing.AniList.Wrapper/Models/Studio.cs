@@ -5,7 +5,7 @@ using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class Studio : ISiteUrlable, IIdentifiable
+internal sealed class Studio : ISiteUrlable, IIdentifiable
 {
 	[JsonPropertyName("name")]
 	public required string Name { get; init; }

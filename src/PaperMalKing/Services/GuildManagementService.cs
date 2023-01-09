@@ -13,7 +13,7 @@ using PaperMalKing.Exceptions;
 
 namespace PaperMalKing.Services;
 
-public sealed class GuildManagementService
+internal sealed class GuildManagementService
 {
 	private readonly ILogger<GuildManagementService> _logger;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;

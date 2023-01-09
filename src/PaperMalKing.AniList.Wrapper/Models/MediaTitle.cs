@@ -6,7 +6,7 @@ using PaperMalKing.AniList.Wrapper.Models.Enums;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class MediaTitle
+internal sealed class MediaTitle
 {
 	private readonly Dictionary<TitleLanguage, string?> _titles = new(6);
 

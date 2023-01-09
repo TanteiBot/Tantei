@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.Services.Background;
 
-public sealed class UpdateProvidersManagementService : IHostedService
+internal sealed class UpdateProvidersManagementService : IHostedService
 {
 	private readonly ILogger<UpdateProvidersManagementService> _logger;
 	private readonly UpdateProvidersConfigurationService _updateProvidersConfigurationService;

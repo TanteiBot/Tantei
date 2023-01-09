@@ -5,5 +5,5 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models;
 
 internal sealed class LatestInProfileUpdate
 {
-	internal required string Hash { get; init; }
+	public required string Hash { get; init; }
 }

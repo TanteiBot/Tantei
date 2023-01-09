@@ -2,10 +2,13 @@
 // Copyright (C) 2021-2022 N0D4N
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PaperMalKing.Exceptions;
 
-public sealed class GuildManagementException : Exception
+[SuppressMessage("Design", "CA1064:Exceptions should be public")]
+[SuppressMessage("Critical Code Smell", "S3871:Exception types should be \"public\"")]
+internal sealed class GuildManagementException : Exception
 {
 	public ulong? GuildId { get; }
 

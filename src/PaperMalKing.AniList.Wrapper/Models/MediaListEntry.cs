@@ -11,7 +11,7 @@ using PaperMalKing.AniList.Wrapper.Models.Enums;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class MediaListEntry
+internal sealed class MediaListEntry
 {
 	[JsonPropertyName("status")]
 	public MediaListStatus Status { get; init; }

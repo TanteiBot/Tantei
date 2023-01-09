@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Converters;
 
-public sealed class DateOnlyFromMalConverter : JsonConverter<DateOnly?>
+internal sealed class DateOnlyFromMalConverter : JsonConverter<DateOnly?>
 {
 	private const int MaxDateLength = 10; // yyyy-mm-dd
 

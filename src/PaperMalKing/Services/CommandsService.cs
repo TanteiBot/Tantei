@@ -14,7 +14,7 @@ using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Services;
 
-public sealed class CommandsService : ICommandsService
+internal sealed class CommandsService : ICommandsService
 {
 	private readonly ILogger<CommandsService> _logger;
 	public SlashCommandsExtension SlashCommandsExtension { get; }
@@ -38,7 +38,7 @@ public sealed class CommandsService : ICommandsService
 		{
 			nestedTypesNotToRegister.Clear();
 			this._logger.LogTrace("Found {Assembly} which may contain Commands modules", assembly);
-			foreach (var type in assembly.GetExportedTypes().Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase)))
+			foreach (var type in assembly.DefinedTypes.Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase)))
 			{
 				this._logger.LogTrace("Trying to register {@Type} command module", type);
 				try

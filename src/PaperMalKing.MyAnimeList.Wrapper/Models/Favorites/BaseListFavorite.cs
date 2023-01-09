@@ -4,22 +4,22 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 
 internal class BaseListFavorite : BaseFavorite
 {
-	internal string Type { get; init; }
+	public  string Type { get; init; }
 
-	internal ushort StartYear { get; init; }
+	public  ushort StartYear { get; init; }
 
-	internal BaseListFavorite(string type, ushort startYear, MalUrl url, string name, string? imageUrl) : base(url,
+	public BaseListFavorite(string type, ushort startYear, MalUrl url, string name, string? imageUrl) : base(url,
 		name, imageUrl)
 	{
 		this.Type = type;
 		this.StartYear = startYear;
 	}
 
-	internal BaseListFavorite(string type, ushort startYear, BaseFavorite baseFav) : this(type, startYear, baseFav.Url,
+	public BaseListFavorite(string type, ushort startYear, BaseFavorite baseFav) : this(type, startYear, baseFav.Url,
 		baseFav.Name, baseFav.ImageUrl)
 	{ }
 
-	internal BaseListFavorite(BaseListFavorite other) : this(other.Type, other.StartYear, other.Url, other.Name,
+	public BaseListFavorite(BaseListFavorite other) : this(other.Type, other.StartYear, other.Url, other.Name,
 		other.ImageUrl)
 	{ }
 }

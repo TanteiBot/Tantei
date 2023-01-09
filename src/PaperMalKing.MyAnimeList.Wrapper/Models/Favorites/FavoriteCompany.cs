@@ -13,9 +13,9 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 
 internal sealed class FavoriteCompany : BaseFavorite
 {
-	internal FavoriteCompany(MalUrl url, string name, string? imageUrl) : base(url, name, imageUrl)
+	public FavoriteCompany(MalUrl url, string name, string? imageUrl) : base(url, name, imageUrl)
 	{ }
 
-	internal FavoriteCompany(BaseFavorite other) : base(other)
+	public FavoriteCompany(BaseFavorite other) : base(other)
 	{ }
 }

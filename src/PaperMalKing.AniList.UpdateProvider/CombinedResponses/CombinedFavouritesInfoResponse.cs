@@ -8,7 +8,7 @@ using PaperMalKing.AniList.Wrapper.Models.Responses;
 namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses;
 
 [SuppressMessage("Design", "CA1002:Do not expose generic lists")]
-public sealed class CombinedFavouritesInfoResponse
+internal sealed class CombinedFavouritesInfoResponse
 {
 	public List<Media> Anime { get; } = new();
 	public List<Media> Manga { get; } = new();

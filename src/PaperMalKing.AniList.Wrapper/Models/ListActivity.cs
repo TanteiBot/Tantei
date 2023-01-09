@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class ListActivity
+internal sealed class ListActivity
 {
 	[JsonPropertyName("status")]
 	public required string Status { get; init; }

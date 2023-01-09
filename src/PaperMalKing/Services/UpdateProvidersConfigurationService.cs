@@ -14,7 +14,7 @@ using PaperMalKing.UpdatesProviders.MyAnimeList;
 
 namespace PaperMalKing.Services;
 
-public sealed class UpdateProvidersConfigurationService
+internal sealed class UpdateProvidersConfigurationService
 {
 	private readonly Dictionary<string, IUpdateProvider> _providers = new(StringComparer.OrdinalIgnoreCase);
 

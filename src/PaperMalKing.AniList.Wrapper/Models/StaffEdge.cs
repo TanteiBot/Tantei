@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class StaffEdge
+internal sealed class StaffEdge
 {
 	[JsonPropertyName("role")]
 	public required string Role { get; init; }

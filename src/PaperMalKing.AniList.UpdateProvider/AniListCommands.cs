@@ -14,7 +14,7 @@ namespace PaperMalKing.AniList.UpdateProvider;
 [SlashCommandGroup("anilist", "Commands for interacting with AniList.co")]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [GuildOnly, SlashRequireGuild]
-public sealed class AniListCommands : ApplicationCommandModule
+internal sealed class AniListCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from AniList.co", true)]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
@@ -39,9 +39,9 @@ public sealed class AniListCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("features", "Manage your features for updates send from AniList.co", true)]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class ShikiUserFeaturesCommands : BaseUserFeaturesCommandsModule<AniListUserFeatures>
+	public sealed class AniListUserFeaturesCommands : BaseUserFeaturesCommandsModule<AniListUserFeatures>
 	{
-		public ShikiUserFeaturesCommands(IUserFeaturesService<AniListUserFeatures> userFeaturesService, ILogger<ShikiUserFeaturesCommands> logger) :
+		public AniListUserFeaturesCommands(IUserFeaturesService<AniListUserFeatures> userFeaturesService, ILogger<AniListUserFeaturesCommands> logger) :
 			base(userFeaturesService, logger)
 		{ }
 

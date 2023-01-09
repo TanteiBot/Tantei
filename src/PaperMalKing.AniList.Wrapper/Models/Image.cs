@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class Image
+internal sealed class Image
 {
 	[JsonPropertyName("large")]
 	public required string ImageUrl { get; init; }

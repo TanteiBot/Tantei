@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Humanizer;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Database.Models.Shikimori;

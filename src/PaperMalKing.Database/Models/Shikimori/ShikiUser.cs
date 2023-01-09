@@ -13,7 +13,7 @@ public sealed class ShikiUser
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	public uint Id { get; init; }
 
-	public ulong LastHistoryEntryId { get; set; }
+	public uint LastHistoryEntryId { get; set; }
 
 	public ulong DiscordUserId { get; init; }
 
