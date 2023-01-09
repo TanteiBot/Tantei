@@ -14,7 +14,7 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList;
 [SlashCommandGroup("mal", "Commands for interacting with MyAnimeList.net", true)]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [GuildOnly, SlashRequireGuild]
-public sealed class MalCommands : ApplicationCommandModule
+internal sealed class MalCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from MyAnimeList.net", true)]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]

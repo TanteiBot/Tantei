@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Models.List.Official;
 
-public sealed class Genre
+internal sealed class Genre
 {
 	[JsonPropertyName("name")]
 	public required string Name { get; init; }

@@ -16,7 +16,7 @@ using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class IdentifiableFavourite : IIdentifiable, IEquatable<IdentifiableFavourite>
+internal sealed class IdentifiableFavourite : IIdentifiable, IEquatable<IdentifiableFavourite>
 {
 	[JsonPropertyName("id")]
 	public uint Id { get; init; }

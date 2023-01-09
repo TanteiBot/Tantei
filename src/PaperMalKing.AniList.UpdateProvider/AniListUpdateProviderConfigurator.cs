@@ -41,7 +41,7 @@ public sealed class AniListUpdateProviderConfigurator : IUpdateProviderConfigura
 			{
 				EndPoint = new Uri(Wrapper.Constants.BASE_URL)
 			};
-			var gqlc = new GraphQLHttpClient(options, new SystemTextJsonSerializer(new JsonSerializerOptions()
+			var gqlc = new GraphQLHttpClient(options, new SystemTextJsonSerializer(new JsonSerializerOptions(JsonSerializerDefaults.Web)
 			{
 				Converters =
 				{

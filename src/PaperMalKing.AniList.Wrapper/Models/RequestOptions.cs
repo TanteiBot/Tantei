@@ -6,7 +6,7 @@ using System;
 namespace PaperMalKing.AniList.Wrapper.Models;
 
 [Flags]
-public enum RequestOptions : ulong
+internal enum RequestOptions : ulong
 {
 	AnimeList = 1 << 0,
 	MangaList = 1 << 1,

@@ -4,19 +4,19 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 
 internal class BaseFavorite
 {
-	internal MalUrl Url { get; init; }
+	public  MalUrl Url { get; init; }
 
-	internal string Name { get; init; }
+	public  string Name { get; init; }
 
-	internal string? ImageUrl { get; init; }
+	public  string? ImageUrl { get; init; }
 
-	internal BaseFavorite(MalUrl url, string name, string? imageUrl)
+	public BaseFavorite(MalUrl url, string name, string? imageUrl)
 	{
 		this.Url = url;
 		this.Name = name;
 		this.ImageUrl = imageUrl;
 	}
 
-	internal BaseFavorite(BaseFavorite other) : this(other.Url, other.Name, other.ImageUrl)
+	public BaseFavorite(BaseFavorite other) : this(other.Url, other.Name, other.ImageUrl)
 	{ }
 }

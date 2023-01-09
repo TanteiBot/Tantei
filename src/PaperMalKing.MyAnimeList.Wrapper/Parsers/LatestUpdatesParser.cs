@@ -16,7 +16,7 @@ internal static class LatestUpdatesParser
 	private const string AnimeSelector = $"{BaseSelectorStart}anime{BaseSelectorEnd}";
 	private const string MangaSelector = $"{BaseSelectorStart}manga{BaseSelectorEnd}";
 
-	internal static string? Parse(HtmlNode node, ListEntryType listEntryType)
+	public static string? Parse(HtmlNode node, ListEntryType listEntryType)
 	{
 		var selector = listEntryType switch
 		{

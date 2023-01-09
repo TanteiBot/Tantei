@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models.Responses;
 
-public sealed class CheckForUpdatesResponse
+internal sealed class CheckForUpdatesResponse
 {
 	public bool HasNextPage => this.User.Favourites.HasNextPage ||
 							   this.ListActivities.PageInfo!.HasNextPage ||

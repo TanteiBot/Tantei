@@ -8,7 +8,7 @@ using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 #pragma warning disable CA1724
-public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
+internal sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 #pragma warning restore CA1724
 {
 	[JsonPropertyName("id")]

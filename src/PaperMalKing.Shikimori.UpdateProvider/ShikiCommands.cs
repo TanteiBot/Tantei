@@ -14,7 +14,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider;
 [SlashCommandGroup("shiki", "Commands for interacting with Shikimori.one")]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [GuildOnly, SlashRequireGuild]
-public sealed class ShikiCommands : ApplicationCommandModule
+internal sealed class ShikiCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from Shikimori.one")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]

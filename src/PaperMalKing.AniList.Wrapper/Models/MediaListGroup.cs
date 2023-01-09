@@ -14,7 +14,7 @@ using System.Collections.Generic;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class MediaListGroup
+internal sealed class MediaListGroup
 {
 	public IReadOnlyList<MediaListEntry> Entries { get; init; } = Array.Empty<MediaListEntry>();
 }

@@ -7,23 +7,23 @@ namespace PaperMalKing.UpdatesProviders.MyAnimeList;
 
 internal static class Constants
 {
-	internal const string Name = "MyAnimeList";
+	public const string Name = "MyAnimeList";
 
-	internal const string OfficialApiHttpClientName = "OfficialApiMyAnimeList";
+	public const string OfficialApiHttpClientName = "OfficialApiMyAnimeList";
 
-	internal const string UnOfficialApiHttpClientName = $"Un{OfficialApiHttpClientName}";
+	public const string UnOfficialApiHttpClientName = $"Un{OfficialApiHttpClientName}";
 
-	internal const string OfficialApiHeaderName = "X-MAL-CLIENT-ID";
+	public const string OfficialApiHeaderName = "X-MAL-CLIENT-ID";
 
-	internal static readonly DiscordColor MalGreen = new("#2db039");
+	public static readonly DiscordColor MalGreen = new("#2db039");
 
-	internal static readonly DiscordColor MalBlue = new("#26448f");
+	public static readonly DiscordColor MalBlue = new("#26448f");
 
-	internal static readonly DiscordColor MalYellow = new("#f9d457");
+	public static readonly DiscordColor MalYellow = new("#f9d457");
 
-	internal static readonly DiscordColor MalRed = new("#a12f31");
+	public static readonly DiscordColor MalRed = new("#a12f31");
 
-	internal static readonly DiscordColor MalGrey = new("#c3c3c3");
+	public static readonly DiscordColor MalGrey = new("#c3c3c3");
 
-	internal static readonly DiscordColor MalBlack = DiscordColor.NotQuiteBlack;
+	public static readonly DiscordColor MalBlack = DiscordColor.NotQuiteBlack;
 }

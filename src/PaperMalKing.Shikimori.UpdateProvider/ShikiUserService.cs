@@ -17,7 +17,7 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
-public sealed class ShikiUserService : IUpdateProviderUserService
+internal sealed class ShikiUserService : IUpdateProviderUserService
 {
 	private readonly ShikiClient _client;
 	private readonly ILogger<ShikiUserService> _logger;

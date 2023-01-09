@@ -17,7 +17,7 @@ using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
-public sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUserFeatures>
+internal sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUserFeatures>
 {
 	private readonly AniListClient _client;
 	private readonly ILogger<AniListUserFeaturesService> _logger;

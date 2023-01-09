@@ -11,7 +11,7 @@ using PaperMalKing.AniList.Wrapper.Models.Responses;
 
 namespace PaperMalKing.AniList.Wrapper;
 
-public sealed class AniListClient
+internal sealed class AniListClient
 {
 	private readonly GraphQLHttpClient _client;
 	private readonly ILogger<AniListClient> _logger;
@@ -22,7 +22,7 @@ public sealed class AniListClient
 		this._logger = logger;
 	}
 
-	internal async Task<InitialUserInfoResponse> GetInitialUserInfoAsync(string username, byte favouritesPage = 1,
+	public async Task<InitialUserInfoResponse> GetInitialUserInfoAsync(string username, byte favouritesPage = 1,
 																		 CancellationToken cancellationToken = default)
 	{
 		this._logger.LogDebug("Requesting initial info for {Username}, {Page}", username, favouritesPage);
@@ -31,8 +31,8 @@ public sealed class AniListClient
 		return response.Data;
 	}
 
-	internal async Task<CheckForUpdatesResponse> CheckForUpdatesAsync(uint userId, byte page, long activitiesTimeStamp, ushort perChunk,
-																	  ushort chunk, RequestOptions options, CancellationToken cancellationToken)
+	public async Task<CheckForUpdatesResponse> CheckForUpdatesAsync(uint userId, byte page, long activitiesTimeStamp, ushort perChunk,
+																	ushort chunk, RequestOptions options, CancellationToken cancellationToken)
 	{
 		cancellationToken.ThrowIfCancellationRequested();
 		this._logger.LogDebug("Requesting updates check for {UserId}, {Page}", userId, page);
@@ -41,8 +41,8 @@ public sealed class AniListClient
 		return response.Data;
 	}
 
-	internal async Task<FavouritesResponse> FavouritesInfoAsync(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds,
-																uint[] studioIds, RequestOptions options, CancellationToken cancellationToken = default)
+	public async Task<FavouritesResponse> FavouritesInfoAsync(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds,
+															  uint[] studioIds, RequestOptions options, CancellationToken cancellationToken = default)
 	{
 		if (!animeIds.Any() && !mangaIds.Any() && !charIds.Any() && !staffIds.Any() && !staffIds.Any() && !studioIds.Any())
 			return FavouritesResponse.Empty;

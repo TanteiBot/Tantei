@@ -13,7 +13,6 @@
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
         <AnalysisMode>All</AnalysisMode>
-        <PathMap>$(MSBuildProjectDirectory)=/$(MSBuildProjectName)</PathMap>
         <NoWarn>$(NoWarn);
             CA1003; <!--Use generic event handler instances-->
             CA1014; <!--Mark assemblies with CLSCompliantAttribute-->
@@ -57,10 +56,6 @@
             MA0048 <!--File name must match type name-->
         </WarningsNotAsErrors>
     </PropertyGroup>
-    
-    <ItemGroup>
-        <InternalsVisibleTo Include="$(AssemblyName).Tests"/>
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Meziantou.Analyzer">

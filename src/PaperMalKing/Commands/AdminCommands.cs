@@ -19,7 +19,7 @@ namespace PaperMalKing.Commands;
 [SlashRequireOwner]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-public sealed class AdminCommands : ApplicationCommandModule
+internal sealed class AdminCommands : ApplicationCommandModule
 {
 	private readonly UpdateProvidersConfigurationService _providersConfigurationService;
 	private readonly IHostApplicationLifetime _lifetime;

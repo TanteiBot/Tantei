@@ -16,7 +16,7 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.MyAnimeList;
 
-public sealed class MalUserService : IUpdateProviderUserService
+internal sealed class MalUserService : IUpdateProviderUserService
 {
 	private readonly MyAnimeListClient _client;
 

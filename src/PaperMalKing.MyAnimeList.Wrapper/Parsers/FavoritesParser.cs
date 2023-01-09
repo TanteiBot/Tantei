@@ -14,7 +14,7 @@ internal static partial class UserProfileParser
 {
 	private static class FavoritesParser
 	{
-		internal static UserFavorites Parse(HtmlNode node)
+		public static UserFavorites Parse(HtmlNode node)
 		{
 			var animes = ParseFavoriteAnime(node);
 			var manga = ParseFavoriteManga(node);

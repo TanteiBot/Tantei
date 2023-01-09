@@ -17,7 +17,7 @@ using PaperMalKing.Options;
 
 namespace PaperMalKing.Services.Background;
 
-public sealed class DiscordBackgroundService : BackgroundService
+internal sealed class DiscordBackgroundService : BackgroundService
 {
 	private readonly ILogger<DiscordBackgroundService> _logger;
 	private readonly IOptions<DiscordOptions> _options;

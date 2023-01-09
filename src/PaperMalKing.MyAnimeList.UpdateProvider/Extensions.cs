@@ -42,7 +42,7 @@ internal static class Extensions
 		{(byte)AnimeListStatus.plan_to_watch, Constants.MalGrey},
 	};
 
-	internal static ParserOptions ToParserOptions(this MalUserFeatures features)
+	public static ParserOptions ToParserOptions(this MalUserFeatures features)
 	{
 		var options = ParserOptions.None;
 		if (features.HasFlag(MalUserFeatures.AnimeList)) options |= ParserOptions.AnimeList;
@@ -52,7 +52,7 @@ internal static class Extensions
 		return options;
 	}
 
-	internal static TRequestOptions ToRequestOptions<TRequestOptions>(this MalUserFeatures features) where TRequestOptions : unmanaged, Enum
+	public static TRequestOptions ToRequestOptions<TRequestOptions>(this MalUserFeatures features) where TRequestOptions : unmanaged, Enum
 	{
 		Debug.Assert(typeof(TRequestOptions) == typeof(AnimeFieldsToRequest) || typeof(TRequestOptions) == typeof(MangaFieldsToRequest));
 		AnimeFieldsToRequest fields = default;
@@ -90,7 +90,7 @@ internal static class Extensions
 		return Unsafe.As<AnimeFieldsToRequest, TRequestOptions>(ref fields);
 	}
 
-	internal static T ToDbFavorite<T>(this PaperMalKing.MyAnimeList.Wrapper.Models.Favorites.BaseFavorite baseFavorite, MalUser user) where T : BaseMalFavorite
+	public static T ToDbFavorite<T>(this PaperMalKing.MyAnimeList.Wrapper.Models.Favorites.BaseFavorite baseFavorite, MalUser user) where T : BaseMalFavorite
 	{
 		return baseFavorite switch
 		{
@@ -103,7 +103,7 @@ internal static class Extensions
 		} ?? throw new InvalidOperationException();
 	}
 
-	internal static MalFavoriteAnime ToMalFavoriteAnime(this FavoriteAnime anime, MalUser user) => new()
+	public static MalFavoriteAnime ToMalFavoriteAnime(this FavoriteAnime anime, MalUser user) => new()
 	{
 		Id = anime.Url.Id,
 		Name = anime.Name,
@@ -115,7 +115,7 @@ internal static class Extensions
 		UserId = user.UserId
 	};
 
-	internal static MalFavoriteManga ToMalFavoriteManga(this FavoriteManga manga, MalUser user) => new()
+	public static MalFavoriteManga ToMalFavoriteManga(this FavoriteManga manga, MalUser user) => new()
 	{
 		Id = manga.Url.Id,
 		Name = manga.Name,
@@ -127,7 +127,7 @@ internal static class Extensions
 		UserId = user.UserId
 	};
 
-	internal static MalFavoriteCompany ToMalFavoriteCompany(this FavoriteCompany company, MalUser user) => new()
+	public static MalFavoriteCompany ToMalFavoriteCompany(this FavoriteCompany company, MalUser user) => new()
 	{
 		Id = company.Url.Id,
 		Name = company.Name,
@@ -137,7 +137,7 @@ internal static class Extensions
 		UserId = user.UserId
 	};
 
-	internal static MalFavoriteCharacter ToMalFavoriteCharacter(this FavoriteCharacter character, MalUser user) => new()
+	public static MalFavoriteCharacter ToMalFavoriteCharacter(this FavoriteCharacter character, MalUser user) => new()
 	{
 		Id = character.Url.Id,
 		Name = character.Name,
@@ -148,7 +148,7 @@ internal static class Extensions
 		UserId = user.UserId
 	};
 
-	internal static MalFavoritePerson ToMalFavoritePerson(this FavoritePerson person, MalUser user) => new()
+	public static MalFavoritePerson ToMalFavoritePerson(this FavoritePerson person, MalUser user) => new()
 	{
 		Id = person.Url.Id,
 		Name = person.Name,
@@ -158,13 +158,13 @@ internal static class Extensions
 		UserId = user.UserId
 	};
 
-	internal static DiscordEmbedBuilder WithMalUpdateProviderFooter(this DiscordEmbedBuilder builder)
+	public static DiscordEmbedBuilder WithMalUpdateProviderFooter(this DiscordEmbedBuilder builder)
 	{
 		builder.Footer = MalUpdateFooter;
 		return builder;
 	}
 
-	internal static DiscordEmbedBuilder ToDiscordEmbedBuilder(this BaseMalFavorite favorite, bool added)
+	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this BaseMalFavorite favorite, bool added)
 	{
 		var eb = new DiscordEmbedBuilder
 		{
@@ -186,7 +186,7 @@ internal static class Extensions
 		return eb;
 	}
 
-	internal static DiscordEmbedBuilder ToDiscordEmbedBuilder<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(this TLe listEntry, User user, MalUserFeatures features) where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
+	public static DiscordEmbedBuilder ToDiscordEmbedBuilder<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(this TLe listEntry, User user, MalUserFeatures features) where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 																						where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
 																						where TStatus : BaseListEntryStatus<TListStatus>
 																						where TMediaType : unmanaged, Enum
@@ -359,7 +359,7 @@ internal static class Extensions
 		return eb;
 	}
 
-	internal static Span<FavoriteIdType> GetFavoriteIdTypesFromFavorites(this UserFavorites favorites)
+	public static Span<FavoriteIdType> GetFavoriteIdTypesFromFavorites(this UserFavorites favorites)
 	{
 		static void Add(List<FavoriteIdType> aggregator, IReadOnlyList<PaperMalKing.MyAnimeList.Wrapper.Models.Favorites.BaseFavorite> favs, MalFavoriteType type)
 		{

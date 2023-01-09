@@ -12,7 +12,7 @@ using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Services;
 
-public sealed class OnStartupActionsExecutingService : IHostedService
+internal sealed class OnStartupActionsExecutingService : IHostedService
 {
 	private readonly IServiceProvider _serviceProvider;
 

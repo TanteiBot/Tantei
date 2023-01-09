@@ -11,7 +11,7 @@ using PaperMalKing.Shikimori.Wrapper.Models;
 
 namespace PaperMalKing.Shikimori.Wrapper;
 
-public sealed class ShikiClient
+internal sealed class ShikiClient
 {
 	private readonly HttpClient _httpClient;
 	private readonly ILogger<ShikiClient> _logger;
@@ -22,7 +22,7 @@ public sealed class ShikiClient
 		this._logger = logger;
 	}
 
-	internal async Task<User> GetUserAsync(string nickname, CancellationToken cancellationToken = default)
+	public async Task<User> GetUserAsync(string nickname, CancellationToken cancellationToken = default)
 	{
 		this._logger.LogDebug("Requesting {@Nickname} profile", nickname);
 
@@ -39,10 +39,10 @@ public sealed class ShikiClient
 		};
 
 		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-		return (await response.Content.ReadFromJsonAsync<User>((JsonSerializerOptions?)null, cancellationToken).ConfigureAwait(false))!;
+		return (await response.Content.ReadFromJsonAsync<User>(JsonSerializerOptions.Default, cancellationToken).ConfigureAwait(false))!;
 	}
 
-	internal async Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default)
+	public async Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default)
 	{
 		this._logger.LogDebug("Requesting {@UserId} favourites", userId);
 		var url = $"{Constants.BASE_USERS_API_URL}/{userId}/favourites";
@@ -50,8 +50,8 @@ public sealed class ShikiClient
 		return favs!;
 	}
 
-	internal async Task<Paginatable<History[]>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options,
-																	CancellationToken cancellationToken = default)
+	public async Task<Paginatable<History[]>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options,
+																  CancellationToken cancellationToken = default)
 	{
 		var url = $"{Constants.BASE_USERS_API_URL}/{userId}/history";
 		limit = Constants.HISTORY_LIMIT < limit ? Constants.HISTORY_LIMIT : limit;
@@ -72,12 +72,12 @@ public sealed class ShikiClient
 		};
 		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 
-		var data = (await response.Content.ReadFromJsonAsync<History[]>((JsonSerializerOptions?)null, cancellationToken).ConfigureAwait(false))!;
+		var data = (await response.Content.ReadFromJsonAsync<History[]>(JsonSerializerOptions.Default, cancellationToken).ConfigureAwait(false))!;
 		var hasNextPage = data.Length == limit + 1;
 		return new(data, hasNextPage);
 	}
 
-	internal Task<UserInfo> GetUserInfoAsync(uint userId, CancellationToken cancellationToken = default)
+	public Task<UserInfo> GetUserInfoAsync(uint userId, CancellationToken cancellationToken = default)
 	{
 		var url = $"{Constants.BASE_USERS_API_URL}/{userId}/info";
 		return this._httpClient.GetFromJsonAsync<UserInfo>(url, cancellationToken)!;

@@ -20,7 +20,7 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.Services;
 
-public sealed class UpdatePublishingService
+internal sealed class UpdatePublishingService
 {
 	private readonly ILogger<UpdatePublishingService> _logger;
 	private readonly DiscordClient _discordClient;

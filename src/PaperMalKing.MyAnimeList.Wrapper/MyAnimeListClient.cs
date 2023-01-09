@@ -19,13 +19,13 @@ using PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
 namespace PaperMalKing.MyAnimeList.Wrapper;
 
-public sealed class MyAnimeListClient
+internal sealed class MyAnimeListClient
 {
 	private readonly HttpClient _unofficialApiHttpClient;
 	private readonly HttpClient _officialApiHttpClient;
 	private readonly ILogger<MyAnimeListClient> _logger;
 
-	internal MyAnimeListClient(ILogger<MyAnimeListClient> logger, HttpClient unofficialApiHttpClient, HttpClient officialApiHttpClient)
+	public MyAnimeListClient(ILogger<MyAnimeListClient> logger, HttpClient unofficialApiHttpClient, HttpClient officialApiHttpClient)
 	{
 		this._logger = logger;
 		this._unofficialApiHttpClient = unofficialApiHttpClient;
@@ -48,7 +48,7 @@ public sealed class MyAnimeListClient
 		return doc.DocumentNode;
 	}
 
-	internal async Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default)
+	public async Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default)
 	{
 		if (options == ParserOptions.None)
 			throw new ArgumentException("No reason to parse profile without anime/manga lists and favorites",
@@ -63,7 +63,7 @@ public sealed class MyAnimeListClient
 		return user;
 	}
 
-	internal async Task<string> GetUsernameAsync(uint id, CancellationToken cancellationToken = default)
+	public async Task<string> GetUsernameAsync(uint id, CancellationToken cancellationToken = default)
 	{
 		var url = $"{Constants.COMMENTS_URL}{id}";
 		this._logger.LogDebug("Requesting username by id {@Id}", id);
@@ -71,7 +71,7 @@ public sealed class MyAnimeListClient
 		return CommentsParser.Parse(htmlNode);
 	}
 
-	internal async Task<IReadOnlyList<TE>>
+	public async Task<IReadOnlyList<TE>>
 		GetLatestListUpdatesAsync<TE, TListType, TRequestOptions, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
 			string username, TRequestOptions requestOptions, CancellationToken cancellationToken = default)
 		where TE : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
@@ -92,7 +92,7 @@ public sealed class MyAnimeListClient
 		var updates = await response.Content
 									.ReadFromJsonAsync<ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>>(
 										JsonSerializerOptions.Default, cancellationToken).ConfigureAwait(false);
-		
+
 		return updates?.Data ?? Array.Empty<TE>();
 	}
 

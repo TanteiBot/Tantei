@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models.Responses;
 
-public sealed class InitialUserInfoResponse
+internal sealed class InitialUserInfoResponse
 {
 	[JsonPropertyName("User")]
 	public required User User { get; init; }

@@ -18,7 +18,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class CustomList
+internal sealed class CustomList
 {
 	[JsonPropertyName("name")]
 	public required string Name { get; init; }

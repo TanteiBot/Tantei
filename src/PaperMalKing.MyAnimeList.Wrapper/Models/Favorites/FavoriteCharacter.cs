@@ -4,15 +4,15 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 
 internal sealed class FavoriteCharacter : BaseFavorite
 {
-	internal string FromName { get; init; }
+	public  string FromName { get; init; }
 
-	internal FavoriteCharacter(string fromName, MalUrl url, string name, string? imageUrl) : base(
+	public FavoriteCharacter(string fromName, MalUrl url, string name, string? imageUrl) : base(
 		url, name, imageUrl)
 	{
 		this.FromName = fromName;
 	}
 
-	internal FavoriteCharacter(string fromName, BaseFavorite baseFav) : this(fromName,
+	public FavoriteCharacter(string fromName, BaseFavorite baseFav) : this(fromName,
 		baseFav.Url, baseFav.Name, baseFav.ImageUrl)
 	{ }
 }

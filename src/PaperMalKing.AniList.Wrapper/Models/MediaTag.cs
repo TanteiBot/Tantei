@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class MediaTag
+internal sealed class MediaTag
 {
 	[JsonPropertyName("name")]
 	public required string Name { get; init; }

@@ -4,7 +4,6 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="PaperMalKing.Shikimori.UpdateProvider" />
-        <InternalsVisibleTo Include="PaperMalKing" /> <!-- TODO Why do we need it?-->
     </ItemGroup>
 
     <ItemGroup>

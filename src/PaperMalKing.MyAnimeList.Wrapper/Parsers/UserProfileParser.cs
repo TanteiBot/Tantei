@@ -9,7 +9,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
 internal static partial class UserProfileParser
 {
-	internal static User Parse(HtmlNode node, ParserOptions options)
+	public static User Parse(HtmlNode node, ParserOptions options)
 	{
 		var reportUrl = node.SelectSingleNode("//a[contains(@class, 'header-right')]").Attributes["href"].Value;
 		var li = reportUrl.LastIndexOf('=');

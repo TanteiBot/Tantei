@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class Connection<T>
+internal sealed class Connection<T>
 {
 	[JsonPropertyName("pageInfo")]
 	public PageInfo? PageInfo { get; init; }

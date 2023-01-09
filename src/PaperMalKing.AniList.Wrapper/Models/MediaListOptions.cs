@@ -5,7 +5,7 @@ using PaperMalKing.AniList.Wrapper.Models.Enums;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class MediaListOptions
+internal sealed class MediaListOptions
 {
 	[JsonPropertyName("scoreFormat")]
 	public ScoreFormat ScoreFormat { get; init; }

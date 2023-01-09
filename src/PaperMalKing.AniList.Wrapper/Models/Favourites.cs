@@ -8,7 +8,7 @@ using PaperMalKing.AniList.Wrapper.Models.Enums;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class Favourites
+internal sealed class Favourites
 {
 	public bool HasNextPage { get; init; } = false;
 

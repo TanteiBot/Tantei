@@ -15,7 +15,7 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
-public sealed class AniListUserService : IUpdateProviderUserService
+internal sealed class AniListUserService : IUpdateProviderUserService
 {
 	private readonly AniListClient _client;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;

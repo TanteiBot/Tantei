@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 namespace PaperMalKing.AniList.Wrapper.Models;
 
 [SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix")]
-public sealed class MediaListCollection
+internal sealed class MediaListCollection
 {
 	[JsonPropertyName("lists")]
 	public IReadOnlyList<MediaListGroup> Lists { get; init; } = Array.Empty<MediaListGroup>();

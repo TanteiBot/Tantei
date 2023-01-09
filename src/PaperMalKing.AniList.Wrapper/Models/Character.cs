@@ -5,7 +5,7 @@ using PaperMalKing.AniList.Wrapper.Models.Interfaces;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
-public sealed class Character : IImageble, ISiteUrlable, IIdentifiable
+internal sealed class Character : IImageble, ISiteUrlable, IIdentifiable
 {
 	[JsonPropertyName("name")]
 	public required GenericName Name { get; init; }

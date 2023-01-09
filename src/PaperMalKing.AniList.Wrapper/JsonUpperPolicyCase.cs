@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace PaperMalKing.AniList.Wrapper;
 
-public sealed class JsonUpperPolicyCase : JsonNamingPolicy
+internal sealed class JsonUpperPolicyCase : JsonNamingPolicy
 {
 	public override string ConvertName(string name) => name.ToUpperInvariant();
 }
