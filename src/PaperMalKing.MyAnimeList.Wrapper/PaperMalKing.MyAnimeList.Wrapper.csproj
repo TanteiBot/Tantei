@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="HtmlAgilityPack" />
+        <PackageReference Include="AngleSharp" />
     </ItemGroup>
 
 </Project>

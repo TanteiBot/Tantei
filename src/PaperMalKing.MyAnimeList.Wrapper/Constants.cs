@@ -17,5 +17,5 @@ internal static class Constants
 	// Discord doesn't support .ico formats in footer icons
 	public const string FAV_ICON = "https://pbs.twimg.com/profile_images/1190380284295950339/Py6XnxvH_200x200.jpg";
 
-	public const string DOT = "&middot;";
+	public const string DOT = "·";
 }

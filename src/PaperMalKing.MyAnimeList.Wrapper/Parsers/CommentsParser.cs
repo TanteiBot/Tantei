@@ -1,14 +1,15 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
-using HtmlAgilityPack;
+
+using AngleSharp.Dom;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
 internal static class CommentsParser
 {
-	public static string Parse(HtmlNode node)
+	public static string Parse(IDocument document)
 	{
-		var text = node.SelectSingleNode("//a[contains(@href,'profile')]").GetAttributeValue("href",null);
+		var text = document.QuerySelector("#content > div.borderClass > div > a")!.GetAttribute("href")!;
 		return text.Substring(text.LastIndexOf('/') + 1);
 	}
 }
