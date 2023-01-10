@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
-using HtmlAgilityPack;
+
+using AngleSharp.Dom;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
@@ -9,23 +10,23 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
 internal static partial class UserProfileParser
 {
-	public static User Parse(HtmlNode node, ParserOptions options)
+	public static User Parse(IDocument document, ParserOptions options)
 	{
-		var reportUrl = node.SelectSingleNode("//a[contains(@class, 'header-right')]").Attributes["href"].Value;
-		var li = reportUrl.LastIndexOf('=');
+		var reportUrl = document.QuerySelector("#contentWrapper a.header-right")!.GetAttribute("href");
+		var li = reportUrl!.LastIndexOf('=');
 
 		var id = uint.Parse(reportUrl.Substring(li + 1));
-		var url = node.SelectSingleNode("//meta[@property='og:url']").Attributes["content"].Value;
-		var username = url.Substring(url.LastIndexOf('/') + 1);
-		var favorites = options.HasFlag(ParserOptions.Favorites) ? FavoritesParser.Parse(node) : UserFavorites.Empty;
+		var url = document.QuerySelector("meta[property=\"og:url\"]")!.GetAttribute("content");
+		var username = url![(url!.LastIndexOf('/') + 1)..];
+		var favorites = options.HasFlag(ParserOptions.Favorites) ? FavoritesParser.Parse(document) : UserFavorites.Empty;
 
 		return new()
 		{
 			Favorites = favorites,
 			Username = username,
 			Id = id,
-			LatestAnimeUpdateHash = options.HasFlag(ParserOptions.AnimeList) ? LatestUpdatesParser.Parse(node, ListEntryType.Anime) : null,
-			LatestMangaUpdateHash = options.HasFlag(ParserOptions.MangaList) ? LatestUpdatesParser.Parse(node, ListEntryType.Manga) : null
+			LatestAnimeUpdateHash = options.HasFlag(ParserOptions.AnimeList) ? LatestUpdatesParser.Parse(document, ListEntryType.Anime) : null,
+			LatestMangaUpdateHash = options.HasFlag(ParserOptions.MangaList) ? LatestUpdatesParser.Parse(document, ListEntryType.Manga) : null
 		};
 	}
 }

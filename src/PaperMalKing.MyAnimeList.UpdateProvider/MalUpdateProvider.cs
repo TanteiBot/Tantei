@@ -4,10 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -19,7 +17,6 @@ using PaperMalKing.Database;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
-using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.Base;
 using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.MangaList;

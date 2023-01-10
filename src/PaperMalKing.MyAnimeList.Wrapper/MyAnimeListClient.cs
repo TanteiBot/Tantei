@@ -10,7 +10,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using HtmlAgilityPack;
+using AngleSharp;
+using AngleSharp.Dom;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.Base;
@@ -24,7 +25,6 @@ internal sealed class MyAnimeListClient
 	private readonly HttpClient _unofficialApiHttpClient;
 	private readonly HttpClient _officialApiHttpClient;
 	private readonly ILogger<MyAnimeListClient> _logger;
-
 	public MyAnimeListClient(ILogger<MyAnimeListClient> logger, HttpClient unofficialApiHttpClient, HttpClient officialApiHttpClient)
 	{
 		this._logger = logger;
@@ -39,13 +39,16 @@ internal sealed class MyAnimeListClient
 		return response.EnsureSuccessStatusCode();
 	}
 
-	private async Task<HtmlNode> GetAsHtmlAsync(string url, CancellationToken cancellationToken = default)
+	private async Task<IDocument> GetAsHtmlAsync(string url, CancellationToken cancellationToken = default)
 	{
 		using var response = await this.GetAsync(url, cancellationToken).ConfigureAwait(false);
-		var doc = new HtmlDocument();
 		using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-		doc.Load(stream);
-		return doc.DocumentNode;
+		#pragma warning disable CA2000
+		var browsingContext = new BrowsingContext();
+		#pragma warning restore CA2000
+
+		var document = await browsingContext.OpenAsync(response => response.Content(stream, false), cancellationToken).ConfigureAwait(false);
+		return document;
 	}
 
 	public async Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default)
@@ -56,9 +59,9 @@ internal sealed class MyAnimeListClient
 		this._logger.LogDebug("Requesting {@Username} profile", username);
 		username = WebUtility.UrlEncode(username);
 		var requestUrl = Constants.PROFILE_URL + username;
-		var htmlNode = await this.GetAsHtmlAsync(requestUrl, cancellationToken).ConfigureAwait(false);
+		using var document = await this.GetAsHtmlAsync(requestUrl, cancellationToken).ConfigureAwait(false);
 		this._logger.LogTrace("Starting parsing {@Username} profile", username);
-		var user = UserProfileParser.Parse(htmlNode, options);
+		var user = UserProfileParser.Parse(document, options);
 		this._logger.LogTrace("Ended parsing {@Username} profile", username);
 		return user;
 	}
@@ -67,8 +70,8 @@ internal sealed class MyAnimeListClient
 	{
 		var url = $"{Constants.COMMENTS_URL}{id}";
 		this._logger.LogDebug("Requesting username by id {@Id}", id);
-		var htmlNode = await this.GetAsHtmlAsync(url, cancellationToken).ConfigureAwait(false);
-		return CommentsParser.Parse(htmlNode);
+		using var document = await this.GetAsHtmlAsync(url, cancellationToken).ConfigureAwait(false);
+		return CommentsParser.Parse(document);
 	}
 
 	public async Task<IReadOnlyList<TE>>
@@ -96,16 +99,16 @@ internal sealed class MyAnimeListClient
 		return updates?.Data ?? Array.Empty<TE>();
 	}
 
-	private sealed class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
-		where T : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
-		where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
-		where TStatus : BaseListEntryStatus<TListStatus>
-		where TMediaType : unmanaged, Enum
-		where TNodeStatus : unmanaged, Enum
-		where TListStatus : unmanaged, Enum
+}
+sealed file class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
+	where T : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
+	where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
+	where TStatus : BaseListEntryStatus<TListStatus>
+	where TMediaType : unmanaged, Enum
+	where TNodeStatus : unmanaged, Enum
+	where TListStatus : unmanaged, Enum
 
-	{
-		[JsonPropertyName("data")]
-		public required T[] Data { get; init; }
-	}
+{
+	[JsonPropertyName("data")]
+	public required T[] Data { get; init; }
 }

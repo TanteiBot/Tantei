@@ -3,8 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using HtmlAgilityPack;
+using AngleSharp.Dom;
 using PaperMalKing.MyAnimeList.Wrapper.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
 
@@ -14,13 +13,13 @@ internal static partial class UserProfileParser
 {
 	private static class FavoritesParser
 	{
-		public static UserFavorites Parse(HtmlNode node)
+		public static UserFavorites Parse(IDocument document)
 		{
-			var animes = ParseFavoriteAnime(node);
-			var manga = ParseFavoriteManga(node);
-			var characters = ParseFavoriteCharacter(node);
-			var people = ParseFavoritePerson(node);
-			var companies = ParseFavoriteCompanies(node);
+			var animes = ParseFavoriteAnime(document);
+			var manga = ParseFavoriteManga(document);
+			var characters = ParseFavoriteCharacter(document);
+			var people = ParseFavoritePerson(document);
+			var companies = ParseFavoriteCompanies(document);
 			return new()
 			{
 				FavoriteAnime = animes,
@@ -31,7 +30,7 @@ internal static partial class UserProfileParser
 			};
 		}
 
-		private static IReadOnlyList<FavoriteCompany> ParseFavoriteCompanies(HtmlNode parent)
+		private static IReadOnlyList<FavoriteCompany> ParseFavoriteCompanies(IDocument parent)
 		{
 			var companyFavoritesNodes = GetFavoritesNodes(parent, "company_favorites");
 			if (companyFavoritesNodes is null)
@@ -42,7 +41,7 @@ internal static partial class UserProfileParser
 			return Parse(companyFavoritesNodes, node => new FavoriteCompany(ParseBaseFavorite(node)));
 		}
 
-		private static IReadOnlyList<FavoriteAnime> ParseFavoriteAnime(HtmlNode parent)
+		private static IReadOnlyList<FavoriteAnime> ParseFavoriteAnime(IDocument parent)
 		{
 			var animeFavoritesNodes = GetFavoritesNodes(parent, "anime_favorites");
 			if (animeFavoritesNodes is null)
@@ -53,7 +52,7 @@ internal static partial class UserProfileParser
 				node => new FavoriteAnime(ParseListEntryFavorite(node)));
 		}
 
-		private static IReadOnlyList<FavoriteManga> ParseFavoriteManga(HtmlNode parent)
+		private static IReadOnlyList<FavoriteManga> ParseFavoriteManga(IDocument parent)
 		{
 			var mangaFavoriteNodes = GetFavoritesNodes(parent, "manga_favorites");
 			if (mangaFavoriteNodes is null)
@@ -64,7 +63,7 @@ internal static partial class UserProfileParser
 				node => new FavoriteManga(ParseListEntryFavorite(node)));
 		}
 
-		private static IReadOnlyList<FavoriteCharacter> ParseFavoriteCharacter(HtmlNode parent)
+		private static IReadOnlyList<FavoriteCharacter> ParseFavoriteCharacter(IDocument parent)
 		{
 			var characterFavoriteNodes = GetFavoritesNodes(parent, "character_favorites");
 			if (characterFavoriteNodes is null)
@@ -74,12 +73,12 @@ internal static partial class UserProfileParser
 			return Parse(characterFavoriteNodes, node =>
 			{
 				var baseFav = ParseBaseFavorite(node);
-				var fromNode = node.ChildNodes.First(x => x.Name == "a").ChildNodes.First(x => x.HasClass("users"));
-				return new FavoriteCharacter(fromNode.InnerText.Trim(), baseFav);
+				var fromNode = node.QuerySelector(".users")!;
+				return new FavoriteCharacter(fromNode.TextContent.Trim(), baseFav);
 			});
 		}
 
-		private static IReadOnlyList<FavoritePerson> ParseFavoritePerson(HtmlNode parent)
+		private static IReadOnlyList<FavoritePerson> ParseFavoritePerson(IDocument parent)
 		{
 			var personFavoriteNodes = GetFavoritesNodes(parent, "person_favorites");
 			if (personFavoriteNodes is null)
@@ -89,44 +88,44 @@ internal static partial class UserProfileParser
 			return Parse(personFavoriteNodes, node => new FavoritePerson(ParseBaseFavorite(node)));
 		}
 
-		private static HtmlNodeCollection? GetFavoritesNodes(HtmlNode node, string sectionName)
+		private static IHtmlCollection<IElement> GetFavoritesNodes(IDocument parent, string sectionName)
 		{
-			return node.SelectNodes($"//div[contains(@id, '{sectionName}')]/div/ul/li[contains(@class, 'btn-fav')]");
+			return parent.QuerySelectorAll($"div#{sectionName} div.fav-slide-outer > ul > li.btn-fav > a");
 		}
 
-		private static IReadOnlyList<TF> Parse<TF>(HtmlNodeCollection nodes, Func<HtmlNode, TF> func)
+		private static IReadOnlyList<TF> Parse<TF>(IHtmlCollection<IElement> elements, Func<IElement, TF> func)
 			where TF : BaseFavorite
 		{
-			var favs = nodes.Count == 0 ? Array.Empty<TF>() : new TF[nodes.Count];
+			var favs = elements.Length == 0 ? Array.Empty<TF>() : new TF[elements.Length];
 			for (var i = 0; i < favs.Length; i++)
-				favs[i] = func(nodes[i]);
+				favs[i] = func(elements[i]);
 
 			return favs;
 		}
 
-		private static BaseListFavorite ParseListEntryFavorite(HtmlNode parent)
+		private static BaseListFavorite ParseListEntryFavorite(IElement parent)
 		{
 			var baseFav = ParseBaseFavorite(parent);
-			var aNode = parent.ChildNodes.First(x => x.Name == "a");
 
-			var typeYearNode = aNode.ChildNodes.First(x => x.HasClass("users"));
-			var strings = typeYearNode.InnerText.Split(Constants.DOT);
+			var typeYearNode = parent.QuerySelector(".users")!;
+			var text = typeYearNode.TextContent.AsSpan();
+			var index = text.IndexOf(Constants.DOT, StringComparison.Ordinal);
 
-			return new(strings[0], ushort.Parse(strings[1]), baseFav);
+
+			return new(text.Slice(0, index).ToString(), ushort.Parse(text.Slice(index + 1)), baseFav);
 		}
 
-		private static BaseFavorite ParseBaseFavorite(HtmlNode parent)
+		private static BaseFavorite ParseBaseFavorite(IElement parent)
 		{
-			var aNode = parent.ChildNodes.First(x => x.Name == "a");
-			var urlUnparsed = aNode.GetAttributeValue("href", "");
+			var urlUnparsed = parent.GetAttribute("href")!;
 			if (urlUnparsed.StartsWith("/", StringComparison.Ordinal))
 			{
 				urlUnparsed = Constants.BASE_URL + urlUnparsed;
 			}
 
-			var titleNode = aNode.ChildNodes.First(x => x.HasClass("title"));
-			var imageUrlNode = aNode.ChildNodes.First(x => x.HasClass("image"));
-			return new BaseFavorite(new MalUrl(urlUnparsed), titleNode.InnerText, imageUrlNode.GetAttributeValue("data-src", "").Replace("/r/140x220", "", StringComparison.OrdinalIgnoreCase));
+			var titleNode = parent.QuerySelector(".title")!;
+			var imageUrlNode = parent.QuerySelector(".image")!;
+			return new BaseFavorite(new MalUrl(urlUnparsed), titleNode.TextContent, imageUrlNode.GetAttribute("data-src")!.Replace("/r/140x220", "", StringComparison.OrdinalIgnoreCase));
 		}
 	}
 }
