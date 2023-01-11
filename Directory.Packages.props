@@ -19,7 +19,7 @@
     <!-- EF Core -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="7.0.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.1" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.1" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.1" />
     <!-- Misc -->
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
