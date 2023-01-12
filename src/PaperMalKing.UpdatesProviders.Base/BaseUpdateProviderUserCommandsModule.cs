@@ -1,5 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
+
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
@@ -14,12 +15,14 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 namespace PaperMalKing.UpdatesProviders.Base;
 
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser> : BotCommandsModule where TUpdateProviderUserService : BaseUpdateProviderUserService<TUser> where TUser : class, IUpdateProviderUser
+public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser> : BotCommandsModule
+	where TUpdateProviderUserService : BaseUpdateProviderUserService<TUser> where TUser : class, IUpdateProviderUser
 {
 	protected ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser>> Logger { get; }
 	protected TUpdateProviderUserService UserService { get; }
 
-	protected BaseUpdateProviderUserCommandsModule(TUpdateProviderUserService userService, ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser>> logger)
+	protected BaseUpdateProviderUserCommandsModule(TUpdateProviderUserService userService,
+												   ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser>> logger)
 	{
 		this.UserService = userService;
 		this.Logger = logger;
@@ -38,13 +41,16 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		{
 			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
-			this.Logger.LogError(ex, "Failed to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member, UserService.Name);
+			this.Logger.LogError(ex, "Failed to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member,
+				UserService.Name);
 			throw;
 		}
 
-		this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider", username, context.Member, UserService.Name);
+		this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider", username, context.Member,
+			UserService.Name);
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully added {user.Username} to {UserService.Name} update checker")).ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully added {user.Username} to {UserService.Name} update checker"))
+					 .ConfigureAwait(false);
 	}
 
 	public virtual async Task RemoveUserInGuildCommand(InteractionContext context)
@@ -63,9 +69,11 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 			throw;
 		}
+
 		this.Logger.LogInformation("Successfully removed {Member} from {Name} update provider", context.Member, UserService.Name);
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully removed yourself from {UserService.Name} update checker")).ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully removed yourself from {UserService.Name} update checker"))
+					 .ConfigureAwait(false);
 	}
 
 	public virtual async Task RemoveUserHereCommand(InteractionContext context)
@@ -101,8 +109,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 					break;
 				}
 
-				sb.AppendLine(
-					$"{i++}. {user.Username} {(user.DiscordUser is null ? "" : Helpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
+				sb.AppendLine($"{i++}. {user.Username} {(user.DiscordUser is null ? "" : Helpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
 			}
 		}
 		catch (Exception ex)

@@ -26,11 +26,14 @@ internal sealed class UngroupedCommands : BotCommandsModule
 
 	[SlashCommand("say", "Sends embed in selected channel with selected text", true)]
 	[OwnerOrPermissions(Permissions.ManageGuild)]
-	public async Task SayCommand(InteractionContext context, [Option("channel", "Channel where the embed will be send")] DiscordChannel channelToSayIn,
+	public async Task SayCommand(InteractionContext context,
+								 [Option("channel", "Channel where the embed will be send")] DiscordChannel channelToSayIn,
 								 [Option("text", "Text to send")] string messageContent)
 	{
 		if (string.IsNullOrWhiteSpace(messageContent))
-			throw new ArgumentException("Message's content shouldn't be empty", nameof(messageContent));
+		{
+			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed("Message's content shouldn't be empty")).ConfigureAwait(false);
+		}
 
 		var embed = new DiscordEmbedBuilder
 		{
@@ -43,15 +46,16 @@ internal sealed class UngroupedCommands : BotCommandsModule
 		{
 			await channelToSayIn.SendMessageAsync(embed: embed).ConfigureAwait(false);
 		}
-#pragma warning disable CA1031
+		#pragma warning disable CA1031
 		catch
-#pragma warning restore CA1031
+			#pragma warning restore CA1031
 		{
-			await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Couldn't send message. Check permissions for bot and try again.")).ConfigureAwait(false);
+			await context.EditResponseAsync(
+				new DiscordWebhookBuilder().WithContent("Couldn't send message. Check permissions for bot and try again.")).ConfigureAwait(false);
 		}
 	}
 
-	[SlashCommand("About","Displays info about bot", true)]
+	[SlashCommand("About", "Displays info about bot", true)]
 	public Task AboutCommand(InteractionContext context)
 	{
 		if (AboutEmbed is null)
@@ -76,15 +80,14 @@ internal sealed class UngroupedCommands : BotCommandsModule
 							""";
 
 			var embedBuilder = new DiscordEmbedBuilder
-			{
-				Title = "About",
-				Url = sourceCodeLink,
-				Description = desc,
-				Color = DiscordColor.DarkBlue,
-			}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
+				{
+					Title = "About",
+					Url = sourceCodeLink,
+					Description = desc,
+					Color = DiscordColor.DarkBlue,
+				}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
 				 .AddField("Links", Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)), true)
-				 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), true)
-				 .AddField("Versions", versions, true);
+				 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), true).AddField("Versions", versions, true);
 
 			Interlocked.Exchange(ref AboutEmbed, embedBuilder.Build());
 		}

@@ -73,8 +73,7 @@ public abstract class BaseUserFeaturesCommandsModule<T> : BotCommandsModule wher
 					 .ConfigureAwait(false);
 	}
 
-	public virtual Task ListFeaturesCommand(InteractionContext context) => context.EditResponseAsync(embed: EmbedTemplate
-		.SuccessEmbed("All features")
+	public virtual Task ListFeaturesCommand(InteractionContext context) => context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("All features")
 		.WithDescription(string.Join(";\n", FeaturesHelper<T>.FeaturesInfo.Values.Select(x => $"[{x.Description}] - {x.Summary}"))));
 
 	public virtual async Task EnabledFeaturesCommand(InteractionContext context)

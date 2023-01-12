@@ -11,7 +11,6 @@ public static class EmbedTemplate
 {
 	public static DiscordEmbed UnknownErrorEmbed { get; } =
 		ErrorEmbed("Unknown error occured, try again later or contact the owner in case of sequential fails", "Unknown Error");
-	
 
 	public static DiscordEmbedBuilder ErrorEmbed(string errorMessage, string? title = null)
 	{

@@ -52,8 +52,13 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		{
 			var perms = channel.PermissionsFor(context.Guild.CurrentMember);
 			if (!perms.HasPermission(Permissions.SendMessages))
-				throw new GuildManagementException(
-					$"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages");
+			{
+				await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed(
+								 $"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages",
+								 "Permissions error"))
+							 .ConfigureAwait(false);
+			}
+
 			await this._managementService.SetChannelAsync(channel.GuildId!.Value, channel.Id).ConfigureAwait(false);
 		}
 		catch (Exception ex)
@@ -83,8 +88,13 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		{
 			var perms = channel.PermissionsFor(context.Guild.CurrentMember);
 			if (!perms.HasPermission(Permissions.SendMessages))
-				throw new GuildManagementException(
-					$"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages");
+			{
+				await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed(
+								 $"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages",
+								 "Permissions error"))
+							 .ConfigureAwait(false);
+			}
+
 			await this._managementService.UpdateChannelAsync(channel.GuildId!.Value, channel.Id).ConfigureAwait(false);
 		}
 		catch (Exception ex)
