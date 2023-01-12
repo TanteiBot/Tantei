@@ -19,7 +19,7 @@ namespace PaperMalKing.Commands;
 [SlashRequireOwner]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-internal sealed class AdminCommands : ApplicationCommandModule
+internal sealed class AdminCommands : ApplicationCommandModule // We dont use bot commands module since most commands are immediately executed or dont provide any feedback
 {
 	private readonly UpdateProvidersConfigurationService _providersConfigurationService;
 	private readonly UserCleanupService _cleanupService;

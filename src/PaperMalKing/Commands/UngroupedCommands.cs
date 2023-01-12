@@ -11,6 +11,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Commands;
@@ -19,7 +20,7 @@ namespace PaperMalKing.Commands;
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 [GuildOnly, SlashRequireGuild]
-internal sealed class UngroupedCommands : ApplicationCommandModule
+internal sealed class UngroupedCommands : BotCommandsModule
 {
 	private static DiscordEmbed? AboutEmbed;
 
@@ -30,7 +31,6 @@ internal sealed class UngroupedCommands : ApplicationCommandModule
 	{
 		if (string.IsNullOrWhiteSpace(messageContent))
 			throw new ArgumentException("Message's content shouldn't be empty", nameof(messageContent));
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 
 		var embed = new DiscordEmbedBuilder
 		{
@@ -89,6 +89,6 @@ internal sealed class UngroupedCommands : ApplicationCommandModule
 			Interlocked.Exchange(ref AboutEmbed, embedBuilder.Build());
 		}
 
-		return context.CreateResponseAsync(embed: AboutEmbed);
+		return context.EditResponseAsync(embed: AboutEmbed);
 	}
 }

@@ -14,7 +14,7 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 namespace PaperMalKing.UpdatesProviders.Base;
 
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser> : ApplicationCommandModule where TUpdateProviderUserService : BaseUpdateProviderUserService<TUser> where TUser : class, IUpdateProviderUser
+public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser> : BotCommandsModule where TUpdateProviderUserService : BaseUpdateProviderUserService<TUser> where TUser : class, IUpdateProviderUser
 {
 	protected ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser>> Logger { get; }
 	protected TUpdateProviderUserService UserService { get; }
@@ -29,7 +29,6 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 	{
 		this.Logger.LogInformation("Trying to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member, UserService.Name);
 		BaseUser user;
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 
 		try
 		{
@@ -52,7 +51,6 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 	public virtual async Task RemoveUserInGuildCommand(InteractionContext context)
 	{
 		this.Logger.LogInformation("Trying to remove {Member} from {Name} update provider", context.Member, UserService.Name);
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 
 		try
 		{
@@ -74,7 +72,6 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 	public virtual async Task RemoveUserHereCommand(InteractionContext context)
 	{
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		try
 		{
 			await this.UserService.RemoveUserHereAsync(context.User.Id, context.Guild.Id).ConfigureAwait(false);
@@ -91,7 +88,6 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 	public virtual async Task ListUsersCommand(InteractionContext context)
 	{
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		var sb = new StringBuilder();
 		try
 		{

@@ -15,7 +15,7 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 namespace PaperMalKing.UpdatesProviders.Base.Features;
 
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-public abstract class BaseUserFeaturesCommandsModule<T> : ApplicationCommandModule where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
+public abstract class BaseUserFeaturesCommandsModule<T> : BotCommandsModule where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
 	protected IUserFeaturesService<T> UserFeaturesService { get; }
 	protected ILogger<BaseUserFeaturesCommandsModule<T>> Logger { get; }
@@ -31,7 +31,6 @@ public abstract class BaseUserFeaturesCommandsModule<T> : ApplicationCommandModu
 		var feature = FeaturesHelper<T>.Parse(unparsedFeature);
 
 		this.Logger.LogInformation("Trying to enable {Features} feature for {Username}", feature, context.Member!.DisplayName);
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		try
 		{
 			await this.UserFeaturesService.EnableFeaturesAsync(feature, context.User.Id).ConfigureAwait(false);
@@ -54,7 +53,6 @@ public abstract class BaseUserFeaturesCommandsModule<T> : ApplicationCommandModu
 	public virtual async Task DisableFeatureCommand(InteractionContext context, string unparsedFeature)
 	{
 		var feature = FeaturesHelper<T>.Parse(unparsedFeature);
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		this.Logger.LogInformation("Trying to disable {Features} feature for {Username}", feature, context.Member!.DisplayName);
 		try
 		{
@@ -75,13 +73,12 @@ public abstract class BaseUserFeaturesCommandsModule<T> : ApplicationCommandModu
 					 .ConfigureAwait(false);
 	}
 
-	public virtual Task ListFeaturesCommand(InteractionContext context) => context.CreateResponseAsync(embed: EmbedTemplate
+	public virtual Task ListFeaturesCommand(InteractionContext context) => context.EditResponseAsync(embed: EmbedTemplate
 		.SuccessEmbed(context, "All features")
 		.WithDescription(string.Join(";\n", FeaturesHelper<T>.FeaturesInfo.Values.Select(x => $"[{x.Description}] - {x.Summary}"))));
 
 	public virtual async Task EnabledFeaturesCommand(InteractionContext context)
 	{
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		var featuresDesc = await this.UserFeaturesService.EnabledFeaturesAsync(context.User.Id).ConfigureAwait(false);
 		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Your enabled features").WithDescription(featuresDesc))
 					 .ConfigureAwait(false);

@@ -21,7 +21,7 @@ namespace PaperMalKing.Commands;
 [OwnerOrPermissions(Permissions.ManageGuild)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
 [GuildOnly, SlashRequireGuild]
-internal sealed class GuildManagementCommands : ApplicationCommandModule
+internal sealed class GuildManagementCommands : BotCommandsModule
 {
 	private readonly ILogger<GuildManagementCommands> _logger;
 
@@ -39,8 +39,6 @@ internal sealed class GuildManagementCommands : ApplicationCommandModule
 	public async Task SetChannelCommand(InteractionContext context,
 										[Option("channel", "Channel updates should be posted", autocomplete: false)] DiscordChannel? channel = null)
 	{
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
-
 		if (channel is null)
 			channel = context.Channel;
 		if (channel.IsCategory || channel.IsThread)
@@ -72,7 +70,6 @@ internal sealed class GuildManagementCommands : ApplicationCommandModule
 	public async Task UpdateChannelCommand(InteractionContext context,
 										   [Option("channel", "New channel where updates should be posted")] DiscordChannel? channel = null)
 	{
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		if (channel is null)
 			channel = context.Channel;
 		if (channel.IsCategory || channel.IsThread)
@@ -103,7 +100,6 @@ internal sealed class GuildManagementCommands : ApplicationCommandModule
 	[SlashCommand("removeserver", "Remove this server from being tracked", true)]
 	public async Task RemoveGuildCommand(InteractionContext context)
 	{
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		try
 		{
 			await this._managementService.RemoveGuildAsync(context.Guild.Id).ConfigureAwait(false);
@@ -123,8 +119,6 @@ internal sealed class GuildManagementCommands : ApplicationCommandModule
 	public async Task ForceRemoveUserCommand(InteractionContext context,
 											 [Option("userId", "Discord user's id which should be to removed from being tracked")] long userId)
 	{
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
-
 		try
 		{
 			await this._userService.RemoveUserInGuildAsync(context.Guild.Id, (ulong)userId).ConfigureAwait(false);
