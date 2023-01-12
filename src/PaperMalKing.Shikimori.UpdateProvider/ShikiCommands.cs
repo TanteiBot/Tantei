@@ -18,7 +18,7 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from Shikimori.one")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class ShikiUserCommands : BaseUpdateProviderUserCommandsModule<ShikiUserService>
+	public sealed class ShikiUserCommands : BaseUpdateProviderUserCommandsModule<ShikiUserService, ShikiUser>
 	{
 		public ShikiUserCommands(ShikiUserService userService, ILogger<ShikiUserCommands> logger) : base(userService, logger)
 		{ }

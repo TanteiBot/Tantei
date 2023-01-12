@@ -16,26 +16,20 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.MyAnimeList;
 
-internal sealed class MalUserService : IUpdateProviderUserService
+internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 {
 	private readonly MyAnimeListClient _client;
 
-	private readonly ILogger<MalUserService> _logger;
-	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
-
-
-	public MalUserService(MyAnimeListClient client, ILogger<MalUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
+	public MalUserService(MyAnimeListClient client, ILogger<MalUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService) : base(logger, dbContextFactory, userService)
 	{
 		this._client = client;
-		this._logger = logger;
-		this._dbContextFactory = dbContextFactory;
 	}
 
-	public static string Name => Constants.Name;
+	public override string Name => Constants.Name;
 
-	public async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
+	public override async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
-		using var db = this._dbContextFactory.CreateDbContext();
+		using var db = this.DbContextFactory.CreateDbContext();
 		var dbUser = db.MalUsers.Include(u => u.DiscordUser).ThenInclude(du => du.Guilds)
 					   .FirstOrDefault(u => u.DiscordUserId == userId);
 		DiscordGuild? guild;
@@ -101,43 +95,8 @@ internal sealed class MalUserService : IUpdateProviderUserService
 		return BaseUser.FromUsername(dbUser.Username);
 	}
 
-	public async Task<BaseUser> RemoveUserAsync(ulong userId)
+	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		var user = db.MalUsers.FirstOrDefault(u => u.DiscordUserId == userId);
-		if (user is null)
-		{
-			throw new UserProcessingException($"You weren't tracked by {Name} update checker");
-		}
-
-		db.MalUsers.Remove(user);
-		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-		return BaseUser.FromUsername(user.Username);
-	}
-
-	public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
-	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		var user = db.DiscordUsers.Include(du => du.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
-		if (user is null)
-			throw new UserProcessingException("You weren't registered in bot");
-		var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-		if (guild is null)
-			throw new UserProcessingException("You weren't registered in this server");
-
-		user.Guilds.Remove(guild);
-		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-	}
-
-	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
-	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		return db.MalUsers.Include(malUser => malUser.DiscordUser).Select(u => new MalUser
-				 {
-					 DiscordUser = u.DiscordUser,
-					 Username = u.Username,
-					 LastUpdatedAnimeListTimestamp = u.LastUpdatedAnimeListTimestamp
-				 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).OrderByDescending(u => u.LastUpdatedAnimeListTimestamp)
-				 .Select(mu => new BaseUser(mu.Username, mu.DiscordUser)).AsNoTracking().ToArray();
+		return base.ListUsersCore(guildId, u => u.LastUpdatedAnimeListTimestamp, mu => new BaseUser(mu.Username, mu.DiscordUser));
 	}
 }

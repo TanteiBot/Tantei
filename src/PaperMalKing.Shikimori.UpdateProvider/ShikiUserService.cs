@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
@@ -17,24 +18,20 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
-internal sealed class ShikiUserService : IUpdateProviderUserService
+internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser>
 {
 	private readonly ShikiClient _client;
-	private readonly ILogger<ShikiUserService> _logger;
-	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
-	public static string Name => Constants.NAME;
+	public override string Name => Constants.NAME;
 
-	public ShikiUserService(ShikiClient client, ILogger<ShikiUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
+	public ShikiUserService(ShikiClient client, ILogger<ShikiUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService) : base(logger, dbContextFactory, userService)
 	{
 		this._client = client;
-		this._logger = logger;
-		this._dbContextFactory = dbContextFactory;
 	}
 
-	public async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
+	public override async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
-		using var db = this._dbContextFactory.CreateDbContext();
+		using var db = this.DbContextFactory.CreateDbContext();
 		var dbUser = db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 		DiscordGuild? guild;
 		if (dbUser != null) // User already in db
@@ -99,37 +96,8 @@ internal sealed class ShikiUserService : IUpdateProviderUserService
 		return BaseUser.FromUsername(username);
 	}
 
-	public async Task<BaseUser> RemoveUserAsync(ulong userId)
+	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		var user = db.ShikiUsers.FirstOrDefault(su => su.DiscordUserId == userId);
-		if (user is null)
-			throw new UserProcessingException($"You weren't tracked by {Name} update checker");
-
-		db.ShikiUsers.Remove(user);
-		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-		return BaseUser.Empty;
-	}
-
-	public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
-	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		var user = db.DiscordUsers.Include(du => du.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
-		if (user is null)
-			throw new UserProcessingException("You weren't registered in bot");
-		var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-		if (guild is null)
-			throw new UserProcessingException("You weren't registered in this server");
-
-		user.Guilds.Remove(guild);
-		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-	}
-
-	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
-	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		return db.ShikiUsers.Include(su => su.DiscordUser).OrderByDescending(u => u.LastHistoryEntryId)
-				 .Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId)).Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking()
-				 .ToArray();
+		return base.ListUsersCore(guildId, u => u.LastHistoryEntryId, u => new BaseUser("", u.DiscordUser));
 	}
 }

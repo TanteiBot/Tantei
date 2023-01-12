@@ -18,7 +18,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from MyAnimeList.net", true)]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class MalUserCommands : BaseUpdateProviderUserCommandsModule<MalUserService>
+	public sealed class MalUserCommands : BaseUpdateProviderUserCommandsModule<MalUserService, MalUser>
 	{
 		public MalUserCommands(MalUserService userService, ILogger<MalUserCommands> logger) : base(userService, logger)
 		{ }

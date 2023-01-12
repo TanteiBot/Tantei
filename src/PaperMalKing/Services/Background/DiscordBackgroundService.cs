@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
 using PaperMalKing.Options;
+using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Services.Background;
 
@@ -21,26 +22,28 @@ internal sealed class DiscordBackgroundService : BackgroundService
 {
 	private readonly ILogger<DiscordBackgroundService> _logger;
 	private readonly IOptions<DiscordOptions> _options;
-	private readonly DiscordClient Client;
+	private readonly DiscordClient _client;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 	private readonly GuildManagementService _guildManagementService;
+	private readonly GeneralUserService _userService;
 
 	public DiscordBackgroundService(IOptions<DiscordOptions> options, ILogger<DiscordBackgroundService> logger, DiscordClient client,
-									IDbContextFactory<DatabaseContext> dbContextFactory, GuildManagementService guildManagementService)
+									IDbContextFactory<DatabaseContext> dbContextFactory, GuildManagementService guildManagementService, GeneralUserService userService)
 	{
 		this._logger = logger;
 
 		this._logger.LogTrace("Building {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
 		this._options = options;
 
-		this.Client = client;
+		this._client = client;
 		this._dbContextFactory = dbContextFactory;
 		this._guildManagementService = guildManagementService;
-		this.Client.Resumed += this.ClientOnResumedAsync;
-		this.Client.Ready += this.ClientOnReadyAsync;
-		this.Client.ClientErrored += this.ClientOnClientErroredAsync;
-		this.Client.GuildMemberRemoved += this.ClientOnGuildMemberRemovedAsync;
-		this.Client.GuildDeleted += this.ClientOnGuildDeletedAsync;
+		this._userService = userService;
+		this._client.Resumed += this.ClientOnResumedAsync;
+		this._client.Ready += this.ClientOnReadyAsync;
+		this._client.ClientErrored += this.ClientOnClientErroredAsync;
+		this._client.GuildMemberRemoved += this.ClientOnGuildMemberRemovedAsync;
+		this._client.GuildDeleted += this.ClientOnGuildDeletedAsync;
 		this._logger.LogTrace("Built {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
 	}
 
@@ -88,22 +91,14 @@ internal sealed class DiscordBackgroundService : BackgroundService
 		{
 			using var db = this._dbContextFactory.CreateDbContext();
 			this._logger.LogDebug("User {Member} left guild {Guild}", e.Member, e.Guild);
-			var user = db.DiscordUsers.Include(u => u.Guilds).FirstOrDefault(u => u.DiscordUserId == e.Member.Id);
-			if (user is null)
+			var isUserInDb = db.DiscordUsers.Any(u => u.DiscordUserId == e.Member.Id);
+			if (!isUserInDb)
 			{
 				this._logger.LogDebug("User {Member} that left wasn't saved in db", e.Member);
 			}
 			else
 			{
-				var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == e.Guild.Id);
-				if (guild is null)
-				{
-					this._logger.LogDebug("User {Member} that left guild {Guild} didn't have posting updates in it", e.Member, e.Guild);
-					return;
-				}
-
-				user.Guilds.Remove(guild);
-				await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
+				await this._userService.RemoveUserInGuildAsync(e.Guild.Id, e.Member.Id).ConfigureAwait(false);
 			}
 		}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Current).ContinueWith(
 			task => this._logger.LogError(task.Exception, "Task on removing left member from the guild failed due to unknown reason"),
@@ -117,7 +112,7 @@ internal sealed class DiscordBackgroundService : BackgroundService
 		this._logger.LogInformation("Connecting to Discord");
 		if (this._options.Value.Activities.Count > 1)
 		{
-			await this.Client.ConnectAsync().ConfigureAwait(false);
+			await this._client.ConnectAsync().ConfigureAwait(false);
 			await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken).ConfigureAwait(false);
 			_ = Task.Factory.StartNew(async cancellationToken =>
 			{
@@ -131,7 +126,7 @@ internal sealed class DiscordBackgroundService : BackgroundService
 						try
 						{
 							var (discordActivity, userStatus) = this.OptionsToDiscordActivity(options);
-							await this.Client.UpdateStatusAsync(discordActivity, userStatus).ConfigureAwait(false);
+							await this._client.UpdateStatusAsync(discordActivity, userStatus).ConfigureAwait(false);
 							await Task.Delay(TimeSpan.FromMilliseconds(options.TimeToBeDisplayedInMilliseconds), token).ConfigureAwait(false);
 						}
 						catch (TaskCanceledException)
@@ -154,11 +149,11 @@ internal sealed class DiscordBackgroundService : BackgroundService
 		{
 			this._logger.LogInformation("Found only one Discord status in options so it won't be changed");
 			var (discordActivity, userStatus) = this.OptionsToDiscordActivity(this._options.Value.Activities[0]);
-			await this.Client.ConnectAsync(discordActivity, userStatus).ConfigureAwait(false);
+			await this._client.ConnectAsync(discordActivity, userStatus).ConfigureAwait(false);
 		}
 
 		await Task.Delay(Timeout.Infinite, stoppingToken).ConfigureAwait(false);
-		var t = this.Client.DisconnectAsync();
+		var t = this._client.DisconnectAsync();
 		this._logger.LogInformation("Disconnecting from Discord");
 		await t.ConfigureAwait(false);
 	}
@@ -188,6 +183,6 @@ internal sealed class DiscordBackgroundService : BackgroundService
 	{
 		base.Dispose();
 		this._logger.LogDebug("Disposing {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
-		this.Client.Dispose();
+		this._client.Dispose();
 	}
 }

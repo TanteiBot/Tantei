@@ -86,17 +86,4 @@ internal sealed class GuildManagementService
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 		this._updatePublishingService.UpdateChannel(opci, await this._discordClient.GetChannelAsync(channelId).ConfigureAwait(false));
 	}
-
-	public async Task RemoveUserAsync(ulong guildId, ulong userId)
-	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		var guild = db.DiscordGuilds.Include(g => g.Users).First(g => g.DiscordGuildId == guildId);
-		var user = guild.Users.FirstOrDefault(u => u.DiscordUserId == userId);
-		if (user is null)
-			throw new GuildManagementException("Such user wasn't found as registered in this guild");
-
-		this._logger.LogInformation("Removing {User}", user);
-		guild.Users.Remove(user);
-		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-	}
 }

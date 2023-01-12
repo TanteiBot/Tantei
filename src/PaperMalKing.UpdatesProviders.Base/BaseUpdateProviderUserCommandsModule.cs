@@ -8,17 +8,18 @@ using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
+using PaperMalKing.Database.Models;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base;
 
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService> : ApplicationCommandModule where TUpdateProviderUserService : class, IUpdateProviderUserService
+public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser> : ApplicationCommandModule where TUpdateProviderUserService : BaseUpdateProviderUserService<TUser> where TUser : class, IUpdateProviderUser
 {
-	protected ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService>> Logger { get; }
+	protected ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser>> Logger { get; }
 	protected TUpdateProviderUserService UserService { get; }
 
-	protected BaseUpdateProviderUserCommandsModule(TUpdateProviderUserService userService, ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService>> logger)
+	protected BaseUpdateProviderUserCommandsModule(TUpdateProviderUserService userService, ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser>> logger)
 	{
 		this.UserService = userService;
 		this.Logger = logger;
@@ -26,7 +27,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 	public virtual async Task AddUserCommand(InteractionContext context, string? username = null)
 	{
-		this.Logger.LogInformation("Trying to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member, TUpdateProviderUserService.Name);
+		this.Logger.LogInformation("Trying to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member, UserService.Name);
 		BaseUser user;
 		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 
@@ -38,38 +39,37 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		{
 			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
 			await context.EditResponseAsync(embed: embed.Build()).ConfigureAwait(false);
-			this.Logger.LogError(ex, "Failed to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member, TUpdateProviderUserService.Name);
+			this.Logger.LogError(ex, "Failed to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member, UserService.Name);
 			throw;
 		}
 
-		this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider", username, context.Member, TUpdateProviderUserService.Name);
+		this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider", username, context.Member, UserService.Name);
 
 		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context,
-			$"Successfully added {user.Username} to {TUpdateProviderUserService.Name} update checker")).ConfigureAwait(false);
+			$"Successfully added {user.Username} to {UserService.Name} update checker")).ConfigureAwait(false);
 	}
 
 	public virtual async Task RemoveUserInGuildCommand(InteractionContext context)
 	{
-		this.Logger.LogInformation("Trying to remove {Member} from {Name} update provider", context.Member, TUpdateProviderUserService.Name);
-		BaseUser user;
+		this.Logger.LogInformation("Trying to remove {Member} from {Name} update provider", context.Member, UserService.Name);
 		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 
 		try
 		{
-			user = await this.UserService.RemoveUserAsync(context.User.Id).ConfigureAwait(false);
+			await this.UserService.RemoveUserAsync(context.User.Id).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
 			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
-			this.Logger.LogError(ex, "Failed to remove {Member} from {Name} update provider", context.Member, TUpdateProviderUserService.Name);
+			this.Logger.LogError(ex, "Failed to remove {Member} from {Name} update provider", context.Member, UserService.Name);
 
 			throw;
 		}
-		this.Logger.LogInformation("Successfully removed {Member} from {Name} update provider", context.Member, TUpdateProviderUserService.Name);
+		this.Logger.LogInformation("Successfully removed {Member} from {Name} update provider", context.Member, UserService.Name);
 
 		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context,
-			$"Successfully removed {user.Username} from {TUpdateProviderUserService.Name} update checker")).ConfigureAwait(false);
+			$"Successfully removed yourself from {UserService.Name} update checker")).ConfigureAwait(false);
 	}
 
 	public virtual async Task RemoveUserHereCommand(InteractionContext context)
