@@ -18,7 +18,7 @@ internal sealed class AniListCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from AniList.co", true)]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class AniListUserCommands : BaseUpdateProviderUserCommandsModule<AniListUserService>
+	public sealed class AniListUserCommands : BaseUpdateProviderUserCommandsModule<AniListUserService, AniListUser>
 	{
 		public AniListUserCommands(AniListUserService userService, ILogger<AniListUserCommands> logger) : base(userService, logger)
 		{ }

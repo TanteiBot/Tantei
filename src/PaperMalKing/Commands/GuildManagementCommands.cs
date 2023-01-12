@@ -12,6 +12,7 @@ using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 using PaperMalKing.Exceptions;
 using PaperMalKing.Services;
+using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Commands;
 
@@ -25,11 +26,13 @@ internal sealed class GuildManagementCommands : ApplicationCommandModule
 	private readonly ILogger<GuildManagementCommands> _logger;
 
 	private readonly GuildManagementService _managementService;
+	private readonly GeneralUserService _userService;
 
-	public GuildManagementCommands(ILogger<GuildManagementCommands> logger, GuildManagementService managementService)
+	public GuildManagementCommands(ILogger<GuildManagementCommands> logger, GuildManagementService managementService, GeneralUserService userService)
 	{
 		this._logger = logger;
 		this._managementService = managementService;
+		this._userService = userService;
 	}
 
 	[SlashCommand("set", "Sets channel to post updates to", true)]
@@ -124,7 +127,7 @@ internal sealed class GuildManagementCommands : ApplicationCommandModule
 
 		try
 		{
-			await this._managementService.RemoveUserAsync(context.Guild.Id, (ulong)userId).ConfigureAwait(false);
+			await this._userService.RemoveUserInGuildAsync(context.Guild.Id, (ulong)userId).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{

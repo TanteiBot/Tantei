@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PaperMalKing.Database.Models.AniList;
 
-public sealed class AniListUser
+public sealed class AniListUser : IUpdateProviderUser
 {
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]

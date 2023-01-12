@@ -1,10 +1,12 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
@@ -15,19 +17,20 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
-internal sealed class AniListUserService : IUpdateProviderUserService
+internal sealed class AniListUserService : BaseUpdateProviderUserService<AniListUser>
 {
 	private readonly AniListClient _client;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
-	public static string Name => Constants.NAME;
+	public override string Name => Constants.NAME;
 
-	public AniListUserService(AniListClient client, IDbContextFactory<DatabaseContext> dbContextFactory)
+	public AniListUserService(ILogger<AniListUserService> logger, AniListClient client, IDbContextFactory<DatabaseContext> dbContextFactory,
+							  GeneralUserService userService) : base(logger, dbContextFactory, userService)
 	{
 		this._client = client;
 		this._dbContextFactory = dbContextFactory;
 	}
 
-	public async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
+	public override async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
@@ -38,12 +41,12 @@ internal sealed class AniListUserService : IUpdateProviderUserService
 			{
 				throw new UserProcessingException(
 					"You already have your account connected. If you want to switch to another account, remove current one, then add the new one.");
-
 			}
+
 			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
 			{
-				throw new UserProcessingException(BaseUser.FromUsername(username), 
+				throw new UserProcessingException(BaseUser.FromUsername(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
 			}
 
@@ -56,9 +59,10 @@ internal sealed class AniListUserService : IUpdateProviderUserService
 		{
 			throw new UserProcessingException(BaseUser.Empty, "You must provide username if you arent already tracked by this bot");
 		}
+
 		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
-			throw new UserProcessingException(BaseUser.FromUsername(username), 
+			throw new UserProcessingException(BaseUser.FromUsername(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
 		var dUser = db.DiscordUsers.Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 		var response = await this._client.GetCompleteUserInitialInfoAsync(username).ConfigureAwait(false);
@@ -76,14 +80,19 @@ internal sealed class AniListUserService : IUpdateProviderUserService
 		{
 			dUser.Guilds.Add(guild);
 		}
+
 		dbUser = new()
 		{
-			Favourites = response.Favourites.Select(f => new AniListFavourite { Id = f.Id, FavouriteType = (FavouriteType)f.Type }).ToList(),
+			Favourites = response.Favourites.Select(f => new AniListFavourite
+			{
+				Id = f.Id,
+				FavouriteType = (FavouriteType)f.Type
+			}).ToList(),
 			Id = response.UserId!.Value,
 			DiscordUser = dUser,
 			LastActivityTimestamp = now,
 			LastReviewTimestamp = now,
-			FavouritesIdHash = Helpers.FavoritesHash(response.Favourites.Select(x=>new FavoriteIdType(x.Id,(byte)x.Type)).ToArray())
+			FavouritesIdHash = Helpers.FavoritesHash(response.Favourites.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).ToArray())
 		};
 		dbUser.Favourites.ForEach(f =>
 		{
@@ -95,39 +104,8 @@ internal sealed class AniListUserService : IUpdateProviderUserService
 		return BaseUser.FromUsername(username);
 	}
 
-	public async Task<BaseUser> RemoveUserAsync(ulong userId)
+	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		var user = db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
-		if (user is null)
-			throw new UserProcessingException($"You weren't tracked by {Name} update checker");
-
-		db.AniListUsers.Remove(user);
-		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-		return BaseUser.Empty;
-	}
-
-	public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
-	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		var user = db.DiscordUsers.Include(du => du.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
-		if (user is null)
-			throw new UserProcessingException("You weren't registered in bot");
-		var guild = user.Guilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
-		if (guild is null)
-			throw new UserProcessingException("You weren't registered in this server");
-
-		user.Guilds.Remove(guild);
-		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
-	}
-
-	public IReadOnlyList<BaseUser> ListUsers(ulong guildId)
-	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		return db.AniListUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).OrderByDescending(u => u.LastActivityTimestamp).Select(su => new
-				 {
-					 su.DiscordUser
-				 }).Where(u => u.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
-				 .Select(u => new BaseUser("", u.DiscordUser)).AsNoTracking().ToArray();
+		return base.ListUsersCore(guildId, u => u.LastActivityTimestamp, u => new BaseUser("", u.DiscordUser));
 	}
 }

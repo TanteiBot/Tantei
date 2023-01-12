@@ -22,12 +22,14 @@ namespace PaperMalKing.Commands;
 internal sealed class AdminCommands : ApplicationCommandModule
 {
 	private readonly UpdateProvidersConfigurationService _providersConfigurationService;
+	private readonly UserCleanupService _cleanupService;
 	private readonly IHostApplicationLifetime _lifetime;
 
-	public AdminCommands(IHostApplicationLifetime lifetime, UpdateProvidersConfigurationService providersConfigurationService)
+	public AdminCommands(IHostApplicationLifetime lifetime, UpdateProvidersConfigurationService providersConfigurationService, UserCleanupService cleanupService)
 	{
 		this._lifetime = lifetime;
 		this._providersConfigurationService = providersConfigurationService;
+		this._cleanupService = cleanupService;
 	}
 
 	[SlashCommand("check", "Forcefully starts checking for updates in provider", true)]
@@ -63,5 +65,11 @@ internal sealed class AdminCommands : ApplicationCommandModule
 	{
 		await context.CreateResponseAsync("Exiting").ConfigureAwait(false);
 		this._lifetime.StopApplication();
+	}
+
+	[SlashCommand("cleanup", "Remove users not linked to any guilds", true)]
+	public Task CleanupCommand(InteractionContext _)
+	{
+		return this._cleanupService.ExecuteCleanupAsync();
 	}
 }
