@@ -52,6 +52,7 @@ await Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) 
 	services.AddHostedService<DiscordBackgroundService>();
 	services.AddHostedService<OnStartupActionsExecutingService>();
 	services.AddSingleton<UserCleanupService>();
+	services.AddSingleton<GeneralUserService>();
 	RunSQLiteConfiguration();
 }).UseSerilog((context, _, configuration) =>
 {
