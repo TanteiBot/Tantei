@@ -35,7 +35,7 @@ internal sealed class
 	}
 
 	[SlashCommand("check", "Forcefully starts checking for updates in provider", true)]
-	public async Task ForceCheckCommand(InteractionContext context, [Option("name", "Update provider name")] string name)
+	public async Task ForceCheckCommand(InteractionContext context, [Option(nameof(name), "Update provider name")] string name)
 	{
 		name = name.Trim();
 		BaseUpdateProvider? baseUpdateProvider;

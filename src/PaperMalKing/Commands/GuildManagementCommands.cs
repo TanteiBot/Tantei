@@ -37,7 +37,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 
 	[SlashCommand("set", "Sets channel to post updates to", true)]
 	public async Task SetChannelCommand(InteractionContext context,
-										[Option("channel", "Channel updates should be posted", autocomplete: false)] DiscordChannel? channel = null)
+										[Option(nameof(channel), "Channel updates should be posted", autocomplete: false)] DiscordChannel? channel = null)
 	{
 		if (channel is null)
 			channel = context.Channel;
@@ -73,7 +73,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 
 	[SlashCommand("update", "Updates channel where updates are posted", true)]
 	public async Task UpdateChannelCommand(InteractionContext context,
-										   [Option("channel", "New channel where updates should be posted")] DiscordChannel? channel = null)
+										   [Option(nameof(channel), "New channel where updates should be posted")] DiscordChannel? channel = null)
 	{
 		if (channel is null)
 			channel = context.Channel;
@@ -127,7 +127,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 
 	[SlashCommand("forceremoveuserById", "Remove this user from being tracked in this server", true)]
 	public async Task ForceRemoveUserCommand(InteractionContext context,
-											 [Option("userId", "Discord user's id which should be to removed from being tracked")] long userId)
+											 [Option(nameof(userId), "Discord user's id which should be to removed from being tracked")] long userId)
 	{
 		try
 		{
@@ -145,6 +145,6 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 	}
 
 	[SlashCommand("forceremoveuser", "Remove this user from being tracked in this server")]
-	public Task ForceRemoveUserCommand(InteractionContext context, [Option("user", "Discord user to remove from being tracked")] DiscordUser user) =>
+	public Task ForceRemoveUserCommand(InteractionContext context, [Option(nameof(user), "Discord user to remove from being tracked")] DiscordUser user) =>
 		this.ForceRemoveUserCommand(context, (long)user.Id);
 }

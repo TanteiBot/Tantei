@@ -24,7 +24,7 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 		{ }
 
 		[SlashCommand("add", "Add your Shikimori account to being tracked", true)]
-		public override Task AddUserCommand(InteractionContext context, [Option("username", "Your username on Shikimori")] string? username = null) =>
+		public override Task AddUserCommand(InteractionContext context, [Option(nameof(username), "Your username on Shikimori")] string? username = null) =>
 			base.AddUserCommand(context, username);
 
 		[SlashCommand("remove", "Remove your Shikimori account updates from being tracked", true)]
