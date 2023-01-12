@@ -36,16 +36,15 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
-			await context.EditResponseAsync(embed: embed.Build()).ConfigureAwait(false);
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
+			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			this.Logger.LogError(ex, "Failed to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member, UserService.Name);
 			throw;
 		}
 
 		this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider", username, context.Member, UserService.Name);
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context,
-			$"Successfully added {user.Username} to {UserService.Name} update checker")).ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully added {user.Username} to {UserService.Name} update checker")).ConfigureAwait(false);
 	}
 
 	public virtual async Task RemoveUserInGuildCommand(InteractionContext context)
@@ -58,7 +57,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			this.Logger.LogError(ex, "Failed to remove {Member} from {Name} update provider", context.Member, UserService.Name);
 
@@ -66,8 +65,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		this.Logger.LogInformation("Successfully removed {Member} from {Name} update provider", context.Member, UserService.Name);
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context,
-			$"Successfully removed yourself from {UserService.Name} update checker")).ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully removed yourself from {UserService.Name} update checker")).ConfigureAwait(false);
 	}
 
 	public virtual async Task RemoveUserHereCommand(InteractionContext context)
@@ -78,12 +76,12 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Now your updates won't appear in this server")).ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("Now your updates won't appear in this server")).ConfigureAwait(false);
 	}
 
 	public virtual async Task ListUsersCommand(InteractionContext context)
@@ -109,11 +107,11 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Users").WithDescription(sb.ToString())).ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("Users").WithDescription(sb.ToString())).ConfigureAwait(false);
 	}
 }

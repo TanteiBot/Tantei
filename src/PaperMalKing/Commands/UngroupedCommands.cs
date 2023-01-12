@@ -68,12 +68,12 @@ internal sealed class UngroupedCommands : BotCommandsModule
 			const string sourceCodeLink = "https://github.com/TanteiBot/Tantei";
 
 			var versions = $"""
-								Bot version - {botVersion}
-								Commit - {Formatter.MaskedUrl(commitId, new Uri($"{sourceCodeLink}/commit/{commitId.AsSpan(0, 10)}"))}
-								Commit date - {commitDate:s}
-								DSharpPlus version - {context.Client.VersionString}
-								.NET version - {dotnetVersion}
-								""";
+							Bot version - {botVersion}
+							Commit - {Formatter.MaskedUrl(commitId, new Uri($"{sourceCodeLink}/commit/{commitId.AsSpan(0, 10)}"))}
+							Commit date - {commitDate:s}
+							DSharpPlus version - {context.Client.VersionString}
+							.NET version - {dotnetVersion}
+							""";
 
 			var embedBuilder = new DiscordEmbedBuilder
 			{

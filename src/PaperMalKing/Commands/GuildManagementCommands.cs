@@ -43,7 +43,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 			channel = context.Channel;
 		if (channel.IsCategory || channel.IsThread)
 		{
-			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed(context, "You cant set posting channel to category or to a thread"))
+			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"))
 						 .ConfigureAwait(false);
 			return;
 		}
@@ -58,12 +58,12 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, $"Successfully set {channel}")).ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully set {channel}")).ConfigureAwait(false);
 	}
 
 	[SlashCommand("update", "Updates channel where updates are posted", true)]
@@ -74,7 +74,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 			channel = context.Channel;
 		if (channel.IsCategory || channel.IsThread)
 		{
-			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed(context, "You cant set posting channel to category or to a thread"))
+			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"))
 						 .ConfigureAwait(false);
 			return;
 		}
@@ -89,12 +89,12 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, $"Successfully updated to {channel}")).ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully updated to {channel}")).ConfigureAwait(false);
 	}
 
 	[SlashCommand("removeserver", "Remove this server from being tracked", true)]
@@ -106,12 +106,12 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Successfully removed this server from being tracked"))
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("Successfully removed this server from being tracked"))
 					 .ConfigureAwait(false);
 	}
 
@@ -125,12 +125,12 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, $"Successfully removed {userId} this server from being tracked"))
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully removed {userId} this server from being tracked"))
 					 .ConfigureAwait(false);
 	}
 

@@ -38,15 +38,15 @@ public abstract class BaseUserFeaturesCommandsModule<T> : BotCommandsModule wher
 		catch (Exception ex)
 		{
 			var embed = ex is UserFeaturesException ufe
-				? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed enabling {feature.Humanize()}")
-				: EmbedTemplate.UnknownErrorEmbed(context);
-			await context.EditResponseAsync(embed: embed.Build()).ConfigureAwait(false);
+				? EmbedTemplate.ErrorEmbed(ufe.Message, $"Failed enabling {feature.Humanize()}").Build()
+				: EmbedTemplate.UnknownErrorEmbed;
+			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			this.Logger.LogError(ex, "Failed to enable {Features} for {Username}", feature, context.Member.DisplayName);
 			throw;
 		}
 
 		this.Logger.LogInformation("Successfully enabled {Features} feature for {Username}", feature, context.Member.DisplayName);
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, $"Successfully enabled {feature.Humanize()} for you"))
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully enabled {feature.Humanize()} for you"))
 					 .ConfigureAwait(false);
 	}
 
@@ -61,26 +61,26 @@ public abstract class BaseUserFeaturesCommandsModule<T> : BotCommandsModule wher
 		catch (Exception ex)
 		{
 			var embed = ex is UserFeaturesException ufe
-				? EmbedTemplate.ErrorEmbed(context, ufe.Message, $"Failed disabling {feature.Humanize()}")
-				: EmbedTemplate.UnknownErrorEmbed(context);
-			await context.EditResponseAsync(embed: embed.Build()).ConfigureAwait(false);
+				? EmbedTemplate.ErrorEmbed(ufe.Message, $"Failed disabling {feature.Humanize()}").Build()
+				: EmbedTemplate.UnknownErrorEmbed;
+			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			this.Logger.LogError(ex, "Failed to disable {Features} for {Username}", feature, context.Member.DisplayName);
 			throw;
 		}
 
 		this.Logger.LogInformation("Successfully disabled {Features} feature for {Username}", feature, context.Member.DisplayName);
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, $"Successfully disabled {feature.Humanize()} for you"))
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully disabled {feature.Humanize()} for you"))
 					 .ConfigureAwait(false);
 	}
 
 	public virtual Task ListFeaturesCommand(InteractionContext context) => context.EditResponseAsync(embed: EmbedTemplate
-		.SuccessEmbed(context, "All features")
+		.SuccessEmbed("All features")
 		.WithDescription(string.Join(";\n", FeaturesHelper<T>.FeaturesInfo.Values.Select(x => $"[{x.Description}] - {x.Summary}"))));
 
 	public virtual async Task EnabledFeaturesCommand(InteractionContext context)
 	{
 		var featuresDesc = await this.UserFeaturesService.EnabledFeaturesAsync(context.User.Id).ConfigureAwait(false);
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Your enabled features").WithDescription(featuresDesc))
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("Your enabled features").WithDescription(featuresDesc))
 					 .ConfigureAwait(false);
 	}
 }

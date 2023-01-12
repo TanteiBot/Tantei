@@ -52,11 +52,11 @@ internal sealed class AdminCommands : ApplicationCommandModule // We dont use bo
 		if (baseUpdateProvider != null)
 		{
 			baseUpdateProvider.RestartTimer(TimeSpan.Zero);
-			await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Success")).ConfigureAwait(false);
+			await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("Success")).ConfigureAwait(false);
 		}
 		else
 		{
-			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed(context, "Haven't found such update provider")).ConfigureAwait(false);
+			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed("Haven't found such update provider")).ConfigureAwait(false);
 		}
 	}
 
