@@ -227,27 +227,53 @@ internal static partial class Extensions
 	{
 		var isAnime = media.Type == ListType.ANIME;
 
-		if (isAnime && (features & AniListUserFeatures.Studio) != 0)
+		if (isAnime)
 		{
-			var studios = media.Studios.Nodes.Where(s => s.IsAnimationStudio)
-							   .Select(studio => Formatter.MaskedUrl(studio.Name, new Uri(studio.Url))).ToArray();
-			var text = string.Join(", ", studios);
-			if (!string.IsNullOrEmpty(text))
-				eb.AddField("Made by", text, true);
+			if ((features & AniListUserFeatures.Studio) != 0)
+			{
+				var text = string.Join(", ", media.Studios.Nodes.Where(s => s.IsAnimationStudio)
+												  .Select(studio => Formatter.MaskedUrl(studio.Name, new Uri(studio.Url))));
+				if (!string.IsNullOrEmpty(text))
+					eb.AddField("Made by", text, true);
+			}
+			if ((features & AniListUserFeatures.Director) != 0)
+			{
+				var director = Array.Find(media.Staff.Nodes, x => x.Role.Equals("Director", StringComparison.Ordinal));
+				if (director is not null)
+				{
+					eb.AddField("Director", Formatter.MaskedUrl(director.Staff.Name.GetName(user.Options.TitleLanguage), new(director.Staff.Url)), inline: true);
+				}
+			}
+
+			if ((features & AniListUserFeatures.Seyu) != 0)
+			{
+				var seyus = string.Join(", ", media.Characters.Nodes.Where(x => x.VoiceActors.Count > 0).Select(x =>
+				{
+					var seyu = x.VoiceActors[0];
+					return Formatter.MaskedUrl(seyu.Name.GetName(user.Options.TitleLanguage), new(seyu.Url));
+				}));
+				if (!string.IsNullOrEmpty(seyus))
+				{
+					eb.AddField("Seyu", seyus);
+				}
+			}
+		}
+		else // If not anime then its mange
+		{
+			if ((features & AniListUserFeatures.Mangaka) != 0)
+			{
+				var text = string.Join(", ",
+					media.Staff.Nodes
+						 .Where(edge => IgnoredStartWithRoles.All(r =>
+							 !edge.Role.StartsWith(r, StringComparison.OrdinalIgnoreCase) &&
+							 IgnoredContainsRoles.All(r => !edge.Role.Contains(r, StringComparison.OrdinalIgnoreCase)))).Take(7)
+						 .Select(edge =>
+							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
+				if (!string.IsNullOrEmpty(text))
+					eb.AddField("Made by", text, true);
+			}
 		}
 
-		if (!isAnime && (features & AniListUserFeatures.Mangaka) != 0)
-		{
-			var text = string.Join(", ",
-				media.Staff.Nodes
-					 .Where(edge => IgnoredStartWithRoles.All(r =>
-						 !edge.Role.StartsWith(r, StringComparison.OrdinalIgnoreCase) &&
-						 IgnoredContainsRoles.All(r => !edge.Role.Contains(r, StringComparison.OrdinalIgnoreCase)))).Take(7)
-					 .Select(edge =>
-						 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
-			if (!string.IsNullOrEmpty(text))
-				eb.AddField("Made by", text, true);
-		}
 
 		if ((features & AniListUserFeatures.Genres) != 0 && media.Genres.Any())
 		{

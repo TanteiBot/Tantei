@@ -75,9 +75,10 @@ internal static class Helpers
 					}
 				}
 				""");
-		if ((options & RequestOptions.Mangaka) != 0)
-			sb.AppendLine("""
-				staff(sort: FAVOURITES_DESC, page: 1, perPage: 5){
+		if ((options & RequestOptions.Mangaka) != 0 || (options & RequestOptions.Director) != 0)
+			sb.AppendLine(
+				"""
+				staff(sort: [RELEVANCE, ID], page: 1, perPage: 4){
 					values: edges{
 						role
 						node{
@@ -90,6 +91,29 @@ internal static class Helpers
 					}
 				}
 				""");
+		if ((options & RequestOptions.Seyu) != 0 && (options & RequestOptions.AnimeList) != 0)
+		{
+			sb.AppendLine( // We select node since without it anilist provides empty array in voice actors
+				"""
+				characters(perPage: 6, sort: [ROLE, RELEVANCE]) {
+					values: edges {
+						voiceActors(language: JAPANESE, sort: [RELEVANCE]) {
+							siteUrl
+							name {
+								native
+								full
+							}
+							image {
+								large
+							}
+						}
+						node {
+							id
+						}
+					}
+				}
+				""");
+		}
 		return sb;
 	}
 }

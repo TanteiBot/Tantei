@@ -56,6 +56,9 @@ internal sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 	[JsonPropertyName("studios")]
 	public Connection<Studio> Studios { get; init; } = Connection<Studio>.Empty;
 
+	[JsonPropertyName("characters")]
+	public Connection<CharacterEdge> Characters { get; init; } = Connection<CharacterEdge>.Empty;
+
 	[JsonPropertyName("staff")]
 	public Connection<StaffEdge> Staff { get; init; } = Connection<StaffEdge>.Empty;
 }
