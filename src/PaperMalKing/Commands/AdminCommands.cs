@@ -19,13 +19,15 @@ namespace PaperMalKing.Commands;
 [SlashRequireOwner]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-internal sealed class AdminCommands : ApplicationCommandModule
+internal sealed class
+	AdminCommands : ApplicationCommandModule // We dont use bot commands module since most commands are immediately executed or dont provide any feedback
 {
 	private readonly UpdateProvidersConfigurationService _providersConfigurationService;
 	private readonly UserCleanupService _cleanupService;
 	private readonly IHostApplicationLifetime _lifetime;
 
-	public AdminCommands(IHostApplicationLifetime lifetime, UpdateProvidersConfigurationService providersConfigurationService, UserCleanupService cleanupService)
+	public AdminCommands(IHostApplicationLifetime lifetime, UpdateProvidersConfigurationService providersConfigurationService,
+						 UserCleanupService cleanupService)
 	{
 		this._lifetime = lifetime;
 		this._providersConfigurationService = providersConfigurationService;
@@ -33,7 +35,7 @@ internal sealed class AdminCommands : ApplicationCommandModule
 	}
 
 	[SlashCommand("check", "Forcefully starts checking for updates in provider", true)]
-	public async Task ForceCheckCommand(InteractionContext context, [Option("name", "Update provider name")] string name)
+	public async Task ForceCheckCommand(InteractionContext context, [Option(nameof(name), "Update provider name")] string name)
 	{
 		name = name.Trim();
 		BaseUpdateProvider? baseUpdateProvider;
@@ -52,11 +54,11 @@ internal sealed class AdminCommands : ApplicationCommandModule
 		if (baseUpdateProvider != null)
 		{
 			baseUpdateProvider.RestartTimer(TimeSpan.Zero);
-			await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Success")).ConfigureAwait(false);
+			await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("Success")).ConfigureAwait(false);
 		}
 		else
 		{
-			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed(context, "Haven't found such update provider")).ConfigureAwait(false);
+			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed("Haven't found such update provider")).ConfigureAwait(false);
 		}
 	}
 

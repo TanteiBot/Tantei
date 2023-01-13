@@ -21,7 +21,7 @@ namespace PaperMalKing.Commands;
 [OwnerOrPermissions(Permissions.ManageGuild)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
 [GuildOnly, SlashRequireGuild]
-internal sealed class GuildManagementCommands : ApplicationCommandModule
+internal sealed class GuildManagementCommands : BotCommandsModule
 {
 	private readonly ILogger<GuildManagementCommands> _logger;
 
@@ -37,15 +37,13 @@ internal sealed class GuildManagementCommands : ApplicationCommandModule
 
 	[SlashCommand("set", "Sets channel to post updates to", true)]
 	public async Task SetChannelCommand(InteractionContext context,
-										[Option("channel", "Channel updates should be posted", autocomplete: false)] DiscordChannel? channel = null)
+										[Option(nameof(channel), "Channel updates should be posted", autocomplete: false)] DiscordChannel? channel = null)
 	{
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
-
 		if (channel is null)
 			channel = context.Channel;
 		if (channel.IsCategory || channel.IsThread)
 		{
-			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed(context, "You cant set posting channel to category or to a thread"))
+			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"))
 						 .ConfigureAwait(false);
 			return;
 		}
@@ -54,30 +52,34 @@ internal sealed class GuildManagementCommands : ApplicationCommandModule
 		{
 			var perms = channel.PermissionsFor(context.Guild.CurrentMember);
 			if (!perms.HasPermission(Permissions.SendMessages))
-				throw new GuildManagementException(
-					$"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages");
+			{
+				await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed(
+								 $"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages",
+								 "Permissions error"))
+							 .ConfigureAwait(false);
+			}
+
 			await this._managementService.SetChannelAsync(channel.GuildId!.Value, channel.Id).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, $"Successfully set {channel}")).ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully set {channel}")).ConfigureAwait(false);
 	}
 
 	[SlashCommand("update", "Updates channel where updates are posted", true)]
 	public async Task UpdateChannelCommand(InteractionContext context,
-										   [Option("channel", "New channel where updates should be posted")] DiscordChannel? channel = null)
+										   [Option(nameof(channel), "New channel where updates should be posted")] DiscordChannel? channel = null)
 	{
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		if (channel is null)
 			channel = context.Channel;
 		if (channel.IsCategory || channel.IsThread)
 		{
-			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed(context, "You cant set posting channel to category or to a thread"))
+			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"))
 						 .ConfigureAwait(false);
 			return;
 		}
@@ -86,61 +88,63 @@ internal sealed class GuildManagementCommands : ApplicationCommandModule
 		{
 			var perms = channel.PermissionsFor(context.Guild.CurrentMember);
 			if (!perms.HasPermission(Permissions.SendMessages))
-				throw new GuildManagementException(
-					$"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages");
+			{
+				await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed(
+								 $"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages",
+								 "Permissions error"))
+							 .ConfigureAwait(false);
+			}
+
 			await this._managementService.UpdateChannelAsync(channel.GuildId!.Value, channel.Id).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, $"Successfully updated to {channel}")).ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully updated to {channel}")).ConfigureAwait(false);
 	}
 
 	[SlashCommand("removeserver", "Remove this server from being tracked", true)]
 	public async Task RemoveGuildCommand(InteractionContext context)
 	{
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
 		try
 		{
 			await this._managementService.RemoveGuildAsync(context.Guild.Id).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, "Successfully removed this server from being tracked"))
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("Successfully removed this server from being tracked"))
 					 .ConfigureAwait(false);
 	}
 
 	[SlashCommand("forceremoveuserById", "Remove this user from being tracked in this server", true)]
 	public async Task ForceRemoveUserCommand(InteractionContext context,
-											 [Option("userId", "Discord user's id which should be to removed from being tracked")] long userId)
+											 [Option(nameof(userId), "Discord user's id which should be to removed from being tracked")] long userId)
 	{
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
-
 		try
 		{
 			await this._userService.RemoveUserInGuildAsync(context.Guild.Id, (ulong)userId).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(context, ex.Message) : EmbedTemplate.UnknownErrorEmbed(context);
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
 			throw;
 		}
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(context, $"Successfully removed {userId} this server from being tracked"))
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully removed {userId} this server from being tracked"))
 					 .ConfigureAwait(false);
 	}
 
 	[SlashCommand("forceremoveuser", "Remove this user from being tracked in this server")]
-	public Task ForceRemoveUserCommand(InteractionContext context, [Option("user", "Discord user to remove from being tracked")] DiscordUser user) =>
+	public Task ForceRemoveUserCommand(InteractionContext context, [Option(nameof(user), "Discord user to remove from being tracked")] DiscordUser user) =>
 		this.ForceRemoveUserCommand(context, (long)user.Id);
 }

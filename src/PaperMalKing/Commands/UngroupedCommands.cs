@@ -11,6 +11,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Commands;
@@ -19,18 +20,20 @@ namespace PaperMalKing.Commands;
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 [GuildOnly, SlashRequireGuild]
-internal sealed class UngroupedCommands : ApplicationCommandModule
+internal sealed class UngroupedCommands : BotCommandsModule
 {
 	private static DiscordEmbed? AboutEmbed;
 
 	[SlashCommand("say", "Sends embed in selected channel with selected text", true)]
 	[OwnerOrPermissions(Permissions.ManageGuild)]
-	public async Task SayCommand(InteractionContext context, [Option("channel", "Channel where the embed will be send")] DiscordChannel channelToSayIn,
+	public async Task SayCommand(InteractionContext context,
+								 [Option("channel", "Channel where the embed will be send")] DiscordChannel channelToSayIn,
 								 [Option("text", "Text to send")] string messageContent)
 	{
 		if (string.IsNullOrWhiteSpace(messageContent))
-			throw new ArgumentException("Message's content shouldn't be empty", nameof(messageContent));
-		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(false);
+		{
+			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed("Message's content shouldn't be empty")).ConfigureAwait(false);
+		}
 
 		var embed = new DiscordEmbedBuilder
 		{
@@ -43,15 +46,16 @@ internal sealed class UngroupedCommands : ApplicationCommandModule
 		{
 			await channelToSayIn.SendMessageAsync(embed: embed).ConfigureAwait(false);
 		}
-#pragma warning disable CA1031
+		#pragma warning disable CA1031
 		catch
-#pragma warning restore CA1031
+			#pragma warning restore CA1031
 		{
-			await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Couldn't send message. Check permissions for bot and try again.")).ConfigureAwait(false);
+			await context.EditResponseAsync(
+				new DiscordWebhookBuilder().WithContent("Couldn't send message. Check permissions for bot and try again.")).ConfigureAwait(false);
 		}
 	}
 
-	[SlashCommand("About","Displays info about bot", true)]
+	[SlashCommand("About", "Displays info about bot", true)]
 	public Task AboutCommand(InteractionContext context)
 	{
 		if (AboutEmbed is null)
@@ -68,27 +72,26 @@ internal sealed class UngroupedCommands : ApplicationCommandModule
 			const string sourceCodeLink = "https://github.com/TanteiBot/Tantei";
 
 			var versions = $"""
-								Bot version - {botVersion}
-								Commit - {Formatter.MaskedUrl(commitId, new Uri($"{sourceCodeLink}/commit/{commitId.AsSpan(0, 10)}"))}
-								Commit date - {commitDate:s}
-								DSharpPlus version - {context.Client.VersionString}
-								.NET version - {dotnetVersion}
-								""";
+							Bot version - {botVersion}
+							Commit - {Formatter.MaskedUrl(commitId, new Uri($"{sourceCodeLink}/commit/{commitId.AsSpan(0, 10)}"))}
+							Commit date - {commitDate:s}
+							DSharpPlus version - {context.Client.VersionString}
+							.NET version - {dotnetVersion}
+							""";
 
 			var embedBuilder = new DiscordEmbedBuilder
-			{
-				Title = "About",
-				Url = sourceCodeLink,
-				Description = desc,
-				Color = DiscordColor.DarkBlue,
-			}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
+				{
+					Title = "About",
+					Url = sourceCodeLink,
+					Description = desc,
+					Color = DiscordColor.DarkBlue,
+				}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
 				 .AddField("Links", Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)), true)
-				 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), true)
-				 .AddField("Versions", versions, true);
+				 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), true).AddField("Versions", versions, true);
 
 			Interlocked.Exchange(ref AboutEmbed, embedBuilder.Build());
 		}
 
-		return context.CreateResponseAsync(embed: AboutEmbed);
+		return context.EditResponseAsync(embed: AboutEmbed);
 	}
 }
