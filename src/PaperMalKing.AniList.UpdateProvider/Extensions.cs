@@ -247,6 +247,13 @@ internal static partial class Extensions
 						 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
 			if (!string.IsNullOrEmpty(text))
 				eb.AddField("Made by", text, true);
+		} else if (isAnime && (features & AniListUserFeatures.Director) != 0)
+		{
+			var director = Array.Find(media.Staff.Nodes, x => x.Role.Equals("Director", StringComparison.Ordinal));
+			if (director is not null)
+			{
+				eb.AddField("Director", Formatter.MaskedUrl(director.Staff.Name.GetName(user.Options.TitleLanguage), new(director.Staff.Url)), inline: true);
+			}
 		}
 
 		if ((features & AniListUserFeatures.Genres) != 0 && media.Genres.Any())

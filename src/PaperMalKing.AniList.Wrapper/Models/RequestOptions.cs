@@ -19,5 +19,6 @@ internal enum RequestOptions : ulong
 	Studio = 1 << 10,
 	Mangaka = 1 << 11,
 	Reviews = 1 << 12,
-	CustomLists = 1 << 13
+	CustomLists = 1 << 13,
+	Director = 1 << 14
 }

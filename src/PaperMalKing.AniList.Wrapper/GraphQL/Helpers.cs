@@ -75,9 +75,10 @@ internal static class Helpers
 					}
 				}
 				""");
-		if ((options & RequestOptions.Mangaka) != 0)
-			sb.AppendLine("""
-				staff(sort: FAVOURITES_DESC, page: 1, perPage: 5){
+		if ((options & RequestOptions.Mangaka) != 0 || (options & RequestOptions.Director) != 0)
+			sb.AppendLine(
+				"""
+				staff(sort: [RELEVANCE, ID], page: 1, perPage: 4){
 					values: edges{
 						role
 						node{

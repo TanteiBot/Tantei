@@ -51,5 +51,8 @@ public enum AniListUserFeatures : ulong
 	Reviews = 1 << 12,
 
 	[FeatureDescription("custom lists", "Show to which custom lists entry belongs to")]
-	CustomLists = 1 << 13
+	CustomLists = 1 << 13,
+
+	[FeatureDescription("director", "Show director of anime")]
+	Director = 1 << 14,
 }
