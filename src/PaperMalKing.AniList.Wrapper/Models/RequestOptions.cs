@@ -20,5 +20,6 @@ internal enum RequestOptions : ulong
 	Mangaka = 1 << 11,
 	Reviews = 1 << 12,
 	CustomLists = 1 << 13,
-	Director = 1 << 14
+	Director = 1 << 14,
+	Seyu = 1 << 15,
 }

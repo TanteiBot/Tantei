@@ -4,16 +4,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="GraphQL.Client"/>
-        <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson"/>
+        <PackageReference Include="GraphQL.Client" />
+        <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" />
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider"/>
+        <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj"/>
+        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
     </ItemGroup>
 
 </Project>
