@@ -17,10 +17,7 @@ internal sealed class Page<T>
 
 	public static readonly Page<T> Empty = new()
 	{
-		PageInfo = new()
-		{
-			HasNextPage = false
-		},
+		PageInfo = PageInfo.FalseValue,
 		Values = Array.Empty<T>()
 	};
 }
