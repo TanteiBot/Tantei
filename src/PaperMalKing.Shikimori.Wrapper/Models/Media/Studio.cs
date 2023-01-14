@@ -13,5 +13,7 @@ internal sealed class Studio
 	[JsonPropertyName("name")]
 	public required string Name { get; init; }
 
+	public string Url => Utils.GetUrl("animes/studio", this.Id);
+
 	public string Image => Utils.GetImageUrl("studios", this.Id);
 }

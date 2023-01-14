@@ -44,7 +44,7 @@ public enum AniListUserFeatures : ulong
 	[FeatureDescription("studio", "Show studio that made anime")]
 	Studio = 1 << 10,
 
-	[FeatureDescription("mangaka", "Show mangaka that made manga")]
+	[FeatureDescription("mangaka", "Show authors of manga")]
 	Mangaka = 1 << 11,
 
 	[FeatureDescription("reviews", "Track user reviews")]

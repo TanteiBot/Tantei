@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
 
-internal sealed class Genre
+internal sealed class Genre : IMultiLanguageName
 {
 	[JsonPropertyName("name")]
 	public required string Name { get; init; }

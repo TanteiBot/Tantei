@@ -9,12 +9,6 @@ namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
 
 internal sealed class MangaMedia : BaseMedia
 {
-	[JsonPropertyName("chapters")]
-	public required uint Chapters { get; init; }
-
-	[JsonPropertyName("volumes")]
-	public required uint Volumes { get; init; }
-
 	[JsonPropertyName("publishers")]
 	public IReadOnlyList<Publisher> Publishers { get; init; } = Array.Empty<Publisher>();
 	protected override string Type => "mangas";

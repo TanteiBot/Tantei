@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.Common.Enums;
 using PaperMalKing.Shikimori.Wrapper.Models;
 using PaperMalKing.Shikimori.Wrapper.Models.Media;
 
@@ -61,14 +62,14 @@ internal sealed class ShikiClient
 		limit = Constants.HISTORY_LIMIT < limit ? Constants.HISTORY_LIMIT : limit;
 		this._logger.LogDebug("Requesting {@UserId} history. Page {@Page}", userId, page);
 
-#pragma warning disable CA2000
+		#pragma warning disable CA2000
 		using var content = new MultipartFormDataContent
 		{
-			{new StringContent(page.ToString()), "page"},
-			{new StringContent(limit.ToString()), "limit"}
+			{ new StringContent(page.ToString()), "page" },
+			{ new StringContent(limit.ToString()), "limit" }
 		};
 		if (options != HistoryRequestOptions.Any) content.Add(new StringContent(options.ToString()), "target_type");
-#pragma warning restore CA2000
+		#pragma warning restore CA2000
 
 		using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 		{
@@ -81,23 +82,24 @@ internal sealed class ShikiClient
 		return new(data, hasNextPage);
 	}
 
-	public Task<TMedia?> GetMediaAsync<TMedia>(uint id, MediaRequestOptions type, CancellationToken cancellationToken = default) where TMedia : BaseMedia
+	public Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, CancellationToken cancellationToken = default) where TMedia : BaseMedia
 	{
-		var url = BuildUrlForRequestingMedia(id, type).ToStringAndClear();
+		var url = BuildUrlForRequestingMedia(id, type);
 		this._logger.LogInformation("Requesting media with id: {Id}, and type: {Type}", id, type);
 		return this._httpClient.GetFromJsonAsync<TMedia>(url, cancellationToken);
 	}
 
-	private static DefaultInterpolatedStringHandler BuildUrlForRequestingMedia(uint id, MediaRequestOptions type) =>
-		$"{Constants.BASE_API_URL}/{(type == MediaRequestOptions.Anime ? "animes" : "mangas")}/{id}";
+	private static string BuildUrlForRequestingMedia(ulong id, ListEntryType type) =>
+		$"{Constants.BASE_API_URL}/{(type == ListEntryType.Anime ? "animes" : "mangas")}/{id}";
 
-	public Task<IReadOnlyList<Role>?> GetMediaStaffAsync(uint id, MediaRequestOptions type, CancellationToken cancellationToken = default)
+	public async Task<IReadOnlyList<Role>> GetMediaStaffAsync(ulong id, ListEntryType type, CancellationToken cancellationToken = default)
 	{
-		var sh = BuildUrlForRequestingMedia(id, type);
-		sh.AppendLiteral("/roles");
-		var url = sh.ToStringAndClear();
+		var url = $"{BuildUrlForRequestingMedia(id, type)}/roles";
 		this._logger.LogInformation("Requesting staff for media with id: {Id}, and type: {Type}", id, type);
-		return this._httpClient.GetFromJsonAsync<IReadOnlyList<Role>>(url, cancellationToken);
+		var roles = await this._httpClient.GetFromJsonAsync<List<Role>>(url, cancellationToken).ConfigureAwait(false);
+		roles!.RemoveAll(x => x.Person is null);
+		roles.TrimExcess();
+		return roles;
 	}
 
 	public Task<UserInfo> GetUserInfoAsync(uint userId, CancellationToken cancellationToken = default)

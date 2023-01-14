@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models;
 
-internal sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<FavouriteEntry>, IComparable
+internal sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<FavouriteEntry>, IComparable, IMultiLanguageName
 {
 	[JsonIgnore]
 	public string? GenericType { get; internal set; }

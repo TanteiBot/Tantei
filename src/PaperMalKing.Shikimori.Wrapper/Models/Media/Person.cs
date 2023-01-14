@@ -5,11 +5,16 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
 
-internal sealed class Person
+internal sealed class Person : IMultiLanguageName
 {
+	[JsonPropertyName("id")]
+	public required uint Id { get; init; }
+
 	[JsonPropertyName("name")]
 	public required string Name { get; init; }
 
 	[JsonPropertyName("russian")]
 	public required string RussianName { get; init; }
+
+	public string Url => Utils.GetUrl("people", this.Id);
 }

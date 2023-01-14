@@ -7,6 +7,11 @@ namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
 
 internal sealed class Publisher
 {
+	[JsonPropertyName("id")]
+	public required uint Id { get; init; }
+
 	[JsonPropertyName("name")]
 	public required string Name { get; init; }
+
+	public string Url => Utils.GetUrl("mangas/publisher", this.Id);
 }

@@ -9,9 +9,6 @@ namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
 
 internal class AnimeMedia : BaseMedia
 {
-	[JsonPropertyName("episodes")]
-	public required uint Episodes { get; init; }
-
 	[JsonPropertyName("studios")]
 	public IReadOnlyList<Studio> Studios { get; init; } = Array.Empty<Studio>();
 

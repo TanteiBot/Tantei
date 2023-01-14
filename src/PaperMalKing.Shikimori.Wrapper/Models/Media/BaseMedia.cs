@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
 
-internal abstract class BaseMedia
+internal abstract class BaseMedia : IMultiLanguageName
 {
 	[JsonPropertyName("id")]
 	public uint Id { get; init; }
@@ -22,14 +22,14 @@ internal abstract class BaseMedia
 	[JsonPropertyName("kind")]
 	public required string Kind { get; init; }
 
-	[JsonPropertyName("kind")]
+	[JsonPropertyName("status")]
 	public required string Status { get; init; }
 
 	[JsonPropertyName("genres")]
 	public required IReadOnlyList<Genre> Genres { get; init; }
 
 	[JsonPropertyName("description")]
-	public string? Description { get; init; }
+	public required string Description { get; init; }
 
 	protected abstract string Type { get; }
 }
