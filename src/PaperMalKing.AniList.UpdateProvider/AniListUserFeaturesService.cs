@@ -35,6 +35,11 @@ internal sealed class AniListUserFeaturesService : IUserFeaturesService<AniListU
 		var dbUser = db.AniListUsers.FirstOrDefault(u => u.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
+		if ((dbUser.Features & feature) != 0)
+		{
+			throw new UriFormatException("You already have this feature enabled");
+		}
+
 		dbUser.Features |= feature;
 		var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 		switch (feature)
@@ -76,6 +81,11 @@ internal sealed class AniListUserFeaturesService : IUserFeaturesService<AniListU
 		var dbUser = db.AniListUsers.FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before disabling features");
+		if ((dbUser.Features & feature) != 0)
+		{
+			throw new UserFeaturesException("This feature wasnt enabled for you,so you cant enable it");
+		}
+
 
 		dbUser.Features &= ~feature;
 		if (feature == AniListUserFeatures.Favourites)

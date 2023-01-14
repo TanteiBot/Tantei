@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,7 +35,13 @@ internal sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserF
 		using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.ShikiUsers.FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
+		{
 			throw new UserFeaturesException("You must register first before enabling features");
+		}
+		if ((dbUser.Features & feature) != 0)
+		{
+			throw new UriFormatException("You already have this feature enabled");
+		}
 		var lastHistoryEntry = new uint?();
 		dbUser.Features |= feature;
 			switch (feature)
@@ -74,7 +81,10 @@ internal sealed class ShikiUserFeaturesService : IUserFeaturesService<ShikiUserF
 		var dbUser = db.ShikiUsers.FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before disabling features");
-
+		if ((dbUser.Features & feature) != 0)
+		{
+			throw new UserFeaturesException("This feature wasnt enabled for you,so you cant enable it");
+		}
 
 		dbUser.Features &= ~feature;
 		if (feature == ShikiUserFeatures.Favourites)

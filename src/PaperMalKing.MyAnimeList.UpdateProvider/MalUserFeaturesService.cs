@@ -37,6 +37,11 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 		var dbUser = db.MalUsers.FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
+		if ((dbUser.Features & feature) != 0)
+		{
+			throw new UriFormatException("You already have this feature enabled");
+		}
+
 		User? user = null;
 		dbUser.Features |= feature;
 		var now = DateTimeOffset.UtcNow;
@@ -86,6 +91,11 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 		var dbUser = db.MalUsers.FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before disabling features");
+		if ((dbUser.Features & feature) != 0)
+		{
+			throw new UserFeaturesException("This feature wasnt enabled for you,so you cant enable it");
+		}
+
 
 
 		dbUser.Features &= ~feature;
