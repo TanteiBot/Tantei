@@ -76,11 +76,6 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var listUpdates = await this._client
 										.GetLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(user.Username,
 											dbUser.Features.ToRequestOptions<TRO>(), ct).ConfigureAwait(false);
-			if (listUpdates.Count == 0)
-			{
-				return Array.Empty<DiscordEmbedBuilder>();
-			}
-
 			var newLatestUpdateTimeStamp = listUpdates.MaxBy(x => x.Status.UpdatedAt)!.Status.UpdatedAt;
 			dbUpdateAction(dbUser, user, newLatestUpdateTimeStamp);
 
@@ -165,7 +160,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var updatesCount = animeListUpdates.Count + mangaListUpdates.Count + favoritesUpdates.Count;
 			if (updatesCount == 0)
 			{
-				db.Entry(dbUser).State = EntityState.Unchanged;
+				db.SaveChanges();
 				this.Logger.LogDebug("Ended checking updates for {@Username} with no updates found", dbUser.Username);
 				continue;
 			}
