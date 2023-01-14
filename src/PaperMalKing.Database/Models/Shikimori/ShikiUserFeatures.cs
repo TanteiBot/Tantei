@@ -33,5 +33,23 @@ public enum ShikiUserFeatures : ulong
 	MediaStatus = 1 << 6,
 
 	[FeatureDescription("russian", "show favorites, anime, manga, ranobe titles in russian")]
-	Russian = 1 << 7
+	Russian = 1 << 7,
+
+	[FeatureDescription("mangaka", "Show authors of manga")]
+	Mangaka = 1 << 8,
+
+	[FeatureDescription("director", "Show director of anime")]
+	Director = 1 << 9,
+
+	[FeatureDescription("genres", "Show genres of media")]
+	Genres = 1 << 10,
+
+	[FeatureDescription("description", "Show truncated description of media")]
+	Description = 1 << 11,
+
+	[FeatureDescription("studios", "Show studios that made anime")]
+	Studio = 1 << 12,
+
+	[FeatureDescription("publisher", "Show publisher of manga")]
+	Publisher = 1 << 13,
 }
