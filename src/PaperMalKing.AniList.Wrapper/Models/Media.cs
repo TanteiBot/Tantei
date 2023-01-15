@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Enums;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;
+using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 #pragma warning disable CA1724
@@ -27,6 +28,7 @@ internal sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 	public MediaFormat? Format { get; init; }
 
 	[JsonPropertyName("countryOfOrigin")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public string? CountryOfOrigin { get; init; }
 
 	[JsonPropertyName("status")]
@@ -47,6 +49,10 @@ internal sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 	[JsonPropertyName("description")]
 	public string? Description { get; init; }
 
+	/// <remarks>
+	///	Apply <see cref="StringPoolingJsonConverter"/> when https://github.com/dotnet/runtime/issues/54189 gets closed
+	/// Currently we cant apply custom converter for collection item
+	/// </remarks>>
 	[JsonPropertyName("genres")]
 	public IReadOnlyList<string> Genres { get; init; } = Array.Empty<string>();
 

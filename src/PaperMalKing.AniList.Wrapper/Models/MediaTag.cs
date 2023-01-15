@@ -2,12 +2,14 @@
 // Copyright (C) 2021-2022 N0D4N
 
 using System.Text.Json.Serialization;
+using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
 internal sealed class MediaTag
 {
 	[JsonPropertyName("name")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string Name { get; init; }
 
 	[JsonPropertyName("rank")]

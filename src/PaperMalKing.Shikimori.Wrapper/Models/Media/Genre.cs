@@ -2,14 +2,17 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System.Text.Json.Serialization;
+using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
 
 internal sealed class Genre : IMultiLanguageName
 {
 	[JsonPropertyName("name")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string Name { get; init; }
 
 	[JsonPropertyName("russian")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string RussianName { get; init; }
 }
