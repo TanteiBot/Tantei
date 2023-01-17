@@ -189,7 +189,7 @@ internal static partial class Extensions
 			{
 				Url = favouriteEntry.FavouriteEntry.Url,
 				Title =
-					$"{favouriteName} [{(favouriteEntry.FavouriteEntry.GenericType ?? favouriteEntry.FavouriteEntry.SpecificType)?.ToFirstCharUpperCase()}]"
+					$"{favouriteName} [{(favouriteEntry.FavouriteEntry.SpecificType ??favouriteEntry.FavouriteEntry.GenericType)?.ToFirstCharUpperCase()}]"
 			}.WithThumbnail(favouriteEntry.FavouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favourite")
 			 .WithShikiAuthor(user)
 			 .WithColor(added ? Constants.ShikiGreen : Constants.ShikiRed);
