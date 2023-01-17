@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
 
@@ -20,9 +21,11 @@ internal abstract class BaseMedia : IMultiLanguageName
 	public string Image => Utils.GetImageUrl(this.Type, this.Id);
 
 	[JsonPropertyName("kind")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string Kind { get; init; }
 
 	[JsonPropertyName("status")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string Status { get; init; }
 
 	[JsonPropertyName("genres")]

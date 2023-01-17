@@ -4,6 +4,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="CommunityToolkit.HighPerformance" />
         <PackageReference Include="DSharpPlus" />
         <PackageReference Include="DSharpPlus.SlashCommands" />
         <PackageReference Include="Humanizer.Core" />

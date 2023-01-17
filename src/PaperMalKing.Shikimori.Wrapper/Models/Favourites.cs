@@ -18,16 +18,7 @@ internal sealed class Favourites : IJsonOnDeserialized
 	{
 		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		init
-		{
-			foreach (var entry in value)
-			{
-				entry.GenericType = "animes";
-				entry.SpecificType = "Anime";
-			}
-
-			this._allFavourites.AddRange(value);
-		}
+		init => this.SetTypesThenAddToAll(value, "animes", "Anime");
 	}
 
 	[JsonPropertyName("mangas")]
@@ -35,16 +26,7 @@ internal sealed class Favourites : IJsonOnDeserialized
 	{
 		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		init
-		{
-			foreach (var entry in value)
-			{
-				entry.GenericType = "mangas";
-				entry.SpecificType = "Manga";
-			}
-
-			this._allFavourites.AddRange(value);
-		}
+		init => this.SetTypesThenAddToAll(value, "mangas", "Manga");
 	}
 
 	[JsonPropertyName("characters")]
@@ -52,15 +34,7 @@ internal sealed class Favourites : IJsonOnDeserialized
 	{
 		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		init
-		{
-			foreach (var entry in value)
-			{
-				entry.GenericType = "characters";
-				entry.SpecificType = "Character";
-			}
-			this._allFavourites.AddRange(value);
-		}
+		init => this.SetTypesThenAddToAll(value, "characters", "Character");
 	}
 
 	[JsonPropertyName("people")]
@@ -68,15 +42,7 @@ internal sealed class Favourites : IJsonOnDeserialized
 	{
 		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		init
-		{
-			foreach (var entry in value)
-			{
-				entry.GenericType = "people";
-				entry.SpecificType = "Person";
-			}
-			this._allFavourites.AddRange(value);
-		}
+		init => this.SetTypesThenAddToAll(value, "people", "Person");
 	}
 
 	[JsonPropertyName("mangakas")]
@@ -84,16 +50,7 @@ internal sealed class Favourites : IJsonOnDeserialized
 	{
 		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		init
-		{
-			foreach (var entry in value)
-			{
-				entry.GenericType = "people";
-				entry.SpecificType = "Mangaka";
-			}
-
-			this._allFavourites.AddRange(value);
-		}
+		init => this.SetTypesThenAddToAll(value, "people", "Mangaka");
 	}
 
 	[JsonPropertyName("seyu")]
@@ -101,16 +58,7 @@ internal sealed class Favourites : IJsonOnDeserialized
 	{
 		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		init
-		{
-			foreach (var entry in value)
-			{
-				entry.GenericType = "people";
-				entry.SpecificType = "Seyu";
-			}
-
-			this._allFavourites.AddRange(value);
-		}
+		init => this.SetTypesThenAddToAll(value, "people", "Seyu");
 	}
 
 	[JsonPropertyName("producers")]
@@ -118,16 +66,7 @@ internal sealed class Favourites : IJsonOnDeserialized
 	{
 		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		init
-		{
-			foreach (var entry in value)
-			{
-				entry.GenericType = "people";
-				entry.SpecificType = "Producer";
-			}
-
-			this._allFavourites.AddRange(value);
-		}
+		init => this.SetTypesThenAddToAll(value, "people", "Producer");
 	}
 
 	[JsonPropertyName("ranobe")]
@@ -135,16 +74,17 @@ internal sealed class Favourites : IJsonOnDeserialized
 	{
 		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		init
-		{
-			foreach (var entry in value)
-			{
-				entry.GenericType = "mangas";
-				entry.SpecificType = "Ranobe";
-			}
+		init => this.SetTypesThenAddToAll(value, "mangas", "Ranobe");
+	}
 
-			this._allFavourites.AddRange(value);
+	private void SetTypesThenAddToAll(FavouriteEntry[] entries, string genericType, string? specificType)
+	{
+		foreach (var entry in entries)
+		{
+			entry.GenericType = genericType;
+			entry.SpecificType = specificType;
 		}
+		this._allFavourites.AddRange(entries);
 	}
 
 	public static readonly Favourites Empty = new();

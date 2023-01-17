@@ -2,12 +2,14 @@
 // Copyright (C) 2021-2022 N0D4N
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;
+using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
 internal sealed class Studio : ISiteUrlable, IIdentifiable
 {
 	[JsonPropertyName("name")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string Name { get; init; }
 
 	[JsonPropertyName("siteUrl")]

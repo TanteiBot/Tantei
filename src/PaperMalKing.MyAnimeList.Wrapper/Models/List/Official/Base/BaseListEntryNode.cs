@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.Base;
 
@@ -13,6 +14,7 @@ internal abstract class BaseListEntryNode<TMediaType, TStatus> where TMediaType 
 	public required uint Id { get; init; }
 
 	[JsonPropertyName("title")]
+	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
 	public required string Title { get; init; }
 
 	[JsonPropertyName("main_picture")]

@@ -4,6 +4,7 @@
 using System;
 using System.Text.Json.Serialization;
 using PaperMalKing.Common.Enums;
+using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models;
 
@@ -14,6 +15,7 @@ internal sealed class HistoryTarget : IMultiLanguageName
 	public ListEntryType Type { get; init; }
 
 	[JsonPropertyName("status")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string Status { get; init; }
 
 	[JsonPropertyName("id")]
@@ -45,6 +47,7 @@ internal sealed class HistoryTarget : IMultiLanguageName
 	public uint? Chapters { get; init; }
 
 	[JsonPropertyName("kind")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public string? Kind { get; init; }
 
 	[JsonPropertyName("name")]

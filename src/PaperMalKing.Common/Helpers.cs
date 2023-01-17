@@ -9,7 +9,9 @@ using System.Security.Cryptography;
 
 namespace PaperMalKing.Common;
 
+#pragma warning disable CA1724
 public static class Helpers
+#pragma warning restore
 {
 	private static readonly string EmptySha512Hash;
 
@@ -36,9 +38,8 @@ public static class Helpers
 		buffer[^1] = (byte)')';
 
 		using var incrementalHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512);
-		for (var i = 0; i < ids.Length; i++)
+		foreach (var id in ids)
 		{
-			var id = ids[i];
 			BinaryPrimitives.WriteUInt32LittleEndian(buffer,id.Id);
 
 			buffer[^2] = id.Type;

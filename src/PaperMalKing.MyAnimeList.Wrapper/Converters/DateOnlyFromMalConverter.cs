@@ -22,8 +22,8 @@ internal sealed class DateOnlyFromMalConverter : JsonConverter<DateOnly?>
 		}
 
 		scoped Span<char> buffer = stackalloc char[MaxDateLength];
-		reader.CopyString(buffer);
-		buffer = buffer.Trim(stackalloc char[2]{' ', '\0'});
+		var charsWritten = reader.CopyString(buffer);
+		buffer = buffer.Slice(0, charsWritten);
 		for (var i = 0; i < Formats.Count; i++)
 		{
 			if (DateOnly.TryParseExact(buffer, Formats[i], out var result))
