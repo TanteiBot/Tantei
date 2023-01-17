@@ -3,6 +3,7 @@
 
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Models.Interfaces;
+using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.AniList.Wrapper.Models;
 
@@ -12,6 +13,7 @@ internal sealed class User : ISiteUrlable, IImageble
 	public uint Id { get; init; }
 
 	[JsonPropertyName("name")]
+	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
 	public string? Name { get; init; }
 
 	[JsonPropertyName("siteUrl")]

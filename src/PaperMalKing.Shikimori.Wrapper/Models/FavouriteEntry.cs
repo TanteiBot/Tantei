@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models;
 
@@ -19,9 +20,11 @@ internal sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<F
 	public uint Id { get; init; }
 
 	[JsonPropertyName("name")]
+	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
 	public required string Name { get; init; }
 
 	[JsonPropertyName("russian")]
+	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
 	public string? RussianName { get; init; }
 
 	public string? ImageUrl => Utils.GetImageUrl(this.GenericType!, this.Id);

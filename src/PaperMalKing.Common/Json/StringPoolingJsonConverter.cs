@@ -13,6 +13,7 @@ namespace PaperMalKing.Common.Json;
 /// <summary>
 /// This converter tries to pool string from incoming json if possible.
 /// It is intended to work on small strings only (smaller or equal to <see cref="MaxLengthLimit"/> chars)
+/// If input string is escaped, or length in bytes exceed 256, it isn't pooled, and is just allocated
 /// </summary>
 public sealed class StringPoolingJsonConverter : JsonConverter<string>
 {
@@ -34,8 +35,9 @@ public sealed class StringPoolingJsonConverter : JsonConverter<string>
 	public static string ReadStringOrGetFromPool(ref Utf8JsonReader reader, StringPool stringPool)
 	{
 		Debug.Assert(reader.TokenType == JsonTokenType.String);
-		if (reader.ValueIsEscaped)
+		if (reader.ValueIsEscaped || (reader.HasValueSequence ? reader.ValueSequence.Length : reader.ValueSpan.Length) > 256)
 		{
+			reader.Skip();
 			return reader.GetString()!;
 		}
 
