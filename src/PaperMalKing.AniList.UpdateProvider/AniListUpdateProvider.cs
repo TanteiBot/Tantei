@@ -48,12 +48,24 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			return;
 		}
 
+		static bool FilterInactiveUsers(AniListUser user)
+		{
+			var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+			if (now - Math.Max(user.LastReviewTimestamp, user.LastActivityTimestamp) > TimeSpan.FromDays(5).TotalSeconds)
+			{
+				return now % 3 == 0;
+			}
+
+			return true;
+		}
 		using var db = this._dbContextFactory.CreateDbContext();
-		foreach (var dbUser in db.AniListUsers.Where(u =>
-					 u.DiscordUser.Guilds.Any() && ((u.Features & AniListUserFeatures.AnimeList) != 0 ||
-												    (u.Features & AniListUserFeatures.MangaList) != 0 ||
-												    (u.Features & AniListUserFeatures.Favourites) != 0 ||
-												    (u.Features & AniListUserFeatures.Reviews) != 0)).OrderBy(x => EF.Functions.Random()).ToArray())
+		var users = db.AniListUsers.Where(u =>
+						  u.DiscordUser.Guilds.Any() && ((u.Features & AniListUserFeatures.AnimeList) != 0 ||
+													     (u.Features & AniListUserFeatures.MangaList) != 0 ||
+													     (u.Features & AniListUserFeatures.Favourites) != 0 ||
+													     (u.Features & AniListUserFeatures.Reviews) != 0))
+					  .OrderBy(x => EF.Functions.Random()).AsEnumerable().Where(FilterInactiveUsers).ToArray();
+		foreach (var dbUser in users)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;
