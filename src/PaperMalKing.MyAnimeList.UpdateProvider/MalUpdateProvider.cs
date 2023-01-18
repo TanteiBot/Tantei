@@ -90,16 +90,16 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			return listUpdates.Where(x => x.Status.UpdatedAt > latestUpdateDateTime).Select(x =>
 				x.ToDiscordEmbedBuilder<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(user, dbUser.Features)).ToArray();
 		}
-		
+
 		static bool FilterInactiveUsers(MalUser x)
 		{
 			var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 			if((now - Math.Max(x.LastUpdatedAnimeListTimestamp.ToUnixTimeMilliseconds(),
 				   x.LastUpdatedMangaListTimestamp.ToUnixTimeMilliseconds())) > TimeSpan.FromDays(5).TotalMilliseconds)
 			{
-				return now == 0;
+				return now % 3 == 0;
 			}
-			return true;
+			return false;
 		}
 
 #endregion
@@ -114,13 +114,20 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		var users = db.MalUsers.Where(user => user.DiscordUser.Guilds.Any()).Where(user =>
 						  // Is bitwise to allow executing on server
 						  (user.Features & MalUserFeatures.AnimeList) != 0 || (user.Features & MalUserFeatures.MangaList) != 0 ||
-						  (user.Features & MalUserFeatures.Favorites) != 0).OrderBy(x => EF.Functions.Random()).AsEnumerable()
-					  .Where(FilterInactiveUsers)
+						  (user.Features & MalUserFeatures.Favorites) != 0).OrderBy(x => EF.Functions.Random())
 					  .ToArray();
 		foreach (var dbUser in users)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;
+			if (FilterInactiveUsers(dbUser))
+			{
+				this.Logger.LogDebug("Skipping update check for {@Username}, since last update for user was at {Timestamp}", dbUser.Username,
+					dbUser.LastUpdatedAnimeListTimestamp > dbUser.LastUpdatedMangaListTimestamp
+						? dbUser.LastUpdatedAnimeListTimestamp
+						: dbUser.LastUpdatedMangaListTimestamp);
+				continue;
+			}
 			this.Logger.LogDebug("Starting to check for updates for {@Username}", dbUser.Username);
 			User? user = null;
 			using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);

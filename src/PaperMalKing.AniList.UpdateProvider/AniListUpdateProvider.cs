@@ -56,7 +56,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				return now % 3 == 0;
 			}
 
-			return true;
+			return false;
 		}
 		using var db = this._dbContextFactory.CreateDbContext();
 		var users = db.AniListUsers.Where(u =>
@@ -64,11 +64,16 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 													     (u.Features & AniListUserFeatures.MangaList) != 0 ||
 													     (u.Features & AniListUserFeatures.Favourites) != 0 ||
 													     (u.Features & AniListUserFeatures.Reviews) != 0))
-					  .OrderBy(x => EF.Functions.Random()).AsEnumerable().Where(FilterInactiveUsers).ToArray();
+					  .OrderBy(x => EF.Functions.Random()).ToArray();
 		foreach (var dbUser in users)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;
+			if (FilterInactiveUsers(dbUser))
+			{
+				this.Logger.LogDebug("Skipping update for {UserId}, because his last update was at {Timestamp}", dbUser.Id, DateTimeOffset.FromUnixTimeSeconds(Math.Max(dbUser.LastActivityTimestamp, dbUser.LastReviewTimestamp)));
+				continue;
+			}
 			using var perUserCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 			perUserCancellationTokenSource.CancelAfter(TimeSpan.FromMinutes(3));
 			var perUserCancellationToken = perUserCancellationTokenSource.Token;
