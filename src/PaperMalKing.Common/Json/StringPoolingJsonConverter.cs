@@ -37,7 +37,6 @@ public sealed class StringPoolingJsonConverter : JsonConverter<string>
 		Debug.Assert(reader.TokenType == JsonTokenType.String);
 		if (reader.ValueIsEscaped || (reader.HasValueSequence ? reader.ValueSequence.Length : reader.ValueSpan.Length) > 256)
 		{
-			reader.Skip();
 			return reader.GetString()!;
 		}
 
