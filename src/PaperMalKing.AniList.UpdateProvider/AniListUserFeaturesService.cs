@@ -16,22 +16,19 @@ using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
-internal sealed class AniListUserFeaturesService : IUserFeaturesService<AniListUserFeatures>
+internal sealed class AniListUserFeaturesService : BaseUserFeaturesService<AniListUser, AniListUserFeatures>
 {
 	private readonly AniListClient _client;
-	private readonly ILogger<AniListUserFeaturesService> _logger;
-	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
-	public AniListUserFeaturesService(AniListClient client, ILogger<AniListUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
+	public AniListUserFeaturesService(AniListClient client, ILogger<AniListUserFeaturesService> logger,
+									  IDbContextFactory<DatabaseContext> dbContextFactory) : base(dbContextFactory, logger)
 	{
 		this._client = client;
-		this._logger = logger;
-		this._dbContextFactory = dbContextFactory;
 	}
 
-	public async Task EnableFeaturesAsync(AniListUserFeatures feature, ulong userId)
+	public override async Task EnableFeaturesAsync(AniListUserFeatures feature, ulong userId)
 	{
-		using var db = this._dbContextFactory.CreateDbContext();
+		using var db = this.DbContextFactory.CreateDbContext();
 		var dbUser = db.AniListUsers.FirstOrDefault(u => u.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
@@ -52,8 +49,9 @@ internal sealed class AniListUserFeaturesService : IUserFeaturesService<AniListU
 			}
 			case AniListUserFeatures.Favourites:
 			{
-				var fr = await this._client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites | AniListUserFeatures.AnimeList, CancellationToken.None)
-								   .ConfigureAwait(false);
+				var fr = await this._client
+								   .GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites | AniListUserFeatures.AnimeList,
+									   CancellationToken.None).ConfigureAwait(false);
 				dbUser.Favourites = fr.Favourites.Select(f => new AniListFavourite
 				{
 					Id = f.Id,
@@ -72,38 +70,17 @@ internal sealed class AniListUserFeaturesService : IUserFeaturesService<AniListU
 				break;
 			}
 		}
-		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
-	}
-
-	public async Task DisableFeaturesAsync(AniListUserFeatures feature, ulong userId)
-	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.AniListUsers.FirstOrDefault(su => su.DiscordUserId == userId);
-		if (dbUser is null)
-			throw new UserFeaturesException("You must register first before disabling features");
-		if ((dbUser.Features & feature) != 0)
-		{
-			throw new UserFeaturesException("This feature wasnt enabled for you,so you cant enable it");
-		}
-
-
-		dbUser.Features &= ~feature;
-		if (feature == AniListUserFeatures.Favourites)
-		{
-			db.Entry(dbUser).Collection(x=>x.Favourites).Load();
-			dbUser.Favourites.Clear();
-		}
 
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 	}
 
-	public ValueTask<string> EnabledFeaturesAsync(ulong userId)
+	protected override ValueTask DisableFeatureCleanupAsync(DatabaseContext db, AniListUser user, AniListUserFeatures featureToDisable)
 	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		var features = db.AniListUsers.AsNoTracking().Where(u => u.DiscordUser.DiscordUserId == userId).Select(x=> new AniListUserFeatures?(x.Features)).FirstOrDefault();
-		if (!features.HasValue)
-			throw new UserFeaturesException("You must register first before checking for enabled features");
+		if (featureToDisable == AniListUserFeatures.Favourites)
+		{
+			db.AniListFavourites.Where(x => x.UserId == user.Id).ExecuteDelete();
+		}
 
-		return ValueTask.FromResult(features.Value.Humanize());
+		return ValueTask.CompletedTask;
 	}
 }

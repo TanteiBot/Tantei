@@ -17,23 +17,19 @@ using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.UpdatesProviders.MyAnimeList;
 
-internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatures>
+internal sealed class MalUserFeaturesService : BaseUserFeaturesService<MalUser, MalUserFeatures>
 {
 	private readonly MyAnimeListClient _client;
-	private readonly ILogger<MalUserFeaturesService> _logger;
-	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
-
-	public MalUserFeaturesService(MyAnimeListClient client, ILogger<MalUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
+	public MalUserFeaturesService(MyAnimeListClient client, ILogger<MalUserFeaturesService> logger,
+								  IDbContextFactory<DatabaseContext> dbContextFactory) : base(dbContextFactory, logger)
 	{
 		this._client = client;
-		this._logger = logger;
-		this._dbContextFactory = dbContextFactory;
 	}
 
-	public async Task EnableFeaturesAsync(MalUserFeatures feature, ulong userId)
+	public override async Task EnableFeaturesAsync(MalUserFeatures feature, ulong userId)
 	{
-		using var db = this._dbContextFactory.CreateDbContext();
+		using var db = this.DbContextFactory.CreateDbContext();
 		var dbUser = db.MalUsers.FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
@@ -85,35 +81,13 @@ internal sealed class MalUserFeaturesService : IUserFeaturesService<MalUserFeatu
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 	}
 
-	public async Task DisableFeaturesAsync(MalUserFeatures feature, ulong userId)
+	protected override ValueTask DisableFeatureCleanupAsync(DatabaseContext db, MalUser user, MalUserFeatures featureToDisable)
 	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		var dbUser = db.MalUsers.FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
-		if (dbUser is null)
-			throw new UserFeaturesException("You must register first before disabling features");
-		if ((dbUser.Features & feature) != 0)
+		if (featureToDisable == MalUserFeatures.Favorites)
 		{
-			throw new UserFeaturesException("This feature wasnt enabled for you,so you cant enable it");
+			db.BaseMalFavorites.Where(x => x.UserId == user.UserId).ExecuteDelete();
 		}
 
-
-
-		dbUser.Features &= ~feature;
-		if (feature == MalUserFeatures.Favorites)
-		{
-			db.BaseMalFavorites.Where(x => x.UserId == dbUser.UserId).ExecuteDelete();
-		}
-
-		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
-	}
-
-	public ValueTask<string> EnabledFeaturesAsync(ulong userId)
-	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		var features = db.MalUsers.AsNoTracking().Where(u => u.DiscordUser.DiscordUserId == userId).Select(x=>new MalUserFeatures?(x.Features)).FirstOrDefault();
-		if (!features.HasValue)
-			throw new UserFeaturesException("You must register first before checking for enabled features");
-
-		return ValueTask.FromResult(features.Value.Humanize());
+		return ValueTask.CompletedTask;
 	}
 }

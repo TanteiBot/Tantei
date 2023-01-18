@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PaperMalKing.Database.Models.Shikimori;
 
-public sealed class ShikiUser : IUpdateProviderUser
+public sealed class ShikiUser : IUpdateProviderUser<ShikiUserFeatures>
 {
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]

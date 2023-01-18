@@ -24,7 +24,8 @@ internal sealed class AniListCommands : ApplicationCommandModule
 		{ }
 
 		[SlashCommand("add", "Add your AniList account to being tracked", true)]
-		public override Task AddUserCommand(InteractionContext context, [Option(nameof(username), "Your username on AniList")] string? username = null) =>
+		public override Task AddUserCommand(InteractionContext context,
+											[Option(nameof(username), "Your username on AniList")] string? username = null) =>
 			base.AddUserCommand(context, username);
 
 		[SlashCommand("remove", "Remove your AniList account updates from being tracked", true)]
@@ -39,10 +40,10 @@ internal sealed class AniListCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("features", "Manage your features for updates send from AniList.co", true)]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class AniListUserFeaturesCommands : BaseUserFeaturesCommandsModule<AniListUserFeatures>
+	public sealed class AniListUserFeaturesCommands : BaseUserFeaturesCommandsModule<AniListUser, AniListUserFeatures>
 	{
-		public AniListUserFeaturesCommands(IUserFeaturesService<AniListUserFeatures> userFeaturesService, ILogger<AniListUserFeaturesCommands> logger) :
-			base(userFeaturesService, logger)
+		public AniListUserFeaturesCommands(BaseUserFeaturesService<AniListUser, AniListUserFeatures> userFeaturesService,
+										   ILogger<AniListUserFeaturesCommands> logger) : base(userFeaturesService, logger)
 		{ }
 
 		[SlashCommand("enable", "Enable features for your updates", true)]

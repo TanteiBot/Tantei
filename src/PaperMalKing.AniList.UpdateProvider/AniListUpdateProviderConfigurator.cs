@@ -52,7 +52,7 @@ public sealed class AniListUpdateProviderConfigurator : IUpdateProviderConfigura
 
 			return new(gqlc, logger);
 		});
-		serviceCollection.AddSingleton<IUserFeaturesService<AniListUserFeatures>, AniListUserFeaturesService>();
+		serviceCollection.AddSingleton<BaseUserFeaturesService<AniListUser, AniListUserFeatures>, AniListUserFeaturesService>();
 		serviceCollection.AddSingleton<AniListUserService>();
 		serviceCollection.AddSingleton<IUpdateProvider, AniListUpdateProvider>();
 	}
