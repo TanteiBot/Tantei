@@ -8,5 +8,25 @@
     <ItemGroup>
       <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.Wrapper\PaperMalKing.MyAnimeList.Wrapper.csproj" />
     </ItemGroup>
+    
+
+    <ItemGroup>
+      <None Update="Parser\CommentParserTests.CorrectlyExtractsNodachiUsernameFromCommentsPage.verified.txt">
+        <ParentFile>CommentParserTests</ParentFile>
+        <DependentUpon>CommentParserTests.cs</DependentUpon>
+      </None>
+      <None Update="Parser\CommentParserTests.CorrectlyExtractsSaroArstenUsernameFromCommentsPage.verified.txt">
+        <ParentFile>CommentParserTests</ParentFile>
+        <DependentUpon>CommentParserTests.cs</DependentUpon>
+      </None>
+      <None Update="Parser\ProfileParserTests.CorrectlyParsesNodachiProfile.verified.txt">
+        <ParentFile>ProfileParserTests</ParentFile>
+        <DependentUpon>ProfileParserTests.cs</DependentUpon>
+      </None>
+      <None Update="Parser\ProfileParserTests.CorrectlyParsesSaroArstensProfile.verified.txt">
+        <ParentFile>ProfileParserTests</ParentFile>
+        <DependentUpon>ProfileParserTests.cs</DependentUpon>
+      </None>
+    </ItemGroup>
 
 </Project>

@@ -20,7 +20,8 @@ public abstract class BaseUpdateProviderUserService<TUser> where TUser : class, 
 	protected ILogger<BaseUpdateProviderUserService<TUser>> Logger { get; }
 	protected IDbContextFactory<DatabaseContext> DbContextFactory { get; }
 
-	protected BaseUpdateProviderUserService(ILogger<BaseUpdateProviderUserService<TUser>> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService generalUserService)
+	protected BaseUpdateProviderUserService(ILogger<BaseUpdateProviderUserService<TUser>> logger, IDbContextFactory<DatabaseContext> dbContextFactory,
+											GeneralUserService generalUserService)
 	{
 		this._generalUserService = generalUserService;
 		this.Logger = logger;
@@ -38,6 +39,7 @@ public abstract class BaseUpdateProviderUserService<TUser> where TUser : class, 
 		{
 			throw new UserProcessingException($"You weren't tracked by {Name} update checker");
 		}
+
 		return Task.CompletedTask;
 	}
 
@@ -49,10 +51,11 @@ public abstract class BaseUpdateProviderUserService<TUser> where TUser : class, 
 
 	public abstract IReadOnlyList<BaseUser> ListUsers(ulong guildId);
 
-	protected IReadOnlyList<BaseUser> ListUsersCore<TOrderType>(ulong guildId, Expression<Func<TUser,TOrderType>> orderExpression, Expression<Func<TUser,BaseUser>> selector)
+	protected IReadOnlyList<BaseUser> ListUsersCore<TOrderType>(ulong guildId, Expression<Func<TUser, TOrderType>> orderExpression,
+																Expression<Func<TUser, BaseUser>> selector)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
 		return db.Set<TUser>().Include(x => x.DiscordUser).ThenInclude(x => x.Guilds).OrderBy(orderExpression)
-		  .Where(x => x.DiscordUser.Guilds.Any(x => x.DiscordGuildId == guildId)).Select(selector).ToArray();
+				 .Where(x => x.DiscordUser.Guilds.Any(x => x.DiscordGuildId == guildId)).Select(selector).ToArray();
 	}
 }

@@ -52,6 +52,11 @@ public static partial class TypeExtensions
 		{
 			return "";
 		}
+
+		if (char.IsUpper(str, 0))
+		{
+			return str;
+		}
 		return string.Create(str.Length, str, (span, s) =>
 		{
 			span[0] = char.ToUpperInvariant(s[0]);

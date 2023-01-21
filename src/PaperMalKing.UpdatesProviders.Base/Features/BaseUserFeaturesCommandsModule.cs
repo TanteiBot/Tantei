@@ -10,17 +10,18 @@ using DSharpPlus.SlashCommands;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
+using PaperMalKing.Database.Models;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features;
 
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-public abstract class BaseUserFeaturesCommandsModule<T> : BotCommandsModule where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
+public abstract class BaseUserFeaturesCommandsModule<TUser,TFeature> : BotCommandsModule where TFeature : unmanaged, Enum, IComparable, IConvertible, IFormattable where TUser : class, IUpdateProviderUser<TFeature>
 {
-	protected IUserFeaturesService<T> UserFeaturesService { get; }
-	protected ILogger<BaseUserFeaturesCommandsModule<T>> Logger { get; }
+	protected BaseUserFeaturesService<TUser,TFeature> UserFeaturesService { get; }
+	protected ILogger<BaseUserFeaturesCommandsModule<TUser, TFeature>> Logger { get; }
 
-	protected BaseUserFeaturesCommandsModule(IUserFeaturesService<T> userFeaturesService, ILogger<BaseUserFeaturesCommandsModule<T>> logger)
+	protected BaseUserFeaturesCommandsModule(BaseUserFeaturesService<TUser,TFeature> userFeaturesService, ILogger<BaseUserFeaturesCommandsModule<TUser, TFeature>> logger)
 	{
 		this.UserFeaturesService = userFeaturesService;
 		this.Logger = logger;
@@ -28,7 +29,7 @@ public abstract class BaseUserFeaturesCommandsModule<T> : BotCommandsModule wher
 
 	public virtual async Task EnableFeatureCommand(InteractionContext context, string unparsedFeature)
 	{
-		var feature = FeaturesHelper<T>.Parse(unparsedFeature);
+		var feature = FeaturesHelper<TFeature>.Parse(unparsedFeature);
 
 		this.Logger.LogInformation("Trying to enable {Features} feature for {Username}", feature, context.Member!.DisplayName);
 		try
@@ -52,7 +53,7 @@ public abstract class BaseUserFeaturesCommandsModule<T> : BotCommandsModule wher
 
 	public virtual async Task DisableFeatureCommand(InteractionContext context, string unparsedFeature)
 	{
-		var feature = FeaturesHelper<T>.Parse(unparsedFeature);
+		var feature = FeaturesHelper<TFeature>.Parse(unparsedFeature);
 		this.Logger.LogInformation("Trying to disable {Features} feature for {Username}", feature, context.Member!.DisplayName);
 		try
 		{
@@ -74,7 +75,7 @@ public abstract class BaseUserFeaturesCommandsModule<T> : BotCommandsModule wher
 	}
 
 	public virtual Task ListFeaturesCommand(InteractionContext context) => context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("All features")
-		.WithDescription(string.Join(";\n", FeaturesHelper<T>.FeaturesInfo.Values.Select(x => $"[{x.Description}] - {x.Summary}"))));
+		.WithDescription(string.Join(";\n", FeaturesHelper<TFeature>.FeaturesInfo.Values.Select(x => $"[{x.Description}] - {x.Summary}"))));
 
 	public virtual async Task EnabledFeaturesCommand(InteractionContext context)
 	{

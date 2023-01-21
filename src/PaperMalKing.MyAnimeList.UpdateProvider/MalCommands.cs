@@ -39,9 +39,9 @@ internal sealed class MalCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("features", "Manage your features for updates send from MyAnimeList.net", true)]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class MalUserFeaturesCommands : BaseUserFeaturesCommandsModule<MalUserFeatures>
+	public sealed class MalUserFeaturesCommands : BaseUserFeaturesCommandsModule<MalUser,MalUserFeatures>
 	{
-		public MalUserFeaturesCommands(IUserFeaturesService<MalUserFeatures> userFeaturesService, ILogger<MalUserFeaturesCommands> logger) : base(
+		public MalUserFeaturesCommands(BaseUserFeaturesService<MalUser,MalUserFeatures> userFeaturesService, ILogger<MalUserFeaturesCommands> logger) : base(
 			userFeaturesService, logger)
 		{ }
 

@@ -50,7 +50,7 @@ public sealed class MalUpdateProviderConfigurator : IUpdateProviderConfigurator<
 			return new(logger, unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName),
 				officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName));
 		});
-		serviceCollection.AddSingleton<IUserFeaturesService<MalUserFeatures>, MalUserFeaturesService>();
+		serviceCollection.AddSingleton<BaseUserFeaturesService<MalUser,MalUserFeatures>, MalUserFeaturesService>();
 		serviceCollection.AddSingleton<MalUserService>();
 		serviceCollection.AddSingleton<IUpdateProvider, MalUpdateProvider>();
 	}

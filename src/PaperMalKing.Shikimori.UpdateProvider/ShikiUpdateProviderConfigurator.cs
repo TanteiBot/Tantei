@@ -51,7 +51,7 @@ public sealed class ShikiUpdateProviderConfigurator : IUpdateProviderConfigurato
 			var logger = provider.GetRequiredService<ILogger<ShikiClient>>();
 			return new(factory.CreateClient(Constants.NAME), logger);
 		});
-		serviceCollection.AddSingleton<IUserFeaturesService<ShikiUserFeatures>, ShikiUserFeaturesService>();
+		serviceCollection.AddSingleton<BaseUserFeaturesService<ShikiUser, ShikiUserFeatures>, ShikiUserFeaturesService>();
 		serviceCollection.AddSingleton<ShikiUserService>();
 		serviceCollection.AddSingleton<IUpdateProvider, ShikiUpdateProvider>();
 	}

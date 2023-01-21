@@ -39,9 +39,9 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("features", "Manage your features for updates send from Shikimori.one", true)]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class ShikiUserFeaturesCommands : BaseUserFeaturesCommandsModule<ShikiUserFeatures>
+	public sealed class ShikiUserFeaturesCommands : BaseUserFeaturesCommandsModule<ShikiUser, ShikiUserFeatures>
 	{
-		public ShikiUserFeaturesCommands(IUserFeaturesService<ShikiUserFeatures> userFeaturesService, ILogger<ShikiUserFeaturesCommands> logger) :
+		public ShikiUserFeaturesCommands(BaseUserFeaturesService<ShikiUser,ShikiUserFeatures> userFeaturesService, ILogger<ShikiUserFeaturesCommands> logger) :
 			base(userFeaturesService, logger)
 		{ }
 

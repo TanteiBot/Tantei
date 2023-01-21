@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PaperMalKing.Database.Models.MyAnimeList;
 
-public sealed class MalUser : IUpdateProviderUser
+public sealed class MalUser : IUpdateProviderUser<MalUserFeatures>
 {
 	public ulong DiscordUserId { get; init; }
 
