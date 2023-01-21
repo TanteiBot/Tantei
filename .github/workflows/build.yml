@@ -63,10 +63,10 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
-          include-prerelease: ${{ env.dotnet-include-prerelease}}
+          dotnet-quality: ${{ env.dotnet-quality}}
 
       - name: Test
-        run: do dotnet test --logger GitHubActions "${t}"
+        run: dotnet test --logger GitHubActions "${t}"
 
   codeQl:
     name: Run CodeQL analysis
