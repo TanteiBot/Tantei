@@ -1,0 +1,35 @@
+[Unit]
+Description=Service for Tantei Discord bot
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+WorkingDirectory=/usr/local/bin/pmk
+ExecStart=/usr/bin/dotnet PaperMalKing.dll
+RestartSec=10
+KillSignal=SIGINT
+Environment="DOTNET_hostBuilder_reloadConfigOnChange=false"
+
+#User=user
+#Group=user
+
+PrivateTmp=yes
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectHostname=yes
+ProtectProc=invisible
+PrivateDevices=yes
+RestrictSUIDSGID=yes
+DevicePolicy=closed
+LockPersonality=yes
+RemoveIPC=yes
+SystemCallArchitectures=native
+SocketBindDeny=any
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
