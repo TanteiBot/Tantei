@@ -1,0 +1,48 @@
+﻿query ($username: String, $favouritePage: Int) {
+	User(name: $username) {
+		id
+		siteUrl
+		favourites {
+			anime(page: $favouritePage, perPage: 25) {
+				pageInfo {
+					hasNextPage
+				}
+				values: nodes {
+					id
+				}
+			}
+			manga(page: $favouritePage, perPage: 25) {
+				pageInfo {
+					hasNextPage
+				}
+				values: nodes {
+					id
+				}
+			}
+			characters(page: $favouritePage, perPage: 25) {
+				pageInfo {
+					hasNextPage
+				}
+				values: nodes {
+					id
+				}
+			}
+			staff(page: $favouritePage, perPage: 25) {
+				pageInfo {
+					hasNextPage
+				}
+				values: nodes {
+					id
+				}
+			}
+			studios(page: $favouritePage, perPage: 25) {
+				pageInfo {
+					hasNextPage
+				}
+				values: nodes {
+					id
+				}
+			}
+		}
+	}
+}

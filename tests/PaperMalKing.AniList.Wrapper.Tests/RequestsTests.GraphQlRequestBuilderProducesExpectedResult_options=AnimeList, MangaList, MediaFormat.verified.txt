@@ -1,0 +1,89 @@
+﻿query ($userId: Int, $page: Int, $activitiesFilterTimeStamp: Int, $perChunk: Int, $chunk: Int) {
+	User(id: $userId) {
+		id
+		name
+		siteUrl
+		image: avatar {
+			large
+		}
+		options {
+			titleLanguage
+		}
+		mediaListOptions {
+			scoreFormat
+			animeList {
+				advancedScoringEnabled
+			}
+			mangaList {
+				advancedScoringEnabled
+			}
+		}}
+AnimeList: MediaListCollection(userId: $userId, type: ANIME, sort: UPDATED_TIME_DESC, chunk: $chunk, perChunk: $perChunk) {
+	lists {
+		entries {
+			id: mediaId
+			status
+			point100Score: score(format: POINT_100)
+			point10DecimalScore: score(format: POINT_10_DECIMAL)
+			point10Score: score(format: POINT_10)
+			point5Score: score(format: POINT_5)
+			point3Score: score(format: POINT_3)
+			repeat
+			notes
+			advancedScores
+			
+		}
+	}
+}
+MangaList: MediaListCollection(userId: $userId, type: MANGA, sort: UPDATED_TIME_DESC, chunk: $chunk, perChunk: $perChunk) {
+	lists {
+		entries {
+			id: mediaId
+			status
+			point100Score: score(format: POINT_100)
+			point10DecimalScore: score(format: POINT_10_DECIMAL)
+			point10Score: score(format: POINT_10)
+			point5Score: score(format: POINT_5)
+			point3Score: score(format: POINT_3)
+			repeat
+			notes
+			advancedScores
+			
+		}
+	}
+}
+ActivitiesPage: Page(page: $page, perPage: 50) {
+	pageInfo {
+		hasNextPage
+	}
+values: activities(userId: $userId, type: MEDIA_LIST, sort: ID_DESC, createdAt_greater: $activitiesFilterTimeStamp) {
+... on ListActivity {
+	status
+	progress
+	createdAt
+	media {
+episodes
+chapters
+volumes
+title {
+	stylisedRomaji: romaji(stylised: true)
+	romaji(stylised: false)
+	stylisedEnglish: english(stylised: true)
+	english(stylised: false)
+	stylisedNative: native(stylised: true)
+	native(stylised: false)
+}
+countryOfOrigin
+type
+siteUrl
+id
+image: coverImage {
+	large: extraLarge
+}
+format
+countryOfOrigin
+}
+}
+}
+}
+}

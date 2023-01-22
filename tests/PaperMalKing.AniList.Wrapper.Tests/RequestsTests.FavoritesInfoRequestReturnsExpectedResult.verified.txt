@@ -1,0 +1,231 @@
+﻿query ($page: Int, $animeIds: [Int], $mangaIds: [Int], $charIds: [Int], $staffIds: [Int], $studioIds: [Int]) {
+	Animes: Page(page: $page, perPage: 50) {
+		pageInfo{
+			hasNextPage
+		}
+values: media(type: ANIME, id_in: $animeIds) {
+title {
+	stylisedRomaji: romaji(stylised: true)
+	romaji(stylised: false)
+	stylisedEnglish: english(stylised: true)
+	english(stylised: false)
+	stylisedNative: native(stylised: true)
+	native(stylised: false)
+}
+countryOfOrigin
+type
+siteUrl
+id
+image: coverImage {
+	large: extraLarge
+}
+description(asHtml: false)
+genres
+tags{
+	name
+	rank
+	isMediaSpoiler
+}
+format
+countryOfOrigin
+status(version: 2)
+genres
+tags{
+	name
+	rank
+	isMediaSpoiler
+}
+studios(sort: FAVOURITES_DESC, isMain: true){
+		values: nodes{
+		name
+		siteUrl
+		isAnimationStudio
+	}
+}
+staff(sort: [RELEVANCE, ID], page: 1, perPage: 4){
+	values: edges{
+		role
+		node{
+			name{
+				full
+				native
+			}
+		siteUrl
+		}
+	}
+}
+characters(perPage: 6, sort: [ROLE, RELEVANCE]) {
+	values: edges {
+		voiceActors(language: JAPANESE, sort: [RELEVANCE]) {
+			siteUrl
+			name {
+				native
+				full
+			}
+			image {
+				large
+			}
+		}
+		node {
+			id
+		}
+	}
+}
+}
+}
+Mangas: Page(page: $page, perPage: 50) {
+	pageInfo{
+		hasNextPage
+	}
+	values: media(type: MANGA, id_in: $mangaIds) {
+title {
+	stylisedRomaji: romaji(stylised: true)
+	romaji(stylised: false)
+	stylisedEnglish: english(stylised: true)
+	english(stylised: false)
+	stylisedNative: native(stylised: true)
+	native(stylised: false)
+}
+countryOfOrigin
+type
+siteUrl
+id
+image: coverImage {
+	large: extraLarge
+}
+description(asHtml: false)
+genres
+tags{
+	name
+	rank
+	isMediaSpoiler
+}
+format
+countryOfOrigin
+status(version: 2)
+genres
+tags{
+	name
+	rank
+	isMediaSpoiler
+}
+studios(sort: FAVOURITES_DESC, isMain: true){
+		values: nodes{
+		name
+		siteUrl
+		isAnimationStudio
+	}
+}
+staff(sort: [RELEVANCE, ID], page: 1, perPage: 4){
+	values: edges{
+		role
+		node{
+			name{
+				full
+				native
+			}
+		siteUrl
+		}
+	}
+}
+characters(perPage: 6, sort: [ROLE, RELEVANCE]) {
+	values: edges {
+		voiceActors(language: JAPANESE, sort: [RELEVANCE]) {
+			siteUrl
+			name {
+				native
+				full
+			}
+			image {
+				large
+			}
+		}
+		node {
+			id
+		}
+	}
+}
+}
+}
+Staff: Page(page: $page, perPage: 50) {
+	pageInfo{
+		hasNextPage
+	}
+	values: staff(id_in: $staffIds) {
+		name {
+			full
+			native
+		}
+		id
+		primaryOccupations,
+		staffMedia(sort:POPULARITY_DESC, page: 1, perPage: 1){
+values: nodes {
+	title {
+		stylisedRomaji: romaji(stylised: true)
+		romaji(stylised: false)
+		stylisedEnglish: english(stylised: true)
+		english(stylised: false)
+		stylisedNative: native(stylised: true)
+		native(stylised: false)
+	}
+siteUrl
+format
+}						}
+siteUrl
+image {
+	large
+}description(asHtml: false)
+}
+}
+Characters: Page(page: $page, perPage: 50) {
+	pageInfo{
+		hasNextPage
+	}
+	values: characters(id_in: $charIds) {
+		name {
+			full
+			native
+		}
+		siteUrl
+		id
+		image {
+		large
+	}
+media(sort: POPULARITY_DESC, page: 1, perPage: 1) {
+values: nodes {
+	title {
+		stylisedRomaji: romaji(stylised: true)
+		romaji(stylised: false)
+		stylisedEnglish: english(stylised: true)
+		english(stylised: false)
+		stylisedNative: native(stylised: true)
+		native(stylised: false)
+	}
+siteUrl
+format
+}						}
+}
+}
+Studios: Page(page: $page, perPage: 50) {
+	pageInfo{
+		hasNextPage
+	}
+	values: studios(id_in: $studioIds) {
+		name
+		siteUrl
+		id
+		media(sort: POPULARITY_DESC, isMain: true, page: 1, perPage: 1) {values: nodes {
+	title {
+		stylisedRomaji: romaji(stylised: true)
+		romaji(stylised: false)
+		stylisedEnglish: english(stylised: true)
+		english(stylised: false)
+		stylisedNative: native(stylised: true)
+		native(stylised: false)
+	}
+siteUrl
+format
+}						}
+}
+}
+}
