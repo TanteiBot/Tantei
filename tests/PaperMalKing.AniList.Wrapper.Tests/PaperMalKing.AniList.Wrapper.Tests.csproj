@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj" />
+  </ItemGroup>
+</Project>
