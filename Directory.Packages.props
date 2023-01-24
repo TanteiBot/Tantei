@@ -37,7 +37,7 @@
         <PackageVersion Include="Nerdbank.GitVersioning" Version="3.5.119"/>
         <PackageVersion Include="System.Threading.RateLimiting" Version="7.0.0"/>
         <!-- Analyzers-->
-        <PackageVersion Include="Meziantou.Analyzer" Version="2.0.10"/>
+        <PackageVersion Include="Meziantou.Analyzer" Version="2.0.13"/>
         <PackageVersion Include="SonarAnalyzer.CSharp" Version="8.51.0.59060"/>
         <PackageVersion Include="AsyncFixer" Version="1.6.0"/>
         <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.4.33"/>
