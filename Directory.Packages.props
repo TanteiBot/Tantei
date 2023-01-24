@@ -15,7 +15,7 @@
         <PackageVersion Include="DSharpPlus.SlashCommands" Version="4.3.0"/>
         <!-- GraphQl -->
         <PackageVersion Include="GraphQL.Client" Version="5.1.1"/>
-        <PackageVersion Include="GraphQL.Client.Serializer.SystemTextJson" Version="5.1.0"/>
+        <PackageVersion Include="GraphQL.Client.Serializer.SystemTextJson" Version="5.1.1"/>
         <!-- EF Core -->
         <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="7.0.2"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.2"/>
