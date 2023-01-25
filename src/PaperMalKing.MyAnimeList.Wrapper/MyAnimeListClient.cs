@@ -15,7 +15,9 @@ using AngleSharp.Dom;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
+using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
+using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.MangaList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
 using PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
@@ -26,6 +28,7 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 	private readonly HttpClient _unofficialApiHttpClient;
 	private readonly HttpClient _officialApiHttpClient;
 	private readonly ILogger<MyAnimeListClient> _logger;
+
 	public MyAnimeListClient(ILogger<MyAnimeListClient> logger, HttpClient unofficialApiHttpClient, HttpClient officialApiHttpClient)
 	{
 		this._logger = logger;
@@ -92,17 +95,16 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		this._logger.LogDebug("Requesting {@Username} {@Type} list", username, TListType.ListEntryType);
 
 		username = WebUtility.UrlEncode(username);
-		var url = Constants.BASE_OFFICIAL_API_URL + TListType.LatestUpdatesUrl(username, requestOptions);
-		using var response = await this._officialApiHttpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
+		var url = $"{Constants.BASE_OFFICIAL_API_URL}{TListType.LatestUpdatesUrl(username, requestOptions)}";
+		var response = (ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>)(await this._officialApiHttpClient
+			.GetFromJsonAsync(url, typeof(ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>), JsonSGContext.Default,
+				cancellationToken).ConfigureAwait(false) ?? ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>.Empty);
 
-		var updates = await response.Content
-									.ReadFromJsonAsync<ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>>(
-										JsonSerializerOptions.Default, cancellationToken).ConfigureAwait(false);
-
-		return updates?.Data ?? Array.Empty<TE>();
+		return response?.Data ?? Array.Empty<TE>();
 	}
 }
-sealed file class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
+
+internal sealed class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 	where T : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 	where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
 	where TStatus : BaseListEntryStatus<TListStatus>
@@ -113,4 +115,17 @@ sealed file class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus, TL
 {
 	[JsonPropertyName("data")]
 	public required T[] Data { get; init; }
+
+	public static ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus, TListStatus> Empty { get; } = new()
+	{
+		Data = Array.Empty<T>()
+	};
 }
+
+[JsonSerializable(
+	typeof(ListQueryResult<AnimeListEntry, AnimeListEntryNode, AnimeListEntryStatus, AnimeMediaType, AnimeAiringStatus, AnimeListStatus>))]
+[JsonSerializable(
+	typeof(ListQueryResult<MangaListEntry, MangaListEntryNode, MangaListEntryStatus, MangaMediaType, MangaPublishingStatus, MangaListStatus>))]
+[JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Metadata)]
+internal partial class JsonSGContext : JsonSerializerContext
+{ }	
