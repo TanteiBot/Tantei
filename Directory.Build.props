@@ -57,6 +57,15 @@
         </WarningsNotAsErrors>
     </PropertyGroup>
 
+        <ItemDefinitionGroup>
+            <PackageReference>
+                <PrivateAssets>contentfiles;analyzers;build;compile</PrivateAssets>
+            </PackageReference>
+            <ProjectReference>
+                <PrivateAssets>contentfiles;analyzers;build;compile</PrivateAssets>
+            </ProjectReference>
+        </ItemDefinitionGroup>
+
     <ItemGroup>
         <PackageReference Include="Meziantou.Analyzer">
             <PrivateAssets>all</PrivateAssets>
@@ -71,6 +80,10 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Nerdbank.GitVersioning">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

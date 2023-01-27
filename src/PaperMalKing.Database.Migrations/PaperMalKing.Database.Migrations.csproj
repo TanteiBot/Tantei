@@ -7,7 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
+        <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
     </ItemGroup>
 
 </Project>

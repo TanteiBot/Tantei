@@ -7,18 +7,23 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Nerdbank.GitVersioning">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
+
         <PackageReference Include="Serilog" />
         <PackageReference Include="Serilog.Extensions.Hosting" />
         <PackageReference Include="Serilog.Settings.Configuration" />
         <PackageReference Include="Serilog.Sinks.Console" />
+        <PackageReference Include="DSharpPlus"/>
+        <PackageReference Include="DSharpPlus.SlashCommands"/>
+        <PackageReference Include="Humanizer.Core"/>
+        <PackageReference Include="Microsoft.Extensions.Options" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     </ItemGroup>
 
     <ItemGroup>

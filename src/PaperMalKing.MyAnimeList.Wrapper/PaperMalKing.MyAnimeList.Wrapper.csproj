@@ -10,10 +10,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="AngleSharp" />
     </ItemGroup>
+
 
 </Project>

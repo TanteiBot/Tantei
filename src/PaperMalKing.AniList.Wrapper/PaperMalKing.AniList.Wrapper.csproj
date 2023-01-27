@@ -5,15 +5,13 @@
 
     <ItemGroup>
         <PackageReference Include="GraphQL.Client" />
-        <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+
     </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
     </ItemGroup>
 
 </Project>
