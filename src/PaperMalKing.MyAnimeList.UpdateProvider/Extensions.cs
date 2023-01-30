@@ -12,22 +12,21 @@ using DSharpPlus.Entities;
 using Humanizer;
 using PaperMalKing.Common;
 using PaperMalKing.Database.Models.MyAnimeList;
-using PaperMalKing.MyAnimeList.Wrapper;
-using PaperMalKing.MyAnimeList.Wrapper.Models;
-using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.AnimeList;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.Base;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.MangaList;
-using WConstants = PaperMalKing.MyAnimeList.Wrapper.Constants;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 
 
-namespace PaperMalKing.UpdatesProviders.MyAnimeList;
+namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
 internal static class Extensions
 {
 	private static readonly DiscordEmbedBuilder.EmbedFooter MalUpdateFooter = new()
 	{
-		IconUrl = WConstants.FAV_ICON,
+		IconUrl = Constants.FAV_ICON,
 		Text = Constants.Name
 	};
 
@@ -88,7 +87,7 @@ internal static class Extensions
 		return Unsafe.As<AnimeFieldsToRequest, TRequestOptions>(ref fields);
 	}
 
-	public static T ToDbFavorite<T>(this PaperMalKing.MyAnimeList.Wrapper.Models.Favorites.BaseFavorite baseFavorite, MalUser user) where T : BaseMalFavorite
+	public static T ToDbFavorite<T>(this BaseFavorite baseFavorite, MalUser user) where T : BaseMalFavorite
 	{
 		return baseFavorite switch
 		{
@@ -359,7 +358,7 @@ internal static class Extensions
 
 	public static Span<FavoriteIdType> GetFavoriteIdTypesFromFavorites(this UserFavorites favorites)
 	{
-		static void Add(List<FavoriteIdType> aggregator, IReadOnlyList<PaperMalKing.MyAnimeList.Wrapper.Models.Favorites.BaseFavorite> favs, MalFavoriteType type)
+		static void Add(List<FavoriteIdType> aggregator, IReadOnlyList<BaseFavorite> favs, MalFavoriteType type)
 		{
 			aggregator.AddRange(favs.Select(x=>new FavoriteIdType(x.Url!.Id, (byte)type)));
 		}

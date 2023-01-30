@@ -9,18 +9,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.MyAnimeList;
-using PaperMalKing.MyAnimeList.Wrapper;
-using PaperMalKing.MyAnimeList.Wrapper.Models;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 using PaperMalKing.UpdatesProviders.Base.Features;
 
-namespace PaperMalKing.UpdatesProviders.MyAnimeList;
+namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
 internal sealed class MalUserFeaturesService : BaseUserFeaturesService<MalUser, MalUserFeatures>
 {
-	private readonly MyAnimeListClient _client;
+	private readonly IMyAnimeListClient _client;
 
-	public MalUserFeaturesService(MyAnimeListClient client, ILogger<MalUserFeaturesService> logger,
+	public MalUserFeaturesService(IMyAnimeListClient client, ILogger<MalUserFeaturesService> logger,
 								  IDbContextFactory<DatabaseContext> dbContextFactory) : base(dbContextFactory, logger)
 	{
 		this._client = client;

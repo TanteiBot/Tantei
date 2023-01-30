@@ -1,5 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +11,17 @@ using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.MyAnimeList;
-using PaperMalKing.MyAnimeList.Wrapper;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
-namespace PaperMalKing.UpdatesProviders.MyAnimeList;
+namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
 internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 {
-	private readonly MyAnimeListClient _client;
+	private readonly IMyAnimeListClient _client;
 
-	public MalUserService(MyAnimeListClient client, ILogger<MalUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService) : base(logger, dbContextFactory, userService)
+	public MalUserService(IMyAnimeListClient client, ILogger<MalUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService) : base(logger, dbContextFactory, userService)
 	{
 		this._client = client;
 	}

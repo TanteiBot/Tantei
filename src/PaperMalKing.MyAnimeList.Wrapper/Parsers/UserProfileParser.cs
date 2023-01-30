@@ -3,8 +3,8 @@
 
 using AngleSharp.Dom;
 using PaperMalKing.Common.Enums;
-using PaperMalKing.MyAnimeList.Wrapper.Models;
-using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 

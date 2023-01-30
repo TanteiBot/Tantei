@@ -3,7 +3,7 @@
 
 using DSharpPlus.Entities;
 
-namespace PaperMalKing.UpdatesProviders.MyAnimeList;
+namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
 internal static class Constants
 {
@@ -26,4 +26,7 @@ internal static class Constants
 	public static readonly DiscordColor MalGrey = new("#c3c3c3");
 
 	public static readonly DiscordColor MalBlack = DiscordColor.NotQuiteBlack;
+	
+	// Discord doesn't support .ico formats in footer icons
+	public const string FAV_ICON = "https://pbs.twimg.com/profile_images/1190380284295950339/Py6XnxvH_200x200.jpg";
 }

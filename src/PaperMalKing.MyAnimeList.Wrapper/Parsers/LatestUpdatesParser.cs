@@ -1,10 +1,12 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
+
 using System;
 using System.Linq;
 using System.Text;
 using AngleSharp.Dom;
 using PaperMalKing.Common.Enums;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
@@ -30,7 +32,7 @@ internal static class LatestUpdatesParser
 		return string.Join("|", nodes.Select(dataNode =>
 		{
 			var link = dataNode.QuerySelector("a")!.GetAttribute("href")!;
-			var id = CommonParser.ExtractIdFromMalUrl(link);
+			var id = Helper.ExtractIdFromMalUrl(link);
 
 			return $"{new StringBuilder(dataNode.QuerySelector("div.data > div:last-of-type")!.TextContent).Replace(" ", "").Replace("\n", "").ToString().ToUpperInvariant()}:{id}" ;
 		}));

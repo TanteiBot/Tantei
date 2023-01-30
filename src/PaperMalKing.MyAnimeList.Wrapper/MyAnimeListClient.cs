@@ -13,14 +13,15 @@ using System.Threading.Tasks;
 using AngleSharp;
 using AngleSharp.Dom;
 using Microsoft.Extensions.Logging;
-using PaperMalKing.MyAnimeList.Wrapper.Models;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.Base;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List.Types;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
 using PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
 namespace PaperMalKing.MyAnimeList.Wrapper;
 
-internal sealed class MyAnimeListClient
+public sealed class MyAnimeListClient : IMyAnimeListClient
 {
 	private readonly HttpClient _unofficialApiHttpClient;
 	private readonly HttpClient _officialApiHttpClient;

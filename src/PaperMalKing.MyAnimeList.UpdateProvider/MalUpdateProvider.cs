@@ -15,26 +15,27 @@ using Microsoft.Extensions.Options;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.MyAnimeList;
-using PaperMalKing.MyAnimeList.Wrapper;
-using PaperMalKing.MyAnimeList.Wrapper.Models;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.AnimeList;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.Base;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.MangaList;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List.Types;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-namespace PaperMalKing.UpdatesProviders.MyAnimeList;
+namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
 internal sealed class MalUpdateProvider : BaseUpdateProvider
 {
-	private readonly MyAnimeListClient _client;
+	private readonly IMyAnimeListClient _client;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 	private readonly IOptions<MalOptions> _options;
 
 	public override string Name => Constants.Name;
 
-	public MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOptions<MalOptions> options, MyAnimeListClient client,
+	public MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOptions<MalOptions> options, IMyAnimeListClient client,
 							 IDbContextFactory<DatabaseContext> dbContextFactory) : base(logger,
 		TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 	{
@@ -236,8 +237,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 	{
 		IReadOnlyList<DiscordEmbedBuilder> ToDiscordEmbedBuilders<TDbf, TWf>(DbSet<TDbf> dbSet, IReadOnlyList<TWf> resulting, User user,
 																			 MalUser dbUser) where TDbf : BaseMalFavorite, IEquatable<TDbf>
-																							 where TWf : PaperMalKing.MyAnimeList.Wrapper.Models.
-																							 Favorites.BaseFavorite
+																							 where TWf : BaseFavorite
 		{
 			var withUserQuery = dbSet.Where(x => x.UserId == user.Id);
 			var dbIds = withUserQuery.Select(x => x.Id).OrderBy(x => x).ToArray();

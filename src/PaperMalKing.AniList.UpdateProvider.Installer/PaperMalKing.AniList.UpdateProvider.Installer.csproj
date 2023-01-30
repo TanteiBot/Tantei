@@ -8,7 +8,6 @@
         <PackageReference Include="System.Threading.RateLimiting" />
         <PackageReference Include="GraphQL.Client" />
         <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" />
-
     </ItemGroup>
     
     <ItemGroup>
