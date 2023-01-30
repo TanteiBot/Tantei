@@ -11,13 +11,11 @@ public sealed class Studio
 	private string? _url;
 
 	[JsonPropertyName("id")]
-	[JsonRequired]
-	public uint Id { get; internal set; }
+	public required uint Id { get; init; }
 
 	[JsonPropertyName("name")]
 	[JsonConverter(typeof(StringPoolingJsonConverter))]
-	[JsonRequired]
-	public string Name { get; internal set; } = null!;
+	public required string Name { get; init; }
 
 	public string Url => this._url ??= $"{Constants.BASE_URL}/anime/producer/{this.Id}";
 }

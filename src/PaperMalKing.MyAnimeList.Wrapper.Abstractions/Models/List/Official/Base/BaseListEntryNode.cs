@@ -11,28 +11,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Bas
 public abstract class BaseListEntryNode<TMediaType, TStatus> where TMediaType : unmanaged, Enum where TStatus : unmanaged, Enum
 {
 	[JsonPropertyName("id")]
-	[JsonRequired]
-	public uint Id { get; internal set; }
+	public required uint Id { get; init; }
 
 	[JsonPropertyName("title")]
 	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
-	[JsonRequired]
-	public string Title { get; internal set; } = null!;
+	public required string Title { get; init; }
 
 	[JsonPropertyName("main_picture")]
-	public Picture? Picture { get; internal set; }
+	public Picture? Picture { get; init; }
 
 	[JsonPropertyName("synopsis")]
-	public string? Synopsis { get; internal set; }
+	public string? Synopsis { get; init; }
 
 	[JsonPropertyName("genres")]
-	public IReadOnlyList<Genre>? Genres { get; internal set; }
+	public IReadOnlyList<Genre>? Genres { get; init; }
 
-	[JsonPropertyName("media_type"), JsonConverter(typeof(JsonStringEnumConverter)),JsonRequired]
-	public TMediaType MediaType { get; internal set; }
+	[JsonPropertyName("media_type"), JsonConverter(typeof(JsonStringEnumConverter))]
+	public required TMediaType MediaType { get; init; }
 
-	[JsonPropertyName("status"), JsonConverter(typeof(JsonStringEnumConverter)),JsonRequired]
-	public TStatus Status { get; internal set; }
+	[JsonPropertyName("status"), JsonConverter(typeof(JsonStringEnumConverter))]
+	public required TStatus Status { get; init; }
 
 	public abstract string Url { get; }
 

@@ -10,10 +10,8 @@ public sealed class Author
 {
 	[JsonPropertyName("role")]
 	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
-	[JsonRequired]
-	public string Role { get; internal set; } = null!;
+	public required string Role { get; init; }
 
 	[JsonPropertyName("node")]
-	[JsonRequired]
-	public Person Person { get; internal set; } = null!;
+	public required Person Person { get; init; }
 }

@@ -15,18 +15,14 @@ public sealed class MangaListEntryStatus : BaseListEntryStatus<MangaListStatus>
 	public override ulong ReprogressTimes => this.TimesReread;
 
 	[JsonPropertyName("num_volumes_read")]
-	[JsonRequired]
-	public ulong VolumesRead { get; internal set; }
+	public required ulong VolumesRead { get; init; }
 
 	[JsonPropertyName("num_chapters_read")]
-	[JsonRequired]
-	public ulong ChaptersRead { get; internal set; }
+	public required ulong ChaptersRead { get; init; }
 
 	[JsonPropertyName("is_rereading")]
-	[JsonRequired]
-	public bool IsRereading { get; internal set; }
+	public required bool IsRereading { get; init; }
 
 	[JsonPropertyName("num_times_reread")]
-	[JsonRequired]
-	public ulong TimesReread { get; internal set; }
+	public required ulong TimesReread { get; init; }
 }

@@ -93,23 +93,23 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		var url = $"{Constants.BASE_OFFICIAL_API_URL}{TListType.LatestUpdatesUrl(username, requestOptions)}";
 		using var response = await this._officialApiHttpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-		var updates = (ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>) (await response.Content
-									.ReadFromJsonAsync(typeof(ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>),
-										JsonSGContext.Default, cancellationToken).ConfigureAwait(false))!;
+		var updates = await response.Content
+									.ReadFromJsonAsync<ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>>(
+										JsonSerializerOptions.Default, cancellationToken).ConfigureAwait(false);
 
 		return updates?.Data ?? Array.Empty<TE>();
 	}
 
 }
-internal sealed class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
+sealed file class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 	where T : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 	where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
 	where TStatus : BaseListEntryStatus<TListStatus>
 	where TMediaType : unmanaged, Enum
 	where TNodeStatus : unmanaged, Enum
 	where TListStatus : unmanaged, Enum
+
 {
 	[JsonPropertyName("data")]
-	[JsonRequired]
-	public T[] Data { get; internal set; } = Array.Empty<T>();
+	public required T[] Data { get; init; }
 }

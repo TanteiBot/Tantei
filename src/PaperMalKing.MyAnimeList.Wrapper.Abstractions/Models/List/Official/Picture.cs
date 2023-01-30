@@ -8,9 +8,8 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official;
 public sealed class Picture
 {
 	[JsonPropertyName("large")]
-	public string? Large { get; internal set; }
+	public string? Large { get; init; }
 
 	[JsonPropertyName("medium")]
-	[JsonRequired]
-	public string Medium { get; internal set; } = null!;
+	public required string Medium { get; init; }
 }

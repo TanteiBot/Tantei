@@ -13,15 +13,13 @@ public sealed class MangaListEntryNode : BaseListEntryNode<MangaMediaType, Manga
 	public override uint TotalSubEntries => this.TotalChapters;
 
 	[JsonPropertyName("num_volumes")]
-	[JsonRequired]
-	public uint TotalVolumes { get; internal set; }
+	public required uint TotalVolumes { get; init; }
 
 	[JsonPropertyName("num_chapters")]
-	[JsonRequired]
-	public uint TotalChapters { get; internal set; }
+	public required uint TotalChapters { get; init; }
 
 	[JsonPropertyName("authors")]
-	public IReadOnlyList<Author>? Authors { get; internal set; }
+	public IReadOnlyList<Author>? Authors { get; init; }
 
 	public override string Url => this._url ??= $"{Constants.BASE_URL}/manga/{this.Id}";
 }

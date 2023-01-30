@@ -19,12 +19,11 @@ public abstract class BaseListEntryStatus<TListStatus> where TListStatus : unman
 		return Unsafe.As<TListStatus, byte>(ref status);
 	}
 
-	[JsonPropertyName("status"), JsonConverter(typeof(JsonStringEnumConverter)), JsonRequired]
-	public TListStatus Status { get; internal set; }
+	[JsonPropertyName("status"), JsonConverter(typeof(JsonStringEnumConverter))]
+	public required TListStatus Status { get; init; }
 
 	[JsonPropertyName("score")]
-	[JsonRequired]
-	public byte Score { get; internal set; }
+	public required byte Score { get; init; }
 
 	public abstract ulong ProgressedSubEntries { get; }
 
@@ -33,18 +32,17 @@ public abstract class BaseListEntryStatus<TListStatus> where TListStatus : unman
 	public abstract ulong ReprogressTimes { get; }
 
 	[JsonPropertyName("tags")]
-	public IReadOnlyList<string>? Tags { get; internal set; }
+	public IReadOnlyList<string>? Tags { get; init; }
 
 	[JsonPropertyName("comments")]
-	public string? Comments { get; internal set; }
+	public string? Comments { get; init; }
 
 	[JsonPropertyName("updated_at")]
-	[JsonRequired]
-	public DateTimeOffset UpdatedAt { get; internal set; }
+	public required DateTimeOffset UpdatedAt { get; init; }
 
 	[JsonPropertyName("start_date"), JsonConverter(typeof(DateOnlyFromMalConverter))]
-	public DateOnly? StartDate { get; internal set; }
+	public DateOnly? StartDate { get; init; }
 
 	[JsonPropertyName("finish_date"), JsonConverter(typeof(DateOnlyFromMalConverter))]
-	public DateOnly? FinishDate { get; internal set; }
+	public DateOnly? FinishDate { get; init; }
 }
