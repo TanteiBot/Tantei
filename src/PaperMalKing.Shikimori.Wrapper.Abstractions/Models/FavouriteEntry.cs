@@ -17,15 +17,16 @@ public sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<Fav
 	public string? SpecificType { get; set; } = null;
 
 	[JsonPropertyName("id")]
-	public uint Id { get; init; }
+	public uint Id { get; internal set; }
 
 	[JsonPropertyName("name")]
 	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
-	public required string Name { get; init; }
+	[JsonRequired]
+	public string Name { get; internal set; } = null!;
 
 	[JsonPropertyName("russian")]
 	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
-	public string? RussianName { get; init; }
+	public string? RussianName { get; internal set; }
 
 	public string? ImageUrl => Utils.GetImageUrl(this.GenericType!, this.Id);
 

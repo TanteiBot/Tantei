@@ -10,29 +10,33 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 public abstract class BaseMedia : IMultiLanguageName
 {
 	[JsonPropertyName("id")]
-	public uint Id { get; init; }
+	public uint Id { get; internal set; }
 
 	[JsonPropertyName("name")]
-	public string? Name { get; init; }
+	public string? Name { get; internal set; }
 
 	[JsonPropertyName("russian")]
-	public string? RussianName { get; init; }
+	public string? RussianName { get; internal set; }
 
 	public string Image => Utils.GetImageUrl(this.Type, this.Id);
 
 	[JsonPropertyName("kind")]
 	[JsonConverter(typeof(StringPoolingJsonConverter))]
-	public required string Kind { get; init; }
+	[JsonRequired]
+	public string Kind { get; internal set; } = null!;
 
 	[JsonPropertyName("status")]
 	[JsonConverter(typeof(StringPoolingJsonConverter))]
-	public required string Status { get; init; }
+	[JsonRequired]
+	public string Status { get; internal set; } = null!;
 
 	[JsonPropertyName("genres")]
-	public required IReadOnlyList<Genre> Genres { get; init; }
+	[JsonRequired]
+	public IReadOnlyList<Genre> Genres { get; internal set; } = null!;
 
 	[JsonPropertyName("description")]
-	public required string Description { get; init; }
+	[JsonRequired]
+	public string Description { get; internal set; } = null!;
 
 	protected abstract string Type { get; }
 }

@@ -9,11 +9,13 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 public sealed class Studio
 {
 	[JsonPropertyName("id")]
-	public required uint Id { get; init; }
+	[JsonRequired]
+	public uint Id { get; internal set; }
 
 	[JsonPropertyName("name")]
 	[JsonConverter(typeof(StringPoolingJsonConverter))]
-	public required string Name { get; init; }
+	[JsonRequired]
+	public string Name { get; internal set; } = null!;
 
 	public string Url => Utils.GetUrl("animes/studio", this.Id);
 
