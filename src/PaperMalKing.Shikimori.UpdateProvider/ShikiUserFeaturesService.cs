@@ -10,7 +10,8 @@ using Microsoft.Extensions.Logging;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.Shikimori.Wrapper;
-using PaperMalKing.Shikimori.Wrapper.Models;
+using PaperMalKing.Shikimori.Wrapper.Abstractions;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 using PaperMalKing.UpdatesProviders.Base.Features;
 
@@ -18,9 +19,9 @@ namespace PaperMalKing.Shikimori.UpdateProvider;
 
 internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUser, ShikiUserFeatures>
 {
-	private readonly ShikiClient _client;
+	private readonly IShikiClient _client;
 
-	public ShikiUserFeaturesService(ShikiClient client, ILogger<ShikiUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
+	public ShikiUserFeaturesService(IShikiClient client, ILogger<ShikiUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
 		: base(dbContextFactory, logger)
 	{
 		this._client = client;

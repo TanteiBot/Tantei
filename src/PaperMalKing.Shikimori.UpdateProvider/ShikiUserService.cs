@@ -11,7 +11,8 @@ using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.Shikimori.Wrapper;
-using PaperMalKing.Shikimori.Wrapper.Models;
+using PaperMalKing.Shikimori.Wrapper.Abstractions;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
@@ -19,11 +20,11 @@ namespace PaperMalKing.Shikimori.UpdateProvider;
 
 internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser>
 {
-	private readonly ShikiClient _client;
+	private readonly IShikiClient _client;
 
 	public override string Name => Constants.NAME;
 
-	public ShikiUserService(ShikiClient client, ILogger<ShikiUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService) : base(logger, dbContextFactory, userService)
+	public ShikiUserService(IShikiClient client, ILogger<ShikiUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService) : base(logger, dbContextFactory, userService)
 	{
 		this._client = client;
 	}

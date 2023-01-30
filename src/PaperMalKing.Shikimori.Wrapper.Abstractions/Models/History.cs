@@ -4,9 +4,9 @@
 using System;
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.Shikimori.Wrapper.Models;
+namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 
-internal sealed class History
+public sealed class History
 {
 	[JsonPropertyName("id")]
 	public uint Id { get; init; }

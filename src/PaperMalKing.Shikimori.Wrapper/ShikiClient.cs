@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2022 N0D4N
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -10,12 +11,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common.Enums;
-using PaperMalKing.Shikimori.Wrapper.Models;
-using PaperMalKing.Shikimori.Wrapper.Models.Media;
+using PaperMalKing.Shikimori.Wrapper.Abstractions;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
 namespace PaperMalKing.Shikimori.Wrapper;
 
-internal sealed class ShikiClient
+public sealed class ShikiClient : IShikiClient
 {
 	private readonly HttpClient _httpClient;
 	private readonly ILogger<ShikiClient> _logger;
@@ -64,8 +66,8 @@ internal sealed class ShikiClient
 		#pragma warning disable CA2000
 		using var content = new MultipartFormDataContent
 		{
-			{ new StringContent(page.ToString()), "page" },
-			{ new StringContent(limit.ToString()), "limit" }
+			{ new StringContent(page.ToString(CultureInfo.InvariantCulture)), "page" },
+			{ new StringContent(limit.ToString(CultureInfo.InvariantCulture)), "limit" }
 		};
 		if (options != HistoryRequestOptions.Any) content.Add(new StringContent(options.ToString()), "target_type");
 		#pragma warning restore CA2000

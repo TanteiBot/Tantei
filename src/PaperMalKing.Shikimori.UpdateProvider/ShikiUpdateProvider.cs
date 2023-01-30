@@ -15,9 +15,9 @@ using PaperMalKing.Common;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.Shikimori;
-using PaperMalKing.Shikimori.Wrapper;
-using PaperMalKing.Shikimori.Wrapper.Models;
-using PaperMalKing.Shikimori.Wrapper.Models.Media;
+using PaperMalKing.Shikimori.Wrapper.Abstractions;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
@@ -27,11 +27,11 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 {
 	private readonly IOptions<ShikiOptions> _options;
 
-	private readonly ShikiClient _client;
+	private readonly IShikiClient _client;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
 
-	public ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptions<ShikiOptions> options, ShikiClient client,
+	public ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptions<ShikiOptions> options, IShikiClient client,
 							   IDbContextFactory<DatabaseContext> dbContextFactory) : base(logger,
 		TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 	{

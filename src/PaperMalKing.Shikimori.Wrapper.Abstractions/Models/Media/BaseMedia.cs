@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using PaperMalKing.Common.Json;
 
-namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
+namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
-internal abstract class BaseMedia : IMultiLanguageName
+public abstract class BaseMedia : IMultiLanguageName
 {
 	[JsonPropertyName("id")]
 	public uint Id { get; init; }

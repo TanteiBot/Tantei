@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
+namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
-internal sealed class Role
+public sealed class Role
 {
 	[JsonPropertyName("roles")]
 	public required IReadOnlyList<string> Name { get; init; }

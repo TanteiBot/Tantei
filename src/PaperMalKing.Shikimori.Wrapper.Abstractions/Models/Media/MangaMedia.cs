@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
+namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
-internal sealed class MangaMedia : BaseMedia
+public sealed class MangaMedia : BaseMedia
 {
 	[JsonPropertyName("publishers")]
 	public IReadOnlyList<Publisher> Publishers { get; init; } = Array.Empty<Publisher>();

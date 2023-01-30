@@ -16,8 +16,9 @@ using PaperMalKing.Common;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.Shikimori.Wrapper;
-using PaperMalKing.Shikimori.Wrapper.Models;
-using PaperMalKing.Shikimori.Wrapper.Models.Media;
+using PaperMalKing.Shikimori.Wrapper.Abstractions;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
@@ -54,7 +55,7 @@ internal static partial class Extensions
 	public static DiscordEmbedBuilder WithShikiAuthor(this DiscordEmbedBuilder builder, UserInfo user) =>
 		builder.WithAuthor(user.Nickname, user.Url, user.ImageUrl);
 
-	public static async Task<IReadOnlyList<History>> GetAllUserHistoryAfterEntryAsync(this ShikiClient client, uint userId, ulong limitHistoryEntryId,
+	public static async Task<IReadOnlyList<History>> GetAllUserHistoryAfterEntryAsync(this IShikiClient client, uint userId, ulong limitHistoryEntryId,
 																					  ShikiUserFeatures features,
 																					  CancellationToken cancellationToken = default)
 	{

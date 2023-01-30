@@ -2,17 +2,19 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System.Text.Json.Serialization;
-using PaperMalKing.Common.Json;
 
-namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
+namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
-internal sealed class Genre : IMultiLanguageName
+public sealed class Person : IMultiLanguageName
 {
+	[JsonPropertyName("id")]
+	public required uint Id { get; init; }
+
 	[JsonPropertyName("name")]
-	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string Name { get; init; }
 
 	[JsonPropertyName("russian")]
-	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string RussianName { get; init; }
+
+	public string Url => Utils.GetUrl("people", this.Id);
 }

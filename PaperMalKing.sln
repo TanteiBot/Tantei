@@ -28,7 +28,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.UpdatesProvide
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.MyAnimeList.Wrapper", "src\PaperMalKing.MyAnimeList.Wrapper\PaperMalKing.MyAnimeList.Wrapper.csproj", "{F33A6A6C-D5F1-4E55-B1ED-44F5040B211A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Shikimori.Wrapper", "src\PaperMalKing.Shikimori.Wrapper\PaperMalKing.Shikimori.Wrapper.csproj", "{F458F4DC-AC3D-4A31-8C05-2DF5B0AA6834}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Shikimori.Wrapper.Abstractions", "src\PaperMalKing.Shikimori.Wrapper.Abstractions\PaperMalKing.Shikimori.Wrapper.Abstractions.csproj", "{F458F4DC-AC3D-4A31-8C05-2DF5B0AA6834}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Shikimori.UpdateProvider", "src\PaperMalKing.Shikimori.UpdateProvider\PaperMalKing.Shikimori.UpdateProvider.csproj", "{5EEB70A4-2F1E-4165-96B4-B8E344FCD04D}"
 EndProject
@@ -68,6 +68,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.AniList.UpdateProvider.Installer", "src\PaperMalKing.AniList.UpdateProvider.Installer\PaperMalKing.AniList.UpdateProvider.Installer.csproj", "{25930F9E-B68A-4EC0-9DBC-D6137246076E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.AniList.Wrapper", "src\PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj", "{FDDF8A9F-ABF6-4C9C-8DA9-89EEDBA63172}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Shikimori.UpdateProvider.Installer", "src\PaperMalKing.Shikimori.UpdateProvider.Installer\PaperMalKing.Shikimori.UpdateProvider.Installer.csproj", "{8A4AC7DF-1B3C-40A3-8EC6-72361D90A089}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Shikimori.Wrapper", "src\PaperMalKing.Shikimori.Wrapper\PaperMalKing.Shikimori.Wrapper.csproj", "{A975F448-E797-4BBF-8B9B-D0278DA43FE5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -143,6 +147,14 @@ Global
 		{FDDF8A9F-ABF6-4C9C-8DA9-89EEDBA63172}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDDF8A9F-ABF6-4C9C-8DA9-89EEDBA63172}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDDF8A9F-ABF6-4C9C-8DA9-89EEDBA63172}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A4AC7DF-1B3C-40A3-8EC6-72361D90A089}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A4AC7DF-1B3C-40A3-8EC6-72361D90A089}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A4AC7DF-1B3C-40A3-8EC6-72361D90A089}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A4AC7DF-1B3C-40A3-8EC6-72361D90A089}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A975F448-E797-4BBF-8B9B-D0278DA43FE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A975F448-E797-4BBF-8B9B-D0278DA43FE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A975F448-E797-4BBF-8B9B-D0278DA43FE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A975F448-E797-4BBF-8B9B-D0278DA43FE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -168,5 +180,7 @@ Global
 		{07216B66-6116-47B4-A5D5-85E9F5962DD2} = {1DF4A161-80A8-4A54-AF01-AF006A6C38E0}
 		{25930F9E-B68A-4EC0-9DBC-D6137246076E} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 		{FDDF8A9F-ABF6-4C9C-8DA9-89EEDBA63172} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
+		{8A4AC7DF-1B3C-40A3-8EC6-72361D90A089} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
+		{A975F448-E797-4BBF-8B9B-D0278DA43FE5} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 	EndGlobalSection
 EndGlobal

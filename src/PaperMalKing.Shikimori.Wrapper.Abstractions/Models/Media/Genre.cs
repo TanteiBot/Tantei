@@ -4,18 +4,15 @@
 using System.Text.Json.Serialization;
 using PaperMalKing.Common.Json;
 
-namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
+namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
-internal sealed class Studio
+public sealed class Genre : IMultiLanguageName
 {
-	[JsonPropertyName("id")]
-	public required uint Id { get; init; }
-
 	[JsonPropertyName("name")]
 	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string Name { get; init; }
 
-	public string Url => Utils.GetUrl("animes/studio", this.Id);
-
-	public string Image => Utils.GetImageUrl("studios", this.Id);
+	[JsonPropertyName("russian")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
+	public required string RussianName { get; init; }
 }

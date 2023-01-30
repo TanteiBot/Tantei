@@ -3,9 +3,9 @@
 
 using System.Text.Json.Serialization;
 
-namespace PaperMalKing.Shikimori.Wrapper.Models.Media;
+namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
-internal sealed class Publisher
+public sealed class Publisher
 {
 	[JsonPropertyName("id")]
 	public required uint Id { get; init; }

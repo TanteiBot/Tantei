@@ -6,9 +6,9 @@ using System.Text.Json.Serialization;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Common.Json;
 
-namespace PaperMalKing.Shikimori.Wrapper.Models;
+namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 
-internal sealed class HistoryTarget : IMultiLanguageName
+public sealed class HistoryTarget : IMultiLanguageName
 {
 	private readonly string _url = null!;
 
