@@ -10,11 +10,9 @@ public sealed class Genre : IMultiLanguageName
 {
 	[JsonPropertyName("name")]
 	[JsonConverter(typeof(StringPoolingJsonConverter))]
-	[JsonRequired]
-	public string Name { get; internal set; } = null!;
+	public required string Name { get; init; }
 
 	[JsonPropertyName("russian")]
 	[JsonConverter(typeof(StringPoolingJsonConverter))]
-	[JsonRequired]
-	public string RussianName { get; internal set; } = null!;
+	public required string RussianName { get; init; }
 }

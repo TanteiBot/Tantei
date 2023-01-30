@@ -16,57 +16,65 @@ public sealed class Favourites : IJsonOnDeserialized
 	[JsonPropertyName("animes")]
 	public IReadOnlyList<FavouriteEntry> Animes
 	{
+		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		internal set => this.SetTypesThenAddToAll(value, "animes", "Anime");
+		init => this.SetTypesThenAddToAll(value, "animes", "Anime");
 	}
 
 	[JsonPropertyName("mangas")]
 	public IReadOnlyList<FavouriteEntry> Mangas
 	{
+		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		internal set => this.SetTypesThenAddToAll(value, "mangas", "Manga");
+		init => this.SetTypesThenAddToAll(value, "mangas", "Manga");
 	}
 
 	[JsonPropertyName("characters")]
 	public IReadOnlyList<FavouriteEntry> Characters
 	{
+		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		internal set => this.SetTypesThenAddToAll(value, "characters", "Character");
+		init => this.SetTypesThenAddToAll(value, "characters", "Character");
 	}
 
 	[JsonPropertyName("people")]
 	public IReadOnlyList<FavouriteEntry> People
 	{
+		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		internal set => this.SetTypesThenAddToAll(value, "people", "Person");
+		init => this.SetTypesThenAddToAll(value, "people", "Person");
 	}
 
 	[JsonPropertyName("mangakas")]
 	public IReadOnlyList<FavouriteEntry> Mangakas
 	{
+		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		internal set => this.SetTypesThenAddToAll(value, "people", "Mangaka");
+		init => this.SetTypesThenAddToAll(value, "people", "Mangaka");
 	}
 
 	[JsonPropertyName("seyu")]
 	public IReadOnlyList<FavouriteEntry> Seyu
 	{
+		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		internal set => this.SetTypesThenAddToAll(value, "people", "Seyu");
+		init => this.SetTypesThenAddToAll(value, "people", "Seyu");
 	}
 
 	[JsonPropertyName("producers")]
 	public IReadOnlyList<FavouriteEntry> Producers
 	{
+		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		internal set => this.SetTypesThenAddToAll(value, "people", "Producer");
+		init => this.SetTypesThenAddToAll(value, "people", "Producer");
 	}
 
 	[JsonPropertyName("ranobe")]
 	public IReadOnlyList<FavouriteEntry> Ranobe
 	{
+		[Obsolete("Used only for json serializer", true)]
 		get => throw new NotSupportedException();
-		internal set => this.SetTypesThenAddToAll(value, "mangas", "Ranobe");
+		init => this.SetTypesThenAddToAll(value, "mangas", "Ranobe");
 	}
 
 	private void SetTypesThenAddToAll(IReadOnlyList<FavouriteEntry> entries, string genericType, string? specificType)

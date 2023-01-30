@@ -10,23 +10,22 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 
 public sealed class HistoryTarget : IMultiLanguageName
 {
-	private string _url = null!;
+	private readonly string _url = null!;
 
-	public ListEntryType Type { get; internal set; }
+	public ListEntryType Type { get; init; }
 
 	[JsonPropertyName("status")]
 	[JsonConverter(typeof(StringPoolingJsonConverter))]
-	[JsonRequired]
-	public string Status { get; internal set; } = null!;
+	public required string Status { get; init; }
 
 	[JsonPropertyName("id")]
-	public ulong Id { get; internal set; }
+	public ulong Id { get; init; }
 
 	[JsonPropertyName("url")]
 	public string Url
 	{
 		get => this._url;
-		internal set
+		init
 		{
 			this._url = $"{Constants.BASE_URL}{value}";
 			this.Type = value.Contains("/animes", StringComparison.OrdinalIgnoreCase) ? ListEntryType.Anime : ListEntryType.Manga;
@@ -36,28 +35,27 @@ public sealed class HistoryTarget : IMultiLanguageName
 	}
 
 	[JsonPropertyName("episodes")]
-	public uint? Episodes { get; internal set; }
+	public uint? Episodes { get; init; }
 
 	[JsonPropertyName("episodes_aired")]
-	public uint? EpisodesAired { get; internal set; }
+	public uint? EpisodesAired { get; init; }
 
 	[JsonPropertyName("volumes")]
-	public uint? Volumes { get; internal set; }
+	public uint? Volumes { get; init; }
 
 	[JsonPropertyName("chapters")]
-	public uint? Chapters { get; internal set; }
+	public uint? Chapters { get; init; }
 
 	[JsonPropertyName("kind")]
 	[JsonConverter(typeof(StringPoolingJsonConverter))]
-	public string? Kind { get; internal set; }
+	public string? Kind { get; init; }
 
 	[JsonPropertyName("name")]
-	[JsonRequired]
-	public string Name { get; internal set; } = null!;
+	public required string Name { get; init; }
 
 	[JsonPropertyName("russian")]
-	public string? RussianName { get; internal set; }
+	public string? RussianName { get; init; }
 
 	[JsonIgnore]
-	public string ImageUrl { get; internal set; } = null!;
+	public string ImageUrl { get; init; } = null!;
 }

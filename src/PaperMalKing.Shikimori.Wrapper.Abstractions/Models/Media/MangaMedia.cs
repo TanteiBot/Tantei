@@ -10,6 +10,6 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 public sealed class MangaMedia : BaseMedia
 {
 	[JsonPropertyName("publishers")]
-	public IReadOnlyList<Publisher> Publishers { get; internal set; } = Array.Empty<Publisher>();
+	public IReadOnlyList<Publisher> Publishers { get; init; } = Array.Empty<Publisher>();
 	protected override string Type => "mangas";
 }
