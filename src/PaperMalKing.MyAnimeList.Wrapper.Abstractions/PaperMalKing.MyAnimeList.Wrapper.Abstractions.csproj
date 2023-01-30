@@ -6,8 +6,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-        <PackageReference Include="AngleSharp" />
     </ItemGroup>
 
 

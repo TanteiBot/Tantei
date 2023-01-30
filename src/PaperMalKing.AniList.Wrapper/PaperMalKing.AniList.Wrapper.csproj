@@ -3,7 +3,6 @@
     <ItemGroup>
         <PackageReference Include="GraphQL.Client" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-
         <ProjectReference Include="..\PaperMalKing.AniList.Wrapper.Abstractions\PaperMalKing.AniList.Wrapper.Abstractions.csproj" />
     </ItemGroup>
 

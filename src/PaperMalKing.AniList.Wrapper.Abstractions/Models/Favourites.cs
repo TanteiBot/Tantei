@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 
 namespace PaperMalKing.AniList.Wrapper.Abstractions.Models;
 
+[SuppressMessage("Design", "CA1041:Provide ObsoleteAttribute message")]
 public sealed class Favourites
 {
 	public bool HasNextPage { get; init; } = false;
