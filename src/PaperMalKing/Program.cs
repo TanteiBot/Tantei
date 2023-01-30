@@ -6,8 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Systemd;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PaperMalKing;
 using PaperMalKing.Database;
 using PaperMalKing.Database.CompiledModels;
 using PaperMalKing.Options;
@@ -15,6 +17,7 @@ using PaperMalKing.Services;
 using PaperMalKing.Services.Background;
 using PaperMalKing.UpdatesProviders.Base;
 using Serilog;
+using Serilog.Formatting.Display;
 
 await Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
 {
@@ -54,10 +57,13 @@ await Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) 
 	services.AddSingleton<UserCleanupService>();
 	services.AddSingleton<GeneralUserService>();
 	RunSQLiteConfiguration();
-}).UseSerilog((context, _, configuration) =>
+}).UseSystemd().UseSerilog((context, _, configuration) =>
 {
+	var defaultFormatter =
+		new MessageTemplateTextFormatter(
+			"[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {Level:u3}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}");
 	configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo.Console(
-		outputTemplate: "[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {Level:u3}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}");
+		formatter: SystemdHelpers.IsSystemdService() ? new SystemdTextFormatter(defaultFormatter) : defaultFormatter);
 }).Build().RunAsync().ConfigureAwait(false);
 
 static void RunSQLiteConfiguration()

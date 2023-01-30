@@ -35,12 +35,13 @@ public sealed class ShikiClient : IShikiClient
 		nickname = WebUtility.UrlEncode(nickname);
 		var url = $"{Constants.BASE_USERS_API_URL}/{nickname}";
 
-		using var stringContent = new StringContent("1");
 		using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 		{
 			Content = new MultipartFormDataContent()
 			{
-				{ stringContent, "is_nickname" }
+				#pragma warning disable CA2000
+				{ new StringContent("1"), "is_nickname" }
+				#pragma warning restore CA2000
 			}
 		};
 

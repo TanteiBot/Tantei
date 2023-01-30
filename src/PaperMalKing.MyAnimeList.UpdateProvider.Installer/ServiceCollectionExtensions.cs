@@ -66,5 +66,5 @@ public static class ServiceCollectionExtensions
 	};
 
 	private static RateLimiterHttpMessageHandler GetRateLimiterHandler(IServiceProvider provider) =>
-		provider.GetRequiredService<RateLimiter<MyAnimeListClient>>().ToHttpMessageHandler();
+		provider.GetRequiredService<RateLimiter<IMyAnimeListClient>>().ToHttpMessageHandler();
 }
