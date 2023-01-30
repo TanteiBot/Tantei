@@ -10,5 +10,6 @@ public sealed class Genre
 {
 	[JsonPropertyName("name")]
 	[JsonConverter(typeof(StringPoolingJsonConverter))]
-	public required string Name { get; init; }
+	[JsonRequired]
+	public string Name { get; internal set; } = null!;
 }

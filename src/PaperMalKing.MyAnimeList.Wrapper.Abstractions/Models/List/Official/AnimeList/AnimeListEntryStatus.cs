@@ -16,11 +16,14 @@ public sealed class AnimeListEntryStatus : BaseListEntryStatus<AnimeListStatus>
 
 
 	[JsonPropertyName("num_episodes_watched")]
-	public required ulong EpisodesWatched { get; init; }
+	[JsonRequired]
+	public ulong EpisodesWatched { get; internal set; }
 
 	[JsonPropertyName("is_rewatching")]
-	public required bool IsRewatching { get; init; }
+	[JsonRequired]
+	public bool IsRewatching { get; internal set; }
 
 	[JsonPropertyName("num_times_rewatched")]
-	public required ulong TimesRewatched { get; init; } 
+	[JsonRequired]
+	public ulong TimesRewatched { get; internal set; }
 }

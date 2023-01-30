@@ -10,15 +10,16 @@ public sealed class Person
 {
 	private string? _url;
 	[JsonPropertyName("id")]
-	public required uint Id { get; init; }
+	[JsonRequired]
+	public uint Id { get; internal set; }
 
 	[JsonPropertyName("first_name")]
 	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
-	public string? FirstName { get; init; }
+	public string? FirstName { get; internal set; }
 
 	[JsonPropertyName("last_name")]
 	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
-	public string? LastName { get; init; }
+	public string? LastName { get; internal set; }
 
 	public string Url => this._url ??= $"{Constants.BASE_URL}/people/{this.Id}";
 }

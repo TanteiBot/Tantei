@@ -86,7 +86,7 @@ public sealed class ShikiClient : IShikiClient
 	{
 		var url = BuildUrlForRequestingMedia(id, type);
 		this._logger.LogInformation("Requesting media with id: {Id}, and type: {Type}", id, type);
-		return (TMedia) await this._httpClient.GetFromJsonAsync(url, typeof(TMedia), JsonSGContext.Default, cancellationToken).ConfigureAwait(false)!;
+		return (TMedia) (await this._httpClient.GetFromJsonAsync(url, typeof(TMedia), JsonSGContext.Default, cancellationToken).ConfigureAwait(false))!;
 	}
 
 	private static string BuildUrlForRequestingMedia(ulong id, ListEntryType type) =>
