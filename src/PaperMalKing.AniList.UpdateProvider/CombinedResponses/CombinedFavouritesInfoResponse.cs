@@ -2,8 +2,8 @@
 // Copyright (C) 2021-2022 N0D4N
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using PaperMalKing.AniList.Wrapper.Models;
-using PaperMalKing.AniList.Wrapper.Models.Responses;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Responses;
 
 namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses;
 

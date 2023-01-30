@@ -7,21 +7,20 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
-
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
         <PackageReference Include="Serilog" />
         <PackageReference Include="Serilog.Extensions.Hosting" />
         <PackageReference Include="Serilog.Settings.Configuration" />
         <PackageReference Include="Serilog.Sinks.Console" />
-        <PackageReference Include="DSharpPlus"/>
-        <PackageReference Include="DSharpPlus.SlashCommands"/>
-        <PackageReference Include="Humanizer.Core"/>
+        <PackageReference Include="DSharpPlus" />
+        <PackageReference Include="DSharpPlus.SlashCommands" />
+        <PackageReference Include="Humanizer.Core" />
         <PackageReference Include="Microsoft.Extensions.Options" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     </ItemGroup>
@@ -48,7 +47,7 @@
         <ProjectReference Include="..\PaperMalKing.Database.CompiledModels\PaperMalKing.Database.CompiledModels.csproj" />
         <ProjectReference Include="..\PaperMalKing.Database.Migrations\PaperMalKing.Database.Migrations.csproj" />
         <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
-        <ProjectReference Include="..\PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj" />
+        <ProjectReference Include="..\PaperMalKing.AniList.Wrapper.Abstractions\PaperMalKing.AniList.Wrapper.Abstractions.csproj" />
         <ProjectReference Include="..\PaperMalKing.AniList.UpdateProvider\PaperMalKing.AniList.UpdateProvider.csproj" />
         <ProjectReference Include="..\PaperMalKing.MyAnimeList.UpdateProvider\PaperMalKing.MyAnimeList.UpdateProvider.csproj" />
         <ProjectReference Include="..\PaperMalKing.MyAnimeList.Wrapper\PaperMalKing.MyAnimeList.Wrapper.csproj" />

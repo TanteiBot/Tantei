@@ -1,25 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-    </PropertyGroup>
-
     <ItemGroup>
-        <InternalsVisibleTo Include="System.Text.Json" />
-        <ProjectReference Include="..\PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj" />
+        <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider.Installer" />
+        <ProjectReference Include="..\PaperMalKing.AniList.Wrapper.Abstractions\PaperMalKing.AniList.Wrapper.Abstractions.csproj" />
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
         <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
         <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
-        <PackageReference Include="DSharpPlus"/>
-        <PackageReference Include="DSharpPlus.SlashCommands"/>
-        <PackageReference Include="Humanizer.Core"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
+        <PackageReference Include="DSharpPlus" />
+        <PackageReference Include="DSharpPlus.SlashCommands" />
+        <PackageReference Include="Humanizer.Core" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
         <PackageReference Include="Microsoft.Extensions.Options" />
-        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
-        <PackageReference Include="Microsoft.Extensions.Http.Polly" />
-        <PackageReference Include="Polly.Contrib.WaitAndRetry" />
-        <PackageReference Include="System.Threading.RateLimiting" />
         <PackageReference Include="GraphQL.Client" />
-        <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" />
 
     </ItemGroup>
 

@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database;

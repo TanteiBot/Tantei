@@ -3,7 +3,6 @@
 
 using System;
 using System.Text.Json.Serialization;
-using PaperMalKing.Shikimori.Wrapper.Models.Media;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models;
 

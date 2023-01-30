@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Models.Media;

@@ -4,9 +4,9 @@ using PaperMalKing.Common.Options;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
-internal sealed class AniListOptions : ITimerOptions<AniListUpdateProvider>
+public sealed class AniListOptions : ITimerOptions<AniListUpdateProvider>
 {
 	public required int DelayBetweenChecksInMilliseconds { get; init; }
 
-	public const string AniList = Constants.NAME;
+	public const string AniList = ProviderConstants.NAME;
 }

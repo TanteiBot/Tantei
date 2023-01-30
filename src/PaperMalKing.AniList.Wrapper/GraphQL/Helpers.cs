@@ -2,7 +2,7 @@
 // Copyright (C) 2021-2022 N0D4N
 
 using System.Text;
-using PaperMalKing.AniList.Wrapper.Models;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models;
 
 namespace PaperMalKing.AniList.Wrapper.GraphQL;
 
