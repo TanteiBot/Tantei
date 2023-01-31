@@ -10,7 +10,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 public sealed class AnimeMedia : BaseMedia
 {
 	[JsonPropertyName("studios")]
-	public IReadOnlyList<Studio> Studios { get; init; } = Array.Empty<Studio>();
+	public IReadOnlyList<Studio> Studios { get; internal set; } = Array.Empty<Studio>();
 
 	protected override string Type => "animes";
 }

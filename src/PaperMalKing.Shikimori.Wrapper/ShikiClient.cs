@@ -46,7 +46,7 @@ public sealed class ShikiClient : IShikiClient
 		};
 
 		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-		return (await response.Content.ReadFromJsonAsync<User>(JsonSerializerOptions.Default, cancellationToken).ConfigureAwait(false))!;
+		return (await response.Content.ReadFromJsonAsync(JsonSGContext.Default.User, cancellationToken).ConfigureAwait(false))!;
 	}
 
 	public Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default)
@@ -78,16 +78,16 @@ public sealed class ShikiClient : IShikiClient
 		};
 		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 
-		var data = (await response.Content.ReadFromJsonAsync<History[]>(JsonSerializerOptions.Default, cancellationToken).ConfigureAwait(false))!;
+		var data = (await response.Content.ReadFromJsonAsync(JsonSGContext.Default.HistoryArray, cancellationToken).ConfigureAwait(false))!;
 		var hasNextPage = data.Length == limit + 1;
 		return new(data, hasNextPage);
 	}
 
-	public Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, CancellationToken cancellationToken = default) where TMedia : BaseMedia
+	public async Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, CancellationToken cancellationToken = default) where TMedia : BaseMedia
 	{
 		var url = BuildUrlForRequestingMedia(id, type);
 		this._logger.LogInformation("Requesting media with id: {Id}, and type: {Type}", id, type);
-		return this._httpClient.GetFromJsonAsync<TMedia>(url, cancellationToken);
+		return (TMedia) (await this._httpClient.GetFromJsonAsync(url, typeof(TMedia), JsonSGContext.Default, cancellationToken).ConfigureAwait(false))!;
 	}
 
 	private static string BuildUrlForRequestingMedia(ulong id, ListEntryType type) =>
@@ -97,7 +97,7 @@ public sealed class ShikiClient : IShikiClient
 	{
 		var url = $"{BuildUrlForRequestingMedia(id, type)}/roles";
 		this._logger.LogInformation("Requesting staff for media with id: {Id}, and type: {Type}", id, type);
-		var roles = await this._httpClient.GetFromJsonAsync<List<Role>>(url, cancellationToken).ConfigureAwait(false);
+		var roles = await this._httpClient.GetFromJsonAsync(url, JsonSGContext.Default.ListRole, cancellationToken).ConfigureAwait(false);
 		roles!.RemoveAll(x => x.Person is null);
 		roles.TrimExcess();
 		return roles;
@@ -106,6 +106,6 @@ public sealed class ShikiClient : IShikiClient
 	public Task<UserInfo> GetUserInfoAsync(uint userId, CancellationToken cancellationToken = default)
 	{
 		var url = $"{Constants.BASE_USERS_API_URL}/{userId}/info";
-		return this._httpClient.GetFromJsonAsync<UserInfo>(url, cancellationToken)!;
+		return this._httpClient.GetFromJsonAsync(url, JsonSGContext.Default.UserInfo, cancellationToken)!;
 	}
 }

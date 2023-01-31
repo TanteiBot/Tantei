@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -9,11 +10,12 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 public sealed class Role
 {
 	[JsonPropertyName("roles")]
-	public required IReadOnlyList<string> Name { get; init; }
+	public IReadOnlyList<string> Name { get; internal set; } = Array.Empty<string>();
 
 	[JsonPropertyName("roles_russian")]
-	public required IReadOnlyList<string> RussianName { get; init; }
+	[JsonRequired]
+	public IReadOnlyList<string> RussianName { get; internal set; } = Array.Empty<string>();
 
 	[JsonPropertyName("person")]
-	public Person? Person { get; init; }
+	public Person? Person { get; internal set; }
 }

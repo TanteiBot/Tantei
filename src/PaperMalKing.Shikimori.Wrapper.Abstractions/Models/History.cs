@@ -9,14 +9,15 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 public sealed class History
 {
 	[JsonPropertyName("id")]
-	public uint Id { get; init; }
+	public uint Id { get; internal set; }
 
 	[JsonPropertyName("created_at")]
-	public DateTimeOffset CreatedAt { get; init; }
+	public DateTimeOffset CreatedAt { get; internal set; }
 
 	[JsonPropertyName("description")]
-	public required string Description { get; init; }
+	[JsonRequired]
+	public string Description { get; internal set; } = null!;
 
 	[JsonPropertyName("target")]
-	public HistoryTarget? Target { get; init; }
+	public HistoryTarget? Target { get; internal set; }
 }
