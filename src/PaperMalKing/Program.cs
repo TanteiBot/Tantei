@@ -1,6 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
-#pragma warning disable CA1852
+
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -59,11 +59,17 @@ await Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) 
 	RunSQLiteConfiguration();
 }).UseSystemd().UseSerilog((context, _, configuration) =>
 {
-	var defaultFormatter =
-		new MessageTemplateTextFormatter(
-			"[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {Level:u3}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}");
-	configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo.Console(
-		formatter: SystemdHelpers.IsSystemdService() ? new SystemdTextFormatter(defaultFormatter) : defaultFormatter);
+	var template =
+		$$"""[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {{(SystemdHelpers.IsSystemdService() ? "" : "{Level:u3}")}}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}""";
+	var loggerSinkConfiguration = configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo;
+	if (SystemdHelpers.IsSystemdService())
+	{
+		loggerSinkConfiguration.Console(formatter: new SystemdTextFormatter(new MessageTemplateTextFormatter(template)));
+	}
+	else
+	{
+		loggerSinkConfiguration.Console(outputTemplate: template);
+	}
 }).Build().RunAsync().ConfigureAwait(false);
 
 static void RunSQLiteConfiguration()

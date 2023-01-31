@@ -53,7 +53,7 @@ public sealed class ShikiClient : IShikiClient
 	{
 		this._logger.LogDebug("Requesting {@UserId} favourites", userId);
 		var url = $"{Constants.BASE_USERS_API_URL}/{userId}/favourites";
-		return this._httpClient.GetFromJsonAsync(url, JsonSGContext.Default.Favourites, cancellationToken)!;
+		return this._httpClient.GetFromJsonAsync<Favourites>(url, JsonSerializerOptions.Default, cancellationToken)!;
 	}
 
 	public async Task<Paginatable<History[]>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options,
