@@ -11,12 +11,10 @@ public class UserInfo
 	private string? _imageUrl;
 
 	[JsonPropertyName("id")]
-	[JsonRequired]
-	public uint Id { get; internal set; }
+	public uint Id { get; init; }
 
 	[JsonPropertyName("nickname")]
-	[JsonRequired]
-	public string Nickname { get; internal set; } = null!;
+	public required string Nickname { get; init; }
 
 	public string Url => $"{Constants.BASE_URL}/{WebUtility.UrlEncode(this.Nickname)}";
 
