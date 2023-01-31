@@ -1,13 +1,15 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
-#pragma warning disable CA1852
+
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Systemd;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PaperMalKing;
 using PaperMalKing.Database;
 using PaperMalKing.Database.CompiledModels;
 using PaperMalKing.Options;
@@ -15,6 +17,7 @@ using PaperMalKing.Services;
 using PaperMalKing.Services.Background;
 using PaperMalKing.UpdatesProviders.Base;
 using Serilog;
+using Serilog.Formatting.Display;
 
 await Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
 {
@@ -54,10 +57,19 @@ await Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) 
 	services.AddSingleton<UserCleanupService>();
 	services.AddSingleton<GeneralUserService>();
 	RunSQLiteConfiguration();
-}).UseSerilog((context, _, configuration) =>
+}).UseSystemd().UseSerilog((context, _, configuration) =>
 {
-	configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo.Console(
-		outputTemplate: "[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {Level:u3}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}");
+	var template =
+		$$"""[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {{(SystemdHelpers.IsSystemdService() ? "" : "{Level:u3}")}}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}""";
+	var loggerSinkConfiguration = configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo;
+	if (SystemdHelpers.IsSystemdService())
+	{
+		loggerSinkConfiguration.Console(formatter: new SystemdTextFormatter(new MessageTemplateTextFormatter(template)));
+	}
+	else
+	{
+		loggerSinkConfiguration.Console(outputTemplate: template);
+	}
 }).Build().RunAsync().ConfigureAwait(false);
 
 static void RunSQLiteConfiguration()

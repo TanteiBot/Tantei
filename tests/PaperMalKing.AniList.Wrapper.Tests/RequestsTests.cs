@@ -1,5 +1,5 @@
+using PaperMalKing.AniList.Wrapper.Abstractions.Models;
 using PaperMalKing.AniList.Wrapper.GraphQL;
-using PaperMalKing.AniList.Wrapper.Models;
 
 namespace PaperMalKing.AniList.Wrapper.Tests;
 

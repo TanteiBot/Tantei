@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <ProjectReference Include="..\..\src\PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj" />
+    <ProjectReference Include="..\..\src\PaperMalKing.AniList.Wrapper.Abstractions\PaperMalKing.AniList.Wrapper.Abstractions.csproj" />
+      <PackageReference Include="GraphQL.Primitives" />
+      <ProjectReference Include="..\..\src\PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj" />
   </ItemGroup>
 </Project>

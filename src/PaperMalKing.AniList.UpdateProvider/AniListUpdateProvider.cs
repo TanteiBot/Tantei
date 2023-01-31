@@ -12,10 +12,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.AniList.UpdateProvider.CombinedResponses;
-using PaperMalKing.AniList.Wrapper;
-using PaperMalKing.AniList.Wrapper.Models;
-using PaperMalKing.AniList.Wrapper.Models.Enums;
-using PaperMalKing.AniList.Wrapper.Models.Interfaces;
+using PaperMalKing.AniList.Wrapper.Abstractions;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Interfaces;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.AniList;
@@ -27,10 +27,10 @@ namespace PaperMalKing.AniList.UpdateProvider;
 
 internal sealed class AniListUpdateProvider : BaseUpdateProvider
 {
-	private readonly AniListClient _client;
+	private readonly IAniListClient _client;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
-	public AniListUpdateProvider(ILogger<AniListUpdateProvider> logger, IOptions<AniListOptions> options, AniListClient client,
+	public AniListUpdateProvider(ILogger<AniListUpdateProvider> logger, IOptions<AniListOptions> options, IAniListClient client,
 								 IDbContextFactory<DatabaseContext> dbContextFactory) : base(logger,
 		TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 	{
@@ -38,7 +38,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		this._dbContextFactory = dbContextFactory;
 	}
 
-	public override string Name => Constants.NAME;
+	public override string Name => ProviderConstants.NAME;
 	public override event UpdateFoundEvent? UpdateFoundEvent;
 
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
@@ -177,7 +177,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 
 		static void GetFavouritesEmbed<T>(List<DiscordEmbedBuilder> aggregator, IReadOnlyList<IdentifiableFavourite> addedValues,
 										  IReadOnlyList<IdentifiableFavourite> removedValues, List<T> obtainedValues,
-										  Wrapper.Models.Enums.FavouriteType type, User user, AniListUserFeatures features)
+										  Wrapper.Abstractions.Models.Enums.FavouriteType type, User user, AniListUserFeatures features)
 			where T : class, IIdentifiable, ISiteUrlable
 		{
 			foreach (var value in obtainedValues)
@@ -197,7 +197,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		var convFavs = withUserQuery.Select(f => new IdentifiableFavourite()
 		{
 			Id = f.Id,
-			Type = (Wrapper.Models.Enums.FavouriteType)f.FavouriteType
+			Type = (Wrapper.Abstractions.Models.Enums.FavouriteType)f.FavouriteType
 		}).ToArray();
 
 		var (addedValues, removedValues) = convFavs.GetDifference(response.Favourites);
@@ -210,11 +210,11 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		var changedValues = new List<IdentifiableFavourite>(addedValues.Count + removedValues.Count);
 		changedValues.AddRange(addedValues);
 		changedValues.AddRange(removedValues);
-		var animeIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Anime);
-		var mangaIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Manga);
-		var charIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Characters);
-		var staffIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Staff);
-		var studioIds = GetIds(changedValues, f => f.Type == Wrapper.Models.Enums.FavouriteType.Studios);
+		var animeIds = GetIds(changedValues, f => f.Type == Wrapper.Abstractions.Models.Enums.FavouriteType.Anime);
+		var mangaIds = GetIds(changedValues, f => f.Type == Wrapper.Abstractions.Models.Enums.FavouriteType.Manga);
+		var charIds = GetIds(changedValues, f => f.Type == Wrapper.Abstractions.Models.Enums.FavouriteType.Characters);
+		var staffIds = GetIds(changedValues, f => f.Type == Wrapper.Abstractions.Models.Enums.FavouriteType.Staff);
+		var studioIds = GetIds(changedValues, f => f.Type == Wrapper.Abstractions.Models.Enums.FavouriteType.Studios);
 		var hasNextPage = true;
 		var combinedResponse = new CombinedFavouritesInfoResponse();
 		var results = new List<DiscordEmbedBuilder>(changedValues.Count);
@@ -227,15 +227,15 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			hasNextPage = favouritesInfo.HasNextPage;
 		}
 
-		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Anime, Wrapper.Models.Enums.FavouriteType.Anime, response.User,
+		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Anime, Wrapper.Abstractions.Models.Enums.FavouriteType.Anime, response.User,
 			user.Features);
-		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Manga, Wrapper.Models.Enums.FavouriteType.Manga, response.User,
+		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Manga, Wrapper.Abstractions.Models.Enums.FavouriteType.Manga, response.User,
 			user.Features);
-		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Characters, Wrapper.Models.Enums.FavouriteType.Characters,
+		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Characters, Wrapper.Abstractions.Models.Enums.FavouriteType.Characters,
 			response.User, user.Features);
-		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Staff, Wrapper.Models.Enums.FavouriteType.Staff, response.User,
+		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Staff, Wrapper.Abstractions.Models.Enums.FavouriteType.Staff, response.User,
 			user.Features);
-		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Studios, Wrapper.Models.Enums.FavouriteType.Studios, response.User,
+		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Studios, Wrapper.Abstractions.Models.Enums.FavouriteType.Studios, response.User,
 			user.Features);
 		results.SortBy(x => x.Color.Value.Value);
 		return results;

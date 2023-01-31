@@ -2,11 +2,11 @@
 // Copyright (C) 2021-2022 N0D4N
 
 using PaperMalKing.Common.Options;
-using PaperMalKing.MyAnimeList.Wrapper;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 
-namespace PaperMalKing.UpdatesProviders.MyAnimeList;
+namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
-internal sealed class MalOptions : IRateLimitOptions<MyAnimeListClient>, ITimerOptions<MalUpdateProvider>
+internal sealed class MalOptions : IRateLimitOptions<IMyAnimeListClient>, ITimerOptions<MalUpdateProvider>
 {
 	public const string MyAnimeList = Constants.Name;
 

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider" />
+        <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider.Installer" />
+
+    </ItemGroup>
+
+</Project>

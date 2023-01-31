@@ -9,7 +9,7 @@ using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Features;
 
-namespace PaperMalKing.UpdatesProviders.MyAnimeList;
+namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
 [SlashCommandGroup("mal", "Commands for interacting with MyAnimeList.net", true)]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]

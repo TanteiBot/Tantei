@@ -1,17 +1,19 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
+
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Http;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.AniList.Wrapper.Abstractions;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Responses;
 using PaperMalKing.AniList.Wrapper.GraphQL;
-using PaperMalKing.AniList.Wrapper.Models;
-using PaperMalKing.AniList.Wrapper.Models.Responses;
 
 namespace PaperMalKing.AniList.Wrapper;
 
-internal sealed class AniListClient
+internal sealed class AniListClient : IAniListClient
 {
 	private readonly GraphQLHttpClient _client;
 	private readonly ILogger<AniListClient> _logger;

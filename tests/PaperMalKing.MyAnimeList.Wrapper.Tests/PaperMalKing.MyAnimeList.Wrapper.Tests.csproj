@@ -6,10 +6,11 @@
     
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.Wrapper\PaperMalKing.MyAnimeList.Wrapper.csproj" />
+      <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.Wrapper.Abstractions\PaperMalKing.MyAnimeList.Wrapper.Abstractions.csproj" />
+        <PackageReference Include="AngleSharp" />
+        <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.Wrapper\PaperMalKing.MyAnimeList.Wrapper.csproj" />
     </ItemGroup>
     
-
     <ItemGroup>
       <None Update="Parser\CommentParserTests.CorrectlyExtractsNodachiUsernameFromCommentsPage.verified.txt">
         <ParentFile>CommentParserTests</ParentFile>

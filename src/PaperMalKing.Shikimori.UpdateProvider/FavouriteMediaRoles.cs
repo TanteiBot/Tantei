@@ -2,8 +2,8 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System.Collections.Generic;
-using PaperMalKing.Shikimori.Wrapper.Models;
-using PaperMalKing.Shikimori.Wrapper.Models.Media;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 

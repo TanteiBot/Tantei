@@ -7,9 +7,9 @@ using System.Linq;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
-using PaperMalKing.AniList.Wrapper.Models;
-using PaperMalKing.AniList.Wrapper.Models.Enums;
-using PaperMalKing.AniList.Wrapper.Models.Interfaces;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Interfaces;
 using PaperMalKing.Common;
 using PaperMalKing.Database.Models.AniList;
 using static PaperMalKing.AniList.UpdateProvider.Extensions;
@@ -79,7 +79,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 
 	private static DiscordEmbedBuilder InitialFavouriteEmbedBuilder(ISiteUrlable value, User user, bool added)
 	{
-		var eb = new DiscordEmbedBuilder().WithAniListAuthor(user).WithColor(added ? Constants.AniListBlue : Constants.AniListRed)
+		var eb = new DiscordEmbedBuilder().WithAniListAuthor(user).WithColor(added ? ProviderConstants.AniListBlue : ProviderConstants.AniListRed)
 										  .WithDescription($"{(added ? "Added" : "Removed")} favourite").WithUrl(value.Url);
 		if (value is IImageble imageble) eb.WithThumbnail(imageble.Image?.ImageUrl);
 		return eb;

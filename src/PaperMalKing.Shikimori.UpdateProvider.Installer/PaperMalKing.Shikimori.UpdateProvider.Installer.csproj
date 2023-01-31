@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+        <PackageReference Include="Microsoft.Extensions.Http.Polly" />
+        <PackageReference Include="Polly.Contrib.WaitAndRetry" />
+        <PackageReference Include="System.Threading.RateLimiting" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+      <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
+      <ProjectReference Include="..\PaperMalKing.Shikimori.UpdateProvider\PaperMalKing.Shikimori.UpdateProvider.csproj" />
+      <ProjectReference Include="..\PaperMalKing.Shikimori.Wrapper.Abstractions\PaperMalKing.Shikimori.Wrapper.Abstractions.csproj" />
+      <ProjectReference Include="..\PaperMalKing.Shikimori.Wrapper\PaperMalKing.Shikimori.Wrapper.csproj" />
+      <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
+    </ItemGroup>
+
+</Project>

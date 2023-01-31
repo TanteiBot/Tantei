@@ -5,10 +5,9 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using PaperMalKing.AniList.Wrapper;
+using PaperMalKing.AniList.Wrapper.Abstractions;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
@@ -18,9 +17,9 @@ namespace PaperMalKing.AniList.UpdateProvider;
 
 internal sealed class AniListUserFeaturesService : BaseUserFeaturesService<AniListUser, AniListUserFeatures>
 {
-	private readonly AniListClient _client;
+	private readonly IAniListClient _client;
 
-	public AniListUserFeaturesService(AniListClient client, ILogger<AniListUserFeaturesService> logger,
+	public AniListUserFeaturesService(IAniListClient client, ILogger<AniListUserFeaturesService> logger,
 									  IDbContextFactory<DatabaseContext> dbContextFactory) : base(dbContextFactory, logger)
 	{
 		this._client = client;

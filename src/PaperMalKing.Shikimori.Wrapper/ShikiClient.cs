@@ -2,21 +2,22 @@
 // Copyright (C) 2021-2022 N0D4N
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common.Enums;
-using PaperMalKing.Shikimori.Wrapper.Models;
-using PaperMalKing.Shikimori.Wrapper.Models.Media;
+using PaperMalKing.Shikimori.Wrapper.Abstractions;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
 namespace PaperMalKing.Shikimori.Wrapper;
 
-internal sealed class ShikiClient
+public sealed class ShikiClient : IShikiClient
 {
 	private readonly HttpClient _httpClient;
 	private readonly ILogger<ShikiClient> _logger;
@@ -34,12 +35,13 @@ internal sealed class ShikiClient
 		nickname = WebUtility.UrlEncode(nickname);
 		var url = $"{Constants.BASE_USERS_API_URL}/{nickname}";
 
-		using var stringContent = new StringContent("1");
 		using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 		{
 			Content = new MultipartFormDataContent()
 			{
-				{ stringContent, "is_nickname" }
+				#pragma warning disable CA2000
+				{ new StringContent("1"), "is_nickname" }
+				#pragma warning restore CA2000
 			}
 		};
 
@@ -47,12 +49,11 @@ internal sealed class ShikiClient
 		return (await response.Content.ReadFromJsonAsync<User>(JsonSerializerOptions.Default, cancellationToken).ConfigureAwait(false))!;
 	}
 
-	public async Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default)
+	public Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default)
 	{
 		this._logger.LogDebug("Requesting {@UserId} favourites", userId);
 		var url = $"{Constants.BASE_USERS_API_URL}/{userId}/favourites";
-		var favs = await this._httpClient.GetFromJsonAsync<Favourites>(url, cancellationToken).ConfigureAwait(false);
-		return favs!;
+		return this._httpClient.GetFromJsonAsync<Favourites>(url, JsonSerializerOptions.Default, cancellationToken)!;
 	}
 
 	public async Task<Paginatable<History[]>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options,
@@ -65,8 +66,8 @@ internal sealed class ShikiClient
 		#pragma warning disable CA2000
 		using var content = new MultipartFormDataContent
 		{
-			{ new StringContent(page.ToString()), "page" },
-			{ new StringContent(limit.ToString()), "limit" }
+			{ new StringContent(page.ToString(CultureInfo.InvariantCulture)), "page" },
+			{ new StringContent(limit.ToString(CultureInfo.InvariantCulture)), "limit" }
 		};
 		if (options != HistoryRequestOptions.Any) content.Add(new StringContent(options.ToString()), "target_type");
 		#pragma warning restore CA2000

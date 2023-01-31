@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using PaperMalKing.AniList.Wrapper;
+using PaperMalKing.AniList.Wrapper.Abstractions;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
@@ -19,11 +19,11 @@ namespace PaperMalKing.AniList.UpdateProvider;
 
 internal sealed class AniListUserService : BaseUpdateProviderUserService<AniListUser>
 {
-	private readonly AniListClient _client;
+	private readonly IAniListClient _client;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
-	public override string Name => Constants.NAME;
+	public override string Name => ProviderConstants.NAME;
 
-	public AniListUserService(ILogger<AniListUserService> logger, AniListClient client, IDbContextFactory<DatabaseContext> dbContextFactory,
+	public AniListUserService(ILogger<AniListUserService> logger, IAniListClient client, IDbContextFactory<DatabaseContext> dbContextFactory,
 							  GeneralUserService userService) : base(logger, dbContextFactory, userService)
 	{
 		this._client = client;

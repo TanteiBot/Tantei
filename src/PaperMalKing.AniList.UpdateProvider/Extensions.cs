@@ -12,9 +12,9 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
 using PaperMalKing.AniList.UpdateProvider.CombinedResponses;
-using PaperMalKing.AniList.Wrapper;
-using PaperMalKing.AniList.Wrapper.Models;
-using PaperMalKing.AniList.Wrapper.Models.Enums;
+using PaperMalKing.AniList.Wrapper.Abstractions;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 using PaperMalKing.Common;
 using PaperMalKing.Database.Models.AniList;
 
@@ -44,25 +44,25 @@ internal static partial class Extensions
 
 	private static readonly Dictionary<MediaListStatus, DiscordColor> Colors = new()
 	{
-		{MediaListStatus.PAUSED, Constants.AniListPeach},
-		{MediaListStatus.CURRENT, Constants.AniListBlue},
-		{MediaListStatus.REPEATING, Constants.AniListBlue},
-		{MediaListStatus.DROPPED, Constants.AniListRed},
-		{MediaListStatus.PLANNING, Constants.AniListOrange},
-		{MediaListStatus.COMPLETED, Constants.AniListGreen}
+		{MediaListStatus.PAUSED, ProviderConstants.AniListPeach},
+		{MediaListStatus.CURRENT, ProviderConstants.AniListBlue},
+		{MediaListStatus.REPEATING, ProviderConstants.AniListBlue},
+		{MediaListStatus.DROPPED, ProviderConstants.AniListRed},
+		{MediaListStatus.PLANNING, ProviderConstants.AniListOrange},
+		{MediaListStatus.COMPLETED, ProviderConstants.AniListGreen}
 	};
 
 	private static readonly DiscordEmbedBuilder.EmbedFooter AniListFooter = new()
 	{
-		Text = Constants.NAME,
-		IconUrl = Constants.ICON_URL
+		Text = ProviderConstants.NAME,
+		IconUrl = ProviderConstants.ICON_URL
 	};
 
 	private const int InlineFieldValueMaxLength = 30;
 
 
 	public static async Task<CombinedRecentUpdatesResponse> GetAllRecentUserUpdatesAsync(
-		this AniListClient client, AniListUser user, AniListUserFeatures features,
+		this IAniListClient client, AniListUser user, AniListUserFeatures features,
 		CancellationToken cancellationToken)
 	{
 		const ushort initialPerChunkValue = 50;
@@ -92,7 +92,7 @@ internal static partial class Extensions
 		return result;
 	}
 
-	public static async Task<CombinedInitialInfoResponse> GetCompleteUserInitialInfoAsync(this AniListClient client, string username,
+	public static async Task<CombinedInitialInfoResponse> GetCompleteUserInitialInfoAsync(this IAniListClient client, string username,
 																						  CancellationToken cancellationToken = default)
 	{
 		var hasNextPage = true;

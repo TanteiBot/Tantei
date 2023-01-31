@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+   
+    <ItemGroup>
+        <InternalsVisibleTo Include="PaperMalKing.Shikimori.UpdateProvider.Installer" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+    </ItemGroup>
+</Project>

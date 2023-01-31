@@ -1,14 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
-
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
+        <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj"/>
     </ItemGroup>
 
 </Project>

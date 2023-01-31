@@ -1,11 +1,13 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using AngleSharp.Dom;
-using PaperMalKing.MyAnimeList.Wrapper.Models;
-using PaperMalKing.MyAnimeList.Wrapper.Models.Favorites;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 [SuppressMessage("Design", "MA0048:File name must match type name")]
