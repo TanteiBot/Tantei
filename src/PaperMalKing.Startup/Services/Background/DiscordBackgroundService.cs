@@ -13,10 +13,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
-using PaperMalKing.Options;
+using PaperMalKing.Startup.Options;
 using PaperMalKing.UpdatesProviders.Base;
 
-namespace PaperMalKing.Services.Background;
+namespace PaperMalKing.Startup.Services.Background;
 
 internal sealed class DiscordBackgroundService : BackgroundService
 {

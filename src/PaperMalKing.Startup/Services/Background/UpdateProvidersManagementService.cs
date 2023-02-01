@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace PaperMalKing.Services.Background;
+namespace PaperMalKing.Startup.Services.Background;
 
 internal sealed class UpdateProvidersManagementService : IHostedService
 {

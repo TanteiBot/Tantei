@@ -10,11 +10,11 @@ using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
-using PaperMalKing.Exceptions;
-using PaperMalKing.Services;
+using PaperMalKing.Startup.Exceptions;
+using PaperMalKing.Startup.Services;
 using PaperMalKing.UpdatesProviders.Base;
 
-namespace PaperMalKing.Commands;
+namespace PaperMalKing.Startup.Commands;
 
 [SlashCommandGroup("sm", "Commands for managing server", true)]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
@@ -43,8 +43,8 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 			channel = context.Channel;
 		if (channel.IsCategory || channel.IsThread)
 		{
-			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"))
-						 .ConfigureAwait(false);
+			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"))
+										.ConfigureAwait(false);
 			return;
 		}
 
@@ -80,7 +80,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		if (channel.IsCategory || channel.IsThread)
 		{
 			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"))
-						 .ConfigureAwait(false);
+										.ConfigureAwait(false);
 			return;
 		}
 

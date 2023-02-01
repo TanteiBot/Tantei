@@ -9,11 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.UpdateProvider.Installer;
 using PaperMalKing.MyAnimeList.UpdateProvider.Installer;
-using PaperMalKing.Shikimori.UpdateProvider;
 using PaperMalKing.Shikimori.UpdateProvider.Installer;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-namespace PaperMalKing.Services;
+namespace PaperMalKing.Startup.Services;
 
 internal sealed class UpdateProvidersConfigurationService
 {

@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
-using PaperMalKing.Exceptions;
+using PaperMalKing.Startup.Exceptions;
 
-namespace PaperMalKing.Services;
+namespace PaperMalKing.Startup.Services;
 
 internal sealed class GuildManagementService
 {

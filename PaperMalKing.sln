@@ -77,6 +77,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.MyAnimeList.Up
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.MyAnimeList.Wrapper", "src\PaperMalKing.MyAnimeList.Wrapper\PaperMalKing.MyAnimeList.Wrapper.csproj", "{8863214C-5C97-4E51-91DC-BB65767BD85C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Startup", "src\PaperMalKing.Startup\PaperMalKing.Startup.csproj", "{37562E29-1A5C-480C-A7E6-BC317EC6662D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -167,6 +169,10 @@ Global
 		{8863214C-5C97-4E51-91DC-BB65767BD85C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8863214C-5C97-4E51-91DC-BB65767BD85C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8863214C-5C97-4E51-91DC-BB65767BD85C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37562E29-1A5C-480C-A7E6-BC317EC6662D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37562E29-1A5C-480C-A7E6-BC317EC6662D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37562E29-1A5C-480C-A7E6-BC317EC6662D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37562E29-1A5C-480C-A7E6-BC317EC6662D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -196,5 +202,6 @@ Global
 		{A975F448-E797-4BBF-8B9B-D0278DA43FE5} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 		{05AE8C5D-C73E-498C-A656-B74B2A6A1C1D} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 		{8863214C-5C97-4E51-91DC-BB65767BD85C} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
+		{37562E29-1A5C-480C-A7E6-BC317EC6662D} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 	EndGlobalSection
 EndGlobal
