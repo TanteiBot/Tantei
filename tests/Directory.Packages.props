@@ -10,7 +10,7 @@
         <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.5"/>
         <PackageVersion Include="coverlet.collector" Version="3.2.0"/>
         <PackageVersion Include="GitHubActionsTestLogger" Version="2.0.1"/>
-        <PackageVersion Include="Verify" Version="19.8.0"/>
+        <PackageVersion Include="Verify" Version="19.8.1"/>
         <PackageVersion Include="Verify.Xunit" Version="19.8.1"/>
     </ItemGroup>
 </Project>
