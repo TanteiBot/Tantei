@@ -9,6 +9,9 @@
         <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
         <SpaProxyServerUrl>https://localhost:44428</SpaProxyServerUrl>
         <SpaProxyLaunchCommand>yarn dev</SpaProxyLaunchCommand>
+        <ServerGarbageCollection>false</ServerGarbageCollection>
+        <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,30 +31,21 @@
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         </Content>
-        <Content Include="template.appsettings.json" CopyToPublishDirectory="Always">
+        <None Include="template.appsettings.json" CopyToPublishDirectory="Always">
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        </Content>
-        <None Include="$(MSBuildProjectDirectory)\appsettings.json" CopyToPublishDirectory="Never">
+        </None>
+        <None Include="appsettings.json" CopyToPublishDirectory="Never">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         </None>
     </ItemGroup>
-    <PropertyGroup>
-        <ServerGarbageCollection>false</ServerGarbageCollection>
-        <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
-    </PropertyGroup>
 
     <ItemGroup>
         <!-- Don't publish the SPA source files, but do show them in the project files list -->
         <Content Remove="$(SpaRoot)**" />
         <None Remove="$(SpaRoot)**" />
         <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
-        <None Include="appsettings.json">
-          <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        </None>
     </ItemGroup>
 
     <ItemGroup>
