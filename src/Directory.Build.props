@@ -1,7 +1,7 @@
 <Project>
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\'))"/>
     <PropertyGroup>
-        <PathMap>$(MSBuildProjectDirectory)=/$(MSBuildProjectName)</PathMap>
+        <PathMap>$(MSBuildProjectDirectory)=/src/$(MSBuildProjectName)</PathMap>
     </PropertyGroup>
 
     <ItemGroup>
