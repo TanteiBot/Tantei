@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaperMalKing.Console", "src\PaperMalKing.Console\PaperMalKing.Console.csproj", "{7ED18F5F-E339-4602-9200-DE36FEE657BF}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AA508127-8469-49B0-86D4-94535B8F8823}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
@@ -79,16 +77,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.MyAnimeList.Wr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Startup", "src\PaperMalKing.Startup\PaperMalKing.Startup.csproj", "{37562E29-1A5C-480C-A7E6-BC317EC6662D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing", "src\PaperMalKing\PaperMalKing.csproj", "{854435D3-D30B-4AB1-A2AA-F025176F4CE1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7ED18F5F-E339-4602-9200-DE36FEE657BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7ED18F5F-E339-4602-9200-DE36FEE657BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7ED18F5F-E339-4602-9200-DE36FEE657BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7ED18F5F-E339-4602-9200-DE36FEE657BF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CB810595-A680-4680-86DF-2D847E2D00B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CB810595-A680-4680-86DF-2D847E2D00B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB810595-A680-4680-86DF-2D847E2D00B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -173,6 +169,10 @@ Global
 		{37562E29-1A5C-480C-A7E6-BC317EC6662D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37562E29-1A5C-480C-A7E6-BC317EC6662D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37562E29-1A5C-480C-A7E6-BC317EC6662D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{854435D3-D30B-4AB1-A2AA-F025176F4CE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{854435D3-D30B-4AB1-A2AA-F025176F4CE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{854435D3-D30B-4AB1-A2AA-F025176F4CE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{854435D3-D30B-4AB1-A2AA-F025176F4CE1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -181,7 +181,6 @@ Global
 		SolutionGuid = {E11049DB-9BE9-4D2D-9EE4-BEF1562BAB91}
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7ED18F5F-E339-4602-9200-DE36FEE657BF} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 		{C4075A12-12AF-4B81-AD3B-99704DDB7B03} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 		{82D32C6E-5371-463E-BEF9-45EF4B8876A1} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 		{CB810595-A680-4680-86DF-2D847E2D00B9} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
@@ -203,5 +202,6 @@ Global
 		{05AE8C5D-C73E-498C-A656-B74B2A6A1C1D} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 		{8863214C-5C97-4E51-91DC-BB65767BD85C} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 		{37562E29-1A5C-480C-A7E6-BC317EC6662D} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
+		{854435D3-D30B-4AB1-A2AA-F025176F4CE1} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 	EndGlobalSection
 EndGlobal

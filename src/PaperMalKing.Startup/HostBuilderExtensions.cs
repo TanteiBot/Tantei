@@ -33,6 +33,7 @@ public static class HostBuilderExtensions
 			SQLitePCL.raw.sqlite3_config(2);
 		}
 
+		hostbuilder.ConfigureAppConfiguration(x => x.AddJsonFile("appsetings-shared", optional: true, reloadOnChange: false));
 		hostbuilder.ConfigureServices((hostContext, services) =>
 		{
 			services.AddDbContextFactory<DatabaseContext>((services, builder) =>
