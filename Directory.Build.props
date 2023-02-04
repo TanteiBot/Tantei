@@ -33,6 +33,7 @@
             CA1848; <!--For improved performance, use the LoggerMessage delegates -->
             CA2201; <!--Do not raise reserved exception types-->
             CA2234; <!--Pass System.Uri objects instead of strings-->
+            CA5394; <!--Random is an insecure random number generator. Use cryptographically secure random number generators when randomness is required for security.-->
 
             MA0011; <!--Use an overload that has a 'System.IFormatProvider' parameter-->
             MA0006; <!--Use string.Equals instead of Equals operator -->
@@ -53,7 +54,7 @@
             S112; <!--'System.Exception' should not be thrown by user code.-->
             S2743; <!-- Static fields should not be used in generic types-->
             S3241; <!--Change return type to 'void'; not a single caller uses the returned value.-->
-            
+
             AsyncFixer02; <!--ToArrayAsync should be used instead of -->
         </NoWarn>
         <WarningsNotAsErrors>
@@ -61,14 +62,14 @@
         </WarningsNotAsErrors>
     </PropertyGroup>
 
-        <ItemDefinitionGroup>
-            <PackageReference>
-                <PrivateAssets>contentfiles;analyzers;build;compile</PrivateAssets>
-            </PackageReference>
-            <ProjectReference>
-                <PrivateAssets>contentfiles;analyzers;build;compile</PrivateAssets>
-            </ProjectReference>
-        </ItemDefinitionGroup>
+    <ItemDefinitionGroup>
+        <PackageReference>
+            <PrivateAssets>contentfiles;analyzers;build;compile</PrivateAssets>
+        </PackageReference>
+        <ProjectReference>
+            <PrivateAssets>contentfiles;analyzers;build;compile</PrivateAssets>
+        </ProjectReference>
+    </ItemDefinitionGroup>
 
     <ItemGroup>
         <PackageReference Include="Meziantou.Analyzer">

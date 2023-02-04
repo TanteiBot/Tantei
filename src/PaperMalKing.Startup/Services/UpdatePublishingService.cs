@@ -12,13 +12,13 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using PaperMalKing.Data;
 using PaperMalKing.Database;
-using PaperMalKing.Exceptions;
+using PaperMalKing.Startup.Data;
+using PaperMalKing.Startup.Exceptions;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-namespace PaperMalKing.Services;
+namespace PaperMalKing.Startup.Services;
 
 internal sealed class UpdatePublishingService
 {

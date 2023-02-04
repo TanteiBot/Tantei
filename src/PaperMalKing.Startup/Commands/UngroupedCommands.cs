@@ -14,7 +14,7 @@ using DSharpPlus.SlashCommands.Attributes;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 
-namespace PaperMalKing.Commands;
+namespace PaperMalKing.Startup.Commands;
 
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]

@@ -1,82 +1,41 @@
-﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2022 N0D4N
-
-using DSharpPlus;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Systemd;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PaperMalKing;
-using PaperMalKing.Database;
-using PaperMalKing.Database.CompiledModels;
-using PaperMalKing.Options;
-using PaperMalKing.Services;
-using PaperMalKing.Services.Background;
-using PaperMalKing.UpdatesProviders.Base;
-using Serilog;
-using Serilog.Formatting.Display;
+using PaperMalKing.Startup;
 
-await Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllersWithViews();
+builder.Services.AddAuthentication(options => options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
-	services.AddDbContextFactory<DatabaseContext>((services, builder) =>
-	{
-		builder.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("Default"),
-			o => o.MigrationsAssembly("PaperMalKing.Database.Migrations")).UseModel(DatabaseContextModel.Instance);
-	});
-	var config = hostContext.Configuration;
+	options.LoginPath = "/signin";
+	options.LogoutPath = "/signout";
+});
+builder.Host.ConfigureBotServices();
+builder.Host.ConfigureBotHost();
 
-	services.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord));
-	services.AddSingleton<DiscordClient>(provider =>
-	{
-		var options = provider.GetRequiredService<IOptions<DiscordOptions>>();
-		var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-		var cfg = new DiscordConfiguration
-		{
-			Intents = DiscordIntents.Guilds | DiscordIntents.GuildMembers,
-			Token = options.Value.Token,
-			AutoReconnect = true,
-			LoggerFactory = loggerFactory,
-			ReconnectIndefinitely = true,
-			MessageCacheSize = 256,
-			MinimumLogLevel = LogLevel.Trace
-		};
-		return new(cfg);
-	});
-	services.AddSingleton<UpdatePublishingService>();
-	services.AddSingleton<ICommandsService, CommandsService>();
-	services.AddSingleton<UpdateProvidersConfigurationService>();
-	services.AddSingleton<GuildManagementService>();
-	UpdateProvidersConfigurationService.ConfigureProviders(config, services);
+var app = builder.Build();
 
-	services.AddHostedService<UpdateProvidersManagementService>();
-	services.AddHostedService<DiscordBackgroundService>();
-	services.AddHostedService<OnStartupActionsExecutingService>();
-	services.AddSingleton<UserCleanupService>();
-	services.AddSingleton<GeneralUserService>();
-	RunSQLiteConfiguration();
-}).UseSystemd().UseSerilog((context, _, configuration) =>
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
 {
-	var template =
-		$$"""[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {{(SystemdHelpers.IsSystemdService() ? "" : "{Level:u3}")}}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}""";
-	var loggerSinkConfiguration = configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo;
-	if (SystemdHelpers.IsSystemdService())
-	{
-		loggerSinkConfiguration.Console(formatter: new SystemdTextFormatter(new MessageTemplateTextFormatter(template)));
-	}
-	else
-	{
-		loggerSinkConfiguration.Console(outputTemplate: template);
-	}
-}).Build().RunAsync().ConfigureAwait(false);
-
-static void RunSQLiteConfiguration()
-{
-	SQLitePCL.Batteries_V2.Init();
-	// SQLITE_CONFIG_MULTITHREAD
-	// https://github.com/dotnet/efcore/issues/9994
-	// https://sqlite.org/threadsafe.html
-	SQLitePCL.raw.sqlite3_config(2);
+	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+	app.UseHsts();
 }
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+
+
+app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
+app.MapGet("api/test", () => new
+{
+	Test = "hello"
+});
+app.MapFallbackToFile("index.html");
+
+app.Run();

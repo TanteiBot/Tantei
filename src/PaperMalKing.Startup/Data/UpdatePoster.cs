@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace PaperMalKing.Data;
+namespace PaperMalKing.Startup.Data;
 
 internal sealed class UpdatePoster : IDisposable
 {

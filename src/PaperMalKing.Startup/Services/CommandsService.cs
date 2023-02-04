@@ -12,7 +12,7 @@ using DSharpPlus.SlashCommands.EventArgs;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.UpdatesProviders.Base;
 
-namespace PaperMalKing.Services;
+namespace PaperMalKing.Startup.Services;
 
 internal sealed class CommandsService : ICommandsService
 {

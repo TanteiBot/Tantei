@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PaperMalKing.UpdatesProviders.Base;
 
-namespace PaperMalKing.Services;
+namespace PaperMalKing.Startup.Services;
 
 internal sealed class OnStartupActionsExecutingService : IHostedService
 {

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using PaperMalKing.Database;
 using PaperMalKing.UpdatesProviders.Base;
 
-namespace PaperMalKing.Services;
+namespace PaperMalKing.Startup.Services;
 
 internal sealed class UserCleanupService
 {

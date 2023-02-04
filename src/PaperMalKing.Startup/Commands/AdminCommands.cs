@@ -10,10 +10,10 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Hosting;
 using PaperMalKing.Common;
-using PaperMalKing.Services;
+using PaperMalKing.Startup.Services;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-namespace PaperMalKing.Commands;
+namespace PaperMalKing.Startup.Commands;
 
 [SlashCommandGroup("admin", "Commands for owner")]
 [SlashRequireOwner]

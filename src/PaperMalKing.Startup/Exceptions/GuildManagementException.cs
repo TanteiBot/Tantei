@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace PaperMalKing.Exceptions;
+namespace PaperMalKing.Startup.Exceptions;
 
 [SuppressMessage("Design", "CA1064:Exceptions should be public")]
 [SuppressMessage("Critical Code Smell", "S3871:Exception types should be \"public\"")]
