@@ -42,7 +42,7 @@ jobs:
         run: dotnet restore
 
       - name: Build projects
-        run: dotnet build --configuration Release --no-restore --output ${{ env.output-dir }}
+        run: dotnet build ./src/PaperMalKing/PaperMalKing.csproj --configuration Release --no-restore --output ${{ env.output-dir }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
