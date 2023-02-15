@@ -32,37 +32,6 @@
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         </Content>
-        <Content Include="ClientApp\node_modules\.bin\eslint" />
-        <Content Include="ClientApp\node_modules\.bin\rollup-plugin-visualizer" />
-        <Content Include="ClientApp\node_modules\.bin\sass" />
-        <Content Include="ClientApp\node_modules\.bin\tsc" />
-        <Content Include="ClientApp\node_modules\.bin\tsserver" />
-        <Content Include="ClientApp\node_modules\.bin\vite" />
-        <Content Include="ClientApp\node_modules\.modules.yaml" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+code-frame@7.22.5\node_modules\@babel\code-frame\lib\index.js" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+code-frame@7.22.5\node_modules\@babel\code-frame\lib\index.js.map" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+code-frame@7.22.5\node_modules\@babel\code-frame\LICENSE" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+code-frame@7.22.5\node_modules\@babel\code-frame\package.json" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+code-frame@7.22.5\node_modules\@babel\code-frame\README.md" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+code-frame@7.22.5\node_modules\@babel\highlight" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+helper-validator-identifier@7.22.5\node_modules\@babel\helper-validator-identifier\lib\identifier.js" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+helper-validator-identifier@7.22.5\node_modules\@babel\helper-validator-identifier\lib\identifier.js.map" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+helper-validator-identifier@7.22.5\node_modules\@babel\helper-validator-identifier\lib\index.js" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+helper-validator-identifier@7.22.5\node_modules\@babel\helper-validator-identifier\lib\index.js.map" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+helper-validator-identifier@7.22.5\node_modules\@babel\helper-validator-identifier\lib\keyword.js" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+helper-validator-identifier@7.22.5\node_modules\@babel\helper-validator-identifier\lib\keyword.js.map" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+helper-validator-identifier@7.22.5\node_modules\@babel\helper-validator-identifier\LICENSE" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+helper-validator-identifier@7.22.5\node_modules\@babel\helper-validator-identifier\package.json" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+helper-validator-identifier@7.22.5\node_modules\@babel\helper-validator-identifier\README.md" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+helper-validator-identifier@7.22.5\node_modules\@babel\helper-validator-identifier\scripts\generate-identifier-regex.js" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+highlight@7.22.5\node_modules\@babel\helper-validator-identifier" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+highlight@7.22.5\node_modules\@babel\highlight\lib\index.js" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+highlight@7.22.5\node_modules\@babel\highlight\lib\index.js.map" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+highlight@7.22.5\node_modules\@babel\highlight\LICENSE" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+highlight@7.22.5\node_modules\@babel\highlight\package.json" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+highlight@7.22.5\node_modules\@babel\highlight\README.md" />
-        <Content Include="ClientApp\node_modules\.pnpm\@babel+highlight@7.22.5\node_modules\chalk" />
-        <Content Include="ClientApp\node_modules\.pnpm\lock.yaml" />
         <Content Include="ClientApp\tsconfig.json" />
         <None Update="template.appsettings.json" CopyToPublishDirectory="Always">
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -94,9 +63,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="ClientApp\node_modules\.pnpm\@babel+highlight@7.22.5\node_modules\js-tokens\" />
-      <Folder Include="Controllers" />
-      <Folder Include="wwwroot" />
+      <Folder Include="ClientApp\src" />
     </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
@@ -105,7 +72,7 @@
             <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
         </Exec>
         <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
-        <Message Importance="high" Text="Restoring dependencies using 'yarn'. This may take several minutes..." />
+        <Message Importance="high" Text="Restoring dependencies using 'pnpm'. This may take several minutes..." />
         <Exec WorkingDirectory="$(SpaRoot)" Command="pnpm i" />
     </Target>
 
