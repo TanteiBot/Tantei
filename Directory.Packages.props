@@ -3,6 +3,11 @@
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <EnablePackageVersionOverride>false</EnablePackageVersionOverride>
     </PropertyGroup>
+    <PropertyGroup>
+        <EntityFrameworkCoreVersion>7.0.3</EntityFrameworkCoreVersion>
+        <GraphQLClientVersion>5.1.1</GraphQLClientVersion>
+        <DSharpPlusVersion>4.3.0</DSharpPlusVersion>
+    </PropertyGroup>
     <ItemGroup>
         <!-- Logging -->
         <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="7.0.0"/>
@@ -12,19 +17,19 @@
         <PackageVersion Include="Serilog.Sinks.Console" Version="4.1.0"/>
         <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0"/>
         <!-- Discord -->
-        <PackageVersion Include="DSharpPlus" Version="4.3.0"/>
-        <PackageVersion Include="DSharpPlus.SlashCommands" Version="4.3.0"/>
+        <PackageVersion Include="DSharpPlus" Version="$(DSharpPlusVersion)"/>
+        <PackageVersion Include="DSharpPlus.SlashCommands" Version="$(DSharpPlusVersion)"/>
         <!-- GraphQl -->
-        <PackageVersion Include="GraphQL.Client" Version="5.1.1"/>
-        <PackageVersion Include="GraphQL.Client.Abstractions" Version="5.1.1"/>
-        <PackageVersion Include="GraphQL.Primitives" Version="5.1.1"/>
-        <PackageVersion Include="GraphQL.Client.Serializer.SystemTextJson" Version="5.1.1"/>
+        <PackageVersion Include="GraphQL.Client" Version="$(GraphQLClientVersion)"/>
+        <PackageVersion Include="GraphQL.Client.Abstractions" Version="$(GraphQLClientVersion)"/>
+        <PackageVersion Include="GraphQL.Primitives" Version="$(GraphQLClientVersion)"/>
+        <PackageVersion Include="GraphQL.Client.Serializer.SystemTextJson" Version="$(GraphQLClientVersion)"/>
         <!-- EF Core -->
-        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="7.0.3"/>
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="7.0.3"/>
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.3"/>
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.3"/>
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.3"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EntityFrameworkCoreVersion)"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(EntityFrameworkCoreVersion)"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(EntityFrameworkCoreVersion)"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EntityFrameworkCoreVersion)"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EntityFrameworkCoreVersion)"/>
         <!-- Misc -->
         <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.1.0"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting" Version="7.0.0"/>
