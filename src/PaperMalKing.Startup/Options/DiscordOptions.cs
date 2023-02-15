@@ -9,18 +9,22 @@ public sealed class DiscordOptions
 {
 	public const string Discord = "Discord";
 
-	public required string Token { get; set; }
+	public required string Token { get; init; }
 
-	public required IReadOnlyList<DiscordActivityOptions> Activities { get; set; }
+	public required string ClientId { get; init; }
+
+	public required string ClientSecret { get; init; }
+
+	public required IReadOnlyList<DiscordActivityOptions> Activities { get; init; }
 
 	public sealed class DiscordActivityOptions
 	{
-		public required string ActivityType { get; set; }
+		public required string ActivityType { get; init; }
 
-		public required string PresenceText { get; set; }
+		public required string PresenceText { get; init; }
 
-		public required int TimeToBeDisplayedInMilliseconds { get; set; }
+		public required int TimeToBeDisplayedInMilliseconds { get; init; }
 
-		public required string Status { get; set; }
+		public required string Status { get; init; }
 	}
 }

@@ -40,11 +40,17 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 		return this._updateCheckingRunningTask;
 	}
 
+	public DateTimeOffset? DateTimeOfNextUpdate { get; private set; }
+
+	public bool IsUpdateInProgress { get; private set; }
+
 	[SuppressMessage("Major Bug", "S3168:\"async\" methods should not return \"void\"")]
 	[SuppressMessage("", "AsyncFixer03")]
 	[SuppressMessage("Usage", "VSTHRD100:Avoid async void methods")]
 	private async void TimerCallback()
 	{
+		IsUpdateInProgress = true;
+		DateTimeOfNextUpdate = null;
 		using var cts = new CancellationTokenSource();
 		this._cts = cts;
 		try
@@ -71,6 +77,8 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 			this.Logger.LogInformation(
 				"Ended checking for updates in {Name} updates provider. Next planned update check is in {@DelayBetweenTimerFires}", this.Name,
 				this.DelayBetweenTimerFires);
+			IsUpdateInProgress = false;
+			this.DateTimeOfNextUpdate = DateTimeOffset.UtcNow + this.DelayBetweenTimerFires;
 		}
 	}
 

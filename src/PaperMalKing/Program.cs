@@ -1,8 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PaperMalKing.Startup;
+using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +23,16 @@ builder.Services.AddAuthentication(options => options.DefaultScheme = CookieAuth
 {
 	options.LoginPath = "/signin";
 	options.LogoutPath = "/signout";
+}).AddDiscord("Discord", options =>
+{
+	options.CallbackPath = new("/auth/oauthDiscord");
+	options.ClientId = builder.Configuration.GetValue<string>("Discord:ClientId")!;
+	options.ClientSecret = builder.Configuration.GetValue<string>("Discord:ClientSecret")!;
+	options.SaveTokens = true;
+	options.Scope.Add("identify");
+	options.Scope.Add("guilds");
+	options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+	options.ClaimActions.MapJsonKey(ClaimTypes.Name, "username");
 });
 builder.Host.ConfigureBotServices();
 builder.Host.ConfigureBotHost();
@@ -29,12 +49,14 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
-app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
-app.MapGet("api/test", () => new
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapGet("discord", [Authorize(AuthenticationSchemes = "Discord")](context) => { return Task.FromResult(context.TraceIdentifier); });
+app.MapGet("api/getUpdateTimes", (IEnumerable<IUpdateProvider> updateProviders) => updateProviders.Select(up => new
 {
-	Test = "hello"
-});
+	up.Name,
+	InProgress = up.IsUpdateInProgress,
+	NextIn = up.DateTimeOfNextUpdate > DateTimeOffset.UtcNow ? up.DateTimeOfNextUpdate - DateTimeOffset.UtcNow : default }));
 app.MapFallbackToFile("index.html");
 
 app.Run();
