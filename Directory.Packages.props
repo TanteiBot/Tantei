@@ -24,7 +24,7 @@
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="7.0.3"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.2"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.2"/>
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.2"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.3"/>
         <!-- Misc -->
         <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.1.0"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting" Version="7.0.0"/>
