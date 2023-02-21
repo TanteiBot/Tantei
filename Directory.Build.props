@@ -45,7 +45,7 @@
             MA0051; <!--Method is too long-->
 
             S1133;
-            S4487: <!--Remove this unread private field-->
+            S4487; <!--Remove this unread private field-->
             S2326; <!--'T' is not used in the interface.-->
             S1075; <!--Refactor your code not to use hardcoded absolute paths or URIs.-->
             S1135; <!--Complete the task associated to this 'TODO' comment.-->
