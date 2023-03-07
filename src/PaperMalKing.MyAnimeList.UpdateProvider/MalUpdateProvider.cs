@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -161,7 +162,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var isFavoritesHashMismatch = dbUser.FavoritesIdHash != Helpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites());
 			var favoritesUpdates = dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch
 				? this.CheckFavoritesUpdates(dbUser, user, db)
-				: Array.Empty<DiscordEmbedBuilder>();
+				: ReadOnlyCollection<DiscordEmbedBuilder>.Empty;
 
 			var animeListUpdates = dbUser.Features.HasFlag(MalUserFeatures.AnimeList)
 				? user.HasPublicAnimeUpdates switch
@@ -231,7 +232,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		}
 	}
 
-	private IReadOnlyList<DiscordEmbedBuilder> CheckFavoritesUpdates(MalUser dbUser, User user, DatabaseContext db)
+	private ReadOnlyCollection<DiscordEmbedBuilder> CheckFavoritesUpdates(MalUser dbUser, User user, DatabaseContext db)
 	{
 		IReadOnlyList<DiscordEmbedBuilder> ToDiscordEmbedBuilders<TDbf, TWf>(DbSet<TDbf> dbSet, IReadOnlyList<TWf> resulting, User user,
 																			 MalUser dbUser) where TDbf : BaseMalFavorite, IEquatable<TDbf>
@@ -240,7 +241,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var withUserQuery = dbSet.Where(x => x.UserId == user.Id);
 			var dbIds = withUserQuery.Select(x => x.Id).OrderBy(x => x).ToArray();
 			var sr = resulting.Select(fav => fav.Url.Id).OrderBy(i => i).ToArray();
-			if ((!dbIds.Any() && !resulting.Any()) || dbIds.SequenceEqual(sr))
+			if ((dbIds.Length == 0 && resulting.Count == 0) || dbIds.SequenceEqual(sr))
 			{
 				this.Logger.LogTrace("Didn't find any {@Name} updates for {@Username}", typeof(TWf).Name, dbUser.Username);
 				return Array.Empty<DiscordEmbedBuilder>();
@@ -294,6 +295,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		list.AddRange(ToDiscordEmbedBuilders(db.MalFavoriteCharacters, user.Favorites.FavoriteCharacters, user, dbUser));
 		list.AddRange(ToDiscordEmbedBuilders(db.MalFavoritePersons, user.Favorites.FavoritePeople, user, dbUser));
 		list.AddRange(ToDiscordEmbedBuilders(db.MalFavoriteCompanies, user.Favorites.FavoriteCompanies, user, dbUser));
-		return list.SortByThenBy(f => f.Color.HasValue ? f.Color.Value.Value : DiscordColor.None.Value, f => f.Title);
+		
+		return new (list.SortByThenBy(f => f.Color.HasValue ? f.Color.Value.Value : DiscordColor.None.Value, f => f.Title));
 	}
 }

@@ -29,7 +29,7 @@ internal sealed class UpdateProvidersConfigurationService
 			this._providers.Add(updateProvider.Name, updateProvider);
 		}
 
-		if (!this._providers.Any())
+		if (this._providers.Count == 0)
 			logger.LogCritical("No update providers were registered");
 
 		logger.LogTrace("Built {@UpdateProvidersConfigurationService}", typeof(UpdateProvidersConfigurationService));

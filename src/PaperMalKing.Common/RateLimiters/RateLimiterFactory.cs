@@ -10,8 +10,7 @@ public static class RateLimiterFactory
 {
 	public static RateLimiter<T> Create<T>(RateLimit rateLimit)
 	{
-		if (rateLimit is null)
-			throw new ArgumentNullException(nameof(rateLimit));
+		ArgumentNullException.ThrowIfNull(rateLimit);
 		if (rateLimit.AmountOfRequests == 0 || rateLimit.PeriodInMilliseconds == 0)
 			return new RateLimiter<T>(NullRateLimiter.Instance);
 

@@ -219,7 +219,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			Name = f.Name,
 			GenericType = f.FavType
 		}).ToArray();
-		if ((!favs.AllFavourites.Any() && !dbFavs.Any()) || favs.AllFavourites.SequenceEqual(dbFavs))
+		if ((favs.AllFavourites.Count == 0 && dbFavs.Length == 0) || favs.AllFavourites.SequenceEqual(dbFavs))
 		{
 			return (Array.Empty<FavouriteMediaRoles>(), Array.Empty<FavouriteMediaRoles>(), isFavouritesMismatch);
 		}

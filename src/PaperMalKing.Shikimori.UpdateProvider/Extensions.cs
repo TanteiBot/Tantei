@@ -95,7 +95,7 @@ internal static partial class Extensions
 		var group = new List<History>(1);
 		foreach (var he in source.OrderBy(x => x.Id))
 		{
-			if (!group.Any() || group.TrueForAll(hge => hge.Target?.Id == he.Target?.Id))
+			if (group.Count > 0 || group.TrueForAll(hge => hge.Target?.Id == he.Target?.Id))
 			{
 				group.Add(he);
 			}
@@ -109,7 +109,7 @@ internal static partial class Extensions
 			}
 		}
 
-		if (group.Any())
+		if (group.Count > 0)
 			res.Add(group);
 		return res;
 	}

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -51,7 +52,9 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapGet("discord", [Authorize(AuthenticationSchemes = "Discord")](context) => { return Task.FromResult(context.TraceIdentifier); });
+
+Delegate handler = ([Authorize(AuthenticationSchemes = "Discord")](HttpContext context) => Task.FromResult(context.TraceIdentifier));
+app.MapGet("discord", handler);
 app.MapGet("api/getUpdateTimes", (IEnumerable<IUpdateProvider> updateProviders) => updateProviders.Select(up => new
 {
 	up.Name,
