@@ -15,7 +15,6 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': resolve(__dirname, './src'),
-            '~': resolve(__dirname, 'node_modules')
         }
     },
     plugins: [react(), mkcert(), visualizer() as PluginOption, splitVendorChunkPlugin(), checker({typescript:true, enableBuild: false})],
