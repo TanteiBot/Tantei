@@ -4,7 +4,7 @@
         <EnablePackageVersionOverride>false</EnablePackageVersionOverride>
     </PropertyGroup>
     <PropertyGroup>
-        <EntityFrameworkCoreVersion>7.0.3</EntityFrameworkCoreVersion>
+        <EntityFrameworkCoreVersion>7.0.4</EntityFrameworkCoreVersion>
         <GraphQLClientVersion>5.1.1</GraphQLClientVersion>
         <DSharpPlusVersion>4.3.0</DSharpPlusVersion>
     </PropertyGroup>
