@@ -48,7 +48,7 @@
         <PackageVersion Include="System.Threading.RateLimiting" Version="7.0.0"/>
         <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.4"/>
         <!-- Analyzers-->
-        <PackageVersion Include="Meziantou.Analyzer" Version="2.0.26"/>
+        <PackageVersion Include="Meziantou.Analyzer" Version="2.0.27"/>
         <PackageVersion Include="SonarAnalyzer.CSharp" Version="8.55.0.65544"/>
         <PackageVersion Include="AsyncFixer" Version="1.6.0"/>
         <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.5.22"/>
