@@ -18,8 +18,8 @@ on:
 
 env:
   DOTNET_NOLOGO: true
-  dotnet-version-to-install: '7.*'
-  dotnet-quality: 'ga'
+  dotnet-version-to-install: '8.*'
+  dotnet-quality: 'preview'
   artifact-name: "build-${{ github.sha }}"
 
 jobs:
