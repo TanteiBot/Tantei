@@ -33,11 +33,11 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 	public abstract event UpdateFoundEvent? UpdateFoundEvent;
 
 	[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks")]
-	public Task TriggerStoppingAsync()
+	public async Task TriggerStoppingAsync()
 	{
-		this._cts?.Cancel();
+		await (this._cts?.CancelAsync() ?? Task.CompletedTask).ConfigureAwait(false);
 		this.Logger.LogInformation("Stopping {Name} update provider", this.Name);
-		return this._updateCheckingRunningTask;
+		await this._updateCheckingRunningTask.ConfigureAwait(false);
 	}
 
 	public DateTimeOffset? DateTimeOfNextUpdate { get; private set; }
