@@ -46,7 +46,7 @@ jobs:
           node-version: 19.x
           
       - name: Prepare yarn
-        run: corepack enable && corepack prepare yarn@stable --activate
+        run: corepack enable && corepack prepare pnpm@latest --activate
         
       - uses: pnpm/action-setup@v2
         with:
