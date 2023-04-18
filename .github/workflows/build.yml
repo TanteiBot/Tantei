@@ -51,6 +51,12 @@ jobs:
       - name: Run set version
         uses: borales/actions-yarn@v4
         with:
+          cmd: plugin import interactive-tools
+          dir: ${{ env.clientapp-dir }}
+        
+      - name: Run set version
+        uses: borales/actions-yarn@v4
+        with:
           cmd: set version stable
           dir: ${{ env.clientapp-dir }}
           
