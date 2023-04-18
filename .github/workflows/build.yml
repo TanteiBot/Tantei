@@ -23,7 +23,7 @@ env:
   artifact-name: "build-${{ github.sha }}"
   clientapp-dir: "./src/PaperMalKing/ClientApp"
   node-version: '19.x'
-  pnpm-version: 8.3.0
+  pnpm-version: "8.3.0"
 
 jobs:
   build:
