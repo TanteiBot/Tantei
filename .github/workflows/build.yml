@@ -46,6 +46,12 @@ jobs:
       - name: Run install
         uses: borales/actions-yarn@v4
         with:
+          cmd: init -2
+          dir: ./src/PaperMalKing/ClientApp
+          
+      - name: Run install
+        uses: borales/actions-yarn@v4
+        with:
           cmd: install
           dir: ./src/PaperMalKing/ClientApp
 
