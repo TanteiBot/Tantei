@@ -33,6 +33,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          
       - name: Install .NET SDK if needed
         uses: actions/setup-dotnet@v3
         with:
@@ -51,19 +52,19 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: set version stable
-          dir: ${{ clientapp-dir }}
+          dir: ${{ env.clientapp-dir }}
           
       - name: Run install
         uses: borales/actions-yarn@v4
         with:
           cmd: install
-          dir: ${{ clientapp-dir }}
+          dir: ${{ env.clientapp-dir }}
           
       - name: Run init
         uses: borales/actions-yarn@v4
         with:
           cmd: init -2
-          dir: ${{ clientapp-dir }}      
+          dir: ${{ env.clientapp-dir }}      
     
       - name: Install deps
         run: dotnet restore
