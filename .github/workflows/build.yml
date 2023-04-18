@@ -21,6 +21,9 @@ env:
   dotnet-version-to-install: '8.*'
   dotnet-quality: 'preview'
   artifact-name: "build-${{ github.sha }}"
+  clientapp-dir: "./src/PaperMalKing/ClientApp"
+  node-version: '19.x'
+  pnpm-version: 8.3.0
 
 jobs:
   build:
@@ -28,7 +31,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       output-dir: "./output"
-      clientapp-dir: "./src/PaperMalKing/ClientApp"
     steps:
       - uses: actions/checkout@v3
         with:
@@ -43,11 +45,11 @@ jobs:
       - name: Set Node.js 19.x
         uses: actions/setup-node@v3
         with:
-          node-version: 19.x
+          node-version: ${{ node-version }} 
                   
       - uses: pnpm/action-setup@v2
         with:
-          version: 8.3.0   
+          version: ${{ pnpm-version }}  
     
       - name: Install deps
         run: dotnet restore
@@ -95,7 +97,16 @@ jobs:
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
+          
+      - name: Set Node.js 19.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ node-version }}
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ pnpm-version }}
+      
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
