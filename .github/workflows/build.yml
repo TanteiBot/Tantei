@@ -48,29 +48,9 @@ jobs:
       - name: Prepare yarn
         run: corepack enable && corepack prepare yarn@stable --activate
         
-      - name: Run set version
-        uses: borales/actions-yarn@v4
+      - uses: pnpm/action-setup@v2
         with:
-          cmd: plugin import interactive-tools
-          dir: ${{ env.clientapp-dir }}
-        
-      - name: Run set version
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: set version stable
-          dir: ${{ env.clientapp-dir }}
-          
-      - name: Run install
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install
-          dir: ${{ env.clientapp-dir }}
-          
-      - name: Run init
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: init -2
-          dir: ${{ env.clientapp-dir }}      
+          version: 8.3.0   
     
       - name: Install deps
         run: dotnet restore
