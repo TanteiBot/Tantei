@@ -45,11 +45,11 @@ jobs:
       - name: Set Node.js 19.x
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ node-version }} 
+          node-version: ${{ env.node-version }} 
                   
       - uses: pnpm/action-setup@v2
         with:
-          version: ${{ pnpm-version }}  
+          version: ${{ env.pnpm-version }}  
     
       - name: Install deps
         run: dotnet restore
@@ -101,11 +101,11 @@ jobs:
       - name: Set Node.js 19.x
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ node-version }}
+          node-version: ${{ env.node-version }}
 
       - uses: pnpm/action-setup@v2
         with:
-          version: ${{ pnpm-version }}
+          version: ${{ env.pnpm-version }}
       
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
