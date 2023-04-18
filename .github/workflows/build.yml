@@ -37,6 +37,17 @@ jobs:
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           dotnet-quality: ${{ env.dotnet-quality}}
+          
+      - name: Set Node.js 19.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 19.x
+          
+      - name: Run install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+          dir: ./src/PaperMalKing/ClientApp
 
       - name: Install deps
         run: dotnet restore
