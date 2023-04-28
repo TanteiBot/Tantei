@@ -44,6 +44,7 @@
             MA0046; <!--Use EventHandler<T> to declare events-->
             MA0051; <!--Method is too long-->
 
+            S1123; <!--Add an explanation-->
             S1133;
             S4663; <!--Remove this empty comment-->
             S4487; <!--Remove this unread private field-->
