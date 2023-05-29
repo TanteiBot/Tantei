@@ -88,9 +88,9 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				{
 					HistoryEntries = x
 				}));
-			if (groupedHistoryEntriesWithMediaAndRoles.Any(x => x.HistoryEntries.Find(x => x.Target is not null) is not null))
+			if (groupedHistoryEntriesWithMediaAndRoles.Exists(x => x.HistoryEntries.Find(x => x.Target is not null) is not null))
 			{
-				foreach (var historyMediaRole in groupedHistoryEntriesWithMediaAndRoles.Where(x => x.HistoryEntries.Any(x => x.Target is not null)))
+				foreach (var historyMediaRole in groupedHistoryEntriesWithMediaAndRoles.Where(x => x.HistoryEntries.Exists(x => x.Target is not null)))
 				{
 					var history = historyMediaRole.HistoryEntries.First(x => x.Target is not null);
 					if ((dbUser.Features & ShikiUserFeatures.Description) != 0 || (dbUser.Features & ShikiUserFeatures.Studio) != 0 ||
