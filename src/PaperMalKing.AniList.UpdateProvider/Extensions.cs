@@ -264,9 +264,10 @@ internal static partial class Extensions
 			{
 				var text = string.Join(", ",
 					media.Staff.Nodes
-						 .Where(edge => IgnoredStartWithRoles.All(r =>
-							 !edge.Role.StartsWith(r, StringComparison.OrdinalIgnoreCase) &&
-							 IgnoredContainsRoles.All(r => !edge.Role.Contains(r, StringComparison.OrdinalIgnoreCase)))).Take(7)
+						 .Where(edge => 
+							 Array.TrueForAll(IgnoredStartWithRoles, (r =>
+								 !edge.Role.StartsWith(r, StringComparison.OrdinalIgnoreCase) &&
+								 Array.TrueForAll(IgnoredContainsRoles, r => !edge.Role.Contains(r, StringComparison.OrdinalIgnoreCase))))).Take(7)
 						 .Select(edge =>
 							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
 				if (!string.IsNullOrEmpty(text))
