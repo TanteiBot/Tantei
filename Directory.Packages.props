@@ -49,7 +49,7 @@
         <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.5"/>
         <!-- Analyzers-->
         <PackageVersion Include="Meziantou.Analyzer" Version="2.0.50"/>
-        <PackageVersion Include="SonarAnalyzer.CSharp" Version="9.0.0.68202"/>
+        <PackageVersion Include="SonarAnalyzer.CSharp" Version="9.1.0.70676"/>
         <PackageVersion Include="AsyncFixer" Version="1.6.0"/>
         <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.6.40"/>
     </ItemGroup>
