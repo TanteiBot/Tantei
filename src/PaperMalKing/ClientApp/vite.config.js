@@ -1,22 +1,22 @@
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import mkcert from 'vite-plugin-mkcert';
-import { visualizer } from "rollup-plugin-visualizer";
 import { resolve } from 'path';
-import checker from 'vite-plugin-checker';
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: '/app',
     build: {
         rollupOptions: {
             treeshake: "recommended",
-        }
+        },
+        outDir: "../wwwroot"
     },
     resolve: {
         alias: {
             '@': resolve(__dirname, './src'),
         }
     },
-    plugins: [react(), mkcert(), visualizer(), splitVendorChunkPlugin(), checker({ typescript: true, enableBuild: false })],
+    plugins: [react(), mkcert(), splitVendorChunkPlugin()],
     server: {
         port: 44428,
         https: true,
@@ -28,6 +28,8 @@ export default defineConfig({
                 secure: false,
                 rewrite: function (path) { return path.replace(/^\/api/, '/api'); }
             }
-        }
+        },
+        watch: { usePolling: true },
+        hmr: true
     }
 });

@@ -4,6 +4,7 @@
         <NoWarn>$(NoWarn);MA0048;S1186;RCS1205;RCS1036;RCS1021;</NoWarn>
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
+        <NoWarn>$(NoWarn);CA1861;</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
