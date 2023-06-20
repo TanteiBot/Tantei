@@ -2,6 +2,7 @@ import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import mkcert from 'vite-plugin-mkcert';
 import { resolve } from 'path';
+var c = await import('config.json').then(function (x) { return x; }).catch(function (err) { return err; });
 // https://vitejs.dev/config/
 export default defineConfig({
     base: '/app',
@@ -29,7 +30,6 @@ export default defineConfig({
                 rewrite: function (path) { return path.replace(/^\/api/, '/api'); }
             }
         },
-        watch: { usePolling: true },
         hmr: true
     }
 });
