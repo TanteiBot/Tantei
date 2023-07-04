@@ -5,7 +5,7 @@ import {resolve} from 'path';
 
 
 const c = await import('./config.json').then(x => x.default).catch(() => ({
-    vite:{
+    vite: {
         usePolling: false
     }
 }));
