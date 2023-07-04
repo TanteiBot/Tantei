@@ -35,35 +35,37 @@
             CA2234; <!--Pass System.Uri objects instead of strings-->
             CA5394; <!--Random is an insecure random number generator. Use cryptographically secure random number generators when randomness is required for security.-->
 
-            MA0011; <!--Use an overload that has a 'System.IFormatProvider' parameter-->
             MA0006; <!--Use string.Equals instead of Equals operator -->
+            MA0011; <!--Use an overload that has a 'System.IFormatProvider' parameter-->
             MA0016; <!--Prefer returning collection abstraction instead of implementation-->
             MA0018; <!--Do not declare static members on generic types-->
-            MA0026; <!--Fix TODO comment-->
             MA0023; <!--Add RegexOptions.ExplicitCapture-->
+            MA0026; <!--Fix TODO comment-->
             MA0046; <!--Use EventHandler<T> to declare events-->
             MA0051; <!--Method is too long-->
             MA0099; <!-- Use Explicit enum value instead of 0 -->
 
+            S112; <!--'System.Exception' should not be thrown by user code.-->
+            S1075; <!--Refactor your code not to use hardcoded absolute paths or URIs.-->
             S1123; <!--Add an explanation-->
             S1133;
-            S4663; <!--Remove this empty comment-->
-            S4487; <!--Remove this unread private field-->
-            S2326; <!--'T' is not used in the interface.-->
-            S1075; <!--Refactor your code not to use hardcoded absolute paths or URIs.-->
             S1135; <!--Complete the task associated to this 'TODO' comment.-->
-            S3218; <!--Rename this method to not shadow the outer class' member with the same name.-->
             S1854; <!--Remove this useless assignment to local variable 'progress'.-->
-            S4457; <!--Split this method into two, one handling parameters check and the other handling the asynchronous code.-->
-            S3925; <!--Update this implementation of 'ISerializable' to conform to the recommended serialization pattern.-->
-            S112; <!--'System.Exception' should not be thrown by user code.-->
+            S2326; <!--'T' is not used in the interface.-->
             S2743; <!-- Static fields should not be used in generic types-->
+            S3218; <!--Rename this method to not shadow the outer class' member with the same name.-->
             S3241; <!--Change return type to 'void'; not a single caller uses the returned value.-->
+            S3925; <!--Update this implementation of 'ISerializable' to conform to the recommended serialization pattern.-->
+            S4457; <!--Split this method into two, one handling parameters check and the other handling the asynchronous code.-->
+            S4487; <!--Remove this unread private field-->
+            S4663; <!--Remove this empty comment-->
 
-            RCS1194; <!--Implement exception constructors.-->
-            RCS1135; <!-- Declare enum member with zero value (when enum has FlagsAttribute).-->
             RCS1031; <!-- Remove unnecessary braces. -->
-            RCS1197; <!--Optimize StringBuilder.AppendLine call.-->            
+            RCS1135; <!-- Declare enum member with zero value (when enum has FlagsAttribute).-->
+            RCS1139; <!-- Add summary element to documentation comment.-->
+            RCS1194; <!--Implement exception constructors.-->
+            RCS1197; <!--Optimize StringBuilder.AppendLine call.-->
+            
             AsyncFixer02; <!--ToArrayAsync should be used instead of -->
         </NoWarn>
         <WarningsNotAsErrors>
