@@ -8,7 +8,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Man
 
 public sealed class MangaListEntryStatus : BaseListEntryStatus<MangaListStatus>
 {
-	public override ulong ProgressedSubEntries { get; }
+	public override ulong ProgressedSubEntries => this.ChaptersRead;
 
 	public override bool IsReprogressing => this.IsRereading;
 

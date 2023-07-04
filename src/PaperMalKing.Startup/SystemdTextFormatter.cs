@@ -7,7 +7,7 @@ using Serilog.Events;
 using Serilog.Formatting;
 using Serilog.Formatting.Display;
 
-namespace PaperMalKing;
+namespace PaperMalKing.Startup;
 
 internal sealed class SystemdTextFormatter : ITextFormatter
 {

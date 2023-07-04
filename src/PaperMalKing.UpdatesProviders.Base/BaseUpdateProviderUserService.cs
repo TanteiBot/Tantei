@@ -37,7 +37,7 @@ public abstract class BaseUpdateProviderUserService<TUser> where TUser : class, 
 		var rows = db.Set<TUser>().Where(x => x.DiscordUserId == userId).ExecuteDelete();
 		if (rows == 0)
 		{
-			throw new UserProcessingException($"You weren't tracked by {Name} update checker");
+			throw new UserProcessingException($"You weren't tracked by {this.Name} update checker");
 		}
 
 		return Task.CompletedTask;
@@ -56,6 +56,6 @@ public abstract class BaseUpdateProviderUserService<TUser> where TUser : class, 
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
 		return db.Set<TUser>().Include(x => x.DiscordUser).ThenInclude(x => x.Guilds).OrderBy(orderExpression)
-				 .Where(x => x.DiscordUser.Guilds.Any(x => x.DiscordGuildId == guildId)).Select(selector).ToArray();
+				 .Where(x => x.DiscordUser.Guilds.Any(guild => guild.DiscordGuildId == guildId)).Select(selector).ToArray();
 	}
 }

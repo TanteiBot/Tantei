@@ -64,7 +64,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 													     (u.Features & AniListUserFeatures.MangaList) != 0 ||
 													     (u.Features & AniListUserFeatures.Favourites) != 0 ||
 													     (u.Features & AniListUserFeatures.Reviews) != 0))
-					  .OrderBy(x => EF.Functions.Random()).ToArray();
+					  .OrderBy(_ => EF.Functions.Random()).ToArray();
 		foreach (var dbUser in users)
 		{
 			if (cancellationToken.IsCancellationRequested)
@@ -95,11 +95,17 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 																			      .OrderBy(x => x.Id).ThenBy(x=>x.Type).ToArray());
 
 			if ((dbUser.Features & AniListUserFeatures.Favourites) != 0 && isFavouritesHashMismatch)
+			{
 				allUpdates.AddRange(await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, db, perUserCancellationToken)
 											  .ConfigureAwait(false));
+			}
+
 			if ((dbUser.Features & AniListUserFeatures.Reviews) != 0)
+			{
 				allUpdates.AddRange(recentUserUpdates.Reviews.Where(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)
 													 .Select(r => r.ToDiscordEmbedBuilder(recentUserUpdates.User)));
+			}
+
 			foreach (var grouping in recentUserUpdates.Activities.GroupBy(activity => activity.Media.Id))
 			{
 				var lastListActivityOnMedia = grouping.MaxBy(activity => activity.CreatedAtTimestamp)!;

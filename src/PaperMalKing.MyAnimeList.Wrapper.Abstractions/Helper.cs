@@ -11,5 +11,4 @@ public static partial class Helper
 	private static partial Regex IdFromUrlRegex();
 
 	public static uint ExtractIdFromMalUrl(string url) => uint.Parse(IdFromUrlRegex().Match(url).Groups["id"].Value);
-
 }

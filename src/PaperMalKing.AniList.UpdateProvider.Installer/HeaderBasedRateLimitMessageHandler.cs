@@ -67,7 +67,6 @@ internal sealed class HeaderBasedRateLimitMessageHandler : DelegatingHandler
 			} while (!cancellationToken.IsCancellationRequested && response.StatusCode == HttpStatusCode.TooManyRequests);
 
 			return response;
-
 		}
 		finally
 		{

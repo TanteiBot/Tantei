@@ -15,7 +15,6 @@ using Humanizer;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Database.Models.Shikimori;
-using PaperMalKing.Shikimori.Wrapper;
 using PaperMalKing.Shikimori.Wrapper.Abstractions;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
@@ -97,7 +96,9 @@ internal static partial class Extensions
 		foreach (var he in source.OrderBy(x => x.Id))
 		{
 			if (!group.Any() || group.TrueForAll(hge => hge.Target?.Id == he.Target?.Id))
+			{
 				group.Add(he);
+			}
 			else
 			{
 				res.Add(group);
@@ -135,10 +136,8 @@ internal static partial class Extensions
 		var ruCulture = CultureInfo.GetCultureInfo("ru-RU");
 		var eb = new DiscordEmbedBuilder().WithTimestamp(first.CreatedAt).WithShikiAuthor(user).WithColor(Constants.ShikiBlue);
 		var desc = string.Join("; ", history.HistoryEntries.Select(h => h.Description)).StripHtml().ToSentenceCase(ruCulture)!;
-		eb.WithDescription(desc);
-
-
-		eb.WithColor(Colors[CalculateProgressType(history.HistoryEntries)]);
+		eb.WithDescription(desc)
+		  .WithColor(Colors[CalculateProgressType(history.HistoryEntries)]);
 		var target = history.HistoryEntries.Find(x => x.Target is not null)?.Target;
 		if (target is null)
 			return eb;
@@ -146,7 +145,6 @@ internal static partial class Extensions
 		var titleSb = new StringBuilder();
 
 		titleSb.Append(target.GetNameOrAltName(features));
-
 
 		if ((features & ShikiUserFeatures.MediaFormat) != 0)
 		{
@@ -181,7 +179,6 @@ internal static partial class Extensions
 		return eb;
 	}
 
-
 	public static DiscordEmbedBuilder ToDiscordEmbed(this FavouriteMediaRoles favouriteEntry, UserInfo user, bool added, ShikiUserFeatures features)
 	{
 		var favouriteName = favouriteEntry.FavouriteEntry.GetNameOrAltName(features);
@@ -212,7 +209,6 @@ internal static partial class Extensions
 
 	public static string GetNameOrAltName(this IMultiLanguageName namedEntity, ShikiUserFeatures features) =>
 		GetNameOrAltName(namedEntity, (features & ShikiUserFeatures.Russian) != 0);
-
 
 	public static string GetNameOrAltName(this IMultiLanguageName namedEntity, bool useRussianAsMain) => (useRussianAsMain switch
 	{
@@ -262,7 +258,7 @@ internal static partial class Extensions
 						  {
 							  var nameOfRole = (features & ShikiUserFeatures.Russian) != 0
 								  ? x.RussianName.FirstOrDefault(x=>!string.IsNullOrWhiteSpace(x)) ?? x.Name[0]
-								  : x.Name.FirstOrDefault(x=>!string.IsNullOrWhiteSpace(x)) ?? x.RussianName[0];
+								  : x.Name.FirstOrDefault(name=>!string.IsNullOrWhiteSpace(name)) ?? x.RussianName[0];
 							  return $"{Formatter.MaskedUrl(x.Person!.GetNameOrAltName(features), new(x.Person!.Url))} - {nameOfRole}";
 						  }));
 				if (!string.IsNullOrEmpty(mangakas))

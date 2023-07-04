@@ -17,7 +17,6 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
 using Polly.Extensions.Http;
-using Constants = PaperMalKing.MyAnimeList.Wrapper.Abstractions.Constants;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Installer;
 

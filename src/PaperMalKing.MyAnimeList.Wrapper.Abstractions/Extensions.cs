@@ -9,7 +9,7 @@ internal static class Extensions
 	{
 		return (fields & field) != 0;
 	}
-	
+
 	public static bool Has(this AnimeFieldsToRequest fields, AnimeFieldsToRequest field)
 	{
 		return (fields & field) != 0;

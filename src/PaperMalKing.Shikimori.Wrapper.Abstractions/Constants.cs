@@ -4,5 +4,5 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions;
 
 internal static class Constants
 {
-	public const string BASE_URL = "https://shikimori.one";
+	public const string BASE_URL = "https://shikimori.me";
 }

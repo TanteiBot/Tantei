@@ -48,15 +48,17 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		var browsingContext = new BrowsingContext();
 		#pragma warning restore CA2000
 
-		var document = await browsingContext.OpenAsync(response => response.Content(stream, false), cancellationToken).ConfigureAwait(false);
-		return document;
+		return await browsingContext.OpenAsync(htmlResponse => htmlResponse.Content(stream), cancellationToken).ConfigureAwait(false);
 	}
 
 	public async Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default)
 	{
 		if (options == ParserOptions.None)
+		{
 			throw new ArgumentException("No reason to parse profile without anime/manga lists and favorites",
 				nameof(options)); // TODO Replace with domain exception
+		}
+
 		this._logger.LogDebug("Requesting {@Username} profile", username);
 		username = WebUtility.UrlEncode(username);
 		var requestUrl = Constants.PROFILE_URL + username;
@@ -90,7 +92,7 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		this._logger.LogDebug("Requesting {@Username} {@Type} list", username, TListType.ListEntryType);
 
 		username = WebUtility.UrlEncode(username);
-		var url = $"{Constants.BASE_OFFICIAL_API_URL}{TListType.LatestUpdatesUrl(username, requestOptions)}";
+		var url = Constants.BASE_OFFICIAL_API_URL + TListType.LatestUpdatesUrl(username, requestOptions);
 		using var response = await this._officialApiHttpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
 		var updates = await response.Content
@@ -99,7 +101,6 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 
 		return updates?.Data ?? Array.Empty<TE>();
 	}
-
 }
 sealed file class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 	where T : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>

@@ -19,7 +19,6 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeLi
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 
-
 namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
 internal static class Extensions
@@ -206,8 +205,6 @@ internal static class Extensions
 
 		var eb = new DiscordEmbedBuilder().WithThumbnail(listEntry.Node.Picture?.Large ?? listEntry.Node.Picture?.Medium)
 										  .WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl).WithTimestamp(listEntry.Status.UpdatedAt);
-
-
 		if (listEntry.Status.Score != 0)
 			eb.AddField("Score", listEntry.Status.Score.ToString(), true);
 
@@ -256,12 +253,14 @@ internal static class Extensions
 			{
 				AnimeListEntry animeListEntry => animeListEntry.Node.Status.Humanize(LetterCasing.Sentence),
 				MangaListEntry mangaListEntry => mangaListEntry.Node.Status.Humanize(LetterCasing.Sentence),
-				_                             => throw new UnreachableException()
+				_ => throw new UnreachableException()
 			};
 			title = $"{shortTitle} [{entryStatus}]";
 		}
 		else
+		{
 			title = shortTitle;
+		}
 
 		if (title.Length <= 256)
 		{
@@ -269,7 +268,9 @@ internal static class Extensions
 			eb.Title = title;
 		}
 		else
+		{
 			eb.Description = Formatter.MaskedUrl(title, new Uri(listEntry.Node.Url));
+		}
 
 		if ((features & MalUserFeatures.Tags) != 0 && listEntry.Status.Tags?.Count is not null and not 0)
 		{
@@ -305,7 +306,7 @@ internal static class Extensions
 				(true, false)  => "Finish Date",
 				_              => throw new UnreachableException()
 			};
-			var format = "dd/MM/yyyy";
+			const string format = "dd/MM/yyyy";
 			var value = (isStartNull, isFinishNull) switch
 			{
 				(false, false) => $"{listEntry.Status.StartDate!.Value.ToString(format)} - {listEntry.Status.FinishDate!.Value.ToString(format)}",
@@ -342,7 +343,9 @@ internal static class Extensions
 	private static DiscordEmbedBuilder AddAsFieldOrTruncateToDescription(DiscordEmbedBuilder eb, string fieldName, string fieldValue, bool inline = true)
 	{
 		if (fieldValue.Length <= 1024)
+		{
 			eb.AddField(fieldName, fieldValue, inline);
+		}
 		else
 		{
 			var l = eb.Description?.Length ?? 0;

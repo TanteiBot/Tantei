@@ -15,7 +15,7 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 namespace PaperMalKing.UpdatesProviders.Base.Features;
 
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-public abstract class BaseUserFeaturesCommandsModule<TUser,TFeature> : BotCommandsModule where TFeature : unmanaged, Enum, IComparable, IConvertible, IFormattable where TUser : class, IUpdateProviderUser<TFeature>
+public abstract class BaseUserFeaturesCommandsModule<TUser,TFeature> : BotCommandsModule where TUser : class, IUpdateProviderUser<TFeature> where TFeature : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
 	protected BaseUserFeaturesService<TUser,TFeature> UserFeaturesService { get; }
 	protected ILogger<BaseUserFeaturesCommandsModule<TUser, TFeature>> Logger { get; }

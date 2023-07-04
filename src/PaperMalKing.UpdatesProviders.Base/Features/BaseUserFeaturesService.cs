@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -16,7 +17,7 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 namespace PaperMalKing.UpdatesProviders.Base.Features;
 
 public abstract class BaseUserFeaturesService<TUser, TFeature>
-	where TFeature : unmanaged, Enum where TUser : class, IUpdateProviderUser<TFeature>
+	where TUser : class, IUpdateProviderUser<TFeature> where TFeature : unmanaged, Enum
 {
 	protected  ILogger<BaseUserFeaturesService<TUser, TFeature>> Logger { get; }
 	protected IDbContextFactory<DatabaseContext> DbContextFactory { get; }
@@ -50,12 +51,13 @@ public abstract class BaseUserFeaturesService<TUser, TFeature>
 		f &= ~featureValue;
 
 		dbUser.Features = Unsafe.As<ulong, TFeature>(ref f);
-		await DisableFeatureCleanupAsync(db, dbUser, feature).ConfigureAwait(false);
+		await this.DisableFeatureCleanupAsync(db, dbUser, feature).ConfigureAwait(false);
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
 	}
 
 	protected abstract ValueTask DisableFeatureCleanupAsync(DatabaseContext db, TUser user, TFeature featureToDisable);
 
+	[SuppressMessage("Roslynator", "RCS1229:Use async/await when necessary.")]
 	public ValueTask<string> EnabledFeaturesAsync(ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
@@ -67,6 +69,5 @@ public abstract class BaseUserFeaturesService<TUser, TFeature>
 		}
 
 		return ValueTask.FromResult(features.Value.Humanize());
-
 	}
 }

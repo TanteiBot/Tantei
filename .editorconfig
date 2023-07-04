@@ -115,3 +115,6 @@ resharper_use_null_propagation_when_possible_highlighting = suggestion
 resharper_web_config_module_not_resolved_highlighting = warning
 resharper_web_config_type_not_resolved_highlighting = warning
 resharper_web_config_wrong_module_highlighting = warning
+
+
+dotnet_analyzer_diagnostic.category-roslynator.severity  = error

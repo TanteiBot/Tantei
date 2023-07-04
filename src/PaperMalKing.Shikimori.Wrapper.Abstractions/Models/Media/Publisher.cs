@@ -10,9 +10,11 @@ public sealed class Publisher
 	[JsonPropertyName("id")]
 	public required uint Id { get; init; }
 
-	// Dont pull publishers name, there are ~1000 of them
-	// They aren't available in other providers as of yet, so there wont be an overlap
-	// And we dont expect retrieving Publishers in Fast Path, when no updates were found for user
+	/// <remarks>
+	/// Dont pool publishers name, there are ~1000 of them
+	/// They aren't available in other providers as of yet, so there wont be an overlap
+	/// And we dont expect retrieving Publishers in Fast Path, when no updates were found for user
+	/// </remarks>
 	[JsonPropertyName("name")]
 	public required string Name { get; init; }
 

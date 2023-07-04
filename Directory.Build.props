@@ -60,6 +60,10 @@
             S2743; <!-- Static fields should not be used in generic types-->
             S3241; <!--Change return type to 'void'; not a single caller uses the returned value.-->
 
+            RCS1194; <!--Implement exception constructors.-->
+            RCS1135; <!-- Declare enum member with zero value (when enum has FlagsAttribute).-->
+            RCS1031; <!-- Remove unnecessary braces. -->
+            RCS1197; <!--Optimize StringBuilder.AppendLine call.-->            
             AsyncFixer02; <!--ToArrayAsync should be used instead of -->
         </NoWarn>
         <WarningsNotAsErrors>
@@ -86,6 +90,10 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="AsyncFixer">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Roslynator.Analyzers">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

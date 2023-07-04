@@ -77,7 +77,6 @@ internal sealed class UpdatePublishingService
 		return Task.CompletedTask;
 	}
 
-
 	public void RemoveChannel(ulong id)
 	{
 		if (this._updatePosters.TryRemove(id, out var updatePoster))

@@ -27,7 +27,6 @@ public sealed class BoolWrapperConverter<T> : JsonConverter<T> where T: IBoolWra
 		return returnValue;
 	}
 
-
 	public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
 	{ }
 }

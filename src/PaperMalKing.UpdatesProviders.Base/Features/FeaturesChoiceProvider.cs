@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace PaperMalKing.UpdatesProviders.Base.Features;
 
 public sealed class FeaturesChoiceProvider<T> : IChoiceProvider where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
+	[SuppressMessage("ReSharper", "StaticMemberInGenericType")]
 	private static Task<IEnumerable<DiscordApplicationCommandOptionChoice>>? _choices;
 
 	private static Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Choices =>

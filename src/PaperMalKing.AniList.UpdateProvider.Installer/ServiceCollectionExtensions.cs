@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper;
 using PaperMalKing.AniList.Wrapper.Abstractions;
-using PaperMalKing.AniList.Wrapper.Json;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base.Features;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
@@ -28,13 +27,12 @@ public static class ServiceCollectionExtensions
 		}).AddHttpMessageHandler(provider =>
 		{
 			var rlLogger = provider.GetRequiredService<ILogger<HeaderBasedRateLimitMessageHandler>>();
-			var rl = new HeaderBasedRateLimitMessageHandler(rlLogger);
-			return rl;
+			return new HeaderBasedRateLimitMessageHandler(rlLogger);
 		});
 		serviceCollection.AddSingleton<IAniListClient, AniListClient>(provider =>
 		{
 			var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
-			var httpClient = httpClientFactory.CreateClient(PaperMalKing.AniList.UpdateProvider.ProviderConstants.NAME);
+			var httpClient = httpClientFactory.CreateClient(ProviderConstants.NAME);
 			httpClient.Timeout = TimeSpan.FromSeconds(200);
 			var logger = provider.GetRequiredService<ILogger<AniListClient>>();
 			var options = new GraphQLHttpClientOptions()

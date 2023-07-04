@@ -44,8 +44,11 @@ internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 
 			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
-				throw new UserProcessingException(BaseUser.FromUsername(username), 
+			{
+				throw new UserProcessingException(BaseUser.FromUsername(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
+			}
+
 			dbUser.DiscordUser.Guilds.Add(guild);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
 			return BaseUser.FromUsername(dbUser.Username);
@@ -53,8 +56,11 @@ internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 
 		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
+		{
 			throw new UserProcessingException(BaseUser.FromUsername(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
+		}
+
 		if (string.IsNullOrWhiteSpace(username))
 		{
 			throw new UserProcessingException(BaseUser.Empty, "You must provide username if you arent already tracked by this bot");
@@ -66,7 +72,7 @@ internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 		{
 			duser = new()
 			{
-				Guilds = new DiscordGuild[1] { guild },
+				Guilds = new[] { guild },
 				DiscordUserId = userId,
 				BotUser = new()
 			};
@@ -98,6 +104,6 @@ internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 
 	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		return base.ListUsersCore(guildId, u => u.LastUpdatedAnimeListTimestamp, mu => new BaseUser(mu.Username, mu.DiscordUser));
+		return this.ListUsersCore(guildId, u => u.LastUpdatedAnimeListTimestamp, mu => new BaseUser(mu.Username, mu.DiscordUser));
 	}
 }

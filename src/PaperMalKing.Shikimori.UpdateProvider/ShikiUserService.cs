@@ -10,7 +10,6 @@ using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.Shikimori;
-using PaperMalKing.Shikimori.Wrapper;
 using PaperMalKing.Shikimori.Wrapper.Abstractions;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 using PaperMalKing.UpdatesProviders.Base;
@@ -37,12 +36,17 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 		if (dbUser != null) // User already in db
 		{
 			if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
+			{
 				throw new UserProcessingException(
 					"You already have your account connected. If you want to switch to another account, remove current one, then add the new one.");
+			}
+
 			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
-				throw new UserProcessingException(BaseUser.FromUsername(username), 
+			{
+				throw new UserProcessingException(BaseUser.FromUsername(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
+			}
 
 			dbUser.DiscordUser.Guilds.Add(guild);
 			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
@@ -51,8 +55,11 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 
 		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
+		{
 			throw new UserProcessingException(BaseUser.FromUsername(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
+		}
+
 		if (string.IsNullOrWhiteSpace(username))
 		{
 			throw new UserProcessingException(BaseUser.Empty, "You must provide username if you arent already tracked by this bot");
@@ -66,7 +73,7 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 			dUser = new()
 			{
 				BotUser = new(),
-				Guilds = new DiscordGuild[1] { guild },
+				Guilds = new[] { guild },
 				DiscordUserId = userId,
 			};
 		}
@@ -98,6 +105,6 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 
 	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		return base.ListUsersCore(guildId, u => u.LastHistoryEntryId, u => new BaseUser("", u.DiscordUser));
+		return this.ListUsersCore(guildId, u => u.LastHistoryEntryId, u => new BaseUser("", u.DiscordUser));
 	}
 }

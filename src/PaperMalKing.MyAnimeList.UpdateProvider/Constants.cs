@@ -26,7 +26,8 @@ internal static class Constants
 	public static readonly DiscordColor MalGrey = new("#c3c3c3");
 
 	public static readonly DiscordColor MalBlack = DiscordColor.NotQuiteBlack;
-	
-	// Discord doesn't support .ico formats in footer icons
-	public const string FAV_ICON = "https://pbs.twimg.com/profile_images/1190380284295950339/Py6XnxvH_200x200.jpg";
+	/// <summary>
+	/// Discord doesn't support .ico formats in footer icons
+	/// </summary>
+	public const string FAV_ICON = "https://cdn.myanimelist.net/images/MalAppIcon_180px.png";
 }

@@ -48,8 +48,6 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
-		
-
 #region LocalFuncs
 
 		static void DbAnimeUpdateAction(MalUser u, User user, DateTimeOffset timestamp)
@@ -102,7 +100,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			return false;
 		}
 
-#endregion
+#endregion LocalFuncs
 
 		if (this.UpdateFoundEvent is null)
 		{
@@ -114,7 +112,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		var users = db.MalUsers.Where(user => user.DiscordUser.Guilds.Any()).Where(user =>
 						  // Is bitwise to allow executing on server
 						  (user.Features & MalUserFeatures.AnimeList) != 0 || (user.Features & MalUserFeatures.MangaList) != 0 ||
-						  (user.Features & MalUserFeatures.Favorites) != 0).OrderBy(x => EF.Functions.Random())
+						  (user.Features & MalUserFeatures.Favorites) != 0).OrderBy(_ => EF.Functions.Random())
 					  .ToArray();
 		foreach (var dbUser in users)
 		{

@@ -14,7 +14,6 @@ internal sealed class UpdateProvidersManagementService : IHostedService
 	private readonly ILogger<UpdateProvidersManagementService> _logger;
 	private readonly UpdateProvidersConfigurationService _updateProvidersConfigurationService;
 
-
 	public UpdateProvidersManagementService(ILogger<UpdateProvidersManagementService> logger,
 											UpdateProvidersConfigurationService updateProvidersConfigurationService)
 	{

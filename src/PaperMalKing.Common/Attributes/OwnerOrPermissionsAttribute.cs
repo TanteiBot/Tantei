@@ -27,12 +27,12 @@ public sealed class OwnerOrPermissionsAttribute : SlashCheckBaseAttribute
 	/// <param name="permissions">Permissions needed to execute command.</param>
 	public OwnerOrPermissionsAttribute(Permissions permissions) => this.Permissions = permissions;
 
-	public override Task<bool> ExecuteChecksAsync([NotNull] InteractionContext ctx)
+	public override Task<bool> ExecuteChecksAsync( InteractionContext ctx)
 	{
 		var app = ctx.Client.CurrentApplication;
 		var me = ctx.Client.CurrentUser;
 
-		if (app != null && app.Owners.Any(x => x.Id == ctx.User.Id))
+		if (app?.Owners.Any(x => x.Id == ctx.User.Id) == true)
 			return Task.FromResult(true);
 
 		if (ctx.User.Id == me.Id)

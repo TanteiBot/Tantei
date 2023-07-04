@@ -22,9 +22,9 @@ namespace PaperMalKing.Startup.Commands;
 [GuildOnly, SlashRequireGuild]
 internal sealed class UngroupedCommands : BotCommandsModule
 {
-	private static DiscordEmbed? AboutEmbed;
+	private static DiscordEmbed? _aboutEmbed;
 
-	[SlashCommand("say", "Sends embed in selected channel with selected text", true)]
+	[SlashCommand("say", "Sends embed in selected channel with selected text")]
 	[OwnerOrPermissions(Permissions.ManageGuild)]
 	public async Task SayCommand(InteractionContext context,
 								 [Option("channel", "Channel where the embed will be send")] DiscordChannel channelToSayIn,
@@ -55,10 +55,10 @@ internal sealed class UngroupedCommands : BotCommandsModule
 		}
 	}
 
-	[SlashCommand("About", "Displays info about bot", true)]
+	[SlashCommand("About", "Displays info about bot")]
 	public Task AboutCommand(InteractionContext context)
 	{
-		if (AboutEmbed is null)
+		if (_aboutEmbed is null)
 		{
 			var owners = context.Client.CurrentApplication.Owners.Select(x => $"{x.Username}#{x.Discriminator} ({x.Mention})").ToArray();
 			var botVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "";
@@ -89,9 +89,9 @@ internal sealed class UngroupedCommands : BotCommandsModule
 				 .AddField("Links", Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)), true)
 				 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), true).AddField("Versions", versions, true);
 
-			Interlocked.Exchange(ref AboutEmbed, embedBuilder.Build());
+			Interlocked.Exchange(ref _aboutEmbed, embedBuilder.Build());
 		}
 
-		return context.EditResponseAsync(embed: AboutEmbed);
+		return context.EditResponseAsync(embed: _aboutEmbed);
 	}
 }

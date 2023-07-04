@@ -90,7 +90,7 @@ internal static partial class UserProfileParser
 			return Parse(personFavoriteNodes, node => new FavoritePerson(ParseBaseFavorite(node)));
 		}
 
-		private static IHtmlCollection<IElement> GetFavoritesNodes(IDocument parent, string sectionName)
+		private static IHtmlCollection<IElement>? GetFavoritesNodes(IDocument parent, string sectionName)
 		{
 			return parent.QuerySelectorAll($"div#{sectionName} div.fav-slide-outer > ul > li.btn-fav > a");
 		}
@@ -112,7 +112,6 @@ internal static partial class UserProfileParser
 			var typeYearNode = parent.QuerySelector(".users")!;
 			var text = typeYearNode.TextContent.AsSpan();
 			var index = text.IndexOf(Constants.DOT, StringComparison.Ordinal);
-
 
 			return new(text.Slice(0, index).ToString(), ushort.Parse(text.Slice(index + 1)), baseFav);
 		}

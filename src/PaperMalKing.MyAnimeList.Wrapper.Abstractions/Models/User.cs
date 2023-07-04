@@ -12,7 +12,7 @@ public sealed class User
 	private string? _profileUrl;
 	public required string Username { get; init; }
 
-	public string ProfileUrl => this._profileUrl ??= $"{Constants.PROFILE_URL}{this.Username}";
+	public string ProfileUrl => this._profileUrl ??= (Constants.PROFILE_URL + this.Username);
 
 	public string AvatarUrl =>
 		this._avatarUrl ??=

@@ -30,7 +30,7 @@ public sealed class MalFavoriteCompany : BaseMalFavorite, IEquatable<MalFavorite
 		return this.UserId == other.UserId && this.Id == other.Id;
 	}
 
-	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is MalFavoriteCompany other && Equals(other);
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is MalFavoriteCompany other && this.Equals(other));
 
 	public override int GetHashCode() => HashCode.Combine(this.UserId, this.Id);
 

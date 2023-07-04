@@ -12,13 +12,12 @@ public static class EmbedTemplate
 
 	public static DiscordEmbedBuilder ErrorEmbed(string errorMessage, string? title = null)
 	{
-		var embedBuilder = new DiscordEmbedBuilder
+		return new DiscordEmbedBuilder
 		{
 			Title = title ?? "Error occured",
 			Description = errorMessage,
 			Color = DiscordColor.Red
 		};
-		return embedBuilder;
 	}
 
 	public static DiscordEmbedBuilder SuccessEmbed(string message)

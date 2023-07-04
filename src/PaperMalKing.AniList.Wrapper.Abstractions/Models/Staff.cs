@@ -23,7 +23,7 @@ public sealed class Staff : IImageble, ISiteUrlable, IIdentifiable
 	public uint Id { get; init; }
 
 	[JsonPropertyName("description")]
-	public string? Description { get; init; } 
+	public string? Description { get; init; }
 
 	[JsonPropertyName("staffMedia")]
 	public Connection<Media> StaffMedia { get; init; } = Connection<Media>.Empty;

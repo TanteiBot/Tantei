@@ -15,12 +15,15 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.Startup.Commands;
 
+/// <remarks>
+/// We dont use bot commands module since most commands are immediately executed or dont provide any feedback
+/// </remarks>
 [SlashCommandGroup("admin", "Commands for owner")]
 [SlashRequireOwner]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
 internal sealed class
-	AdminCommands : ApplicationCommandModule // We dont use bot commands module since most commands are immediately executed or dont provide any feedback
+	AdminCommands : ApplicationCommandModule
 {
 	private readonly UpdateProvidersConfigurationService _providersConfigurationService;
 	private readonly UserCleanupService _cleanupService;
@@ -34,7 +37,7 @@ internal sealed class
 		this._cleanupService = cleanupService;
 	}
 
-	[SlashCommand("check", "Forcefully starts checking for updates in provider", true)]
+	[SlashCommand("check", "Forcefully starts checking for updates in provider")]
 	public async Task ForceCheckCommand(InteractionContext context, [Option(nameof(name), "Update provider name")] string name)
 	{
 		name = name.Trim();
@@ -62,14 +65,14 @@ internal sealed class
 		}
 	}
 
-	[SlashCommand("restart", "Exits bot", true)]
+	[SlashCommand("restart", "Exits bot")]
 	public async Task StopBotCommand(InteractionContext context)
 	{
 		await context.CreateResponseAsync("Exiting").ConfigureAwait(false);
 		this._lifetime.StopApplication();
 	}
 
-	[SlashCommand("cleanup", "Remove users not linked to any guilds", true)]
+	[SlashCommand("cleanup", "Remove users not linked to any guilds")]
 	public Task CleanupCommand(InteractionContext _)
 	{
 		return this._cleanupService.ExecuteCleanupAsync();
