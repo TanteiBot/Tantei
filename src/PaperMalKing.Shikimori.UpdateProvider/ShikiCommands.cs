@@ -23,21 +23,21 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 		public ShikiUserCommands(ShikiUserService userService, ILogger<ShikiUserCommands> logger) : base(userService, logger)
 		{ }
 
-		[SlashCommand("add", "Add your Shikimori account to being tracked", true)]
+		[SlashCommand("add", "Add your Shikimori account to being tracked")]
 		public override Task AddUserCommand(InteractionContext context, [Option(nameof(username), "Your username on Shikimori")] string? username = null) =>
 			base.AddUserCommand(context, username);
 
-		[SlashCommand("remove", "Remove your Shikimori account updates from being tracked", true)]
+		[SlashCommand("remove", "Remove your Shikimori account updates from being tracked")]
 		public override Task RemoveUserInGuildCommand(InteractionContext context) => base.RemoveUserInGuildCommand(context);
 
-		[SlashCommand("list", "List accounts of all tracked user's on Shikimori in this server", true)]
+		[SlashCommand("list", "List accounts of all tracked user's on Shikimori in this server")]
 		public override Task ListUsersCommand(InteractionContext context) => base.ListUsersCommand(context);
 
-		[SlashCommand("removehere", "Stop sending your updates to this server", true)]
+		[SlashCommand("removehere", "Stop sending your updates to this server")]
 		public override Task RemoveUserHereCommand(InteractionContext context) => base.RemoveUserHereCommand(context);
 	}
 
-	[SlashCommandGroup("features", "Manage your features for updates send from Shikimori.one", true)]
+	[SlashCommandGroup("features", "Manage your features for updates send from Shikimori.one")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 	public sealed class ShikiUserFeaturesCommands : BaseUserFeaturesCommandsModule<ShikiUser, ShikiUserFeatures>
 	{
@@ -45,22 +45,22 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 			base(userFeaturesService, logger)
 		{ }
 
-		[SlashCommand("enable", "Enable features for your updates", true)]
+		[SlashCommand("enable", "Enable features for your updates")]
 		public override Task EnableFeatureCommand(InteractionContext context,
 												  [ChoiceProvider(typeof(FeaturesChoiceProvider<ShikiUserFeatures>)),
 												   Option("feature", "Feature to enable")]
 												  string unparsedFeature) => base.EnableFeatureCommand(context, unparsedFeature);
 
-		[SlashCommand("disable", "Disable features for your updates", true)]
+		[SlashCommand("disable", "Disable features for your updates")]
 		public override Task DisableFeatureCommand(InteractionContext context,
 												   [ChoiceProvider(typeof(FeaturesChoiceProvider<ShikiUserFeatures>)),
 												    Option("feature", "Feature to disable")]
 												   string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);
 
-		[SlashCommand("enabled", "Show features that are enabled for yourself", true)]
+		[SlashCommand("enabled", "Show features that are enabled for yourself")]
 		public override Task EnabledFeaturesCommand(InteractionContext context) => base.EnabledFeaturesCommand(context);
 
-		[SlashCommand("list", "Show all features that are available for updates from Shikimori.one", true)]
+		[SlashCommand("list", "Show all features that are available for updates from Shikimori.one")]
 		public override Task ListFeaturesCommand(InteractionContext context) => base.ListFeaturesCommand(context);
 	}
 }

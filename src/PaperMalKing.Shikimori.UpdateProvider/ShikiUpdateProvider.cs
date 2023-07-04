@@ -30,7 +30,6 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 	private readonly IShikiClient _client;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
-
 	public ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptions<ShikiOptions> options, IShikiClient client,
 							   IDbContextFactory<DatabaseContext> dbContextFactory) : base(logger,
 		TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
@@ -56,7 +55,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 		foreach (var dbUser in db.ShikiUsers.Where(u =>
 					 u.DiscordUser.Guilds.Any() && ((u.Features & ShikiUserFeatures.AnimeList) != 0 ||
 												    (u.Features & ShikiUserFeatures.MangaList) != 0 ||
-												    (u.Features & ShikiUserFeatures.Favourites) != 0)).OrderBy(x => EF.Functions.Random()).ToArray())
+												    (u.Features & ShikiUserFeatures.Favourites) != 0)).OrderBy(_ => EF.Functions.Random()).ToArray())
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;
@@ -90,7 +89,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				}));
 			if (groupedHistoryEntriesWithMediaAndRoles.Exists(x => x.HistoryEntries.Find(x => x.Target is not null) is not null))
 			{
-				foreach (var historyMediaRole in groupedHistoryEntriesWithMediaAndRoles.Where(x => x.HistoryEntries.Exists(x => x.Target is not null)))
+				foreach (var historyMediaRole in groupedHistoryEntriesWithMediaAndRoles.Where(x => x.HistoryEntries.Exists(historyEntry => historyEntry.Target is not null)))
 				{
 					var history = historyMediaRole.HistoryEntries.First(x => x.Target is not null);
 					if ((dbUser.Features & ShikiUserFeatures.Description) != 0 || (dbUser.Features & ShikiUserFeatures.Studio) != 0 ||
@@ -114,10 +113,8 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			totalUpdates.AddRange(groupedHistoryEntriesWithMediaAndRoles.Select(group => group.ToDiscordEmbed(user, dbUser.Features)));
 			if (historyUpdates.Any())
 			{
-				var lastHistoryEntryId = historyUpdates.Max(h => h.Id);
-				dbUser.LastHistoryEntryId = lastHistoryEntryId;
+				dbUser.LastHistoryEntryId = historyUpdates.Max(h => h.Id);
 			}
-
 
 			if (cancellationToken.IsCancellationRequested)
 			{
@@ -172,7 +169,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 					isAnime ? ListEntryType.Anime : ListEntryType.Manga, cancellationToken).ConfigureAwait(false);
 			}
 
-			if ((isManga || isAnime) && ((dbUser.Features & ShikiUserFeatures.Description) != 0 || (dbUser.Features & ShikiUserFeatures.Genres) != 0) ||
+			if (((isManga || isAnime) && ((dbUser.Features & ShikiUserFeatures.Description) != 0 || (dbUser.Features & ShikiUserFeatures.Genres) != 0)) ||
 			    ((dbUser.Features & ShikiUserFeatures.Publisher) != 0 && isManga) || ((dbUser.Features & ShikiUserFeatures.Studio) != 0 && isAnime))
 			{
 				favouriteMediaRoles.Media = (isManga, isAnime) switch

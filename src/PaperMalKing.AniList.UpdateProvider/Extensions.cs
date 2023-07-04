@@ -60,7 +60,6 @@ internal static partial class Extensions
 
 	private const int InlineFieldValueMaxLength = 30;
 
-
 	public static async Task<CombinedRecentUpdatesResponse> GetAllRecentUserUpdatesAsync(
 		this IAniListClient client, AniListUser user, AniListUserFeatures features,
 		CancellationToken cancellationToken)
@@ -209,7 +208,10 @@ internal static partial class Extensions
 			var sb = new StringBuilder();
 			foreach (var (key, value) in mediaListEntry.AdvancedScores?.Where(e => e.Value != 0f) ??
 										 Array.Empty<KeyValuePair<string, float>>())
+			{
 				sb.AppendLine($"{key}: {value:0.#}");
+			}
+
 			eb.AddField("Advanced scoring", sb.ToString(), true);
 		}
 
@@ -264,17 +266,16 @@ internal static partial class Extensions
 			{
 				var text = string.Join(", ",
 					media.Staff.Nodes
-						 .Where(edge => 
-							 Array.TrueForAll(IgnoredStartWithRoles, (r =>
+						 .Where(edge =>
+							 Array.TrueForAll(IgnoredStartWithRoles, r =>
 								 !edge.Role.StartsWith(r, StringComparison.OrdinalIgnoreCase) &&
-								 Array.TrueForAll(IgnoredContainsRoles, r => !edge.Role.Contains(r, StringComparison.OrdinalIgnoreCase))))).Take(7)
+								 Array.TrueForAll(IgnoredContainsRoles, r => !edge.Role.Contains(r, StringComparison.OrdinalIgnoreCase)))).Take(7)
 						 .Select(edge =>
 							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
 				if (!string.IsNullOrEmpty(text))
 					eb.AddField("Made by", text, true);
 			}
 		}
-
 
 		if ((features & AniListUserFeatures.Genres) != 0 && media.Genres.Any())
 		{
@@ -288,7 +289,6 @@ internal static partial class Extensions
 				media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? $"||{t.Name}||" : t.Name));
 			eb.AddField("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 		}
-
 
 		if ((features & AniListUserFeatures.MediaDescription) != 0 && !string.IsNullOrEmpty(media.Description))
 		{

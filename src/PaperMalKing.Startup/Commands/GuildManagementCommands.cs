@@ -16,7 +16,7 @@ using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Startup.Commands;
 
-[SlashCommandGroup("sm", "Commands for managing server", true)]
+[SlashCommandGroup("sm", "Commands for managing server")]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [OwnerOrPermissions(Permissions.ManageGuild)]
 [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
@@ -35,7 +35,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		this._userService = userService;
 	}
 
-	[SlashCommand("set", "Sets channel to post updates to", true)]
+	[SlashCommand("set", "Sets channel to post updates to")]
 	public async Task SetChannelCommand(InteractionContext context,
 										[Option(nameof(channel), "Channel updates should be posted", autocomplete: false)] DiscordChannel? channel = null)
 	{
@@ -71,7 +71,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully set {channel}")).ConfigureAwait(false);
 	}
 
-	[SlashCommand("update", "Updates channel where updates are posted", true)]
+	[SlashCommand("update", "Updates channel where updates are posted")]
 	public async Task UpdateChannelCommand(InteractionContext context,
 										   [Option(nameof(channel), "New channel where updates should be posted")] DiscordChannel? channel = null)
 	{
@@ -107,7 +107,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully updated to {channel}")).ConfigureAwait(false);
 	}
 
-	[SlashCommand("removeserver", "Remove this server from being tracked", true)]
+	[SlashCommand("removeserver", "Remove this server from being tracked")]
 	public async Task RemoveGuildCommand(InteractionContext context)
 	{
 		try
@@ -125,7 +125,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 					 .ConfigureAwait(false);
 	}
 
-	[SlashCommand("forceremoveuserById", "Remove this user from being tracked in this server", true)]
+	[SlashCommand("forceremoveuserById", "Remove this user from being tracked in this server")]
 	public async Task ForceRemoveUserCommand(InteractionContext context,
 											 [Option(nameof(userId), "Discord user's id which should be to removed from being tracked")] long userId)
 	{

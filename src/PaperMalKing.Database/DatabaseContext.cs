@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2022 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PaperMalKing.Database.Models;
@@ -43,6 +44,8 @@ public sealed class DatabaseContext : DbContext
 	public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
 	{ }
 
+	[SuppressMessage("Roslynator", "RCS1201:Use method chaining.")]
+	[SuppressMessage("Roslynator", "RCS1021:Convert lambda expression body to expression body.")]
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);
@@ -125,7 +128,6 @@ public sealed class DatabaseContext : DbContext
 			au.HasIndex(x => x.Features);
 			au.HasIndex(x => x.DiscordUserId);
 		});
-
 
 		modelBuilder.Entity<AniListFavourite>(af =>
 		{

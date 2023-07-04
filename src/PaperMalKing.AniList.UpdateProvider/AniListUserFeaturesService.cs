@@ -51,11 +51,11 @@ internal sealed class AniListUserFeaturesService : BaseUserFeaturesService<AniLi
 				var fr = await this._client
 								   .GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites | AniListUserFeatures.AnimeList,
 									   CancellationToken.None).ConfigureAwait(false);
-				dbUser.Favourites = fr.Favourites.Select(f => new AniListFavourite
+				dbUser.Favourites = fr.Favourites.ConvertAll(f => new AniListFavourite
 				{
 					Id = f.Id,
 					FavouriteType = (FavouriteType)f.Type
-				}).ToList();
+				});
 				break;
 			}
 			case AniListUserFeatures.Reviews:

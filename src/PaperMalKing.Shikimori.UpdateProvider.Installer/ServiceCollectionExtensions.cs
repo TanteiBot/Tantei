@@ -24,19 +24,19 @@ public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection AddShikimori(this IServiceCollection serviceCollection, IConfiguration configuration)
 	{
-		serviceCollection.AddOptions<ShikiOptions>().Bind(configuration.GetSection(UpdateProvider.Constants.NAME));
+		serviceCollection.AddOptions<ShikiOptions>().Bind(configuration.GetSection(Constants.NAME));
 
 		var policy = HttpPolicyExtensions.HandleTransientHttpError().OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
 										 .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));
 
-		serviceCollection.AddHttpClient(UpdateProvider.Constants.NAME).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler()
+		serviceCollection.AddHttpClient(Constants.NAME).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler()
 		{
 			PooledConnectionLifetime = TimeSpan.FromMinutes(15),
-		}).AddPolicyHandler(policy).AddHttpMessageHandler(provider =>
+		}).AddPolicyHandler(policy).AddHttpMessageHandler(_ =>
 		{
 			var rl = new RateLimit(90, TimeSpan.FromMinutes(1.05d)); // 90rpm with .05 as inaccuracy
 			return RateLimiterFactory.Create<ShikiClient>(rl).ToHttpMessageHandler();
-		}).AddHttpMessageHandler(provider =>
+		}).AddHttpMessageHandler(_ =>
 		{
 			var rl = new RateLimit(5, TimeSpan.FromSeconds(1.05d)); //5rps with .05 as inaccuracy
 			return RateLimiterFactory.Create<ShikiClient>(rl).ToHttpMessageHandler();
@@ -50,7 +50,7 @@ public static class ServiceCollectionExtensions
 		{
 			var factory = provider.GetRequiredService<IHttpClientFactory>();
 			var logger = provider.GetRequiredService<ILogger<ShikiClient>>();
-			return new(factory.CreateClient(UpdateProvider.Constants.NAME), logger);
+			return new(factory.CreateClient(Constants.NAME), logger);
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<ShikiUser, ShikiUserFeatures>, ShikiUserFeaturesService>();
 		serviceCollection.AddSingleton<ShikiUserService>();

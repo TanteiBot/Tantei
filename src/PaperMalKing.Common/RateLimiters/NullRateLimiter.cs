@@ -32,7 +32,7 @@ internal sealed class NullRateLimiter : RateLimiter
 	private NullRateLimiter()
 	{ }
 
-	public override RateLimiterStatistics? GetStatistics() => Statistics;
+	public override RateLimiterStatistics GetStatistics() => Statistics;
 
 	protected override RateLimitLease AttemptAcquireCore(int permitCount) => NullRateLimitLease.Instance;
 

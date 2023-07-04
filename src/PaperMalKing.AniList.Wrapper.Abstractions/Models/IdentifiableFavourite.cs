@@ -33,7 +33,7 @@ public sealed class IdentifiableFavourite : IIdentifiable, IEquatable<Identifiab
 
 	public override bool Equals(object? obj)
 	{
-		return ReferenceEquals(this, obj) || obj is IdentifiableFavourite other && this.Equals(other);
+		return ReferenceEquals(this, obj) || (obj is IdentifiableFavourite other && this.Equals(other));
 	}
 
 	public override int GetHashCode()

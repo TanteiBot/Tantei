@@ -80,7 +80,7 @@ internal sealed class GuildManagementService
 		discordGuild.Channels.TryGetValue(guild.PostingChannelId, out var currentChannel);
 		discordGuild.Channels.TryGetValue(channelId, out var newChannel);
 		this._logger.LogInformation("Updating channel of {Guild} from {CurrentChannel} to {NewChannel}", this._discordClient.Guilds[guildId],
-			(currentChannel ?? (object)guild.PostingChannelId), newChannel ?? (object)channelId);
+			currentChannel ?? (object)guild.PostingChannelId, newChannel ?? (object)channelId);
 		var opci = guild.PostingChannelId;
 		guild.PostingChannelId = channelId;
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);

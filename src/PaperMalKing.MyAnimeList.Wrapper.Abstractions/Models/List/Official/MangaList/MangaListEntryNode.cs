@@ -9,7 +9,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Man
 
 public sealed class MangaListEntryNode : BaseListEntryNode<MangaMediaType, MangaPublishingStatus>
 {
-	private string? _url = null;
+	private string? _url;
 	public override uint TotalSubEntries => this.TotalChapters;
 
 	[JsonPropertyName("num_volumes")]

@@ -10,7 +10,10 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Converters;
 
 public sealed class DateOnlyFromMalConverter : JsonConverter<DateOnly?>
 {
-	private const int MaxDateLength = 10; // yyyy-mm-dd
+	/// <summary>
+	/// yyyy-mm-dd
+	/// </summary>
+	private const int MaxDateLength = 10;
 
 	private static readonly IReadOnlyList<string> Formats = new[] { "yyyy-MM-dd", "yyyy-MM", "yyyy", "yyyy-M-dd", "yyyy-M-d", "yyyy-M", };
 

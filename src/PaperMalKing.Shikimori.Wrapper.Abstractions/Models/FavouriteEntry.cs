@@ -14,7 +14,7 @@ public sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<Fav
 	public string? GenericType { get; set; }
 
 	[JsonIgnore]
-	public string? SpecificType { get; set; } = null;
+	public string? SpecificType { get; set; }
 
 	[JsonPropertyName("id")]
 	public uint Id { get; init; }
@@ -27,9 +27,9 @@ public sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<Fav
 	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
 	public string? RussianName { get; init; }
 
-	public string? ImageUrl => Utils.GetImageUrl(this.GenericType!, this.Id);
+	public string ImageUrl => Utils.GetImageUrl(this.GenericType!, this.Id);
 
-	public string? Url => Utils.GetUrl(this.GenericType!, this.Id);
+	public string Url => Utils.GetUrl(this.GenericType!, this.Id);
 
 	public bool Equals(FavouriteEntry? other)
 	{
@@ -40,7 +40,7 @@ public sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<Fav
 		return string.Equals(this.GenericType, other.GenericType, StringComparison.Ordinal) && this.Id == other.Id;
 	}
 
-	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is FavouriteEntry other && this.Equals(other);
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is FavouriteEntry other && this.Equals(other));
 
 	public override int GetHashCode()
 	{
@@ -63,7 +63,7 @@ public sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<Fav
 			return 1;
 		}
 
-		var genericTypeComparison = string.Compare(this.GenericType, other.GenericType, StringComparison.Ordinal);
+		var genericTypeComparison = string.CompareOrdinal(this.GenericType, other.GenericType);
 		if (genericTypeComparison != 0)
 		{
 			return genericTypeComparison;

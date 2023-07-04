@@ -16,8 +16,8 @@ internal static partial class UserProfileParser
 		var li = reportUrl!.LastIndexOf('=');
 
 		var id = uint.Parse(reportUrl.Substring(li + 1));
-		var url = document.QuerySelector("meta[property=\"og:url\"]")!.GetAttribute("content");
-		var username = url![(url!.LastIndexOf('/') + 1)..];
+		var url = document.QuerySelector("meta[property=\"og:url\"]")!.GetAttribute("content")!;
+		var username = url[(url.LastIndexOf('/') + 1)..];
 		var favorites = options.HasFlag(ParserOptions.Favorites) ? FavoritesParser.Parse(document) : UserFavorites.Empty;
 
 		return new()

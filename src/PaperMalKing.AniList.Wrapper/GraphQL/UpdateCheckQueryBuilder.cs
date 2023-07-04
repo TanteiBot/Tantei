@@ -8,7 +8,7 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL;
 
 internal static class UpdateCheckQueryBuilder
 {
-	private const string QueryStart = 
+	private const string QueryStart =
 		"""
 		query ($userId: Int, $page: Int, $activitiesFilterTimeStamp: Int, $perChunk: Int, $chunk: Int) {
 			User(id: $userId) {
@@ -99,7 +99,7 @@ internal static class UpdateCheckQueryBuilder
 		}}
 		""";
 
-	private const string MangaListSubQuery = 
+	private const string MangaListSubQuery =
 		"""
 		MangaList: MediaListCollection(userId: $userId, type: MANGA, sort: UPDATED_TIME_DESC, chunk: $chunk, perChunk: $perChunk) {{
 			lists {{
@@ -154,7 +154,6 @@ internal static class UpdateCheckQueryBuilder
 		var hasManga = (options & RequestOptions.MangaList) != 0;
 		var hasFavs = (options & RequestOptions.Favourites) != 0;
 
-
 		var hasReview = (options & RequestOptions.Reviews) != 0;
 		var sb = new StringBuilder(QueryStart);
 		if (hasFavs)
@@ -187,8 +186,8 @@ internal static class UpdateCheckQueryBuilder
 				true => "ANIME_LIST",
 				_ => "MANGA_LIST"
 			};
-			sb.AppendLine($"values: activities(userId: $userId, type: {type}, sort: ID_DESC, createdAt_greater: $activitiesFilterTimeStamp) {{");
-			sb.AppendLine(
+			sb.AppendLine($"values: activities(userId: $userId, type: {type}, sort: ID_DESC, createdAt_greater: $activitiesFilterTimeStamp) {{")
+				.AppendLine(
 				"""
 				... on ListActivity {
 					status
@@ -199,11 +198,14 @@ internal static class UpdateCheckQueryBuilder
 			if (hasAnime)
 				sb.AppendLine("episodes");
 			if (hasManga)
+			{
 				sb.AppendLine(
 					"""
 					chapters
 					volumes
 					""");
+			}
+
 			Helpers.AppendMediaFields(sb, options);
 			sb.AppendLine(
 				"""

@@ -15,7 +15,7 @@ public sealed class MalFavoritePerson : BaseMalFavorite, IEquatable<MalFavoriteP
 		return this.UserId == other.UserId && this.Id == other.Id;
 	}
 
-	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is MalFavoritePerson other && Equals(other);
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is MalFavoritePerson other && this.Equals(other));
 
 	public override int GetHashCode() => HashCode.Combine(this.UserId, this.Id);
 

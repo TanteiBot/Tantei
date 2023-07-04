@@ -52,5 +52,6 @@
         <PackageVersion Include="SonarAnalyzer.CSharp" Version="9.4.0.72892"/>
         <PackageVersion Include="AsyncFixer" Version="1.6.0"/>
         <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.6.40"/>
+        <PackageVersion Include="Roslynator.Analyzers" Version="4.3.0" />
     </ItemGroup>
 </Project>

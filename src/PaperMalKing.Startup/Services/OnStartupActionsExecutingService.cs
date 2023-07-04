@@ -25,8 +25,7 @@ internal sealed class OnStartupActionsExecutingService : IHostedService
 
 		scope.ServiceProvider.GetRequiredService<ICommandsService>();
 		_ = scope.ServiceProvider.GetRequiredService<UpdatePublishingService>();
-		var services = scope.ServiceProvider.GetServices<IExecuteOnStartupService>();
-		foreach (var service in services)
+		foreach (var service in scope.ServiceProvider.GetServices<IExecuteOnStartupService>())
 		{
 			if (cancellationToken.IsCancellationRequested)
 				return;

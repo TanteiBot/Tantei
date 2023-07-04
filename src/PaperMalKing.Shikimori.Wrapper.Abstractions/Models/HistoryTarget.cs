@@ -27,7 +27,7 @@ public sealed class HistoryTarget : IMultiLanguageName
 		get => this._url;
 		init
 		{
-			this._url = $"{Constants.BASE_URL}{value}";
+			this._url = Constants.BASE_URL + value;
 			this.Type = value.Contains("/animes", StringComparison.OrdinalIgnoreCase) ? ListEntryType.Anime : ListEntryType.Manga;
 			var entryType = this.Type == ListEntryType.Anime ? "animes" : "mangas";
 			this.ImageUrl = Utils.GetImageUrl(entryType, this.Id);

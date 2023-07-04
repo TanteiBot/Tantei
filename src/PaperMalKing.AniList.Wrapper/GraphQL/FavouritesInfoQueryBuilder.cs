@@ -36,10 +36,9 @@ internal static class FavouritesInfoQueryBuilder
 			"""
 			}
 			}
-			""");
-
-		sb.AppendLine(
-			"""
+			""")
+		  .AppendLine(
+		  	"""
 			Staff: Page(page: $page, perPage: 50) {
 				pageInfo{
 					hasNextPage
@@ -69,8 +68,8 @@ internal static class FavouritesInfoQueryBuilder
 			"""
 			}
 			}
-			""");
-		sb.AppendLine(
+			""")
+			.AppendLine(
 			"""
 			Characters: Page(page: $page, perPage: 50) {
 				pageInfo{

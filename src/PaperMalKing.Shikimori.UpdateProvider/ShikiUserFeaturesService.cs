@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.Shikimori;
-using PaperMalKing.Shikimori.Wrapper;
 using PaperMalKing.Shikimori.Wrapper.Abstractions;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;

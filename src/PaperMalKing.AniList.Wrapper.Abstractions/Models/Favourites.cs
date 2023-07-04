@@ -13,7 +13,7 @@ namespace PaperMalKing.AniList.Wrapper.Abstractions.Models;
 [SuppressMessage("Design", "CA1041:Provide ObsoleteAttribute message")]
 public sealed class Favourites
 {
-	public bool HasNextPage { get; init; } = false;
+	public bool HasNextPage { get; init; }
 
 	private readonly List<IdentifiableFavourite> _allFavourites = new();
 

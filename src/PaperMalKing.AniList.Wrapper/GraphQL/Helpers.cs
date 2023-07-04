@@ -36,6 +36,7 @@ internal static class Helpers
 		if ((options & RequestOptions.Genres) != 0)
 			sb.AppendLine("genres");
 		if ((options & RequestOptions.Tags) != 0)
+		{
 			sb.AppendLine(
 				"""
 				tags{
@@ -44,18 +45,23 @@ internal static class Helpers
 					isMediaSpoiler
 				}
 				""");
+		}
 
 		if ((options & RequestOptions.MediaFormat) != 0)
+		{
 			sb.AppendLine(
 				"""
 				format
 				countryOfOrigin
 				""");
+		}
+
 		if ((options & RequestOptions.MediaStatus) != 0)
 			sb.AppendLine("status(version: 2)");
 		if ((options & RequestOptions.Genres) != 0)
 			sb.AppendLine("genres");
 		if ((options & RequestOptions.Tags) != 0)
+		{
 			sb.AppendLine(
 				"""
 				tags{
@@ -64,7 +70,10 @@ internal static class Helpers
 					isMediaSpoiler
 				}
 				""");
+		}
+
 		if ((options & RequestOptions.Studio) != 0)
+		{
 			sb.AppendLine(
 				"""
 				studios(sort: FAVOURITES_DESC, isMain: true){
@@ -75,7 +84,10 @@ internal static class Helpers
 					}
 				}
 				""");
+		}
+
 		if ((options & RequestOptions.Mangaka) != 0 || (options & RequestOptions.Director) != 0)
+		{
 			sb.AppendLine(
 				"""
 				staff(sort: [RELEVANCE, ID], page: 1, perPage: 4){
@@ -91,6 +103,8 @@ internal static class Helpers
 					}
 				}
 				""");
+		}
+
 		if ((options & RequestOptions.Seyu) != 0 && (options & RequestOptions.AnimeList) != 0)
 		{
 			sb.AppendLine( // We select node since without it anilist provides empty array in voice actors

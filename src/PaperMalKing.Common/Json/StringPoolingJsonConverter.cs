@@ -17,17 +17,20 @@ namespace PaperMalKing.Common.Json;
 /// </summary>
 public sealed class StringPoolingJsonConverter : JsonConverter<string>
 {
-	private static readonly StringPool _stringPool = new StringPool();
+	private static readonly StringPool StringPool = new ();
 
 	public const int MaxLengthLimit = 128;
-	private const int ByteBufferLength = MaxLengthLimit * 4; // 4 is max count of bytes per character
+	/// <summary>
+	/// 4 is max count of bytes per character
+	/// </summary>
+	private const int ByteBufferLength = MaxLengthLimit * 4;
 
 	public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
-		return ReadStringOrGetFromPool(ref reader, _stringPool);
+		return ReadStringOrGetFromPool(ref reader, StringPool);
 	}
 
-	public static string ReadStringOrGetFromPool(ref Utf8JsonReader reader) => ReadStringOrGetFromPool(ref reader, _stringPool);
+	public static string ReadStringOrGetFromPool(ref Utf8JsonReader reader) => ReadStringOrGetFromPool(ref reader, StringPool);
 
 	/// <remarks>
 	/// Uses ref in order to not copy struct when invoking <see cref="Utf8JsonReader.GetString"/> in unhappy paths

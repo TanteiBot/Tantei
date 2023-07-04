@@ -29,7 +29,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 	public virtual async Task AddUserCommand(InteractionContext context, string? username = null)
 	{
-		this.Logger.LogInformation("Trying to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member, UserService.Name);
+		this.Logger.LogInformation("Trying to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member, this.UserService.Name);
 		BaseUser user;
 
 		try
@@ -40,21 +40,19 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		{
 			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
-			this.Logger.LogError(ex, "Failed to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member,
-				UserService.Name);
+			this.Logger.LogError(ex, "Failed to add {ProviderUsername} {Member} to {Name} update provider", username, context.Member, this.UserService.Name);
 			throw;
 		}
 
-		this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider", username, context.Member,
-			UserService.Name);
+		this.Logger.LogInformation("Successfully added {ProviderUsername} {Member} to {Name} update provider", username, context.Member, this.UserService.Name);
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully added {user.Username} to {UserService.Name} update checker"))
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully added {user.Username} to {this.UserService.Name} update checker"))
 					 .ConfigureAwait(false);
 	}
 
 	public virtual async Task RemoveUserInGuildCommand(InteractionContext context)
 	{
-		this.Logger.LogInformation("Trying to remove {Member} from {Name} update provider", context.Member, UserService.Name);
+		this.Logger.LogInformation("Trying to remove {Member} from {Name} update provider", context.Member, this.UserService.Name);
 
 		try
 		{
@@ -64,14 +62,14 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		{
 			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed).ConfigureAwait(false);
-			this.Logger.LogError(ex, "Failed to remove {Member} from {Name} update provider", context.Member, UserService.Name);
+			this.Logger.LogError(ex, "Failed to remove {Member} from {Name} update provider", context.Member, this.UserService.Name);
 
 			throw;
 		}
 
-		this.Logger.LogInformation("Successfully removed {Member} from {Name} update provider", context.Member, UserService.Name);
+		this.Logger.LogInformation("Successfully removed {Member} from {Name} update provider", context.Member, this.UserService.Name);
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully removed yourself from {UserService.Name} update checker"))
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully removed yourself from {this.UserService.Name} update checker"))
 					 .ConfigureAwait(false);
 	}
 

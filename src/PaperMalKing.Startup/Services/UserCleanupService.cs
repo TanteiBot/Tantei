@@ -19,7 +19,6 @@ internal sealed class UserCleanupService
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 	private readonly GeneralUserService _userService;
 
-
 	public UserCleanupService(ILogger<UserCleanupService> logger, DiscordClient discordClient, IDbContextFactory<DatabaseContext> dbContextFactory,
 							  GeneralUserService userService)
 	{
@@ -33,8 +32,7 @@ internal sealed class UserCleanupService
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
 		this._logger.LogInformation("Starting to look for users without links to any guild, or users that left server while bot was offline");
-		var discordUsers = db.DiscordUsers.Include(x => x.Guilds).AsNoTracking().ToArray();
-		foreach (var discordUser in discordUsers)
+		foreach (var discordUser in db.DiscordUsers.Include(x => x.Guilds).AsNoTracking().ToArray())
 		{
 			var userId = discordUser.DiscordUserId;
 			if (discordUser.Guilds.Count == 0)

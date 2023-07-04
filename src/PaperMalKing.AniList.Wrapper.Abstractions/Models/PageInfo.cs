@@ -16,7 +16,6 @@ public sealed class PageInfo : IBoolWrapper<PageInfo>
 		HasNextPage = true
 	};
 
-
 	public static PageInfo FalseValue { get; } = new()
 	{
 		HasNextPage = false

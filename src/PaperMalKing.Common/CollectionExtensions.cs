@@ -38,8 +38,8 @@ public static class CollectionExtensions
 		}
 		originalHs.ExceptWith(resulting);
 		resultingHs.ExceptWith(original);
-		var added = resultingHs.ToArray() ?? Array.Empty<T>();
-		var removed = originalHs.ToArray() ?? Array.Empty<T>();
+		var added = resultingHs.ToArray();
+		var removed = originalHs.ToArray();
 		return (added, removed);
 	}
 

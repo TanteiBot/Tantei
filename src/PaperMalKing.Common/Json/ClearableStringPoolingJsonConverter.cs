@@ -18,14 +18,15 @@ namespace PaperMalKing.Common.Json;
 /// </summary>
 public sealed class ClearableStringPoolingJsonConverter : JsonConverter<string>
 {
-	private static readonly StringPool _stringPool = new();
+	private static readonly StringPool StringPool = new();
 
 	[SuppressMessage("Performance", "CA1823:Avoid unused private fields")]
-	private static readonly Timer _timer = new Timer(_ => _stringPool.Reset(), null, dueTime: TimeSpan.Zero, TimeSpan.FromHours(3));
+	[SuppressMessage("Roslynator", "RCS1213:Remove unused member declaration.")]
+	private static readonly Timer Timer = new (_ => StringPool.Reset(), null, dueTime: TimeSpan.Zero, TimeSpan.FromHours(3));
 
 	public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
-		return StringPoolingJsonConverter.ReadStringOrGetFromPool(ref reader, _stringPool);
+		return StringPoolingJsonConverter.ReadStringOrGetFromPool(ref reader, StringPool);
 	}
 
 	public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)

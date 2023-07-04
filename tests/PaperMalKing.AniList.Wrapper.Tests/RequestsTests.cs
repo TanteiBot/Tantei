@@ -32,7 +32,7 @@ public class RequestsTests
 	[Fact]
 	public Task FavoritesInfoRequestReturnsExpectedResult()
 	{
-		var ids = new uint[1] { 1u };
+		var ids = new[] { 1u };
 		return Verify(Requests.FavouritesInfoRequest(1, ids, ids, ids, ids, ids, RequestOptions.All).Query);
 	}
 }

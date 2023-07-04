@@ -14,7 +14,6 @@ public sealed class AnimeListEntryStatus : BaseListEntryStatus<AnimeListStatus>
 
 	public override ulong ReprogressTimes => this.TimesRewatched;
 
-
 	[JsonPropertyName("num_episodes_watched")]
 	public required ulong EpisodesWatched { get; init; }
 
@@ -22,5 +21,5 @@ public sealed class AnimeListEntryStatus : BaseListEntryStatus<AnimeListStatus>
 	public required bool IsRewatching { get; init; }
 
 	[JsonPropertyName("num_times_rewatched")]
-	public required ulong TimesRewatched { get; init; } 
+	public required ulong TimesRewatched { get; init; }
 }

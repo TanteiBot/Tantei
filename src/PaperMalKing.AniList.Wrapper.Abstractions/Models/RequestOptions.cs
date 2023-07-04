@@ -23,7 +23,6 @@ public enum RequestOptions : ulong
 	Director = 1 << 14,
 	Seyu = 1 << 15,
 
-
 	All = AnimeList | MangaList | Favourites | MediaFormat | MediaStatus | MediaDescription | Genres | Tags | Studio | Mangaka | Reviews |
 		  CustomLists | Director | Seyu
 }

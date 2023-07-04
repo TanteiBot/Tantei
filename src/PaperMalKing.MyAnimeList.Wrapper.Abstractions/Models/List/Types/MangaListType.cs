@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using PaperMalKing.Common.Enums;
 using static PaperMalKing.MyAnimeList.Wrapper.Abstractions.MangaFieldsToRequest;
 
-
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
 
 public abstract class MangaListType : IListType

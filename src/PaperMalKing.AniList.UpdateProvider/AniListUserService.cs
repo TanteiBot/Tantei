@@ -62,8 +62,11 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 
 		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
+		{
 			throw new UserProcessingException(BaseUser.FromUsername(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
+		}
+
 		var dUser = db.DiscordUsers.Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 		var response = await this._client.GetCompleteUserInitialInfoAsync(username).ConfigureAwait(false);
 		var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -71,7 +74,7 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 		{
 			dUser = new()
 			{
-				Guilds = new DiscordGuild[1] { guild },
+				Guilds = new[] { guild },
 				DiscordUserId = userId,
 				BotUser = new()
 			};
@@ -83,11 +86,11 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 
 		dbUser = new()
 		{
-			Favourites = response.Favourites.Select(f => new AniListFavourite
+			Favourites = response.Favourites.ConvertAll(f => new AniListFavourite
 			{
 				Id = f.Id,
 				FavouriteType = (FavouriteType)f.Type
-			}).ToList(),
+			}),
 			Id = response.UserId!.Value,
 			DiscordUser = dUser,
 			LastActivityTimestamp = now,
@@ -106,6 +109,6 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 
 	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		return base.ListUsersCore(guildId, u => u.LastActivityTimestamp, u => new BaseUser("", u.DiscordUser));
+		return this.ListUsersCore(guildId, u => u.LastActivityTimestamp, u => new BaseUser("", u.DiscordUser));
 	}
 }

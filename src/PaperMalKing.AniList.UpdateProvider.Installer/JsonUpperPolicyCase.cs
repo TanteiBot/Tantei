@@ -3,7 +3,7 @@
 
 using System.Text.Json;
 
-namespace PaperMalKing.AniList.Wrapper.Json;
+namespace PaperMalKing.AniList.UpdateProvider.Installer;
 
 internal sealed class JsonUpperPolicyCase : JsonNamingPolicy
 {

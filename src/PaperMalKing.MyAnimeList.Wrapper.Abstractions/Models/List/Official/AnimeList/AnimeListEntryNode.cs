@@ -9,7 +9,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Ani
 
 public sealed class AnimeListEntryNode : BaseListEntryNode<AnimeMediaType, AnimeAiringStatus>
 {
-	private string? _url = null;
+	private string? _url;
 	public override uint TotalSubEntries => this.Episodes;
 
 	[JsonPropertyName("num_episodes")]

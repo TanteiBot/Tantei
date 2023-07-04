@@ -37,7 +37,7 @@ public sealed class RateLimiterHttpMessageHandler : DelegatingHandler
 
 	protected override void Dispose(bool disposing)
 	{
-		RateLimiter.Dispose();
+		this.RateLimiter.Dispose();
 		base.Dispose(disposing);
 	}
 }

@@ -69,7 +69,7 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 			this._cts = null;
 			this.RestartTimer(this.DelayBetweenTimerFires);
 			this.Logger.LogInformation(
-				"Ended checking for updates in {Name} updates provider. Next planned update check is in {@DelayBetweenTimerFires}.", this.Name,
+				"Ended checking for updates in {Name} updates provider. Next planned update check is in {@DelayBetweenTimerFires}", this.Name,
 				this.DelayBetweenTimerFires);
 		}
 	}

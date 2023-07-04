@@ -28,8 +28,7 @@ public static class DbExtensions
 		{
 			try
 			{
-				var rows = context.SaveChanges();
-				return rows;
+				return context.SaveChanges();
 			}
 			catch (SqliteException ex) when (ex.SqliteErrorCode == 5) // Database is locked
 			{
