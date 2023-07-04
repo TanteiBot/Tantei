@@ -61,7 +61,7 @@ namespace PaperMalKing.Database.CompiledModels
             MalFavoriteMangaEntityType.CreateAnnotations(malFavoriteManga);
             MalFavoritePersonEntityType.CreateAnnotations(malFavoritePerson);
 
-            AddAnnotation("ProductVersion", "7.0.2");
+            AddAnnotation("ProductVersion", "7.0.8");
         }
     }
 }
