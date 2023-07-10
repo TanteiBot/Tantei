@@ -31,7 +31,7 @@
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EntityFrameworkCoreVersion)"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EntityFrameworkCoreVersion)"/>
         <!-- Misc -->
-        <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.2.0"/>
+        <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.2.1"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting" Version="7.0.1"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting.Systemd" Version="7.0.0"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0"/>
