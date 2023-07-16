@@ -15,8 +15,8 @@
 
     <ItemGroup>
         <PackageReference Include="AspNet.Security.OAuth.Discord" />
-        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" />
         <PackageReference Include="Microsoft.AspNetCore.SpaProxy" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -52,14 +52,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PaperMalKing.Startup\PaperMalKing.Startup.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="ClientApp\package-lock.json" />
-      <_ContentIncludedByDefault Remove="ClientApp\package.json" />
-      <_ContentIncludedByDefault Remove="ClientApp\public\manifest.json" />
-      <_ContentIncludedByDefault Remove="ClientApp\tsconfig.json" />
-      <_ContentIncludedByDefault Remove="ClientApp\tsconfig.node.json" />
     </ItemGroup>
 
     <ItemGroup>

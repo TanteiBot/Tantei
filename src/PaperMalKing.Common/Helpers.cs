@@ -11,7 +11,7 @@ namespace PaperMalKing.Common;
 
 #pragma warning disable CA1724
 public static class Helpers
-#pragma warning restore
+#pragma warning restore CA1724
 {
 	private static readonly string EmptySha512Hash;
 

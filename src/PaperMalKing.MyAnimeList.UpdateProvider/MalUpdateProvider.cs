@@ -153,7 +153,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			}
 			#pragma warning disable CA1031
 			catch (Exception exception)
-				#pragma warning restore CA1031
+			#pragma warning restore CA1031
 			{
 				this.Logger.LogError(exception, "Encountered unknown error, skipping current update check");
 				return;
@@ -295,7 +295,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		list.AddRange(ToDiscordEmbedBuilders(db.MalFavoriteCharacters, user.Favorites.FavoriteCharacters, user, dbUser));
 		list.AddRange(ToDiscordEmbedBuilders(db.MalFavoritePersons, user.Favorites.FavoritePeople, user, dbUser));
 		list.AddRange(ToDiscordEmbedBuilders(db.MalFavoriteCompanies, user.Favorites.FavoriteCompanies, user, dbUser));
-		
+
 		return new (list.SortByThenBy(f => f.Color.HasValue ? f.Color.Value.Value : DiscordColor.None.Value, f => f.Title));
 	}
 }

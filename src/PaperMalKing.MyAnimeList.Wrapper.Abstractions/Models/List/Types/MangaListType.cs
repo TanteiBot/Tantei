@@ -18,6 +18,6 @@ public abstract class MangaListType : IListType
 		Debug.Assert(typeof(TRequestOptions) == typeof(MangaFieldsToRequest));
 		var fields = Unsafe.As<TRequestOptions, MangaFieldsToRequest>(ref options);
 		return
-			$"/users/{username}/mangalist?fields=list_status{{status,score,num_volumes_read,num_chapters_read,is_rereading,num_times_reread,updated_at{(fields.Has(Tags) ? ",tags" : "")}{(fields.Has(Comments) ? ",comments" : "")}{(fields.Has(Dates) ? ",start_date,finish_date" : "")}}},id,title,main_picture,media_type,status,num_volumes,num_chapters{(fields.Has(Synopsis) ? ",synopsis" : "")}{(fields.Has(Genres) ? ",genres{name}" : "")}{(fields.Has(Authors) ? ",authors{first_name,last_name}" : "")}&limit=100&sort=list_updated_at&nsfw=true";
+			$"/users/{username}/mangalist?fields=list_status{{status,score,num_volumes_read,num_chapters_read,is_rereading,num_times_reread,updated_at{(fields.HasFlag(Tags) ? ",tags" : "")}{(fields.HasFlag(Comments) ? ",comments" : "")}{(fields.HasFlag(Dates) ? ",start_date,finish_date" : "")}}},id,title,main_picture,media_type,status,num_volumes,num_chapters{(fields.HasFlag(Synopsis) ? ",synopsis" : "")}{(fields.HasFlag(Genres) ? ",genres{name}" : "")}{(fields.HasFlag(Authors) ? ",authors{first_name,last_name}" : "")}&limit=100&sort=list_updated_at&nsfw=true";
 	}
 }

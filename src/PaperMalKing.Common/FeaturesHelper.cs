@@ -30,7 +30,7 @@ public static class FeaturesHelper<T> where T : unmanaged, Enum, IComparable, IC
 		var ti = typeof(T).GetTypeInfo();
 		Debug.Assert(Enum.GetUnderlyingType(typeof(T)) == typeof(ulong), $"All features must have {nameof(UInt64)} as underlying type");
 
-		return new ReadOnlyDictionary<T, (string EnumValue, string Description, string Summary)>(Enum.GetValues<T>()
+		return new (Enum.GetValues<T>()
 			.Where(v => v.ToUInt64(provider: null) != 0UL).Select(value =>
 			{
 				var name = value.ToString();

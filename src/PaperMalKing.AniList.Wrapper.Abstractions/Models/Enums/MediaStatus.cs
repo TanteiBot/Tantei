@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 
-[SuppressMessage("Naming", "CA1707")]
 [SuppressMessage("Roslynator", "RCS1161:Enum should declare explicit values.")]
 public enum MediaStatus : byte
 {

@@ -5,8 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 
-[SuppressMessage("Microsoft.Design", "CA1008")]
-[SuppressMessage("Naming", "CA1707")]
+[SuppressMessage("Design", "CA1008:Enums should have zero value")]
 public enum TitleLanguage : byte
 {
 	NATIVE = 1,

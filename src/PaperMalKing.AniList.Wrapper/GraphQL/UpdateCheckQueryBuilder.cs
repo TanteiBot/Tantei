@@ -150,11 +150,11 @@ internal static class UpdateCheckQueryBuilder
 
 	public static string Build(RequestOptions options)
 	{
-		var hasAnime = (options & RequestOptions.AnimeList) != 0;
-		var hasManga = (options & RequestOptions.MangaList) != 0;
-		var hasFavs = (options & RequestOptions.Favourites) != 0;
+		var hasAnime = options.HasFlag(RequestOptions.AnimeList);
+		var hasManga = options.HasFlag(RequestOptions.MangaList);
+		var hasFavs = options.HasFlag(RequestOptions.Favourites);
 
-		var hasReview = (options & RequestOptions.Reviews) != 0;
+		var hasReview = options.HasFlag(RequestOptions.Reviews);
 		var sb = new StringBuilder(QueryStart);
 		if (hasFavs)
 		{
@@ -164,12 +164,12 @@ internal static class UpdateCheckQueryBuilder
 		if (hasAnime)
 		{
 			sb.AppendLine(string.Format(AnimeListSubQuery,
-				(options & RequestOptions.CustomLists) != 0 ? "customLists(asArray: true)" : string.Empty));
+				options.HasFlag(RequestOptions.CustomLists) ? "customLists(asArray: true)" : string.Empty));
 		}
 
 		if (hasManga)
 		{
-			sb.AppendLine(string.Format(MangaListSubQuery, (options & RequestOptions.CustomLists) != 0 ? "customLists(asArray: true)" : string.Empty));
+			sb.AppendLine(string.Format(MangaListSubQuery, options.HasFlag(RequestOptions.CustomLists) ? "customLists(asArray: true)" : string.Empty));
 		}
 		if (hasAnime || hasManga)
 		{

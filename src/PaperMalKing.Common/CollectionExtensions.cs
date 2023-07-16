@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2022 N0D4N
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -76,9 +77,18 @@ public static class CollectionExtensions
 		}
 	}
 
-	public static T[] ForEach<T>(this T[] array, Action<T> action)
+	public static bool Exists<T>(this T[] array, Predicate<T> predicate)
 	{
-		Array.ForEach(array, action);
-		return array;
+		return Array.Exists(array, predicate);
+	}
+
+	public static T? Find<T>(this T[] array, Predicate<T> predicate)
+	{
+		return Array.Find(array, predicate);
+	}
+
+	public static bool TrueForAll<T>(this T[] array, Predicate<T> predicate)
+	{
+		return Array.TrueForAll(array, predicate);
 	}
 }

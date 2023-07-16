@@ -65,7 +65,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 			var (addedFavourites, removedFavourites, isfavouritesMismatch) = dbUser switch
 			{
-				_ when (dbUser.Features & ShikiUserFeatures.Favourites) != 0 => await this.GetFavouritesUpdateAsync(dbUser, db, cancellationToken)
+				_ when dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) => await this.GetFavouritesUpdateAsync(dbUser, db, cancellationToken)
 																						  .ConfigureAwait(false),
 				_ => (Array.Empty<FavouriteMediaRoles>(), Array.Empty<FavouriteMediaRoles>(), false)
 			};
@@ -92,8 +92,8 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				foreach (var historyMediaRole in groupedHistoryEntriesWithMediaAndRoles.Where(x => x.HistoryEntries.Exists(historyEntry => historyEntry.Target is not null)))
 				{
 					var history = historyMediaRole.HistoryEntries.First(x => x.Target is not null);
-					if ((dbUser.Features & ShikiUserFeatures.Description) != 0 || (dbUser.Features & ShikiUserFeatures.Studio) != 0 ||
-					    (dbUser.Features & ShikiUserFeatures.Publisher) != 0 || (dbUser.Features & ShikiUserFeatures.Genres) != 0)
+					if (dbUser.Features.HasFlag(ShikiUserFeatures.Description) || dbUser.Features.HasFlag(ShikiUserFeatures.Studio) ||
+						dbUser.Features.HasFlag(ShikiUserFeatures.Publisher) || dbUser.Features.HasFlag(ShikiUserFeatures.Genres))
 					{
 						historyMediaRole.Media = history.Target!.Type == ListEntryType.Anime
 							? await this._client.GetMediaAsync<AnimeMedia>(history.Target!.Id, ListEntryType.Anime, cancellationToken)
@@ -102,7 +102,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 										.ConfigureAwait(false);
 					}
 
-					if ((dbUser.Features & ShikiUserFeatures.Mangaka) != 0 || (dbUser.Features & ShikiUserFeatures.Director) != 0)
+					if (dbUser.Features.HasFlag(ShikiUserFeatures.Mangaka) || dbUser.Features.HasFlag(ShikiUserFeatures.Director))
 					{
 						historyMediaRole.Roles = await this._client.GetMediaStaffAsync(history.Target!.Id, history.Target.Type, cancellationToken)
 														   .ConfigureAwait(false);
@@ -123,10 +123,10 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				continue;
 			}
 
-			if ((dbUser.Features & ShikiUserFeatures.Mention) != 0)
+			if (dbUser.Features.HasFlag(ShikiUserFeatures.Mention))
 				totalUpdates.ForEach(deb => deb.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
 
-			if ((dbUser.Features & ShikiUserFeatures.Website) != 0)
+			if (dbUser.Features.HasFlag(ShikiUserFeatures.Website))
 				totalUpdates.ForEach(deb => deb.WithShikiUpdateProviderFooter());
 
 			try
@@ -163,14 +163,14 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				_ when favouriteMediaRoles.FavouriteEntry.GenericType!.Contains("anime", StringComparison.OrdinalIgnoreCase) => (false, true),
 				_                                                                                                            => (false, false)
 			};
-			if (((dbUser.Features & ShikiUserFeatures.Mangaka) != 0 && isManga) || ((dbUser.Features & ShikiUserFeatures.Director) != 0 && isAnime))
+			if ((dbUser.Features.HasFlag(ShikiUserFeatures.Mangaka) && isManga) || (dbUser.Features.HasFlag(ShikiUserFeatures.Director) && isAnime))
 			{
 				favouriteMediaRoles.Roles = await this._client.GetMediaStaffAsync(favouriteMediaRoles.FavouriteEntry.Id,
 					isAnime ? ListEntryType.Anime : ListEntryType.Manga, cancellationToken).ConfigureAwait(false);
 			}
 
-			if (((isManga || isAnime) && ((dbUser.Features & ShikiUserFeatures.Description) != 0 || (dbUser.Features & ShikiUserFeatures.Genres) != 0)) ||
-			    ((dbUser.Features & ShikiUserFeatures.Publisher) != 0 && isManga) || ((dbUser.Features & ShikiUserFeatures.Studio) != 0 && isAnime))
+			if (((isManga || isAnime) && (dbUser.Features.HasFlag(ShikiUserFeatures.Description) || dbUser.Features.HasFlag(ShikiUserFeatures.Genres))) ||
+			    (dbUser.Features.HasFlag(ShikiUserFeatures.Publisher) && isManga) || (dbUser.Features.HasFlag(ShikiUserFeatures.Studio) && isAnime))
 			{
 				favouriteMediaRoles.Media = (isManga, isAnime) switch
 				{

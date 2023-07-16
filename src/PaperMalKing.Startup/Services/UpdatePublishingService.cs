@@ -60,11 +60,8 @@ internal sealed class UpdatePublishingService
 				this.AddChannel(channel);
 			}
 
-#pragma warning disable S3267
-			foreach (var kvp in this._updateProvidersConfigurationService.Providers)
-#pragma warning restore S3267
+			foreach (var provider in this._updateProvidersConfigurationService.Providers.Values)
 			{
-				var provider = kvp.Value;
 				provider.UpdateFoundEvent += this.PublishUpdatesAsync;
 				if (provider is BaseUpdateProvider baseUpdateProvider)
 					baseUpdateProvider.RestartTimer(TimeSpan.FromSeconds(5));

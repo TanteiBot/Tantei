@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -15,7 +16,7 @@ public sealed class DateOnlyFromMalConverter : JsonConverter<DateOnly?>
 	/// </summary>
 	private const int MaxDateLength = 10;
 
-	private static readonly IReadOnlyList<string> Formats = new[] { "yyyy-MM-dd", "yyyy-MM", "yyyy", "yyyy-M-dd", "yyyy-M-d", "yyyy-M", };
+	private static readonly string[] Formats = { "yyyy-MM-dd", "yyyy-MM", "yyyy", "yyyy-M-dd", "yyyy-M-d", "yyyy-M", };
 
 	public override DateOnly? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
@@ -27,9 +28,9 @@ public sealed class DateOnlyFromMalConverter : JsonConverter<DateOnly?>
 		scoped Span<char> buffer = stackalloc char[MaxDateLength];
 		var charsWritten = reader.CopyString(buffer);
 		buffer = buffer.Slice(0, charsWritten);
-		for (var i = 0; i < Formats.Count; i++)
+		foreach (var t in Formats)
 		{
-			if (DateOnly.TryParseExact(buffer, Formats[i], out var result))
+			if (DateOnly.TryParseExact(buffer, t, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out var result))
 			{
 				return result;
 			}

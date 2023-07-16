@@ -32,7 +32,7 @@ internal sealed class MalUserFeaturesService : BaseUserFeaturesService<MalUser, 
 		var dbUser = db.MalUsers.FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
-		if ((dbUser.Features & feature) != 0)
+		if (dbUser.Features.HasFlag(feature))
 		{
 			throw new UriFormatException("You already have this feature enabled");
 		}

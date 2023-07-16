@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2022 N0D4N
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using DSharpPlus;
@@ -18,7 +19,7 @@ namespace PaperMalKing.AniList.UpdateProvider;
 
 internal static class FavouriteToDiscordEmbedBuilderConverter
 {
-	private static readonly Dictionary<Type, Func<ISiteUrlable, User, bool, AniListUserFeatures, DiscordEmbedBuilder>> Converters = new()
+	private static readonly FrozenDictionary<Type, Func<ISiteUrlable, User, bool, AniListUserFeatures, DiscordEmbedBuilder>> Converters = new Dictionary<Type, Func<ISiteUrlable, User, bool, AniListUserFeatures, DiscordEmbedBuilder>>()
 	{
 		{
 			typeof(Media), (obj, user, added, features) =>
@@ -46,7 +47,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 				var staff = (obj as Staff)!;
 				var eb = InitialFavouriteEmbedBuilder(staff, user, added)
 					.WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [{staff.PrimaryOccupations.FirstOrDefault() ?? "Staff"}]");
-				if ((features & AniListUserFeatures.MediaDescription) != 0 && !string.IsNullOrEmpty(staff.Description))
+				if (features.HasFlag( AniListUserFeatures.MediaDescription) && !string.IsNullOrEmpty(staff.Description))
 				{
 					var mediaDescription = staff.Description.StripHtml();
 					mediaDescription = SourceRemovalRegex().Replace(mediaDescription, string.Empty);
@@ -75,7 +76,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 																			user.Options.TitleLanguage);
 			}
 		}
-	};
+	}.ToFrozenDictionary(optimizeForReading: true);
 
 	private static DiscordEmbedBuilder InitialFavouriteEmbedBuilder(ISiteUrlable value, User user, bool added)
 	{

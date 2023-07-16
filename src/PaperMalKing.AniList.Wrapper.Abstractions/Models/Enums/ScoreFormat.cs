@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 
-[SuppressMessage("Naming", "CA1707")]
 public enum ScoreFormat : byte
 {
 	POINT_100 = 0,

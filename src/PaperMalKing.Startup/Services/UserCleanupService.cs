@@ -49,9 +49,7 @@ internal sealed class UserCleanupService
 						{
 							_ = await guild.GetMemberAsync(userId).ConfigureAwait(false);
 						}
-						#pragma warning disable CA1031
 						catch (NotFoundException)
-							#pragma warning restore CA1031
 						{
 							await this._userService.RemoveUserInGuildAsync(guildId, userId).ConfigureAwait(false);
 						}

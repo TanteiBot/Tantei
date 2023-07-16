@@ -20,10 +20,7 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSpaStaticFiles(options =>
-{
-	options.RootPath = "wwwroot";
-});
+builder.Services.AddSpaStaticFiles(options => options.RootPath = "wwwroot");
 builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(options => options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
@@ -60,13 +57,7 @@ app.UseAuthorization();
 const string spaPath = "/app";
 if (app.Environment.IsDevelopment())
 {
-	app.MapWhen(y => y.Request.Path.StartsWithSegments(spaPath, StringComparison.Ordinal), client =>
-	{
-		client.UseSpa(spa =>
-		{
-			spa.UseProxyToSpaDevelopmentServer("https://localhost:44428");
-		});
-	});
+	app.MapWhen(y => y.Request.Path.StartsWithSegments(spaPath, StringComparison.Ordinal), client => client.UseSpa(spa => spa.UseProxyToSpaDevelopmentServer("https://localhost:44428")));
 }
 else
 {

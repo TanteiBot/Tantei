@@ -30,12 +30,12 @@ internal static class Helpers
 	internal static StringBuilder AppendMediaFields(StringBuilder sb, RequestOptions options)
 	{
 		sb.AppendLine(Media);
-		if ((options & RequestOptions.MediaDescription) != 0)
+		if (options.HasFlag(RequestOptions.MediaDescription))
 			sb.AppendLine("description(asHtml: false)");
 
-		if ((options & RequestOptions.Genres) != 0)
+		if (options.HasFlag(RequestOptions.Genres))
 			sb.AppendLine("genres");
-		if ((options & RequestOptions.Tags) != 0)
+		if (options.HasFlag(RequestOptions.Tags))
 		{
 			sb.AppendLine(
 				"""
@@ -47,7 +47,7 @@ internal static class Helpers
 				""");
 		}
 
-		if ((options & RequestOptions.MediaFormat) != 0)
+		if (options.HasFlag(RequestOptions.MediaFormat))
 		{
 			sb.AppendLine(
 				"""
@@ -56,11 +56,11 @@ internal static class Helpers
 				""");
 		}
 
-		if ((options & RequestOptions.MediaStatus) != 0)
+		if (options.HasFlag(RequestOptions.MediaStatus))
 			sb.AppendLine("status(version: 2)");
-		if ((options & RequestOptions.Genres) != 0)
+		if (options.HasFlag(RequestOptions.Genres))
 			sb.AppendLine("genres");
-		if ((options & RequestOptions.Tags) != 0)
+		if (options.HasFlag(RequestOptions.Tags))
 		{
 			sb.AppendLine(
 				"""
@@ -72,7 +72,7 @@ internal static class Helpers
 				""");
 		}
 
-		if ((options & RequestOptions.Studio) != 0)
+		if (options.HasFlag(RequestOptions.Studio))
 		{
 			sb.AppendLine(
 				"""
@@ -86,7 +86,7 @@ internal static class Helpers
 				""");
 		}
 
-		if ((options & RequestOptions.Mangaka) != 0 || (options & RequestOptions.Director) != 0)
+		if (options.HasFlag(RequestOptions.Mangaka) || options.HasFlag(RequestOptions.Director))
 		{
 			sb.AppendLine(
 				"""
@@ -105,7 +105,7 @@ internal static class Helpers
 				""");
 		}
 
-		if ((options & RequestOptions.Seyu) != 0 && (options & RequestOptions.AnimeList) != 0)
+		if (options.HasFlag(RequestOptions.Seyu) && options.HasFlag(RequestOptions.AnimeList))
 		{
 			sb.AppendLine( // We select node since without it anilist provides empty array in voice actors
 				"""
