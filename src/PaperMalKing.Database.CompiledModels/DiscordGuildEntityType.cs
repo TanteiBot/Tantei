@@ -24,13 +24,15 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(ulong),
                 propertyInfo: typeof(DiscordGuild).GetProperty("DiscordGuildId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DiscordGuild).GetField("<DiscordGuildId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0ul);
 
             var postingChannelId = runtimeEntityType.AddProperty(
                 "PostingChannelId",
                 typeof(ulong),
                 propertyInfo: typeof(DiscordGuild).GetProperty("PostingChannelId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(DiscordGuild).GetField("<PostingChannelId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(DiscordGuild).GetField("<PostingChannelId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0ul);
 
             var key = runtimeEntityType.AddKey(
                 new[] { discordGuildId });

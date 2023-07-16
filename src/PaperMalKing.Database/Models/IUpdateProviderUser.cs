@@ -13,5 +13,5 @@ public interface IUpdateProviderUser<TFeature> : IUpdateProviderUser where TFeat
 public interface IUpdateProviderUser
 {
 	public ulong DiscordUserId { get; init; }
-	public DiscordUser DiscordUser { get; init; }
+	public DiscordUser DiscordUser { get; set; }
 }

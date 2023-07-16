@@ -25,7 +25,8 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(uint),
                 propertyInfo: typeof(ShikiFavourite).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiFavourite).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0u);
 
             var favType = runtimeEntityType.AddProperty(
                 "FavType",
@@ -39,7 +40,8 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(uint),
                 propertyInfo: typeof(ShikiFavourite).GetProperty("UserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiFavourite).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0u);
 
             var name = runtimeEntityType.AddProperty(
                 "Name",

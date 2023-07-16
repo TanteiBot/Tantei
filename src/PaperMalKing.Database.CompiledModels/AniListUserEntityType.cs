@@ -25,13 +25,15 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(uint),
                 propertyInfo: typeof(AniListUser).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListUser).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0u);
 
             var discordUserId = runtimeEntityType.AddProperty(
                 "DiscordUserId",
                 typeof(ulong),
                 propertyInfo: typeof(AniListUser).GetProperty("DiscordUserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(AniListUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(AniListUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0ul);
 
             var favouritesIdHash = runtimeEntityType.AddProperty(
                 "FavouritesIdHash",
@@ -46,20 +48,23 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(AniListUserFeatures),
                 propertyInfo: typeof(AniListUser).GetProperty("Features", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListUser).GetField("<Features>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                valueGenerated: ValueGenerated.OnAdd);
+                valueGenerated: ValueGenerated.OnAdd,
+                sentinel: AniListUserFeatures.None);
             features.AddAnnotation("Relational:DefaultValue", AniListUserFeatures.AnimeList | AniListUserFeatures.MangaList | AniListUserFeatures.Favourites | AniListUserFeatures.Mention | AniListUserFeatures.Website | AniListUserFeatures.MediaFormat | AniListUserFeatures.MediaStatus);
 
             var lastActivityTimestamp = runtimeEntityType.AddProperty(
                 "LastActivityTimestamp",
                 typeof(long),
                 propertyInfo: typeof(AniListUser).GetProperty("LastActivityTimestamp", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(AniListUser).GetField("<LastActivityTimestamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(AniListUser).GetField("<LastActivityTimestamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0L);
 
             var lastReviewTimestamp = runtimeEntityType.AddProperty(
                 "LastReviewTimestamp",
                 typeof(long),
                 propertyInfo: typeof(AniListUser).GetProperty("LastReviewTimestamp", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(AniListUser).GetField("<LastReviewTimestamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(AniListUser).GetField("<LastReviewTimestamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0L);
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
