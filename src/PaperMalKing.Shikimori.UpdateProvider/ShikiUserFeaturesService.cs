@@ -29,7 +29,7 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 	public override async Task EnableFeaturesAsync(ShikiUserFeatures feature, ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		var dbUser = db.ShikiUsers.FirstOrDefault(su => su.DiscordUserId == userId);
+		var dbUser = db.ShikiUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == userId);
 		if (dbUser is null)
 		{
 			throw new UserFeaturesException("You must register first before enabling features");
@@ -77,7 +77,7 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 	{
 		if (featureToDisable == ShikiUserFeatures.Favourites)
 		{
-			db.ShikiFavourites.Where(x => x.UserId == user.Id).ExecuteDelete();
+			db.ShikiFavourites.TagWith("Remove user's favorites when Favourites feature gets disabled").TagWithCallSite().Where(x => x.UserId == user.Id).ExecuteDelete();
 		}
 		return ValueTask.CompletedTask;
 	}

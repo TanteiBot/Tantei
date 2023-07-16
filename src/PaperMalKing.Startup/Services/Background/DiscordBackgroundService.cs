@@ -91,7 +91,8 @@ internal sealed class DiscordBackgroundService : BackgroundService
 		{
 			using var db = this._dbContextFactory.CreateDbContext();
 			this._logger.LogDebug("User {Member} left guild {Guild}", e.Member, e.Guild);
-			var isUserInDb = db.DiscordUsers.Any(u => u.DiscordUserId == e.Member.Id);
+			var isUserInDb = db.DiscordUsers.TagWith("Check for users presence in DB when member leaves").TagWithCallSite()
+							   .Any(u => u.DiscordUserId == e.Member.Id);
 			if (!isUserInDb)
 			{
 				this._logger.LogDebug("User {Member} that left wasn't saved in db", e.Member);

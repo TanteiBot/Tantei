@@ -33,7 +33,7 @@ public abstract class BaseUserFeaturesService<TUser, TFeature>
 	public async Task DisableFeaturesAsync(TFeature feature, ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		var dbUser = db.Set<TUser>().FirstOrDefault(su => su.DiscordUserId == userId);
+		var dbUser = db.Set<TUser>().TagWith("Query user to disable a feature").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == userId);
 
 		if (dbUser is null)
 		{
@@ -61,7 +61,7 @@ public abstract class BaseUserFeaturesService<TUser, TFeature>
 	public ValueTask<string> EnabledFeaturesAsync(ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		var features = db.Set<TUser>().AsNoTracking().Where(u => u.DiscordUser.DiscordUserId == userId).Select(x => new TFeature?(x.Features))
+		var features = db.Set<TUser>().TagWith("Query enabled features").TagWithCallSite().AsNoTracking().Where(u => u.DiscordUser.DiscordUserId == userId).Select(x => new TFeature?(x.Features))
 						 .FirstOrDefault();
 		if (!features.HasValue)
 		{

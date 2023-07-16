@@ -59,7 +59,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			return false;
 		}
 		using var db = this._dbContextFactory.CreateDbContext();
-		var users = db.AniListUsers.Where(u =>
+		var users = db.AniListUsers.TagWith("Query users for update checking").TagWithCallSite().Where(u =>
 						  u.DiscordUser.Guilds.Any() && ((u.Features & AniListUserFeatures.AnimeList) != 0 ||
 													     (u.Features & AniListUserFeatures.MangaList) != 0 ||
 													     (u.Features & AniListUserFeatures.Favourites) != 0 ||
@@ -123,8 +123,8 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				continue;
 			}
 
-			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
-			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
+			dbUser.DiscordUser = db.AniListUsers.TagWith("Query discord info for user with updates").TagWithCallSite().Where(x => x.Id == dbUser.Id)
+								   .Include(x => x.DiscordUser).ThenInclude(x => x.Guilds).Select(x => x.DiscordUser).First();
 			var lastActivityTimestamp = recentUserUpdates.Activities.Count > 0 ? recentUserUpdates.Activities.Max(a => a.CreatedAtTimestamp) : 0L;
 			var lastReviewTimeStamp = recentUserUpdates.Reviews.Count > 0 ? recentUserUpdates.Reviews.Max(r => r.CreatedAtTimeStamp) : 0L;
 			if (dbUser.LastActivityTimestamp < lastActivityTimestamp) dbUser.LastActivityTimestamp = lastActivityTimestamp;
@@ -147,7 +147,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(allUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				if (isFavouritesHashMismatch)
 				{
-					dbUser.FavouritesIdHash = Helpers.FavoritesHash(db.AniListFavourites.Where(x => x.UserId == dbUser.Id).OrderBy(x=>x.Id).ThenBy(x=>x.FavouriteType)
+					dbUser.FavouritesIdHash = Helpers.FavoritesHash(db.AniListFavourites.TagWith("Query users favorites hash for updating").TagWithCallSite().Where(x => x.UserId == dbUser.Id).OrderBy(x=>x.Id).ThenBy(x=>x.FavouriteType)
 																	  .Select(x => new FavoriteIdType(x.Id, (byte)x.FavouriteType)).ToArray());
 					db.SaveChanges();
 				}
@@ -199,8 +199,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			}
 		}
 
-		var withUserQuery = db.AniListFavourites.Where(x => x.UserId == user.Id);
-		var convFavs = withUserQuery.Select(f => new IdentifiableFavourite()
+		var convFavs = db.AniListFavourites.TagWith("Query current user favorites").TagWithCallSite().Where(x => x.UserId == user.Id).Select(f => new IdentifiableFavourite()
 		{
 			Id = f.Id,
 			Type = (Wrapper.Abstractions.Models.Enums.FavouriteType)f.FavouriteType

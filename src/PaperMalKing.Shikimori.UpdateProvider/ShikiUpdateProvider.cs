@@ -52,7 +52,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 		using var db = this._dbContextFactory.CreateDbContext();
 
-		foreach (var dbUser in db.ShikiUsers.Where(u =>
+		foreach (var dbUser in db.ShikiUsers.TagWith("Query users for update checking").TagWithCallSite().Where(u =>
 					 u.DiscordUser.Guilds.Any() && ((u.Features & ShikiUserFeatures.AnimeList) != 0 ||
 												    (u.Features & ShikiUserFeatures.MangaList) != 0 ||
 												    (u.Features & ShikiUserFeatures.Favourites) != 0)).OrderBy(_ => EF.Functions.Random()).ToArray())
@@ -76,8 +76,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			}
 
 			var totalUpdates = new List<DiscordEmbedBuilder>(historyUpdates.Count + addedFavourites.Count + removedFavourites.Count);
-			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
-			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
+			dbUser.DiscordUser = db.ShikiUsers.TagWith("Query discord info for user with updates").TagWithCallSite().Include(x=> x.DiscordUser).ThenInclude(x=>x.Guilds).Select(x=>x.DiscordUser).First();
 			var user = await this._client.GetUserInfoAsync(dbUser.Id, cancellationToken).ConfigureAwait(false);
 			totalUpdates.AddRange(removedFavourites.Select(rf => rf.ToDiscordEmbed(user, false, dbUser.Features)));
 			totalUpdates.AddRange(addedFavourites.Select(af => af.ToDiscordEmbed(user, true, dbUser.Features)));
@@ -213,7 +212,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			return (Array.Empty<FavouriteMediaRoles>(), Array.Empty<FavouriteMediaRoles>(), isFavouritesMismatch);
 		}
 
-		var dbFavs = db.ShikiFavourites.Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id).ThenBy(x => x.FavType).Select(f => new FavouriteEntry
+		var dbFavs = db.ShikiFavourites.TagWith("Query favorites info").TagWithCallSite().Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id).ThenBy(x => x.FavType).Select(f => new FavouriteEntry
 		{
 			Id = f.Id,
 			Name = f.Name,

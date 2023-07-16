@@ -49,7 +49,7 @@ internal sealed class UpdatePublishingService
 		{
 			using var db = this._dbContextFactory.CreateDbContext();
 			this._logger.LogDebug("Starting querying posting channels");
-			foreach (var guild in db.DiscordGuilds.AsNoTracking().ToArray())
+			foreach (var guild in db.DiscordGuilds.TagWith("Query guild to save posting channels").TagWithCallSite().AsNoTracking().ToArray())
 			{
 				this._logger.LogTrace("Trying to get guild with {Id}", guild.DiscordGuildId);
 				var discordGuild = e.Guilds[guild.DiscordGuildId];

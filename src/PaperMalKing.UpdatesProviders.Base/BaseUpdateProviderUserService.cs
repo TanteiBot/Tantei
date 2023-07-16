@@ -34,7 +34,7 @@ public abstract class BaseUpdateProviderUserService<TUser> where TUser : class, 
 	public Task RemoveUserAsync(ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		var rows = db.Set<TUser>().Where(x => x.DiscordUserId == userId).ExecuteDelete();
+		var rows = db.Set<TUser>().TagWith("Remove user").TagWithCallSite().Where(x => x.DiscordUserId == userId).ExecuteDelete();
 		if (rows == 0)
 		{
 			throw new UserProcessingException($"You weren't tracked by {this.Name} update checker");
@@ -55,7 +55,7 @@ public abstract class BaseUpdateProviderUserService<TUser> where TUser : class, 
 																Expression<Func<TUser, BaseUser>> selector)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		return db.Set<TUser>().Include(x => x.DiscordUser).ThenInclude(x => x.Guilds).OrderBy(orderExpression)
+		return db.Set<TUser>().TagWith("Query users in a guild").TagWithCallSite().Include(x => x.DiscordUser).ThenInclude(x => x.Guilds).OrderBy(orderExpression)
 				 .Where(x => x.DiscordUser.Guilds.Any(guild => guild.DiscordGuildId == guildId)).Select(selector).ToArray();
 	}
 }

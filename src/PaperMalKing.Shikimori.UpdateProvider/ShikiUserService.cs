@@ -31,7 +31,7 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 	public override async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		var dbUser = db.ShikiUsers.Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
+		var dbUser = db.ShikiUsers.TagWith("Query user when trying to add one").TagWithCallSite().Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 		DiscordGuild? guild;
 		if (dbUser != null) // User already in db
 		{
@@ -41,7 +41,7 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 					"You already have your account connected. If you want to switch to another account, remove current one, then add the new one.");
 			}
 
-			guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
+			guild = db.DiscordGuilds.TagWith("Query guild to add existing user to it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
 			{
 				throw new UserProcessingException(BaseUser.FromUsername(username),
@@ -53,7 +53,7 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 			return BaseUser.FromUsername(username);
 		}
 
-		guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
+		guild = db.DiscordGuilds.TagWith("Query guild to add new user to it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
 		{
 			throw new UserProcessingException(BaseUser.FromUsername(username),
@@ -64,7 +64,7 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 		{
 			throw new UserProcessingException(BaseUser.Empty, "You must provide username if you arent already tracked by this bot");
 		}
-		var dUser = db.DiscordUsers.Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
+		var dUser = db.DiscordUsers.TagWith("Query discord user to link AniList user to it").TagWithCallSite().Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
 		var shikiUser = await this._client.GetUserAsync(username).ConfigureAwait(false);
 		var history = await this._client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any).ConfigureAwait(false);
 		var favourites = await this._client.GetUserFavouritesAsync(shikiUser.Id).ConfigureAwait(false);
