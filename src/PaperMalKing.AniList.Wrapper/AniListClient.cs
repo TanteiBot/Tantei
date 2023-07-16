@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,7 +47,7 @@ internal sealed class AniListClient : IAniListClient
 	public async Task<FavouritesResponse> FavouritesInfoAsync(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds,
 															  uint[] studioIds, RequestOptions options, CancellationToken cancellationToken = default)
 	{
-		if (!animeIds.Any() && !mangaIds.Any() && !charIds.Any() && !staffIds.Any() && !staffIds.Any() && !studioIds.Any())
+		if (animeIds.Length == 0 && mangaIds.Length == 0 && charIds.Length == 0 && staffIds.Length == 0 && studioIds.Length == 0)
 			return FavouritesResponse.Empty;
 
 		var request = Requests.FavouritesInfoRequest(page, animeIds, mangaIds, charIds, staffIds, studioIds, options);

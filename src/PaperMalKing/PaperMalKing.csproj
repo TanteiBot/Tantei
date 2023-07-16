@@ -8,7 +8,7 @@
         <SpaRoot>ClientApp\</SpaRoot>
         <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
         <SpaProxyServerUrl>https://localhost:44428</SpaProxyServerUrl>
-        <SpaProxyLaunchCommand>yarn dev</SpaProxyLaunchCommand>
+        <SpaProxyLaunchCommand>pnpm dev</SpaProxyLaunchCommand>
         <ServerGarbageCollection>false</ServerGarbageCollection>
         <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
     </PropertyGroup>
@@ -16,12 +16,14 @@
     <ItemGroup>
         <PackageReference Include="AspNet.Security.OAuth.Discord" />
         <PackageReference Include="Microsoft.AspNetCore.SpaProxy" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <ProjectReference Include="..\PaperMalKing.Database.Migrations\PaperMalKing.Database.Migrations.csproj" />
         <ProjectReference Include="..\PaperMalKing.Startup\PaperMalKing.Startup.csproj" />
+        <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -30,6 +32,7 @@
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         </Content>
+        <Content Include="ClientApp\tsconfig.json" />
         <None Update="template.appsettings.json" CopyToPublishDirectory="Always">
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -52,18 +55,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <_ContentIncludedByDefault Remove="ClientApp\package-lock.json" />
-      <_ContentIncludedByDefault Remove="ClientApp\package.json" />
-      <_ContentIncludedByDefault Remove="ClientApp\public\manifest.json" />
-      <_ContentIncludedByDefault Remove="ClientApp\tsconfig.json" />
-      <_ContentIncludedByDefault Remove="ClientApp\tsconfig.node.json" />
+      <Folder Include="ClientApp\src" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="ClientApp\public" />
-      <Folder Include="ClientApp\src" />
-      <Folder Include="Controllers" />
-    </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
         <!-- Ensure Node.js is installed -->
@@ -71,18 +65,19 @@
             <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
         </Exec>
         <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
-        <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
-        <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
+        <Message Importance="high" Text="Restoring dependencies using 'pnpm'. This may take several minutes..." />
+        <Message Importance="high" Text="Restoring dependencies using 'pnpm'. This may take several minutes..." />
+        <Exec WorkingDirectory="$(SpaRoot)" Command="pnpm i" />
     </Target>
 
     <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
         <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-        <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-        <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
+        <Exec WorkingDirectory="$(SpaRoot)" Command="pnpm i" />
+        <Exec WorkingDirectory="$(SpaRoot)" Command="pnpm build" />
 
         <!-- Include the newly-built files in the publish output -->
         <ItemGroup>
-            <DistFiles Include="$(SpaRoot)build\**" />
+            <DistFiles Include="$(SpaRoot)dist\**" />
             <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
                 <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
                 <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System;
 using System.Linq;
@@ -35,7 +35,7 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 			throw new UserFeaturesException("You must register first before enabling features");
 		}
 
-		if ((dbUser.Features & feature) != 0)
+		if (dbUser.Features.HasFlag(feature))
 		{
 			throw new UriFormatException("You already have this feature enabled");
 		}

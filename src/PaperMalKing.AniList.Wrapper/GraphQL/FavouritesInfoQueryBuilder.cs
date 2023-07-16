@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System.Text;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models;
@@ -61,7 +61,7 @@ internal static class FavouritesInfoQueryBuilder
 				large
 			}
 			""");
-		if ((options & RequestOptions.MediaDescription) != 0)
+		if (options.HasFlag(RequestOptions.MediaDescription))
 			sb.AppendLine("description(asHtml: false)");
 
 		sb.AppendLine(

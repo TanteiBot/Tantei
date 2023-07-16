@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System;
 using System.Collections.Generic;
@@ -64,7 +64,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 													     (u.Features & AniListUserFeatures.MangaList) != 0 ||
 													     (u.Features & AniListUserFeatures.Favourites) != 0 ||
 													     (u.Features & AniListUserFeatures.Reviews) != 0))
-					  .OrderBy(_ => EF.Functions.Random()).ToArray();
+					  .OrderBy(static _ => EF.Functions.Random()).ToArray();
 		foreach (var dbUser in users)
 		{
 			if (cancellationToken.IsCancellationRequested)
@@ -94,13 +94,13 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 										   Helpers.FavoritesHash(recentUserUpdates.Favourites.Select(x => new FavoriteIdType(x.Id, (byte)x.Type))
 																			      .OrderBy(x => x.Id).ThenBy(x=>x.Type).ToArray());
 
-			if ((dbUser.Features & AniListUserFeatures.Favourites) != 0 && isFavouritesHashMismatch)
+			if (dbUser.Features.HasFlag(AniListUserFeatures.Favourites) && isFavouritesHashMismatch)
 			{
 				allUpdates.AddRange(await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, db, perUserCancellationToken)
 											  .ConfigureAwait(false));
 			}
 
-			if ((dbUser.Features & AniListUserFeatures.Reviews) != 0)
+			if (dbUser.Features.HasFlag(AniListUserFeatures.Reviews))
 			{
 				allUpdates.AddRange(recentUserUpdates.Reviews.Where(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)
 													 .Select(r => r.ToDiscordEmbedBuilder(recentUserUpdates.User)));
@@ -116,7 +116,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 					allUpdates.Add(lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser.Features));
 			}
 
-			if (!allUpdates.Any())
+			if (allUpdates.Count == 0)
 			{
 				this.Logger.LogTrace("No updates found for {Username}", recentUserUpdates.User.Name);
 				db.Entry(dbUser).State = EntityState.Unchanged;
@@ -125,13 +125,13 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 
 			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
 			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
-			var lastActivityTimestamp = recentUserUpdates.Activities.Any() ? recentUserUpdates.Activities.Max(a => a.CreatedAtTimestamp) : 0L;
-			var lastReviewTimeStamp = recentUserUpdates.Reviews.Any() ? recentUserUpdates.Reviews.Max(r => r.CreatedAtTimeStamp) : 0L;
+			var lastActivityTimestamp = recentUserUpdates.Activities.Count > 0 ? recentUserUpdates.Activities.Max(a => a.CreatedAtTimestamp) : 0L;
+			var lastReviewTimeStamp = recentUserUpdates.Reviews.Count > 0 ? recentUserUpdates.Reviews.Max(r => r.CreatedAtTimeStamp) : 0L;
 			if (dbUser.LastActivityTimestamp < lastActivityTimestamp) dbUser.LastActivityTimestamp = lastActivityTimestamp;
 			if (dbUser.LastReviewTimestamp < lastReviewTimeStamp) dbUser.LastReviewTimestamp = lastReviewTimeStamp;
-			if ((dbUser.Features & AniListUserFeatures.Mention) != 0)
+			if (dbUser.Features.HasFlag(AniListUserFeatures.Mention))
 				allUpdates.ForEach(u => u.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
-			if ((dbUser.Features & AniListUserFeatures.Website) != 0)
+			if (dbUser.Features.HasFlag(AniListUserFeatures.Website))
 				allUpdates.ForEach(u => u.WithAniListFooter());
 			allUpdates.SortBy(u => u.Timestamp.GetValueOrDefault());
 			if (perUserCancellationToken.IsCancellationRequested)

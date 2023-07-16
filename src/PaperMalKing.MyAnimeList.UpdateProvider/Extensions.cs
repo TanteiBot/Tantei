@@ -1,7 +1,8 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -29,14 +30,14 @@ internal static class Extensions
 		Text = Constants.Name
 	};
 
-	private static readonly Dictionary<byte, DiscordColor> Colors = new()
+	private static readonly FrozenDictionary<byte, DiscordColor> Colors = new Dictionary<byte, DiscordColor>()
 	{
 		{(byte)AnimeListStatus.watching, Constants.MalGreen},
 		{(byte)AnimeListStatus.completed, Constants.MalBlue},
 		{(byte)AnimeListStatus.on_hold, Constants.MalYellow},
 		{(byte)AnimeListStatus.dropped, Constants.MalRed},
 		{(byte)AnimeListStatus.plan_to_watch, Constants.MalGrey},
-	};
+	}.ToFrozenDictionary(optimizeForReading:true);
 
 	public static ParserOptions ToParserOptions(this MalUserFeatures features)
 	{
@@ -52,33 +53,33 @@ internal static class Extensions
 	{
 		Debug.Assert(typeof(TRequestOptions) == typeof(AnimeFieldsToRequest) || typeof(TRequestOptions) == typeof(MangaFieldsToRequest));
 		AnimeFieldsToRequest fields = default;
-		if ((features & MalUserFeatures.Synopsis) != 0)
+		if (features.HasFlag(MalUserFeatures.Synopsis))
 		{
 			fields |= AnimeFieldsToRequest.Synopsis;
 		}
 
-		if ((features & MalUserFeatures.Genres) != 0)
+		if (features.HasFlag(MalUserFeatures.Genres))
 		{
 			fields |= AnimeFieldsToRequest.Genres;
 		}
 
-		if ((features & MalUserFeatures.Tags) != 0)
+		if (features.HasFlag(MalUserFeatures.Tags))
 		{
 			fields |= AnimeFieldsToRequest.Tags;
 		}
 
-		if ((features & MalUserFeatures.Comments) != 0)
+		if (features.HasFlag(MalUserFeatures.Comments))
 		{
 			fields |= AnimeFieldsToRequest.Comments;
 		}
 
-		if (typeof(TRequestOptions) == typeof(MangaFieldsToRequest) && (features & MalUserFeatures.Mangakas) != 0)
+		if (typeof(TRequestOptions) == typeof(MangaFieldsToRequest) && features.HasFlag(MalUserFeatures.Mangakas))
 		{
 			var mangaFields = Unsafe.As<AnimeFieldsToRequest, MangaFieldsToRequest>(ref fields);
 			mangaFields |= MangaFieldsToRequest.Authors;
 			return Unsafe.As<MangaFieldsToRequest, TRequestOptions>(ref mangaFields);
 		}
-		if((features & MalUserFeatures.Studio) != 0)
+		if(features.HasFlag(MalUserFeatures.Studio))
 		{
 			fields |= AnimeFieldsToRequest.Studio;
 		}
@@ -192,7 +193,7 @@ internal static class Extensions
 		static string SubEntriesProgress(ulong progressedValue, uint totalValue, bool isInPlans, string ending) =>
 			progressedValue switch
 			{
-				0ul when totalValue == 0u => string.Empty,
+				0ul when totalValue == 0u => "",
 				_ when progressedValue == totalValue || (isInPlans && progressedValue == 0ul) => $"{totalValue} {ending}",
 				_ when totalValue == 0u => $"{progressedValue}/? {ending}",
 				_ => $"{progressedValue}/{totalValue} {ending}"
@@ -272,30 +273,30 @@ internal static class Extensions
 			eb.Description = Formatter.MaskedUrl(title, new Uri(listEntry.Node.Url));
 		}
 
-		if ((features & MalUserFeatures.Tags) != 0 && listEntry.Status.Tags?.Count is not null and not 0)
+		if (features.HasFlag(MalUserFeatures.Tags) && listEntry.Status.Tags?.Count is not null and not 0)
 		{
 			var joinedTags = string.Join(", ", listEntry.Status.Tags);
 			AddAsFieldOrTruncateToDescription(eb, "Tags", joinedTags);
 		}
 
-		if ((features & MalUserFeatures.Comments) != 0 && !string.IsNullOrWhiteSpace(listEntry.Status.Comments))
+		if (features.HasFlag(MalUserFeatures.Comments) && !string.IsNullOrWhiteSpace(listEntry.Status.Comments))
 		{
 			AddAsFieldOrTruncateToDescription(eb, "Comments", listEntry.Status.Comments);
 		}
 
-		if ((features & MalUserFeatures.Genres) != 0 && listEntry.Node.Genres?.Count is not null and not 0)
+		if (features.HasFlag(MalUserFeatures.Genres) && listEntry.Node.Genres?.Count is not null and not 0)
 		{
 			var genres = string.Join(", ", listEntry.Node.Genres.Take(7).Select(x => x.Name.ToFirstCharUpperCase()));
 			AddAsFieldOrTruncateToDescription(eb, "Genres", genres);
 		}
 
-		if ((features & MalUserFeatures.Synopsis) != 0 && !string.IsNullOrWhiteSpace(listEntry.Node.Synopsis))
+		if (features.HasFlag(MalUserFeatures.Synopsis) && !string.IsNullOrWhiteSpace(listEntry.Node.Synopsis))
 		{
 			var shortSynopsis = listEntry.Node.Synopsis.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 			AddAsFieldOrTruncateToDescription(eb, "Synopsis", shortSynopsis[0], false);
 		}
 
-		if ((features & MalUserFeatures.Dates) != 0 && (listEntry.Status.StartDate is not null || listEntry.Status.FinishDate is not null))
+		if (features.HasFlag(MalUserFeatures.Dates) && (listEntry.Status.StartDate is not null || listEntry.Status.FinishDate is not null))
 		{
 			var isStartNull = listEntry.Status.StartDate is null;
 			var isFinishNull = listEntry.Status.FinishDate is null;
@@ -317,15 +318,15 @@ internal static class Extensions
 			eb.AddField(fieldTitle, value, false);
 		}
 
-		if ((features & MalUserFeatures.Studio) != 0 && listEntry is AnimeListEntry aListEntry &&
-		    aListEntry.Node.Studios?.Count is not null and not 0)
+		if (features.HasFlag(MalUserFeatures.Studio) && listEntry is AnimeListEntry aListEntry &&
+			aListEntry.Node.Studios?.Count is not null and not 0)
 		{
 			var studios = string.Join(", ", aListEntry.Node.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
 			AddAsFieldOrTruncateToDescription(eb, "Studios", studios);
 		}
 
-		if ((features & MalUserFeatures.Mangakas) != 0 && listEntry is MangaListEntry mListEntry &&
-		    mListEntry.Node.Authors?.Count is not null and not 0)
+		if (features.HasFlag(MalUserFeatures.Mangakas) && listEntry is MangaListEntry mListEntry &&
+			mListEntry.Node.Authors?.Count is not null and not 0)
 		{
 			var authors = string.Join(", ", mListEntry.Node.Authors.Take(7).Select(x =>
 			{

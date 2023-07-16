@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System;
 using System.Collections.Concurrent;
@@ -60,11 +60,8 @@ internal sealed class UpdatePublishingService
 				this.AddChannel(channel);
 			}
 
-#pragma warning disable S3267
-			foreach (var kvp in this._updateProvidersConfigurationService.Providers)
-#pragma warning restore S3267
+			foreach (var provider in this._updateProvidersConfigurationService.Providers.Values)
 			{
-				var provider = kvp.Value;
 				provider.UpdateFoundEvent += this.PublishUpdatesAsync;
 				if (provider is BaseUpdateProvider baseUpdateProvider)
 					baseUpdateProvider.RestartTimer(TimeSpan.FromSeconds(5));

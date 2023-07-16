@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -33,18 +33,24 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 	public abstract event UpdateFoundEvent? UpdateFoundEvent;
 
 	[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks")]
-	public Task TriggerStoppingAsync()
+	public async Task TriggerStoppingAsync()
 	{
-		this._cts?.Cancel();
+		await (this._cts?.CancelAsync() ?? Task.CompletedTask).ConfigureAwait(false);
 		this.Logger.LogInformation("Stopping {Name} update provider", this.Name);
-		return this._updateCheckingRunningTask;
+		await this._updateCheckingRunningTask.ConfigureAwait(false);
 	}
+
+	public DateTimeOffset? DateTimeOfNextUpdate { get; private set; }
+
+	public bool IsUpdateInProgress { get; private set; }
 
 	[SuppressMessage("Major Bug", "S3168:\"async\" methods should not return \"void\"")]
 	[SuppressMessage("", "AsyncFixer03")]
 	[SuppressMessage("Usage", "VSTHRD100:Avoid async void methods")]
 	private async void TimerCallback()
 	{
+		IsUpdateInProgress = true;
+		DateTimeOfNextUpdate = null;
 		using var cts = new CancellationTokenSource();
 		this._cts = cts;
 		try
@@ -71,6 +77,8 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 			this.Logger.LogInformation(
 				"Ended checking for updates in {Name} updates provider. Next planned update check is in {@DelayBetweenTimerFires}", this.Name,
 				this.DelayBetweenTimerFires);
+			IsUpdateInProgress = false;
+			this.DateTimeOfNextUpdate = DateTimeOffset.UtcNow + this.DelayBetweenTimerFires;
 		}
 	}
 

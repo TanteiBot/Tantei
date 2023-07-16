@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System;
 using System.Buffers.Binary;
@@ -11,7 +11,7 @@ namespace PaperMalKing.Common;
 
 #pragma warning disable CA1724
 public static class Helpers
-#pragma warning restore
+#pragma warning restore CA1724
 {
 	private static readonly string EmptySha512Hash;
 

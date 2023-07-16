@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System;
 using System.Collections.Generic;
@@ -29,7 +29,7 @@ internal sealed class UpdateProvidersConfigurationService
 			this._providers.Add(updateProvider.Name, updateProvider);
 		}
 
-		if (!this._providers.Any())
+		if (this._providers.Count == 0)
 			logger.LogCritical("No update providers were registered");
 
 		logger.LogTrace("Built {@UpdateProvidersConfigurationService}", typeof(UpdateProvidersConfigurationService));
