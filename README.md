@@ -3,11 +3,11 @@ Tantei
 
 
 [![.NET build](https://github.com/TanteiBot/Tantei/actions/workflows/build.yml/badge.svg)](https://github.com/TanteiBot/Tantei/actions/workflows/build.yml) ![GitHub](https://img.shields.io/github/license/TanteiBot/Tantei?label=License&style=flat-square)  
-Tantei is Discord bot that tracks user's updates from various anime/manga list websites such as [MyAnimeList](https://myanimelist.net), [Shikimori](https://shikimori.me), [AniList](https://anilist.co) and posts them to Discord server/servers.
+Tantei is Discord bot that tracks user's updates from various anime/manga list websites such as [MyAnimeList](https://myanimelist.net), [Shikimori](https://shikimori.me), [AniList](https://anilist.co) and posts them to Discord server/s.
 
 Installation
 ---------------------
-Prerequisites: git, .NET SDK 8.0
+Prerequisites: git, [.NET SDK 8.0](https://get.dot.net/8)
 - `git clone --branch v2 https://github.com/TanteiBot/Tantei.git`
 - `cd Tantei/`
 - `dotnet publish -c Release -o publish/ PaperMalKing/PaperMalKing.csproj`
@@ -19,12 +19,12 @@ Run with `dotnet PaperMalKing.dll`
 
 Notice
 ---------------------
-Project is unofficial and is not affiliated with MyAnimeList.net, Shikimori.one, AniList.co or any other website/application from which project can get users updates.
+Project is unofficial and is not affiliated with MyAnimeList.net, Shikimori.me, AniList.co or any other website/application from which project can get users updates.
 
 License
 ---------------------
 
-Copyright 2021-2022 N0D4N
+Copyright 2021-2023 N0D4N
 
 Licensed under the AGPLv3: https://www.gnu.org/licenses/agpl-3.0.html
 
