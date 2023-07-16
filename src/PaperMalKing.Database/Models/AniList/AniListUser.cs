@@ -23,7 +23,7 @@ public sealed class AniListUser : IUpdateProviderUser<AniListUserFeatures>
 
 	public AniListUserFeatures Features { get; set; }
 
-	public required DiscordUser DiscordUser { get; init; }
+	public required DiscordUser DiscordUser { get; set; }
 
 	public required IList<AniListFavourite> Favourites { get; set; }
 }

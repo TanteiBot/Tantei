@@ -26,13 +26,15 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(uint),
                 propertyInfo: typeof(MalUser).GetProperty("UserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(MalUser).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0u);
 
             var discordUserId = runtimeEntityType.AddProperty(
                 "DiscordUserId",
                 typeof(ulong),
                 propertyInfo: typeof(MalUser).GetProperty("DiscordUserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(MalUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(MalUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0ul);
 
             var favoritesIdHash = runtimeEntityType.AddProperty(
                 "FavoritesIdHash",
@@ -47,7 +49,8 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(MalUserFeatures),
                 propertyInfo: typeof(MalUser).GetProperty("Features", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(MalUser).GetField("<Features>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                valueGenerated: ValueGenerated.OnAdd);
+                valueGenerated: ValueGenerated.OnAdd,
+                sentinel: MalUserFeatures.None);
             features.AddAnnotation("Relational:DefaultValue", MalUserFeatures.AnimeList | MalUserFeatures.MangaList | MalUserFeatures.Favorites | MalUserFeatures.Mention | MalUserFeatures.Website | MalUserFeatures.MediaFormat | MalUserFeatures.MediaStatus);
 
             var lastAnimeUpdateHash = runtimeEntityType.AddProperty(
@@ -67,14 +70,16 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(DateTimeOffset),
                 propertyInfo: typeof(MalUser).GetProperty("LastUpdatedAnimeListTimestamp", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(MalUser).GetField("<LastUpdatedAnimeListTimestamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                valueConverter: new DateTimeOffsetToBinaryConverter());
+                valueConverter: new DateTimeOffsetToBinaryConverter(),
+                sentinel: new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)));
 
             var lastUpdatedMangaListTimestamp = runtimeEntityType.AddProperty(
                 "LastUpdatedMangaListTimestamp",
                 typeof(DateTimeOffset),
                 propertyInfo: typeof(MalUser).GetProperty("LastUpdatedMangaListTimestamp", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(MalUser).GetField("<LastUpdatedMangaListTimestamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                valueConverter: new DateTimeOffsetToBinaryConverter());
+                valueConverter: new DateTimeOffsetToBinaryConverter(),
+                sentinel: new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)));
 
             var username = runtimeEntityType.AddProperty(
                 "Username",

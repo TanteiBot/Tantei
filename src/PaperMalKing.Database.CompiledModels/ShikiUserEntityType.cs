@@ -25,13 +25,15 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(uint),
                 propertyInfo: typeof(ShikiUser).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiUser).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0u);
 
             var discordUserId = runtimeEntityType.AddProperty(
                 "DiscordUserId",
                 typeof(ulong),
                 propertyInfo: typeof(ShikiUser).GetProperty("DiscordUserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ShikiUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ShikiUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0ul);
 
             var favouritesIdHash = runtimeEntityType.AddProperty(
                 "FavouritesIdHash",
@@ -46,14 +48,16 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(ShikiUserFeatures),
                 propertyInfo: typeof(ShikiUser).GetProperty("Features", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiUser).GetField("<Features>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                valueGenerated: ValueGenerated.OnAdd);
+                valueGenerated: ValueGenerated.OnAdd,
+                sentinel: ShikiUserFeatures.None);
             features.AddAnnotation("Relational:DefaultValue", ShikiUserFeatures.AnimeList | ShikiUserFeatures.MangaList | ShikiUserFeatures.Favourites | ShikiUserFeatures.Mention | ShikiUserFeatures.Website | ShikiUserFeatures.MediaFormat | ShikiUserFeatures.MediaStatus);
 
             var lastHistoryEntryId = runtimeEntityType.AddProperty(
                 "LastHistoryEntryId",
                 typeof(uint),
                 propertyInfo: typeof(ShikiUser).GetProperty("LastHistoryEntryId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(ShikiUser).GetField("<LastHistoryEntryId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(ShikiUser).GetField("<LastHistoryEntryId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0u);
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });

@@ -35,7 +35,7 @@ internal sealed class GuildManagementService
 	public async Task<DiscordGuild> SetChannelAsync(ulong guildId, ulong channelId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
+		var guild = db.DiscordGuilds.TagWith("Query guild to set a channel for it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild != null)
 			throw new GuildManagementException("Server already have channel to post updates into", guildId, channelId);
 		this._logger.LogInformation("Setting channel for guild {Guild} at {Channel}", this._discordClient.Guilds[guildId],
@@ -57,11 +57,12 @@ internal sealed class GuildManagementService
 	public async Task RemoveGuildAsync(ulong guildId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
+		var guild = db.DiscordGuilds.TagWith("Query guild to remove it").TagWithCallSite().FirstOrDefault();
 		if (guild is null)
 			throw new GuildManagementException("You can't remove this server from posting updates", guildId);
 		this._logger.LogInformation("Removing guild with {Id}", guildId);
 
+		db.DiscordGuilds.Where(g => g.DiscordGuildId == guildId).ExecuteDelete();
 		db.DiscordGuilds.Remove(guild);
 		this._updatePublishingService.RemoveChannel(guild.PostingChannelId);
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
@@ -70,7 +71,7 @@ internal sealed class GuildManagementService
 	public async Task UpdateChannelAsync(ulong guildId, ulong channelId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var guild = db.DiscordGuilds.FirstOrDefault(g => g.DiscordGuildId == guildId);
+		var guild = db.DiscordGuilds.TagWith("Query guild to update channel for it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
 			throw new GuildManagementException("You can't update channel for posting updates without setting it first", guildId, channelId);
 		if (guild.PostingChannelId == channelId)

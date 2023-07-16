@@ -12,7 +12,7 @@ public sealed class MalUser : IUpdateProviderUser<MalUserFeatures>
 	public ulong DiscordUserId { get; init; }
 
 	[ForeignKey(nameof(DiscordUserId))]
-	public required DiscordUser DiscordUser { get; init; }
+	public required DiscordUser DiscordUser { get; set; }
 
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	[Key]

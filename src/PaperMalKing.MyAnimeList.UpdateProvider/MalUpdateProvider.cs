@@ -110,7 +110,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 		using var db = this._dbContextFactory.CreateDbContext();
 
-		var users = db.MalUsers.Where(user => user.DiscordUser.Guilds.Any()).Where(user =>
+		var users = db.MalUsers.TagWith("Query users for update checking").TagWithCallSite().Where(user => user.DiscordUser.Guilds.Any()).Where(user =>
 						  // Is bitwise to allow executing on server
 						  (user.Features & MalUserFeatures.AnimeList) != 0 || (user.Features & MalUserFeatures.MangaList) != 0 ||
 						  (user.Features & MalUserFeatures.Favorites) != 0).OrderBy(_ => EF.Functions.Random())
@@ -197,8 +197,8 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			totalUpdates.AddRange(mangaListUpdates);
 			totalUpdates.AddRange(favoritesUpdates);
 			totalUpdates.SortBy(x => x.Timestamp ?? DateTimeOffset.MinValue);
-			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
-			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
+			dbUser.DiscordUser = db.MalUsers.TagWith("Query discord info for user with updates").TagWithCallSite().Include(x => x.DiscordUser)
+								   .ThenInclude(x => x.Guilds).Select(x => x.DiscordUser).First();
 			if (dbUser.Features.HasFlag(MalUserFeatures.Mention))
 				totalUpdates.ForEach(b => b.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), true));
 			if (dbUser.Features.HasFlag(MalUserFeatures.Website))
@@ -218,7 +218,8 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				this.Logger.LogDebug("Ended checking updates for {@Username} with {@Updates} updates found", dbUser.Username, totalUpdates.Count);
 				if (isFavoritesHashMismatch)
 				{
-					dbUser.FavoritesIdHash = Helpers.FavoritesHash(db.BaseMalFavorites.Where(x => x.UserId == dbUser.UserId).OrderBy(x => x.Id)
+					dbUser.FavoritesIdHash = Helpers.FavoritesHash(db.BaseMalFavorites.TagWith("Query favorites to calculate hash").TagWithCallSite()
+																	 .Where(x => x.UserId == dbUser.UserId).OrderBy(x => x.Id)
 																	 .ThenBy(x => (byte)x.FavoriteType)
 																	 .Select(x => new FavoriteIdType(x.Id, (byte)x.FavoriteType)).ToArray());
 					db.SaveChanges();
@@ -238,7 +239,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 																			 MalUser dbUser) where TDbf : BaseMalFavorite, IEquatable<TDbf>
 																							 where TWf : BaseFavorite
 		{
-			var withUserQuery = dbSet.Where(x => x.UserId == user.Id);
+			var withUserQuery = dbSet.Where(x => x.UserId == user.Id).TagWith("Query favorite info for user").TagWithCallSite();
 			var dbIds = withUserQuery.Select(x => x.Id).OrderBy(x => x).ToArray();
 			var sr = resulting.Select(fav => fav.Url.Id).OrderBy(i => i).ToArray();
 			if ((dbIds.Length == 0 && resulting.Count == 0) || dbIds.SequenceEqual(sr))

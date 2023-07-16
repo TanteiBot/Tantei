@@ -25,21 +25,24 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(uint),
                 propertyInfo: typeof(AniListFavourite).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListFavourite).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0u);
 
             var favouriteType = runtimeEntityType.AddProperty(
                 "FavouriteType",
                 typeof(FavouriteType),
                 propertyInfo: typeof(AniListFavourite).GetProperty("FavouriteType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListFavourite).GetField("<FavouriteType>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: FavouriteType.Anime);
 
             var userId = runtimeEntityType.AddProperty(
                 "UserId",
                 typeof(uint),
                 propertyInfo: typeof(AniListFavourite).GetProperty("UserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListFavourite).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0u);
 
             var key = runtimeEntityType.AddKey(
                 new[] { id, favouriteType, userId });

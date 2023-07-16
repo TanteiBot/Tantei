@@ -28,7 +28,7 @@ internal sealed class AniListUserFeaturesService : BaseUserFeaturesService<AniLi
 	public override async Task EnableFeaturesAsync(AniListUserFeatures feature, ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		var dbUser = db.AniListUsers.FirstOrDefault(u => u.DiscordUserId == userId);
+		var dbUser = db.AniListUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
 		if (dbUser.Features.HasFlag(feature))
@@ -77,7 +77,8 @@ internal sealed class AniListUserFeaturesService : BaseUserFeaturesService<AniLi
 	{
 		if (featureToDisable == AniListUserFeatures.Favourites)
 		{
-			db.AniListFavourites.Where(x => x.UserId == user.Id).ExecuteDelete();
+			db.AniListFavourites.TagWith("Remove user's favorites when Favourites feature gets disabled").TagWithCallSite()
+			  .Where(x => x.UserId == user.Id).ExecuteDelete();
 		}
 
 		return ValueTask.CompletedTask;

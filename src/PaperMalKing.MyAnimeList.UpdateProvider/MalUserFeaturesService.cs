@@ -29,7 +29,7 @@ internal sealed class MalUserFeaturesService : BaseUserFeaturesService<MalUser, 
 	public override async Task EnableFeaturesAsync(MalUserFeatures feature, ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		var dbUser = db.MalUsers.FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
+		var dbUser = db.MalUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
 		if (dbUser is null)
 			throw new UserFeaturesException("You must register first before enabling features");
 		if (dbUser.Features.HasFlag(feature))
@@ -84,7 +84,7 @@ internal sealed class MalUserFeaturesService : BaseUserFeaturesService<MalUser, 
 	{
 		if (featureToDisable == MalUserFeatures.Favorites)
 		{
-			db.BaseMalFavorites.Where(x => x.UserId == user.UserId).ExecuteDelete();
+			db.BaseMalFavorites.TagWith("Remove user's favorites when Favourites feature gets disabled").TagWithCallSite().Where(x => x.UserId == user.UserId).ExecuteDelete();
 		}
 
 		return ValueTask.CompletedTask;

@@ -25,14 +25,16 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(uint),
                 propertyInfo: typeof(BaseMalFavorite).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(BaseMalFavorite).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0u);
 
             var userId = runtimeEntityType.AddProperty(
                 "UserId",
                 typeof(uint),
                 propertyInfo: typeof(BaseMalFavorite).GetProperty("UserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(BaseMalFavorite).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0u);
 
             var favoriteType = runtimeEntityType.AddProperty(
                 "FavoriteType",
@@ -40,7 +42,8 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(BaseMalFavorite).GetProperty("FavoriteType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(BaseMalFavorite).GetField("<FavoriteType>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
-                valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+                valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create,
+                sentinel: (MalFavoriteType)(byte)0);
 
             var imageUrl = runtimeEntityType.AddProperty(
                 "ImageUrl",

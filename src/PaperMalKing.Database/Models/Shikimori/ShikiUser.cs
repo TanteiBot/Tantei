@@ -19,7 +19,7 @@ public sealed class ShikiUser : IUpdateProviderUser<ShikiUserFeatures>
 
 	public ShikiUserFeatures Features { get; set; }
 
-	public required DiscordUser DiscordUser { get; init; }
+	public required DiscordUser DiscordUser { get; set; }
 
 	public string FavouritesIdHash { get; set; } = null!;
 

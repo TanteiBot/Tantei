@@ -24,7 +24,8 @@ public sealed class GeneralUserService
 	public async Task RemoveUserInGuildAsync(ulong guildId, ulong userId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var guild = db.DiscordGuilds.Include(g => g.Users).First(g => g.DiscordGuildId == guildId);
+		var guild = db.DiscordGuilds.TagWith("Query user to remove him in a guild").TagWithCallSite().Include(g => g.Users)
+					  .First(g => g.DiscordGuildId == guildId);
 		var user = guild.Users.FirstOrDefault(u => u.DiscordUserId == userId);
 		if (user is null)
 			throw new UserProcessingException("Such user wasn't found as registered in this guild");
@@ -38,7 +39,7 @@ public sealed class GeneralUserService
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
 		this._logger.LogInformation("Trying to remove user with {Id} if he has no guilds linked", userId);
-		var user = db.DiscordUsers.Include(x => x.Guilds).Include(x => x.BotUser).FirstOrDefault(x => x.DiscordUserId == userId);
+		var user = db.DiscordUsers.TagWith("Query user to remove him from guild").TagWithCallSite().Include(x => x.Guilds).Include(x => x.BotUser).FirstOrDefault(x => x.DiscordUserId == userId);
 		if (user is null)
 		{
 			throw new UserProcessingException($"User with id {userId} wasnt found");

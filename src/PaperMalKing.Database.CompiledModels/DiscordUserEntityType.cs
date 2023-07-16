@@ -25,13 +25,15 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(ulong),
                 propertyInfo: typeof(DiscordUser).GetProperty("DiscordUserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DiscordUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0ul);
 
             var botUserId = runtimeEntityType.AddProperty(
                 "BotUserId",
                 typeof(uint),
                 propertyInfo: typeof(DiscordUser).GetProperty("BotUserId", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(DiscordUser).GetField("<BotUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(DiscordUser).GetField("<BotUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0u);
 
             var key = runtimeEntityType.AddKey(
                 new[] { discordUserId });
