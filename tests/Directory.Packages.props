@@ -5,7 +5,7 @@
         <EnablePackageVersionOverride>false</EnablePackageVersionOverride>
     </PropertyGroup>
     <PropertyGroup>
-        <VerifyVersion>20.5.0</VerifyVersion>
+        <VerifyVersion>20.5.1</VerifyVersion>
     </PropertyGroup>
     <ItemGroup>
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.6.3"/>
