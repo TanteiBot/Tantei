@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;

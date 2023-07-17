@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.SystemTextJson;
 using Microsoft.Extensions.Configuration;
@@ -39,13 +38,7 @@ public static class ServiceCollectionExtensions
 			{
 				EndPoint = new Uri(ClientConstants.BASE_URL)
 			};
-			var gqlc = new GraphQLHttpClient(options, new SystemTextJsonSerializer(new JsonSerializerOptions(JsonSerializerDefaults.Web)
-			{
-				Converters =
-				{
-					new JsonStringEnumConverter(new JsonUpperPolicyCase())
-				}
-			}), httpClient);
+			var gqlc = new GraphQLHttpClient(options, new SystemTextJsonSerializer(new JsonSerializerOptions(JsonSerializerDefaults.Web)), httpClient);
 
 			return new(gqlc, logger);
 		});

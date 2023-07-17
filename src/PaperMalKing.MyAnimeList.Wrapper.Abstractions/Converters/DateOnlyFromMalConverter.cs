@@ -2,7 +2,6 @@
 // Copyright (C) 2022 N0D4N
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;

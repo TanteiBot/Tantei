@@ -26,10 +26,10 @@ public abstract class BaseListEntryNode<TMediaType, TStatus> where TMediaType : 
 	[JsonPropertyName("genres")]
 	public IReadOnlyList<Genre>? Genres { get; init; }
 
-	[JsonPropertyName("media_type"), JsonConverter(typeof(JsonStringEnumConverter))]
+	[JsonPropertyName("media_type")]
 	public required TMediaType MediaType { get; init; }
 
-	[JsonPropertyName("status"), JsonConverter(typeof(JsonStringEnumConverter))]
+	[JsonPropertyName("status")]
 	public required TStatus Status { get; init; }
 
 	public abstract string Url { get; }

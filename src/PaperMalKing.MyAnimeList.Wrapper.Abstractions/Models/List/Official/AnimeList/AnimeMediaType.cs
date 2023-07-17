@@ -2,9 +2,11 @@
 // Copyright (C) 2022 N0D4N
 
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 
+[JsonConverter(typeof(JsonStringEnumConverter<AnimeMediaType>))]
 public enum AnimeMediaType : byte
 {
 	unknown = 0,
