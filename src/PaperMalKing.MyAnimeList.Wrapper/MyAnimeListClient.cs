@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,9 +14,9 @@ using AngleSharp.Dom;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.AnimeList;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
-using PaperMalKing.MyAnimeList.Wrapper.Models.List.Official.MangaList;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
 using PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
@@ -95,7 +94,7 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		this._logger.LogDebug("Requesting {@Username} {@Type} list", username, TListType.ListEntryType);
 
 		username = WebUtility.UrlEncode(username);
-		var url = $"{Constants.BASE_OFFICIAL_API_URL}{TListType.LatestUpdatesUrl(username, requestOptions)}";
+		var url = Constants.BASE_OFFICIAL_API_URL + TListType.LatestUpdatesUrl(username, requestOptions);
 		var response = (ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>)(await this._officialApiHttpClient
 			.GetFromJsonAsync(url, typeof(ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>), JsonSGContext.Default,
 				cancellationToken).ConfigureAwait(false) ?? ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>.Empty);
@@ -128,4 +127,4 @@ internal sealed class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus
 	typeof(ListQueryResult<MangaListEntry, MangaListEntryNode, MangaListEntryStatus, MangaMediaType, MangaPublishingStatus, MangaListStatus>))]
 [JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Metadata)]
 internal partial class JsonSGContext : JsonSerializerContext
-{ }	
+{ }

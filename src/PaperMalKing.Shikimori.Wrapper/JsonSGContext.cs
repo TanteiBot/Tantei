@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using PaperMalKing.Shikimori.Wrapper.Models;
-using PaperMalKing.Shikimori.Wrapper.Models.Media;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
 namespace PaperMalKing.Shikimori.Wrapper;
 
@@ -18,6 +18,4 @@ namespace PaperMalKing.Shikimori.Wrapper;
 [JsonSerializable(typeof(UserInfo))]
 [JsonSerializable(typeof(List<Role>))]
 internal partial class JsonSGContext : JsonSerializerContext
-{
-	
-}
+{ }

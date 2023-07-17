@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -46,7 +45,7 @@ public sealed class ShikiClient : IShikiClient
 		};
 
 		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-		return await response.Content.ReadFromJsonAsync(JsonSGContext.Default.User, cancellationToken).ConfigureAwait(false)!;
+		return (await response.Content.ReadFromJsonAsync(JsonSGContext.Default.User, cancellationToken).ConfigureAwait(false))!;
 	}
 
 	public async Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default)

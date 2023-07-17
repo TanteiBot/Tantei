@@ -19,7 +19,7 @@ public abstract class BaseListEntryStatus<TListStatus> where TListStatus : unman
 		return Unsafe.As<TListStatus, byte>(ref status);
 	}
 
-	[JsonPropertyName("status"), JsonConverter(typeof(JsonStringEnumConverter))]
+	[JsonPropertyName("status")]
 	public required TListStatus Status { get; init; }
 
 	[JsonPropertyName("score")]

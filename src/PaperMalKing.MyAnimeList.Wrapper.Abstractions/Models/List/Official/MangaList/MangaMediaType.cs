@@ -2,9 +2,11 @@
 // Copyright (C) 2022 N0D4N
 
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 
+[JsonConverter(typeof(JsonStringEnumConverter<MangaMediaType>))]
 public enum MangaMediaType : byte
 {
 	unknown = 0,
