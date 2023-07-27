@@ -56,7 +56,7 @@ app.UseAuthorization();
 const string spaPath = "/app";
 if (app.Environment.IsDevelopment())
 {
-	app.MapWhen(y => y.Request.Path.StartsWithSegments(spaPath, StringComparison.Ordinal), client => client.UseSpa(spa => spa.UseProxyToSpaDevelopmentServer("https://localhost:44428")));
+	//Temporarily remove app.MapWhen(y => y.Request.Path.StartsWithSegments(spaPath, StringComparison.Ordinal), client => client.UseSpa(spa => spa.UseProxyToSpaDevelopmentServer("https://localhost:44428")));
 }
 else
 {

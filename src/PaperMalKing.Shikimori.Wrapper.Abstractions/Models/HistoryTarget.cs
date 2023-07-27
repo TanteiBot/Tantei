@@ -57,5 +57,5 @@ public sealed class HistoryTarget : IMultiLanguageName
 	public string? RussianName { get; init; }
 
 	[JsonIgnore]
-	public string ImageUrl { get; init; } = null!;
+	public string ImageUrl { get; private init; } = null!;
 }
