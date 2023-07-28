@@ -127,7 +127,7 @@ public sealed class ShikiClient : IShikiClient
 		var achievements = (await response.Content.ReadFromJsonAsync(JsonSGContext.Default.UserAchievementArray, cancellationToken)
 										  .ConfigureAwait(false))!;
 		var r = new List<UserAchievement>(achievements.Length);
-		foreach (var userAchievement in achievements.GroupBy(x => x.Id, StringComparer.Ordinal))
+		foreach (var userAchievement in achievements.Where(x=>x.Level > 0).GroupBy(x => x.Id, StringComparer.Ordinal))
 		{
 			r.Add(new UserAchievement(userAchievement.Key, userAchievement.Max(x => x.Level)));
 		}
