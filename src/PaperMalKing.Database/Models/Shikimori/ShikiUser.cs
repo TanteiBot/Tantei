@@ -25,5 +25,5 @@ public sealed class ShikiUser : IUpdateProviderUser<ShikiUserFeatures>
 
 	public required IList<ShikiFavourite> Favourites { get; set; }
 
-	public required List<ShikiDbAchievement> Achievements { get; set; }
+	public required List<ShikiDbAchievement> Achievements { get; set; } = new(0);
 }
