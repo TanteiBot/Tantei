@@ -123,8 +123,8 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				continue;
 			}
 
-			dbUser.DiscordUser = db.AniListUsers.TagWith("Query discord info for user with updates").TagWithCallSite().Where(x => x.Id == dbUser.Id)
-								   .Include(x => x.DiscordUser).ThenInclude(x => x.Guilds).Select(x => x.DiscordUser).First();
+			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
+			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
 			var lastActivityTimestamp = recentUserUpdates.Activities.Count > 0 ? recentUserUpdates.Activities.Max(a => a.CreatedAtTimestamp) : 0L;
 			var lastReviewTimeStamp = recentUserUpdates.Reviews.Count > 0 ? recentUserUpdates.Reviews.Max(r => r.CreatedAtTimeStamp) : 0L;
 			if (dbUser.LastActivityTimestamp < lastActivityTimestamp) dbUser.LastActivityTimestamp = lastActivityTimestamp;

@@ -85,8 +85,9 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 			var totalUpdates =
 				new List<DiscordEmbedBuilder>(historyUpdates.Count + addedFavourites.Count + removedFavourites.Count + achievementUpdates.Count);
-			dbUser.DiscordUser = db.ShikiUsers.TagWith("Query discord info for user with updates").TagWithCallSite().Include(x => x.DiscordUser)
-								   .ThenInclude(x => x.Guilds).Select(x => x.DiscordUser).First();
+			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
+			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
+
 			var user = await this._client.GetUserInfoAsync(dbUser.Id, cancellationToken).ConfigureAwait(false);
 			totalUpdates.AddRange(removedFavourites.Select(rf => rf.ToDiscordEmbed(user, false, dbUser.Features)));
 			totalUpdates.AddRange(addedFavourites.Select(af => af.ToDiscordEmbed(user, true, dbUser.Features)));
