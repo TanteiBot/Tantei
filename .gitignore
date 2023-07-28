@@ -10,6 +10,7 @@ appsettings.json
 makefile.p
 # Empty database is distributed with releases
 empty_database.db
+neko.json
 wwwroot/
 # Output folder is one where files get published
 output/

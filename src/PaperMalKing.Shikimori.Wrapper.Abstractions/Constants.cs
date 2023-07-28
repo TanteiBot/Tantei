@@ -2,7 +2,7 @@
 // Copyright (C) 2021-2023 N0D4N
 namespace PaperMalKing.Shikimori.Wrapper.Abstractions;
 
-internal static class Constants
+public static class Constants
 {
 	public const string BASE_URL = "https://shikimori.me";
 }

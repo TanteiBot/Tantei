@@ -66,6 +66,16 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 				}).ToList();
 				break;
 			}
+			case ShikiUserFeatures.Achievements:
+			{
+				var achievements = await this._client.GetUserAchievementsAsync(dbUser.Id).ConfigureAwait(false);
+				dbUser.Achievements = achievements.Select(x => new ShikiDbAchievement
+				{
+					NekoId = x.Id,
+					Level = x.Level
+				}).ToList();
+				break;
+			}
 		}
 
 		if (lastHistoryEntry.HasValue)
@@ -78,6 +88,11 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 		if (featureToDisable == ShikiUserFeatures.Favourites)
 		{
 			db.ShikiFavourites.TagWith("Remove user's favorites when Favourites feature gets disabled").TagWithCallSite().Where(x => x.UserId == user.Id).ExecuteDelete();
+		}
+
+		if (featureToDisable == ShikiUserFeatures.Achievements)
+		{
+			user.Achievements = new(0);
 		}
 		return ValueTask.CompletedTask;
 	}

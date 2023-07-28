@@ -2,14 +2,18 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Database.Models.Shikimori;
 
 [Flags]
+[SuppressMessage("Roslynator", "RCS1154:Sort enum members.")]
 public enum ShikiUserFeatures : ulong
 {
 	None = 0,
+
+	Default = AnimeList | MangaList | Favourites | Mention | Website | MediaFormat | MediaStatus | Achievements,
 
 	[FeatureDescription("animelist", "Track changes in AnimeList")]
 	AnimeList = 1,
@@ -52,4 +56,7 @@ public enum ShikiUserFeatures : ulong
 
 	[FeatureDescription("publisher", "Show publisher of manga")]
 	Publisher = 1 << 13,
+
+	[FeatureDescription("achievements", "Track user achievements")]
+	Achievements = 1 << 14,
 }

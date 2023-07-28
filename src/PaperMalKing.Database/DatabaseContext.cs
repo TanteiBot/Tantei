@@ -54,7 +54,7 @@ public sealed class DatabaseContext : DbContext
 		{
 			// Constant value because default in app can be changed anytime
 			mu.HasOne(x => x.DiscordUser).WithOne().HasForeignKey<MalUser>(x => x.DiscordUserId);
-			mu.Property(u => u.Features).HasDefaultValue((MalUserFeatures)127ul);
+			mu.Property(u => u.Features).HasDefaultValue((MalUserFeatures)127ul); // DO NOT CHANGE. Must always be a constant, otherwise SQLite will recreate table
 			mu.Property(u => u.LastUpdatedMangaListTimestamp).HasConversion<DateTimeOffsetToBinaryConverter>();
 			mu.Property(u => u.LastUpdatedAnimeListTimestamp).HasConversion<DateTimeOffsetToBinaryConverter>();
 			mu.Property(p => p.FavoritesIdHash).HasDefaultValue("");
@@ -103,10 +103,11 @@ public sealed class DatabaseContext : DbContext
 		{
 			su.HasOne(x => x.DiscordUser).WithOne().HasForeignKey<ShikiUser>(x => x.DiscordUserId);
 			su.HasKey(k => k.Id);
-			su.Property(u => u.Features).HasDefaultValue((ShikiUserFeatures)127UL); // Constant value because default in app can be changed anytime
+			su.Property(u => u.Features).HasDefaultValue((ShikiUserFeatures)127UL); // DO NOT CHANGE. Must always be a constant, otherwise SQLite will recreate table
 			su.Property(x => x.FavouritesIdHash).HasDefaultValue("");
 			su.HasIndex(x => x.Features);
 			su.HasIndex(x => x.DiscordUserId);
+			su.OwnsMany(x => x.Achievements, achs => achs.ToJson());
 		});
 		modelBuilder.Entity<ShikiFavourite>(sf =>
 		{
@@ -123,7 +124,7 @@ public sealed class DatabaseContext : DbContext
 		{
 			au.HasOne(x => x.DiscordUser).WithOne().HasForeignKey<AniListUser>(x => x.DiscordUserId);
 			au.HasKey(k => k.Id);
-			au.Property(u => u.Features).HasDefaultValue((AniListUserFeatures)127ul);
+			au.Property(u => u.Features).HasDefaultValue((AniListUserFeatures)127ul); // DO NOT CHANGE. Must always be a constant, otherwise SQLite will recreate table
 			au.Property(x => x.FavouritesIdHash).HasDefaultValue("");
 			au.HasIndex(x => x.Features);
 			au.HasIndex(x => x.DiscordUserId);

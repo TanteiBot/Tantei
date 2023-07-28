@@ -13,11 +13,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
+using PaperMalKing.Database;
 using PaperMalKing.Startup;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 builder.Services.AddSpaStaticFiles(options => options.RootPath = "wwwroot");
 builder.Services.AddControllersWithViews();

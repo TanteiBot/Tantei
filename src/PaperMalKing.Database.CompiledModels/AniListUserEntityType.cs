@@ -50,7 +50,7 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(AniListUser).GetField("<Features>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 sentinel: AniListUserFeatures.None);
-            features.AddAnnotation("Relational:DefaultValue", AniListUserFeatures.AnimeList | AniListUserFeatures.MangaList | AniListUserFeatures.Favourites | AniListUserFeatures.Mention | AniListUserFeatures.Website | AniListUserFeatures.MediaFormat | AniListUserFeatures.MediaStatus);
+            features.AddAnnotation("Relational:DefaultValue", AniListUserFeatures.Default);
 
             var lastActivityTimestamp = runtimeEntityType.AddProperty(
                 "LastActivityTimestamp",

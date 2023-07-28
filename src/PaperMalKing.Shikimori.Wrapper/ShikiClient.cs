@@ -1,8 +1,10 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -107,5 +109,29 @@ public sealed class ShikiClient : IShikiClient
 	{
 		var url = $"{Constants.BASE_USERS_API_URL}/{userId}/info";
 		return this._httpClient.GetFromJsonAsync(url, JsonSGContext.Default.UserInfo, cancellationToken)!;
+	}
+
+	public async Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken = default)
+	{
+		var url = $"{Constants.BASE_API_URL}/achievements";
+		using var rm = new HttpRequestMessage(HttpMethod.Get, url)
+		{
+			Content = new MultipartFormDataContent()
+			{
+				#pragma warning disable CA2000
+				{ new StringContent(userId.ToString("D", CultureInfo.InvariantCulture)), "user_id" }
+				#pragma warning restore CA2000
+			}
+		};
+		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait(false);
+		var achievements = (await response.Content.ReadFromJsonAsync(JsonSGContext.Default.UserAchievementArray, cancellationToken)
+										  .ConfigureAwait(false))!;
+		var r = new List<UserAchievement>(achievements.Length);
+		foreach (var userAchievement in achievements.GroupBy(x => x.Id, StringComparer.Ordinal))
+		{
+			r.Add(new UserAchievement(userAchievement.Key, userAchievement.Max(x => x.Level)));
+		}
+
+		return r;
 	}
 }

@@ -97,7 +97,8 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 			DiscordUser = dUser,
 			LastActivityTimestamp = now,
 			LastReviewTimestamp = now,
-			FavouritesIdHash = Helpers.FavoritesHash(response.Favourites.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).ToArray())
+			FavouritesIdHash = Helpers.FavoritesHash(response.Favourites.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).ToArray()),
+			Features = AniListUserFeatures.Default,
 		};
 		dbUser.Favourites.ForEach(f =>
 		{

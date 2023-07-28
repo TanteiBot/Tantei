@@ -37,19 +37,4 @@ public static class DbExtensions
 		}
 		throw new TaskCanceledException("Saving changes were cancelled");
 	}
-
-	public static MalUserFeatures GetDefault(this MalUserFeatures _) => MalUserFeatures.AnimeList | MalUserFeatures.MangaList |
-																		MalUserFeatures.Favorites | MalUserFeatures.Mention |
-																		MalUserFeatures.Website | MalUserFeatures.MediaFormat |
-																		MalUserFeatures.MediaStatus;
-
-	public static ShikiUserFeatures GetDefault(this ShikiUserFeatures _) => ShikiUserFeatures.AnimeList | ShikiUserFeatures.MangaList |
-																			ShikiUserFeatures.Favourites | ShikiUserFeatures.Mention |
-																			ShikiUserFeatures.Website | ShikiUserFeatures.MediaFormat |
-																			ShikiUserFeatures.MediaStatus;
-
-	public static AniListUserFeatures GetDefault(this AniListUserFeatures _) => AniListUserFeatures.AnimeList | AniListUserFeatures.MangaList |
-																				AniListUserFeatures.Favourites | AniListUserFeatures.Mention |
-																				AniListUserFeatures.Website | AniListUserFeatures.MediaFormat |
-																				AniListUserFeatures.MediaStatus;
 }

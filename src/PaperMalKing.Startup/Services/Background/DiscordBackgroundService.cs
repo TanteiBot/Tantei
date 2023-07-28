@@ -28,7 +28,8 @@ internal sealed class DiscordBackgroundService : BackgroundService
 	private readonly GeneralUserService _userService;
 
 	public DiscordBackgroundService(IOptions<DiscordOptions> options, ILogger<DiscordBackgroundService> logger, DiscordClient client,
-									IDbContextFactory<DatabaseContext> dbContextFactory, GuildManagementService guildManagementService, GeneralUserService userService)
+									IDbContextFactory<DatabaseContext> dbContextFactory, GuildManagementService guildManagementService,
+									GeneralUserService userService)
 	{
 		this._logger = logger;
 
@@ -134,9 +135,9 @@ internal sealed class DiscordBackgroundService : BackgroundService
 						{
 							this._logger.LogInformation("Activity changing canceled");
 						}
-#pragma warning disable CA1031
+						#pragma warning disable CA1031
 						catch (Exception ex)
-#pragma warning restore CA1031
+							#pragma warning restore CA1031
 						{
 							this._logger.LogError(ex, "Error occured while updating Discord presence");
 						}

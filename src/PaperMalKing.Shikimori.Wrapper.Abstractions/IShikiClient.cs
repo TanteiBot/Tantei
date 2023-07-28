@@ -21,4 +21,5 @@ public interface IShikiClient
 	Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, CancellationToken cancellationToken = default) where TMedia : BaseMedia;
 	Task<IReadOnlyList<Role>> GetMediaStaffAsync(ulong id, ListEntryType type, CancellationToken cancellationToken = default);
 	Task<UserInfo> GetUserInfoAsync(uint userId, CancellationToken cancellationToken = default);
+	Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken = default);
 }

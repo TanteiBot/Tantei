@@ -17,5 +17,6 @@ namespace PaperMalKing.Shikimori.Wrapper;
 [JsonSerializable(typeof(User))]
 [JsonSerializable(typeof(UserInfo))]
 [JsonSerializable(typeof(List<Role>))]
+[JsonSerializable(typeof(UserAchievement[]))]
 internal partial class JsonSGContext : JsonSerializerContext
 { }

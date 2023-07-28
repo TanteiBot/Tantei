@@ -68,6 +68,7 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 		var shikiUser = await this._client.GetUserAsync(username).ConfigureAwait(false);
 		var history = await this._client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any).ConfigureAwait(false);
 		var favourites = await this._client.GetUserFavouritesAsync(shikiUser.Id).ConfigureAwait(false);
+		var achievements = await this._client.GetUserAchievementsAsync(shikiUser.Id).ConfigureAwait(false);
 		if (dUser is null)
 		{
 			dUser = new()
@@ -91,11 +92,16 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 				// User = dbUser
 			}).ToList(),
 			Id = shikiUser.Id,
-			Features = ShikiUserFeatures.None.GetDefault(),
+			Features = ShikiUserFeatures.Default,
 			DiscordUser = dUser,
 			DiscordUserId = userId,
 			LastHistoryEntryId = history.Data.Max(he => he.Id),
-			FavouritesIdHash = Helpers.FavoritesHash(favourites.AllFavourites.Select(x=> new FavoriteIdType(x.Id, (byte)x.GenericType![0])).ToArray())
+			FavouritesIdHash = Helpers.FavoritesHash(favourites.AllFavourites.Select(x=> new FavoriteIdType(x.Id, (byte)x.GenericType![0])).ToArray()),
+			Achievements = achievements.Select(x=> new  ShikiDbAchievement
+			{
+				NekoId = x.Id,
+				Level = x.Level
+			}).ToList()
 		};
 		dbUser.Favourites.ForEach(f => f.User = dbUser);
 		db.ShikiUsers.Add(dbUser);

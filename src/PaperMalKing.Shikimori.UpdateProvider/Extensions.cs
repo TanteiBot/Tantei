@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
@@ -199,6 +200,16 @@ internal static partial class Extensions
 		}
 
 		return eb;
+	}
+
+	public static DiscordEmbedBuilder ToDiscordEmbed(this ShikiAchievement achievement, UserInfo user, ShikiUserFeatures features)
+	{
+		return new DiscordEmbedBuilder()
+		{
+			Title = features.HasFlag(ShikiUserFeatures.Russian) ? achievement.TitleRussian : achievement.TitleEnglish,
+			Description = features.HasFlag(ShikiUserFeatures.Russian) ? achievement.TextRussian : achievement.TextEnglish,
+			Color = achievement.BorderColor
+		}.WithThumbnail(achievement.Image).WithShikiAuthor(user);
 	}
 
 	public static DiscordEmbedBuilder WithShikiUpdateProviderFooter(this DiscordEmbedBuilder eb)
