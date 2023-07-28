@@ -69,7 +69,8 @@
             AsyncFixer02; <!--ToArrayAsync should be used instead of -->
         </NoWarn>
         <WarningsNotAsErrors>
-            MA0048 <!--File name must match type name-->
+            MA0048; <!--File name must match type name-->
+            S125;  <!--Remove this commented out code.-->
         </WarningsNotAsErrors>
     </PropertyGroup>
 

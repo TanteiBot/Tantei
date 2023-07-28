@@ -24,6 +24,7 @@ namespace PaperMalKing.Database.CompiledModels
             var discordUser = DiscordUserEntityType.Create(this);
             var baseMalFavorite = BaseMalFavoriteEntityType.Create(this);
             var malUser = MalUserEntityType.Create(this);
+            var shikiAchievement = ShikiAchievementEntityType.Create(this);
             var shikiFavourite = ShikiFavouriteEntityType.Create(this);
             var shikiUser = ShikiUserEntityType.Create(this);
             var malFavoriteAnime = MalFavoriteAnimeEntityType.Create(this, baseMalFavorite);
@@ -38,6 +39,7 @@ namespace PaperMalKing.Database.CompiledModels
             AniListUserEntityType.CreateForeignKey1(aniListUser, discordUser);
             DiscordUserEntityType.CreateForeignKey1(discordUser, botUser);
             MalUserEntityType.CreateForeignKey1(malUser, discordUser);
+            ShikiAchievementEntityType.CreateForeignKey1(shikiAchievement, shikiUser);
             ShikiFavouriteEntityType.CreateForeignKey1(shikiFavourite, shikiUser);
             ShikiUserEntityType.CreateForeignKey1(shikiUser, discordUser);
             MalFavoriteAnimeEntityType.CreateForeignKey1(malFavoriteAnime, malUser);
@@ -57,6 +59,7 @@ namespace PaperMalKing.Database.CompiledModels
             DiscordUserEntityType.CreateAnnotations(discordUser);
             BaseMalFavoriteEntityType.CreateAnnotations(baseMalFavorite);
             MalUserEntityType.CreateAnnotations(malUser);
+            ShikiAchievementEntityType.CreateAnnotations(shikiAchievement);
             ShikiFavouriteEntityType.CreateAnnotations(shikiFavourite);
             ShikiUserEntityType.CreateAnnotations(shikiUser);
             MalFavoriteAnimeEntityType.CreateAnnotations(malFavoriteAnime);
@@ -757,94 +760,31 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.CreateColumnMapping(malUsersTable.FindColumn("LastUpdatedMangaListTimestamp")!, malUser.FindProperty("LastUpdatedMangaListTimestamp")!, malUsersTableMapping);
             RelationalModel.CreateColumnMapping(malUsersTable.FindColumn("Username")!, malUser.FindProperty("Username")!, malUsersTableMapping);
 
-            var shikiFavourite = FindEntityType("PaperMalKing.Database.Models.Shikimori.ShikiFavourite")!;
+            var shikiAchievement = FindEntityType("PaperMalKing.Database.Models.Shikimori.ShikiAchievement")!;
 
             var defaultTableMappings12 = new List<TableMappingBase<ColumnMappingBase>>();
-            shikiFavourite.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings12);
-            var paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase = new TableBase("PaperMalKing.Database.Models.Shikimori.ShikiFavourite", null, relationalModel);
-            var favTypeColumnBase = new ColumnBase<ColumnMappingBase>("FavType", "TEXT", paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase);
-            paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.Columns.Add("FavType", favTypeColumnBase);
-            var idColumnBase2 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase);
-            paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.Columns.Add("Id", idColumnBase2);
-            var nameColumnBase0 = new ColumnBase<ColumnMappingBase>("Name", "TEXT", paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase);
-            paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.Columns.Add("Name", nameColumnBase0);
-            var userIdColumnBase3 = new ColumnBase<ColumnMappingBase>("UserId", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase);
-            paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.Columns.Add("UserId", userIdColumnBase3);
-            relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.Shikimori.ShikiFavourite", paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase);
-            var paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase = new TableMappingBase<ColumnMappingBase>(shikiFavourite, paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase, true);
-            paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.AddEntityTypeMapping(paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase, false);
-            defaultTableMappings12.Add(paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.FindColumn("FavType")!, shikiFavourite.FindProperty("FavType")!, paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.FindColumn("Id")!, shikiFavourite.FindProperty("Id")!, paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.FindColumn("UserId")!, shikiFavourite.FindProperty("UserId")!, paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.FindColumn("Name")!, shikiFavourite.FindProperty("Name")!, paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
+            shikiAchievement.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings12);
+            var paperMalKingDatabaseModelsShikimoriShikiAchievementTableBase = new TableBase("PaperMalKing.Database.Models.Shikimori.ShikiAchievement", null, relationalModel);
+            var achievementsColumnBase = new JsonColumnBase("Achievements", "TEXT", paperMalKingDatabaseModelsShikimoriShikiAchievementTableBase)
+            {
+                IsNullable = true
+            };
+            paperMalKingDatabaseModelsShikimoriShikiAchievementTableBase.Columns.Add("Achievements", achievementsColumnBase);
+            relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.Shikimori.ShikiAchievement", paperMalKingDatabaseModelsShikimoriShikiAchievementTableBase);
+            var paperMalKingDatabaseModelsShikimoriShikiAchievementMappingBase = new TableMappingBase<ColumnMappingBase>(shikiAchievement, paperMalKingDatabaseModelsShikimoriShikiAchievementTableBase, true);
+            paperMalKingDatabaseModelsShikimoriShikiAchievementTableBase.AddEntityTypeMapping(paperMalKingDatabaseModelsShikimoriShikiAchievementMappingBase, false);
+            defaultTableMappings12.Add(paperMalKingDatabaseModelsShikimoriShikiAchievementMappingBase);
 
             var tableMappings12 = new List<TableMapping>();
-            shikiFavourite.SetRuntimeAnnotation("Relational:TableMappings", tableMappings12);
-            var shikiFavouritesTable = new Table("ShikiFavourites", null, relationalModel);
-            var idColumn2 = new Column("Id", "INTEGER", shikiFavouritesTable);
-            shikiFavouritesTable.Columns.Add("Id", idColumn2);
-            var favTypeColumn = new Column("FavType", "TEXT", shikiFavouritesTable);
-            shikiFavouritesTable.Columns.Add("FavType", favTypeColumn);
-            var userIdColumn3 = new Column("UserId", "INTEGER", shikiFavouritesTable);
-            shikiFavouritesTable.Columns.Add("UserId", userIdColumn3);
-            var nameColumn0 = new Column("Name", "TEXT", shikiFavouritesTable);
-            shikiFavouritesTable.Columns.Add("Name", nameColumn0);
-            var pK_ShikiFavourites = new UniqueConstraint("PK_ShikiFavourites", shikiFavouritesTable, new[] { idColumn2, favTypeColumn, userIdColumn3 });
-            shikiFavouritesTable.PrimaryKey = pK_ShikiFavourites;
-            var pK_ShikiFavouritesUc = RelationalModel.GetKey(this,
-                "PaperMalKing.Database.Models.Shikimori.ShikiFavourite",
-                new[] { "Id", "FavType", "UserId" });
-            pK_ShikiFavourites.MappedKeys.Add(pK_ShikiFavouritesUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_ShikiFavouritesUc).Add(pK_ShikiFavourites);
-            shikiFavouritesTable.UniqueConstraints.Add("PK_ShikiFavourites", pK_ShikiFavourites);
-            var iX_ShikiFavourites_UserId = new TableIndex(
-            "IX_ShikiFavourites_UserId", shikiFavouritesTable, new[] { userIdColumn3 }, false);
-            var iX_ShikiFavourites_UserIdIx = RelationalModel.GetIndex(this,
-                "PaperMalKing.Database.Models.Shikimori.ShikiFavourite",
-                new[] { "UserId" });
-            iX_ShikiFavourites_UserId.MappedIndexes.Add(iX_ShikiFavourites_UserIdIx);
-            RelationalModel.GetOrCreateTableIndexes(iX_ShikiFavourites_UserIdIx).Add(iX_ShikiFavourites_UserId);
-            shikiFavouritesTable.Indexes.Add("IX_ShikiFavourites_UserId", iX_ShikiFavourites_UserId);
-            relationalModel.Tables.Add(("ShikiFavourites", null), shikiFavouritesTable);
-            var shikiFavouritesTableMapping = new TableMapping(shikiFavourite, shikiFavouritesTable, true);
-            shikiFavouritesTable.AddEntityTypeMapping(shikiFavouritesTableMapping, false);
-            tableMappings12.Add(shikiFavouritesTableMapping);
-            RelationalModel.CreateColumnMapping(shikiFavouritesTable.FindColumn("FavType")!, shikiFavourite.FindProperty("FavType")!, shikiFavouritesTableMapping);
-            RelationalModel.CreateColumnMapping(shikiFavouritesTable.FindColumn("Id")!, shikiFavourite.FindProperty("Id")!, shikiFavouritesTableMapping);
-            RelationalModel.CreateColumnMapping(shikiFavouritesTable.FindColumn("UserId")!, shikiFavourite.FindProperty("UserId")!, shikiFavouritesTableMapping);
-            RelationalModel.CreateColumnMapping(shikiFavouritesTable.FindColumn("Name")!, shikiFavourite.FindProperty("Name")!, shikiFavouritesTableMapping);
-
-            var shikiUser = FindEntityType("PaperMalKing.Database.Models.Shikimori.ShikiUser")!;
-
-            var defaultTableMappings13 = new List<TableMappingBase<ColumnMappingBase>>();
-            shikiUser.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings13);
-            var paperMalKingDatabaseModelsShikimoriShikiUserTableBase = new TableBase("PaperMalKing.Database.Models.Shikimori.ShikiUser", null, relationalModel);
-            var discordUserIdColumnBase2 = new ColumnBase<ColumnMappingBase>("DiscordUserId", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
-            paperMalKingDatabaseModelsShikimoriShikiUserTableBase.Columns.Add("DiscordUserId", discordUserIdColumnBase2);
-            var favouritesIdHashColumnBase0 = new ColumnBase<ColumnMappingBase>("FavouritesIdHash", "TEXT", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
-            paperMalKingDatabaseModelsShikimoriShikiUserTableBase.Columns.Add("FavouritesIdHash", favouritesIdHashColumnBase0);
-            var featuresColumnBase1 = new ColumnBase<ColumnMappingBase>("Features", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
-            paperMalKingDatabaseModelsShikimoriShikiUserTableBase.Columns.Add("Features", featuresColumnBase1);
-            var idColumnBase3 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
-            paperMalKingDatabaseModelsShikimoriShikiUserTableBase.Columns.Add("Id", idColumnBase3);
-            var lastHistoryEntryIdColumnBase = new ColumnBase<ColumnMappingBase>("LastHistoryEntryId", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
-            paperMalKingDatabaseModelsShikimoriShikiUserTableBase.Columns.Add("LastHistoryEntryId", lastHistoryEntryIdColumnBase);
-            relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.Shikimori.ShikiUser", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
-            var paperMalKingDatabaseModelsShikimoriShikiUserMappingBase = new TableMappingBase<ColumnMappingBase>(shikiUser, paperMalKingDatabaseModelsShikimoriShikiUserTableBase, true);
-            paperMalKingDatabaseModelsShikimoriShikiUserTableBase.AddEntityTypeMapping(paperMalKingDatabaseModelsShikimoriShikiUserMappingBase, false);
-            defaultTableMappings13.Add(paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiUserTableBase.FindColumn("Id")!, shikiUser.FindProperty("Id")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiUserTableBase.FindColumn("DiscordUserId")!, shikiUser.FindProperty("DiscordUserId")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiUserTableBase.FindColumn("FavouritesIdHash")!, shikiUser.FindProperty("FavouritesIdHash")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiUserTableBase.FindColumn("Features")!, shikiUser.FindProperty("Features")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiUserTableBase.FindColumn("LastHistoryEntryId")!, shikiUser.FindProperty("LastHistoryEntryId")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
-
-            var tableMappings13 = new List<TableMapping>();
-            shikiUser.SetRuntimeAnnotation("Relational:TableMappings", tableMappings13);
+            shikiAchievement.SetRuntimeAnnotation("Relational:TableMappings", tableMappings12);
             var shikiUsersTable = new Table("ShikiUsers", null, relationalModel);
-            var idColumn3 = new Column("Id", "INTEGER", shikiUsersTable);
-            shikiUsersTable.Columns.Add("Id", idColumn3);
+            var idColumn2 = new Column("Id", "INTEGER", shikiUsersTable);
+            shikiUsersTable.Columns.Add("Id", idColumn2);
+            var achievementsColumn = new JsonColumn("Achievements", "TEXT", shikiUsersTable)
+            {
+                IsNullable = true
+            };
+            shikiUsersTable.Columns.Add("Achievements", achievementsColumn);
             var discordUserIdColumn2 = new Column("DiscordUserId", "INTEGER", shikiUsersTable);
             shikiUsersTable.Columns.Add("DiscordUserId", discordUserIdColumn2);
             var favouritesIdHashColumn0 = new Column("FavouritesIdHash", "TEXT", shikiUsersTable);
@@ -853,7 +793,7 @@ namespace PaperMalKing.Database.CompiledModels
             shikiUsersTable.Columns.Add("Features", featuresColumn1);
             var lastHistoryEntryIdColumn = new Column("LastHistoryEntryId", "INTEGER", shikiUsersTable);
             shikiUsersTable.Columns.Add("LastHistoryEntryId", lastHistoryEntryIdColumn);
-            var pK_ShikiUsers = new UniqueConstraint("PK_ShikiUsers", shikiUsersTable, new[] { idColumn3 });
+            var pK_ShikiUsers = new UniqueConstraint("PK_ShikiUsers", shikiUsersTable, new[] { idColumn2 });
             shikiUsersTable.PrimaryKey = pK_ShikiUsers;
             var pK_ShikiUsersUc = RelationalModel.GetKey(this,
                 "PaperMalKing.Database.Models.Shikimori.ShikiUser",
@@ -878,14 +818,114 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.GetOrCreateTableIndexes(iX_ShikiUsers_FeaturesIx).Add(iX_ShikiUsers_Features);
             shikiUsersTable.Indexes.Add("IX_ShikiUsers_Features", iX_ShikiUsers_Features);
             relationalModel.Tables.Add(("ShikiUsers", null), shikiUsersTable);
-            var shikiUsersTableMapping = new TableMapping(shikiUser, shikiUsersTable, true);
-            shikiUsersTable.AddEntityTypeMapping(shikiUsersTableMapping, false);
-            tableMappings13.Add(shikiUsersTableMapping);
-            RelationalModel.CreateColumnMapping(shikiUsersTable.FindColumn("Id")!, shikiUser.FindProperty("Id")!, shikiUsersTableMapping);
-            RelationalModel.CreateColumnMapping(shikiUsersTable.FindColumn("DiscordUserId")!, shikiUser.FindProperty("DiscordUserId")!, shikiUsersTableMapping);
-            RelationalModel.CreateColumnMapping(shikiUsersTable.FindColumn("FavouritesIdHash")!, shikiUser.FindProperty("FavouritesIdHash")!, shikiUsersTableMapping);
-            RelationalModel.CreateColumnMapping(shikiUsersTable.FindColumn("Features")!, shikiUser.FindProperty("Features")!, shikiUsersTableMapping);
-            RelationalModel.CreateColumnMapping(shikiUsersTable.FindColumn("LastHistoryEntryId")!, shikiUser.FindProperty("LastHistoryEntryId")!, shikiUsersTableMapping);
+            var shikiUsersTableMapping = new TableMapping(shikiAchievement, shikiUsersTable, true)
+            {
+                IsSharedTablePrincipal = false,
+            };
+            shikiUsersTable.AddEntityTypeMapping(shikiUsersTableMapping, true);
+            tableMappings12.Add(shikiUsersTableMapping);
+            shikiUsersTable.AddRowInternalForeignKey(shikiAchievement, RelationalModel.GetForeignKey(this,
+                "PaperMalKing.Database.Models.Shikimori.ShikiAchievement",
+                new[] { "ShikiUserId" },
+                "PaperMalKing.Database.Models.Shikimori.ShikiUser",
+                new[] { "Id" }));
+
+            var shikiFavourite = FindEntityType("PaperMalKing.Database.Models.Shikimori.ShikiFavourite")!;
+
+            var defaultTableMappings13 = new List<TableMappingBase<ColumnMappingBase>>();
+            shikiFavourite.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings13);
+            var paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase = new TableBase("PaperMalKing.Database.Models.Shikimori.ShikiFavourite", null, relationalModel);
+            var favTypeColumnBase = new ColumnBase<ColumnMappingBase>("FavType", "TEXT", paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase);
+            paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.Columns.Add("FavType", favTypeColumnBase);
+            var idColumnBase2 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase);
+            paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.Columns.Add("Id", idColumnBase2);
+            var nameColumnBase0 = new ColumnBase<ColumnMappingBase>("Name", "TEXT", paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase);
+            paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.Columns.Add("Name", nameColumnBase0);
+            var userIdColumnBase3 = new ColumnBase<ColumnMappingBase>("UserId", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase);
+            paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.Columns.Add("UserId", userIdColumnBase3);
+            relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.Shikimori.ShikiFavourite", paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase);
+            var paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase = new TableMappingBase<ColumnMappingBase>(shikiFavourite, paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase, true);
+            paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.AddEntityTypeMapping(paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase, false);
+            defaultTableMappings13.Add(paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.FindColumn("FavType")!, shikiFavourite.FindProperty("FavType")!, paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.FindColumn("Id")!, shikiFavourite.FindProperty("Id")!, paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.FindColumn("UserId")!, shikiFavourite.FindProperty("UserId")!, paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.FindColumn("Name")!, shikiFavourite.FindProperty("Name")!, paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
+
+            var tableMappings13 = new List<TableMapping>();
+            shikiFavourite.SetRuntimeAnnotation("Relational:TableMappings", tableMappings13);
+            var shikiFavouritesTable = new Table("ShikiFavourites", null, relationalModel);
+            var idColumn3 = new Column("Id", "INTEGER", shikiFavouritesTable);
+            shikiFavouritesTable.Columns.Add("Id", idColumn3);
+            var favTypeColumn = new Column("FavType", "TEXT", shikiFavouritesTable);
+            shikiFavouritesTable.Columns.Add("FavType", favTypeColumn);
+            var userIdColumn3 = new Column("UserId", "INTEGER", shikiFavouritesTable);
+            shikiFavouritesTable.Columns.Add("UserId", userIdColumn3);
+            var nameColumn0 = new Column("Name", "TEXT", shikiFavouritesTable);
+            shikiFavouritesTable.Columns.Add("Name", nameColumn0);
+            var pK_ShikiFavourites = new UniqueConstraint("PK_ShikiFavourites", shikiFavouritesTable, new[] { idColumn3, favTypeColumn, userIdColumn3 });
+            shikiFavouritesTable.PrimaryKey = pK_ShikiFavourites;
+            var pK_ShikiFavouritesUc = RelationalModel.GetKey(this,
+                "PaperMalKing.Database.Models.Shikimori.ShikiFavourite",
+                new[] { "Id", "FavType", "UserId" });
+            pK_ShikiFavourites.MappedKeys.Add(pK_ShikiFavouritesUc);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_ShikiFavouritesUc).Add(pK_ShikiFavourites);
+            shikiFavouritesTable.UniqueConstraints.Add("PK_ShikiFavourites", pK_ShikiFavourites);
+            var iX_ShikiFavourites_UserId = new TableIndex(
+            "IX_ShikiFavourites_UserId", shikiFavouritesTable, new[] { userIdColumn3 }, false);
+            var iX_ShikiFavourites_UserIdIx = RelationalModel.GetIndex(this,
+                "PaperMalKing.Database.Models.Shikimori.ShikiFavourite",
+                new[] { "UserId" });
+            iX_ShikiFavourites_UserId.MappedIndexes.Add(iX_ShikiFavourites_UserIdIx);
+            RelationalModel.GetOrCreateTableIndexes(iX_ShikiFavourites_UserIdIx).Add(iX_ShikiFavourites_UserId);
+            shikiFavouritesTable.Indexes.Add("IX_ShikiFavourites_UserId", iX_ShikiFavourites_UserId);
+            relationalModel.Tables.Add(("ShikiFavourites", null), shikiFavouritesTable);
+            var shikiFavouritesTableMapping = new TableMapping(shikiFavourite, shikiFavouritesTable, true);
+            shikiFavouritesTable.AddEntityTypeMapping(shikiFavouritesTableMapping, false);
+            tableMappings13.Add(shikiFavouritesTableMapping);
+            RelationalModel.CreateColumnMapping(shikiFavouritesTable.FindColumn("FavType")!, shikiFavourite.FindProperty("FavType")!, shikiFavouritesTableMapping);
+            RelationalModel.CreateColumnMapping(shikiFavouritesTable.FindColumn("Id")!, shikiFavourite.FindProperty("Id")!, shikiFavouritesTableMapping);
+            RelationalModel.CreateColumnMapping(shikiFavouritesTable.FindColumn("UserId")!, shikiFavourite.FindProperty("UserId")!, shikiFavouritesTableMapping);
+            RelationalModel.CreateColumnMapping(shikiFavouritesTable.FindColumn("Name")!, shikiFavourite.FindProperty("Name")!, shikiFavouritesTableMapping);
+
+            var shikiUser = FindEntityType("PaperMalKing.Database.Models.Shikimori.ShikiUser")!;
+
+            var defaultTableMappings14 = new List<TableMappingBase<ColumnMappingBase>>();
+            shikiUser.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings14);
+            var paperMalKingDatabaseModelsShikimoriShikiUserTableBase = new TableBase("PaperMalKing.Database.Models.Shikimori.ShikiUser", null, relationalModel);
+            var discordUserIdColumnBase2 = new ColumnBase<ColumnMappingBase>("DiscordUserId", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
+            paperMalKingDatabaseModelsShikimoriShikiUserTableBase.Columns.Add("DiscordUserId", discordUserIdColumnBase2);
+            var favouritesIdHashColumnBase0 = new ColumnBase<ColumnMappingBase>("FavouritesIdHash", "TEXT", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
+            paperMalKingDatabaseModelsShikimoriShikiUserTableBase.Columns.Add("FavouritesIdHash", favouritesIdHashColumnBase0);
+            var featuresColumnBase1 = new ColumnBase<ColumnMappingBase>("Features", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
+            paperMalKingDatabaseModelsShikimoriShikiUserTableBase.Columns.Add("Features", featuresColumnBase1);
+            var idColumnBase3 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
+            paperMalKingDatabaseModelsShikimoriShikiUserTableBase.Columns.Add("Id", idColumnBase3);
+            var lastHistoryEntryIdColumnBase = new ColumnBase<ColumnMappingBase>("LastHistoryEntryId", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
+            paperMalKingDatabaseModelsShikimoriShikiUserTableBase.Columns.Add("LastHistoryEntryId", lastHistoryEntryIdColumnBase);
+            relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.Shikimori.ShikiUser", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
+            var paperMalKingDatabaseModelsShikimoriShikiUserMappingBase = new TableMappingBase<ColumnMappingBase>(shikiUser, paperMalKingDatabaseModelsShikimoriShikiUserTableBase, true);
+            paperMalKingDatabaseModelsShikimoriShikiUserTableBase.AddEntityTypeMapping(paperMalKingDatabaseModelsShikimoriShikiUserMappingBase, false);
+            defaultTableMappings14.Add(paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiUserTableBase.FindColumn("Id")!, shikiUser.FindProperty("Id")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiUserTableBase.FindColumn("DiscordUserId")!, shikiUser.FindProperty("DiscordUserId")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiUserTableBase.FindColumn("FavouritesIdHash")!, shikiUser.FindProperty("FavouritesIdHash")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiUserTableBase.FindColumn("Features")!, shikiUser.FindProperty("Features")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)paperMalKingDatabaseModelsShikimoriShikiUserTableBase.FindColumn("LastHistoryEntryId")!, shikiUser.FindProperty("LastHistoryEntryId")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
+
+            var tableMappings14 = new List<TableMapping>();
+            shikiUser.SetRuntimeAnnotation("Relational:TableMappings", tableMappings14);
+            var shikiUsersTableMapping0 = new TableMapping(shikiUser, shikiUsersTable, true)
+            {
+                IsSharedTablePrincipal = true,
+            };
+            shikiUsersTable.AddEntityTypeMapping(shikiUsersTableMapping0, false);
+            tableMappings14.Add(shikiUsersTableMapping0);
+            RelationalModel.CreateColumnMapping(shikiUsersTable.FindColumn("Id")!, shikiUser.FindProperty("Id")!, shikiUsersTableMapping0);
+            RelationalModel.CreateColumnMapping(shikiUsersTable.FindColumn("DiscordUserId")!, shikiUser.FindProperty("DiscordUserId")!, shikiUsersTableMapping0);
+            RelationalModel.CreateColumnMapping(shikiUsersTable.FindColumn("FavouritesIdHash")!, shikiUser.FindProperty("FavouritesIdHash")!, shikiUsersTableMapping0);
+            RelationalModel.CreateColumnMapping(shikiUsersTable.FindColumn("Features")!, shikiUser.FindProperty("Features")!, shikiUsersTableMapping0);
+            RelationalModel.CreateColumnMapping(shikiUsersTable.FindColumn("LastHistoryEntryId")!, shikiUser.FindProperty("LastHistoryEntryId")!, shikiUsersTableMapping0);
             var fK_AniListFavourites_AniListUsers_UserId = new ForeignKeyConstraint(
                 "FK_AniListFavourites_AniListUsers_UserId", aniListFavouritesTable, aniListUsersTable,
                 new[] { userIdColumn },

@@ -15,7 +15,7 @@
 
     <ItemGroup>
         <PackageReference Include="AspNet.Security.OAuth.Discord" />
-        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" />
+        <!--<PackageReference Include="Microsoft.AspNetCore.SpaProxy" />-->
         <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
             <PrivateAssets>all</PrivateAssets>

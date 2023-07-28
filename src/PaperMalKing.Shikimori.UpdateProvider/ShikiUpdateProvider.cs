@@ -29,14 +29,16 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 	private readonly IShikiClient _client;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
+	private readonly ShikiAchievementsService _achievementsService;
 
 	public ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptions<ShikiOptions> options, IShikiClient client,
-							   IDbContextFactory<DatabaseContext> dbContextFactory) : base(logger,
+							   IDbContextFactory<DatabaseContext> dbContextFactory, ShikiAchievementsService achievementsService) : base(logger,
 		TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 	{
 		this._options = options;
 		this._client = client;
 		this._dbContextFactory = dbContextFactory;
+		this._achievementsService = achievementsService;
 	}
 
 	public override string Name => Constants.NAME;
@@ -54,8 +56,8 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 		foreach (var dbUser in db.ShikiUsers.TagWith("Query users for update checking").TagWithCallSite().Where(u =>
 					 u.DiscordUser.Guilds.Any() && ((u.Features & ShikiUserFeatures.AnimeList) != 0 ||
-												    (u.Features & ShikiUserFeatures.MangaList) != 0 ||
-												    (u.Features & ShikiUserFeatures.Favourites) != 0)).OrderBy(_ => EF.Functions.Random()).ToArray())
+													(u.Features & ShikiUserFeatures.MangaList) != 0 ||
+													(u.Features & ShikiUserFeatures.Favourites) != 0)).OrderBy(_ => EF.Functions.Random()).ToArray())
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;
@@ -69,18 +71,26 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 																						  .ConfigureAwait(false),
 				_ => (Array.Empty<FavouriteMediaRoles>(), Array.Empty<FavouriteMediaRoles>(), false)
 			};
-			if (!historyUpdates.Any() && !addedFavourites.Any() && !removedFavourites.Any())
+			var achievementUpdates = dbUser switch
+			{
+				_ when dbUser.Features.HasFlag(ShikiUserFeatures.Achievements) => await this.GetAchievementsUpdatesAsync(dbUser, cancellationToken)
+																							.ConfigureAwait(false),
+				_ => Array.Empty<ShikiAchievement>()
+			};
+			if (!historyUpdates.Any() && !addedFavourites.Any() && !removedFavourites.Any() && !achievementUpdates.Any())
 			{
 				this.Logger.LogDebug("No updates found for {@Id}", dbUser.Id);
 				continue;
 			}
 
-			var totalUpdates = new List<DiscordEmbedBuilder>(historyUpdates.Count + addedFavourites.Count + removedFavourites.Count);
-			dbUser.DiscordUser = db.ShikiUsers.TagWith("Query discord info for user with updates").TagWithCallSite().Include(x=> x.DiscordUser).ThenInclude(x=>x.Guilds).Select(x=>x.DiscordUser).First();
+			var totalUpdates =
+				new List<DiscordEmbedBuilder>(historyUpdates.Count + addedFavourites.Count + removedFavourites.Count + achievementUpdates.Count);
+			dbUser.DiscordUser = db.ShikiUsers.TagWith("Query discord info for user with updates").TagWithCallSite().Include(x => x.DiscordUser)
+								   .ThenInclude(x => x.Guilds).Select(x => x.DiscordUser).First();
 			var user = await this._client.GetUserInfoAsync(dbUser.Id, cancellationToken).ConfigureAwait(false);
 			totalUpdates.AddRange(removedFavourites.Select(rf => rf.ToDiscordEmbed(user, false, dbUser.Features)));
 			totalUpdates.AddRange(addedFavourites.Select(af => af.ToDiscordEmbed(user, true, dbUser.Features)));
-
+			totalUpdates.AddRange(achievementUpdates.Select(au => au.ToDiscordEmbed(user, dbUser.Features)));
 			var groupedHistoryEntriesWithMediaAndRoles = new List<HistoryMediaRoles>(historyUpdates.GroupSimilarHistoryEntries().Select(x =>
 				new HistoryMediaRoles()
 				{
@@ -88,7 +98,8 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				}));
 			if (groupedHistoryEntriesWithMediaAndRoles.Exists(x => x.HistoryEntries.Find(x => x.Target is not null) is not null))
 			{
-				foreach (var historyMediaRole in groupedHistoryEntriesWithMediaAndRoles.Where(x => x.HistoryEntries.Exists(historyEntry => historyEntry.Target is not null)))
+				foreach (var historyMediaRole in groupedHistoryEntriesWithMediaAndRoles.Where(x =>
+							 x.HistoryEntries.Exists(historyEntry => historyEntry.Target is not null)))
 				{
 					var history = historyMediaRole.HistoryEntries.First(x => x.Target is not null);
 					if (dbUser.Features.HasFlag(ShikiUserFeatures.Description) || dbUser.Features.HasFlag(ShikiUserFeatures.Studio) ||
@@ -115,18 +126,18 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				dbUser.LastHistoryEntryId = historyUpdates.Max(h => h.Id);
 			}
 
+			if (dbUser.Features.HasFlag(ShikiUserFeatures.Mention))
+				totalUpdates.ForEach(deb => deb.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
+
+			if (dbUser.Features.HasFlag(ShikiUserFeatures.Website))
+				totalUpdates.ForEach(deb => deb.WithShikiUpdateProviderFooter());
+
 			if (cancellationToken.IsCancellationRequested)
 			{
 				this.Logger.LogInformation("Stopping requested");
 				db.Entry(user).State = EntityState.Unchanged;
 				continue;
 			}
-
-			if (dbUser.Features.HasFlag(ShikiUserFeatures.Mention))
-				totalUpdates.ForEach(deb => deb.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
-
-			if (dbUser.Features.HasFlag(ShikiUserFeatures.Website))
-				totalUpdates.ForEach(deb => deb.WithShikiUpdateProviderFooter());
 
 			try
 			{
@@ -168,14 +179,17 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 					isAnime ? ListEntryType.Anime : ListEntryType.Manga, cancellationToken).ConfigureAwait(false);
 			}
 
-			if (((isManga || isAnime) && (dbUser.Features.HasFlag(ShikiUserFeatures.Description) || dbUser.Features.HasFlag(ShikiUserFeatures.Genres))) ||
-			    (dbUser.Features.HasFlag(ShikiUserFeatures.Publisher) && isManga) || (dbUser.Features.HasFlag(ShikiUserFeatures.Studio) && isAnime))
+			if (((isManga || isAnime) &&
+				 (dbUser.Features.HasFlag(ShikiUserFeatures.Description) || dbUser.Features.HasFlag(ShikiUserFeatures.Genres))) ||
+				(dbUser.Features.HasFlag(ShikiUserFeatures.Publisher) && isManga) || (dbUser.Features.HasFlag(ShikiUserFeatures.Studio) && isAnime))
 			{
 				favouriteMediaRoles.Media = (isManga, isAnime) switch
 				{
-					(true, _) => await this._client.GetMediaAsync<MangaMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Manga, cancellationToken)
+					(true, _) => await this._client
+										   .GetMediaAsync<MangaMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Manga, cancellationToken)
 										   .ConfigureAwait(false),
-					(_, true) => await this._client.GetMediaAsync<AnimeMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Anime, cancellationToken)
+					(_, true) => await this._client
+										   .GetMediaAsync<AnimeMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Anime, cancellationToken)
 										   .ConfigureAwait(false),
 					_ => throw new UnreachableException()
 				};
@@ -212,12 +226,13 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			return (Array.Empty<FavouriteMediaRoles>(), Array.Empty<FavouriteMediaRoles>(), isFavouritesMismatch);
 		}
 
-		var dbFavs = db.ShikiFavourites.TagWith("Query favorites info").TagWithCallSite().Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id).ThenBy(x => x.FavType).Select(f => new FavouriteEntry
-		{
-			Id = f.Id,
-			Name = f.Name,
-			GenericType = f.FavType
-		}).ToArray();
+		var dbFavs = db.ShikiFavourites.TagWith("Query favorites info").TagWithCallSite().Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id)
+					   .ThenBy(x => x.FavType).Select(f => new FavouriteEntry
+					   {
+						   Id = f.Id,
+						   Name = f.Name,
+						   GenericType = f.FavType
+					   }).ToArray();
 		if ((favs.AllFavourites.Count == 0 && dbFavs.Length == 0) || favs.AllFavourites.SequenceEqual(dbFavs))
 		{
 			return (Array.Empty<FavouriteMediaRoles>(), Array.Empty<FavouriteMediaRoles>(), isFavouritesMismatch);
@@ -240,11 +255,44 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 		{
 			await FillMediaAndRoles(favouriteMediaRoles).ConfigureAwait(false);
 		}
+
 		foreach (var favouriteMediaRoles in removedFavourites)
 		{
 			await FillMediaAndRoles(favouriteMediaRoles).ConfigureAwait(false);
 		}
 
 		return (addedFavourites, removedFavourites, isFavouritesMismatch);
+	}
+
+	private async Task<IReadOnlyList<ShikiAchievement>> GetAchievementsUpdatesAsync(ShikiUser dbUser, CancellationToken cancellationToken)
+	{
+		var achievements = await this._client.GetUserAchievementsAsync(dbUser.Id, cancellationToken).ConfigureAwait(false);
+		var result = new List<ShikiAchievement>();
+		foreach (var (id, level) in achievements)
+		{
+			var achievementInfo = this._achievementsService.GetAchievementOrNull(id, level);
+			if (achievementInfo is null)
+			{
+				continue;
+			}
+
+			var acs = dbUser.Achievements.Find(x => x.NekoId == id);
+			if (acs is not null && acs.Level < level)
+			{
+					acs.Level = level;
+					result.Add(achievementInfo);
+			}
+			else if (acs is null)
+			{
+				dbUser.Achievements.Add(new ShikiDbAchievement()
+				{
+					Level = level,
+					NekoId = id
+				});
+				result.Add(achievementInfo);
+			}
+		}
+
+		return result;
 	}
 }

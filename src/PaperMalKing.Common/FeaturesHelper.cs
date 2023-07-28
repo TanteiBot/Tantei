@@ -31,14 +31,11 @@ public static class FeaturesHelper<T> where T : unmanaged, Enum, IComparable, IC
 		Debug.Assert(Enum.GetUnderlyingType(typeof(T)) == typeof(ulong), $"All features must have {nameof(UInt64)} as underlying type");
 
 		return new (Enum.GetValues<T>()
-			.Where(v => v.ToUInt64(provider: null) != 0UL).Select(value =>
+			.Where(v => ti.DeclaredMembers.First(xm => xm.Name == v.ToString()).GetCustomAttribute<FeatureDescriptionAttribute>() is not null).Select(value =>
 			{
+				Debug.Assert( (value.ToUInt64(null) & (value.ToUInt64(null) - 1UL)) == 0UL, $"All features of {nameof(T)} must be a power of 2");
 				var name = value.ToString();
-				var attribute = ti.DeclaredMembers.First(xm => xm.Name == name).GetCustomAttribute<FeatureDescriptionAttribute>();
-				if (attribute == null)
-				{
-					throw new InvalidOperationException($"All features must be marked with {nameof(FeatureDescriptionAttribute)}");
-				}
+				var attribute = ti.DeclaredMembers.First(xm => xm.Name == name).GetCustomAttribute<FeatureDescriptionAttribute>()!;
 
 				return (value, name, attribute.Description, attribute.Summary);
 			}).ToDictionary(x => x.value, x => (EnumValue: x.name, Description: x.Description, Summary: x.Summary)));

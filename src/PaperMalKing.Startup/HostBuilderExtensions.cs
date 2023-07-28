@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
+using System;
+using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +24,7 @@ namespace PaperMalKing.Startup;
 
 public static class HostBuilderExtensions
 {
-	public static IHostBuilder ConfigureBotServices(this IHostBuilder hostbuilder)
+	public static IHostBuilder ConfigureBotServices(this IHostBuilder hostBuilder)
 	{
 		static void RunSQLiteConfiguration()
 		{
@@ -33,14 +35,16 @@ public static class HostBuilderExtensions
 			SQLitePCL.raw.sqlite3_config(2);
 		}
 
-		hostbuilder.ConfigureAppConfiguration(x => x.AddJsonFile("appsetings-shared", optional: true, reloadOnChange: false))
+		hostBuilder.ConfigureAppConfiguration(x => x.AddJsonFile("appsetings-shared", optional: true, reloadOnChange: false))
 				   .ConfigureServices((hostContext, services) =>
 		{
-			services.AddDbContextFactory<DatabaseContext>((services, builder) =>
+			Action<IServiceProvider, DbContextOptionsBuilder> optionsAction = (services, builder) =>
 			{
 				builder.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("Default"),
 					o => o.MigrationsAssembly("PaperMalKing.Database.Migrations")).UseModel(DatabaseContextModel.Instance);
-			});
+			};
+			services.AddDbContextFactory<DatabaseContext>(optionsAction);
+			services.AddDbContext<DatabaseContext>(optionsAction);
 			var config = hostContext.Configuration;
 
 			services.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord));
@@ -73,7 +77,7 @@ public static class HostBuilderExtensions
 			services.AddSingleton<GeneralUserService>();
 			RunSQLiteConfiguration();
 		});
-		return hostbuilder;
+		return hostBuilder;
 	}
 
 	public static IHostBuilder ConfigureBotHost(this IHostBuilder hostBuilder)

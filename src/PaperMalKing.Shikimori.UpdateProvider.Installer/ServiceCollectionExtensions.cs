@@ -2,8 +2,12 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -55,6 +59,14 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton<BaseUserFeaturesService<ShikiUser, ShikiUserFeatures>, ShikiUserFeaturesService>();
 		serviceCollection.AddSingleton<ShikiUserService>();
 		serviceCollection.AddSingleton<IUpdateProvider, ShikiUpdateProvider>();
+		var path = configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json";
+		 ShikiAchievementJsonItem[] achievements = Array.Empty<ShikiAchievementJsonItem>();
+		 if (File.Exists(path))
+		 {
+		 	achievements = JsonSerializer.Deserialize<ShikiAchievementJsonItem[]>(File.ReadAllText(path))!;
+		 }
+		 serviceCollection.AddSingleton<ShikiAchievementsService>(_ => new(achievements));
+
 		return serviceCollection;
 	}
 }

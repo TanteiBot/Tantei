@@ -13,11 +13,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
+using PaperMalKing.Database;
 using PaperMalKing.Startup;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 builder.Services.AddSpaStaticFiles(options => options.RootPath = "wwwroot");
 builder.Services.AddControllersWithViews();
@@ -56,7 +56,7 @@ app.UseAuthorization();
 const string spaPath = "/app";
 if (app.Environment.IsDevelopment())
 {
-	app.MapWhen(y => y.Request.Path.StartsWithSegments(spaPath, StringComparison.Ordinal), client => client.UseSpa(spa => spa.UseProxyToSpaDevelopmentServer("https://localhost:44428")));
+	//Temporarily remove app.MapWhen(y => y.Request.Path.StartsWithSegments(spaPath, StringComparison.Ordinal), client => client.UseSpa(spa => spa.UseProxyToSpaDevelopmentServer("https://localhost:44428")));
 }
 else
 {
