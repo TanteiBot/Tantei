@@ -13,8 +13,6 @@ public enum ShikiUserFeatures : ulong
 {
 	None = 0,
 
-	Default = AnimeList | MangaList | Favourites | Mention | Website | MediaFormat | MediaStatus | Achievements,
-
 	[FeatureDescription("animelist", "Track changes in AnimeList")]
 	AnimeList = 1,
 

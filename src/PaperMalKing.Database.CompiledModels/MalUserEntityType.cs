@@ -51,7 +51,10 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(MalUser).GetField("<Features>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 sentinel: MalUserFeatures.None);
-            features.AddAnnotation("Relational:DefaultValue", MalUserFeatures.Default);
+            features.AddAnnotation("Relational:DefaultValue", MalUserFeatures.AnimeList | MalUserFeatures.MangaList |
+															  MalUserFeatures.Favorites | MalUserFeatures.Mention |
+															  MalUserFeatures.Website | MalUserFeatures.MediaFormat |
+															  MalUserFeatures.MediaStatus);
 
             var lastAnimeUpdateHash = runtimeEntityType.AddProperty(
                 "LastAnimeUpdateHash",
