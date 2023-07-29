@@ -204,11 +204,13 @@ internal static partial class Extensions
 
 	public static DiscordEmbedBuilder ToDiscordEmbed(this ShikiAchievement achievement, UserInfo user, ShikiUserFeatures features)
 	{
+		const string baseUrl = $"{Wrapper.Abstractions.Constants.BASE_URL}/achievements/";
 		return new DiscordEmbedBuilder()
 		{
 			Title = features.HasFlag(ShikiUserFeatures.Russian) ? achievement.TitleRussian : achievement.TitleEnglish,
 			Description = features.HasFlag(ShikiUserFeatures.Russian) ? achievement.TextRussian : achievement.TextEnglish,
-			Color = achievement.BorderColor
+			Color = achievement.BorderColor,
+			Url = baseUrl + achievement.Id
 		}.WithThumbnail(achievement.Image).WithShikiAuthor(user);
 	}
 

@@ -16,8 +16,10 @@ internal sealed class ShikiAchievementsService
 	public ShikiAchievementsService(IReadOnlyCollection<ShikiAchievementJsonItem> achievements)
 	{
 		this._achievements = achievements.ToDictionary(item => (item.Id, item.Level),
-			item => new ShikiAchievement(new Uri(PaperMalKing.Shikimori.Wrapper.Abstractions.Constants.BASE_URL + item.Image, UriKind.Absolute),
-				item.BorderColor is not null ? new (item.BorderColor) : DiscordColor.None, item.TitleRussian, item.TextRussian, item.TitleEnglish, item.TextEnglish)).ToFrozenDictionary(true);
+			item => new ShikiAchievement(item.Id,
+				new Uri(PaperMalKing.Shikimori.Wrapper.Abstractions.Constants.BASE_URL + item.Image, UriKind.Absolute),
+				item.BorderColor is not null ? new(item.BorderColor) : DiscordColor.None, item.TitleRussian, item.TextRussian, item.TitleEnglish,
+				item.TextEnglish)).ToFrozenDictionary(true);
 	}
 
 	public ShikiAchievement? GetAchievementOrNull(string id, byte level) => this._achievements.GetValueOrDefault((id, level));

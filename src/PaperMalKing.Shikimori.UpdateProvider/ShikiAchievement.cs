@@ -7,7 +7,7 @@ using DSharpPlus.Entities;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
-public sealed record ShikiAchievement(Uri Image, DiscordColor BorderColor, string TitleRussian, string? TextRussian, string TitleEnglish,
+public sealed record ShikiAchievement(string Id, Uri Image, DiscordColor BorderColor, string TitleRussian, string? TextRussian, string TitleEnglish,
 									  string? TextEnglish);
 
 public sealed class ShikiAchievementJsonItem
