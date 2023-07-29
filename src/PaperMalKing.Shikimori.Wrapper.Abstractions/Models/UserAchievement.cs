@@ -5,4 +5,4 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 
-public sealed record UserAchievement([property: JsonPropertyName("neko_id")]string Id, [property: JsonPropertyName("level")]byte Level);
+public sealed record UserAchievement([property: JsonPropertyName("neko_id")]string Id, [property: JsonPropertyName("level")]byte Level, [property: JsonPropertyName("progress")] byte Progress);
