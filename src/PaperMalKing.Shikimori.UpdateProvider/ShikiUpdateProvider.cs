@@ -269,7 +269,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 	{
 		var achievements = await this._client.GetUserAchievementsAsync(dbUser.Id, cancellationToken).ConfigureAwait(false);
 		var result = new List<ShikiAchievement>();
-		foreach (var (id, level, _) in achievements)
+		foreach (var (id, level) in achievements)
 		{
 			var achievementInfo = this._achievementsService.GetAchievementOrNull(id, level);
 			if (achievementInfo is null)
