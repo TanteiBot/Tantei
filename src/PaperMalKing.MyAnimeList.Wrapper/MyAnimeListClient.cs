@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -11,7 +13,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp;
 using AngleSharp.Dom;
+using JikanDotNet;
+using JikanDotNet.Exceptions;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
@@ -19,20 +24,26 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
 using PaperMalKing.MyAnimeList.Wrapper.Parsers;
+using AnimeListEntry = PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList.AnimeListEntry;
+using MalUrl = PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.MalUrl;
+using MangaListEntry = PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList.MangaListEntry;
 
 namespace PaperMalKing.MyAnimeList.Wrapper;
 
+[SuppressMessage("Design", "CA1031:Do not catch general exception types")]
 public sealed class MyAnimeListClient : IMyAnimeListClient
 {
 	private readonly HttpClient _unofficialApiHttpClient;
 	private readonly HttpClient _officialApiHttpClient;
+	private readonly IJikan _jikanClient;
 	private readonly ILogger<MyAnimeListClient> _logger;
 
-	public MyAnimeListClient(ILogger<MyAnimeListClient> logger, HttpClient unofficialApiHttpClient, HttpClient officialApiHttpClient)
+	public MyAnimeListClient(ILogger<MyAnimeListClient> logger, HttpClient unofficialApiHttpClient, HttpClient officialApiHttpClient, IJikan jikanClient)
 	{
 		this._logger = logger;
 		this._unofficialApiHttpClient = unofficialApiHttpClient;
 		this._officialApiHttpClient = officialApiHttpClient;
+		this._jikanClient = jikanClient;
 	}
 
 	private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken = default)
@@ -101,6 +112,89 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 
 		return response?.Data ?? Array.Empty<TE>();
 	}
+
+	public async Task<MediaInfo> GetAnimeDetailsAsync(long id,  CancellationToken cancellationToken = default)
+	{
+		this._logger.LogDebug("Requesting {Id} anime details", id);
+		try
+		{
+			var anime = await this._jikanClient.GetAnimeAsync(id, cancellationToken).ConfigureAwait(false);
+			return new MediaInfo()
+			{
+				Demographic = anime.Data.Demographics.Select(static x => x.Name).ToArray(),
+				Themes = anime.Data.Themes.Select(static x => x.Name).ToArray(),
+			};
+		}
+		catch (JikanRequestException jre)
+		{
+			this._logger.LogWarning(jre, "Error happened in Jikan when requesting anime details for {Id}", id);
+		}
+		catch (JikanValidationException jve)
+		{
+			this._logger.LogWarning(jve, "Validation error happened in Jikan when requesting anime details for {Id}", id);
+		}
+		catch (Exception ex)
+		{
+			this._logger.LogWarning(ex, "Some non-predicted error happened in Jikan when requesting anime details for {Id}", id);
+		}
+		return MediaInfo.Empty;
+	}
+
+	public async Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken = default)
+	{
+		this._logger.LogDebug("Requesting {Id} manga details", id);
+		try
+		{
+			var manga = await this._jikanClient.GetMangaAsync(id, cancellationToken).ConfigureAwait(false);
+			return new()
+			{
+				Demographic = manga.Data.Demographics.Select(static x => x.Name).ToArray(),
+				Themes = manga.Data.Themes.Select(static x => x.Name).ToArray(),
+			};
+		}
+		catch (JikanRequestException jre)
+		{
+			this._logger.LogWarning(jre, "Error happened in Jikan when requesting manga details for {Id}", id);
+		}
+		catch (JikanValidationException jve)
+		{
+			this._logger.LogWarning(jve, "Validation error happened in Jikan when requesting manga details for {Id}", id);
+		}
+		catch (Exception ex)
+		{
+			this._logger.LogWarning(ex, "Some non-predicted error happened in Jikan when requesting manga details for {Id}", id);
+		}
+
+		return MediaInfo.Empty;
+	}
+
+	public async Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken = default)
+	{
+		this._logger.LogDebug("Requesting {Id} anime seiyu", id);
+		try
+		{
+			var animeCharacters = await this._jikanClient.GetAnimeCharactersAsync(id, cancellationToken).ConfigureAwait(false);
+			return animeCharacters.Data.SelectMany(x => x.VoiceActors).Where(x => x.Language == "Japanese").Select(x => new SeyuInfo()
+			{
+				Name = x.Person.Name,
+				Url = x.Person.Url
+			}).ToArray();
+		}
+		catch (JikanRequestException jre)
+		{
+			this._logger.LogWarning(jre, "Error happened in Jikan when requesting anime seiyu for {Id}", id);
+		}
+		catch (JikanValidationException jve)
+		{
+			this._logger.LogWarning(jve, "Validation error happened in Jikan when requesting anime seiyu for {Id}", id);
+		}
+		catch (Exception ex)
+		{
+			this._logger.LogWarning(ex, "Some non-predicted error happened in Jikan when requesting anime seiyu for {Id}", id);
+		}
+
+		return Array.Empty<SeyuInfo>();
+	}
 }
 
 internal sealed class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
@@ -110,7 +204,6 @@ internal sealed class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus
 	where TMediaType : unmanaged, Enum
 	where TNodeStatus : unmanaged, Enum
 	where TListStatus : unmanaged, Enum
-
 {
 	[JsonPropertyName("data")]
 	public required T[] Data { get; init; }

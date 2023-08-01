@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
@@ -183,7 +185,7 @@ internal static class Extensions
 		return eb;
 	}
 
-	public static DiscordEmbedBuilder ToDiscordEmbedBuilder<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(this TLe listEntry, User user, MalUserFeatures features) where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
+	public static async Task<DiscordEmbedBuilder> ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(this TLe listEntry, User user, MalUserFeatures features, IMyAnimeListClient client, CancellationToken cancellationToken) where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 																						where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
 																						where TStatus : BaseListEntryStatus<TListStatus>
 																						where TMediaType : unmanaged, Enum
@@ -273,6 +275,13 @@ internal static class Extensions
 			eb.Description = Formatter.MaskedUrl(title, new Uri(listEntry.Node.Url));
 		}
 
+		var mediaInfo = features.HasFlag(MalUserFeatures.Demographic) || features.HasFlag(MalUserFeatures.Themes) ? listEntry switch
+		{
+			MangaListEntry => await client.GetMangaDetailsAsync(listEntry.Node.Id, cancellationToken).ConfigureAwait(false),
+			AnimeListEntry => await client.GetAnimeDetailsAsync(listEntry.Node.Id, cancellationToken).ConfigureAwait(false),
+			_              => throw new UnreachableException()
+		} : MediaInfo.Empty;
+
 		if (features.HasFlag(MalUserFeatures.Tags) && listEntry.Status.Tags?.Count is not null and not 0)
 		{
 			var joinedTags = string.Join(", ", listEntry.Status.Tags);
@@ -288,6 +297,16 @@ internal static class Extensions
 		{
 			var genres = string.Join(", ", listEntry.Node.Genres.Take(7).Select(x => x.Name.ToFirstCharUpperCase()));
 			AddAsFieldOrTruncateToDescription(eb, "Genres", genres);
+		}
+
+		if (features.HasFlag(MalUserFeatures.Themes) && mediaInfo.Themes.Count > 0)
+		{
+			AddAsFieldOrTruncateToDescription(eb, "Themes", string.Join(", ", mediaInfo.Themes.Take(7)));
+		}
+
+		if (features.HasFlag(MalUserFeatures.Demographic) && mediaInfo.Demographic.Count > 0)
+		{
+			AddAsFieldOrTruncateToDescription(eb, "Demographic", string.Join(", ", mediaInfo.Demographic.Take(3)));
 		}
 
 		if (features.HasFlag(MalUserFeatures.Synopsis) && !string.IsNullOrWhiteSpace(listEntry.Node.Synopsis))
@@ -323,6 +342,12 @@ internal static class Extensions
 		{
 			var studios = string.Join(", ", aListEntry.Node.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
 			AddAsFieldOrTruncateToDescription(eb, "Studios", studios);
+		}
+
+		if (features.HasFlag(MalUserFeatures.Seiyu) && listEntry is AnimeListEntry)
+		{
+			var seiyu = await client.GetAnimeSeiyuAsync(listEntry.Node.Id, cancellationToken).ConfigureAwait(false);
+			AddAsFieldOrTruncateToDescription(eb, "Seiyu", string.Join(", ", seiyu.Take(7).Select(x => Formatter.MaskedUrl(x.Name, new(x.Url)))));
 		}
 
 		if (features.HasFlag(MalUserFeatures.Mangakas) && listEntry is MangaListEntry mListEntry &&
