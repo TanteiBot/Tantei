@@ -92,7 +92,7 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 				// User = dbUser
 			}).ToList(),
 			Id = shikiUser.Id,
-			Features = ShikiUserFeatures.Default,
+			Features = ShikiUserFeatures.None.GetDefault(),
 			DiscordUser = dUser,
 			DiscordUserId = userId,
 			LastHistoryEntryId = history.Data.Max(he => he.Id),

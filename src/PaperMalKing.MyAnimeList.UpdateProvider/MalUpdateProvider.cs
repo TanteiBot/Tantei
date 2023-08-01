@@ -197,8 +197,8 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			totalUpdates.AddRange(mangaListUpdates);
 			totalUpdates.AddRange(favoritesUpdates);
 			totalUpdates.SortBy(x => x.Timestamp ?? DateTimeOffset.MinValue);
-			dbUser.DiscordUser = db.MalUsers.TagWith("Query discord info for user with updates").TagWithCallSite().Include(x => x.DiscordUser)
-								   .ThenInclude(x => x.Guilds).Select(x => x.DiscordUser).First();
+			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
+			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
 			if (dbUser.Features.HasFlag(MalUserFeatures.Mention))
 				totalUpdates.ForEach(b => b.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), true));
 			if (dbUser.Features.HasFlag(MalUserFeatures.Website))

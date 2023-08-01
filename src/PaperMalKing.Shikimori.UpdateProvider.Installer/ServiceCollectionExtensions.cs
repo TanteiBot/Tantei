@@ -60,12 +60,21 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton<ShikiUserService>();
 		serviceCollection.AddSingleton<IUpdateProvider, ShikiUpdateProvider>();
 		var path = configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json";
-		 ShikiAchievementJsonItem[] achievements = Array.Empty<ShikiAchievementJsonItem>();
-		 if (File.Exists(path))
-		 {
-		 	achievements = JsonSerializer.Deserialize<ShikiAchievementJsonItem[]>(File.ReadAllText(path))!;
-		 }
-		 serviceCollection.AddSingleton<ShikiAchievementsService>(_ => new(achievements));
+		NekoFileJson file;
+		if (File.Exists(path))
+		{
+			file = JsonSerializer.Deserialize<NekoFileJson>(File.ReadAllText(path))!;
+		}
+		else
+		{
+			file = new NekoFileJson()
+			{
+				Achievements = Array.Empty<ShikiAchievementJsonItem>(),
+				HumanNames = new(0, StringComparer.Ordinal)
+			};
+		}
+
+		serviceCollection.AddSingleton<ShikiAchievementsService>(_ => new(file));
 
 		return serviceCollection;
 	}

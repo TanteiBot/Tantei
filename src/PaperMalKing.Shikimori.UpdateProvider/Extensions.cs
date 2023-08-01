@@ -204,12 +204,20 @@ internal static partial class Extensions
 
 	public static DiscordEmbedBuilder ToDiscordEmbed(this ShikiAchievement achievement, UserInfo user, ShikiUserFeatures features)
 	{
-		return new DiscordEmbedBuilder()
+		const string baseUrl = $"{Wrapper.Abstractions.Constants.BASE_URL}/achievements/";
+		var eb = new DiscordEmbedBuilder()
 		{
 			Title = features.HasFlag(ShikiUserFeatures.Russian) ? achievement.TitleRussian : achievement.TitleEnglish,
 			Description = features.HasFlag(ShikiUserFeatures.Russian) ? achievement.TextRussian : achievement.TextEnglish,
-			Color = achievement.BorderColor
+			Color = achievement.BorderColor,
+			Url = baseUrl + achievement.Id
 		}.WithThumbnail(achievement.Image).WithShikiAuthor(user);
+		if (achievement.HumanName is not null)
+		{
+			eb.AddField(achievement.HumanName, $"Level {achievement.Level:D}");
+		}
+
+		return eb;
 	}
 
 	public static DiscordEmbedBuilder WithShikiUpdateProviderFooter(this DiscordEmbedBuilder eb)
@@ -280,9 +288,9 @@ internal static partial class Extensions
 			}
 		}
 
-		if (features.HasFlag(ShikiUserFeatures.Description))
+		if (features.HasFlag(ShikiUserFeatures.Description) && !string.IsNullOrWhiteSpace(media?.Description))
 		{
-			var text = BracketsRegex().Replace(media!.Description, "").Truncate(350);
+			var text = BracketsRegex().Replace(media.Description, "").Truncate(350);
 			if (!string.IsNullOrEmpty(text))
 			{
 				eb.AddField("Description", text);

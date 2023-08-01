@@ -24,7 +24,7 @@ namespace PaperMalKing.Database.CompiledModels
             var discordUser = DiscordUserEntityType.Create(this);
             var baseMalFavorite = BaseMalFavoriteEntityType.Create(this);
             var malUser = MalUserEntityType.Create(this);
-            var shikiAchievement = ShikiAchievementEntityType.Create(this);
+            var shikiDbAchievement = ShikiDbAchievementEntityType.Create(this);
             var shikiFavourite = ShikiFavouriteEntityType.Create(this);
             var shikiUser = ShikiUserEntityType.Create(this);
             var malFavoriteAnime = MalFavoriteAnimeEntityType.Create(this, baseMalFavorite);
@@ -39,7 +39,7 @@ namespace PaperMalKing.Database.CompiledModels
             AniListUserEntityType.CreateForeignKey1(aniListUser, discordUser);
             DiscordUserEntityType.CreateForeignKey1(discordUser, botUser);
             MalUserEntityType.CreateForeignKey1(malUser, discordUser);
-            ShikiAchievementEntityType.CreateForeignKey1(shikiAchievement, shikiUser);
+            ShikiDbAchievementEntityType.CreateForeignKey1(shikiDbAchievement, shikiUser);
             ShikiFavouriteEntityType.CreateForeignKey1(shikiFavourite, shikiUser);
             ShikiUserEntityType.CreateForeignKey1(shikiUser, discordUser);
             MalFavoriteAnimeEntityType.CreateForeignKey1(malFavoriteAnime, malUser);
@@ -59,7 +59,7 @@ namespace PaperMalKing.Database.CompiledModels
             DiscordUserEntityType.CreateAnnotations(discordUser);
             BaseMalFavoriteEntityType.CreateAnnotations(baseMalFavorite);
             MalUserEntityType.CreateAnnotations(malUser);
-            ShikiAchievementEntityType.CreateAnnotations(shikiAchievement);
+            ShikiDbAchievementEntityType.CreateAnnotations(shikiDbAchievement);
             ShikiFavouriteEntityType.CreateAnnotations(shikiFavourite);
             ShikiUserEntityType.CreateAnnotations(shikiUser);
             MalFavoriteAnimeEntityType.CreateAnnotations(malFavoriteAnime);
@@ -760,23 +760,23 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.CreateColumnMapping(malUsersTable.FindColumn("LastUpdatedMangaListTimestamp")!, malUser.FindProperty("LastUpdatedMangaListTimestamp")!, malUsersTableMapping);
             RelationalModel.CreateColumnMapping(malUsersTable.FindColumn("Username")!, malUser.FindProperty("Username")!, malUsersTableMapping);
 
-            var shikiAchievement = FindEntityType("PaperMalKing.Database.Models.Shikimori.ShikiAchievement")!;
+            var shikiDbAchievement = FindEntityType("PaperMalKing.Database.Models.Shikimori.ShikiDbAchievement")!;
 
             var defaultTableMappings12 = new List<TableMappingBase<ColumnMappingBase>>();
-            shikiAchievement.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings12);
-            var paperMalKingDatabaseModelsShikimoriShikiAchievementTableBase = new TableBase("PaperMalKing.Database.Models.Shikimori.ShikiAchievement", null, relationalModel);
-            var achievementsColumnBase = new JsonColumnBase("Achievements", "TEXT", paperMalKingDatabaseModelsShikimoriShikiAchievementTableBase)
+            shikiDbAchievement.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings12);
+            var paperMalKingDatabaseModelsShikimoriShikiDbAchievementTableBase = new TableBase("PaperMalKing.Database.Models.Shikimori.ShikiDbAchievement", null, relationalModel);
+            var achievementsColumnBase = new JsonColumnBase("Achievements", "TEXT", paperMalKingDatabaseModelsShikimoriShikiDbAchievementTableBase)
             {
                 IsNullable = true
             };
-            paperMalKingDatabaseModelsShikimoriShikiAchievementTableBase.Columns.Add("Achievements", achievementsColumnBase);
-            relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.Shikimori.ShikiAchievement", paperMalKingDatabaseModelsShikimoriShikiAchievementTableBase);
-            var paperMalKingDatabaseModelsShikimoriShikiAchievementMappingBase = new TableMappingBase<ColumnMappingBase>(shikiAchievement, paperMalKingDatabaseModelsShikimoriShikiAchievementTableBase, true);
-            paperMalKingDatabaseModelsShikimoriShikiAchievementTableBase.AddEntityTypeMapping(paperMalKingDatabaseModelsShikimoriShikiAchievementMappingBase, false);
-            defaultTableMappings12.Add(paperMalKingDatabaseModelsShikimoriShikiAchievementMappingBase);
+            paperMalKingDatabaseModelsShikimoriShikiDbAchievementTableBase.Columns.Add("Achievements", achievementsColumnBase);
+            relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.Shikimori.ShikiDbAchievement", paperMalKingDatabaseModelsShikimoriShikiDbAchievementTableBase);
+            var paperMalKingDatabaseModelsShikimoriShikiDbAchievementMappingBase = new TableMappingBase<ColumnMappingBase>(shikiDbAchievement, paperMalKingDatabaseModelsShikimoriShikiDbAchievementTableBase, true);
+            paperMalKingDatabaseModelsShikimoriShikiDbAchievementTableBase.AddEntityTypeMapping(paperMalKingDatabaseModelsShikimoriShikiDbAchievementMappingBase, false);
+            defaultTableMappings12.Add(paperMalKingDatabaseModelsShikimoriShikiDbAchievementMappingBase);
 
             var tableMappings12 = new List<TableMapping>();
-            shikiAchievement.SetRuntimeAnnotation("Relational:TableMappings", tableMappings12);
+            shikiDbAchievement.SetRuntimeAnnotation("Relational:TableMappings", tableMappings12);
             var shikiUsersTable = new Table("ShikiUsers", null, relationalModel);
             var idColumn2 = new Column("Id", "INTEGER", shikiUsersTable);
             shikiUsersTable.Columns.Add("Id", idColumn2);
@@ -818,14 +818,14 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.GetOrCreateTableIndexes(iX_ShikiUsers_FeaturesIx).Add(iX_ShikiUsers_Features);
             shikiUsersTable.Indexes.Add("IX_ShikiUsers_Features", iX_ShikiUsers_Features);
             relationalModel.Tables.Add(("ShikiUsers", null), shikiUsersTable);
-            var shikiUsersTableMapping = new TableMapping(shikiAchievement, shikiUsersTable, true)
+            var shikiUsersTableMapping = new TableMapping(shikiDbAchievement, shikiUsersTable, true)
             {
                 IsSharedTablePrincipal = false,
             };
             shikiUsersTable.AddEntityTypeMapping(shikiUsersTableMapping, true);
             tableMappings12.Add(shikiUsersTableMapping);
-            shikiUsersTable.AddRowInternalForeignKey(shikiAchievement, RelationalModel.GetForeignKey(this,
-                "PaperMalKing.Database.Models.Shikimori.ShikiAchievement",
+            shikiUsersTable.AddRowInternalForeignKey(shikiDbAchievement, RelationalModel.GetForeignKey(this,
+                "PaperMalKing.Database.Models.Shikimori.ShikiDbAchievement",
                 new[] { "ShikiUserId" },
                 "PaperMalKing.Database.Models.Shikimori.ShikiUser",
                 new[] { "Id" }));

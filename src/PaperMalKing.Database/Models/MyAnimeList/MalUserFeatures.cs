@@ -13,8 +13,6 @@ public enum MalUserFeatures : ulong
 {
 	None = 0,
 
-	Default = AnimeList | MangaList | Favorites | Mention | Website | MediaFormat | MediaStatus,
-
 	[FeatureDescription("animelist", "Track changes in AnimeList")]
 	AnimeList = 1,
 

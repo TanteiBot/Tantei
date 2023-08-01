@@ -2,13 +2,20 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using DSharpPlus.Entities;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
-public sealed record ShikiAchievement(Uri Image, DiscordColor BorderColor, string TitleRussian, string? TextRussian, string TitleEnglish,
-									  string? TextEnglish);
+public sealed record ShikiAchievement(string Id, byte Level, Uri Image, DiscordColor BorderColor, string TitleRussian, string? TextRussian, string TitleEnglish,
+									  string? TextEnglish, string? HumanName);
+
+public sealed class NekoFileJson
+{
+	public required Dictionary<string, string> HumanNames { get; init; }
+	public required IReadOnlyList<ShikiAchievementJsonItem> Achievements { get; init; }
+}
 
 public sealed class ShikiAchievementJsonItem
 {

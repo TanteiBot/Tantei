@@ -48,16 +48,6 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			return;
 		}
 
-		static bool FilterInactiveUsers(AniListUser user)
-		{
-			var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-			if (now - Math.Max(user.LastReviewTimestamp, user.LastActivityTimestamp) > TimeSpan.FromDays(5).TotalSeconds)
-			{
-				return now % 3 == 0;
-			}
-
-			return false;
-		}
 		using var db = this._dbContextFactory.CreateDbContext();
 		var users = db.AniListUsers.TagWith("Query users for update checking").TagWithCallSite().Where(u =>
 						  u.DiscordUser.Guilds.Any() && ((u.Features & AniListUserFeatures.AnimeList) != 0 ||
@@ -69,11 +59,6 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		{
 			if (cancellationToken.IsCancellationRequested)
 				break;
-			if (FilterInactiveUsers(dbUser))
-			{
-				this.Logger.LogDebug("Skipping update for {UserId}, because his last update was at {Timestamp}", dbUser.Id, DateTimeOffset.FromUnixTimeSeconds(Math.Max(dbUser.LastActivityTimestamp, dbUser.LastReviewTimestamp)));
-				continue;
-			}
 			using var perUserCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 			perUserCancellationTokenSource.CancelAfter(TimeSpan.FromMinutes(3));
 			var perUserCancellationToken = perUserCancellationTokenSource.Token;
@@ -123,8 +108,8 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				continue;
 			}
 
-			dbUser.DiscordUser = db.AniListUsers.TagWith("Query discord info for user with updates").TagWithCallSite().Where(x => x.Id == dbUser.Id)
-								   .Include(x => x.DiscordUser).ThenInclude(x => x.Guilds).Select(x => x.DiscordUser).First();
+			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
+			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
 			var lastActivityTimestamp = recentUserUpdates.Activities.Count > 0 ? recentUserUpdates.Activities.Max(a => a.CreatedAtTimestamp) : 0L;
 			var lastReviewTimeStamp = recentUserUpdates.Reviews.Count > 0 ? recentUserUpdates.Reviews.Max(r => r.CreatedAtTimeStamp) : 0L;
 			if (dbUser.LastActivityTimestamp < lastActivityTimestamp) dbUser.LastActivityTimestamp = lastActivityTimestamp;

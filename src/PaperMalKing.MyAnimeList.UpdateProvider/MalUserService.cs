@@ -66,7 +66,7 @@ internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 			throw new UserProcessingException(BaseUser.Empty, "You must provide username if you arent already tracked by this bot");
 		}
 		var duser = db.DiscordUsers.TagWith("Query discord user to link AniList user to it").TagWithCallSite().Include(x => x.Guilds).FirstOrDefault(user => user.DiscordUserId == userId);
-		var mUser = await this._client.GetUserAsync(username, MalUserFeatures.Default.ToParserOptions()).ConfigureAwait(false);
+		var mUser = await this._client.GetUserAsync(username, MalUserFeatures.None.GetDefault().ToParserOptions()).ConfigureAwait(false);
 		var now = DateTimeOffset.Now;
 		if (duser is null)
 		{
