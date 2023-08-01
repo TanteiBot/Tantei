@@ -13,6 +13,8 @@ internal static class Constants
 
 	public const string UnOfficialApiHttpClientName = $"Un{OfficialApiHttpClientName}";
 
+	public const string JikanHttpClientName = "Jikan";
+
 	public const string OfficialApiHeaderName = "X-MAL-CLIENT-ID";
 
 	public static readonly DiscordColor MalGreen = new("#2db039");

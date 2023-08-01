@@ -19,7 +19,7 @@ public static class RateLimiterFactory
 			Window = TimeSpan.FromMilliseconds(rateLimit.PeriodInMilliseconds),
 			AutoReplenishment = true,
 			PermitLimit = rateLimit.AmountOfRequests,
-			QueueLimit = 100,
+			QueueLimit = 200,
 			QueueProcessingOrder = QueueProcessingOrder.OldestFirst
 		}));
 	}

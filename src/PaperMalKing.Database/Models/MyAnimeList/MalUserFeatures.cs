@@ -53,5 +53,14 @@ public enum MalUserFeatures : ulong
 	Comments = 1 << 12,
 
 	[FeatureDescription("dates", "Show start and finish dates of list entry")]
-	Dates = 1 << 13
+	Dates = 1 << 13,
+
+	[FeatureDescription("themes", "Show themes of media in update")]
+	Themes = 1 << 14,
+
+	[FeatureDescription("demographic", "Show demographic of media in update")]
+	Demographic = 1 << 15,
+
+	[FeatureDescription("seiyu", "Show seiyu of anime in update")]
+	Seiyu = 1 << 16
 }

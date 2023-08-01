@@ -27,4 +27,8 @@ public interface IMyAnimeListClient
 		where TMediaType : unmanaged, Enum
 		where TNodeStatus : unmanaged, Enum
 		where TListStatus : unmanaged, Enum;
+
+	Task<MediaInfo> GetAnimeDetailsAsync(long id,  CancellationToken cancellationToken = default);
+	Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken = default);
+	Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken = default);
 }

@@ -86,8 +86,15 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var newLatestUpdateTimeStamp = listUpdates.MaxBy(x => x.Status.UpdatedAt)!.Status.UpdatedAt;
 			dbUpdateAction(dbUser, user, newLatestUpdateTimeStamp);
 
-			return listUpdates.Where(x => x.Status.UpdatedAt > latestUpdateDateTime).Select(x =>
-				x.ToDiscordEmbedBuilder<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(user, dbUser.Features)).ToArray();
+			var result = new List<DiscordEmbedBuilder>();
+			foreach (var baseListEntry in listUpdates.Where(x => x.Status.UpdatedAt > latestUpdateDateTime))
+			{
+				var eb = await baseListEntry.ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(user, dbUser.Features, this._client,
+					cancellationToken).ConfigureAwait(false);
+				result.Add(eb);
+			}
+
+			return result;
 		}
 
 		static bool FilterInactiveUsers(MalUser x)

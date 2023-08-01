@@ -4,6 +4,8 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using JikanDotNet;
+using JikanDotNet.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -35,7 +37,7 @@ public static class ServiceCollectionExtensions
 						 {
 							 client.DefaultRequestHeaders.UserAgent.Clear();
 							 client.DefaultRequestHeaders.UserAgent.ParseAdd(
-								 "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0");
+								 "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36");
 						 });
 		serviceCollection.AddHttpClient(Constants.OfficialApiHttpClientName).AddPolicyHandler(retryPolicy)
 						 .ConfigurePrimaryHttpMessageHandler(_ => HttpClientHandlerFactory()).AddHttpMessageHandler(GetRateLimiterHandler)
@@ -44,12 +46,29 @@ public static class ServiceCollectionExtensions
 							 var options = provider.GetRequiredService<IOptions<MalOptions>>().Value;
 							 client.DefaultRequestHeaders.Add(Constants.OfficialApiHeaderName, options.ClientId);
 						 });
+		serviceCollection.AddHttpClient(Constants.JikanHttpClientName).AddPolicyHandler(retryPolicy)
+						 .ConfigurePrimaryHttpMessageHandler(_ => HttpClientHandlerFactory()).AddHttpMessageHandler(_ =>
+						 {
+							 var rl = new RateLimit(60, TimeSpan.FromMinutes(1.2d)); // 60rpm with 0.2 as inaccuracy
+							 return RateLimiterFactory.Create<IJikan>(rl).ToHttpMessageHandler();
+						 }).AddHttpMessageHandler(_ =>
+						 {
+							 var rl = new RateLimit(3, TimeSpan.FromSeconds(1.5)); // 3rps with 0.5 as inaccuracy
+							 return RateLimiterFactory.Create<IJikan>(rl).ToHttpMessageHandler();
+						 })
+						 .ConfigureHttpClient(client => client.BaseAddress = new Uri("https://api.jikan.moe/v4/"));
+		serviceCollection.AddSingleton<IJikan>(provider => new Jikan(new JikanClientConfiguration()
+		{
+			SuppressException = false,
+			LimiterConfigurations = TaskLimiterConfiguration.None // We use System.Threading.RateLimiting
+		}, provider.GetRequiredService<IHttpClientFactory>().CreateClient(Constants.JikanHttpClientName)));
 		serviceCollection.AddSingleton<IMyAnimeListClient, MyAnimeListClient>(provider =>
 		{
 			var factory = provider.GetRequiredService<IHttpClientFactory>();
 			var logger = provider.GetRequiredService<ILogger<MyAnimeListClient>>();
+			var jikan = provider.GetRequiredService<IJikan>();
 			return new(logger, unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName),
-				officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName));
+				officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName), jikanClient: jikan);
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<MalUser, MalUserFeatures>, MalUserFeaturesService>();
 		serviceCollection.AddSingleton<MalUserService>();
