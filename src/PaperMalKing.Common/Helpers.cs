@@ -5,11 +5,13 @@ using System;
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Security.Cryptography;
 
 namespace PaperMalKing.Common;
 
 #pragma warning disable CA1724
+//The type name Helpers conflicts in whole or in part with the namespace name 'CommunityToolkit.HighPerformance.Helpers'. Change either name to eliminate the conflict.
 public static class Helpers
 #pragma warning restore CA1724
 {
@@ -48,9 +50,12 @@ public static class Helpers
 		}
 
 		Debug.Assert(incrementalHash.HashLengthInBytes == shaHashDestination.Length);
-		incrementalHash.GetCurrentHash(shaHashDestination);
+		_ = incrementalHash.GetCurrentHash(shaHashDestination);
 		return FormatHash(ids.Length, shaHashDestination);
 	}
 
-	private static string FormatHash(int length, Span<byte> shaHashDestination) => $"{length}:{Convert.ToHexString(shaHashDestination)}";
+	private static string FormatHash(int length, Span<byte> shaHashDestination)
+	{
+		return string.Create(CultureInfo.InvariantCulture, $"{length}:{Convert.ToHexString(shaHashDestination)}");
+	}
 }

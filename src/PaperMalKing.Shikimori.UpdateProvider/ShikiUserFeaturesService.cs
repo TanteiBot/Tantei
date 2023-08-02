@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,15 +28,10 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 	public override async Task EnableFeaturesAsync(ShikiUserFeatures feature, ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		var dbUser = db.ShikiUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == userId);
-		if (dbUser is null)
-		{
-			throw new UserFeaturesException("You must register first before enabling features");
-		}
-
+		var dbUser = db.ShikiUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == userId) ?? throw new UserFeaturesException("You must register first before enabling features");
 		if (dbUser.Features.HasFlag(feature))
 		{
-			throw new UriFormatException("You already have this feature enabled");
+			throw new UserFeaturesException("You already have this feature enabled");
 		}
 
 		var lastHistoryEntry = new uint?();
@@ -62,7 +56,7 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 					Id = fe.Id,
 					Name = fe.Name,
 					FavType = fe.GenericType!,
-					User = dbUser
+					User = dbUser,
 				}).ToList();
 				break;
 			}
@@ -72,7 +66,7 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 				dbUser.Achievements = achievements.Select(x => new ShikiDbAchievement
 				{
 					NekoId = x.Id,
-					Level = x.Level
+					Level = x.Level,
 				}).ToList();
 				break;
 			}

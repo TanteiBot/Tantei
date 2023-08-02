@@ -55,7 +55,7 @@ public abstract class BaseUpdateProviderUserService<TUser> where TUser : class, 
 																Expression<Func<TUser, BaseUser>> selector)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		return db.Set<TUser>().TagWith("Query users in a guild").TagWithCallSite().Include(x => x.DiscordUser).ThenInclude(x => x.Guilds).OrderBy(orderExpression)
-				 .Where(x => x.DiscordUser.Guilds.Any(guild => guild.DiscordGuildId == guildId)).Select(selector).ToArray();
+		return db.Set<TUser>().TagWith("Query users in a guild").TagWithCallSite().Include(x => x.DiscordUser).ThenInclude(x => x.Guilds)
+				 .Where(x => x.DiscordUser.Guilds.Any(guild => guild.DiscordGuildId == guildId)).OrderBy(orderExpression).Select(selector).ToArray();
 	}
 }

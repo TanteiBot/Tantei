@@ -79,7 +79,7 @@ public sealed class DatabaseContext : DbContext
 			{
 				k.Id,
 				k.UserId,
-				k.FavoriteType
+				k.FavoriteType,
 			});
 			bmf.HasDiscriminator(x=>x.FavoriteType)
 			   .HasValue<MalFavoriteAnime>(MalFavoriteType.Anime)
@@ -115,7 +115,7 @@ public sealed class DatabaseContext : DbContext
 			{
 				k.Id,
 				k.FavType,
-				k.UserId
+				k.UserId,
 			});
 			sf.HasIndex(p => p.UserId);
 		});
@@ -136,7 +136,7 @@ public sealed class DatabaseContext : DbContext
 			{
 				k.Id,
 				k.FavouriteType,
-				k.UserId
+				k.UserId,
 			});
 			af.HasIndex(x => x.UserId);
 		});

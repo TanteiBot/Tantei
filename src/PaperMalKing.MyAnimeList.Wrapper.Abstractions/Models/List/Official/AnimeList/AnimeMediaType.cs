@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2022 N0D4N
-
+// Copyright (C) 2021-2023 N0D4N
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 
@@ -21,5 +20,5 @@ public enum AnimeMediaType : byte
 	[Description("ONA")]
 	ona = 5,
 	[Description("Music")]
-	music = 6
+	music = 6,
 }

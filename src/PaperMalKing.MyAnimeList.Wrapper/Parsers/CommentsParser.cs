@@ -10,6 +10,6 @@ internal static class CommentsParser
 	public static string Parse(IDocument document)
 	{
 		var text = document.QuerySelector("#content > div.borderClass > div > a")!.GetAttribute("href")!;
-		return text.Substring(text.LastIndexOf('/') + 1);
+		return text[(text.LastIndexOf('/') + 1)..];
 	}
 }

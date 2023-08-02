@@ -162,7 +162,7 @@ internal sealed class DiscordBackgroundService : BackgroundService
 
 	private (DiscordActivity, UserStatus) OptionsToDiscordActivity(DiscordOptions.DiscordActivityOptions options)
 	{
-		if (!Enum.TryParse(options.ActivityType, true, out ActivityType activityType))
+		if (!Enum.TryParse(options.ActivityType, ignoreCase: true, out ActivityType activityType))
 		{
 			var correctActivities = string.Join(", ", Enum.GetValues<ActivityType>());
 			this._logger.LogError("Couldn't parse correct ActivityType from {ActivityType}, correct values are {CorrectActivities}",
@@ -170,7 +170,7 @@ internal sealed class DiscordBackgroundService : BackgroundService
 			activityType = ActivityType.Playing;
 		}
 
-		if (!Enum.TryParse(options.Status, true, out UserStatus status))
+		if (!Enum.TryParse(options.Status, ignoreCase: true, out UserStatus status))
 		{
 			var correctStatuses = string.Join(", ", Enum.GetValues<UserStatus>());
 			this._logger.LogError("Couldn't parse correct UserStatus from {Status}, correct values are {CorrectStatuses}", options.Status,

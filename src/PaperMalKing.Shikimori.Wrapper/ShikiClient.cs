@@ -29,7 +29,7 @@ public sealed class ShikiClient : IShikiClient
 		this._logger = logger;
 	}
 
-	public async Task<User> GetUserAsync(string nickname, CancellationToken cancellationToken = default)
+	public async Task<UserInfo> GetUserAsync(string nickname, CancellationToken cancellationToken = default)
 	{
 		this._logger.LogDebug("Requesting {@Nickname} profile", nickname);
 
@@ -41,13 +41,13 @@ public sealed class ShikiClient : IShikiClient
 			Content = new MultipartFormDataContent()
 			{
 				#pragma warning disable CA2000
-				{ new StringContent("1"), "is_nickname" }
+				{ new StringContent("1"), "is_nickname" },
 				#pragma warning restore CA2000
-			}
+			},
 		};
 
 		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-		return (await response.Content.ReadFromJsonAsync(JsonSGContext.Default.User, cancellationToken).ConfigureAwait(false))!;
+		return (await response.Content.ReadFromJsonAsync(JsonSGContext.Default.UserInfo, cancellationToken).ConfigureAwait(false))!;
 	}
 
 	public async Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default)
@@ -69,14 +69,14 @@ public sealed class ShikiClient : IShikiClient
 		using var content = new MultipartFormDataContent
 		{
 			{ new StringContent(page.ToString(CultureInfo.InvariantCulture)), "page" },
-			{ new StringContent(limit.ToString(CultureInfo.InvariantCulture)), "limit" }
+			{ new StringContent(limit.ToString(CultureInfo.InvariantCulture)), "limit" },
 		};
 		if (options != HistoryRequestOptions.Any) content.Add(new StringContent(options.ToString()), "target_type");
 		#pragma warning restore CA2000
 
 		using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 		{
-			Content = content
+			Content = content,
 		};
 		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 
@@ -119,9 +119,9 @@ public sealed class ShikiClient : IShikiClient
 			Content = new MultipartFormDataContent()
 			{
 				#pragma warning disable CA2000
-				{ new StringContent(userId.ToString("D", CultureInfo.InvariantCulture)), "user_id" }
+				{ new StringContent(userId.ToString("D", CultureInfo.InvariantCulture)), "user_id" },
 				#pragma warning restore CA2000
-			}
+			},
 		};
 		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait(false);
 		var achievements = (await response.Content.ReadFromJsonAsync(JsonSGContext.Default.UserAchievementArray, cancellationToken)

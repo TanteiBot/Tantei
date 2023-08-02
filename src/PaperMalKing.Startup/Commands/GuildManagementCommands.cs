@@ -1,13 +1,13 @@
-﻿//
-
+﻿// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2021-2023 N0D4N
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
-using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
 using PaperMalKing.Startup.Exceptions;
@@ -23,28 +23,25 @@ namespace PaperMalKing.Startup.Commands;
 [GuildOnly, SlashRequireGuild]
 internal sealed class GuildManagementCommands : BotCommandsModule
 {
-	private readonly ILogger<GuildManagementCommands> _logger;
-
 	private readonly GuildManagementService _managementService;
 	private readonly GeneralUserService _userService;
 
-	public GuildManagementCommands(ILogger<GuildManagementCommands> logger, GuildManagementService managementService, GeneralUserService userService)
+	public GuildManagementCommands(GuildManagementService managementService, GeneralUserService userService)
 	{
-		this._logger = logger;
 		this._managementService = managementService;
 		this._userService = userService;
 	}
 
 	[SlashCommand("set", "Sets channel to post updates to")]
 	public async Task SetChannelCommand(InteractionContext context,
-										[Option(nameof(channel), "Channel updates should be posted", autocomplete: false)] DiscordChannel? channel = null)
+										[Option(nameof(channel), "Channel updates should be posted", autocomplete: false)] DiscordChannel? channel =
+											null)
 	{
-		if (channel is null)
-			channel = context.Channel;
+		channel ??= context.Channel;
 		if (channel.IsCategory || channel.IsThread)
 		{
 			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"))
-										.ConfigureAwait(false);
+						 .ConfigureAwait(false);
 			return;
 		}
 
@@ -75,12 +72,11 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 	public async Task UpdateChannelCommand(InteractionContext context,
 										   [Option(nameof(channel), "New channel where updates should be posted")] DiscordChannel? channel = null)
 	{
-		if (channel is null)
-			channel = context.Channel;
+		channel ??= context.Channel;
 		if (channel.IsCategory || channel.IsThread)
 		{
 			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"))
-										.ConfigureAwait(false);
+						 .ConfigureAwait(false);
 			return;
 		}
 
@@ -140,11 +136,12 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 			throw;
 		}
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully removed {userId} this server from being tracked"))
-					 .ConfigureAwait(false);
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed(string.Create(CultureInfo.InvariantCulture,
+			$"Successfully removed {userId} this server from being tracked"))).ConfigureAwait(false);
 	}
 
 	[SlashCommand("forceremoveuser", "Remove this user from being tracked in this server")]
-	public Task ForceRemoveUserCommand(InteractionContext context, [Option(nameof(user), "Discord user to remove from being tracked")] DiscordUser user) =>
+	public Task ForceRemoveUserCommand(InteractionContext context,
+									   [Option(nameof(user), "Discord user to remove from being tracked")] DiscordUser user) =>
 		this.ForceRemoveUserCommand(context, (long)user.Id);
 }

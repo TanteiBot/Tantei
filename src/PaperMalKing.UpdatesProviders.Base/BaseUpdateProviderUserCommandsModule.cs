@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.SlashCommands;
@@ -106,7 +107,8 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 					break;
 				}
 
-				sb.AppendLine($"{i++}. {user.Username} {(user.DiscordUser is null ? "" : Helpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
+				sb.AppendLine(CultureInfo.InvariantCulture,
+					$"{i++}. {user.Username} {(user.DiscordUser is null ? "" : Helpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
 			}
 		}
 		catch (Exception ex)

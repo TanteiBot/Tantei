@@ -33,11 +33,7 @@ public sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<Fav
 
 	public bool Equals(FavouriteEntry? other)
 	{
-		if (ReferenceEquals(null, other))
-			return false;
-		if (ReferenceEquals(this, other))
-			return true;
-		return string.Equals(this.GenericType, other.GenericType, StringComparison.Ordinal) && this.Id == other.Id;
+		return other is not null && (ReferenceEquals(this, other) || (string.Equals(this.GenericType, other.GenericType, StringComparison.Ordinal) && this.Id == other.Id));
 	}
 
 	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is FavouriteEntry other && this.Equals(other));
@@ -58,32 +54,17 @@ public sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<Fav
 			return 0;
 		}
 
-		if (ReferenceEquals(null, other))
+		if (other is null)
 		{
 			return 1;
 		}
 
 		var genericTypeComparison = string.CompareOrdinal(this.GenericType, other.GenericType);
-		if (genericTypeComparison != 0)
-		{
-			return genericTypeComparison;
-		}
-
-		return this.Id.CompareTo(other.Id);
+		return genericTypeComparison != 0 ? genericTypeComparison : this.Id.CompareTo(other.Id);
 	}
 
 	public int CompareTo(object? obj)
 	{
-		if (ReferenceEquals(null, obj))
-		{
-			return 1;
-		}
-
-		if (ReferenceEquals(this, obj))
-		{
-			return 0;
-		}
-
 		return obj is FavouriteEntry other ? this.CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(FavouriteEntry)}", nameof(obj));
 	}
 

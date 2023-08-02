@@ -32,7 +32,6 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 {
 	private readonly IMyAnimeListClient _client;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
-	private readonly IOptions<MalOptions> _options;
 
 	public override string Name => Constants.Name;
 
@@ -40,7 +39,6 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 							 IDbContextFactory<DatabaseContext> dbContextFactory) : base(logger,
 		TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 	{
-		this._options = options;
 		this._client = client;
 		this._dbContextFactory = dbContextFactory;
 	}
@@ -117,10 +115,11 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 		using var db = this._dbContextFactory.CreateDbContext();
 
-		var users = db.MalUsers.TagWith("Query users for update checking").TagWithCallSite().Where(user => user.DiscordUser.Guilds.Any()).Where(user =>
+		var users = db.MalUsers.TagWith("Query users for update checking").TagWithCallSite().Where(user =>
+						  user.DiscordUser.Guilds.Any() &&
 						  // Is bitwise to allow executing on server
-						  (user.Features & MalUserFeatures.AnimeList) != 0 || (user.Features & MalUserFeatures.MangaList) != 0 ||
-						  (user.Features & MalUserFeatures.Favorites) != 0).OrderBy(_ => EF.Functions.Random())
+						  ((user.Features & MalUserFeatures.AnimeList) != 0 || (user.Features & MalUserFeatures.MangaList) != 0 ||
+						  (user.Features & MalUserFeatures.Favorites) != 0)).OrderBy(_ => EF.Functions.Random())
 					  .ToArray();
 		foreach (var dbUser in users)
 		{
@@ -166,7 +165,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				return;
 			}
 
-			var isFavoritesHashMismatch = dbUser.FavoritesIdHash != Helpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites());
+			var isFavoritesHashMismatch = !string.Equals(dbUser.FavoritesIdHash, Helpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()), StringComparison.Ordinal);
 			var favoritesUpdates = dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch
 				? this.CheckFavoritesUpdates(dbUser, user, db)
 				: ReadOnlyCollection<DiscordEmbedBuilder>.Empty;
@@ -174,7 +173,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var animeListUpdates = dbUser.Features.HasFlag(MalUserFeatures.AnimeList)
 				? user.HasPublicAnimeUpdates switch
 				{
-					true when dbUser.LastAnimeUpdateHash != user.LatestAnimeUpdateHash => await CheckLatestListUpdatesAsync<AnimeListEntry,
+					true when !string.Equals(dbUser.LastAnimeUpdateHash, user.LatestAnimeUpdateHash, StringComparison.Ordinal) => await CheckLatestListUpdatesAsync<AnimeListEntry,
 						AnimeListType, AnimeFieldsToRequest, AnimeListEntryNode, AnimeListEntryStatus, AnimeMediaType, AnimeAiringStatus,
 						AnimeListStatus>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp, DbAnimeUpdateAction, ct).ConfigureAwait(false),
 					_ => Array.Empty<DiscordEmbedBuilder>()
@@ -184,7 +183,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var mangaListUpdates = dbUser.Features.HasFlag(MalUserFeatures.MangaList)
 				? user.HasPublicMangaUpdates switch
 				{
-					true when dbUser.LastMangaUpdateHash != user.LatestMangaUpdateHash => await CheckLatestListUpdatesAsync<MangaListEntry,
+					true when !string.Equals(dbUser.LastMangaUpdateHash, user.LatestMangaUpdateHash, StringComparison.Ordinal) => await CheckLatestListUpdatesAsync<MangaListEntry,
 						MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus, MangaMediaType, MangaPublishingStatus,
 						MangaListStatus>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp, DbMangaUpdateAction, ct).ConfigureAwait(false),
 					_ => Array.Empty<DiscordEmbedBuilder>()
@@ -207,7 +206,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
 			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
 			if (dbUser.Features.HasFlag(MalUserFeatures.Mention))
-				totalUpdates.ForEach(b => b.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), true));
+				totalUpdates.ForEach(b => b.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), inline: true));
 			if (dbUser.Features.HasFlag(MalUserFeatures.Website))
 				totalUpdates.ForEach(b => b.WithMalUpdateProviderFooter());
 
@@ -220,7 +219,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 			try
 			{
-				if (db.SaveChanges() <= 0) throw new Exception("Couldn't save update in Db");
+				if (db.SaveChanges() <= 0) throw new NoChangesSavedException(db);
 				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				this.Logger.LogDebug("Ended checking updates for {@Username} with {@Updates} updates found", dbUser.Username, totalUpdates.Count);
 				if (isFavoritesHashMismatch)
@@ -273,7 +272,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			for (var i = 0; i < addedValues.Count; i++)
 			{
 				var fav = cResulting.First(favorite => favorite.Id == addedValues[i].Id);
-				var deb = fav.ToDiscordEmbedBuilder(true);
+				var deb = fav.ToDiscordEmbedBuilder(added: true);
 				deb.WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl);
 				result.Add(deb);
 			}
@@ -283,7 +282,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			{
 				var fav = dbEntries.First(favorite => favorite.Id == removedValues[i].Id);
 				toRm[i] = fav;
-				var deb = fav.ToDiscordEmbedBuilder(false);
+				var deb = fav.ToDiscordEmbedBuilder(added: false);
 				deb.WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl);
 				result.Add(deb);
 			}

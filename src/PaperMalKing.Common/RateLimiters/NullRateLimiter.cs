@@ -1,16 +1,9 @@
-// Tantei.
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as
-// published by the Free Software Foundation, either version 3 of the
-// License, or (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.RateLimiting;
 using System.Threading.Tasks;
@@ -24,7 +17,7 @@ internal sealed class NullRateLimiter : RateLimiter
 		CurrentAvailablePermits = 0,
 		CurrentQueuedCount = 0,
 		TotalFailedLeases = 0,
-		TotalSuccessfulLeases = 0
+		TotalSuccessfulLeases = 0,
 	};
 
 	public static NullRateLimiter Instance { get; }= new();
@@ -43,6 +36,7 @@ internal sealed class NullRateLimiter : RateLimiter
 
 	private sealed class NullRateLimitLease : RateLimitLease
 	{
+		[SuppressMessage("Critical Code Smell", "S3218:Inner class members should not shadow outer class \"static\" or type members")]
 		public static readonly NullRateLimitLease Instance = new();
 
 		private NullRateLimitLease()

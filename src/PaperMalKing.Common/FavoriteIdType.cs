@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System;
 
@@ -9,17 +9,7 @@ public sealed class FavoriteIdType : IComparable<FavoriteIdType>, IEquatable<Fav
 {
 	public bool Equals(FavoriteIdType? other)
 	{
-		if (ReferenceEquals(null, other))
-		{
-			return false;
-		}
-
-		if (ReferenceEquals(this, other))
-		{
-			return true;
-		}
-
-		return this.Id == other.Id && this.Type == other.Type;
+		return other is not null && (ReferenceEquals(this, other) || (this.Id == other.Id && this.Type == other.Type));
 	}
 
 	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is FavoriteIdType other && this.Equals(other));
@@ -43,27 +33,17 @@ public sealed class FavoriteIdType : IComparable<FavoriteIdType>, IEquatable<Fav
 			return 0;
 		}
 
-		if (ReferenceEquals(null, other))
+		if (other is null)
 		{
 			return 1;
 		}
 
 		var idComparison = this.Id.CompareTo(other.Id);
-		if (idComparison != 0)
-		{
-			return idComparison;
-		}
-
-		return this.Type.CompareTo(other.Type);
+		return idComparison != 0 ? idComparison : this.Type.CompareTo(other.Type);
 	}
 
 	public int CompareTo(object? obj)
 	{
-		if (obj == null)
-		{
-			return 1;
-		}
-
 		if (obj is FavoriteIdType x)
 		{
 			return this.CompareTo(x);
@@ -74,22 +54,22 @@ public sealed class FavoriteIdType : IComparable<FavoriteIdType>, IEquatable<Fav
 
 	public static bool operator <(FavoriteIdType left, FavoriteIdType right)
 	{
-		return ReferenceEquals(left, null) ? !ReferenceEquals(right, null) : left.CompareTo(right) < 0;
+		return left is null ? right is not null : left.CompareTo(right) < 0;
 	}
 
 	public static bool operator <=(FavoriteIdType left, FavoriteIdType right)
 	{
-		return ReferenceEquals(left, null) || left.CompareTo(right) <= 0;
+		return left is null || left.CompareTo(right) <= 0;
 	}
 
 	public static bool operator >(FavoriteIdType left, FavoriteIdType right)
 	{
-		return !ReferenceEquals(left, null) && left.CompareTo(right) > 0;
+		return left?.CompareTo(right) > 0;
 	}
 
 	public static bool operator >=(FavoriteIdType left, FavoriteIdType right)
 	{
-		return ReferenceEquals(left, null) ? ReferenceEquals(right, null) : left.CompareTo(right) >= 0;
+		return left is null ? right is null : left.CompareTo(right) >= 0;
 	}
 
 	public uint Id { get; init; }

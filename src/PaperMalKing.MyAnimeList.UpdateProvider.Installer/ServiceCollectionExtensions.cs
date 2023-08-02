@@ -60,7 +60,7 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton<IJikan>(provider => new Jikan(new JikanClientConfiguration()
 		{
 			SuppressException = false,
-			LimiterConfigurations = TaskLimiterConfiguration.None // We use System.Threading.RateLimiting
+			LimiterConfigurations = TaskLimiterConfiguration.None, // We use System.Threading.RateLimiting
 		}, provider.GetRequiredService<IHttpClientFactory>().CreateClient(Constants.JikanHttpClientName)));
 		serviceCollection.AddSingleton<IMyAnimeListClient, MyAnimeListClient>(provider =>
 		{
@@ -80,7 +80,7 @@ public static class ServiceCollectionExtensions
 	{
 		UseCookies = true,
 		CookieContainer = new(),
-		PooledConnectionLifetime = TimeSpan.FromMinutes(15)
+		PooledConnectionLifetime = TimeSpan.FromMinutes(15),
 	};
 
 	private static RateLimiterHttpMessageHandler GetRateLimiterHandler(IServiceProvider provider) =>

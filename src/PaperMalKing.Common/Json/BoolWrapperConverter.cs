@@ -13,16 +13,16 @@ public sealed class BoolWrapperConverter<T> : JsonConverter<T> where T: IBoolWra
 	public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
 		Debug.Assert(reader.TokenType == JsonTokenType.StartObject);
-		reader.Read();
+		_ = reader.Read();
 		Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
-		reader.Read();
+		_ = reader.Read();
 		var returnValue =  reader.TokenType switch
 		{
 			JsonTokenType.True  => T.TrueValue,
 			JsonTokenType.False => T.FalseValue,
 			_                   => throw new JsonException()
 		};
-		reader.Read();
+		_ = reader.Read();
 		Debug.Assert(reader.TokenType == JsonTokenType.EndObject);
 		return returnValue;
 	}

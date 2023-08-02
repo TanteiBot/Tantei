@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
+using System.Globalization;
 using System.Text;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models;
 
@@ -78,7 +79,7 @@ internal static class UpdateCheckQueryBuilder
 			}
 			""";
 
-	private const string AnimeListSubQuery =
+	private static readonly CompositeFormat AnimeListSubQuery = CompositeFormat.Parse(
 		"""
 		AnimeList: MediaListCollection(userId: $userId, type: ANIME, sort: UPDATED_TIME_DESC, chunk: $chunk, perChunk: $perChunk) {{
 			lists {{
@@ -97,9 +98,9 @@ internal static class UpdateCheckQueryBuilder
 				}}
 			}}
 		}}
-		""";
+		""");
 
-	private const string MangaListSubQuery =
+	private static readonly CompositeFormat MangaListSubQuery = CompositeFormat.Parse(
 		"""
 		MangaList: MediaListCollection(userId: $userId, type: MANGA, sort: UPDATED_TIME_DESC, chunk: $chunk, perChunk: $perChunk) {{
 			lists {{
@@ -118,7 +119,7 @@ internal static class UpdateCheckQueryBuilder
 				}}
 			}}
 		}}
-		""";
+		""");
 
 	private const string ReviewsSubQuery =
 		"""
@@ -163,13 +164,14 @@ internal static class UpdateCheckQueryBuilder
 		sb.AppendLine("}");
 		if (hasAnime)
 		{
-			sb.AppendLine(string.Format(AnimeListSubQuery,
-				options.HasFlag(RequestOptions.CustomLists) ? "customLists(asArray: true)" : string.Empty));
+			sb.AppendFormat(CultureInfo.InvariantCulture, AnimeListSubQuery,
+				options.HasFlag(RequestOptions.CustomLists) ? "customLists(asArray: true)" : "").AppendLine();
 		}
 
 		if (hasManga)
 		{
-			sb.AppendLine(string.Format(MangaListSubQuery, options.HasFlag(RequestOptions.CustomLists) ? "customLists(asArray: true)" : string.Empty));
+			sb.AppendFormat(CultureInfo.InvariantCulture, MangaListSubQuery,
+				options.HasFlag(RequestOptions.CustomLists) ? "customLists(asArray: true)" : "").AppendLine();
 		}
 		if (hasAnime || hasManga)
 		{
@@ -186,7 +188,7 @@ internal static class UpdateCheckQueryBuilder
 				true => "ANIME_LIST",
 				_ => "MANGA_LIST"
 			};
-			sb.AppendLine($"values: activities(userId: $userId, type: {type}, sort: ID_DESC, createdAt_greater: $activitiesFilterTimeStamp) {{")
+			sb.AppendLine(CultureInfo.InvariantCulture, $"values: activities(userId: $userId, type: {type}, sort: ID_DESC, createdAt_greater: $activitiesFilterTimeStamp) {{")
 				.AppendLine(
 				"""
 				... on ListActivity {

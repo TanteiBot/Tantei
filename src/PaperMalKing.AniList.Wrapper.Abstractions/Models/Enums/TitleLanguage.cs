@@ -15,5 +15,5 @@ public enum TitleLanguage : byte
 	ROMAJI = 3,
 	ROMAJI_STYLISED = 4,
 	ENGLISH = 5,
-	ENGLISH_STYLISED = 6
+	ENGLISH_STYLISED = 6,
 }

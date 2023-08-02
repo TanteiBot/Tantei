@@ -16,7 +16,6 @@ using AngleSharp.Dom;
 using JikanDotNet;
 using JikanDotNet.Exceptions;
 using Microsoft.Extensions.Logging;
-using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
@@ -25,7 +24,6 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaLi
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
 using PaperMalKing.MyAnimeList.Wrapper.Parsers;
 using AnimeListEntry = PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList.AnimeListEntry;
-using MalUrl = PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.MalUrl;
 using MangaListEntry = PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList.MangaListEntry;
 
 namespace PaperMalKing.MyAnimeList.Wrapper;
@@ -174,10 +172,10 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		try
 		{
 			var animeCharacters = await this._jikanClient.GetAnimeCharactersAsync(id, cancellationToken).ConfigureAwait(false);
-			return animeCharacters.Data.SelectMany(x => x.VoiceActors).Where(x => x.Language == "Japanese").Select(x => new SeyuInfo()
+			return animeCharacters.Data.SelectMany(x => x.VoiceActors).Where(x => string.Equals(x.Language, "Japanese", StringComparison.Ordinal)).Select(x => new SeyuInfo()
 			{
 				Name = x.Person.Name,
-				Url = x.Person.Url
+				Url = x.Person.Url,
 			}).ToArray();
 		}
 		catch (JikanRequestException jre)
@@ -206,11 +204,12 @@ internal sealed class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus
 	where TListStatus : unmanaged, Enum
 {
 	[JsonPropertyName("data")]
+	[SuppressMessage("Performance", "CA1819:Properties should not return arrays")]
 	public required T[] Data { get; init; }
 
 	public static ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus, TListStatus> Empty { get; } = new()
 	{
-		Data = Array.Empty<T>()
+		Data = Array.Empty<T>(),
 	};
 }
 
@@ -219,5 +218,5 @@ internal sealed class ListQueryResult<T, TNode, TStatus, TMediaType, TNodeStatus
 [JsonSerializable(
 	typeof(ListQueryResult<MangaListEntry, MangaListEntryNode, MangaListEntryStatus, MangaMediaType, MangaPublishingStatus, MangaListStatus>))]
 [JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Metadata)]
-internal partial class JsonSGContext : JsonSerializerContext
+internal sealed partial class JsonSGContext : JsonSerializerContext
 { }

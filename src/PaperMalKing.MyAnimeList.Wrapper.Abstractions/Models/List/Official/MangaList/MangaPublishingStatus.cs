@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System.ComponentModel;
 using System.Text.Json.Serialization;
@@ -19,5 +19,5 @@ public enum MangaPublishingStatus: byte
 	[Description("Discontinued")]
 	discontinued = 4,
 	[Description("Hiatus")]
-	on_hiatus = 5
+	on_hiatus = 5,
 }

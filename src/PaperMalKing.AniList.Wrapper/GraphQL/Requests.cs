@@ -11,7 +11,7 @@ internal static class Requests
 	public static GraphQLRequest GetUserInitialInfoByUsernameRequest(string username, byte favouritePage) =>
 		new(Queries.GetUserInitialInfoByUsernameQuery, new {
 			username,
-			favouritePage });
+			favouritePage, });
 
 	public static GraphQLRequest CheckForUpdatesRequest(uint userId, byte page, long activityTimeStamp, ushort perChunk, ushort chunk,
 														RequestOptions options) =>
@@ -20,7 +20,7 @@ internal static class Requests
 				userId,
 				page, activitiesFilterTimeStamp = activityTimeStamp,
 				perChunk,
-				chunk });
+				chunk, });
 
 	public static GraphQLRequest FavouritesInfoRequest(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds,
 													   uint[] studioIds, RequestOptions options) =>
@@ -31,5 +31,5 @@ internal static class Requests
 				mangaIds,
 				charIds,
 				staffIds,
-				studioIds });
+				studioIds, });
 }

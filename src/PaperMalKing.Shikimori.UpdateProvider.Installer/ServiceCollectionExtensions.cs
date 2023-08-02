@@ -6,8 +6,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -60,20 +58,13 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton<ShikiUserService>();
 		serviceCollection.AddSingleton<IUpdateProvider, ShikiUpdateProvider>();
 		var path = configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json";
-		NekoFileJson file;
-		if (File.Exists(path))
-		{
-			file = JsonSerializer.Deserialize<NekoFileJson>(File.ReadAllText(path))!;
-		}
-		else
-		{
-			file = new NekoFileJson()
+		var file = File.Exists(path)
+			? JsonSerializer.Deserialize<NekoFileJson>(File.ReadAllText(path))!
+			: new NekoFileJson()
 			{
 				Achievements = Array.Empty<ShikiAchievementJsonItem>(),
-				HumanNames = new(0, StringComparer.Ordinal)
+				HumanNames = new(0, StringComparer.Ordinal),
 			};
-		}
-
 		serviceCollection.AddSingleton<ShikiAchievementsService>(_ => new(file));
 
 		return serviceCollection;

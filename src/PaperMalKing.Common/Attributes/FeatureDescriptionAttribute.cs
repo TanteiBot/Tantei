@@ -10,10 +10,8 @@ public sealed class FeatureDescriptionAttribute : Attribute
 {
 	public FeatureDescriptionAttribute(string description, string summary)
 	{
-		if (string.IsNullOrWhiteSpace(description))
-			throw new ArgumentException(null, nameof(description));
-		if (string.IsNullOrWhiteSpace(summary))
-			throw new ArgumentException(null, nameof(summary));
+		ArgumentException.ThrowIfNullOrWhiteSpace(description);
+		ArgumentException.ThrowIfNullOrWhiteSpace(summary);
 		this.Description = description;
 		this.Summary = summary;
 	}

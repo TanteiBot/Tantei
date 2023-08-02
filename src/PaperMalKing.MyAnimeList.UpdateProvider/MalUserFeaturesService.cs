@@ -29,12 +29,10 @@ internal sealed class MalUserFeaturesService : BaseUserFeaturesService<MalUser, 
 	public override async Task EnableFeaturesAsync(MalUserFeatures feature, ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		var dbUser = db.MalUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId);
-		if (dbUser is null)
-			throw new UserFeaturesException("You must register first before enabling features");
+		var dbUser = db.MalUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId) ?? throw new UserFeaturesException("You must register first before enabling features");
 		if (dbUser.Features.HasFlag(feature))
 		{
-			throw new UriFormatException("You already have this feature enabled");
+			throw new UserFeaturesException("You already have this feature enabled");
 		}
 
 		User? user = null;

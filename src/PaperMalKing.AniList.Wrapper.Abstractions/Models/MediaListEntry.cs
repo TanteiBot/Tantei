@@ -61,9 +61,9 @@ public sealed class MediaListEntry
 				1 => ":(",
 				2 => ":|",
 				3 => ":)",
-				_ => throw new ArgumentOutOfRangeException(nameof(scoreFormat), scoreFormat, null)
+				_ => throw new ArgumentOutOfRangeException(nameof(scoreFormat), scoreFormat, message: null)
 			},
-			_ => throw new ArgumentOutOfRangeException(nameof(scoreFormat), scoreFormat, null)
+			_ => throw new ArgumentOutOfRangeException(nameof(scoreFormat), scoreFormat, message: null)
 		};
 	}
 }

@@ -1,20 +1,14 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2021-2023 N0D4N
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.Pages;
 
 [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 public class ErrorModel : PageModel
 {
-	private readonly ILogger<ErrorModel> _logger;
-
-	public ErrorModel(ILogger<ErrorModel> logger)
-	{
-		this._logger = logger;
-	}
-
 	public string? RequestId { get; set; }
 
 	public bool ShowRequestId => !string.IsNullOrEmpty(this.RequestId);

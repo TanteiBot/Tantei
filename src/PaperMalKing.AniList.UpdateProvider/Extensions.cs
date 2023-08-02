@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -50,13 +52,13 @@ internal static partial class Extensions
 		{MediaListStatus.REPEATING, ProviderConstants.AniListBlue},
 		{MediaListStatus.DROPPED, ProviderConstants.AniListRed},
 		{MediaListStatus.PLANNING, ProviderConstants.AniListOrange},
-		{MediaListStatus.COMPLETED, ProviderConstants.AniListGreen}
+		{MediaListStatus.COMPLETED, ProviderConstants.AniListGreen},
 	}.ToFrozenDictionary(optimizeForReading: true);
 
 	private static readonly DiscordEmbedBuilder.EmbedFooter AniListFooter = new()
 	{
 		Text = ProviderConstants.NAME,
-		IconUrl = ProviderConstants.ICON_URL
+		IconUrl = ProviderConstants.ICON_URL,
 	};
 
 	private const int InlineFieldValueMaxLength = 30;
@@ -109,35 +111,23 @@ internal static partial class Extensions
 
 	public static string? GetEmbedFormat(this Media media)
 	{
+		[SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase")]
 		static string? DefaultFormatting(Media media) => media.Format?.ToString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
 
-		switch (media.CountryOfOrigin)
+		return media.CountryOfOrigin switch
 		{
-			case "CN":
-				switch (media.Format)
-				{
-					case MediaFormat.TV:
-					case MediaFormat.TV_SHORT:
-					case MediaFormat.MOVIE:
-					case MediaFormat.SPECIAL:
-					case MediaFormat.OVA:
-					case MediaFormat.ONA:
-						return "Donghua";
-					case MediaFormat.MANGA:
-					case MediaFormat.ONE_SHOT:
-						return "Manhua";
-					default:
-						return DefaultFormatting(media);
-				}
-			case "KR" when media.Format is MediaFormat.MANGA or MediaFormat.ONE_SHOT:
-				{
-					return "Manhwa";
-				}
-			default:
-				return DefaultFormatting(media);
-		}
+			"CN" => media.Format switch
+			{
+				MediaFormat.TV or MediaFormat.TV_SHORT or MediaFormat.MOVIE or MediaFormat.SPECIAL or MediaFormat.OVA or MediaFormat.ONA => "Donghua",
+				MediaFormat.MANGA or MediaFormat.ONE_SHOT => "Manhua",
+				_ => DefaultFormatting(media),
+			},
+			"KR" when media.Format is MediaFormat.MANGA or MediaFormat.ONE_SHOT => "Manhwa",
+			_                                                                   => DefaultFormatting(media)
+		};
 	}
 
+	[SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase")]
 	public static DiscordEmbedBuilder WithMediaTitle(this DiscordEmbedBuilder eb, Media media, TitleLanguage titleLanguage,
 													 AniListUserFeatures features)
 	{
@@ -202,7 +192,7 @@ internal static partial class Extensions
 				 .WithThumbnail(activity.Media.Image?.ImageUrl);
 		var score = mediaListEntry.GetScore(user.MediaListOptions.ScoreFormat);
 		if (!string.IsNullOrEmpty(score))
-			eb.AddField("Score", score, true);
+			eb.AddField("Score", score, inline: true);
 
 		if (isAdvancedScoringEnabled)
 		{
@@ -210,18 +200,18 @@ internal static partial class Extensions
 			foreach (var (key, value) in mediaListEntry.AdvancedScores?.Where(e => e.Value != 0f) ??
 										 Array.Empty<KeyValuePair<string, float>>())
 			{
-				sb.AppendLine($"{key}: {value:0.#}");
+				sb.AppendLine(CultureInfo.InvariantCulture, $"{key}: {value:0.#}");
 			}
 
-			eb.AddField("Advanced scoring", sb.ToString(), true);
+			eb.AddField("Advanced scoring", sb.ToString(), inline: true);
 		}
 
 		eb.WithTotalSubEntries(activity.Media);
-		if (mediaListEntry.Repeat != 0) eb.AddField($"{(isAnime ? "Rewatched" : "Reread")} times", mediaListEntry.Repeat.ToString(), true);
-		if (!string.IsNullOrEmpty(mediaListEntry.Notes)) eb.AddField("Notes", mediaListEntry.Notes.Truncate(1023), true);
+		if (mediaListEntry.Repeat != 0) eb.AddField($"{(isAnime ? "Rewatched" : "Reread")} times", mediaListEntry.Repeat.ToString(DateTimeFormatInfo.InvariantInfo), inline: true);
+		if (!string.IsNullOrEmpty(mediaListEntry.Notes)) eb.AddField("Notes", mediaListEntry.Notes.Truncate(1023), inline: true);
 		if (features.HasFlag(AniListUserFeatures.CustomLists) && mediaListEntry.CustomLists?.Any(x => x.Enabled) == true)
 		{
-			eb.AddField("Custom lists", string.Join(", ", mediaListEntry.CustomLists.Where(x=>x.Enabled).Select(x => x.Name)), true);
+			eb.AddField("Custom lists", string.Join(", ", mediaListEntry.CustomLists.Where(x=>x.Enabled).Select(x => x.Name)), inline: true);
 		}
 		return eb.EnrichWithMediaInfo(activity.Media, user, features);
 	}
@@ -237,7 +227,7 @@ internal static partial class Extensions
 				var text = string.Join(", ", media.Studios.Nodes.Where(s => s.IsAnimationStudio)
 												  .Select(studio => Formatter.MaskedUrl(studio.Name, new Uri(studio.Url))));
 				if (!string.IsNullOrEmpty(text))
-					eb.AddField("Made by", text, true);
+					eb.AddField("Made by", text, inline: true);
 			}
 			if (features.HasFlag(AniListUserFeatures.Director))
 			{
@@ -274,7 +264,7 @@ internal static partial class Extensions
 						 .Select(edge =>
 							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
 				if (!string.IsNullOrEmpty(text))
-					eb.AddField("Made by", text, true);
+					eb.AddField("Made by", text, inline: true);
 			}
 		}
 

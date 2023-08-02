@@ -18,6 +18,6 @@ public sealed class Page<T>
 	public static readonly Page<T> Empty = new()
 	{
 		PageInfo = PageInfo.FalseValue,
-		Values = Array.Empty<T>()
+		Values = Array.Empty<T>(),
 	};
 }

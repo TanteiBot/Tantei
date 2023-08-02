@@ -12,5 +12,5 @@ public enum ScoreFormat : byte
 	POINT_10_DECIMAL = 1,
 	POINT_10 = 2,
 	POINT_5 = 3,
-	POINT_3 = 4
+	POINT_3 = 4,
 }

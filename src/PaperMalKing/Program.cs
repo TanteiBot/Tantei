@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2021-2023 N0D4N
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +10,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
-using PaperMalKing.Database;
 using PaperMalKing.Startup;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
@@ -72,23 +72,23 @@ else
 			{
 				OnPrepareResponse = ctx =>
 				{
-					ResponseHeaders headers = ctx.Context.Response.GetTypedHeaders();
+					var headers = ctx.Context.Response.GetTypedHeaders();
 					headers.CacheControl = new CacheControlHeaderValue
 					{
 						NoCache = true,
 						NoStore = true,
-						MustRevalidate = true
+						MustRevalidate = true,
 					};
-				}
+				},
 			};
 		});
 	});
 }
-Delegate handler = ([Authorize(AuthenticationSchemes = "Discord")](HttpContext context) => Task.FromResult(context.TraceIdentifier));
+Delegate handler = [Authorize(AuthenticationSchemes = "Discord")](HttpContext context) => Task.FromResult(context.TraceIdentifier);
 app.MapGet("discord", handler);
 app.MapGet("api/getUpdateTimes", (IEnumerable<IUpdateProvider> updateProviders) => updateProviders.Select(up => new
 {
 	up.Name,
 	InProgress = up.IsUpdateInProgress,
-	NextIn = up.DateTimeOfNextUpdate > DateTimeOffset.UtcNow ? up.DateTimeOfNextUpdate - DateTimeOffset.UtcNow : default }));
+	NextIn = up.DateTimeOfNextUpdate > DateTimeOffset.UtcNow ? up.DateTimeOfNextUpdate - DateTimeOffset.UtcNow : default, }));
 app.Run();

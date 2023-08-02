@@ -12,7 +12,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions;
 
 public interface IShikiClient
 {
-	Task<User> GetUserAsync(string nickname, CancellationToken cancellationToken = default);
+	Task<UserInfo> GetUserAsync(string nickname, CancellationToken cancellationToken = default);
 	Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default);
 
 	Task<Paginatable<History[]>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options,

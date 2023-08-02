@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2022 N0D4N
-
+// Copyright (C) 2021-2023 N0D4N
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 
@@ -19,5 +18,5 @@ public enum AnimeListStatus : byte
 	[Description("Dropped")]
 	dropped = 4,
 	[Description("Plan to watch")]
-	plan_to_watch = 5
+	plan_to_watch = 5,
 }

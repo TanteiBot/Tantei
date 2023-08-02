@@ -12,5 +12,5 @@ public enum FavouriteType : byte
 	Manga = 1,
 	Characters = 2,
 	Staff = 3,
-	Studios = 4
+	Studios = 4,
 }

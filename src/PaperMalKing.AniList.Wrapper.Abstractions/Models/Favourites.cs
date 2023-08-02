@@ -4,13 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 
 namespace PaperMalKing.AniList.Wrapper.Abstractions.Models;
 
-[SuppressMessage("Design", "CA1041:Provide ObsoleteAttribute message")]
 public sealed class Favourites
 {
 	public bool HasNextPage { get; init; }
@@ -22,7 +20,7 @@ public sealed class Favourites
 	[JsonPropertyName("anime")]
 	public Connection<IdentifiableFavourite> Anime
 	{
-		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
+		[Obsolete("This property is used only for JSON deserialization",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
 			if (value.PageInfo!.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -34,7 +32,7 @@ public sealed class Favourites
 	[JsonPropertyName("manga")]
 	public Connection<IdentifiableFavourite> Manga
 	{
-		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
+		[Obsolete("This property is used only for JSON deserialization",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
 			if (value.PageInfo!.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -47,7 +45,7 @@ public sealed class Favourites
 	[JsonPropertyName("characters")]
 	public Connection<IdentifiableFavourite> Characters
 	{
-		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
+		[Obsolete("This property is used only for JSON deserialization",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
 			if (value.PageInfo!.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -60,7 +58,7 @@ public sealed class Favourites
 	[JsonPropertyName("staff")]
 	public Connection<IdentifiableFavourite> Staff
 	{
-		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
+		[Obsolete("This property is used only for JSON deserialization",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
 			if (value.PageInfo!.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;
@@ -73,7 +71,7 @@ public sealed class Favourites
 	[JsonPropertyName("studios")]
 	public Connection<IdentifiableFavourite> Studios
 	{
-		[Obsolete("",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
+		[Obsolete("This property is used only for JSON deserialization",true), EditorBrowsable(EditorBrowsableState.Never)]get => ThrowNotSupportedException();
 		init
 		{
 			if (value.PageInfo!.HasNextPage) this.HasNextPage = value.PageInfo.HasNextPage;

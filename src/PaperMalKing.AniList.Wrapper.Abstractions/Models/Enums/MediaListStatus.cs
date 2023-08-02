@@ -13,5 +13,5 @@ public enum MediaListStatus : byte
 	COMPLETED = 2,
 	DROPPED = 3,
 	PAUSED = 4,
-	REPEATING = 5
+	REPEATING = 5,
 }

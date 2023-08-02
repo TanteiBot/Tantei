@@ -14,10 +14,8 @@ public sealed class RateLimit
 
 	public RateLimit(int amountOfRequests, int periodInMilliseconds)
 	{
-		if (amountOfRequests <= 0)
-			throw new ArgumentException("Amount of requests must be a number bigger than 0", nameof(amountOfRequests));
-		if (periodInMilliseconds <= 0)
-			throw new ArgumentException("Period of time in milliseconds must be bigger than 0", nameof(periodInMilliseconds));
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(amountOfRequests);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(periodInMilliseconds);
 		this.AmountOfRequests = amountOfRequests;
 		this.PeriodInMilliseconds = periodInMilliseconds;
 	}

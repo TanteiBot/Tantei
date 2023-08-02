@@ -74,7 +74,7 @@ internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 			{
 				Guilds = new[] { guild },
 				DiscordUserId = userId,
-				BotUser = new()
+				BotUser = new(),
 			};
 		}
 		else if (duser.Guilds.All(x => x.DiscordGuildId != guildId))
@@ -90,7 +90,7 @@ internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 			LastUpdatedMangaListTimestamp = now,
 			LastAnimeUpdateHash = mUser.LatestAnimeUpdateHash ?? "",
 			LastMangaUpdateHash = mUser.LatestMangaUpdateHash ?? "",
-			FavoritesIdHash = Helpers.FavoritesHash(mUser.Favorites.GetFavoriteIdTypesFromFavorites())
+			FavoritesIdHash = Helpers.FavoritesHash(mUser.Favorites.GetFavoriteIdTypesFromFavorites()),
 		};
 		dbUser.FavoriteAnimes = mUser.Favorites.FavoriteAnime.Select(anime => anime.ToMalFavoriteAnime(dbUser)).ToList();
 		dbUser.FavoriteMangas = mUser.Favorites.FavoriteManga.Select(manga => manga.ToMalFavoriteManga(dbUser)).ToList();

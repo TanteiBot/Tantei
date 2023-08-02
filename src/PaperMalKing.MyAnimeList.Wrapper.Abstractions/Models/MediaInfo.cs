@@ -15,6 +15,6 @@ public sealed class MediaInfo
 	public static MediaInfo Empty { get; } = new()
 	{
 		Demographic = Array.Empty<string>(),
-		Themes = Array.Empty<string>()
+		Themes = Array.Empty<string>(),
 	};
 }

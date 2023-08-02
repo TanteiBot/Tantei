@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -50,7 +50,7 @@ internal sealed class
 		}
 		else
 		{
-			var upc = this._providersConfigurationService.Providers.Values.FirstOrDefault(p => p.Name.Where(char.IsUpper).ToString() == name);
+			var upc = this._providersConfigurationService.Providers.Values.FirstOrDefault(p => string.Equals(p.Name.Where(char.IsUpper).ToString(), name, StringComparison.Ordinal));
 			baseUpdateProvider = upc as BaseUpdateProvider;
 		}
 
