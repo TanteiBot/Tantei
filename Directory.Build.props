@@ -43,8 +43,17 @@
             MA0051; <!--Method is too long-->
             MA0099; <!-- Use Explicit enum value instead of 0 -->
             MA0101; <!--String contains an implicit end of line character-->
-            
+
+            IDE0010; <!--Add missing cases to switch statement-->
+            IDE0011; <!--Add braces-->
+            IDE0022; <!--Use expression body for methods-->
+            IDE0024; <!--Use expression body for operators-->
+            IDE0055; <!--Formatting rule-->
+            IDE0058; <!--Remove unnecessary expression value-->
+            IDE0061; <!--Use expression body for local functions-->
             IDE0052; <!--Private member can be removed as the value assigned to it is never read -->
+            IDE0160; <!--Namespace declaration preferences-->
+            IDE0290; <!--UsePrimaryConstructor-->
 
             S1075; <!--Refactor your code not to use hardcoded absolute paths or URIs.-->
             S1133; <!--Do not forget to remove this deprecated code someday. -->
