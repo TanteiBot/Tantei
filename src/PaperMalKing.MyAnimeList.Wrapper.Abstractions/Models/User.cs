@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
+using System.Globalization;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
@@ -16,7 +17,7 @@ public sealed class User
 
 	public string AvatarUrl =>
 		this._avatarUrl ??=
-			$"{Constants.USER_AVATAR}{this.Id}.jpg?t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+			string.Create(CultureInfo.InvariantCulture, $"{Constants.USER_AVATAR}{this.Id}.jpg?t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
 
 	public uint Id { get; init; }
 

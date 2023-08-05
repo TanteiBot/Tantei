@@ -26,7 +26,7 @@ internal sealed class CommandsService : ICommandsService
 
 		this.SlashCommandsExtension = client.UseSlashCommands(new ()
 		{
-			Services = provider
+			Services = provider,
 		});
 		this.SlashCommandsExtension.SlashCommandErrored += this.SlashCommandsExtensionOnSlashCommandErroredAsync;
 		this.SlashCommandsExtension.SlashCommandExecuted += this.SlashCommandsExtensionOnSlashCommandExecutedAsync;

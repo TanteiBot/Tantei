@@ -9,7 +9,7 @@ public sealed class NoChangesSavedException : Exception
 {
 	public DbContext? Context { get; }
 
-	public NoChangesSavedException(DbContext? context)
+	public NoChangesSavedException(DbContext? context) : base("No changes were saved to database")
 	{
 		this.Context = context;
 	}

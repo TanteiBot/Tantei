@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -18,7 +18,7 @@ internal sealed class UpdateProvidersConfigurationService
 {
 	private readonly Dictionary<string, IUpdateProvider> _providers = new(StringComparer.OrdinalIgnoreCase);
 
-	public IReadOnlyDictionary<string, IUpdateProvider> Providers => this._providers;
+	public ReadOnlyDictionary<string, IUpdateProvider> Providers => this._providers.AsReadOnly();
 
 	public UpdateProvidersConfigurationService(ILogger<UpdateProvidersConfigurationService> logger, IEnumerable<IUpdateProvider> updateProviders)
 	{

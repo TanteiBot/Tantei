@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System.ComponentModel;
 using System.Text.Json.Serialization;
@@ -25,5 +25,5 @@ public enum MangaMediaType : byte
 	[Description("Eol")]
 	oel = 7,
 	[Description("Light novel")]
-	light_novel = 8
+	light_novel = 8,
 }

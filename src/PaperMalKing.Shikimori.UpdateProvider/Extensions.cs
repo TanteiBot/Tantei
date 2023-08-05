@@ -2,15 +2,14 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
@@ -31,28 +30,19 @@ internal static partial class Extensions
 	private static readonly DiscordEmbedBuilder.EmbedFooter ShikiUpdateProviderFooter = new()
 	{
 		Text = "Shikimori",
-		IconUrl = Constants.ICON_URL
+		IconUrl = Constants.ICON_URL,
 	};
-
-	private static readonly FrozenDictionary<ProgressType, DiscordColor> Colors = new Dictionary<ProgressType, DiscordColor>()
-	{
-		{ ProgressType.Completed, Constants.ShikiGreen },
-		{ ProgressType.Dropped, Constants.ShikiRed },
-		{ ProgressType.InPlans, Constants.ShikiBlue },
-		{ ProgressType.InProgress, Constants.ShikiBlue },
-		{ ProgressType.OnHold, Constants.ShikiGrey }
-	}.ToFrozenDictionary(true);
 
 	private static readonly (string, ProgressType)[] Progresses = new[]
 	{
 		("смотрю", ProgressType.InProgress), ("пересматриваю", ProgressType.InProgress), ("запланировано", ProgressType.InPlans),
 		("брошено", ProgressType.Dropped), ("просмотрены", ProgressType.InProgress), ("просмотрен", ProgressType.Completed),
 		("отложено", ProgressType.OnHold), ("прочитан", ProgressType.Completed), ("перечитываю", ProgressType.InProgress),
-		("читаю", ProgressType.InProgress)
+		("читаю", ProgressType.InProgress),
 	};
 
 	private static readonly string[] mangakaRelatedRoles = { "story", "art", "creator", "design" };
-	private static CultureInfo ruCulture = CultureInfo.GetCultureInfo("ru-RU");
+	private static readonly CultureInfo ruCulture = CultureInfo.GetCultureInfo("ru-RU");
 
 	public static DiscordEmbedBuilder WithShikiAuthor(this DiscordEmbedBuilder builder, UserInfo user) =>
 		builder.WithAuthor(user.Nickname, user.Url, user.ImageUrl);
@@ -68,7 +58,7 @@ internal static partial class Extensions
 			_ when features.HasFlag(ShikiUserFeatures.AnimeList) && features.HasFlag(ShikiUserFeatures.MangaList) => HistoryRequestOptions.Any,
 			_ when features.HasFlag(ShikiUserFeatures.AnimeList) && !features.HasFlag(ShikiUserFeatures.MangaList) => HistoryRequestOptions.Anime,
 			_ when features.HasFlag(ShikiUserFeatures.MangaList) && !features.HasFlag(ShikiUserFeatures.AnimeList) => HistoryRequestOptions.Manga,
-			_ => throw new ArgumentOutOfRangeException(nameof(features), features, null)
+			_ => throw new ArgumentOutOfRangeException(nameof(features), features, message: null)
 		};
 
 		var (data, hasNextPage) = await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken).ConfigureAwait(false);
@@ -107,7 +97,7 @@ internal static partial class Extensions
 				res.Add(group);
 				group = new(1)
 				{
-					he
+					he,
 				};
 			}
 		}
@@ -138,7 +128,15 @@ internal static partial class Extensions
 		var first = history.HistoryEntries[0];
 		var eb = new DiscordEmbedBuilder().WithTimestamp(first.CreatedAt).WithShikiAuthor(user).WithColor(Constants.ShikiBlue);
 		var desc = string.Join("; ", history.HistoryEntries.Select(h => h.Description)).StripHtml().ToSentenceCase(ruCulture)!;
-		eb.WithDescription(desc).WithColor(Colors[CalculateProgressType(history.HistoryEntries)]);
+		eb.WithDescription(desc).WithColor(CalculateProgressType(history.HistoryEntries) switch
+		{
+			ProgressType.Completed => Constants.ShikiGreen ,
+			ProgressType.Dropped => Constants.ShikiRed ,
+			ProgressType.InPlans=> Constants.ShikiBlue,
+			ProgressType.InProgress=> Constants.ShikiBlue ,
+			ProgressType.OnHold=> Constants.ShikiGrey,
+			_ => throw new UnreachableException(),
+		});
 		var target = history.HistoryEntries.Find(x => x.Target is not null)?.Target;
 		if (target is null)
 			return eb;
@@ -149,19 +147,19 @@ internal static partial class Extensions
 
 		if (features.HasFlag(ShikiUserFeatures.MediaFormat))
 		{
-			titleSb.Append($" ({(target.Kind ?? "Unknown").Humanize(LetterCasing.Sentence)})");
+			titleSb.Append(CultureInfo.InvariantCulture,$" ({(target.Kind ?? "Unknown").Humanize(LetterCasing.Sentence)})");
 		}
 
 		if (features.HasFlag(ShikiUserFeatures.MediaStatus))
 		{
-			titleSb.AppendLine($" [{target.Status.Humanize(LetterCasing.Sentence)}]");
+			titleSb.AppendLine(CultureInfo.InvariantCulture, $" [{target.Status.Humanize(LetterCasing.Sentence)}]");
 		}
 
 		eb.WithTitle(titleSb.ToString()).WithUrl(target.Url).WithThumbnail(target.ImageUrl);
 
 		if (target.Chapters.HasValue && target.Chapters != 0)
 		{
-			eb.AddField("Total", $"{target.Chapters.Value} ch. {target.Volumes.GetValueOrDefault()} v.", true);
+			eb.AddField("Total", $"{target.Chapters.Value} ch. {target.Volumes.GetValueOrDefault()} v.", inline: true);
 		}
 		else if (target.Episodes.HasValue)
 		{
@@ -172,7 +170,7 @@ internal static partial class Extensions
 				_                                 => 0u
 			};
 			if (episodes != 0)
-				eb.AddField("Total", $"{episodes} ep.", true);
+				eb.AddField("Total", $"{episodes} ep.", inline: true);
 		}
 
 		eb.FillMediaInfo(history.Media, history.Roles, features, target.Type);
@@ -187,7 +185,7 @@ internal static partial class Extensions
 			{
 				Url = favouriteEntry.FavouriteEntry.Url,
 				Title =
-					$"{favouriteName} [{(favouriteEntry.FavouriteEntry.SpecificType ?? favouriteEntry.FavouriteEntry.GenericType)?.ToFirstCharUpperCase()}]"
+					$"{favouriteName} [{(favouriteEntry.FavouriteEntry.SpecificType ?? favouriteEntry.FavouriteEntry.GenericType)?.ToFirstCharUpperCase()}]",
 			}.WithThumbnail(favouriteEntry.FavouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favourite")
 			 .WithShikiAuthor(user)
 			 .WithColor(added ? Constants.ShikiGreen : Constants.ShikiRed);
@@ -210,7 +208,7 @@ internal static partial class Extensions
 			Title = features.HasFlag(ShikiUserFeatures.Russian) ? achievement.TitleRussian : achievement.TitleEnglish,
 			Description = features.HasFlag(ShikiUserFeatures.Russian) ? achievement.TextRussian : achievement.TextEnglish,
 			Color = achievement.BorderColor,
-			Url = baseUrl + achievement.Id
+			Url = baseUrl + achievement.Id,
 		}.WithThumbnail(achievement.Image).WithShikiAuthor(user);
 		if (achievement.HumanName is not null)
 		{
@@ -245,7 +243,7 @@ internal static partial class Extensions
 				var text = string.Join(", ", anime.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
 				if (!string.IsNullOrEmpty(text))
 				{
-					eb.AddField("Studio", text, true);
+					eb.AddField("Studio", text, inline: true);
 				}
 			}
 
@@ -255,7 +253,7 @@ internal static partial class Extensions
 					x => x.Person is not null && x.Name.Any(y => y.Equals("Director", StringComparison.OrdinalIgnoreCase)));
 				if (role is not null)
 				{
-					eb.AddField("Director", role.Person!.GetNameOrAltName(features), true);
+					eb.AddField("Director", role.Person!.GetNameOrAltName(features), inline: true);
 				}
 			}
 		}
@@ -266,7 +264,7 @@ internal static partial class Extensions
 				var text = string.Join(", ", manga.Publishers.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
 				if (string.IsNullOrEmpty(text))
 				{
-					eb.AddField("Publisher", text, true);
+					eb.AddField("Publisher", text, inline: true);
 				}
 			}
 
@@ -283,7 +281,7 @@ internal static partial class Extensions
 					}));
 				if (!string.IsNullOrEmpty(mangakas))
 				{
-					eb.AddField("Author", mangakas, true);
+					eb.AddField("Author", mangakas, inline: true);
 				}
 			}
 		}

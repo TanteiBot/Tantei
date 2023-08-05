@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,11 +14,10 @@ namespace PaperMalKing.UpdatesProviders.Base.Features;
 
 public sealed class FeaturesChoiceProvider<T> : IChoiceProvider where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
-	[SuppressMessage("ReSharper", "StaticMemberInGenericType")]
 	private static Task<IEnumerable<DiscordApplicationCommandOptionChoice>>? _choices;
 
 	private static Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Choices =>
-		Volatile.Read(ref _choices) ?? Interlocked.CompareExchange(ref _choices, CreateChoicesAsync(), null) ?? _choices;
+		Volatile.Read(ref _choices) ?? Interlocked.CompareExchange(ref _choices, CreateChoicesAsync(), comparand: null) ?? _choices;
 
 	public Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
 	{

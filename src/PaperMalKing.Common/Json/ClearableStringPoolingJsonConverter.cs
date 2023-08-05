@@ -22,7 +22,7 @@ public sealed class ClearableStringPoolingJsonConverter : JsonConverter<string>
 
 	[SuppressMessage("Performance", "CA1823:Avoid unused private fields")]
 	[SuppressMessage("Roslynator", "RCS1213:Remove unused member declaration.")]
-	private static readonly Timer Timer = new (_ => StringPool.Reset(), null, dueTime: TimeSpan.Zero, TimeSpan.FromHours(3));
+	private static readonly Timer Timer = new (_ => StringPool.Reset(), state: null, dueTime: TimeSpan.Zero, TimeSpan.FromHours(3));
 
 	public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{

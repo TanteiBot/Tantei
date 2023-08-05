@@ -45,7 +45,7 @@ internal sealed class GuildManagementService
 		{
 			DiscordGuildId = guildId,
 			PostingChannelId = channelId,
-			Users = Array.Empty<DiscordUser>()
+			Users = Array.Empty<DiscordUser>(),
 		};
 		db.DiscordGuilds.Add(guild);
 		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
@@ -57,9 +57,7 @@ internal sealed class GuildManagementService
 	public async Task RemoveGuildAsync(ulong guildId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var guild = db.DiscordGuilds.TagWith("Query guild to remove it").TagWithCallSite().FirstOrDefault();
-		if (guild is null)
-			throw new GuildManagementException("You can't remove this server from posting updates", guildId);
+		var guild = db.DiscordGuilds.TagWith("Query guild to remove it").TagWithCallSite().FirstOrDefault() ?? throw new GuildManagementException("You can't remove this server from posting updates", guildId);
 		this._logger.LogInformation("Removing guild with {Id}", guildId);
 
 		db.DiscordGuilds.Where(g => g.DiscordGuildId == guildId).ExecuteDelete();
@@ -71,9 +69,7 @@ internal sealed class GuildManagementService
 	public async Task UpdateChannelAsync(ulong guildId, ulong channelId)
 	{
 		using var db = this._dbContextFactory.CreateDbContext();
-		var guild = db.DiscordGuilds.TagWith("Query guild to update channel for it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
-		if (guild is null)
-			throw new GuildManagementException("You can't update channel for posting updates without setting it first", guildId, channelId);
+		var guild = db.DiscordGuilds.TagWith("Query guild to update channel for it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId) ?? throw new GuildManagementException("You can't update channel for posting updates without setting it first", guildId, channelId);
 		if (guild.PostingChannelId == channelId)
 			throw new GuildManagementException("You can't update channel to the same channel", guildId, channelId);
 

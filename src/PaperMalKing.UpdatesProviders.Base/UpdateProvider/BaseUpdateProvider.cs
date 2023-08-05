@@ -25,7 +25,7 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 	{
 		this.Logger = logger;
 		this.DelayBetweenTimerFires = delayBetweenTimerFires;
-		this.Timer = new(_ => this.TimerCallback(), null, Timeout.Infinite, Timeout.Infinite);
+		this.Timer = new(_ => this.TimerCallback(), state: null, Timeout.Infinite, Timeout.Infinite);
 	}
 
 	public abstract string Name { get; }
@@ -49,8 +49,8 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 	[SuppressMessage("Usage", "VSTHRD100:Avoid async void methods")]
 	private async void TimerCallback()
 	{
-		IsUpdateInProgress = true;
-		DateTimeOfNextUpdate = null;
+		this.IsUpdateInProgress = true;
+		this.DateTimeOfNextUpdate = null;
 		using var cts = new CancellationTokenSource();
 		this._cts = cts;
 		try
@@ -77,7 +77,7 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 			this.Logger.LogInformation(
 				"Ended checking for updates in {Name} updates provider. Next planned update check is in {@DelayBetweenTimerFires}", this.Name,
 				this.DelayBetweenTimerFires);
-			IsUpdateInProgress = false;
+			this.IsUpdateInProgress = false;
 			this.DateTimeOfNextUpdate = DateTimeOffset.UtcNow + this.DelayBetweenTimerFires;
 		}
 	}

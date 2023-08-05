@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -19,6 +20,7 @@ namespace PaperMalKing.AniList.UpdateProvider;
 
 internal static class FavouriteToDiscordEmbedBuilderConverter
 {
+	[SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase")]
 	private static readonly FrozenDictionary<Type, Func<ISiteUrlable, User, bool, AniListUserFeatures, DiscordEmbedBuilder>> Converters = new Dictionary<Type, Func<ISiteUrlable, User, bool, AniListUserFeatures, DiscordEmbedBuilder>>()
 	{
 		{
@@ -54,7 +56,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 					mediaDescription = EmptyLinesRemovalRegex().Replace(mediaDescription, string.Empty);
 					mediaDescription = mediaDescription.Trim().Truncate(350);
 					if (!string.IsNullOrEmpty(mediaDescription))
-						eb.AddField("Description", mediaDescription, false);
+						eb.AddField("Description", mediaDescription, inline: false);
 				}
 
 				var mostPopularWork = staff.StaffMedia.Nodes.FirstOrDefault();
@@ -75,7 +77,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 																		.AddShortMediaLink("Most popular title", media,
 																			user.Options.TitleLanguage);
 			}
-		}
+		},
 	}.ToFrozenDictionary(optimizeForReading: true);
 
 	private static DiscordEmbedBuilder InitialFavouriteEmbedBuilder(ISiteUrlable value, User user, bool added)
@@ -88,7 +90,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 
 	private static DiscordEmbedBuilder AddShortMediaLink(this DiscordEmbedBuilder eb, string fieldName, Media media, TitleLanguage language)
 	{
-		eb.AddField(fieldName, Formatter.MaskedUrl(media.Title.GetTitle(language), new Uri(media.Url)), true);
+		eb.AddField(fieldName, Formatter.MaskedUrl(media.Title.GetTitle(language), new Uri(media.Url)), inline: true);
 		return eb;
 	}
 

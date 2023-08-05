@@ -24,7 +24,7 @@ public sealed class UserFavorites
 		FavoriteManga = Array.Empty<FavoriteManga>(),
 		FavoriteCharacters = Array.Empty<FavoriteCharacter>(),
 		FavoritePeople = Array.Empty<FavoritePerson>(),
-		FavoriteCompanies = Array.Empty<FavoriteCompany>()
+		FavoriteCompanies = Array.Empty<FavoriteCompany>(),
 	};
 
 	public  int Count =>

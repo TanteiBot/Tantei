@@ -28,12 +28,10 @@ internal sealed class AniListUserFeaturesService : BaseUserFeaturesService<AniLi
 	public override async Task EnableFeaturesAsync(AniListUserFeatures feature, ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		var dbUser = db.AniListUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId);
-		if (dbUser is null)
-			throw new UserFeaturesException("You must register first before enabling features");
+		var dbUser = db.AniListUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ?? throw new UserFeaturesException("You must register first before enabling features");
 		if (dbUser.Features.HasFlag(feature))
 		{
-			throw new UriFormatException("You already have this feature enabled");
+			throw new UserFeaturesException("You already have this feature enabled");
 		}
 
 		dbUser.Features |= feature;
@@ -51,10 +49,10 @@ internal sealed class AniListUserFeaturesService : BaseUserFeaturesService<AniLi
 				var fr = await this._client
 								   .GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites | AniListUserFeatures.AnimeList,
 									   CancellationToken.None).ConfigureAwait(false);
-				dbUser.Favourites = fr.Favourites.ConvertAll(f => new AniListFavourite
+				dbUser.Favourites = fr.Favourites1.ConvertAll(f => new AniListFavourite
 				{
 					Id = f.Id,
-					FavouriteType = (FavouriteType)f.Type
+					FavouriteType = (FavouriteType)f.Type,
 				});
 				break;
 			}

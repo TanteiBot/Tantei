@@ -13,11 +13,11 @@ public sealed class PageInfo : IBoolWrapper<PageInfo>
 
 	public static PageInfo TrueValue { get; } = new()
 	{
-		HasNextPage = true
+		HasNextPage = true,
 	};
 
 	public static PageInfo FalseValue { get; } = new()
 	{
-		HasNextPage = false
+		HasNextPage = false,
 	};
 }

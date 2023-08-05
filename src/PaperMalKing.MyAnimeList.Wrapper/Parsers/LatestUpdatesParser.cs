@@ -23,13 +23,13 @@ internal static class LatestUpdatesParser
 		{
 			ListEntryType.Anime => AnimeSelector,
 			ListEntryType.Manga => MangaSelector,
-			_ => throw new ArgumentOutOfRangeException(nameof(listEntryType), listEntryType, null)
+			_ => throw new ArgumentOutOfRangeException(nameof(listEntryType), listEntryType, message: null)
 		};
 		var nodes = document.QuerySelectorAll(selector);
 		if (nodes is null || nodes.Length == 0)
 			return null;
 
-		return string.Join("|", nodes.Select(dataNode =>
+		return string.Join('|', nodes.Select(dataNode =>
 		{
 			var link = dataNode.QuerySelector("a")!.GetAttribute("href")!;
 			var id = Helper.ExtractIdFromMalUrl(link);

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using AngleSharp.Dom;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
@@ -11,6 +12,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 [SuppressMessage("Design", "MA0048:File name must match type name")]
+[SuppressMessage("Critical Code Smell", "S3218:Inner class members should not shadow outer class \"static\" or type members")]
 internal static partial class UserProfileParser
 {
 	private static class FavoritesParser
@@ -28,7 +30,7 @@ internal static partial class UserProfileParser
 				FavoriteManga = manga,
 				FavoriteCharacters = characters,
 				FavoritePeople = people,
-				FavoriteCompanies = companies
+				FavoriteCompanies = companies,
 			};
 		}
 
@@ -113,13 +115,13 @@ internal static partial class UserProfileParser
 			var text = typeYearNode.TextContent.AsSpan();
 			var index = text.IndexOf(Constants.DOT, StringComparison.Ordinal);
 
-			return new(text.Slice(0, index).ToString(), ushort.Parse(text.Slice(index + 1)), baseFav);
+			return new(text[..index].ToString(), ushort.Parse(text[(index + 1)..], NumberFormatInfo.InvariantInfo), baseFav);
 		}
 
 		private static BaseFavorite ParseBaseFavorite(IElement parent)
 		{
 			var urlUnparsed = parent.GetAttribute("href")!;
-			if (urlUnparsed.StartsWith("/", StringComparison.Ordinal))
+			if (urlUnparsed.StartsWith('/'))
 			{
 				urlUnparsed = Constants.BASE_URL + urlUnparsed;
 			}

@@ -25,8 +25,6 @@ namespace PaperMalKing.Shikimori.UpdateProvider;
 
 internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 {
-	private readonly IOptions<ShikiOptions> _options;
-
 	private readonly IShikiClient _client;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 	private readonly ShikiAchievementsService _achievementsService;
@@ -35,7 +33,6 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 							   IDbContextFactory<DatabaseContext> dbContextFactory, ShikiAchievementsService achievementsService) : base(logger,
 		TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 	{
-		this._options = options;
 		this._client = client;
 		this._dbContextFactory = dbContextFactory;
 		this._achievementsService = achievementsService;
@@ -89,13 +86,13 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
 
 			var user = await this._client.GetUserInfoAsync(dbUser.Id, cancellationToken).ConfigureAwait(false);
-			totalUpdates.AddRange(removedFavourites.Select(rf => rf.ToDiscordEmbed(user, false, dbUser.Features)));
-			totalUpdates.AddRange(addedFavourites.Select(af => af.ToDiscordEmbed(user, true, dbUser.Features)));
+			totalUpdates.AddRange(removedFavourites.Select(rf => rf.ToDiscordEmbed(user, added: false, dbUser.Features)));
+			totalUpdates.AddRange(addedFavourites.Select(af => af.ToDiscordEmbed(user, added: true, dbUser.Features)));
 			totalUpdates.AddRange(achievementUpdates.Select(au => au.ToDiscordEmbed(user, dbUser.Features)));
 			var groupedHistoryEntriesWithMediaAndRoles = new List<HistoryMediaRoles>(historyUpdates.GroupSimilarHistoryEntries().Select(x =>
 				new HistoryMediaRoles()
 				{
-					HistoryEntries = x
+					HistoryEntries = x,
 				}));
 			if (groupedHistoryEntriesWithMediaAndRoles.Exists(x => x.HistoryEntries.Find(x => x.Target is not null) is not null))
 			{
@@ -128,7 +125,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			}
 
 			if (dbUser.Features.HasFlag(ShikiUserFeatures.Mention))
-				totalUpdates.ForEach(deb => deb.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
+				totalUpdates.ForEach(deb => deb.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), inline: true));
 
 			if (dbUser.Features.HasFlag(ShikiUserFeatures.Website))
 				totalUpdates.ForEach(deb => deb.WithShikiUpdateProviderFooter());
@@ -142,7 +139,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 			try
 			{
-				if (db.SaveChanges() <= 0) throw new Exception("Couldn't save update in DB");
+				if (db.SaveChanges() <= 0) throw new NoChangesSavedException(db);
 				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				this.Logger.LogDebug("Found {@Count} updates for {@User}", totalUpdates.Count, user);
 				if (isfavouritesMismatch)
@@ -153,9 +150,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 					db.SaveChanges();
 				}
 			}
-			#pragma warning disable CA1031
 			catch (Exception ex)
-				#pragma warning restore CA1031
 			{
 				this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
 				throw;
@@ -201,7 +196,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 		{
 			return x => new FavouriteMediaRoles()
 			{
-				FavouriteEntry = x
+				FavouriteEntry = x,
 			};
 		}
 
@@ -212,16 +207,16 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				Id = fe.Id,
 				Name = fe.Name,
 				FavType = fe.GenericType!,
-				User = shikiUser
+				User = shikiUser,
 			};
 		}
 
 		var favs = await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken).ConfigureAwait(false);
-		var isFavouritesMismatch = dbUser.FavouritesIdHash != Helpers.FavoritesHash(favs.AllFavourites.OrderBy(x => x.Id)
+		var isFavouritesMismatch = !string.Equals(dbUser.FavouritesIdHash, Helpers.FavoritesHash(favs.AllFavourites.OrderBy(x => x.Id)
 																						.ThenBy(x => x.GenericType, StringComparer.Ordinal)
 																						.Select(
 																							x => new FavoriteIdType(x.Id, (byte)x.GenericType![0]))
-																						.ToArray());
+																						.ToArray()), StringComparison.Ordinal);
 		if (!isFavouritesMismatch)
 		{
 			return (Array.Empty<FavouriteMediaRoles>(), Array.Empty<FavouriteMediaRoles>(), isFavouritesMismatch);
@@ -232,7 +227,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 					   {
 						   Id = f.Id,
 						   Name = f.Name,
-						   GenericType = f.FavType
+						   GenericType = f.FavType,
 					   }).ToArray();
 		if ((favs.AllFavourites.Count == 0 && dbFavs.Length == 0) || favs.AllFavourites.SequenceEqual(dbFavs))
 		{
@@ -277,7 +272,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				continue;
 			}
 
-			var acs = dbUser.Achievements.Find(x => x.NekoId == id);
+			var acs = dbUser.Achievements.Find(x => string.Equals(x.NekoId, id, StringComparison.Ordinal));
 			if (acs is not null && acs.Level < level)
 			{
 					acs.Level = level;
@@ -288,7 +283,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				dbUser.Achievements.Add(new ShikiDbAchievement()
 				{
 					Level = level,
-					NekoId = id
+					NekoId = id,
 				});
 				result.Add(achievementInfo);
 			}

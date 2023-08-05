@@ -78,7 +78,7 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 			{
 				Guilds = new[] { guild },
 				DiscordUserId = userId,
-				BotUser = new()
+				BotUser = new(),
 			};
 		}
 		else if (dUser.Guilds.All(x => x.DiscordGuildId != guildId))
@@ -88,16 +88,16 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 
 		dbUser = new()
 		{
-			Favourites = response.Favourites.ConvertAll(f => new AniListFavourite
+			Favourites = response.Favourites1.ConvertAll(f => new AniListFavourite
 			{
 				Id = f.Id,
-				FavouriteType = (FavouriteType)f.Type
+				FavouriteType = (FavouriteType)f.Type,
 			}),
 			Id = response.UserId!.Value,
 			DiscordUser = dUser,
 			LastActivityTimestamp = now,
 			LastReviewTimestamp = now,
-			FavouritesIdHash = Helpers.FavoritesHash(response.Favourites.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).ToArray()),
+			FavouritesIdHash = Helpers.FavoritesHash(response.Favourites1.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).ToArray()),
 			Features = AniListUserFeatures.None.GetDefault(),
 		};
 		dbUser.Favourites.ForEach(f =>

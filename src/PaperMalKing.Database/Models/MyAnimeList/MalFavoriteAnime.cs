@@ -8,11 +8,7 @@ public sealed class MalFavoriteAnime : BaseMalListFavorite, IEquatable<MalFavori
 {
 	public bool Equals(MalFavoriteAnime? other)
 	{
-		if (ReferenceEquals(null, other))
-			return false;
-		if (ReferenceEquals(this, other))
-			return true;
-		return this.UserId == other.UserId && this.Id == other.Id;
+		return other is not null && (ReferenceEquals(this, other) || (this.UserId == other.UserId && this.Id == other.Id));
 	}
 
 	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is MalFavoriteAnime other && this.Equals(other));

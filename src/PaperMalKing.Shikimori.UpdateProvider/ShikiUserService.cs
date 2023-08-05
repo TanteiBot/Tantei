@@ -88,7 +88,7 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 			{
 				Id = f.Id,
 				Name = f.Name,
-				FavType = f.GenericType!
+				FavType = f.GenericType!,
 				// User = dbUser
 			}).ToList(),
 			Id = shikiUser.Id,
@@ -100,8 +100,8 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 			Achievements = achievements.Select(x=> new  ShikiDbAchievement
 			{
 				NekoId = x.Id,
-				Level = x.Level
-			}).ToList()
+				Level = x.Level,
+			}).ToList(),
 		};
 		dbUser.Favourites.ForEach(f => f.User = dbUser);
 		db.ShikiUsers.Add(dbUser);

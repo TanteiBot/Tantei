@@ -2,7 +2,7 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
-using System.Threading.Tasks;
+using System.Globalization;
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -38,13 +38,13 @@ public static class HostBuilderExtensions
 		hostBuilder.ConfigureAppConfiguration(x => x.AddJsonFile("appsetings-shared", optional: true, reloadOnChange: false))
 				   .ConfigureServices((hostContext, services) =>
 		{
-			Action<IServiceProvider, DbContextOptionsBuilder> optionsAction = (services, builder) =>
+			static void  ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
 			{
 				builder.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("Default"),
 					o => o.MigrationsAssembly("PaperMalKing.Database.Migrations")).UseModel(DatabaseContextModel.Instance);
-			};
-			services.AddDbContextFactory<DatabaseContext>(optionsAction);
-			services.AddDbContext<DatabaseContext>(optionsAction);
+			}
+			services.AddDbContextFactory<DatabaseContext>(ConfigureDbContext);
+			services.AddDbContext<DatabaseContext>(ConfigureDbContext);
 			var config = hostContext.Configuration;
 
 			services.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord));
@@ -60,7 +60,7 @@ public static class HostBuilderExtensions
 					LoggerFactory = loggerFactory,
 					ReconnectIndefinitely = true,
 					MessageCacheSize = 256,
-					MinimumLogLevel = LogLevel.Trace
+					MinimumLogLevel = LogLevel.Trace,
 				};
 				return new(cfg);
 			});
@@ -93,7 +93,7 @@ public static class HostBuilderExtensions
 			}
 			else
 			{
-				loggerSinkConfiguration.Console(outputTemplate: template);
+				loggerSinkConfiguration.Console(outputTemplate: template, formatProvider: CultureInfo.InvariantCulture);
 			}
 		});
 		return hostBuilder;

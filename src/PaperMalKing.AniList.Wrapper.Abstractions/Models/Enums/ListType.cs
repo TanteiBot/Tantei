@@ -9,5 +9,5 @@ namespace PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 public enum ListType : byte
 {
 	ANIME = 0,
-	MANGA = 1
+	MANGA = 1,
 }

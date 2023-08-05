@@ -7,5 +7,5 @@ public enum HistoryRequestOptions : byte
 {
 	Anime = 0,
 	Manga = 1,
-	Any = 2
+	Any = 2,
 }

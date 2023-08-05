@@ -16,9 +16,9 @@ internal sealed class ShikiAchievementsService
 	{
 		this._achievements = neko.Achievements.ToDictionary(item => (item.Id, item.Level),
 			item => new ShikiAchievement(item.Id, item.Level,
-				new Uri(PaperMalKing.Shikimori.Wrapper.Abstractions.Constants.BASE_URL + item.Image, UriKind.Absolute),
+				new Uri(Wrapper.Abstractions.Constants.BASE_URL + item.Image, UriKind.Absolute),
 				item.BorderColor is not null ? new(item.BorderColor) : DiscordColor.None, item.TitleRussian, item.TextRussian, item.TitleEnglish,
-				item.TextEnglish, neko.HumanNames.GetValueOrDefault(item.Id))).ToFrozenDictionary(true);
+				item.TextEnglish, neko.HumanNames.GetValueOrDefault(item.Id))).ToFrozenDictionary(optimizeForReading: true);
 	}
 
 	public ShikiAchievement? GetAchievementOrNull(string id, byte level) => this._achievements.GetValueOrDefault((id, level));

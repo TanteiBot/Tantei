@@ -16,7 +16,7 @@ public static class EmbedTemplate
 		{
 			Title = title ?? "Error occured",
 			Description = errorMessage,
-			Color = DiscordColor.Red
+			Color = DiscordColor.Red,
 		};
 	}
 
@@ -24,7 +24,7 @@ public static class EmbedTemplate
 	{
 		var embedBuilder = new DiscordEmbedBuilder
 		{
-			Color = new DiscordColor("#10c710")
+			Color = new DiscordColor("#10c710"),
 		};
 		return message.Length > 256 ? embedBuilder.WithDescription(message) : embedBuilder.WithTitle(message);
 	}

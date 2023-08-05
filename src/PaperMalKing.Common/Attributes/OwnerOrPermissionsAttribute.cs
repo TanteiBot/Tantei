@@ -24,7 +24,10 @@ public sealed class OwnerOrPermissionsAttribute : SlashCheckBaseAttribute
 	/// Defines that command or group of commands can only be executed by owner of the bot or user with specified permissions.
 	/// </summary>
 	/// <param name="permissions">Permissions needed to execute command.</param>
-	public OwnerOrPermissionsAttribute(Permissions permissions) => this.Permissions = permissions;
+	public OwnerOrPermissionsAttribute(Permissions permissions)
+	{
+		this.Permissions = permissions;
+	}
 
 	public override Task<bool> ExecuteChecksAsync( InteractionContext ctx)
 	{

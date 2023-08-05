@@ -22,12 +22,10 @@ public sealed class RateLimiterHttpMessageHandler : DelegatingHandler
 	{
 		while (!cancellationToken.IsCancellationRequested)
 		{
-			using (var rateLimitLease = await this.RateLimiter.AcquireAsync(1, cancellationToken).ConfigureAwait(false))
+			using var rateLimitLease = await this.RateLimiter.AcquireAsync(1, cancellationToken).ConfigureAwait(false);
+			if (rateLimitLease.IsAcquired)
 			{
-				if (rateLimitLease.IsAcquired)
-				{
-					return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-				}
+				return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 			}
 		}
 

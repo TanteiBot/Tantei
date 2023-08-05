@@ -33,13 +33,7 @@ public abstract class BaseUserFeaturesService<TUser, TFeature>
 	public async Task DisableFeaturesAsync(TFeature feature, ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
-		var dbUser = db.Set<TUser>().TagWith("Query user to disable a feature").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == userId);
-
-		if (dbUser is null)
-		{
-			throw new UserFeaturesException("You must register first before disabling features");
-		}
-
+		var dbUser = db.Set<TUser>().TagWith("Query user to disable a feature").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == userId) ?? throw new UserFeaturesException("You must register first before disabling features");
 		var features = dbUser.Features;
 		var f = Unsafe.As<TFeature, ulong>(ref features);
 		var featureValue = Unsafe.As<TFeature, ulong>(ref feature);

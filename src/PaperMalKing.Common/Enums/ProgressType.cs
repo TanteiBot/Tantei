@@ -8,5 +8,5 @@ public enum ProgressType : byte
 	Completed = 1,
 	OnHold = 2,
 	Dropped = 3,
-	InPlans = 4
+	InPlans = 4,
 }

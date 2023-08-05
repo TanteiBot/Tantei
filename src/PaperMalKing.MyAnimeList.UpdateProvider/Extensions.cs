@@ -5,6 +5,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -29,7 +30,7 @@ internal static class Extensions
 	private static readonly DiscordEmbedBuilder.EmbedFooter MalUpdateFooter = new()
 	{
 		IconUrl = Constants.FAV_ICON,
-		Text = Constants.Name
+		Text = Constants.Name,
 	};
 
 	private static readonly FrozenDictionary<byte, DiscordColor> Colors = new Dictionary<byte, DiscordColor>()
@@ -111,7 +112,7 @@ internal static class Extensions
 		NameUrl = anime.Url.Url,
 		StartYear = anime.StartYear,
 		User = user,
-		UserId = user.UserId
+		UserId = user.UserId,
 	};
 
 	public static MalFavoriteManga ToMalFavoriteManga(this FavoriteManga manga, MalUser user) => new()
@@ -123,7 +124,7 @@ internal static class Extensions
 		NameUrl = manga.Url.Url,
 		StartYear = manga.StartYear,
 		User = user,
-		UserId = user.UserId
+		UserId = user.UserId,
 	};
 
 	public static MalFavoriteCompany ToMalFavoriteCompany(this FavoriteCompany company, MalUser user) => new()
@@ -133,7 +134,7 @@ internal static class Extensions
 		ImageUrl = company.ImageUrl,
 		NameUrl = company.Url.Url,
 		User = user,
-		UserId = user.UserId
+		UserId = user.UserId,
 	};
 
 	public static MalFavoriteCharacter ToMalFavoriteCharacter(this FavoriteCharacter character, MalUser user) => new()
@@ -144,7 +145,7 @@ internal static class Extensions
 		NameUrl = character.Url.Url,
 		FromTitleName = character.FromName,
 		User = user,
-		UserId = user.UserId
+		UserId = user.UserId,
 	};
 
 	public static MalFavoritePerson ToMalFavoritePerson(this FavoritePerson person, MalUser user) => new()
@@ -154,7 +155,7 @@ internal static class Extensions
 		ImageUrl = person.ImageUrl,
 		NameUrl = person.Url.Url,
 		User = user,
-		UserId = user.UserId
+		UserId = user.UserId,
 	};
 
 	public static DiscordEmbedBuilder WithMalUpdateProviderFooter(this DiscordEmbedBuilder builder)
@@ -167,7 +168,7 @@ internal static class Extensions
 	{
 		var eb = new DiscordEmbedBuilder
 		{
-			Url = favorite.NameUrl
+			Url = favorite.NameUrl,
 		}.WithThumbnail(favorite.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favorite");
 
 		eb.WithColor(added ? Constants.MalGreen : Constants.MalRed);
@@ -180,7 +181,7 @@ internal static class Extensions
 		eb.WithTitle(title);
 
 		if (favorite is MalFavoriteCharacter favoriteCharacter)
-			eb.AddField("From", favoriteCharacter.FromTitleName, true);
+			eb.AddField("From", favoriteCharacter.FromTitleName, inline: true);
 
 		return eb;
 	}
@@ -209,7 +210,7 @@ internal static class Extensions
 		var eb = new DiscordEmbedBuilder().WithThumbnail(listEntry.Node.Picture?.Large ?? listEntry.Node.Picture?.Medium)
 										  .WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl).WithTimestamp(listEntry.Status.UpdatedAt);
 		if (listEntry.Status.Score != 0)
-			eb.AddField("Score", listEntry.Status.Score.ToString(), true);
+			eb.AddField("Score", listEntry.Status.Score.ToString(NumberFormatInfo.InvariantInfo), inline: true);
 
 		string userProgressText;
 		switch (listEntry)
@@ -217,21 +218,19 @@ internal static class Extensions
 			case AnimeListEntry ale:
 				{
 					var progress = ale.Status.Status.Humanize(LetterCasing.Sentence);
-					string episodeProgress = SubEntriesProgress(ale.Status.EpisodesWatched, ale.Node.Episodes,
+					var episodeProgress = SubEntriesProgress(ale.Status.EpisodesWatched, ale.Node.Episodes,
 						ale.Status.Status == AnimeListStatus.plan_to_watch, "ep.");
 					userProgressText = episodeProgress.Length != 0 ? $"{progress} - {episodeProgress}" : progress;
 					break;
 				}
 			case MangaListEntry mle:
 				{
-					string progress = mle.Status.Status.Humanize(LetterCasing.Sentence)!;
-					string chapterProgress = SubEntriesProgress(mle.Status.ChaptersRead, mle.Node.TotalChapters,
+					var progress = mle.Status.Status.Humanize(LetterCasing.Sentence)!;
+					var chapterProgress = SubEntriesProgress(mle.Status.ChaptersRead, mle.Node.TotalChapters,
 						mle.Status.Status == MangaListStatus.plan_to_read, "ch. ");
-					string volumeProgress =
+					var volumeProgress =
 						SubEntriesProgress(mle.Status.VolumesRead, mle.Node.TotalVolumes, mle.Status.Status == MangaListStatus.plan_to_read, "v.");
-					#pragma warning disable CA1508
-					userProgressText = volumeProgress.Length != 0 || chapterProgress.Length != 0
-						#pragma warning restore CA1508
+					userProgressText = string.IsNullOrEmpty(volumeProgress) || !string.IsNullOrEmpty(chapterProgress)
 						? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
 					break;
 				}
@@ -241,11 +240,11 @@ internal static class Extensions
 			}
 		}
 
-		eb.AddField("Progress", userProgressText, true);
+		eb.AddField("Progress", userProgressText, inline: true);
 
 		if (listEntry.Status.ReprogressTimes > 0)
 		{
-			eb.AddField($"{(listEntry is AnimeListEntry ? "Rewatch" : "Reread")} times", listEntry.Status.ReprogressTimes.ToString());
+			eb.AddField($"{(listEntry is AnimeListEntry ? "Rewatch" : "Reread")} times", listEntry.Status.ReprogressTimes.ToString(NumberFormatInfo.InvariantInfo));
 		}
 
 		var shortTitle = TitleMediaTypeString(listEntry.Node.Title, listEntry.Node.MediaType.Humanize(), features);
@@ -312,7 +311,7 @@ internal static class Extensions
 		if (features.HasFlag(MalUserFeatures.Synopsis) && !string.IsNullOrWhiteSpace(listEntry.Node.Synopsis))
 		{
 			var shortSynopsis = listEntry.Node.Synopsis.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-			AddAsFieldOrTruncateToDescription(eb, "Synopsis", shortSynopsis[0], false);
+			AddAsFieldOrTruncateToDescription(eb, "Synopsis", shortSynopsis[0], inline: false);
 		}
 
 		if (features.HasFlag(MalUserFeatures.Dates) && (listEntry.Status.StartDate is not null || listEntry.Status.FinishDate is not null))
@@ -329,12 +328,12 @@ internal static class Extensions
 			const string format = "dd/MM/yyyy";
 			var value = (isStartNull, isFinishNull) switch
 			{
-				(false, false) => $"{listEntry.Status.StartDate!.Value.ToString(format)} - {listEntry.Status.FinishDate!.Value.ToString(format)}",
-				(false, true)  => listEntry.Status.StartDate!.Value.ToString(format),
-				(true, false)  => listEntry.Status.FinishDate!.Value.ToString(format),
+				(false, false) => $"{listEntry.Status.StartDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo)} - {listEntry.Status.FinishDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo)}",
+				(false, true)  => listEntry.Status.StartDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
+				(true, false)  => listEntry.Status.FinishDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
 				_              => throw new UnreachableException()
 			};
-			eb.AddField(fieldTitle, value, false);
+			eb.AddField(fieldTitle, value);
 		}
 
 		if (features.HasFlag(MalUserFeatures.Studio) && listEntry is AnimeListEntry aListEntry &&
@@ -366,7 +365,7 @@ internal static class Extensions
 		return eb;
 	}
 
-	private static DiscordEmbedBuilder AddAsFieldOrTruncateToDescription(DiscordEmbedBuilder eb, string fieldName, string fieldValue, bool inline = true)
+	private static void AddAsFieldOrTruncateToDescription(DiscordEmbedBuilder eb, string fieldName, string fieldValue, bool inline = true)
 	{
 		if (fieldValue.Length <= 1024)
 		{
@@ -381,8 +380,6 @@ internal static class Extensions
 			else
 				eb.Description += $"{'\n'}{descToAdd}";
 		}
-
-		return eb;
 	}
 
 	public static Span<FavoriteIdType> GetFavoriteIdTypesFromFavorites(this UserFavorites favorites)

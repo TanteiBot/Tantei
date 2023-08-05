@@ -2,13 +2,11 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Database.Models.AniList;
 
 [Flags]
-[SuppressMessage("Roslynator", "RCS1154:Sort enum members.")]
 public enum AniListUserFeatures : ulong
 {
 	None = 0,

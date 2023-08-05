@@ -1,13 +1,5 @@
-// Tantei.
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as
-// published by the Free Software Foundation, either version 3 of the
-// License, or (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY
 
 using System;
 using System.Text.Json.Serialization;
@@ -26,9 +18,7 @@ public sealed class IdentifiableFavourite : IIdentifiable, IEquatable<Identifiab
 
 	public bool Equals(IdentifiableFavourite? other)
 	{
-		if (ReferenceEquals(null, other)) return false;
-		if (ReferenceEquals(this, other)) return true;
-		return this.Id == other.Id && this.Type == other.Type;
+		return other is not null && (ReferenceEquals(this, other) || (this.Id == other.Id && this.Type == other.Type));
 	}
 
 	public override bool Equals(object? obj)

@@ -10,6 +10,7 @@ using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.AniList.Wrapper.Abstractions.Models;
 #pragma warning disable CA1724
+// The type name Media conflicts in whole or in part with the namespace name 'System.Media' defined in the .NET Framework. Rename the type to eliminate the conflict. 
 public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 #pragma warning restore CA1724
 {

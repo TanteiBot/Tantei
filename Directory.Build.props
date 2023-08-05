@@ -13,10 +13,13 @@
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
         <AnalysisMode>All</AnalysisMode>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);
+            CS1591; <!--Missing XML comment for publicly visible type or member-->
+            
             CA1000; <!--Do not declare static members on generic types-->
+            CA1002; <!--Change 'List '  to use 'Collection ', 'ReadOnlyCollection ' or 'KeyedCollection'-->
             CA1003; <!--Use generic event handler instances-->
-            CA1014; <!--Mark assemblies with CLSCompliantAttribute-->
             CA1028; <!--Enum storage should be Int32-->
             CA1032; <!--Implement standard exception constructors-->
             CA1034; <!--Do not nest type. Alternatively, change its accessibility so that it is not externally visible.-->
@@ -24,48 +27,47 @@
             CA1055; <!--Change the return type of method from 'string' to 'System.Uri'-->
             CA1056; <!--URI properties should not be strings-->
             CA1062; <!--Validate arguments of public methods-->
-            CA1305; <!--Specify IFormatProvider-->
-            CA1308; <!--In method replace the call to 'ToLowerInvariant' with 'ToUpperInvariant'-->
             CA1707; <!--Remove the underscores from member name-->
 
-            CA1805; <!--Do not initialize unnecessarily.-->
             CA1812; <!--Avoid uninstantiated internal classes-->
             CA1848; <!--For improved performance, use the LoggerMessage delegates -->
-            CA2201; <!--Do not raise reserved exception types-->
             CA2234; <!--Pass System.Uri objects instead of strings-->
-            CA5394; <!--Random is an insecure random number generator. Use cryptographically secure random number generators when randomness is required for security.-->
 
-            MA0006; <!--Use string.Equals instead of Equals operator -->
-            MA0011; <!--Use an overload that has a 'System.IFormatProvider' parameter-->
             MA0016; <!--Prefer returning collection abstraction instead of implementation-->
             MA0018; <!--Do not declare static members on generic types-->
             MA0023; <!--Add RegexOptions.ExplicitCapture-->
             MA0026; <!--Fix TODO comment-->
+            MA0038; <!--Make method static (deprecated, use CA1822 instead)-->
+            MA0042; <!--Do not use blocking calls in an async method-->
             MA0046; <!--Use EventHandler<T> to declare events-->
             MA0051; <!--Method is too long-->
             MA0099; <!-- Use Explicit enum value instead of 0 -->
+            MA0101; <!--String contains an implicit end of line character-->
 
-            S112; <!--'System.Exception' should not be thrown by user code.-->
+            IDE0010; <!--Add missing cases to switch statement-->
+            IDE0011; <!--Add braces-->
+            IDE0022; <!--Use expression body for methods-->
+            IDE0024; <!--Use expression body for operators-->
+            IDE0055; <!--Formatting rule-->
+            IDE0058; <!--Remove unnecessary expression value-->
+            IDE0061; <!--Use expression body for local functions-->
+            IDE0052; <!--Private member can be removed as the value assigned to it is never read -->
+            IDE0160; <!--Namespace declaration preferences-->
+            IDE0290; <!--UsePrimaryConstructor-->
+
             S1075; <!--Refactor your code not to use hardcoded absolute paths or URIs.-->
-            S1123; <!--Add an explanation-->
-            S1133;
+            S1133; <!--Do not forget to remove this deprecated code someday. -->
             S1135; <!--Complete the task associated to this 'TODO' comment.-->
-            S1854; <!--Remove this useless assignment to local variable 'progress'.-->
             S2326; <!--'T' is not used in the interface.-->
             S2743; <!-- Static fields should not be used in generic types-->
-            S3218; <!--Rename this method to not shadow the outer class' member with the same name.-->
-            S3241; <!--Change return type to 'void'; not a single caller uses the returned value.-->
             S3925; <!--Update this implementation of 'ISerializable' to conform to the recommended serialization pattern.-->
-            S4457; <!--Split this method into two, one handling parameters check and the other handling the asynchronous code.-->
-            S4487; <!--Remove this unread private field-->
-            S4663; <!--Remove this empty comment-->
 
             RCS1031; <!-- Remove unnecessary braces. -->
             RCS1135; <!-- Declare enum member with zero value (when enum has FlagsAttribute).-->
             RCS1139; <!-- Add summary element to documentation comment.-->
+            RCS1181; <!--Convert comment to documentation comment.-->
             RCS1194; <!--Implement exception constructors.-->
-            RCS1197; <!--Optimize StringBuilder.AppendLine call.-->
-            
+
             AsyncFixer02; <!--ToArrayAsync should be used instead of -->
         </NoWarn>
         <WarningsNotAsErrors>
@@ -82,6 +84,12 @@
             <PrivateAssets>contentfiles;analyzers;build;compile</PrivateAssets>
         </ProjectReference>
     </ItemDefinitionGroup>
+    
+    <ItemGroup>
+        <AssemblyAttribute Include="System.CLSCompliantAttribute">
+            <_Parameter1>false</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Meziantou.Analyzer">

@@ -75,9 +75,8 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				continue;
 			}
 
-			var isFavouritesHashMismatch = dbUser.FavouritesIdHash !=
-										   Helpers.FavoritesHash(recentUserUpdates.Favourites.Select(x => new FavoriteIdType(x.Id, (byte)x.Type))
-																			      .OrderBy(x => x.Id).ThenBy(x=>x.Type).ToArray());
+			var isFavouritesHashMismatch = !string.Equals(dbUser.FavouritesIdHash, Helpers.FavoritesHash(recentUserUpdates.Favourites1.Select(x => new FavoriteIdType(x.Id, (byte)x.Type))
+																				  .OrderBy(x => x.Id).ThenBy(x => x.Type).ToArray()), StringComparison.Ordinal);
 
 			if (dbUser.Features.HasFlag(AniListUserFeatures.Favourites) && isFavouritesHashMismatch)
 			{
@@ -115,7 +114,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			if (dbUser.LastActivityTimestamp < lastActivityTimestamp) dbUser.LastActivityTimestamp = lastActivityTimestamp;
 			if (dbUser.LastReviewTimestamp < lastReviewTimeStamp) dbUser.LastReviewTimestamp = lastReviewTimeStamp;
 			if (dbUser.Features.HasFlag(AniListUserFeatures.Mention))
-				allUpdates.ForEach(u => u.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), true));
+				allUpdates.ForEach(u => u.AddField("By", Helpers.ToDiscordMention(dbUser.DiscordUserId), inline: true));
 			if (dbUser.Features.HasFlag(AniListUserFeatures.Website))
 				allUpdates.ForEach(u => u.WithAniListFooter());
 			allUpdates.SortBy(u => u.Timestamp.GetValueOrDefault());
@@ -128,7 +127,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 
 			try
 			{
-				if (db.SaveChanges() <= 0) throw new Exception("Couldn't save updates to database");
+				if (db.SaveChanges() <= 0) throw new NoChangesSavedException(db);
 				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(allUpdates), this, dbUser.DiscordUser)).ConfigureAwait(false);
 				if (isFavouritesHashMismatch)
 				{
@@ -137,9 +136,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 					db.SaveChanges();
 				}
 			}
-			#pragma warning disable CA1031
 			catch (Exception ex)
-				#pragma warning restore CA1031
 			{
 				this.Logger.LogError(ex, "Error happened while sending update or saving changes to DB");
 				throw;
@@ -157,7 +154,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				User = aniListUser,
 				UserId = aniListUser.Id,
 				Id = av.Id,
-				FavouriteType = (FavouriteType)av.Type
+				FavouriteType = (FavouriteType)av.Type,
 			};
 		}
 
@@ -187,10 +184,10 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		var convFavs = db.AniListFavourites.TagWith("Query current user favorites").TagWithCallSite().Where(x => x.UserId == user.Id).Select(f => new IdentifiableFavourite()
 		{
 			Id = f.Id,
-			Type = (Wrapper.Abstractions.Models.Enums.FavouriteType)f.FavouriteType
+			Type = (Wrapper.Abstractions.Models.Enums.FavouriteType)f.FavouriteType,
 		}).ToArray();
 
-		var (addedValues, removedValues) = convFavs.GetDifference(response.Favourites);
+		var (addedValues, removedValues) = convFavs.GetDifference(response.Favourites1);
 		if (cancellationToken.IsCancellationRequested || (!addedValues.Any() && !removedValues.Any()))
 			return Array.Empty<DiscordEmbedBuilder>();
 

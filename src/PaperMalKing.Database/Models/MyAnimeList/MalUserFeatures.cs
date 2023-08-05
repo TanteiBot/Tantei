@@ -2,13 +2,11 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Database.Models.MyAnimeList;
 
 [Flags]
-[SuppressMessage("Roslynator", "RCS1154:Sort enum members.")]
 public enum MalUserFeatures : ulong
 {
 	None = 0,
@@ -62,5 +60,5 @@ public enum MalUserFeatures : ulong
 	Demographic = 1 << 15,
 
 	[FeatureDescription("seiyu", "Show seiyu of anime in update")]
-	Seiyu = 1 << 16
+	Seiyu = 1 << 16,
 }

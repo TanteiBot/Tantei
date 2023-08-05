@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -17,7 +18,7 @@ public static class FeaturesHelper<T> where T : unmanaged, Enum, IComparable, IC
 	private static IReadOnlyDictionary<T, (string EnumValue, string Description, string Summary)>? _featuresInfo;
 
 	public static IReadOnlyDictionary<T, (string EnumValue, string Description, string Summary)> FeaturesInfo =>
-		Volatile.Read(ref _featuresInfo) ?? Interlocked.CompareExchange(ref _featuresInfo, CreateFeaturesInfo(), null) ?? _featuresInfo;
+		Volatile.Read(ref _featuresInfo) ?? Interlocked.CompareExchange(ref _featuresInfo, CreateFeaturesInfo(), comparand: null) ?? _featuresInfo;
 
 	public static T Parse(string value)
 	{
@@ -31,13 +32,13 @@ public static class FeaturesHelper<T> where T : unmanaged, Enum, IComparable, IC
 		Debug.Assert(Enum.GetUnderlyingType(typeof(T)) == typeof(ulong), $"All features must have {nameof(UInt64)} as underlying type");
 
 		return new (Enum.GetValues<T>()
-			.Where(v => ti.DeclaredMembers.First(xm => xm.Name == v.ToString()).GetCustomAttribute<FeatureDescriptionAttribute>() is not null).Select(value =>
+			.Where(v => ti.DeclaredMembers.First(xm => string.Equals(xm.Name, v.ToString(), StringComparison.Ordinal)).GetCustomAttribute<FeatureDescriptionAttribute>() is not null).Select(value =>
 			{
-				Debug.Assert( (value.ToUInt64(null) & (value.ToUInt64(null) - 1UL)) == 0UL, $"All features of {nameof(T)} must be a power of 2");
+				Debug.Assert( (value.ToUInt64(NumberFormatInfo.InvariantInfo) & (value.ToUInt64(CultureInfo.InvariantCulture) - 1UL)) == 0UL, $"All features of {nameof(T)} must be a power of 2");
 				var name = value.ToString();
-				var attribute = ti.DeclaredMembers.First(xm => xm.Name == name).GetCustomAttribute<FeatureDescriptionAttribute>()!;
+				var attribute = ti.DeclaredMembers.First(xm => string.Equals(xm.Name, name, StringComparison.Ordinal)).GetCustomAttribute<FeatureDescriptionAttribute>()!;
 
 				return (value, name, attribute.Description, attribute.Summary);
-			}).ToDictionary(x => x.value, x => (EnumValue: x.name, Description: x.Description, Summary: x.Summary)));
+			}).ToDictionary(x => x.value, x => (EnumValue: x.name, x.Description, x.Summary)));
 	}
 }

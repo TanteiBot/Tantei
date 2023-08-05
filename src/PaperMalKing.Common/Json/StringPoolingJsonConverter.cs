@@ -32,6 +32,8 @@ public sealed class StringPoolingJsonConverter : JsonConverter<string>
 
 	public static string ReadStringOrGetFromPool(ref Utf8JsonReader reader) => ReadStringOrGetFromPool(ref reader, StringPool);
 
+	/// <param name="reader">the reader</param>
+	/// <param name="stringPool">pool to pool to or from value</param>
 	/// <remarks>
 	/// Uses ref in order to not copy struct when invoking <see cref="Utf8JsonReader.GetString"/> in unhappy paths
 	/// </remarks>
@@ -45,10 +47,10 @@ public sealed class StringPoolingJsonConverter : JsonConverter<string>
 
 		scoped Span<byte> bytes = stackalloc byte[ByteBufferLength];
 		var bytesWritten = reader.CopyString(bytes);
-		bytes = bytes.Slice(0, bytesWritten);
+		bytes = bytes[..bytesWritten];
 		scoped Span<char> chars = stackalloc char[MaxLengthLimit];
 		var charsWritten = Encoding.UTF8.GetChars(bytes, chars);
-		return stringPool.GetOrAdd(chars.Slice(0, charsWritten));
+		return stringPool.GetOrAdd(chars[..charsWritten]);
 	}
 
 	public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)

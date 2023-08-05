@@ -53,16 +53,16 @@
     <PackageVersion Include="System.Threading.RateLimiting" Version="8.0.0-preview.6.23329.7" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.0-preview.6.23329.11" />
     <!-- Analyzers-->
-    <PackageVersion Include="Meziantou.Analyzer" Version="2.0.78">
+    <PackageVersion Include="Meziantou.Analyzer" Version="2.0.80">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="SonarAnalyzer.CSharp" Version="9.6.0.74858">
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="9.7.0.75501">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
     <PackageVersion Include="AsyncFixer" Version="1.6.0" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.6.40" />
-    <PackageVersion Include="Roslynator.Analyzers" Version="4.3.0" />
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.4.0" />
   </ItemGroup>
 </Project>

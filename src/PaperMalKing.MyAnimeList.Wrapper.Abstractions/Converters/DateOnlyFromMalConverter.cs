@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2022 N0D4N
+// Copyright (C) 2021-2023 N0D4N
 
 using System;
 using System.Globalization;
@@ -26,7 +26,7 @@ public sealed class DateOnlyFromMalConverter : JsonConverter<DateOnly?>
 
 		scoped Span<char> buffer = stackalloc char[MaxDateLength];
 		var charsWritten = reader.CopyString(buffer);
-		buffer = buffer.Slice(0, charsWritten);
+		buffer = buffer[..charsWritten];
 		foreach (var t in Formats)
 		{
 			if (DateOnly.TryParseExact(buffer, t, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out var result))

@@ -1,4 +1,6 @@
-﻿using System;
+﻿// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2021-2023 N0D4N
+using System;
 using System.Net.Http;
 using System.Text.Json;
 using GraphQL.Client.Http;
@@ -36,7 +38,7 @@ public static class ServiceCollectionExtensions
 			var logger = provider.GetRequiredService<ILogger<AniListClient>>();
 			var options = new GraphQLHttpClientOptions()
 			{
-				EndPoint = new Uri(ClientConstants.BASE_URL)
+				EndPoint = new Uri(ClientConstants.BASE_URL),
 			};
 			var gqlc = new GraphQLHttpClient(options, new SystemTextJsonSerializer(new JsonSerializerOptions(JsonSerializerDefaults.Web)), httpClient);
 

@@ -39,8 +39,8 @@ internal sealed class UngroupedCommands : BotCommandsModule
 		{
 			Description = messageContent.Replace("@everyone", "@\u200beveryone", StringComparison.Ordinal)
 										.Replace("@here", "@\u200bhere", StringComparison.Ordinal),
-			Timestamp = DateTime.Now,
-			Color = DiscordColor.Blue
+			Timestamp = DateTimeOffset.Now,
+			Color = DiscordColor.Blue,
 		}.WithAuthor($"{context.User.Username}#{context.User.Discriminator}", iconUrl: context.User.AvatarUrl);
 		try
 		{
@@ -56,7 +56,7 @@ internal sealed class UngroupedCommands : BotCommandsModule
 	}
 
 	[SlashCommand("About", "Displays info about bot")]
-	public Task AboutCommand(InteractionContext context)
+	public Task<DiscordMessage> AboutCommand(InteractionContext context)
 	{
 		if (_aboutEmbed is null)
 		{
@@ -86,8 +86,8 @@ internal sealed class UngroupedCommands : BotCommandsModule
 					Description = desc,
 					Color = DiscordColor.DarkBlue,
 				}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
-				 .AddField("Links", Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)), true)
-				 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), true).AddField("Versions", versions, true);
+				 .AddField("Links", Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)), inline: true)
+				 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), inline: true).AddField("Versions", versions, inline: true);
 
 			Interlocked.Exchange(ref _aboutEmbed, embedBuilder.Build());
 		}

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2022 N0D4N
-
+// Copyright (C) 2021-2023 N0D4N
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 
@@ -15,5 +14,5 @@ public enum AnimeAiringStatus : byte
 	[Description("Currently airing")]
 	currently_airing = 2,
 	[Description("Not yet aired")]
-	not_yet_aired = 3
+	not_yet_aired = 3,
 }

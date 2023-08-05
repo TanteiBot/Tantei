@@ -14,11 +14,11 @@ public sealed class MediaListTypeOptions : IBoolWrapper<MediaListTypeOptions>
 
 	public static MediaListTypeOptions TrueValue { get; } = new()
 	{
-		IsAdvancedScoringEnabled = true
+		IsAdvancedScoringEnabled = true,
 	};
 
 	public static MediaListTypeOptions FalseValue { get; } = new()
 	{
-		IsAdvancedScoringEnabled = false
+		IsAdvancedScoringEnabled = false,
 	};
 }

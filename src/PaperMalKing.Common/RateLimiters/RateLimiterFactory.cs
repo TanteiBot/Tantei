@@ -12,7 +12,9 @@ public static class RateLimiterFactory
 	{
 		ArgumentNullException.ThrowIfNull(rateLimit);
 		if (rateLimit.AmountOfRequests == 0 || rateLimit.PeriodInMilliseconds == 0)
+		{
 			return new RateLimiter<T>(NullRateLimiter.Instance);
+		}
 
 		return new RateLimiter<T>(new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions()
 		{
@@ -20,7 +22,7 @@ public static class RateLimiterFactory
 			AutoReplenishment = true,
 			PermitLimit = rateLimit.AmountOfRequests,
 			QueueLimit = 200,
-			QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+			QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
 		}));
 	}
 }
