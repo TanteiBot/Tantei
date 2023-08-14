@@ -15,7 +15,7 @@
     <PackageVersion Include="Serilog.Extensions.Hosting" Version="7.0.0" />
     <PackageVersion Include="Serilog.Settings.Configuration" Version="7.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="4.1.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0-preview.6.23329.7" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0-preview.7.23375.6" />
     <!-- Discord -->
     <PackageVersion Include="DSharpPlus" Version="$(DSharpPlusVersion)" />
     <PackageVersion Include="DSharpPlus.SlashCommands" Version="$(DSharpPlusVersion)" />
