@@ -50,7 +50,7 @@
     <PackageVersion Include="AngleSharp" Version="1.0.4" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.6.133" />
     <PackageVersion Include="JikanDotNet" Version="2.6.3" />
-    <PackageVersion Include="System.Threading.RateLimiting" Version="8.0.0-preview.6.23329.7" />
+    <PackageVersion Include="System.Threading.RateLimiting" Version="8.0.0-preview.7.23375.6" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.0-preview.6.23329.11" />
     <!-- Analyzers-->
     <PackageVersion Include="Meziantou.Analyzer" Version="2.0.80">
