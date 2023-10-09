@@ -47,7 +47,7 @@
     <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.0-preview.6.23329.7" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0-preview.6.23329.7" />
     <PackageVersion Include="Polly.Contrib.WaitAndRetry" Version="1.1.1" />
-    <PackageVersion Include="AngleSharp" Version="1.0.4" />
+    <PackageVersion Include="AngleSharp" Version="1.0.5" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.6.133" />
     <PackageVersion Include="JikanDotNet" Version="2.6.3" />
     <PackageVersion Include="System.Threading.RateLimiting" Version="8.0.0-preview.6.23329.7" />
