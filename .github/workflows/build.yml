@@ -43,7 +43,7 @@ jobs:
           dotnet-quality: ${{ env.dotnet-quality}}
           
       - name: Set Node.js 19.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.node-version }} 
                   
@@ -99,7 +99,7 @@ jobs:
           include-prerelease: ${{ env.dotnet-include-prerelease}}
           
       - name: Set Node.js 19.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.node-version }}
 
