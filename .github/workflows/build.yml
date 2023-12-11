@@ -37,7 +37,7 @@ jobs:
           fetch-depth: 0
           
       - name: Install .NET SDK if needed
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           dotnet-quality: ${{ env.dotnet-quality}}
@@ -73,7 +73,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install .NET SDK if needed
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           dotnet-quality: ${{ env.dotnet-quality}}
@@ -93,7 +93,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install .NET SDK if needed
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
