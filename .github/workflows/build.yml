@@ -58,7 +58,7 @@ jobs:
         run: dotnet build ./src/PaperMalKing/PaperMalKing.csproj --configuration Release --no-restore --output ${{ env.output-dir }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.artifact-name }}
           path: ${{ env.output-dir }}
