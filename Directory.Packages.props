@@ -6,7 +6,7 @@
   <PropertyGroup>
     <EntityFrameworkCoreVersion>8.0.0-preview.6.23329.4</EntityFrameworkCoreVersion>
     <GraphQLClientVersion>6.0.0</GraphQLClientVersion>
-    <DSharpPlusVersion>4.4.2</DSharpPlusVersion>
+    <DSharpPlusVersion>4.4.6</DSharpPlusVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
