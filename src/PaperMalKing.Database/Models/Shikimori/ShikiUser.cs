@@ -27,6 +27,5 @@ public sealed class ShikiUser : IUpdateProviderUser<ShikiUserFeatures>
 
 	public required List<ShikiDbAchievement> Achievements { get; set; } = [];
 
-	[NotMapped]
 	public required List<CustomUpdateColor> Colors { get; set; } = [];
 }

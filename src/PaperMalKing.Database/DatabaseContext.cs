@@ -142,6 +142,7 @@ public sealed class DatabaseContext : DbContext
 			su.HasIndex(x => x.Features);
 			su.HasIndex(x => x.DiscordUserId);
 			su.OwnsMany(x => x.Achievements, achs => achs.ToJson());
+			su.OwnsMany(x => x.Colors, colors => colors.ToJson());
 		});
 		modelBuilder.Entity<ShikiFavourite>(sf =>
 		{

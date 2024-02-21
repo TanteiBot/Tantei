@@ -29,6 +29,7 @@ namespace PaperMalKing.Database.CompiledModels
             var shikiDbAchievement = ShikiDbAchievementEntityType.Create(this);
             var shikiFavourite = ShikiFavouriteEntityType.Create(this);
             var shikiUser = ShikiUserEntityType.Create(this);
+            var customUpdateColor1 = CustomUpdateColor1EntityType.Create(this);
             var malFavoriteAnime = MalFavoriteAnimeEntityType.Create(this, baseMalFavorite);
             var malFavoriteCharacter = MalFavoriteCharacterEntityType.Create(this, baseMalFavorite);
             var malFavoriteCompany = MalFavoriteCompanyEntityType.Create(this, baseMalFavorite);
@@ -46,6 +47,7 @@ namespace PaperMalKing.Database.CompiledModels
             ShikiDbAchievementEntityType.CreateForeignKey1(shikiDbAchievement, shikiUser);
             ShikiFavouriteEntityType.CreateForeignKey1(shikiFavourite, shikiUser);
             ShikiUserEntityType.CreateForeignKey1(shikiUser, discordUser);
+            CustomUpdateColor1EntityType.CreateForeignKey1(customUpdateColor1, shikiUser);
             MalFavoriteAnimeEntityType.CreateForeignKey1(malFavoriteAnime, malUser);
             MalFavoriteCharacterEntityType.CreateForeignKey1(malFavoriteCharacter, malUser);
             MalFavoriteCompanyEntityType.CreateForeignKey1(malFavoriteCompany, malUser);
@@ -68,6 +70,7 @@ namespace PaperMalKing.Database.CompiledModels
             ShikiDbAchievementEntityType.CreateAnnotations(shikiDbAchievement);
             ShikiFavouriteEntityType.CreateAnnotations(shikiFavourite);
             ShikiUserEntityType.CreateAnnotations(shikiUser);
+            CustomUpdateColor1EntityType.CreateAnnotations(customUpdateColor1);
             MalFavoriteAnimeEntityType.CreateAnnotations(malFavoriteAnime);
             MalFavoriteCharacterEntityType.CreateAnnotations(malFavoriteCharacter);
             MalFavoriteCompanyEntityType.CreateAnnotations(malFavoriteCompany);
@@ -865,6 +868,11 @@ namespace PaperMalKing.Database.CompiledModels
                 IsNullable = true
             };
             shikiUsersTable.Columns.Add("Achievements", achievementsColumn);
+            var colorsColumn1 = new JsonColumn("Colors", "TEXT", shikiUsersTable)
+            {
+                IsNullable = true
+            };
+            shikiUsersTable.Columns.Add("Colors", colorsColumn1);
             var discordUserIdColumn2 = new Column("DiscordUserId", "INTEGER", shikiUsersTable);
             shikiUsersTable.Columns.Add("DiscordUserId", discordUserIdColumn2);
             var favouritesIdHashColumn0 = new Column("FavouritesIdHash", "TEXT", shikiUsersTable);
@@ -1006,6 +1014,35 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.CreateColumnMapping(favouritesIdHashColumn0, shikiUser.FindProperty("FavouritesIdHash")!, shikiUsersTableMapping0);
             RelationalModel.CreateColumnMapping(featuresColumn1, shikiUser.FindProperty("Features")!, shikiUsersTableMapping0);
             RelationalModel.CreateColumnMapping(lastHistoryEntryIdColumn, shikiUser.FindProperty("LastHistoryEntryId")!, shikiUsersTableMapping0);
+
+            var customUpdateColor1 = FindEntityType("PaperMalKing.Database.Models.Shikimori.ShikiUser.Colors#CustomUpdateColor")!;
+
+            var defaultTableMappings17 = new List<TableMappingBase<ColumnMappingBase>>();
+            customUpdateColor1.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings17);
+            var paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorTableBase = new TableBase("PaperMalKing.Database.Models.Shikimori.ShikiUser.Colors#CustomUpdateColor", null, relationalModel);
+            var colorsColumnBase1 = new JsonColumnBase("Colors", "TEXT", paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorTableBase)
+            {
+                IsNullable = true
+            };
+            paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorTableBase.Columns.Add("Colors", colorsColumnBase1);
+            relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.Shikimori.ShikiUser.Colors#CustomUpdateColor", paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorTableBase);
+            var paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorMappingBase = new TableMappingBase<ColumnMappingBase>(customUpdateColor1, paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorTableBase, true);
+            paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorTableBase.AddTypeMapping(paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorMappingBase, false);
+            defaultTableMappings17.Add(paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorMappingBase);
+
+            var tableMappings17 = new List<TableMapping>();
+            customUpdateColor1.SetRuntimeAnnotation("Relational:TableMappings", tableMappings17);
+            var shikiUsersTableMapping1 = new TableMapping(customUpdateColor1, shikiUsersTable, true)
+            {
+                IsSharedTablePrincipal = false,
+            };
+            shikiUsersTable.AddTypeMapping(shikiUsersTableMapping1, true);
+            tableMappings17.Add(shikiUsersTableMapping1);
+            shikiUsersTable.AddRowInternalForeignKey(customUpdateColor1, RelationalModel.GetForeignKey(this,
+                "PaperMalKing.Database.Models.Shikimori.ShikiUser.Colors#CustomUpdateColor",
+                new[] { "ShikiUserId" },
+                "PaperMalKing.Database.Models.Shikimori.ShikiUser",
+                new[] { "Id" }));
             var fK_AniListFavourites_AniListUsers_UserId = new ForeignKeyConstraint(
                 "FK_AniListFavourites_AniListUsers_UserId", aniListFavouritesTable, aniListUsersTable,
                 new[] { userIdColumn },

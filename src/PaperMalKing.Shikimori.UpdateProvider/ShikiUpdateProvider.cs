@@ -86,8 +86,8 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
 
 			var user = await this._client.GetUserInfoAsync(dbUser.Id, cancellationToken);
-			totalUpdates.AddRange(removedFavourites.Select(rf => rf.ToDiscordEmbed(user, added: false, dbUser.Features)));
-			totalUpdates.AddRange(addedFavourites.Select(af => af.ToDiscordEmbed(user, added: true, dbUser.Features)));
+			totalUpdates.AddRange(removedFavourites.Select(rf => rf.ToDiscordEmbed(user, added: false, dbUser)));
+			totalUpdates.AddRange(addedFavourites.Select(af => af.ToDiscordEmbed(user, added: true, dbUser)));
 			totalUpdates.AddRange(achievementUpdates.Select(au => au.ToDiscordEmbed(user, dbUser.Features)));
 			var groupedHistoryEntriesWithMediaAndRoles = new List<HistoryMediaRoles>(historyUpdates.GroupSimilarHistoryEntries().Select(x =>
 				new HistoryMediaRoles
@@ -116,7 +116,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				}
 			}
 
-			totalUpdates.AddRange(groupedHistoryEntriesWithMediaAndRoles.Select(group => group.ToDiscordEmbed(user, dbUser.Features)));
+			totalUpdates.AddRange(groupedHistoryEntriesWithMediaAndRoles.Select(group => group.ToDiscordEmbed(user, dbUser)));
 			if (historyUpdates is not [])
 			{
 				dbUser.LastHistoryEntryId = historyUpdates.Max(h => h.Id);
