@@ -13,7 +13,7 @@ using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
-namespace PaperMalKing.UpdatesProviders.Base;
+namespace PaperMalKing.UpdatesProviders.Base.Colors;
 
 public sealed class CustomColorService<TUser, TUpdateType>
 	where TUser : class, IUpdateProviderUser

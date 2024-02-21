@@ -1,12 +1,10 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
-using Microsoft.Extensions.EnumStrings;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
-[EnumStrings]
 public enum ShikiUpdateType : byte
 {
 	[EnumDescription("watching", "updates for anime being watched")]

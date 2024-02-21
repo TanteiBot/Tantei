@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using PaperMalKing.Common;
 
-namespace PaperMalKing.UpdatesProviders.Base;
+namespace PaperMalKing.UpdatesProviders.Base.Colors;
 
 public sealed class ColorsChoiceProvider<T> : IEnumChoiceProvider<T>
 	where T : unmanaged, Enum, IComparable, IConvertible, IFormattable

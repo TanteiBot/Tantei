@@ -9,7 +9,6 @@
         <PackageReference Include="Humanizer.Core" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
-        <PackageReference Include="Microsoft.Extensions.EnumStrings" />
         <PackageReference Include="CommunityToolkit.Diagnostics" />
 
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />

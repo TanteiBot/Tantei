@@ -1,17 +1,14 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
-using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
-using PaperMalKing.Common;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.UpdatesProviders.Base;
-using PaperMalKing.UpdatesProviders.Base.Exceptions;
+using PaperMalKing.UpdatesProviders.Base.Colors;
 using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
@@ -20,7 +17,6 @@ namespace PaperMalKing.Shikimori.UpdateProvider;
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [GuildOnly]
 [SlashRequireGuild]
-[SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "It's ok for commands, since they are called externally")]
 internal sealed class ShikiCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from Shikimori.one")]
@@ -78,66 +74,22 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("colors", "Manage colors of your updates")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class ShikiColorsCommands : BotCommandsModule
+	public sealed class ShikiColorsCommands : BaseColorsCommandModule<ShikiUser, ShikiUpdateType>
 	{
-		public ILogger<ShikiColorsCommands> Logger { get; }
-
-		public CustomColorService<ShikiUser, ShikiUpdateType> ColorService { get; }
-
 		public ShikiColorsCommands(ILogger<ShikiColorsCommands> logger, CustomColorService<ShikiUser, ShikiUpdateType> colorService)
+			: base(logger, colorService)
 		{
-			this.Logger = logger;
-			this.ColorService = colorService;
 		}
 
 		[SlashCommand("set", "Set color for update update")]
-		public async Task SetColor(InteractionContext context,
+		public override Task SetColor(InteractionContext context,
 								   [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<ShikiUpdateType>, ShikiUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType,
-								   [Option("color", "Color code in hex like #FFFFFF")] string colorValue)
-		{
-			ShikiUpdateType updateType;
-			try
-			{
-				var color = new DiscordColor(colorValue);
-				updateType = UpdateTypesHelper<ShikiUpdateType>.Parse(unparsedUpdateType);
-				await this.ColorService.SetColorAsync(context.User.Id, updateType, color);
-			}
-			catch (Exception ex)
-			{
-				var embed = ex is ArgumentException or UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
-				await context.EditResponseAsync(embed: embed);
-				this.Logger.LogError(ex, "Failed to set color of {UnparsedUpdateType} to {ColorValue}", unparsedUpdateType, colorValue);
-				throw;
-			}
-
-			await context.EditResponseAsync(EmbedTemplate.SuccessEmbed($"Successfully set color of {updateType.ToInvariantString()}"));
-		}
+								   [Option("color", "Color code in hex like #FFFFFF")] string colorValue) => base.SetColor(context, unparsedUpdateType, colorValue);
 
 		[SlashCommand("remove", "Restore default color for update type")]
-		public async Task RemoveColor(InteractionContext context, [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<ShikiUpdateType>, ShikiUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType)
-		{
-			ShikiUpdateType updateType;
-			try
-			{
-				updateType = UpdateTypesHelper<ShikiUpdateType>.Parse(unparsedUpdateType);
-				await this.ColorService.RemoveColorAsync(context.User.Id, updateType);
-			}
-			catch (Exception ex)
-			{
-				var embed = ex is ArgumentException or UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
-				await context.EditResponseAsync(embed: embed);
-				this.Logger.LogError(ex, "Failed to remove color of {UnparsedUpdateType}", unparsedUpdateType);
-				throw;
-			}
-
-			await context.EditResponseAsync(EmbedTemplate.SuccessEmbed($"Successfully removed color of {updateType.ToInvariantString()}"));
-		}
+		public override Task RemoveColor(InteractionContext context, [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<ShikiUpdateType>, ShikiUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType) => base.RemoveColor(context, unparsedUpdateType);
 
 		[SlashCommand("list", "Lists your overriden types")]
-		public Task<DiscordMessage> ListOverridenColor(InteractionContext context)
-		{
-			var colors = this.ColorService.OverridenColors(context.User.Id);
-			return context.EditResponseAsync(EmbedTemplate.SuccessEmbed(string.IsNullOrWhiteSpace(colors) ? "You have no colors overriden" : "Your overriden colors").WithDescription(colors));
-		}
+		public override Task<DiscordMessage> ListOverridenColor(InteractionContext context) => base.ListOverridenColor(context);
 	}
 }
