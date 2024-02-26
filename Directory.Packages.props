@@ -63,6 +63,6 @@
     </PackageVersion>
     <PackageVersion Include="AsyncFixer" Version="1.6.0" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.6.40" />
-    <PackageVersion Include="Roslynator.Analyzers" Version="4.4.0" />
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.11.0" />
   </ItemGroup>
 </Project>
