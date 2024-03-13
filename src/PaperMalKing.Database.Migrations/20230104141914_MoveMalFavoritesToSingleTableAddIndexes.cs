@@ -142,7 +142,7 @@ namespace PaperMalKing.Database.Migrations
                 principalColumn: "UserId",
                 onDelete: ReferentialAction.Cascade);
 
-			migrationBuilder.Sql("DELETE FROM MalFavorites");
+            migrationBuilder.Sql("DELETE FROM MalFavorites");
 		}
 
         /// <inheritdoc />

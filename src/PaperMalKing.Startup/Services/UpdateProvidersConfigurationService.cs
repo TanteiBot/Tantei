@@ -22,17 +22,19 @@ internal sealed class UpdateProvidersConfigurationService
 
 	public UpdateProvidersConfigurationService(ILogger<UpdateProvidersConfigurationService> logger, IEnumerable<IUpdateProvider> updateProviders)
 	{
-		logger.LogTrace("Building {@UpdateProvidersConfigurationService}", typeof(UpdateProvidersConfigurationService));
+		logger.BuildingUpdateProvidersConfigurationService(typeof(UpdateProvidersConfigurationService));
 		foreach (var updateProvider in updateProviders)
 		{
-			logger.LogDebug("Registering {@UpdateProvider} update provider", updateProvider);
+			logger.RegisteringUpdateProvider(updateProvider);
 			this._providers.Add(updateProvider.Name, updateProvider);
 		}
 
 		if (this._providers.Count == 0)
-			logger.LogCritical("No update providers were registered");
+		{
+			logger.NoUpdateProvidersRegistered();
+		}
 
-		logger.LogTrace("Built {@UpdateProvidersConfigurationService}", typeof(UpdateProvidersConfigurationService));
+		logger.BuiltUpdateProvidersConfigurationService(typeof(UpdateProvidersConfigurationService));
 	}
 
 	public static void ConfigureProviders(IConfiguration configuration, IServiceCollection services)

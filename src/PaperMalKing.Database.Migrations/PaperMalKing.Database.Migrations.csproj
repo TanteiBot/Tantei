@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <NoWarn>$(NoWarn);MA0048;S1186;RCS1205;RCS1036;RCS1021;</NoWarn>
+        <NoWarn>$(NoWarn);MA0048;S1186;RCS1205;RCS1036;RCS1021;CA1861;SA1027;SA1502;SA1505;SA1508;SA1413;IDE0300;</NoWarn>
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
-        <NoWarn>$(NoWarn);CA1861;</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

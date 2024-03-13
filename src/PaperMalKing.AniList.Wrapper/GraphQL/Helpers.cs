@@ -31,10 +31,15 @@ internal static class Helpers
 	{
 		sb.AppendLine(Media);
 		if (options.HasFlag(RequestOptions.MediaDescription))
+		{
 			sb.AppendLine("description(asHtml: false)");
+		}
 
 		if (options.HasFlag(RequestOptions.Genres))
+		{
 			sb.AppendLine("genres");
+		}
+
 		if (options.HasFlag(RequestOptions.Tags))
 		{
 			sb.AppendLine(
@@ -57,9 +62,15 @@ internal static class Helpers
 		}
 
 		if (options.HasFlag(RequestOptions.MediaStatus))
+		{
 			sb.AppendLine("status(version: 2)");
+		}
+
 		if (options.HasFlag(RequestOptions.Genres))
+		{
 			sb.AppendLine("genres");
+		}
+
 		if (options.HasFlag(RequestOptions.Tags))
 		{
 			sb.AppendLine(
@@ -107,7 +118,7 @@ internal static class Helpers
 
 		if (options.HasFlag(RequestOptions.Seyu) && options.HasFlag(RequestOptions.AnimeList))
 		{
-			sb.AppendLine( // We select node since without it anilist provides empty array in voice actors
+			sb.AppendLine(// We select node since without it anilist provides empty array in voice actors
 				"""
 				characters(perPage: 6, sort: [ROLE, RELEVANCE]) {
 					values: edges {
@@ -128,6 +139,7 @@ internal static class Helpers
 				}
 				""");
 		}
+
 		return sb;
 	}
 }

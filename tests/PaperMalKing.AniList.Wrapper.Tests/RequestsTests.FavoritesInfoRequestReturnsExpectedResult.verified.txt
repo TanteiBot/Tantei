@@ -170,7 +170,7 @@ values: nodes {
 	}
 siteUrl
 format
-}						}
+}}
 siteUrl
 image {
 	large
@@ -203,7 +203,7 @@ values: nodes {
 	}
 siteUrl
 format
-}						}
+}}
 }
 }
 Studios: Page(page: $page, perPage: 50) {
@@ -225,7 +225,7 @@ Studios: Page(page: $page, perPage: 50) {
 	}
 siteUrl
 format
-}						}
+}}
 }
 }
 }

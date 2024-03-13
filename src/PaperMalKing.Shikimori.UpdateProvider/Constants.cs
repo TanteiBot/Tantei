@@ -6,9 +6,9 @@ namespace PaperMalKing.Shikimori.UpdateProvider;
 
 internal static class Constants
 {
-	public const string NAME = "Shikimori";
+	public const string Name = "Shikimori";
 
-	public const string ICON_URL = "https://shikimori.me/favicons/opera-icon-228x228.png";
+	public const string IconUrl = "https://shikimori.me/favicons/opera-icon-228x228.png";
 
 	public static readonly DiscordColor ShikiGreen = new("#419541");
 

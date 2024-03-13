@@ -20,10 +20,11 @@ internal sealed class NullRateLimiter : RateLimiter
 		TotalSuccessfulLeases = 0,
 	};
 
-	public static NullRateLimiter Instance { get; }= new();
+	public static NullRateLimiter Instance { get; } = new();
 
 	private NullRateLimiter()
-	{ }
+	{
+	}
 
 	public override RateLimiterStatistics GetStatistics() => Statistics;
 
@@ -33,23 +34,24 @@ internal sealed class NullRateLimiter : RateLimiter
 		ValueTask.FromResult((RateLimitLease)NullRateLimitLease.Instance);
 
 	public override TimeSpan? IdleDuration => TimeSpan.Zero;
+}
 
-	private sealed class NullRateLimitLease : RateLimitLease
+[SuppressMessage("Style", "IDE0036:Order modifiers", Justification = "Visibility should appear before sealed")]
+file sealed class NullRateLimitLease : RateLimitLease
+{
+	public static readonly NullRateLimitLease Instance = new();
+
+	private NullRateLimitLease()
 	{
-		[SuppressMessage("Critical Code Smell", "S3218:Inner class members should not shadow outer class \"static\" or type members")]
-		public static readonly NullRateLimitLease Instance = new();
-
-		private NullRateLimitLease()
-		{ }
-
-		public override bool TryGetMetadata(string metadataName, out object? metadata)
-		{
-			metadata = null;
-			return false;
-		}
-
-		public override bool IsAcquired => true;
-
-		public override IEnumerable<string> MetadataNames => Array.Empty<string>();
 	}
+
+	public override bool TryGetMetadata(string metadataName, out object? metadata)
+	{
+		metadata = null;
+		return false;
+	}
+
+	public override bool IsAcquired => true;
+
+	public override IEnumerable<string> MetadataNames => [];
 }

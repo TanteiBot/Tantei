@@ -15,6 +15,6 @@ public sealed class UserFeaturesFlagsTest
 	[InlineData(typeof(AniListUserFeatures))]
 	public void UserFeaturesTypeMustHaveFlagsAttribute(Type featuresType)
 	{
-		Assert.Contains(typeof(FlagsAttribute), featuresType.GetCustomAttributes(typeof(FlagsAttribute), inherit: true).Select(x=>x.GetType()));
+		Assert.Contains(typeof(FlagsAttribute), featuresType.GetCustomAttributes(typeof(FlagsAttribute), inherit: true).Select(x => x.GetType()));
 	}
 }

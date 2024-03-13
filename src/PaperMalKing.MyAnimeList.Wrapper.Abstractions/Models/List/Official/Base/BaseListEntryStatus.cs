@@ -10,11 +10,12 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Converters;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
 
-public abstract class BaseListEntryStatus<TListStatus> where TListStatus : unmanaged, Enum
+public abstract class BaseListEntryStatus<TListStatus>
+	where TListStatus : unmanaged, Enum
 {
 	public byte GetStatusAsUnderlyingType()
 	{
-		Debug.Assert(Enum.GetUnderlyingType(typeof(TListStatus)) == typeof(byte));
+		Debug.Assert(Enum.GetUnderlyingType(typeof(TListStatus)) == typeof(byte), $"{nameof(TListStatus)} must be a {nameof(Byte)}");
 		var status = this.Status;
 		return Unsafe.As<TListStatus, byte>(ref status);
 	}
@@ -40,9 +41,11 @@ public abstract class BaseListEntryStatus<TListStatus> where TListStatus : unman
 	[JsonPropertyName("updated_at")]
 	public required DateTimeOffset UpdatedAt { get; init; }
 
-	[JsonPropertyName("start_date"), JsonConverter(typeof(DateOnlyFromMalConverter))]
+	[JsonPropertyName("start_date")]
+	[JsonConverter(typeof(DateOnlyFromMalConverter))]
 	public DateOnly? StartDate { get; init; }
 
-	[JsonPropertyName("finish_date"), JsonConverter(typeof(DateOnlyFromMalConverter))]
+	[JsonPropertyName("finish_date")]
+	[JsonConverter(typeof(DateOnlyFromMalConverter))]
 	public DateOnly? FinishDate { get; init; }
 }

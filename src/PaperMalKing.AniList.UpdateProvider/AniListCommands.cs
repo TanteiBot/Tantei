@@ -13,19 +13,21 @@ namespace PaperMalKing.AniList.UpdateProvider;
 
 [SlashCommandGroup("anilist", "Commands for interacting with AniList.co")]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-[GuildOnly, SlashRequireGuild]
+[GuildOnly]
+[SlashRequireGuild]
 internal sealed class AniListCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from AniList.co")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 	public sealed class AniListUserCommands : BaseUpdateProviderUserCommandsModule<AniListUserService, AniListUser>
 	{
-		public AniListUserCommands(AniListUserService userService, ILogger<AniListUserCommands> logger) : base(userService, logger)
-		{ }
+		public AniListUserCommands(AniListUserService userService, ILogger<AniListUserCommands> logger)
+			: base(userService, logger)
+		{
+		}
 
 		[SlashCommand("add", "Add your AniList account to being tracked")]
-		public override Task AddUserCommand(InteractionContext context,
-											[Option(nameof(username), "Your username on AniList")] string? username = null) =>
+		public override Task AddUserCommand(InteractionContext context, [Option(nameof(username), "Your username on AniList")] string? username = null) =>
 			base.AddUserCommand(context, username);
 
 		[SlashCommand("remove", "Remove your AniList account updates from being tracked")]
@@ -42,21 +44,24 @@ internal sealed class AniListCommands : ApplicationCommandModule
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 	public sealed class AniListUserFeaturesCommands : BaseUserFeaturesCommandsModule<AniListUser, AniListUserFeatures>
 	{
-		public AniListUserFeaturesCommands(BaseUserFeaturesService<AniListUser, AniListUserFeatures> userFeaturesService,
-										   ILogger<AniListUserFeaturesCommands> logger) : base(userFeaturesService, logger)
-		{ }
+		public AniListUserFeaturesCommands(BaseUserFeaturesService<AniListUser, AniListUserFeatures> userFeaturesService, ILogger<AniListUserFeaturesCommands> logger)
+			: base(userFeaturesService, logger)
+		{
+		}
 
 		[SlashCommand("enable", "Enable features for your updates")]
-		public override Task EnableFeatureCommand(InteractionContext context,
-												  [ChoiceProvider(typeof(FeaturesChoiceProvider<AniListUserFeatures>)),
-												   Option("feature", "Feature to enable")]
-												  string unparsedFeature) => base.EnableFeatureCommand(context, unparsedFeature);
+		public override Task EnableFeatureCommand(
+												InteractionContext context,
+												[ChoiceProvider(typeof(FeaturesChoiceProvider<AniListUserFeatures>)),
+												Option("feature", "Feature to enable")]
+												string unparsedFeature) => base.EnableFeatureCommand(context, unparsedFeature);
 
 		[SlashCommand("disable", "Disable features for your updates")]
-		public override Task DisableFeatureCommand(InteractionContext context,
-												   [ChoiceProvider(typeof(FeaturesChoiceProvider<AniListUserFeatures>)),
-												    Option("feature", "Feature to enable")]
-												   string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);
+		public override Task DisableFeatureCommand(
+			InteractionContext context,
+			[ChoiceProvider(typeof(FeaturesChoiceProvider<AniListUserFeatures>)),
+			Option("feature", "Feature to enable")]
+			string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);
 
 		[SlashCommand("enabled", "Show features that are enabled for yourself")]
 		public override Task EnabledFeaturesCommand(InteractionContext context) => base.EnabledFeaturesCommand(context);

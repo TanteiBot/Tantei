@@ -8,5 +8,5 @@ public sealed class AniListOptions : ITimerOptions<AniListUpdateProvider>
 {
 	public required int DelayBetweenChecksInMilliseconds { get; init; }
 
-	public const string AniList = ProviderConstants.NAME;
+	public const string AniList = ProviderConstants.Name;
 }

@@ -19,11 +19,10 @@ on:
 env:
   DOTNET_NOLOGO: true
   dotnet-version-to-install: '8.*'
-  dotnet-quality: 'preview'
+  dotnet-quality: 'ga'
   artifact-name: "build-${{ github.sha }}"
   clientapp-dir: "./src/PaperMalKing/ClientApp"
-  node-version: '19.x'
-  pnpm-version: "8.3.0"
+  node-version: '21.x'
 
 jobs:
   build:
@@ -32,24 +31,20 @@ jobs:
     env:
       output-dir: "./output"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           
       - name: Install .NET SDK if needed
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           dotnet-quality: ${{ env.dotnet-quality}}
           
-      - name: Set Node.js 19.x
-        uses: actions/setup-node@v3
+      - name: Set Node.js 21.x
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.node-version }} 
-                  
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.pnpm-version }}  
     
       - name: Install deps
         run: dotnet restore
@@ -58,7 +53,7 @@ jobs:
         run: dotnet build ./src/PaperMalKing/PaperMalKing.csproj --configuration Release --no-restore --output ${{ env.output-dir }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.artifact-name }}
           path: ${{ env.output-dir }}
@@ -69,11 +64,11 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Install .NET SDK if needed
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           dotnet-quality: ${{ env.dotnet-quality}}
@@ -89,23 +84,19 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Install .NET SDK if needed
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           include-prerelease: ${{ env.dotnet-include-prerelease}}
           
       - name: Set Node.js 19.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.node-version }}
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.pnpm-version }}
       
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
@@ -125,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.artifact-name }}
 

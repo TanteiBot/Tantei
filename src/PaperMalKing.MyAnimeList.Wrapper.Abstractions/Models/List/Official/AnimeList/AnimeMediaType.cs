@@ -21,4 +21,10 @@ public enum AnimeMediaType : byte
 	ona = 5,
 	[Description("Music")]
 	music = 6,
+	[Description("TV Special")]
+	tv_special = 7,
+	[Description("CM")]
+	cm = 8,
+	[Description("PV")]
+	pv = 9,
 }

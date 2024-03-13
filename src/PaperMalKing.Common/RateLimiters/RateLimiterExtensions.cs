@@ -13,8 +13,8 @@ public static class RateLimiterExtensions
 	public static RateLimiterHttpMessageHandler ToHttpMessageHandler(this RateLimiter rateLimiter) =>
 		new(rateLimiter);
 
-	public static RateLimiter<T> ToRateLimiter<T>(this RateLimit rateLimit) =>
-		RateLimiterFactory.Create<T>(rateLimit);
+	public static RateLimiter<T> ToRateLimiter<T>(this RateLimitValue rateLimitValue) =>
+		RateLimiterFactory.Create<T>(rateLimitValue);
 
 	public static RateLimiter<T> ConfigurationLambda<TO, T>(IServiceProvider servicesProvider)
 		where TO : class, IRateLimitOptions<T>

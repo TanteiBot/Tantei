@@ -4,9 +4,6 @@
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using PaperMalKing.Common.Options;
 using PaperMalKing.Common.RateLimiters;
 
@@ -20,14 +17,18 @@ public static partial class TypeExtensions
 	public static string? ToSentenceCase(this string? value, CultureInfo cultureInfo)
 	{
 		if (string.IsNullOrEmpty(value) || value.Length <= 1)
+		{
 			return value;
+		}
 
 		value = value.ToLower(cultureInfo);
 		for (var i = 0; i < value.Length; i++)
 		{
 			var ch = value[i];
 			if (char.IsLetter(ch))
+			{
 				return $"{char.ToUpper(ch, cultureInfo)}{value[(i + 1)..]}";
+			}
 		}
 
 		return value;
@@ -37,13 +38,8 @@ public static partial class TypeExtensions
 
 	public static RateLimiter<T> ToRateLimiter<T>(this IRateLimitOptions<T> rateLimitOptions)
 	{
-		var rateLimit = new RateLimit(rateLimitOptions.AmountOfRequests, rateLimitOptions.PeriodInMilliseconds);
+		var rateLimit = new RateLimitValue(rateLimitOptions.AmountOfRequests, rateLimitOptions.PeriodInMilliseconds);
 		return RateLimiterFactory.Create<T>(rateLimit);
-	}
-
-	public static Task<DiscordMessage> EditResponseAsync(this InteractionContext context, DiscordEmbed embed)
-	{
-		return context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
 	}
 
 	public static string ToFirstCharUpperCase(this string? str)
@@ -57,6 +53,7 @@ public static partial class TypeExtensions
 		{
 			return str;
 		}
+
 		return string.Create(str.Length, str, (span, s) =>
 		{
 			span[0] = char.ToUpperInvariant(s[0]);

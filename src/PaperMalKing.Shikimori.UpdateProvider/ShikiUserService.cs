@@ -21,20 +21,22 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 {
 	private readonly IShikiClient _client;
 
-	public override string Name => Constants.NAME;
+	public override string Name => Constants.Name;
 
-	public ShikiUserService(IShikiClient client, ILogger<ShikiUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService) : base(logger, dbContextFactory, userService)
+	public ShikiUserService(IShikiClient client, ILogger<ShikiUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService)
+		: base(logger, dbContextFactory, userService)
 	{
 		this._client = client;
 	}
 
 	public override async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
-		using var db = this.DbContextFactory.CreateDbContext();
+		await using var db = this.DbContextFactory.CreateDbContext();
 		var dbUser = db.ShikiUsers.TagWith("Query user when trying to add one").TagWithCallSite().Include(su => su.DiscordUser).ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 		DiscordGuild? guild;
-		if (dbUser != null) // User already in db
+		if (dbUser != null)
 		{
+			// User already in db
 			if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
 			{
 				throw new UserProcessingException(
@@ -44,19 +46,21 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 			guild = db.DiscordGuilds.TagWith("Query guild to add existing user to it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
 			{
-				throw new UserProcessingException(BaseUser.FromUsername(username),
+				throw new UserProcessingException(
+					BaseUser.FromUsername(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
 			}
 
 			dbUser.DiscordUser.Guilds.Add(guild);
-			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
+			await db.SaveChangesAndThrowOnNoneAsync();
 			return BaseUser.FromUsername(username);
 		}
 
 		guild = db.DiscordGuilds.TagWith("Query guild to add new user to it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
 		{
-			throw new UserProcessingException(BaseUser.FromUsername(username),
+			throw new UserProcessingException(
+				BaseUser.FromUsername(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
 		}
 
@@ -64,17 +68,18 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 		{
 			throw new UserProcessingException(BaseUser.Empty, "You must provide username if you arent already tracked by this bot");
 		}
+
 		var dUser = db.DiscordUsers.TagWith("Query discord user to link AniList user to it").TagWithCallSite().Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
-		var shikiUser = await this._client.GetUserAsync(username).ConfigureAwait(false);
-		var history = await this._client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any).ConfigureAwait(false);
-		var favourites = await this._client.GetUserFavouritesAsync(shikiUser.Id).ConfigureAwait(false);
-		var achievements = await this._client.GetUserAchievementsAsync(shikiUser.Id).ConfigureAwait(false);
+		var shikiUser = await this._client.GetUserAsync(username);
+		var history = await this._client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any);
+		var favourites = await this._client.GetUserFavouritesAsync(shikiUser.Id);
+		var achievements = await this._client.GetUserAchievementsAsync(shikiUser.Id);
 		if (dUser is null)
 		{
 			dUser = new()
 			{
 				BotUser = new(),
-				Guilds = new[] { guild },
+				Guilds = [guild],
 				DiscordUserId = userId,
 			};
 		}
@@ -82,13 +87,15 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 		{
 			dUser.Guilds.Add(guild);
 		}
+
 		dbUser = new()
 		{
-			Favourites = favourites.AllFavourites.Select(f => new ShikiFavourite()
+			Favourites = favourites.AllFavourites.Select(f => new ShikiFavourite
 			{
 				Id = f.Id,
 				Name = f.Name,
 				FavType = f.GenericType!,
+
 				// User = dbUser
 			}).ToList(),
 			Id = shikiUser.Id,
@@ -96,8 +103,8 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 			DiscordUser = dUser,
 			DiscordUserId = userId,
 			LastHistoryEntryId = history.Data.Max(he => he.Id),
-			FavouritesIdHash = Helpers.FavoritesHash(favourites.AllFavourites.Select(x=> new FavoriteIdType(x.Id, (byte)x.GenericType![0])).ToArray()),
-			Achievements = achievements.Select(x=> new  ShikiDbAchievement
+			FavouritesIdHash = HashHelpers.FavoritesHash(favourites.AllFavourites.Select(x => new FavoriteIdType(x.Id, (byte)x.GenericType![0])).ToArray()),
+			Achievements = achievements.Select(x => new ShikiDbAchievement
 			{
 				NekoId = x.Id,
 				Level = x.Level,
@@ -105,7 +112,7 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 		};
 		dbUser.Favourites.ForEach(f => f.User = dbUser);
 		db.ShikiUsers.Add(dbUser);
-		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
+		await db.SaveChangesAndThrowOnNoneAsync();
 		return BaseUser.FromUsername(username);
 	}
 

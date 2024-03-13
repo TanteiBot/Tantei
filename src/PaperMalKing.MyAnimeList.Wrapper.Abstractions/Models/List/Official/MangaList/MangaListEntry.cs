@@ -5,5 +5,4 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 
-public sealed class MangaListEntry : BaseListEntry<MangaListEntryNode, MangaListEntryStatus, MangaMediaType, MangaPublishingStatus, MangaListStatus>
-{ }
+public sealed class MangaListEntry : BaseListEntry<MangaListEntryNode, MangaListEntryStatus, MangaMediaType, MangaPublishingStatus, MangaListStatus>;

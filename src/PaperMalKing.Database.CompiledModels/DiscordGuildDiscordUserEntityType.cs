@@ -4,15 +4,16 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 #pragma warning disable 219, 612, 618
-#nullable enable
+#nullable disable
 
 namespace PaperMalKing.Database.CompiledModels
 {
     internal partial class DiscordGuildDiscordUserEntityType
     {
-        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
+        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "DiscordGuildDiscordUser",
@@ -27,12 +28,14 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(ulong),
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
+            guildsDiscordGuildId.TypeMapping = SqliteULongTypeMapping.Default;
 
             var usersDiscordUserId = runtimeEntityType.AddProperty(
                 "UsersDiscordUserId",
                 typeof(ulong),
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
+            usersDiscordUserId.TypeMapping = SqliteULongTypeMapping.Default;
 
             var key = runtimeEntityType.AddKey(
                 new[] { guildsDiscordGuildId, usersDiscordUserId });
@@ -46,8 +49,8 @@ namespace PaperMalKing.Database.CompiledModels
 
         public static RuntimeForeignKey CreateForeignKey1(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
         {
-            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("GuildsDiscordGuildId")! },
-                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("DiscordGuildId")! })!,
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("GuildsDiscordGuildId") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("DiscordGuildId") }),
                 principalEntityType,
                 deleteBehavior: DeleteBehavior.Cascade,
                 required: true);
@@ -57,8 +60,8 @@ namespace PaperMalKing.Database.CompiledModels
 
         public static RuntimeForeignKey CreateForeignKey2(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
         {
-            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("UsersDiscordUserId")! },
-                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("DiscordUserId")! })!,
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("UsersDiscordUserId") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("DiscordUserId") }),
                 principalEntityType,
                 deleteBehavior: DeleteBehavior.Cascade,
                 required: true);

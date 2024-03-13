@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -14,14 +15,16 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base;
 
-public abstract class BaseUpdateProviderUserService<TUser> where TUser : class, IUpdateProviderUser
+public abstract class BaseUpdateProviderUserService<TUser>
+	where TUser : class, IUpdateProviderUser
 {
 	private readonly GeneralUserService _generalUserService;
+
 	protected ILogger<BaseUpdateProviderUserService<TUser>> Logger { get; }
+
 	protected IDbContextFactory<DatabaseContext> DbContextFactory { get; }
 
-	protected BaseUpdateProviderUserService(ILogger<BaseUpdateProviderUserService<TUser>> logger, IDbContextFactory<DatabaseContext> dbContextFactory,
-											GeneralUserService generalUserService)
+	protected BaseUpdateProviderUserService(ILogger<BaseUpdateProviderUserService<TUser>> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService generalUserService)
 	{
 		this._generalUserService = generalUserService;
 		this.Logger = logger;
@@ -29,9 +32,10 @@ public abstract class BaseUpdateProviderUserService<TUser> where TUser : class, 
 	}
 
 	public abstract string Name { get; }
+
 	public abstract Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null);
 
-	public Task RemoveUserAsync(ulong userId)
+	public void RemoveUser(ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
 		var rows = db.Set<TUser>().TagWith("Remove user").TagWithCallSite().Where(x => x.DiscordUserId == userId).ExecuteDelete();
@@ -39,20 +43,18 @@ public abstract class BaseUpdateProviderUserService<TUser> where TUser : class, 
 		{
 			throw new UserProcessingException($"You weren't tracked by {this.Name} update checker");
 		}
-
-		return Task.CompletedTask;
 	}
 
 	public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
 	{
-		await this._generalUserService.RemoveUserInGuildAsync(guildId, userId).ConfigureAwait(false);
-		await this._generalUserService.RemoveUserIfInNoGuildsAsync(userId).ConfigureAwait(false);
+		await this._generalUserService.RemoveUserInGuildAsync(guildId, userId);
+		await this._generalUserService.RemoveUserIfInNoGuildsAsync(userId);
 	}
 
 	public abstract IReadOnlyList<BaseUser> ListUsers(ulong guildId);
 
-	protected IReadOnlyList<BaseUser> ListUsersCore<TOrderType>(ulong guildId, Expression<Func<TUser, TOrderType>> orderExpression,
-																Expression<Func<TUser, BaseUser>> selector)
+	[SuppressMessage("", "IDE0305", Justification = "Tooling is buggy")]
+	protected IReadOnlyList<BaseUser> ListUsersCore<TOrderType>(ulong guildId, Expression<Func<TUser, TOrderType>> orderExpression, Expression<Func<TUser, BaseUser>> selector)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
 		return db.Set<TUser>().TagWith("Query users in a guild").TagWithCallSite().Include(x => x.DiscordUser).ThenInclude(x => x.Guilds)

@@ -9,6 +9,7 @@ namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 public interface IUpdateProvider
 {
 	string Name { get; }
+
 	event UpdateFoundEvent UpdateFoundEvent;
 
 	public Task TriggerStoppingAsync();

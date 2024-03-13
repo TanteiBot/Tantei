@@ -19,23 +19,24 @@ internal sealed class AniListUserFeaturesService : BaseUserFeaturesService<AniLi
 {
 	private readonly IAniListClient _client;
 
-	public AniListUserFeaturesService(IAniListClient client, ILogger<AniListUserFeaturesService> logger,
-									  IDbContextFactory<DatabaseContext> dbContextFactory) : base(dbContextFactory, logger)
+	public AniListUserFeaturesService(IAniListClient client, ILogger<AniListUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
+		: base(dbContextFactory, logger)
 	{
 		this._client = client;
 	}
 
 	public override async Task EnableFeaturesAsync(AniListUserFeatures feature, ulong userId)
 	{
-		using var db = this.DbContextFactory.CreateDbContext();
-		var dbUser = db.AniListUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ?? throw new UserFeaturesException("You must register first before enabling features");
+		await using var db = this.DbContextFactory.CreateDbContext();
+		var dbUser = db.AniListUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ??
+					 throw new UserFeaturesException("You must register first before enabling features");
 		if (dbUser.Features.HasFlag(feature))
 		{
 			throw new UserFeaturesException("You already have this feature enabled");
 		}
 
 		dbUser.Features |= feature;
-		var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+		var now = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
 		switch (feature)
 		{
 			case AniListUserFeatures.AnimeList:
@@ -44,31 +45,27 @@ internal sealed class AniListUserFeaturesService : BaseUserFeaturesService<AniLi
 				dbUser.LastActivityTimestamp = now;
 				break;
 			}
+
 			case AniListUserFeatures.Favourites:
 			{
 				var fr = await this._client
-								   .GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites | AniListUserFeatures.AnimeList,
-									   CancellationToken.None).ConfigureAwait(false);
-				dbUser.Favourites = fr.Favourites1.ConvertAll(f => new AniListFavourite
+								   .GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites | AniListUserFeatures.AnimeList, CancellationToken.None);
+				dbUser.Favourites = fr.Favourites.ConvertAll(f => new AniListFavourite
 				{
 					Id = f.Id,
 					FavouriteType = (FavouriteType)f.Type,
 				});
 				break;
 			}
+
 			case AniListUserFeatures.Reviews:
 			{
 				dbUser.LastReviewTimestamp = now;
 				break;
 			}
-			default:
-			{
-				// None additional actions needed
-				break;
-			}
 		}
 
-		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
+		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
 	}
 
 	protected override ValueTask DisableFeatureCleanupAsync(DatabaseContext db, AniListUser user, AniListUserFeatures featureToDisable)

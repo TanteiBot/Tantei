@@ -5,7 +5,8 @@ using System;
 
 namespace PaperMalKing.Database.Models;
 
-public interface IUpdateProviderUser<TFeature> : IUpdateProviderUser where TFeature : unmanaged, Enum
+public interface IUpdateProviderUser<TFeature> : IUpdateProviderUser
+	where TFeature : unmanaged, Enum
 {
 	public TFeature Features { get; set; }
 }
@@ -13,5 +14,6 @@ public interface IUpdateProviderUser<TFeature> : IUpdateProviderUser where TFeat
 public interface IUpdateProviderUser
 {
 	public ulong DiscordUserId { get; init; }
+
 	public DiscordUser DiscordUser { get; set; }
 }

@@ -38,7 +38,7 @@ internal static class FavouritesInfoQueryBuilder
 			}
 			""")
 		  .AppendLine(
-		  	"""
+			"""
 			Staff: Page(page: $page, perPage: 50) {
 				pageInfo{
 					hasNextPage
@@ -62,7 +62,9 @@ internal static class FavouritesInfoQueryBuilder
 			}
 			""");
 		if (options.HasFlag(RequestOptions.MediaDescription))
+		{
 			sb.AppendLine("description(asHtml: false)");
+		}
 
 		sb.AppendLine(
 			"""
@@ -130,7 +132,7 @@ internal static class FavouritesInfoQueryBuilder
 				}
 			siteUrl
 			format
-			}						
+			}
 			""");
 	}
 }

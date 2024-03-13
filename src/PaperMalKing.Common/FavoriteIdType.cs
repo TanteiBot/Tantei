@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
+using CommunityToolkit.Diagnostics;
 
 namespace PaperMalKing.Common;
 
@@ -20,10 +21,10 @@ public sealed class FavoriteIdType : IComparable<FavoriteIdType>, IEquatable<Fav
 
 	public static bool operator !=(FavoriteIdType? left, FavoriteIdType? right) => !Equals(left, right);
 
-	public FavoriteIdType(uint Id, byte Type)
+	public FavoriteIdType(uint id, byte type)
 	{
-		this.Id = Id;
-		this.Type = Type;
+		this.Id = id;
+		this.Type = type;
 	}
 
 	public int CompareTo(FavoriteIdType? other)
@@ -49,7 +50,8 @@ public sealed class FavoriteIdType : IComparable<FavoriteIdType>, IEquatable<Fav
 			return this.CompareTo(x);
 		}
 
-		throw new ArgumentException("", nameof(obj));
+		ThrowHelper.ThrowArgumentException(nameof(obj), "");
+		return default;
 	}
 
 	public static bool operator <(FavoriteIdType left, FavoriteIdType right)
@@ -73,5 +75,6 @@ public sealed class FavoriteIdType : IComparable<FavoriteIdType>, IEquatable<Fav
 	}
 
 	public uint Id { get; init; }
+
 	public byte Type { get; init; }
 }

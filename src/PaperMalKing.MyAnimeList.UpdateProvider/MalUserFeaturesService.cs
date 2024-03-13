@@ -20,47 +20,48 @@ internal sealed class MalUserFeaturesService : BaseUserFeaturesService<MalUser, 
 {
 	private readonly IMyAnimeListClient _client;
 
-	public MalUserFeaturesService(IMyAnimeListClient client, ILogger<MalUserFeaturesService> logger,
-								  IDbContextFactory<DatabaseContext> dbContextFactory) : base(dbContextFactory, logger)
+	public MalUserFeaturesService(IMyAnimeListClient client, ILogger<MalUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
+		: base(dbContextFactory, logger)
 	{
 		this._client = client;
 	}
 
 	public override async Task EnableFeaturesAsync(MalUserFeatures feature, ulong userId)
 	{
-		using var db = this.DbContextFactory.CreateDbContext();
-		var dbUser = db.MalUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId) ?? throw new UserFeaturesException("You must register first before enabling features");
+		await using var db = this.DbContextFactory.CreateDbContext();
+		var dbUser =
+			db.MalUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId) ??
+			throw new UserFeaturesException("You must register first before enabling features");
 		if (dbUser.Features.HasFlag(feature))
 		{
 			throw new UserFeaturesException("You already have this feature enabled");
 		}
 
-		User? user = null;
+		User? user;
 		dbUser.Features |= feature;
-		var now = DateTimeOffset.UtcNow;
+		var now = TimeProvider.System.GetUtcNow();
 
 		switch (feature)
 		{
 			case MalUserFeatures.AnimeList:
 			{
-				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None)
-								 .ConfigureAwait(false);
+				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
 				dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdateHash ?? "";
 				dbUser.LastUpdatedAnimeListTimestamp = now;
 				break;
 			}
+
 			case MalUserFeatures.MangaList:
 			{
-				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None)
-								 .ConfigureAwait(false);
+				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
 				dbUser.LastMangaUpdateHash = user.LatestMangaUpdateHash ?? "";
 				dbUser.LastUpdatedMangaListTimestamp = now;
 				break;
 			}
+
 			case MalUserFeatures.Favorites:
 			{
-				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None)
-								 .ConfigureAwait(false);
+				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
 				dbUser.FavoriteAnimes = user.Favorites.FavoriteAnime.Select(x => x.ToMalFavoriteAnime(dbUser)).ToList();
 				dbUser.FavoriteMangas = user.Favorites.FavoriteManga.Select(x => x.ToMalFavoriteManga(dbUser)).ToList();
 				dbUser.FavoriteCharacters = user.Favorites.FavoriteCharacters.Select(x => x.ToMalFavoriteCharacter(dbUser)).ToList();
@@ -68,14 +69,9 @@ internal sealed class MalUserFeaturesService : BaseUserFeaturesService<MalUser, 
 				dbUser.FavoriteCompanies = user.Favorites.FavoriteCompanies.Select(x => x.ToMalFavoriteCompany(dbUser)).ToList();
 				break;
 			}
-			default:
-			{
-				// No additional work needed
-				break;
-			}
 		}
 
-		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
+		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
 	}
 
 	protected override ValueTask DisableFeatureCleanupAsync(DatabaseContext db, MalUser user, MalUserFeatures featureToDisable)

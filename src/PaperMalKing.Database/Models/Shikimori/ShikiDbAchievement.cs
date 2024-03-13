@@ -6,5 +6,6 @@ namespace PaperMalKing.Database.Models.Shikimori;
 public sealed class ShikiDbAchievement
 {
 	public required string NekoId { get; init; }
+
 	public required byte Level { get; set; }
 }

@@ -6,7 +6,8 @@
 # Config holds private data
 config.json
 config.yml
-appsettings.json
+appsettings.Production.json
+appsettings.Development.json
 makefile.p
 # Empty database is distributed with releases
 empty_database.db

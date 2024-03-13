@@ -79,6 +79,34 @@ internal static class UpdateCheckQueryBuilder
 			}
 			""";
 
+	private const string ReviewsSubQuery =
+		"""
+		ReviewsPage: Page(page: $page, perPage: 50) {
+			pageInfo {
+				hasNextPage
+			}
+			values: reviews(userId: $userId, sort: CREATED_AT_DESC) {
+				createdAt
+				siteUrl
+				summary
+				media {
+					title {
+						stylisedRomaji: romaji(stylised: true)
+						romaji(stylised: false)
+						stylisedEnglish: english(stylised: true)
+						english(stylised: false)
+						stylisedNative: native(stylised: true)
+						native(stylised: false)
+					}
+					format
+					image: coverImage {
+						large: extraLarge
+					}
+				}
+			}
+		}
+		""";
+
 	private static readonly CompositeFormat AnimeListSubQuery = CompositeFormat.Parse(
 		"""
 		AnimeList: MediaListCollection(userId: $userId, type: ANIME, sort: UPDATED_TIME_DESC, chunk: $chunk, perChunk: $perChunk) {{
@@ -121,34 +149,6 @@ internal static class UpdateCheckQueryBuilder
 		}}
 		""");
 
-	private const string ReviewsSubQuery =
-		"""
-		ReviewsPage: Page(page: $page, perPage: 50) {
-			pageInfo {
-				hasNextPage
-			}
-			values: reviews(userId: $userId, sort: CREATED_AT_DESC) {
-				createdAt
-				siteUrl
-				summary
-				media {
-					title {
-						stylisedRomaji: romaji(stylised: true)
-						romaji(stylised: false)
-						stylisedEnglish: english(stylised: true)
-						english(stylised: false)
-						stylisedNative: native(stylised: true)
-						native(stylised: false)
-					}
-					format
-					image: coverImage {
-						large: extraLarge
-					}
-				}
-			}
-		}
-		""";
-
 	public static string Build(RequestOptions options)
 	{
 		var hasAnime = options.HasFlag(RequestOptions.AnimeList);
@@ -161,18 +161,18 @@ internal static class UpdateCheckQueryBuilder
 		{
 			sb.AppendLine(FavouritesSubQuery);
 		}
+
 		sb.AppendLine("}");
 		if (hasAnime)
 		{
-			sb.AppendFormat(CultureInfo.InvariantCulture, AnimeListSubQuery,
-				options.HasFlag(RequestOptions.CustomLists) ? "customLists(asArray: true)" : "").AppendLine();
+			sb.AppendFormat(CultureInfo.InvariantCulture, AnimeListSubQuery, options.HasFlag(RequestOptions.CustomLists) ? "customLists(asArray: true)" : "").AppendLine();
 		}
 
 		if (hasManga)
 		{
-			sb.AppendFormat(CultureInfo.InvariantCulture, MangaListSubQuery,
-				options.HasFlag(RequestOptions.CustomLists) ? "customLists(asArray: true)" : "").AppendLine();
+			sb.AppendFormat(CultureInfo.InvariantCulture, MangaListSubQuery, options.HasFlag(RequestOptions.CustomLists) ? "customLists(asArray: true)" : "").AppendLine();
 		}
+
 		if (hasAnime || hasManga)
 		{
 			sb.AppendLine(
@@ -186,7 +186,7 @@ internal static class UpdateCheckQueryBuilder
 			{
 				true when hasManga => "MEDIA_LIST",
 				true => "ANIME_LIST",
-				_ => "MANGA_LIST"
+				_ => "MANGA_LIST",
 			};
 			sb.AppendLine(CultureInfo.InvariantCulture, $"values: activities(userId: $userId, type: {type}, sort: ID_DESC, createdAt_greater: $activitiesFilterTimeStamp) {{")
 				.AppendLine(
@@ -198,7 +198,10 @@ internal static class UpdateCheckQueryBuilder
 					media {
 				""");
 			if (hasAnime)
+			{
 				sb.AppendLine("episodes");
+			}
+
 			if (hasManga)
 			{
 				sb.AppendLine(
@@ -217,10 +220,12 @@ internal static class UpdateCheckQueryBuilder
 				}
 				""");
 		}
+
 		if (hasReview)
 		{
 			sb.AppendLine(ReviewsSubQuery);
 		}
+
 		sb.AppendLine("}");
 		return sb.ToString();
 	}

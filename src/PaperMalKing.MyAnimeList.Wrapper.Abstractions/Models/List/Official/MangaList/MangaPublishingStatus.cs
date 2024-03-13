@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 
 [JsonConverter(typeof(JsonStringEnumConverter<MangaPublishingStatus>))]
-public enum MangaPublishingStatus: byte
+public enum MangaPublishingStatus : byte
 {
 	unknown = 0,
 	[Description("Finished")]

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using CommunityToolkit.Diagnostics;
 using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
@@ -65,7 +66,9 @@ public sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<Fav
 
 	public int CompareTo(object? obj)
 	{
-		return obj is FavouriteEntry other ? this.CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(FavouriteEntry)}", nameof(obj));
+		return obj is FavouriteEntry other
+			? this.CompareTo(other)
+			: ThrowHelper.ThrowArgumentException<int>($"Object must be of type {nameof(FavouriteEntry)}", nameof(obj));
 	}
 
 	public static bool operator <(FavouriteEntry? left, FavouriteEntry? right) => Comparer<FavouriteEntry>.Default.Compare(left, right) < 0;

@@ -13,15 +13,18 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
 [SlashCommandGroup("mal", "Commands for interacting with MyAnimeList.net")]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-[GuildOnly, SlashRequireGuild]
+[GuildOnly]
+[SlashRequireGuild]
 internal sealed class MalCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from MyAnimeList.net")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 	public sealed class MalUserCommands : BaseUpdateProviderUserCommandsModule<MalUserService, MalUser>
 	{
-		public MalUserCommands(MalUserService userService, ILogger<MalUserCommands> logger) : base(userService, logger)
-		{ }
+		public MalUserCommands(MalUserService userService, ILogger<MalUserCommands> logger)
+			: base(userService, logger)
+		{
+		}
 
 		[SlashCommand("add", "Add your MyAnimeList account to being tracked")]
 		public override Task AddUserCommand(InteractionContext context, [Option(nameof(username), "Your username on MyAnimeList.net")] string? username = null) =>
@@ -39,26 +42,29 @@ internal sealed class MalCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("features", "Manage your features for updates send from MyAnimeList.net")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class MalUserFeaturesCommands : BaseUserFeaturesCommandsModule<MalUser,MalUserFeatures>
+	public sealed class MalUserFeaturesCommands : BaseUserFeaturesCommandsModule<MalUser, MalUserFeatures>
 	{
-		public MalUserFeaturesCommands(BaseUserFeaturesService<MalUser,MalUserFeatures> userFeaturesService, ILogger<MalUserFeaturesCommands> logger) : base(
-			userFeaturesService, logger)
-		{ }
+		public MalUserFeaturesCommands(BaseUserFeaturesService<MalUser, MalUserFeatures> userFeaturesService, ILogger<MalUserFeaturesCommands> logger)
+			: base(userFeaturesService, logger)
+		{
+		}
 
 		[SlashCommand("enable", "Enable features for your updates")]
-		public override Task EnableFeatureCommand(InteractionContext context,
-												  [ChoiceProvider(typeof(FeaturesChoiceProvider<MalUserFeatures>)),
-												   Option("feature", "Feature to enable")]
-												  string unparsedFeature)
+		public override Task EnableFeatureCommand(
+			InteractionContext context,
+			[ChoiceProvider(typeof(FeaturesChoiceProvider<MalUserFeatures>)),
+			Option("feature", "Feature to enable")]
+			string unparsedFeature)
 		{
 			return base.EnableFeatureCommand(context, unparsedFeature);
 		}
 
 		[SlashCommand("disable", "Disable features for your updates")]
-		public override Task DisableFeatureCommand(InteractionContext context,
-												   [ChoiceProvider(typeof(FeaturesChoiceProvider<MalUserFeatures>)),
-												    Option("feature", "Feature to enable")]
-												   string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);
+		public override Task DisableFeatureCommand(
+			InteractionContext context,
+			[ChoiceProvider(typeof(FeaturesChoiceProvider<MalUserFeatures>)),
+			Option("feature", "Feature to enable")]
+			string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);
 
 		[SlashCommand("enabled", "Show features that are enabled for yourself")]
 		public override Task EnabledFeaturesCommand(InteractionContext context) => base.EnabledFeaturesCommand(context);

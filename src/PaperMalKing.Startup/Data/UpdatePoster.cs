@@ -26,14 +26,14 @@ internal sealed class UpdatePoster : IDisposable
 
 	public async Task PostUpdatesAsync(IReadOnlyList<DiscordEmbedBuilder> embeds)
 	{
-		await this._semaphore.WaitAsync().ConfigureAwait(false);
+		await this._semaphore.WaitAsync();
 		try
 		{
 			for (var i = 0; i < embeds.Count; i++)
 			{
-				var embed = embeds[i];
-				this._logger.LogWarning("Posting update to {Channel} - {@Embed}", this._channel, embed);
-				await this._channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
+				var embed = embeds[i].Build();
+				this._logger.PostingUpdate(this._channel, embed);
+				await this._channel.SendMessageAsync(embed: embed);
 			}
 		}
 		finally

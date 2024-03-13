@@ -14,6 +14,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 public interface IMyAnimeListClient
 {
 	Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default);
+
 	Task<string> GetUsernameAsync(uint id, CancellationToken cancellationToken = default);
 
 	Task<IReadOnlyList<TE>>
@@ -29,6 +30,8 @@ public interface IMyAnimeListClient
 		where TListStatus : unmanaged, Enum;
 
 	Task<MediaInfo> GetAnimeDetailsAsync(long id,  CancellationToken cancellationToken = default);
+
 	Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken = default);
+
 	Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken = default);
 }

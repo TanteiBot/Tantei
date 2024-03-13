@@ -8,7 +8,8 @@ namespace PaperMalKing.Database.Models.MyAnimeList;
 
 public abstract class BaseMalListFavorite : BaseMalFavorite
 {
-	[DatabaseGenerated(DatabaseGeneratedOption.None),Required]
+	[DatabaseGenerated(DatabaseGeneratedOption.None)]
+	[Required]
 	public required string Type { get; init; }
 
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]

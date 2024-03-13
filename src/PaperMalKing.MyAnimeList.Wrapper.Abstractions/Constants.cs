@@ -4,15 +4,15 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 
 internal static class Constants
 {
-	public const string BASE_URL = "https://myanimelist.net";
+	public const string BaseUrl = "https://myanimelist.net";
 
-	public const string USER_AVATAR = "https://cdn.myanimelist.net/images/userimages/";
+	public const string UserAvatar = "https://cdn.myanimelist.net/images/userimages/";
 
-	public const string PROFILE_URL = BASE_URL + "/profile/";
+	public const string ProfileUrl = BaseUrl + "/profile/";
 
-	public const string COMMENTS_URL = BASE_URL + "/comments.php?id=";
+	public const string CommentsUrl = BaseUrl + "/comments.php?id=";
 
-	public const string BASE_OFFICIAL_API_URL = "https://api.myanimelist.net/v2";
+	public const string BaseOfficialApiUrl = "https://api.myanimelist.net/v2";
 
-	public const string DOT = "·";
+	public const string Dot = "·";
 }

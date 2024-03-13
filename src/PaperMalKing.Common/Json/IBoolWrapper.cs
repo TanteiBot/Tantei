@@ -3,9 +3,10 @@
 
 namespace PaperMalKing.Common.Json;
 
-public interface IBoolWrapper<out T> where T: IBoolWrapper<T>
+public interface IBoolWrapper<out T>
+	where T : IBoolWrapper<T>
 {
-	abstract static T TrueValue { get; }
+	static abstract T TrueValue { get; }
 
-	abstract static T FalseValue { get; }
+	static abstract T FalseValue { get; }
 }

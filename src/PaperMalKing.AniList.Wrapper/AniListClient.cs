@@ -23,33 +23,32 @@ internal sealed class AniListClient : IAniListClient
 		this._logger = logger;
 	}
 
-	public async Task<InitialUserInfoResponse> GetInitialUserInfoAsync(string username, byte favouritesPage = 1,
-																		 CancellationToken cancellationToken = default)
+	public async Task<InitialUserInfoResponse> GetInitialUserInfoAsync(string username, byte favouritesPage = 1, CancellationToken cancellationToken = default)
 	{
-		this._logger.LogDebug("Requesting initial info for {Username}, {Page}", username, favouritesPage);
+		this._logger.RequestingInitialInfo(username, favouritesPage);
 		var request = Requests.GetUserInitialInfoByUsernameRequest(username, favouritesPage);
-		var response = await this._client.SendQueryAsync<InitialUserInfoResponse>(request, cancellationToken).ConfigureAwait(false);
+		var response = await this._client.SendQueryAsync<InitialUserInfoResponse>(request, cancellationToken);
 		return response.Data;
 	}
 
-	public async Task<CheckForUpdatesResponse> CheckForUpdatesAsync(uint userId, byte page, long activitiesTimeStamp, ushort perChunk,
-																	ushort chunk, RequestOptions options, CancellationToken cancellationToken)
+	public async Task<CheckForUpdatesResponse> CheckForUpdatesAsync(uint userId, byte page, long activitiesTimeStamp, ushort perChunk, ushort chunk, RequestOptions options, CancellationToken cancellationToken)
 	{
 		cancellationToken.ThrowIfCancellationRequested();
-		this._logger.LogDebug("Requesting updates check for {UserId}, {Page}", userId, page);
+		this._logger.RequestingUpdatesCheck(userId, page);
 		var request = Requests.CheckForUpdatesRequest(userId, page, activitiesTimeStamp, perChunk, chunk, options);
-		var response = await this._client.SendQueryAsync<CheckForUpdatesResponse>(request, cancellationToken).ConfigureAwait(false);
+		var response = await this._client.SendQueryAsync<CheckForUpdatesResponse>(request, cancellationToken);
 		return response.Data;
 	}
 
-	public async Task<FavouritesResponse> FavouritesInfoAsync(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds,
-															  uint[] studioIds, RequestOptions options, CancellationToken cancellationToken = default)
+	public async Task<FavouritesResponse> FavouritesInfoAsync(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds, uint[] studioIds, RequestOptions options, CancellationToken cancellationToken = default)
 	{
-		if (animeIds.Length == 0 && mangaIds.Length == 0 && charIds.Length == 0 && staffIds.Length == 0 && studioIds.Length == 0)
+		if (animeIds is [] && mangaIds is [] && charIds is [] && staffIds is [] && studioIds is [])
+		{
 			return FavouritesResponse.Empty;
+		}
 
 		var request = Requests.FavouritesInfoRequest(page, animeIds, mangaIds, charIds, staffIds, studioIds, options);
-		var response = await this._client.SendQueryAsync<FavouritesResponse>(request, cancellationToken).ConfigureAwait(false);
+		var response = await this._client.SendQueryAsync<FavouritesResponse>(request, cancellationToken);
 		return response.Data;
 	}
 }

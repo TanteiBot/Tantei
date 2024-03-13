@@ -2,18 +2,23 @@
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.AniList;
 
 #pragma warning disable 219, 612, 618
-#nullable enable
+#nullable disable
 
 namespace PaperMalKing.Database.CompiledModels
 {
     internal partial class AniListUserEntityType
     {
-        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
+        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.AniList.AniListUser",
@@ -27,6 +32,21 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(AniListUser).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
+            id.TypeMapping = UIntTypeMapping.Default.Clone(
+                comparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                keyComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                providerValueComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "INTEGER"));
 
             var discordUserId = runtimeEntityType.AddProperty(
                 "DiscordUserId",
@@ -34,6 +54,7 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(AniListUser).GetProperty("DiscordUserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0ul);
+            discordUserId.TypeMapping = SqliteULongTypeMapping.Default;
 
             var favouritesIdHash = runtimeEntityType.AddProperty(
                 "FavouritesIdHash",
@@ -41,6 +62,7 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(AniListUser).GetProperty("FavouritesIdHash", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListUser).GetField("<FavouritesIdHash>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd);
+            favouritesIdHash.TypeMapping = SqliteStringTypeMapping.Default;
             favouritesIdHash.AddAnnotation("Relational:DefaultValue", "");
 
             var features = runtimeEntityType.AddProperty(
@@ -48,8 +70,29 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(AniListUserFeatures),
                 propertyInfo: typeof(AniListUser).GetProperty("Features", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListUser).GetField("<Features>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                valueGenerated: ValueGenerated.OnAdd,
-                sentinel: AniListUserFeatures.None);
+                valueGenerated: ValueGenerated.OnAdd);
+            features.TypeMapping = SqliteULongTypeMapping.Default.Clone(
+                comparer: new ValueComparer<AniListUserFeatures>(
+                    (AniListUserFeatures v1, AniListUserFeatures v2) => object.Equals((object)v1, (object)v2),
+                    (AniListUserFeatures v) => v.GetHashCode(),
+                    (AniListUserFeatures v) => v),
+                keyComparer: new ValueComparer<AniListUserFeatures>(
+                    (AniListUserFeatures v1, AniListUserFeatures v2) => object.Equals((object)v1, (object)v2),
+                    (AniListUserFeatures v) => v.GetHashCode(),
+                    (AniListUserFeatures v) => v),
+                providerValueComparer: new ValueComparer<ulong>(
+                    (ulong v1, ulong v2) => v1 == v2,
+                    (ulong v) => v.GetHashCode(),
+                    (ulong v) => v),
+                converter: new ValueConverter<AniListUserFeatures, ulong>(
+                    (AniListUserFeatures value) => (ulong)value,
+                    (ulong value) => (AniListUserFeatures)value),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<AniListUserFeatures, ulong>(
+                    JsonUInt64ReaderWriter.Instance,
+                    new ValueConverter<AniListUserFeatures, ulong>(
+                        (AniListUserFeatures value) => (ulong)value,
+                        (ulong value) => (AniListUserFeatures)value)));
+            features.SetSentinelFromProviderValue(0ul);
             features.AddAnnotation("Relational:DefaultValue", AniListUserFeatures.AnimeList | AniListUserFeatures.MangaList | AniListUserFeatures.Favourites | AniListUserFeatures.Mention | AniListUserFeatures.Website | AniListUserFeatures.MediaFormat | AniListUserFeatures.MediaStatus);
 
             var lastActivityTimestamp = runtimeEntityType.AddProperty(
@@ -58,6 +101,21 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(AniListUser).GetProperty("LastActivityTimestamp", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListUser).GetField("<LastActivityTimestamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0L);
+            lastActivityTimestamp.TypeMapping = LongTypeMapping.Default.Clone(
+                comparer: new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => v.GetHashCode(),
+                    (long v) => v),
+                keyComparer: new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => v.GetHashCode(),
+                    (long v) => v),
+                providerValueComparer: new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => v.GetHashCode(),
+                    (long v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "INTEGER"));
 
             var lastReviewTimestamp = runtimeEntityType.AddProperty(
                 "LastReviewTimestamp",
@@ -65,6 +123,21 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(AniListUser).GetProperty("LastReviewTimestamp", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListUser).GetField("<LastReviewTimestamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0L);
+            lastReviewTimestamp.TypeMapping = LongTypeMapping.Default.Clone(
+                comparer: new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => v.GetHashCode(),
+                    (long v) => v),
+                keyComparer: new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => v.GetHashCode(),
+                    (long v) => v),
+                providerValueComparer: new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => v.GetHashCode(),
+                    (long v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "INTEGER"));
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -82,8 +155,8 @@ namespace PaperMalKing.Database.CompiledModels
 
         public static RuntimeForeignKey CreateForeignKey1(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
         {
-            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("DiscordUserId")! },
-                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("DiscordUserId")! })!,
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("DiscordUserId") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("DiscordUserId") }),
                 principalEntityType,
                 deleteBehavior: DeleteBehavior.Cascade,
                 unique: true,

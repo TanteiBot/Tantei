@@ -16,11 +16,12 @@ namespace PaperMalKing.Common.Attributes;
 public sealed class OwnerOrPermissionsAttribute : SlashCheckBaseAttribute
 {
 	/// <summary>
-	/// Permissions needed to execute command.
+	/// Gets permissions needed to execute command.
 	/// </summary>
 	public Permissions Permissions { get; }
 
 	/// <summary>
+	/// Initializes a new instance of the <see cref="OwnerOrPermissionsAttribute"/> class.
 	/// Defines that command or group of commands can only be executed by owner of the bot or user with specified permissions.
 	/// </summary>
 	/// <param name="permissions">Permissions needed to execute command.</param>
@@ -29,20 +30,19 @@ public sealed class OwnerOrPermissionsAttribute : SlashCheckBaseAttribute
 		this.Permissions = permissions;
 	}
 
-	public override Task<bool> ExecuteChecksAsync( InteractionContext ctx)
+	public override Task<bool> ExecuteChecksAsync(InteractionContext ctx)
 	{
-		var app = ctx.Client.CurrentApplication;
-		var me = ctx.Client.CurrentUser;
-
-		if (app?.Owners.Any(x => x.Id == ctx.User.Id) == true)
+		if (ctx.User.Id == ctx.Client.CurrentUser.Id || ctx.Client.CurrentApplication.Owners.Any(x => x.Id == ctx.User.Id))
+		{
 			return Task.FromResult(true);
-
-		if (ctx.User.Id == me.Id)
-			return Task.FromResult(true);
+		}
 
 		var usr = ctx.Member;
 		if (usr is null)
+		{
 			return Task.FromResult(false);
+		}
+
 		var pusr = ctx.Channel.PermissionsFor(usr);
 
 		return Task.FromResult((pusr & this.Permissions) == this.Permissions);

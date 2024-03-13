@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <LangVersion>preview</LangVersion>
+        <LangVersion>12</LangVersion>
         <OutputType>Library</OutputType>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>nullable</WarningsAsErrors>
@@ -9,7 +9,7 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <DebugType>portable</DebugType>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-        <AnalysisLevel>8</AnalysisLevel>
+        <AnalysisLevel>9</AnalysisLevel>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
         <AnalysisMode>All</AnalysisMode>
@@ -18,8 +18,9 @@
             CS1591; <!--Missing XML comment for publicly visible type or member-->
             
             CA1000; <!--Do not declare static members on generic types-->
-            CA1002; <!--Change 'List '  to use 'Collection ', 'ReadOnlyCollection ' or 'KeyedCollection'-->
+            CA1002; <!--Change 'List ' to use 'Collection ', 'ReadOnlyCollection ' or 'KeyedCollection'-->
             CA1003; <!--Use generic event handler instances-->
+            CA1008; <!--Enums should have zero value-->
             CA1028; <!--Enum storage should be Int32-->
             CA1032; <!--Implement standard exception constructors-->
             CA1034; <!--Do not nest type. Alternatively, change its accessibility so that it is not externally visible.-->
@@ -28,11 +29,19 @@
             CA1056; <!--URI properties should not be strings-->
             CA1062; <!--Validate arguments of public methods-->
             CA1707; <!--Remove the underscores from member name-->
-
+            CA1819; <!-- Properties should not return arrays-->
+            CA1849; <!--synchronously blocks. Await instead. -->
             CA1812; <!--Avoid uninstantiated internal classes-->
             CA1848; <!--For improved performance, use the LoggerMessage delegates -->
+            CA2007; <!--Consider calling ConfigureAwait on the awaited task -->
             CA2234; <!--Pass System.Uri objects instead of strings-->
 
+            EA0000;
+            EA0001;
+            EA0002; <!--Use 'System.TimeProvider' to make the code easier to test-->
+            EA0014; <!--Add CancellationToken as the parameter of asynchronous method-->
+
+            MA0004; <!--Use Task.ConfigureAwait(false) as the current SynchronizationContext is not needed-->
             MA0016; <!--Prefer returning collection abstraction instead of implementation-->
             MA0018; <!--Do not declare static members on generic types-->
             MA0023; <!--Add RegexOptions.ExplicitCapture-->
@@ -43,38 +52,77 @@
             MA0051; <!--Method is too long-->
             MA0099; <!-- Use Explicit enum value instead of 0 -->
             MA0101; <!--String contains an implicit end of line character-->
+            MA0136; <!-- Raw String contains an implicit end of line character-->
 
             IDE0010; <!--Add missing cases to switch statement-->
-            IDE0011; <!--Add braces-->
             IDE0022; <!--Use expression body for methods-->
             IDE0024; <!--Use expression body for operators-->
             IDE0055; <!--Formatting rule-->
             IDE0058; <!--Remove unnecessary expression value-->
             IDE0061; <!--Use expression body for local functions-->
-            IDE0052; <!--Private member can be removed as the value assigned to it is never read -->
             IDE0160; <!--Namespace declaration preferences-->
             IDE0290; <!--UsePrimaryConstructor-->
 
+            S107; <!--Method has parameters, which is greater than the 7 authorized. -->
+            SA1010; <!--Opening square brackets should not be preceded by a space-->
+            S1067; <!--Reduce the number of conditional operators used in the expression (maximum allowed 3).-->
             S1075; <!--Refactor your code not to use hardcoded absolute paths or URIs.-->
             S1133; <!--Do not forget to remove this deprecated code someday. -->
-            S1135; <!--Complete the task associated to this 'TODO' comment.-->
+            S1244; <!--Do not check floating point inequality with exact values, use a range instead.-->
+            S1694; <!--Convert this 'abstract' class to a concrete type with a protected constructor. -->
+            S1994; <!--This loop's stop condition tests 'X' but the incrementer updates 'Y'.-->
             S2326; <!--'T' is not used in the interface.-->
             S2743; <!-- Static fields should not be used in generic types-->
+            S3906; <!--Change the signature of that event handler to match the specified signature. -->
+            S3908; <!--Refactor this delegate to use 'System.EventHandler<TEventArgs>'. -->
             S3925; <!--Update this implementation of 'ISerializable' to conform to the recommended serialization pattern.-->
+            S3995; <!-- Change this return type to 'System.Uri'. -->
+            S3996; <!--Change this property type to 'System.Uri'. -->
+            S4022; <!--Change this enum storage to 'Int32'-->
 
+            SA1122; <!--Use string.Empty for empty strings -->
+            SA1116; <!--The parameters should begin on the line after the declaration, whenever the parameter span across multiple lines-->
+            SA1200; <!--Using directive should appear within a namespace declaration-->
+            SA1201; <!--A constructor should not follow a property -->
+            SA1202; <!--'public' members should come before 'private' members -->
+            SA1300; <!--Element should begin with an uppercase letter -->
+            SA1309; <!--Field should not begin with an underscore-->
+            SA1402; <!--File may only contain a single type -->
+            SA1600; <!--Elements should be documented -->
+            SA1601; <!-- Partial elements should be documented -->
+            SA1602; <!--Enumeration items should be documented-->
+            SA1604; <!--Element documentation should have summary -->
+            SA1615; <!--Element return value should be documented -->
+            SA1633; <!--The file header XML is invalid.-->
+            SA1649; <!-- File name should match first type name -->
+            
             RCS1031; <!-- Remove unnecessary braces. -->
             RCS1135; <!-- Declare enum member with zero value (when enum has FlagsAttribute).-->
             RCS1139; <!-- Add summary element to documentation comment.-->
             RCS1181; <!--Convert comment to documentation comment.-->
             RCS1194; <!--Implement exception constructors.-->
 
+            VSTHRD111; <!--Add .ConfigureAwait(bool) to your await expression-->
+            
             AsyncFixer02; <!--ToArrayAsync should be used instead of -->
         </NoWarn>
         <WarningsNotAsErrors>
             MA0048; <!--File name must match type name-->
             S125;  <!--Remove this commented out code.-->
+            S1135; <!--Complete the task associated to this 'TODO' comment.-->
+
         </WarningsNotAsErrors>
     </PropertyGroup>
+    
+    <Choose>
+        <When Condition="'$(Configuration)' == 'Debug'">
+            <PropertyGroup>
+                <WarningsNotAsErrors>$(WarningsNotAsErrors);
+                    IDE0005; <!--Using directive is unnecessary.-->
+                </WarningsNotAsErrors>
+            </PropertyGroup>
+        </When>
+    </Choose>
 
     <ItemDefinitionGroup>
         <PackageReference>
@@ -115,6 +163,14 @@
         <PackageReference Include="Nerdbank.GitVersioning">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.ExtraAnalyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Stylecop.Analyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 </Project>

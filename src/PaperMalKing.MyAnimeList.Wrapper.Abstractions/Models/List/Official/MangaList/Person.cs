@@ -9,6 +9,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Man
 public sealed class Person
 {
 	private string? _url;
+
 	[JsonPropertyName("id")]
 	public required uint Id { get; init; }
 
@@ -20,5 +21,5 @@ public sealed class Person
 	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
 	public string? LastName { get; init; }
 
-	public string Url => this._url ??= $"{Constants.BASE_URL}/people/{this.Id}";
+	public string Url => this._url ??= $"{Constants.BaseUrl}/people/{this.Id}";
 }

@@ -8,19 +8,19 @@ namespace PaperMalKing.Common.RateLimiters;
 
 public static class RateLimiterFactory
 {
-	public static RateLimiter<T> Create<T>(RateLimit rateLimit)
+	public static RateLimiter<T> Create<T>(RateLimitValue rateLimitValue)
 	{
-		ArgumentNullException.ThrowIfNull(rateLimit);
-		if (rateLimit.AmountOfRequests == 0 || rateLimit.PeriodInMilliseconds == 0)
+		ArgumentNullException.ThrowIfNull(rateLimitValue);
+		if (rateLimitValue.AmountOfRequests == 0 || rateLimitValue.PeriodInMilliseconds == 0)
 		{
 			return new RateLimiter<T>(NullRateLimiter.Instance);
 		}
 
-		return new RateLimiter<T>(new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions()
+		return new RateLimiter<T>(new FixedWindowRateLimiter(new()
 		{
-			Window = TimeSpan.FromMilliseconds(rateLimit.PeriodInMilliseconds),
+			Window = TimeSpan.FromMilliseconds(rateLimitValue.PeriodInMilliseconds),
 			AutoReplenishment = true,
-			PermitLimit = rateLimit.AmountOfRequests,
+			PermitLimit = rateLimitValue.AmountOfRequests,
 			QueueLimit = 200,
 			QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
 		}));

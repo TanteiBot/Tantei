@@ -13,13 +13,17 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions;
 public interface IShikiClient
 {
 	Task<UserInfo> GetUserAsync(string nickname, CancellationToken cancellationToken = default);
+
 	Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default);
 
-	Task<Paginatable<History[]>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options,
-													 CancellationToken cancellationToken = default);
+	Task<Paginatable<History[]>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options, CancellationToken cancellationToken = default);
 
-	Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, CancellationToken cancellationToken = default) where TMedia : BaseMedia;
+	Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, CancellationToken cancellationToken = default)
+		where TMedia : BaseMedia;
+
 	Task<IReadOnlyList<Role>> GetMediaStaffAsync(ulong id, ListEntryType type, CancellationToken cancellationToken = default);
+
 	Task<UserInfo> GetUserInfoAsync(uint userId, CancellationToken cancellationToken = default);
+
 	Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken = default);
 }

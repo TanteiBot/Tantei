@@ -4,15 +4,15 @@ using System;
 
 namespace PaperMalKing.Common.RateLimiters;
 
-public sealed class RateLimit
+public sealed class RateLimitValue
 {
-	public static readonly RateLimit Empty = new();
+	public static readonly RateLimitValue Empty = new();
 
 	public int AmountOfRequests { get; }
 
 	public int PeriodInMilliseconds { get; }
 
-	public RateLimit(int amountOfRequests, int periodInMilliseconds)
+	public RateLimitValue(int amountOfRequests, int periodInMilliseconds)
 	{
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(amountOfRequests);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(periodInMilliseconds);
@@ -20,10 +20,12 @@ public sealed class RateLimit
 		this.PeriodInMilliseconds = periodInMilliseconds;
 	}
 
-	public RateLimit(int amountOfRequests, TimeSpan period) : this(amountOfRequests, (int)period.TotalMilliseconds)
-	{ }
+	public RateLimitValue(int amountOfRequests, TimeSpan period)
+		: this(amountOfRequests, (int)period.TotalMilliseconds)
+	{
+	}
 
-	private RateLimit()
+	private RateLimitValue()
 	{
 		this.PeriodInMilliseconds = 0;
 		this.AmountOfRequests = 0;

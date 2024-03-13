@@ -1,12 +1,12 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
+using System;
 using System.Globalization;
 using AngleSharp.Dom;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
-using System;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
@@ -18,9 +18,9 @@ internal static partial class UserProfileParser
 		var li = reportUrl!.LastIndexOf('=');
 
 		var id = uint.Parse(reportUrl.AsSpan(li + 1), NumberFormatInfo.InvariantInfo);
-		var url = document.QuerySelector("meta[property=\"og:url\"]")!.GetAttribute("content")!;
+		var url = document.QuerySelector("""meta[property="og:url"]""")!.GetAttribute("content")!;
 		var username = url[(url.LastIndexOf('/') + 1)..];
-		var favorites = options.HasFlag(ParserOptions.Favorites) ? FavoritesParser.Parse(document) : UserFavorites.Empty;
+		var favorites = options.HasFlag(ParserOptions.Favorites) ? FavoritesParser.ParseFavorites(document) : UserFavorites.Empty;
 
 		return new()
 		{

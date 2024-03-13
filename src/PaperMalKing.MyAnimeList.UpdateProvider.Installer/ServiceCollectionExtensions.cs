@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
 	public static IServiceCollection AddMyAnimeList(this IServiceCollection serviceCollection, IConfiguration configuration)
 	{
 		serviceCollection.AddOptions<MalOptions>().Bind(configuration.GetSection(Constants.Name));
-		serviceCollection.AddSingleton<RateLimiter<IMyAnimeListClient>>(RateLimiterExtensions.ConfigurationLambda<MalOptions, IMyAnimeListClient>);
+		serviceCollection.AddSingleton(RateLimiterExtensions.ConfigurationLambda<MalOptions, IMyAnimeListClient>);
 
 		var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError().OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
 											  .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));
@@ -49,26 +49,27 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddHttpClient(Constants.JikanHttpClientName).AddPolicyHandler(retryPolicy)
 						 .ConfigurePrimaryHttpMessageHandler(_ => HttpClientHandlerFactory()).AddHttpMessageHandler(_ =>
 						 {
-							 var rl = new RateLimit(60, TimeSpan.FromMinutes(1.2d)); // 60rpm with 0.2 as inaccuracy
+							 var rl = new RateLimitValue(60, TimeSpan.FromMinutes(1.2d)); // 60rpm with 0.2 as inaccuracy
 							 return RateLimiterFactory.Create<IJikan>(rl).ToHttpMessageHandler();
 						 }).AddHttpMessageHandler(_ =>
 						 {
-							 var rl = new RateLimit(3, TimeSpan.FromSeconds(1.5)); // 3rps with 0.5 as inaccuracy
+							 var rl = new RateLimitValue(3, TimeSpan.FromSeconds(1.5)); // 3rps with 0.5 as inaccuracy
 							 return RateLimiterFactory.Create<IJikan>(rl).ToHttpMessageHandler();
 						 })
-						 .ConfigureHttpClient(client => client.BaseAddress = new Uri("https://api.jikan.moe/v4/"));
-		serviceCollection.AddSingleton<IJikan>(provider => new Jikan(new JikanClientConfiguration()
+						 .ConfigureHttpClient(client => client.BaseAddress = new("https://api.jikan.moe/v4/"));
+		serviceCollection.AddSingleton<IJikan>(provider => new Jikan(
+			new()
 		{
 			SuppressException = false,
 			LimiterConfigurations = TaskLimiterConfiguration.None, // We use System.Threading.RateLimiting
-		}, provider.GetRequiredService<IHttpClientFactory>().CreateClient(Constants.JikanHttpClientName)));
+		},
+			provider.GetRequiredService<IHttpClientFactory>().CreateClient(Constants.JikanHttpClientName)));
 		serviceCollection.AddSingleton<IMyAnimeListClient, MyAnimeListClient>(provider =>
 		{
 			var factory = provider.GetRequiredService<IHttpClientFactory>();
 			var logger = provider.GetRequiredService<ILogger<MyAnimeListClient>>();
 			var jikan = provider.GetRequiredService<IJikan>();
-			return new(logger, unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName),
-				officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName), jikanClient: jikan);
+			return new(logger, unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName), officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName), jikanClient: jikan);
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<MalUser, MalUserFeatures>, MalUserFeaturesService>();
 		serviceCollection.AddSingleton<MalUserService>();

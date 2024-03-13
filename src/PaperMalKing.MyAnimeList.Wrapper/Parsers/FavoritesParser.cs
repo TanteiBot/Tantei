@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using AngleSharp.Dom;
@@ -11,13 +10,13 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
-[SuppressMessage("Design", "MA0048:File name must match type name")]
-[SuppressMessage("Critical Code Smell", "S3218:Inner class members should not shadow outer class \"static\" or type members")]
+
+[SuppressMessage("Design", "MA0048:File name must match type name", Justification = "We don't want to expose all parsers")]
 internal static partial class UserProfileParser
 {
 	private static class FavoritesParser
 	{
-		public static UserFavorites Parse(IDocument document)
+		public static UserFavorites ParseFavorites(IDocument document)
 		{
 			var animes = ParseFavoriteAnime(document);
 			var manga = ParseFavoriteManga(document);
@@ -34,47 +33,52 @@ internal static partial class UserProfileParser
 			};
 		}
 
-		private static IReadOnlyList<FavoriteCompany> ParseFavoriteCompanies(IDocument parent)
+		private static FavoriteCompany[] ParseFavoriteCompanies(IDocument parent)
 		{
 			var companyFavoritesNodes = GetFavoritesNodes(parent, "company_favorites");
 			if (companyFavoritesNodes is null)
 			{
-				return Array.Empty<FavoriteCompany>();
+				return [];
 			}
 
-			return Parse(companyFavoritesNodes, node => new FavoriteCompany(ParseBaseFavorite(node)));
+			return ParseFavoriteBase(companyFavoritesNodes, node => new FavoriteCompany(ParseBaseFavorite(node)));
 		}
 
-		private static IReadOnlyList<FavoriteAnime> ParseFavoriteAnime(IDocument parent)
+		private static FavoriteAnime[] ParseFavoriteAnime(IDocument parent)
 		{
 			var animeFavoritesNodes = GetFavoritesNodes(parent, "anime_favorites");
 			if (animeFavoritesNodes is null)
 			{
-				return Array.Empty<FavoriteAnime>();
+				return [];
 			}
-			return Parse(animeFavoritesNodes,
+
+			return ParseFavoriteBase(
+				animeFavoritesNodes,
 				node => new FavoriteAnime(ParseListEntryFavorite(node)));
 		}
 
-		private static IReadOnlyList<FavoriteManga> ParseFavoriteManga(IDocument parent)
+		private static FavoriteManga[] ParseFavoriteManga(IDocument parent)
 		{
 			var mangaFavoriteNodes = GetFavoritesNodes(parent, "manga_favorites");
 			if (mangaFavoriteNodes is null)
 			{
-				return Array.Empty<FavoriteManga>();
+				return [];
 			}
-			return Parse(mangaFavoriteNodes,
+
+			return ParseFavoriteBase(
+				mangaFavoriteNodes,
 				node => new FavoriteManga(ParseListEntryFavorite(node)));
 		}
 
-		private static IReadOnlyList<FavoriteCharacter> ParseFavoriteCharacter(IDocument parent)
+		private static FavoriteCharacter[] ParseFavoriteCharacter(IDocument parent)
 		{
 			var characterFavoriteNodes = GetFavoritesNodes(parent, "character_favorites");
 			if (characterFavoriteNodes is null)
 			{
-				return Array.Empty<FavoriteCharacter>();
+				return [];
 			}
-			return Parse(characterFavoriteNodes, node =>
+
+			return ParseFavoriteBase(characterFavoriteNodes, node =>
 			{
 				var baseFav = ParseBaseFavorite(node);
 				var fromNode = node.QuerySelector(".users")!;
@@ -82,14 +86,15 @@ internal static partial class UserProfileParser
 			});
 		}
 
-		private static IReadOnlyList<FavoritePerson> ParseFavoritePerson(IDocument parent)
+		private static FavoritePerson[] ParseFavoritePerson(IDocument parent)
 		{
 			var personFavoriteNodes = GetFavoritesNodes(parent, "person_favorites");
 			if (personFavoriteNodes is null)
 			{
-				return Array.Empty<FavoritePerson>();
+				return [];
 			}
-			return Parse(personFavoriteNodes, node => new FavoritePerson(ParseBaseFavorite(node)));
+
+			return ParseFavoriteBase(personFavoriteNodes, node => new FavoritePerson(ParseBaseFavorite(node)));
 		}
 
 		private static IHtmlCollection<IElement>? GetFavoritesNodes(IDocument parent, string sectionName)
@@ -97,12 +102,14 @@ internal static partial class UserProfileParser
 			return parent.QuerySelectorAll($"div#{sectionName} div.fav-slide-outer > ul > li.btn-fav > a");
 		}
 
-		private static IReadOnlyList<TF> Parse<TF>(IHtmlCollection<IElement> elements, Func<IElement, TF> func)
+		private static TF[] ParseFavoriteBase<TF>(IHtmlCollection<IElement> elements, Func<IElement, TF> func)
 			where TF : BaseFavorite
 		{
-			var favs = elements.Length == 0 ? Array.Empty<TF>() : new TF[elements.Length];
+			var favs = elements.Length == 0 ? [] : new TF[elements.Length];
 			for (var i = 0; i < favs.Length; i++)
+			{
 				favs[i] = func(elements[i]);
+			}
 
 			return favs;
 		}
@@ -113,7 +120,7 @@ internal static partial class UserProfileParser
 
 			var typeYearNode = parent.QuerySelector(".users")!;
 			var text = typeYearNode.TextContent.AsSpan();
-			var index = text.IndexOf(Constants.DOT, StringComparison.Ordinal);
+			var index = text.IndexOf(Constants.Dot, StringComparison.Ordinal);
 
 			return new(text[..index].ToString(), ushort.Parse(text[(index + 1)..], NumberFormatInfo.InvariantInfo), baseFav);
 		}
@@ -123,7 +130,7 @@ internal static partial class UserProfileParser
 			var urlUnparsed = parent.GetAttribute("href")!;
 			if (urlUnparsed.StartsWith('/'))
 			{
-				urlUnparsed = Constants.BASE_URL + urlUnparsed;
+				urlUnparsed = Constants.BaseUrl + urlUnparsed;
 			}
 
 			var titleNode = parent.QuerySelector(".title")!;

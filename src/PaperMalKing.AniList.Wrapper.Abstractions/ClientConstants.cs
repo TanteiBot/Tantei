@@ -4,5 +4,5 @@ namespace PaperMalKing.AniList.Wrapper.Abstractions;
 
 internal static class ClientConstants
 {
-	public const string BASE_URL = "https://graphql.anilist.co/";
+	public const string BaseUrl = "https://graphql.anilist.co/";
 }

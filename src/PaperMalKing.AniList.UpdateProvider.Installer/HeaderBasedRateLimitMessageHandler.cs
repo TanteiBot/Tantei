@@ -13,31 +13,31 @@ namespace PaperMalKing.AniList.UpdateProvider.Installer;
 
 internal sealed class HeaderBasedRateLimitMessageHandler : DelegatingHandler
 {
-	private readonly ILogger<HeaderBasedRateLimitMessageHandler> _logger;
 	private const sbyte RateLimitMaxRequests = 90;
+	private readonly ILogger<HeaderBasedRateLimitMessageHandler> _logger;
+	private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
 	private sbyte _rateLimitRemaining;
 	private long _timestamp;
-	private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
 
 	public HeaderBasedRateLimitMessageHandler(ILogger<HeaderBasedRateLimitMessageHandler> logger)
 	{
 		this._logger = logger;
 		this._rateLimitRemaining = RateLimitMaxRequests;
-		this._timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+		this._timestamp = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
 	}
 
 	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 	{
-		await this._semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+		await this._semaphoreSlim.WaitAsync(cancellationToken);
 		try
 		{
 			HttpResponseMessage response;
 			do
 			{
-				var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+				var now = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
 				if (now - this._timestamp >= 60)
 				{
-					this._logger.LogTrace("Resetting AniList ratelimiter");
+					this._logger.ResettingRateLimiter();
 					this._timestamp = now;
 					this._rateLimitRemaining = RateLimitMaxRequests;
 				}
@@ -46,26 +46,27 @@ internal sealed class HeaderBasedRateLimitMessageHandler : DelegatingHandler
 				if (this._rateLimitRemaining < 0)
 				{
 					var delay = this._timestamp + 60 - now;
-					this._logger.LogDebug("AniList exceeded rate-limit waiting {Delay}", delay);
-					await Task.Delay(TimeSpan.FromSeconds(Math.Min(delay, 60)), cancellationToken).ConfigureAwait(false);
-					this._timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+					this._logger.RateLimitExceeded(delay);
+					await Task.Delay(TimeSpan.FromSeconds(Math.Min(delay, 60)), cancellationToken);
+					this._timestamp = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
 					this._rateLimitRemaining = RateLimitMaxRequests;
 				}
 
-				response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+				response = await base.SendAsync(request, cancellationToken);
 
 				if (response is { StatusCode: HttpStatusCode.TooManyRequests, Headers.RetryAfter.Delta: { } })
 				{
 					var delay = response.Headers.RetryAfter.Delta.Value.Add(TimeSpan.FromSeconds(1));
-					this._logger.LogInformation("Got 429'd waiting {Delay}", delay);
-					await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+					this._logger.Got429HttpResponse(delay);
+					await Task.Delay(delay, cancellationToken);
 				}
 				else
 				{
 					this._rateLimitRemaining = sbyte.Parse(response.Headers.GetValues("X-RateLimit-Remaining").First(), NumberFormatInfo.InvariantInfo);
-					this._logger.LogTrace("AniList rate limit remaining {RateLimitRemaining}", this._rateLimitRemaining);
+					this._logger.RateLimitRemaining(this._rateLimitRemaining);
 				}
-			} while (!cancellationToken.IsCancellationRequested && response.StatusCode == HttpStatusCode.TooManyRequests);
+			}
+			while (!cancellationToken.IsCancellationRequested && response.StatusCode == HttpStatusCode.TooManyRequests);
 
 			return response;
 		}

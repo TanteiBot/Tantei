@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -17,14 +18,16 @@ namespace PaperMalKing.Startup.Services;
 internal sealed class CommandsService : ICommandsService
 {
 	private readonly ILogger<CommandsService> _logger;
+
 	public SlashCommandsExtension SlashCommandsExtension { get; }
 
+	[SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "It's meant to be a singleton")]
 	public CommandsService(IServiceProvider provider, DiscordClient client, ILogger<CommandsService> logger)
 	{
 		this._logger = logger;
 		this._logger.LogTrace("Building Commands service");
 
-		this.SlashCommandsExtension = client.UseSlashCommands(new ()
+		this.SlashCommandsExtension = client.UseSlashCommands(new()
 		{
 			Services = provider,
 		});
@@ -32,7 +35,7 @@ internal sealed class CommandsService : ICommandsService
 		this.SlashCommandsExtension.SlashCommandExecuted += this.SlashCommandsExtensionOnSlashCommandExecutedAsync;
 
 		var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-		HashSet<Type> nestedTypesNotToRegister = new();
+		var nestedTypesNotToRegister = new HashSet<Type>();
 
 		foreach (var assembly in assemblies.Where(a => a.FullName?.Contains("PaperMalKing", StringComparison.OrdinalIgnoreCase) ?? true))
 		{
@@ -44,15 +47,21 @@ internal sealed class CommandsService : ICommandsService
 				try
 				{
 					if (nestedTypesNotToRegister.Contains(type))
+					{
 						continue;
+					}
+
 					var nestedTypes = type.GetNestedTypes(BindingFlags.Public)
 										  .Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase));
 					foreach (var nestedType in nestedTypes)
+					{
 						nestedTypesNotToRegister.Add(nestedType);
+					}
 
 					this.SlashCommandsExtension.RegisterCommands(type);
 				}
 				#pragma warning disable CA1031
+				// Modify '.ctor' to catch a more specific allowed exception type, or rethrow the exception
 				catch (Exception ex)
 					#pragma warning restore CA1031
 				{
@@ -68,14 +77,13 @@ internal sealed class CommandsService : ICommandsService
 
 	private Task SlashCommandsExtensionOnSlashCommandExecutedAsync(SlashCommandsExtension sender, SlashCommandExecutedEventArgs e)
 	{
-		this._logger.LogDebug("{Command} was successfully executed by request of {Member}", e.Context.CommandName, e.Context.Member);
+		this._logger.CommandSuccessfullyExecuted(e.Context.CommandName, e.Context.Member);
 		return Task.CompletedTask;
 	}
 
 	private Task SlashCommandsExtensionOnSlashCommandErroredAsync(SlashCommandsExtension sender, SlashCommandErrorEventArgs e)
 	{
-		this._logger.LogError(e.Exception, "{Command} errored with exception while trying to be executed by {Member}", e.Context.CommandName,
-			e.Context.Member);
+		this._logger.CommandErrored(e.Exception, e.Context.CommandName, e.Context.Member);
 		return Task.CompletedTask;
 	}
 }

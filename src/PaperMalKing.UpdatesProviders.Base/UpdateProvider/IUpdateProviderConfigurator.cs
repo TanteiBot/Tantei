@@ -5,7 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-public interface IUpdateProviderConfigurator<T> where T : IUpdateProvider
+public interface IUpdateProviderConfigurator<T>
+	where T : IUpdateProvider
 {
-	abstract static void Configure(IConfiguration configuration, IServiceCollection serviceCollection);
+	static abstract void Configure(IConfiguration configuration, IServiceCollection serviceCollection);
 }

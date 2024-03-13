@@ -21,10 +21,15 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 {
 	private readonly IAniListClient _client;
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
-	public override string Name => ProviderConstants.NAME;
 
-	public AniListUserService(ILogger<AniListUserService> logger, IAniListClient client, IDbContextFactory<DatabaseContext> dbContextFactory,
-							  GeneralUserService userService) : base(logger, dbContextFactory, userService)
+	public override string Name => ProviderConstants.Name;
+
+	public AniListUserService(
+							ILogger<AniListUserService> logger,
+							IAniListClient client,
+							IDbContextFactory<DatabaseContext> dbContextFactory,
+							GeneralUserService userService)
+							: base(logger, dbContextFactory, userService)
 	{
 		this._client = client;
 		this._dbContextFactory = dbContextFactory;
@@ -32,12 +37,13 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 
 	public override async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
-		using var db = this._dbContextFactory.CreateDbContext();
+		await using var db = this._dbContextFactory.CreateDbContext();
 		var dbUser = db.AniListUsers.TagWith("Query user when trying to add one").TagWithCallSite().Include(su => su.DiscordUser)
 					   .ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 		DiscordGuild? guild;
-		if (dbUser is not null) // User already in db
+		if (dbUser is not null)
 		{
+			// User already in db
 			if (dbUser.DiscordUser.Guilds.Any(g => g.DiscordGuildId == guildId))
 			{
 				throw new UserProcessingException(
@@ -47,12 +53,11 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 			guild = db.DiscordGuilds.TagWith("Query guild to add existing user to it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
 			{
-				throw new UserProcessingException(BaseUser.FromUsername(username),
-					"Current server is not in database, ask server administrator to add this server to bot");
+				throw new UserProcessingException(BaseUser.FromUsername(username), "Current server is not in database, ask server administrator to add this server to bot");
 			}
 
 			dbUser.DiscordUser.Guilds.Add(guild);
-			await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
+			await db.SaveChangesAndThrowOnNoneAsync();
 			return BaseUser.FromUsername(username);
 		}
 
@@ -64,19 +69,18 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 		guild = db.DiscordGuilds.TagWith("Query guild to add new user to it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
 		{
-			throw new UserProcessingException(BaseUser.FromUsername(username),
-				"Current server is not in database, ask server administrator to add this server to bot");
+			throw new UserProcessingException(BaseUser.FromUsername(username), "Current server is not in database, ask server administrator to add this server to bot");
 		}
 
 		var dUser = db.DiscordUsers.TagWith("Query discord user to link AniList user to it").TagWithCallSite().Include(x => x.Guilds)
 					  .FirstOrDefault(du => du.DiscordUserId == userId);
-		var response = await this._client.GetCompleteUserInitialInfoAsync(username).ConfigureAwait(false);
-		var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+		var response = await this._client.GetCompleteUserInitialInfoAsync(username);
+		var now = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
 		if (dUser is null)
 		{
 			dUser = new()
 			{
-				Guilds = new[] { guild },
+				Guilds = [guild],
 				DiscordUserId = userId,
 				BotUser = new(),
 			};
@@ -97,7 +101,7 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 			DiscordUser = dUser,
 			LastActivityTimestamp = now,
 			LastReviewTimestamp = now,
-			FavouritesIdHash = Helpers.FavoritesHash(response.Favourites1.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).ToArray()),
+			FavouritesIdHash = HashHelpers.FavoritesHash(response.Favourites1.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).ToArray()),
 			Features = AniListUserFeatures.None.GetDefault(),
 		};
 		dbUser.Favourites.ForEach(f =>
@@ -106,7 +110,7 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 			f.UserId = dbUser.Id;
 		});
 		db.AniListUsers.Add(dbUser);
-		await db.SaveChangesAndThrowOnNoneAsync().ConfigureAwait(false);
+		await db.SaveChangesAndThrowOnNoneAsync();
 		return BaseUser.FromUsername(username);
 	}
 

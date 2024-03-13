@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,8 +28,13 @@ internal sealed class DiscordBackgroundService : BackgroundService
 	private readonly GuildManagementService _guildManagementService;
 	private readonly GeneralUserService _userService;
 
-	public DiscordBackgroundService(IOptions<DiscordOptions> options, ILogger<DiscordBackgroundService> logger, DiscordClient client,
-									IDbContextFactory<DatabaseContext> dbContextFactory, GuildManagementService guildManagementService,
+	[SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "It's meant to be a singleton")]
+	public DiscordBackgroundService(
+									IOptions<DiscordOptions> options,
+									ILogger<DiscordBackgroundService> logger,
+									DiscordClient client,
+									IDbContextFactory<DatabaseContext> dbContextFactory,
+									GuildManagementService guildManagementService,
 									GeneralUserService userService)
 	{
 		this._logger = logger;
@@ -56,13 +62,16 @@ internal sealed class DiscordBackgroundService : BackgroundService
 		}
 		else
 		{
-			_ = Task.Factory.StartNew(async () =>
-			{
-				this._logger.LogInformation("Bot was removed from {Guild}", e.Guild);
-				await this._guildManagementService.RemoveGuildAsync(e.Guild.Id).ConfigureAwait(false);
-			}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Current).ContinueWith(
-				task => this._logger.LogError(task.Exception, "Task on removing guild from db faulted"), CancellationToken.None,
-				TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
+			_ = Task.Factory.StartNew(
+				async () =>
+				{
+					this._logger.LogInformation("Bot was removed from {Guild}", e.Guild);
+					await this._guildManagementService.RemoveGuildAsync(e.Guild.Id);
+				},
+				CancellationToken.None,
+				TaskCreationOptions.None,
+				TaskScheduler.Current).ContinueWith(
+				task => this._logger.LogError(task.Exception, "Task on removing guild from db faulted"), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
 		}
 
 		return Task.CompletedTask;
@@ -88,9 +97,10 @@ internal sealed class DiscordBackgroundService : BackgroundService
 
 	private Task ClientOnGuildMemberRemovedAsync(DiscordClient sender, GuildMemberRemoveEventArgs e)
 	{
-		_ = Task.Factory.StartNew(async () =>
+		_ = Task.Factory.StartNew(
+			async () =>
 		{
-			using var db = this._dbContextFactory.CreateDbContext();
+			await using var db = this._dbContextFactory.CreateDbContext();
 			this._logger.LogDebug("User {Member} left guild {Guild}", e.Member, e.Guild);
 			var isUserInDb = db.DiscordUsers.TagWith("Check for users presence in DB when member leaves").TagWithCallSite()
 							   .Any(u => u.DiscordUserId == e.Member.Id);
@@ -100,11 +110,16 @@ internal sealed class DiscordBackgroundService : BackgroundService
 			}
 			else
 			{
-				await this._userService.RemoveUserInGuildAsync(e.Guild.Id, e.Member.Id).ConfigureAwait(false);
+				await this._userService.RemoveUserInGuildAsync(e.Guild.Id, e.Member.Id);
 			}
-		}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Current).ContinueWith(
+		},
+			CancellationToken.None,
+			TaskCreationOptions.None,
+			TaskScheduler.Current).ContinueWith(
 			task => this._logger.LogError(task.Exception, "Task on removing left member from the guild failed due to unknown reason"),
-			CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
+			CancellationToken.None,
+			TaskContinuationOptions.OnlyOnFaulted,
+			TaskScheduler.Current);
 		return Task.CompletedTask;
 	}
 
@@ -112,11 +127,12 @@ internal sealed class DiscordBackgroundService : BackgroundService
 	{
 		this._logger.LogDebug("Starting {@DiscordBackgroundService}", typeof(DiscordBackgroundService));
 		this._logger.LogInformation("Connecting to Discord");
-		if (this._options.Value.Activities.Count > 1)
+		if (this._options.Value.Activities is not [])
 		{
-			await this._client.ConnectAsync().ConfigureAwait(false);
-			await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken).ConfigureAwait(false);
-			_ = Task.Factory.StartNew(async cancellationToken =>
+			await this._client.ConnectAsync();
+			await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+			_ = Task.Factory.StartNew(
+				async cancellationToken =>
 			{
 				var token = (CancellationToken)(cancellationToken ?? CancellationToken.None);
 				while (!token.IsCancellationRequested)
@@ -124,18 +140,22 @@ internal sealed class DiscordBackgroundService : BackgroundService
 					foreach (var options in this._options.Value.Activities)
 					{
 						if (token.IsCancellationRequested)
+						{
 							return;
+						}
+
 						try
 						{
 							var (discordActivity, userStatus) = this.OptionsToDiscordActivity(options);
-							await this._client.UpdateStatusAsync(discordActivity, userStatus).ConfigureAwait(false);
-							await Task.Delay(TimeSpan.FromMilliseconds(options.TimeToBeDisplayedInMilliseconds), token).ConfigureAwait(false);
+							await this._client.UpdateStatusAsync(discordActivity, userStatus);
+							await Task.Delay(TimeSpan.FromMilliseconds(options.TimeToBeDisplayedInMilliseconds), token);
 						}
-						catch (TaskCanceledException)
+						catch (TaskCanceledException e)
 						{
-							this._logger.LogInformation("Activity changing canceled");
+							this._logger.LogInformation(e, "Activity changing canceled");
 						}
 						#pragma warning disable CA1031
+						// Modify 'ExecuteAsync' to catch a more specific allowed exception type, or rethrow the exception
 						catch (Exception ex)
 							#pragma warning restore CA1031
 						{
@@ -143,37 +163,44 @@ internal sealed class DiscordBackgroundService : BackgroundService
 						}
 					}
 				}
-			}, stoppingToken, stoppingToken, TaskCreationOptions.None, TaskScheduler.Current).ContinueWith(
-				task => this._logger.LogError(task.Exception, "Error occured while updating Discord presence"), CancellationToken.None,
-				TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
+			},
+				stoppingToken,
+				stoppingToken,
+				TaskCreationOptions.None,
+				TaskScheduler.Current).ContinueWith(
+				task => this._logger.LogError(task.Exception, "Error occured while updating Discord presence"), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
 		}
 		else
 		{
 			this._logger.LogInformation("Found only one Discord status in options so it won't be changed");
 			var (discordActivity, userStatus) = this.OptionsToDiscordActivity(this._options.Value.Activities[0]);
-			await this._client.ConnectAsync(discordActivity, userStatus).ConfigureAwait(false);
+			await this._client.ConnectAsync(discordActivity, userStatus);
 		}
 
-		await Task.Delay(Timeout.Infinite, stoppingToken).ConfigureAwait(false);
+		await Task.Delay(Timeout.Infinite, stoppingToken);
 		var t = this._client.DisconnectAsync();
 		this._logger.LogInformation("Disconnecting from Discord");
-		await t.ConfigureAwait(false);
+		await t;
 	}
 
-	private (DiscordActivity, UserStatus) OptionsToDiscordActivity(DiscordOptions.DiscordActivityOptions options)
+	private (DiscordActivity Activity, UserStatus Status) OptionsToDiscordActivity(DiscordOptions.DiscordActivityOptions options)
 	{
 		if (!Enum.TryParse(options.ActivityType, ignoreCase: true, out ActivityType activityType))
 		{
 			var correctActivities = string.Join(", ", Enum.GetValues<ActivityType>());
-			this._logger.LogError("Couldn't parse correct ActivityType from {ActivityType}, correct values are {CorrectActivities}",
-				options.ActivityType, correctActivities);
+			this._logger.LogError(
+				"Couldn't parse correct ActivityType from {ActivityType}, correct values are {CorrectActivities}",
+				options.ActivityType,
+				correctActivities);
 			activityType = ActivityType.Playing;
 		}
 
 		if (!Enum.TryParse(options.Status, ignoreCase: true, out UserStatus status))
 		{
 			var correctStatuses = string.Join(", ", Enum.GetValues<UserStatus>());
-			this._logger.LogError("Couldn't parse correct UserStatus from {Status}, correct values are {CorrectStatuses}", options.Status,
+			this._logger.LogError(
+				"Couldn't parse correct UserStatus from {Status}, correct values are {CorrectStatuses}",
+				options.Status,
 				correctStatuses);
 			status = UserStatus.Online;
 		}
@@ -181,6 +208,7 @@ internal sealed class DiscordBackgroundService : BackgroundService
 		return (new(options.PresenceText, activityType), status);
 	}
 
+	[SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "It's meant to be called once")]
 	public override void Dispose()
 	{
 		base.Dispose();

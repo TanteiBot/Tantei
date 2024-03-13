@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
-using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
@@ -10,7 +9,8 @@ using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.AniList.Wrapper.Abstractions.Models;
 #pragma warning disable CA1724
-// The type name Media conflicts in whole or in part with the namespace name 'System.Media' defined in the .NET Framework. Rename the type to eliminate the conflict. 
+
+// The type name Media conflicts in whole or in part with the namespace name 'System.Media' defined in the .NET Framework. Rename the type to eliminate the conflict.
 public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 #pragma warning restore CA1724
 {
@@ -52,14 +52,14 @@ public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 	public string? Description { get; init; }
 
 	/// <remarks>
-	///	Apply <see cref="StringPoolingJsonConverter"/> when https://github.com/dotnet/runtime/issues/54189 gets closed
-	/// Currently we cant apply custom converter for collection item
+	/// Apply <see cref="StringPoolingJsonConverter"/> when https://github.com/dotnet/runtime/issues/54189 gets closed
+	/// Currently we cant apply custom converter for collection item.
 	/// </remarks>
 	[JsonPropertyName("genres")]
-	public IReadOnlyList<string> Genres { get; init; } = Array.Empty<string>();
+	public IReadOnlyList<string> Genres { get; init; } = [];
 
 	[JsonPropertyName("tags")]
-	public IReadOnlyList<MediaTag> Tags { get; init; } = Array.Empty<MediaTag>();
+	public IReadOnlyList<MediaTag> Tags { get; init; } = [];
 
 	[JsonPropertyName("studios")]
 	public Connection<Studio> Studios { get; init; } = Connection<Studio>.Empty;

@@ -2,12 +2,14 @@
 
     <ItemGroup>
         <PackageReference Include="CommunityToolkit.HighPerformance" />
+        <PackageReference Include="CommunityToolkit.Diagnostics" />
         <PackageReference Include="DSharpPlus" />
         <PackageReference Include="DSharpPlus.SlashCommands" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Options" />
         <PackageReference Include="Polly.Contrib.WaitAndRetry" />
         <PackageReference Include="System.Threading.RateLimiting" />
+        <PackageReference Include="Microsoft.Extensions.EnumStrings"/>
     </ItemGroup>
 
 </Project>

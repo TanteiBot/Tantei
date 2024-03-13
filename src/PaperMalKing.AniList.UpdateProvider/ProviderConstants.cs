@@ -6,34 +6,34 @@ namespace PaperMalKing.AniList.UpdateProvider;
 
 internal static class ProviderConstants
 {
-	public const string NAME = "AniList";
+	public const string Name = "AniList";
 
-	public const string URL = "https://anilist.co";
+	public const string Url = "https://anilist.co";
 
-	public const string ICON_URL = "https://anilist.co/img/icons/android-chrome-512x512.png";
+	public const string IconUrl = "https://anilist.co/img/icons/android-chrome-512x512.png";
 
 	/// <summary>
-	/// Completed
+	/// Completed.
 	/// </summary>
 	public static readonly DiscordColor AniListGreen = new("#7bd555");
 
 	/// <summary>
-	/// Planned
+	/// Planned.
 	/// </summary>
 	public static readonly DiscordColor AniListOrange = new("#f79a63");
 
 	/// <summary>
-	/// Dropped
+	/// Dropped.
 	/// </summary>
 	public static readonly DiscordColor AniListRed = new("#e85d75");
 
 	/// <summary>
-	/// Paused
+	/// Paused.
 	/// </summary>
 	public static readonly DiscordColor AniListPeach = new("#fa7a7a");
 
 	/// <summary>
-	/// Current
+	/// Current.
 	/// </summary>
 	public static readonly DiscordColor AniListBlue = new("#3db4f2");
 }

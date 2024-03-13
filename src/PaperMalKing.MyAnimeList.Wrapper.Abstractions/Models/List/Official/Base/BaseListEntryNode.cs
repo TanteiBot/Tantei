@@ -8,7 +8,9 @@ using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
 
-public abstract class BaseListEntryNode<TMediaType, TStatus> where TMediaType : unmanaged, Enum where TStatus : unmanaged, Enum
+public abstract class BaseListEntryNode<TMediaType, TStatus>
+	where TMediaType : unmanaged, Enum
+	where TStatus : unmanaged, Enum
 {
 	[JsonPropertyName("id")]
 	public required uint Id { get; init; }

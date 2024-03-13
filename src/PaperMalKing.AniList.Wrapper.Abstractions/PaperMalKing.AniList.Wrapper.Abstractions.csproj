@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+        <PackageReference Include="Microsoft.Extensions.EnumStrings"/>
+        <PackageReference Include="CommunityToolkit.Diagnostics" />
     </ItemGroup>
 
     <ItemGroup>
