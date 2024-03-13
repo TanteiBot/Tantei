@@ -48,14 +48,14 @@ public sealed class ShikiClient : IShikiClient
 		};
 
 		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-		return (await response.Content.ReadFromJsonAsync(JsonSGContext.Default.UserInfo, cancellationToken))!;
+		return (await response.Content.ReadFromJsonAsync(JsonContext.Default.UserInfo, cancellationToken))!;
 	}
 
 	public async Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default)
 	{
 		this._logger.RequestingFavorites(userId);
 		var url = $"{Constants.BaseUsersApiUrl}/{userId}/favourites";
-		var favs = await this._httpClient.GetFromJsonAsync(url, JsonSGContext.Default.Favourites, cancellationToken);
+		var favs = await this._httpClient.GetFromJsonAsync(url, JsonContext.Default.Favourites, cancellationToken);
 		return favs!;
 	}
 
@@ -84,7 +84,7 @@ public sealed class ShikiClient : IShikiClient
 		};
 		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
-		var data = (await response.Content.ReadFromJsonAsync(JsonSGContext.Default.HistoryArray, cancellationToken))!;
+		var data = (await response.Content.ReadFromJsonAsync(JsonContext.Default.HistoryArray, cancellationToken))!;
 		var hasNextPage = data.Length == limit + 1;
 		return new(data, hasNextPage);
 	}
@@ -104,7 +104,7 @@ public sealed class ShikiClient : IShikiClient
 	{
 		var url = $"{BuildUrlForRequestingMedia(id, type)}/roles";
 		this._logger.RequestingStaff(id, type);
-		var roles = await this._httpClient.GetFromJsonAsync(url, JsonSGContext.Default.ListRole, cancellationToken);
+		var roles = await this._httpClient.GetFromJsonAsync(url, JsonContext.Default.ListRole, cancellationToken);
 		roles!.RemoveAll(x => x.Person is null);
 		roles.TrimExcess();
 		return roles;
@@ -114,7 +114,7 @@ public sealed class ShikiClient : IShikiClient
 	{
 		var url = $"{Constants.BaseUsersApiUrl}/{userId}/info";
 		this._logger.RequestingUserInfo(userId);
-		return this._httpClient.GetFromJsonAsync(url, JsonSGContext.Default.UserInfo, cancellationToken)!;
+		return this._httpClient.GetFromJsonAsync(url, JsonContext.Default.UserInfo, cancellationToken)!;
 	}
 
 	public async Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken = default)
@@ -132,7 +132,7 @@ public sealed class ShikiClient : IShikiClient
 			},
 		};
 		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseContentRead, cancellationToken);
-		var achievements = (await response.Content.ReadFromJsonAsync(JsonSGContext.Default.UserAchievementArray, cancellationToken))!;
+		var achievements = (await response.Content.ReadFromJsonAsync(JsonContext.Default.UserAchievementArray, cancellationToken))!;
 		var r = new List<UserAchievement>(achievements.Length);
 		foreach (var userAchievement in achievements.Where(x => x is { Level: > 0 }).GroupBy(x => x.Id, StringComparer.Ordinal))
 		{

@@ -19,10 +19,10 @@ on:
 env:
   DOTNET_NOLOGO: true
   dotnet-version-to-install: '8.*'
-  dotnet-quality: 'GA'
+  dotnet-quality: 'ga'
   artifact-name: "build-${{ github.sha }}"
   clientapp-dir: "./src/PaperMalKing/ClientApp"
-  node-version: '19.x'
+  node-version: '21.x'
 
 jobs:
   build:
@@ -41,7 +41,7 @@ jobs:
           dotnet-version: ${{ env.dotnet-version-to-install }}
           dotnet-quality: ${{ env.dotnet-quality}}
           
-      - name: Set Node.js 19.x
+      - name: Set Node.js 21.x
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.node-version }} 
