@@ -16,5 +16,5 @@ public sealed class Studio
 	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string Name { get; init; }
 
-	public string Url => this._url ??= $"{Constants.BASE_URL}/anime/producer/{this.Id}";
+	public string Url => this._url ??= $"{Constants.BaseUrl}/anime/producer/{this.Id}";
 }

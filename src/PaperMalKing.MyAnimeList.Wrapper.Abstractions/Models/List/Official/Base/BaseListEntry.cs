@@ -5,11 +5,12 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
 
-public abstract class BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus> where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
-																						  where TStatus : BaseListEntryStatus<TListStatus>
-																						  where TMediaType : unmanaged, Enum
-																						  where TNodeStatus : unmanaged, Enum
-																						  where TListStatus : unmanaged, Enum
+public abstract class BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
+	where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
+	where TStatus : BaseListEntryStatus<TListStatus>
+	where TMediaType : unmanaged, Enum
+	where TNodeStatus : unmanaged, Enum
+	where TListStatus : unmanaged, Enum
 {
 	[JsonPropertyName("node")]
 	public required TNode Node { get; init; }

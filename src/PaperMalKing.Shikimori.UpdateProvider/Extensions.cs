@@ -10,12 +10,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Diagnostics;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Database.Models.Shikimori;
+using PaperMalKing.Shikimori.UpdateProvider.Achievements;
 using PaperMalKing.Shikimori.Wrapper.Abstractions;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
@@ -30,26 +32,29 @@ internal static partial class Extensions
 	private static readonly DiscordEmbedBuilder.EmbedFooter ShikiUpdateProviderFooter = new()
 	{
 		Text = "Shikimori",
-		IconUrl = Constants.ICON_URL,
+		IconUrl = Constants.IconUrl,
 	};
 
-	private static readonly (string, ProgressType)[] Progresses = new[]
-	{
+	private static readonly (string, ProgressType)[] Progresses =
+	[
 		("смотрю", ProgressType.InProgress), ("пересматриваю", ProgressType.InProgress), ("запланировано", ProgressType.InPlans),
 		("брошено", ProgressType.Dropped), ("просмотрены", ProgressType.InProgress), ("просмотрен", ProgressType.Completed),
 		("отложено", ProgressType.OnHold), ("прочитан", ProgressType.Completed), ("перечитываю", ProgressType.InProgress),
 		("читаю", ProgressType.InProgress),
-	};
+	];
 
-	private static readonly string[] mangakaRelatedRoles = { "story", "art", "creator", "design" };
-	private static readonly CultureInfo ruCulture = CultureInfo.GetCultureInfo("ru-RU");
+	private static readonly string[] MangakaRelatedRoles = ["story", "art", "creator", "design"];
+	private static readonly CultureInfo RuCulture = CultureInfo.GetCultureInfo("ru-RU");
 
 	public static DiscordEmbedBuilder WithShikiAuthor(this DiscordEmbedBuilder builder, UserInfo user) =>
 		builder.WithAuthor(user.Nickname, user.Url, user.ImageUrl);
 
-	public static async Task<IReadOnlyList<History>> GetAllUserHistoryAfterEntryAsync(this IShikiClient client, uint userId,
-																					  ulong limitHistoryEntryId, ShikiUserFeatures features,
-																					  CancellationToken cancellationToken = default)
+	public static async Task<IReadOnlyList<History>> GetAllUserHistoryAfterEntryAsync(
+																this IShikiClient client,
+																uint userId,
+																ulong limitHistoryEntryId,
+																ShikiUserFeatures features,
+																CancellationToken cancellationToken = default)
 	{
 		uint page = 1;
 		byte limit = 10;
@@ -58,13 +63,15 @@ internal static partial class Extensions
 			_ when features.HasFlag(ShikiUserFeatures.AnimeList) && features.HasFlag(ShikiUserFeatures.MangaList) => HistoryRequestOptions.Any,
 			_ when features.HasFlag(ShikiUserFeatures.AnimeList) && !features.HasFlag(ShikiUserFeatures.MangaList) => HistoryRequestOptions.Anime,
 			_ when features.HasFlag(ShikiUserFeatures.MangaList) && !features.HasFlag(ShikiUserFeatures.AnimeList) => HistoryRequestOptions.Manga,
-			_ => throw new ArgumentOutOfRangeException(nameof(features), features, message: null)
+			_ => ThrowHelper.ThrowArgumentOutOfRangeException<HistoryRequestOptions>(nameof(features), features, message: null),
 		};
 
-		var (data, hasNextPage) = await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken).ConfigureAwait(false);
+		var (data, hasNextPage) = await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken);
 		var unpaginatedRes = data.Where(e => e.Id > limitHistoryEntryId).ToArray();
 		if (unpaginatedRes.Length != data.Length || !hasNextPage)
+		{
 			return unpaginatedRes;
+		}
 
 		var acc = new List<History>(50);
 		var hnp = true;
@@ -72,7 +79,7 @@ internal static partial class Extensions
 		for (page = 1, limit = 100; hnp && !isLimitReached; page++)
 		{
 			var (paginatedData, paginatedHasNextPage) =
-				await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken).ConfigureAwait(false);
+				await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken);
 			hnp = paginatedHasNextPage;
 			var toAcc = paginatedData.Where(e => e.Id > limitHistoryEntryId).ToArray();
 			isLimitReached = paginatedData.Length == toAcc.Length;
@@ -95,15 +102,15 @@ internal static partial class Extensions
 			else
 			{
 				res.Add(group);
-				group = new(1)
-				{
-					he,
-				};
+				group = [he];
 			}
 		}
 
-		if (group.Count > 0)
+		if (group is not [])
+		{
 			res.Add(group);
+		}
+
 		return res;
 	}
 
@@ -127,19 +134,21 @@ internal static partial class Extensions
 
 		var first = history.HistoryEntries[0];
 		var eb = new DiscordEmbedBuilder().WithTimestamp(first.CreatedAt).WithShikiAuthor(user).WithColor(Constants.ShikiBlue);
-		var desc = string.Join("; ", history.HistoryEntries.Select(h => h.Description)).StripHtml().ToSentenceCase(ruCulture)!;
+		var desc = string.Join("; ", history.HistoryEntries.Select(h => h.Description)).StripHtml().ToSentenceCase(RuCulture)!;
 		eb.WithDescription(desc).WithColor(CalculateProgressType(history.HistoryEntries) switch
 		{
-			ProgressType.Completed => Constants.ShikiGreen ,
-			ProgressType.Dropped => Constants.ShikiRed ,
+			ProgressType.Completed => Constants.ShikiGreen,
+			ProgressType.Dropped => Constants.ShikiRed,
 			ProgressType.InPlans=> Constants.ShikiBlue,
-			ProgressType.InProgress=> Constants.ShikiBlue ,
+			ProgressType.InProgress=> Constants.ShikiBlue,
 			ProgressType.OnHold=> Constants.ShikiGrey,
 			_ => throw new UnreachableException(),
 		});
 		var target = history.HistoryEntries.Find(x => x.Target is not null)?.Target;
 		if (target is null)
+		{
 			return eb;
+		}
 
 		var titleSb = new StringBuilder();
 
@@ -147,7 +156,7 @@ internal static partial class Extensions
 
 		if (features.HasFlag(ShikiUserFeatures.MediaFormat))
 		{
-			titleSb.Append(CultureInfo.InvariantCulture,$" ({(target.Kind ?? "Unknown").Humanize(LetterCasing.Sentence)})");
+			titleSb.Append(CultureInfo.InvariantCulture, $" ({(target.Kind ?? "Unknown").Humanize(LetterCasing.Sentence)})");
 		}
 
 		if (features.HasFlag(ShikiUserFeatures.MediaStatus))
@@ -165,12 +174,14 @@ internal static partial class Extensions
 		{
 			var episodes = target switch
 			{
-				_ when target.Episodes != 0u      => target.Episodes.Value,
+				_ when target.Episodes != 0u => target.Episodes.Value,
 				_ when target.EpisodesAired != 0u => target.EpisodesAired.GetValueOrDefault(),
-				_                                 => 0u
+				_ => 0u,
 			};
 			if (episodes != 0)
+			{
 				eb.AddField("Total", $"{episodes} ep.", inline: true);
+			}
 		}
 
 		eb.FillMediaInfo(history.Media, history.Roles, features, target.Type);
@@ -202,11 +213,11 @@ internal static partial class Extensions
 
 	public static DiscordEmbedBuilder ToDiscordEmbed(this ShikiAchievement achievement, UserInfo user, ShikiUserFeatures features)
 	{
-		const string baseUrl = $"{Wrapper.Abstractions.Constants.BASE_URL}/achievements/";
-		var eb = new DiscordEmbedBuilder()
+		const string baseUrl = $"{Wrapper.Abstractions.Constants.BaseUrl}/achievements/";
+		var eb = new DiscordEmbedBuilder
 		{
 			Title = features.HasFlag(ShikiUserFeatures.Russian) ? achievement.TitleRussian : achievement.TitleEnglish,
-			Description = features.HasFlag(ShikiUserFeatures.Russian) ? achievement.TextRussian : achievement.TextEnglish,
+			Description = (features.HasFlag(ShikiUserFeatures.Russian) ? achievement.TextRussian : achievement.TextEnglish) ?? "",
 			Color = achievement.BorderColor,
 			Url = baseUrl + achievement.Id,
 		}.WithThumbnail(achievement.Image).WithShikiAuthor(user);
@@ -227,14 +238,13 @@ internal static partial class Extensions
 	public static string GetNameOrAltName(this IMultiLanguageName namedEntity, ShikiUserFeatures features) =>
 		GetNameOrAltName(namedEntity, features.HasFlag(ShikiUserFeatures.Russian));
 
-	public static string GetNameOrAltName(this IMultiLanguageName namedEntity, bool useRussianAsMain) => (useRussianAsMain switch
+	public static string GetNameOrAltName(this IMultiLanguageName namedEntity, bool useRussianAsMain) => useRussianAsMain switch
 	{
-		true => string.IsNullOrWhiteSpace(namedEntity.RussianName) ? namedEntity.Name : namedEntity.RussianName,
-		_    => string.IsNullOrWhiteSpace(namedEntity.Name) ? namedEntity.RussianName : namedEntity.Name,
-	})!;
+		true => string.IsNullOrWhiteSpace(namedEntity.RussianName) ? namedEntity.Name! : namedEntity.RussianName,
+		_ => string.IsNullOrWhiteSpace(namedEntity.Name) ? namedEntity.RussianName! : namedEntity.Name,
+	};
 
-	private static void FillMediaInfo(this DiscordEmbedBuilder eb, BaseMedia? media, IReadOnlyList<Role>? roles, ShikiUserFeatures features,
-									  ListEntryType type)
+	private static void FillMediaInfo(this DiscordEmbedBuilder eb, BaseMedia? media, IReadOnlyList<Role>? roles, ShikiUserFeatures features, ListEntryType type)
 	{
 		if (type == ListEntryType.Anime)
 		{
@@ -247,7 +257,7 @@ internal static partial class Extensions
 				}
 			}
 
-			if (features.HasFlag(ShikiUserFeatures.Director) && roles!.Count > 0)
+			if (features.HasFlag(ShikiUserFeatures.Director) && roles is not null and not [])
 			{
 				var role = roles.FirstOrDefault(
 					x => x.Person is not null && x.Name.Any(y => y.Equals("Director", StringComparison.OrdinalIgnoreCase)));
@@ -268,14 +278,15 @@ internal static partial class Extensions
 				}
 			}
 
-			if (features.HasFlag(ShikiUserFeatures.Mangaka) && roles!.Count > 0)
+			if (features.HasFlag(ShikiUserFeatures.Mangaka) && roles is not null and not [])
 			{
-				var mangakas = string.Join(", ",
-					roles!.Where(x =>
-						x.Person is not null && mangakaRelatedRoles.Exists(y => x.Name.Any(z => z.Contains(y, StringComparison.OrdinalIgnoreCase)))).Take(5).Select(x =>
+				var mangakas = string.Join(
+					", ",
+					roles.Where(x =>
+						x.Person is not null && MangakaRelatedRoles.Exists(y => x.Name.Any(z => z.Contains(y, StringComparison.OrdinalIgnoreCase)))).Take(5).Select(x =>
 					{
 						var nameOfRole = features.HasFlag(ShikiUserFeatures.Russian)
-							? x.RussianName.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x)) ?? x.Name[0]
+							? x.RussianName.FirstOrDefault(y => !string.IsNullOrWhiteSpace(y)) ?? x.Name[0]
 							: x.Name.FirstOrDefault(name => !string.IsNullOrWhiteSpace(name)) ?? x.RussianName[0];
 						return $"{Formatter.MaskedUrl(x.Person!.GetNameOrAltName(features), new(x.Person!.Url))} - {nameOfRole}";
 					}));

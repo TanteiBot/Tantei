@@ -12,8 +12,8 @@ Prerequisites: git, [.NET SDK 8.0](https://get.dot.net/8)
 - `cd Tantei/`
 - `dotnet publish -c Release -o publish/ PaperMalKing/PaperMalKing.csproj`
 - `cd publish/`
-- `cp template.appsettings.json appsettings.json`
-- Fill necessary data in `appsettings.json`
+- `cp template.appsettings.Production.json appsettings.Production.json`
+- Fill necessary data in `appsettings.Production.json`
 
 Run with `dotnet PaperMalKing.dll`
 
@@ -24,7 +24,7 @@ Project is unofficial and is not affiliated with MyAnimeList.net, Shikimori.me, 
 License
 ---------------------
 
-Copyright 2021-2023 N0D4N
+Copyright 2021-2024 N0D4N
 
 Licensed under the AGPLv3: https://www.gnu.org/licenses/agpl-3.0.html
 

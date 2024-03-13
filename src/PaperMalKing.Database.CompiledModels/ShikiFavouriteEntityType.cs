@@ -3,17 +3,20 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models.Shikimori;
 
 #pragma warning disable 219, 612, 618
-#nullable enable
+#nullable disable
 
 namespace PaperMalKing.Database.CompiledModels
 {
     internal partial class ShikiFavouriteEntityType
     {
-        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
+        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.Shikimori.ShikiFavourite",
@@ -27,6 +30,21 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(ShikiFavourite).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
+            id.TypeMapping = UIntTypeMapping.Default.Clone(
+                comparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                keyComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                providerValueComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "INTEGER"));
 
             var favType = runtimeEntityType.AddProperty(
                 "FavType",
@@ -34,6 +52,7 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(ShikiFavourite).GetProperty("FavType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiFavourite).GetField("<FavType>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
+            favType.TypeMapping = SqliteStringTypeMapping.Default;
 
             var userId = runtimeEntityType.AddProperty(
                 "UserId",
@@ -42,12 +61,28 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(ShikiFavourite).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
+            userId.TypeMapping = UIntTypeMapping.Default.Clone(
+                comparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                keyComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                providerValueComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "INTEGER"));
 
             var name = runtimeEntityType.AddProperty(
                 "Name",
                 typeof(string),
                 propertyInfo: typeof(ShikiFavourite).GetProperty("Name", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiFavourite).GetField("<Name>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            name.TypeMapping = SqliteStringTypeMapping.Default;
 
             var key = runtimeEntityType.AddKey(
                 new[] { id, favType, userId });
@@ -61,8 +96,8 @@ namespace PaperMalKing.Database.CompiledModels
 
         public static RuntimeForeignKey CreateForeignKey1(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
         {
-            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("UserId")! },
-                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id")! })!,
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("UserId") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id") }),
                 principalEntityType,
                 deleteBehavior: DeleteBehavior.Cascade,
                 required: true);

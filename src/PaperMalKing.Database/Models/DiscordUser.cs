@@ -9,7 +9,7 @@ namespace PaperMalKing.Database.Models;
 
 public sealed class DiscordUser
 {
-	[SuppressMessage("Minor Code Smell", "S3459:Unassigned members should be removed")]
+	[SuppressMessage("Minor Code Smell", "S3459:Unassigned members should be removed", Justification = "It's handled by EF Core")]
 	private uint BotUserId { get; init; }
 
 	[Key]

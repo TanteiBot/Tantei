@@ -8,6 +8,8 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
 
 public interface IListType
 {
-	abstract static ListEntryType ListEntryType { get; }
-	abstract static string LatestUpdatesUrl<TRequestOptions>(string username, TRequestOptions options) where TRequestOptions : unmanaged, Enum;
+	static abstract ListEntryType ListEntryType { get; }
+
+	static abstract string LatestUpdatesUrl<TRequestOptions>(string username, TRequestOptions options)
+		where TRequestOptions : unmanaged, Enum;
 }

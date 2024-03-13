@@ -9,8 +9,6 @@ namespace PaperMalKing.AniList.Wrapper.Abstractions.Models;
 [JsonConverter(typeof(BoolWrapperConverter<PageInfo>))]
 public sealed class PageInfo : IBoolWrapper<PageInfo>
 {
-	public bool HasNextPage { get; init; }
-
 	public static PageInfo TrueValue { get; } = new()
 	{
 		HasNextPage = true,
@@ -20,4 +18,6 @@ public sealed class PageInfo : IBoolWrapper<PageInfo>
 	{
 		HasNextPage = false,
 	};
+
+	public bool HasNextPage { get; init; }
 }

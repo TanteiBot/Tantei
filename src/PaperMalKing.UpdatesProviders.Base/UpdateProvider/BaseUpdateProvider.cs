@@ -32,21 +32,21 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 
 	public abstract event UpdateFoundEvent? UpdateFoundEvent;
 
-	[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks")]
+	[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "We stored it there in our class")]
 	public async Task TriggerStoppingAsync()
 	{
-		await (this._cts?.CancelAsync() ?? Task.CompletedTask).ConfigureAwait(false);
-		this.Logger.LogInformation("Stopping {Name} update provider", this.Name);
-		await this._updateCheckingRunningTask.ConfigureAwait(false);
+		await (this._cts?.CancelAsync() ?? Task.CompletedTask);
+		this.Logger.StopUpdateProvider(this.Name);
+		await this._updateCheckingRunningTask;
 	}
 
 	public DateTimeOffset? DateTimeOfNextUpdate { get; private set; }
 
 	public bool IsUpdateInProgress { get; private set; }
 
-	[SuppressMessage("Major Bug", "S3168:\"async\" methods should not return \"void\"")]
-	[SuppressMessage("", "AsyncFixer03")]
-	[SuppressMessage("Usage", "VSTHRD100:Avoid async void methods")]
+	[SuppressMessage("Major Bug", """S3168:"async" methods should not return "void" """, Justification = "We can't use non-async voids in timer delegate")]
+	[SuppressMessage("Usage", "VSTHRD100:Avoid async void methods", Justification = "We can't use non-async voids in timer delegate")]
+	[SuppressMessage("AsyncUsage", "AsyncFixer03:Fire-and-forget async-void methods or delegates", Justification = "We can't use non-async voids in timer delegate")]
 	private async void TimerCallback()
 	{
 		this.IsUpdateInProgress = true;
@@ -55,30 +55,29 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 		this._cts = cts;
 		try
 		{
-			this.Logger.LogInformation("Starting checking for updates in {@Name} updates provider", this.Name);
+			this.Logger.StartCheckingForUpdates(this.Name);
 			this._updateCheckingRunningTask = this.CheckForUpdatesAsync(this._cts.Token);
-			await this._updateCheckingRunningTask.ConfigureAwait(false);
+			await this._updateCheckingRunningTask;
 		}
 		catch (TaskCanceledException) when (cts.IsCancellationRequested)
 		{
 			// Ignore
 			// We were cancelled
 		}
-#pragma warning disable CA1031
+		#pragma warning disable CA1031
+		// Modify 'TimerCallback' to catch a more specific allowed exception type, or rethrow the exception
 		catch (Exception e)
-#pragma warning restore CA1031
+			#pragma warning restore CA1031
 		{
-			this.Logger.LogError(e, "Exception occured while checking for updates in {@Name} updates provider", this.Name);
+			this.Logger.ErrorOnUpdateCheck(e, this.Name);
 		}
 		finally
 		{
 			this._cts = null;
 			this.RestartTimer(this.DelayBetweenTimerFires);
-			this.Logger.LogInformation(
-				"Ended checking for updates in {Name} updates provider. Next planned update check is in {@DelayBetweenTimerFires}", this.Name,
-				this.DelayBetweenTimerFires);
+			this.Logger.EndCheckingForUpdates(this.Name, this.DelayBetweenTimerFires);
 			this.IsUpdateInProgress = false;
-			this.DateTimeOfNextUpdate = DateTimeOffset.UtcNow + this.DelayBetweenTimerFires;
+			this.DateTimeOfNextUpdate = TimeProvider.System.GetUtcNow() + this.DelayBetweenTimerFires;
 		}
 	}
 

@@ -16,7 +16,7 @@ public class UserInfo
 	[JsonPropertyName("nickname")]
 	public required string Nickname { get; init; }
 
-	public string Url => $"{Constants.BASE_URL}/{WebUtility.UrlEncode(this.Nickname)}";
+	public string Url => $"{Constants.BaseUrl}/{WebUtility.UrlEncode(this.Nickname)}";
 
 	public string ImageUrl => this._imageUrl ??= Utils.GetImageUrl("users", this.Id, "png", "x80");
 }

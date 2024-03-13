@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,13 +10,13 @@ using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.Startup.Services.Background;
 
+[SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "It's rarely being logged, so no need to hold for LoggerMessage")]
 internal sealed class UpdateProvidersManagementService : IHostedService
 {
 	private readonly ILogger<UpdateProvidersManagementService> _logger;
 	private readonly UpdateProvidersConfigurationService _updateProvidersConfigurationService;
 
-	public UpdateProvidersManagementService(ILogger<UpdateProvidersManagementService> logger,
-											UpdateProvidersConfigurationService updateProvidersConfigurationService)
+	public UpdateProvidersManagementService(ILogger<UpdateProvidersManagementService> logger, UpdateProvidersConfigurationService updateProvidersConfigurationService)
 	{
 		this._logger = logger;
 

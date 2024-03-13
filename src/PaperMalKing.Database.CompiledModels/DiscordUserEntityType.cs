@@ -3,17 +3,20 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models;
 
 #pragma warning disable 219, 612, 618
-#nullable enable
+#nullable disable
 
 namespace PaperMalKing.Database.CompiledModels
 {
     internal partial class DiscordUserEntityType
     {
-        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
+        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.DiscordUser",
@@ -27,6 +30,7 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(DiscordUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0ul);
+            discordUserId.TypeMapping = SqliteULongTypeMapping.Default;
 
             var botUserId = runtimeEntityType.AddProperty(
                 "BotUserId",
@@ -34,6 +38,21 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(DiscordUser).GetProperty("BotUserId", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DiscordUser).GetField("<BotUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0u);
+            botUserId.TypeMapping = UIntTypeMapping.Default.Clone(
+                comparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                keyComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                providerValueComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "INTEGER"));
 
             var key = runtimeEntityType.AddKey(
                 new[] { discordUserId });
@@ -51,8 +70,8 @@ namespace PaperMalKing.Database.CompiledModels
 
         public static RuntimeForeignKey CreateForeignKey1(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
         {
-            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("BotUserId")! },
-                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("UserId")! })!,
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("BotUserId") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("UserId") }),
                 principalEntityType,
                 deleteBehavior: DeleteBehavior.Cascade,
                 unique: true,
@@ -81,9 +100,9 @@ namespace PaperMalKing.Database.CompiledModels
                 "Guilds",
                 targetEntityType,
                 joinEntityType.FindForeignKey(
-                    new[] { joinEntityType.FindProperty("UsersDiscordUserId")! },
-                    declaringEntityType.FindKey(new[] { declaringEntityType.FindProperty("DiscordUserId")! })!,
-                    declaringEntityType)!,
+                    new[] { joinEntityType.FindProperty("UsersDiscordUserId") },
+                    declaringEntityType.FindKey(new[] { declaringEntityType.FindProperty("DiscordUserId") }),
+                    declaringEntityType),
                 true,
                 false,
                 typeof(IList<DiscordGuild>),

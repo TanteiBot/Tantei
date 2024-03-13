@@ -2,18 +2,23 @@
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.Shikimori;
 
 #pragma warning disable 219, 612, 618
-#nullable enable
+#nullable disable
 
 namespace PaperMalKing.Database.CompiledModels
 {
     internal partial class ShikiUserEntityType
     {
-        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
+        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.Shikimori.ShikiUser",
@@ -27,6 +32,21 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(ShikiUser).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
+            id.TypeMapping = UIntTypeMapping.Default.Clone(
+                comparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                keyComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                providerValueComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "INTEGER"));
 
             var discordUserId = runtimeEntityType.AddProperty(
                 "DiscordUserId",
@@ -34,6 +54,7 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(ShikiUser).GetProperty("DiscordUserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0ul);
+            discordUserId.TypeMapping = SqliteULongTypeMapping.Default;
 
             var favouritesIdHash = runtimeEntityType.AddProperty(
                 "FavouritesIdHash",
@@ -41,6 +62,7 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(ShikiUser).GetProperty("FavouritesIdHash", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiUser).GetField("<FavouritesIdHash>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd);
+            favouritesIdHash.TypeMapping = SqliteStringTypeMapping.Default;
             favouritesIdHash.AddAnnotation("Relational:DefaultValue", "");
 
             var features = runtimeEntityType.AddProperty(
@@ -48,8 +70,29 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(ShikiUserFeatures),
                 propertyInfo: typeof(ShikiUser).GetProperty("Features", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiUser).GetField("<Features>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                valueGenerated: ValueGenerated.OnAdd,
-                sentinel: ShikiUserFeatures.None);
+                valueGenerated: ValueGenerated.OnAdd);
+            features.TypeMapping = SqliteULongTypeMapping.Default.Clone(
+                comparer: new ValueComparer<ShikiUserFeatures>(
+                    (ShikiUserFeatures v1, ShikiUserFeatures v2) => object.Equals((object)v1, (object)v2),
+                    (ShikiUserFeatures v) => v.GetHashCode(),
+                    (ShikiUserFeatures v) => v),
+                keyComparer: new ValueComparer<ShikiUserFeatures>(
+                    (ShikiUserFeatures v1, ShikiUserFeatures v2) => object.Equals((object)v1, (object)v2),
+                    (ShikiUserFeatures v) => v.GetHashCode(),
+                    (ShikiUserFeatures v) => v),
+                providerValueComparer: new ValueComparer<ulong>(
+                    (ulong v1, ulong v2) => v1 == v2,
+                    (ulong v) => v.GetHashCode(),
+                    (ulong v) => v),
+                converter: new ValueConverter<ShikiUserFeatures, ulong>(
+                    (ShikiUserFeatures value) => (ulong)value,
+                    (ulong value) => (ShikiUserFeatures)value),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<ShikiUserFeatures, ulong>(
+                    JsonUInt64ReaderWriter.Instance,
+                    new ValueConverter<ShikiUserFeatures, ulong>(
+                        (ShikiUserFeatures value) => (ulong)value,
+                        (ulong value) => (ShikiUserFeatures)value)));
+            features.SetSentinelFromProviderValue(0ul);
             features.AddAnnotation("Relational:DefaultValue", ShikiUserFeatures.AnimeList | ShikiUserFeatures.MangaList | ShikiUserFeatures.Favourites | ShikiUserFeatures.Mention | ShikiUserFeatures.Website | ShikiUserFeatures.MediaFormat | ShikiUserFeatures.MediaStatus);
 
             var lastHistoryEntryId = runtimeEntityType.AddProperty(
@@ -58,6 +101,21 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(ShikiUser).GetProperty("LastHistoryEntryId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiUser).GetField("<LastHistoryEntryId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0u);
+            lastHistoryEntryId.TypeMapping = UIntTypeMapping.Default.Clone(
+                comparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                keyComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                providerValueComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "INTEGER"));
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -75,8 +133,8 @@ namespace PaperMalKing.Database.CompiledModels
 
         public static RuntimeForeignKey CreateForeignKey1(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
         {
-            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("DiscordUserId")! },
-                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("DiscordUserId")! })!,
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("DiscordUserId") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("DiscordUserId") }),
                 principalEntityType,
                 deleteBehavior: DeleteBehavior.Cascade,
                 unique: true,

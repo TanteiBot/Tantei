@@ -28,9 +28,11 @@ internal sealed class OnStartupActionsExecutingService : IHostedService
 		foreach (var service in scope.ServiceProvider.GetServices<IExecuteOnStartupService>())
 		{
 			if (cancellationToken.IsCancellationRequested)
+			{
 				return;
+			}
 
-			await service.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+			await service.ExecuteAsync(cancellationToken);
 		}
 	}
 

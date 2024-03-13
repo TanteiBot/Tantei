@@ -10,12 +10,9 @@ namespace PaperMalKing.AniList.Wrapper.Abstractions;
 
 public interface IAniListClient
 {
-	Task<InitialUserInfoResponse> GetInitialUserInfoAsync(string username, byte favouritesPage = 1,
-														  CancellationToken cancellationToken = default);
+	Task<InitialUserInfoResponse> GetInitialUserInfoAsync(string username, byte favouritesPage = 1, CancellationToken cancellationToken = default);
 
-	Task<CheckForUpdatesResponse> CheckForUpdatesAsync(uint userId, byte page, long activitiesTimeStamp, ushort perChunk,
-													   ushort chunk, RequestOptions options, CancellationToken cancellationToken);
+	Task<CheckForUpdatesResponse> CheckForUpdatesAsync(uint userId, byte page, long activitiesTimeStamp, ushort perChunk, ushort chunk, RequestOptions options, CancellationToken cancellationToken);
 
-	Task<FavouritesResponse> FavouritesInfoAsync(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds,
-												 uint[] studioIds, RequestOptions options, CancellationToken cancellationToken = default);
+	Task<FavouritesResponse> FavouritesInfoAsync(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds, uint[] studioIds, RequestOptions options, CancellationToken cancellationToken = default);
 }

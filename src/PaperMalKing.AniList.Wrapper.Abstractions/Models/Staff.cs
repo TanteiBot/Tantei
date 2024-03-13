@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
-using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Interfaces;
@@ -29,5 +28,5 @@ public sealed class Staff : IImageble, ISiteUrlable, IIdentifiable
 	public Connection<Media> StaffMedia { get; init; } = Connection<Media>.Empty;
 
 	[JsonPropertyName("primaryOccupations")]
-	public IReadOnlyList<string> PrimaryOccupations { get; init; } = Array.Empty<string>();
+	public IReadOnlyList<string> PrimaryOccupations { get; init; } = [];
 }

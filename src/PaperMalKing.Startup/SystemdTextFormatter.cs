@@ -23,11 +23,11 @@ internal sealed class SystemdTextFormatter : ITextFormatter
 		var syslogLevel = logEvent.Level switch
 		{
 			LogEventLevel.Debug or LogEventLevel.Verbose => "<7>",
-			LogEventLevel.Information                    => "<6>",
-			LogEventLevel.Warning                        => "<4>",
-			LogEventLevel.Error                          => "<3>",
-			LogEventLevel.Fatal                          => "<2>",
-			_                                            => throw new ArgumentOutOfRangeException(nameof(logEvent))
+			LogEventLevel.Information => "<6>",
+			LogEventLevel.Warning => "<4>",
+			LogEventLevel.Error => "<3>",
+			LogEventLevel.Fatal => "<2>",
+			_ => throw new ArgumentOutOfRangeException(nameof(logEvent)),
 		};
 		output.Write(syslogLevel);
 		this._messageTemplateTextFormatter.Format(logEvent, output);

@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
-using System;
 using System.Linq;
 using System.Text;
 using AngleSharp.Dom;
+using CommunityToolkit.Diagnostics;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 
@@ -23,18 +23,21 @@ internal static class LatestUpdatesParser
 		{
 			ListEntryType.Anime => AnimeSelector,
 			ListEntryType.Manga => MangaSelector,
-			_ => throw new ArgumentOutOfRangeException(nameof(listEntryType), listEntryType, message: null)
+			_ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(listEntryType), listEntryType, message: null),
 		};
 		var nodes = document.QuerySelectorAll(selector);
-		if (nodes is null || nodes.Length == 0)
+		if (nodes is null or [])
+		{
 			return null;
+		}
 
 		return string.Join('|', nodes.Select(dataNode =>
 		{
 			var link = dataNode.QuerySelector("a")!.GetAttribute("href")!;
 			var id = Helper.ExtractIdFromMalUrl(link);
 
-			return $"{new StringBuilder(dataNode.QuerySelector("div.data > div:last-of-type")!.TextContent).Replace(" ", "").Replace("\n", "").ToString().ToUpperInvariant()}:{id}" ;
+			return
+				$"{new StringBuilder(dataNode.QuerySelector("div.data > div:last-of-type")!.TextContent).Replace(" ", "").Replace("\n", "").ToString().ToUpperInvariant()}:{id}";
 		}));
 	}
 }

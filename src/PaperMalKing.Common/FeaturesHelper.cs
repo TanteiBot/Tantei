@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -13,32 +13,38 @@ using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Common;
 
-public static class FeaturesHelper<T> where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
+public static class FeaturesHelper<T>
+	where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
-	private static IReadOnlyDictionary<T, (string EnumValue, string Description, string Summary)>? _featuresInfo;
+	private static FeaturesInfo<T>[]? _featuresInfo;
 
-	public static IReadOnlyDictionary<T, (string EnumValue, string Description, string Summary)> FeaturesInfo =>
+	private static FeaturesInfo<T>[] FeaturesInfo =>
 		Volatile.Read(ref _featuresInfo) ?? Interlocked.CompareExchange(ref _featuresInfo, CreateFeaturesInfo(), comparand: null) ?? _featuresInfo;
+
+	public static IReadOnlyList<FeaturesInfo<T>> Features => FeaturesInfo;
 
 	public static T Parse(string value)
 	{
-		return FeaturesInfo.First(x => x.Value.EnumValue.Equals(value, StringComparison.OrdinalIgnoreCase) ||
-									   x.Value.Description.Equals(value, StringComparison.OrdinalIgnoreCase)).Key;
+		return FeaturesInfo.Find(x => x.EnumValue.Equals(value, StringComparison.OrdinalIgnoreCase) ||
+									  x.Description.Equals(value, StringComparison.OrdinalIgnoreCase))!.Value;
 	}
 
-	private static ReadOnlyDictionary<T, (string EnumValue, string Description, string Summary)> CreateFeaturesInfo()
+	[SuppressMessage("Performance", "EA0006:Replace uses of 'Enum.GetName' and 'Enum.ToString' for improved performance", Justification = "Generics don't have access to non-generic extensions")]
+	private static FeaturesInfo<T>[] CreateFeaturesInfo()
 	{
 		var ti = typeof(T).GetTypeInfo();
 		Debug.Assert(Enum.GetUnderlyingType(typeof(T)) == typeof(ulong), $"All features must have {nameof(UInt64)} as underlying type");
+		return Enum.GetValues<T>().Where(v =>
+			ti.DeclaredMembers.First(xm => string.Equals(xm.Name, v.ToString(), StringComparison.Ordinal))
+			  .GetCustomAttribute<FeatureDescriptionAttribute>() is not null).Select(value =>
+		{
+			Debug.Assert((value.ToUInt64(NumberFormatInfo.InvariantInfo) & (value.ToUInt64(CultureInfo.InvariantCulture) - 1UL)) == 0UL,
+				$"All features of {nameof(T)} must be a power of 2");
+			var name = value.ToString();
+			var attribute = ti.DeclaredMembers.First(xm => string.Equals(xm.Name, name, StringComparison.Ordinal))
+							  .GetCustomAttribute<FeatureDescriptionAttribute>()!;
 
-		return new (Enum.GetValues<T>()
-			.Where(v => ti.DeclaredMembers.First(xm => string.Equals(xm.Name, v.ToString(), StringComparison.Ordinal)).GetCustomAttribute<FeatureDescriptionAttribute>() is not null).Select(value =>
-			{
-				Debug.Assert( (value.ToUInt64(NumberFormatInfo.InvariantInfo) & (value.ToUInt64(CultureInfo.InvariantCulture) - 1UL)) == 0UL, $"All features of {nameof(T)} must be a power of 2");
-				var name = value.ToString();
-				var attribute = ti.DeclaredMembers.First(xm => string.Equals(xm.Name, name, StringComparison.Ordinal)).GetCustomAttribute<FeatureDescriptionAttribute>()!;
-
-				return (value, name, attribute.Description, attribute.Summary);
-			}).ToDictionary(x => x.value, x => (EnumValue: x.name, x.Description, x.Summary)));
+			return new FeaturesInfo<T>(name, attribute.Description, attribute.Summary, value);
+		}).ToArray();
 	}
 }

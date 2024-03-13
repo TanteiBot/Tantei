@@ -6,5 +6,6 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 public interface IMultiLanguageName
 {
 	string? Name { get; }
+
 	string? RussianName { get; }
 }

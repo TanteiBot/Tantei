@@ -17,56 +17,56 @@ public sealed class Favourites : IJsonOnDeserialized
 	[JsonPropertyName("animes")]
 	public IReadOnlyList<FavouriteEntry> Animes
 	{
-		get => ThrowNotSupportedException<IReadOnlyList<FavouriteEntry>>();
+		get => ThrowNotSupportedException();
 		init => this.SetTypesThenAddToAll(value, "animes", "Anime");
 	}
 
 	[JsonPropertyName("mangas")]
 	public IReadOnlyList<FavouriteEntry> Mangas
 	{
-		get =>ThrowNotSupportedException<IReadOnlyList<FavouriteEntry>>();
+		get => ThrowNotSupportedException();
 		init => this.SetTypesThenAddToAll(value, "mangas", "Manga");
 	}
 
 	[JsonPropertyName("characters")]
 	public IReadOnlyList<FavouriteEntry> Characters
 	{
-		get => ThrowNotSupportedException<IReadOnlyList<FavouriteEntry>>();
+		get => ThrowNotSupportedException();
 		init => this.SetTypesThenAddToAll(value, "characters", "Character");
 	}
 
 	[JsonPropertyName("people")]
 	public IReadOnlyList<FavouriteEntry> People
 	{
-		get => ThrowNotSupportedException<IReadOnlyList<FavouriteEntry>>();
+		get => ThrowNotSupportedException();
 		init => this.SetTypesThenAddToAll(value, "people", "Person");
 	}
 
 	[JsonPropertyName("mangakas")]
 	public IReadOnlyList<FavouriteEntry> Mangakas
 	{
-		get => ThrowNotSupportedException<IReadOnlyList<FavouriteEntry>>();
+		get => ThrowNotSupportedException();
 		init => this.SetTypesThenAddToAll(value, "people", "Mangaka");
 	}
 
 	[JsonPropertyName("seyu")]
 	public IReadOnlyList<FavouriteEntry> Seyu
 	{
-		get => ThrowNotSupportedException<IReadOnlyList<FavouriteEntry>>();
+		get => ThrowNotSupportedException();
 		init => this.SetTypesThenAddToAll(value, "people", "Seyu");
 	}
 
 	[JsonPropertyName("producers")]
 	public IReadOnlyList<FavouriteEntry> Producers
 	{
-		get => ThrowNotSupportedException<IReadOnlyList<FavouriteEntry>>();
+		get => ThrowNotSupportedException();
 		init => this.SetTypesThenAddToAll(value, "people", "Producer");
 	}
 
 	[JsonPropertyName("ranobe")]
 	public IReadOnlyList<FavouriteEntry> Ranobe
 	{
-		get => ThrowNotSupportedException<IReadOnlyList<FavouriteEntry>>();
+		get => ThrowNotSupportedException();
 		init => this.SetTypesThenAddToAll(value, "mangas", "Ranobe");
 	}
 
@@ -77,6 +77,7 @@ public sealed class Favourites : IJsonOnDeserialized
 			entry.GenericType = genericType;
 			entry.SpecificType = specificType;
 		}
+
 		this._allFavourites.AddRange(entries);
 	}
 
@@ -88,5 +89,5 @@ public sealed class Favourites : IJsonOnDeserialized
 	}
 
 	[DoesNotReturn]
-	private static T ThrowNotSupportedException<T>() where T: class => throw new NotSupportedException("Used only for json serializer");
+	private static IReadOnlyList<FavouriteEntry> ThrowNotSupportedException() => throw new NotSupportedException("Used only for json serializer");
 }

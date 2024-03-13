@@ -9,9 +9,6 @@ namespace PaperMalKing.AniList.Wrapper.Abstractions.Models;
 [JsonConverter(typeof(BoolWrapperConverter<MediaListTypeOptions>))]
 public sealed class MediaListTypeOptions : IBoolWrapper<MediaListTypeOptions>
 {
-	[JsonPropertyName("advancedScoringEnabled")]
-	public bool IsAdvancedScoringEnabled { get; init; }
-
 	public static MediaListTypeOptions TrueValue { get; } = new()
 	{
 		IsAdvancedScoringEnabled = true,
@@ -21,4 +18,7 @@ public sealed class MediaListTypeOptions : IBoolWrapper<MediaListTypeOptions>
 	{
 		IsAdvancedScoringEnabled = false,
 	};
+
+	[JsonPropertyName("advancedScoringEnabled")]
+	public bool IsAdvancedScoringEnabled { get; init; }
 }

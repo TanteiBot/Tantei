@@ -29,6 +29,7 @@ public static class HostBuilderExtensions
 		static void RunSQLiteConfiguration()
 		{
 			SQLitePCL.Batteries_V2.Init();
+
 			// SQLITE_CONFIG_MULTITHREAD
 			// https://github.com/dotnet/efcore/issues/9994
 			// https://sqlite.org/threadsafe.html
@@ -38,11 +39,14 @@ public static class HostBuilderExtensions
 		hostBuilder.ConfigureAppConfiguration(x => x.AddJsonFile("appsetings-shared", optional: true, reloadOnChange: false))
 				   .ConfigureServices((hostContext, services) =>
 		{
-			static void  ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
+			static void ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
 			{
-				builder.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("Default"),
-					o => o.MigrationsAssembly("PaperMalKing.Database.Migrations")).UseModel(DatabaseContextModel.Instance);
+				builder.UseSqlite(
+					services.GetRequiredService<IConfiguration>().GetConnectionString("Default"),
+					o => o.MigrationsAssembly("PaperMalKing.Database.Migrations"))
+					   .UseModel(DatabaseContextModel.Instance);
 			}
+
 			services.AddDbContextFactory<DatabaseContext>(ConfigureDbContext);
 			services.AddDbContext<DatabaseContext>(ConfigureDbContext);
 			var config = hostContext.Configuration;

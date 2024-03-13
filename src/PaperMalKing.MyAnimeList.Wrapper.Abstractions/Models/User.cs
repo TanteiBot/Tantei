@@ -11,13 +11,14 @@ public sealed class User
 {
 	private string? _avatarUrl;
 	private string? _profileUrl;
+
 	public required string Username { get; init; }
 
-	public string ProfileUrl => this._profileUrl ??= (Constants.PROFILE_URL + this.Username);
+	public string ProfileUrl => this._profileUrl ??= Constants.ProfileUrl + this.Username;
 
 	public string AvatarUrl =>
 		this._avatarUrl ??=
-			string.Create(CultureInfo.InvariantCulture, $"{Constants.USER_AVATAR}{this.Id}.jpg?t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+			string.Create(CultureInfo.InvariantCulture, $"{Constants.UserAvatar}{this.Id}.jpg?t={TimeProvider.System.GetUtcNow().ToUnixTimeSeconds()}");
 
 	public uint Id { get; init; }
 

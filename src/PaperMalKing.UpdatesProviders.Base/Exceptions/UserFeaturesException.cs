@@ -7,5 +7,8 @@ namespace PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 public sealed class UserFeaturesException : Exception
 {
-	public UserFeaturesException(string message) : base(message) { }
+	public UserFeaturesException(string message)
+		: base(message)
+	{
+	}
 }

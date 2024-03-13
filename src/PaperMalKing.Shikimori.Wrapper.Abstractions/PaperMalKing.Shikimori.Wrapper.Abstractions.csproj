@@ -6,5 +6,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+        
+        <PackageReference Include="CommunityToolkit.Diagnostics" />
+        <PackageReference Include="Microsoft.Extensions.EnumStrings" />
     </ItemGroup>
 </Project>

@@ -9,7 +9,7 @@ internal sealed class CombinedInitialInfoResponse
 {
 	public uint? UserId { get; set; }
 
-	public List<IdentifiableFavourite> Favourites1 { get; } = new();
+	public List<IdentifiableFavourite> Favourites1 { get; } = [];
 
 	public void Add(User user)
 	{

@@ -22,7 +22,7 @@ public sealed class GenericName
 			TitleLanguage.ENGLISH when this.Full != null => this.Full,
 			TitleLanguage.ENGLISH_STYLISED when this.Full != null => this.Full,
 			TitleLanguage.ROMAJI when this.Full != null => this.Full,
-			_ => this.Native
+			_ => this.Native,
 		};
 	}
 }

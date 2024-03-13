@@ -9,8 +9,8 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions;
 
 internal static class Utils
 {
-	public static string GetImageUrl<T>(string type, T id, string imageExt = "jpg", string size = "original") where T: unmanaged, IUnsignedNumber<T>, IBinaryInteger<T>
-		=> string.Create(CultureInfo.InvariantCulture, $"{Constants.BASE_URL}/system/{type}/{size}/{id}.{imageExt}?{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+	public static string GetImageUrl<T>(string type, T id, string imageExt = "jpg", string size = "original")
+		where T : unmanaged, IUnsignedNumber<T>, IBinaryInteger<T> => string.Create(CultureInfo.InvariantCulture, $"{Constants.BaseUrl}/system/{type}/{size}/{id}.{imageExt}?{TimeProvider.System.GetUtcNow().ToUnixTimeSeconds()}");
 
-	public static string GetUrl(string type, uint id) => $"{Constants.BASE_URL}/{type}/{id}";
+	public static string GetUrl(string type, uint id) => $"{Constants.BaseUrl}/{type}/{id}";
 }

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace PaperMalKing.Common;
@@ -11,14 +10,16 @@ namespace PaperMalKing.Common;
 public static class CollectionExtensions
 {
 	public static (IReadOnlyList<T> AddedValues, IReadOnlyList<T> RemovedValues) GetDifference<T>(
-		this IReadOnlyList<T> original, IReadOnlyList<T> resulting) where T : IEquatable<T>
+		this IReadOnlyList<T> original, IReadOnlyList<T> resulting)
+		where T : IEquatable<T>
 	{
 		var originalHs = new HashSet<T>(original);
 		var resultingHs = new HashSet<T>(resulting);
 		if (originalHs.SetEquals(resultingHs))
 		{
-			return (Array.Empty<T>(), Array.Empty<T>());
+			return ([], []);
 		}
+
 		originalHs.ExceptWith(resulting);
 		resultingHs.ExceptWith(original);
 		var added = resultingHs.ToArray();
@@ -26,22 +27,23 @@ public static class CollectionExtensions
 		return (added, removed);
 	}
 
-	[SuppressMessage("Design", "CA1002:Do not expose generic lists")]
-	public static List<TEntity> SortBy<TEntity, TProperty>(this List<TEntity> source, Func<TEntity, TProperty> selector) where TProperty : IComparable<TProperty>
+	public static List<TEntity> SortBy<TEntity, TProperty>(this List<TEntity> source, Func<TEntity, TProperty> selector)
+		where TProperty : IComparable<TProperty>
 	{
 		source.Sort((f, s) => selector(f).CompareTo(selector(s)));
 		return source;
 	}
 
-	[SuppressMessage("Design", "CA1002:Do not expose generic lists")]
-	public static List<TEntity> SortByDescending<TEntity, TProperty>(this List<TEntity> source, Func<TEntity, TProperty> selector) where TProperty : IComparable<TProperty>
+	public static List<TEntity> SortByDescending<TEntity, TProperty>(this List<TEntity> source, Func<TEntity, TProperty> selector)
+		where TProperty : IComparable<TProperty>
 	{
 		source.Sort((f, s) => -selector(f).CompareTo(selector(s)));
 		return source;
 	}
 
-	[SuppressMessage("Design", "CA1002:Do not expose generic lists")]
-	public static List<TEntity> SortByThenBy<TEntity, TProperty, TOtherProperty>(this List<TEntity> source, Func<TEntity, TProperty> firstSelector, Func<TEntity, TOtherProperty> secondSelector) where TProperty : IComparable<TProperty> where TOtherProperty: IComparable<TOtherProperty>
+	public static List<TEntity> SortByThenBy<TEntity, TProperty, TOtherProperty>(this List<TEntity> source, Func<TEntity, TProperty> firstSelector, Func<TEntity, TOtherProperty> secondSelector)
+		where TProperty : IComparable<TProperty>
+		where TOtherProperty : IComparable<TOtherProperty>
 	{
 		source.Sort((f, s) =>
 		{

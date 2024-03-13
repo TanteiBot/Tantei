@@ -22,7 +22,7 @@ public static class ServiceCollectionExtensions
 	{
 		serviceCollection.AddOptions<AniListOptions>().Bind(configuration.GetSection(AniListOptions.AniList));
 
-		serviceCollection.AddHttpClient(ProviderConstants.NAME).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler()
+		serviceCollection.AddHttpClient(ProviderConstants.Name).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
 		{
 			PooledConnectionLifetime = TimeSpan.FromMinutes(30),
 		}).AddHttpMessageHandler(provider =>
@@ -33,12 +33,12 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton<IAniListClient, AniListClient>(provider =>
 		{
 			var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
-			var httpClient = httpClientFactory.CreateClient(ProviderConstants.NAME);
+			var httpClient = httpClientFactory.CreateClient(ProviderConstants.Name);
 			httpClient.Timeout = TimeSpan.FromSeconds(200);
 			var logger = provider.GetRequiredService<ILogger<AniListClient>>();
-			var options = new GraphQLHttpClientOptions()
+			var options = new GraphQLHttpClientOptions
 			{
-				EndPoint = new Uri(ClientConstants.BASE_URL),
+				EndPoint = new Uri(ClientConstants.BaseUrl),
 			};
 			var gqlc = new GraphQLHttpClient(options, new SystemTextJsonSerializer(new JsonSerializerOptions(JsonSerializerDefaults.Web)), httpClient);
 

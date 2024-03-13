@@ -19,8 +19,7 @@ internal sealed class UserCleanupService
 	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 	private readonly GeneralUserService _userService;
 
-	public UserCleanupService(ILogger<UserCleanupService> logger, DiscordClient discordClient, IDbContextFactory<DatabaseContext> dbContextFactory,
-							  GeneralUserService userService)
+	public UserCleanupService(ILogger<UserCleanupService> logger, DiscordClient discordClient, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService)
 	{
 		this._logger = logger;
 		this._discordClient = discordClient;
@@ -30,14 +29,14 @@ internal sealed class UserCleanupService
 
 	public async Task ExecuteCleanupAsync()
 	{
-		using var db = this._dbContextFactory.CreateDbContext();
-		this._logger.LogInformation("Starting to look for users without links to any guild, or users that left server while bot was offline");
+		await using var db = this._dbContextFactory.CreateDbContext();
+		this._logger.StartingUserCleanup();
 		foreach (var discordUser in db.DiscordUsers.TagWith("Query users for cleanup").TagWithCallSite().Include(x => x.Guilds).AsNoTracking().ToArray())
 		{
 			var userId = discordUser.DiscordUserId;
-			if (discordUser.Guilds.Count == 0)
+			if (discordUser.Guilds is [])
 			{
-				await this._userService.RemoveUserIfInNoGuildsAsync(userId).ConfigureAwait(false);
+				await this._userService.RemoveUserIfInNoGuildsAsync(userId);
 			}
 			else
 			{
@@ -47,17 +46,17 @@ internal sealed class UserCleanupService
 					{
 						try
 						{
-							_ = await guild.GetMemberAsync(userId).ConfigureAwait(false);
+							_ = await guild.GetMemberAsync(userId);
 						}
 						catch (NotFoundException)
 						{
-							await this._userService.RemoveUserInGuildAsync(guildId, userId).ConfigureAwait(false);
+							await this._userService.RemoveUserInGuildAsync(guildId, userId);
 						}
 					}
 				}
 			}
 		}
 
-		this._logger.LogInformation("Finishing looking for users without links to any guild");
+		this._logger.FinishingUserCleanup();
 	}
 }

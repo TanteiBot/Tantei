@@ -9,6 +9,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Ani
 public sealed class AnimeListEntryNode : BaseListEntryNode<AnimeMediaType, AnimeAiringStatus>
 {
 	private string? _url;
+
 	public override uint TotalSubEntries => this.Episodes;
 
 	[JsonPropertyName("num_episodes")]
@@ -17,5 +18,5 @@ public sealed class AnimeListEntryNode : BaseListEntryNode<AnimeMediaType, Anime
 	[JsonPropertyName("studios")]
 	public IReadOnlyList<Studio>? Studios { get; init; }
 
-	public override string Url => this._url ??= $"{Constants.BASE_URL}/anime/{this.Id}";
+	public override string Url => this._url ??= $"{Constants.BaseUrl}/anime/{this.Id}";
 }

@@ -9,9 +9,9 @@ namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses;
 
 internal sealed class CombinedRecentUpdatesResponse
 {
-	public List<Review> Reviews { get; } = new();
+	public List<Review> Reviews { get; } = [];
 
-	public List<ListActivity> Activities { get; } = new();
+	public List<ListActivity> Activities { get; } = [];
 
 	private User? _user;
 
@@ -21,12 +21,12 @@ internal sealed class CombinedRecentUpdatesResponse
 
 	public List<MediaListEntry> MangaList { get; } = new(50);
 
-	public List<IdentifiableFavourite> Favourites1 { get; } = new();
+	public List<IdentifiableFavourite> Favourites { get; } = [];
 
 	public void Add(CheckForUpdatesResponse response)
 	{
 		this._user ??= response.User;
-		this.Favourites1.AddRange(response.User.Favourites.AllFavourites);
+		this.Favourites.AddRange(response.User.Favourites.AllFavourites);
 
 		this.Reviews.AddRange(response.Reviews.Values);
 

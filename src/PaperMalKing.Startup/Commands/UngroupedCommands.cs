@@ -17,51 +17,55 @@ using PaperMalKing.Common.Attributes;
 namespace PaperMalKing.Startup.Commands;
 
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-[SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods")]
-[SuppressMessage("Performance", "CA1822:Mark members as static")]
-[GuildOnly, SlashRequireGuild]
+[SuppressMessage("Style", """VSTHRD200:Use "Async" suffix for async methods""", Justification = "It doesn't apply to commands")]
+[SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "It doesn't apply to commands")]
+[GuildOnly]
+[SlashRequireGuild]
 internal sealed class UngroupedCommands : BotCommandsModule
 {
 	private static DiscordEmbed? _aboutEmbed;
 
 	[SlashCommand("say", "Sends embed in selected channel with selected text")]
 	[OwnerOrPermissions(Permissions.ManageGuild)]
-	public async Task SayCommand(InteractionContext context,
-								 [Option("channel", "Channel where the embed will be send")] DiscordChannel channelToSayIn,
-								 [Option("text", "Text to send")] string messageContent)
+	public async Task SayCommand(
+		InteractionContext context,
+		[Option("channel", "Channel where the embed will be send")] DiscordChannel channelToSayIn,
+		[Option("text", "Text to send")] string messageContent)
 	{
 		if (string.IsNullOrWhiteSpace(messageContent))
 		{
-			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed("Message's content shouldn't be empty")).ConfigureAwait(false);
+			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed("Message's content shouldn't be empty"));
 		}
 
 		var embed = new DiscordEmbedBuilder
 		{
 			Description = messageContent.Replace("@everyone", "@\u200beveryone", StringComparison.Ordinal)
 										.Replace("@here", "@\u200bhere", StringComparison.Ordinal),
-			Timestamp = DateTimeOffset.Now,
+			Timestamp = TimeProvider.System.GetUtcNow(),
 			Color = DiscordColor.Blue,
 		}.WithAuthor($"{context.User.Username}#{context.User.Discriminator}", iconUrl: context.User.AvatarUrl);
 		try
 		{
-			await channelToSayIn.SendMessageAsync(embed: embed).ConfigureAwait(false);
+			await channelToSayIn.SendMessageAsync(embed: embed);
 		}
 		#pragma warning disable CA1031
+		// Modify 'SayCommand' to catch a more specific allowed exception type, or rethrow the exception
 		catch
 			#pragma warning restore CA1031
 		{
 			await context.EditResponseAsync(
-				new DiscordWebhookBuilder().WithContent("Couldn't send message. Check permissions for bot and try again.")).ConfigureAwait(false);
+				new DiscordWebhookBuilder().WithContent("Couldn't send message. Check permissions for bot and try again."));
 		}
 	}
 
 	[SlashCommand("About", "Displays info about bot")]
+	[SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:Parameter should not span multiple lines", Justification = "We format versions in multi-line string")]
 	public Task<DiscordMessage> AboutCommand(InteractionContext context)
 	{
 		if (_aboutEmbed is null)
 		{
 			var owners = context.Client.CurrentApplication.Owners.Select(x => $"{x.Username} ({x.Mention})").ToArray();
-			var botVersion = ThisAssembly.AssemblyVersion.AsSpan(0,5);
+			var botVersion = ThisAssembly.AssemblyVersion.AsSpan(0, 5);
 			var dotnetVersion = Environment.Version.ToString(3);
 
 			var commitId = ThisAssembly.GitCommitId[..10];

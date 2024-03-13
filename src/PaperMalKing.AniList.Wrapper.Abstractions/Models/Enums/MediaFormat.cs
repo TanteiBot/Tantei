@@ -2,10 +2,12 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.EnumStrings;
 
 namespace PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 
 [JsonConverter(typeof(JsonStringEnumConverter<MediaFormat>))]
+[EnumStrings]
 public enum MediaFormat : byte
 {
 	TV = 0,

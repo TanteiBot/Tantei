@@ -1,0 +1,16 @@
+{
+  "ConnectionStrings": {
+    "Default": "Data Source=data.db"
+  },
+  "Discord": {
+    "Token": "",
+    "ClientId": "",
+    "ClientSecret": ""
+  },
+  "MyAnimeList": {
+    "ClientId": ""
+  },
+  "Shikimori": {
+    "ShikimoriAppName": ""
+  }
+}

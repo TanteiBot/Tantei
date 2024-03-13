@@ -5,7 +5,6 @@ using PaperMalKing.AniList.Wrapper.GraphQL;
 
 namespace PaperMalKing.AniList.Wrapper.Tests;
 
-[UsesVerify]
 public class RequestsTests
 {
 	[Theory]
@@ -21,7 +20,7 @@ public class RequestsTests
 	{
 		var verifySettings = new VerifySettings();
 		verifySettings.UseParameters(options);
-		var request = Requests.CheckForUpdatesRequest(1u, 1, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), 1, 1, options);
+		var request = Requests.CheckForUpdatesRequest(1u, 1, TimeProvider.System.GetUtcNow().ToUnixTimeSeconds(), 1, 1, options);
 		return Verify(request.Query, verifySettings);
 	}
 

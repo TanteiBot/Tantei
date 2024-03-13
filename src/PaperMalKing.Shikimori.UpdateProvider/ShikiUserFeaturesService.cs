@@ -27,30 +27,30 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 
 	public override async Task EnableFeaturesAsync(ShikiUserFeatures feature, ulong userId)
 	{
-		using var db = this.DbContextFactory.CreateDbContext();
-		var dbUser = db.ShikiUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == userId) ?? throw new UserFeaturesException("You must register first before enabling features");
+		await using var db = this.DbContextFactory.CreateDbContext();
+		var dbUser = db.ShikiUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == userId) ??
+					 throw new UserFeaturesException("You must register first before enabling features");
 		if (dbUser.Features.HasFlag(feature))
 		{
 			throw new UserFeaturesException("You already have this feature enabled");
 		}
 
-		var lastHistoryEntry = new uint?();
+		var lastHistoryEntry = default(uint?);
 		dbUser.Features |= feature;
 		switch (feature)
 		{
 			case ShikiUserFeatures.AnimeList:
 			case ShikiUserFeatures.MangaList:
 			{
-				if (lastHistoryEntry.HasValue)
-					break;
 				var (data, _) = await this._client.GetUserHistoryAsync(dbUser.Id, 1, 1, HistoryRequestOptions.Any, CancellationToken.None)
-										  .ConfigureAwait(false);
+										  ;
 				lastHistoryEntry = data.MaxBy(h => h.Id)!.Id;
 				break;
 			}
+
 			case ShikiUserFeatures.Favourites:
 			{
-				var favourites = await this._client.GetUserFavouritesAsync(dbUser.Id, CancellationToken.None).ConfigureAwait(false);
+				var favourites = await this._client.GetUserFavouritesAsync(dbUser.Id, CancellationToken.None);
 				dbUser.Favourites = favourites.AllFavourites.Select(fe => new ShikiFavourite
 				{
 					Id = fe.Id,
@@ -60,9 +60,10 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 				}).ToList();
 				break;
 			}
+
 			case ShikiUserFeatures.Achievements:
 			{
-				var achievements = await this._client.GetUserAchievementsAsync(dbUser.Id).ConfigureAwait(false);
+				var achievements = await this._client.GetUserAchievementsAsync(dbUser.Id);
 				dbUser.Achievements = achievements.Select(x => new ShikiDbAchievement
 				{
 					NekoId = x.Id,
@@ -73,8 +74,11 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 		}
 
 		if (lastHistoryEntry.HasValue)
+		{
 			dbUser.LastHistoryEntryId = lastHistoryEntry.Value;
-		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None).ConfigureAwait(false);
+		}
+
+		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
 	}
 
 	protected override ValueTask DisableFeatureCleanupAsync(DatabaseContext db, ShikiUser user, ShikiUserFeatures featureToDisable)
@@ -86,8 +90,9 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 
 		if (featureToDisable == ShikiUserFeatures.Achievements)
 		{
-			user.Achievements = new(0);
+			user.Achievements = [];
 		}
+
 		return ValueTask.CompletedTask;
 	}
 }

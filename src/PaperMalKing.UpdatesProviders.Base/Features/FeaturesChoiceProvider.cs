@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,13 +13,15 @@ using PaperMalKing.Common;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features;
 
-public sealed class FeaturesChoiceProvider<T> : IChoiceProvider where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
+public sealed class FeaturesChoiceProvider<T> : IChoiceProvider
+	where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
 	private static Task<IEnumerable<DiscordApplicationCommandOptionChoice>>? _choices;
 
 	private static Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Choices =>
 		Volatile.Read(ref _choices) ?? Interlocked.CompareExchange(ref _choices, CreateChoicesAsync(), comparand: null) ?? _choices;
 
+	[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "Task is always complete")]
 	public Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
 	{
 		return Choices;
@@ -26,8 +29,8 @@ public sealed class FeaturesChoiceProvider<T> : IChoiceProvider where T : unmana
 
 	private static Task<IEnumerable<DiscordApplicationCommandOptionChoice>> CreateChoicesAsync()
 	{
-		var choices = FeaturesHelper<T>.FeaturesInfo.Values.Select(x => new DiscordApplicationCommandOptionChoice($"{x.Description}: {x.Summary}", x.Description))
-									   .ToArray().AsReadOnly();
-		return Task.FromResult<IEnumerable<DiscordApplicationCommandOptionChoice>>(choices);
+		var choices = FeaturesHelper<T>.Features.Select(x => new DiscordApplicationCommandOptionChoice($"{x.Description}: {x.Summary}", x.Description))
+									   .ToArray();
+		return Task.FromResult(choices.AsEnumerable());
 	}
 }

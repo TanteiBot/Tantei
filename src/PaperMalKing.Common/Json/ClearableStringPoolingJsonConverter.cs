@@ -12,17 +12,18 @@ namespace PaperMalKing.Common.Json;
 
 /// <summary>
 /// This string converter should be applied to strings, that are expected to not be present in incoming data in some time
-/// For example, media titles, that are constantly returned by update provider, but can be not present in response if user updated their list
+/// For example, media titles, that are constantly returned by update provider, but can be not present in response if user updated their list.
 /// And so on.
-/// As well as <see cref="StringPoolingJsonConverter"/> it should be applied on small strings only, see docs on <see cref="StringPoolingJsonConverter"/>
+/// As well as <see cref="StringPoolingJsonConverter"/> it should be applied on small strings only, see docs on <see cref="StringPoolingJsonConverter"/>.
 /// </summary>
 public sealed class ClearableStringPoolingJsonConverter : JsonConverter<string>
 {
 	private static readonly StringPool StringPool = new();
 
-	[SuppressMessage("Performance", "CA1823:Avoid unused private fields")]
-	[SuppressMessage("Roslynator", "RCS1213:Remove unused member declaration.")]
-	private static readonly Timer Timer = new (_ => StringPool.Reset(), state: null, dueTime: TimeSpan.Zero, TimeSpan.FromHours(3));
+	[SuppressMessage("Performance", "CA1823:Avoid unused private fields", Justification = "We store it just in case")]
+	[SuppressMessage("Roslynator", "RCS1213:Remove unused member declaration.", Justification = "We store it just in case")]
+	[SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "We store it just in case")]
+	private static readonly Timer Timer = new(_ => StringPool.Reset(), state: null, dueTime: TimeSpan.Zero, TimeSpan.FromHours(3));
 
 	public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
@@ -30,5 +31,6 @@ public sealed class ClearableStringPoolingJsonConverter : JsonConverter<string>
 	}
 
 	public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
-	{ }
+	{
+	}
 }

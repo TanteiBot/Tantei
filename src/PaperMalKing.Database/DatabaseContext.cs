@@ -1,7 +1,11 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
+using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PaperMalKing.Database.Models;
@@ -41,11 +45,42 @@ public sealed class DatabaseContext : DbContext
 
 	public DbSet<AniListFavourite> AniListFavourites => this.Set<AniListFavourite>();
 
-	public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
-	{ }
+	public DatabaseContext(DbContextOptions<DatabaseContext> options)
+		: base(options)
+	{
+	}
 
-	[SuppressMessage("Roslynator", "RCS1201:Use method chaining.")]
-	[SuppressMessage("Roslynator", "RCS1021:Convert lambda expression body to expression body.")]
+	public async Task<int> SaveChangesAndThrowOnNoneAsync(CancellationToken cancellationToken = default)
+	{
+		var rows = await this.TrySaveChangesUntilDatabaseIsUnlockedAsync(cancellationToken);
+		if (rows <= 0)
+		{
+			throw new NoChangesSavedException();
+		}
+
+		return rows;
+	}
+
+	[SuppressMessage("Reliability", "EA0002:Use \'System.TimeProvider\' to make the code easier to test", Justification = "We already use it")]
+	public async Task<int> TrySaveChangesUntilDatabaseIsUnlockedAsync(CancellationToken cancellationToken = default)
+	{
+		while (!cancellationToken.IsCancellationRequested)
+		{
+			try
+			{
+				return this.SaveChanges();
+			}
+			catch (SqliteException ex) when (ex.SqliteErrorCode == 5)
+			{
+				// Database is locked
+				await Task.Delay(TimeSpan.FromMilliseconds(500), TimeProvider.System, cancellationToken);
+			}
+		}
+
+		throw new TaskCanceledException("Saving changes were cancelled");
+	}
+
+	[SuppressMessage("Roslynator", "RCS1201:Use method chaining.", Justification = "It's not preferred when creating model")]
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);
@@ -54,7 +89,9 @@ public sealed class DatabaseContext : DbContext
 		{
 			// Constant value because default in app can be changed anytime
 			mu.HasOne(x => x.DiscordUser).WithOne().HasForeignKey<MalUser>(x => x.DiscordUserId);
-			mu.Property(u => u.Features).HasDefaultValue((MalUserFeatures)127ul); // DO NOT CHANGE. Must always be a constant, otherwise SQLite will recreate table
+			mu.Property(u => u.Features).HasSentinel(MalUserFeatures.None).HasDefaultValue(MalUserFeatures.AnimeList | MalUserFeatures.MangaList | MalUserFeatures.Favorites |
+																					  MalUserFeatures.Mention | MalUserFeatures.Website | MalUserFeatures.MediaFormat |
+																					  MalUserFeatures.MediaStatus); // DO NOT CHANGE. Must always be a constant, otherwise SQLite will recreate table
 			mu.Property(u => u.LastUpdatedMangaListTimestamp).HasConversion<DateTimeOffsetToBinaryConverter>();
 			mu.Property(u => u.LastUpdatedAnimeListTimestamp).HasConversion<DateTimeOffsetToBinaryConverter>();
 			mu.Property(p => p.FavoritesIdHash).HasDefaultValue("");
@@ -62,15 +99,9 @@ public sealed class DatabaseContext : DbContext
 			mu.HasIndex(x => x.DiscordUserId);
 		});
 
-		modelBuilder.Entity<DiscordGuild>(dg =>
-		{
-			dg.HasIndex(x => x.DiscordGuildId);
-		});
+		modelBuilder.Entity<DiscordGuild>(dg => dg.HasIndex(x => x.DiscordGuildId));
 
-		modelBuilder.Entity<DiscordUser>(dg =>
-		{
-			dg.HasIndex(x => x.DiscordUserId);
-		});
+		modelBuilder.Entity<DiscordUser>(dg => dg.HasIndex(x => x.DiscordUserId));
 
 		modelBuilder.Entity<BaseMalFavorite>(bmf =>
 		{
@@ -81,14 +112,14 @@ public sealed class DatabaseContext : DbContext
 				k.UserId,
 				k.FavoriteType,
 			});
-			bmf.HasDiscriminator(x=>x.FavoriteType)
+			bmf.HasDiscriminator(x => x.FavoriteType)
 			   .HasValue<MalFavoriteAnime>(MalFavoriteType.Anime)
 			   .HasValue<MalFavoriteManga>(MalFavoriteType.Manga)
 			   .HasValue<MalFavoriteCharacter>(MalFavoriteType.Character)
 			   .HasValue<MalFavoritePerson>(MalFavoriteType.Person)
 			   .HasValue<MalFavoriteCompany>(MalFavoriteType.Company);
 			bmf.HasIndex(x => x.UserId);
-			bmf.HasIndex(x=>x.FavoriteType);
+			bmf.HasIndex(x => x.FavoriteType);
 			bmf.HasIndex(x => x.Id);
 			bmf.ToTable("MalFavorites");
 		});
@@ -103,7 +134,9 @@ public sealed class DatabaseContext : DbContext
 		{
 			su.HasOne(x => x.DiscordUser).WithOne().HasForeignKey<ShikiUser>(x => x.DiscordUserId);
 			su.HasKey(k => k.Id);
-			su.Property(u => u.Features).HasDefaultValue((ShikiUserFeatures)127UL); // DO NOT CHANGE. Must always be a constant, otherwise SQLite will recreate table
+			su.Property(u => u.Features).HasSentinel(ShikiUserFeatures.None).HasDefaultValue(ShikiUserFeatures.AnimeList | ShikiUserFeatures.MangaList | ShikiUserFeatures.Favourites |
+														 ShikiUserFeatures.Mention | ShikiUserFeatures.Website | ShikiUserFeatures.MediaFormat |
+														 ShikiUserFeatures.MediaStatus); // DO NOT CHANGE. Must always be a constant, otherwise SQLite will recreate table
 			su.Property(x => x.FavouritesIdHash).HasDefaultValue("");
 			su.HasIndex(x => x.Features);
 			su.HasIndex(x => x.DiscordUserId);
@@ -124,7 +157,9 @@ public sealed class DatabaseContext : DbContext
 		{
 			au.HasOne(x => x.DiscordUser).WithOne().HasForeignKey<AniListUser>(x => x.DiscordUserId);
 			au.HasKey(k => k.Id);
-			au.Property(u => u.Features).HasDefaultValue((AniListUserFeatures)127ul); // DO NOT CHANGE. Must always be a constant, otherwise SQLite will recreate table
+			au.Property(u => u.Features).HasSentinel(AniListUserFeatures.None).HasDefaultValue(AniListUserFeatures.AnimeList | AniListUserFeatures.MangaList |
+																							   AniListUserFeatures.Favourites | AniListUserFeatures.Mention | AniListUserFeatures.Website |
+																							   AniListUserFeatures.MediaFormat | AniListUserFeatures.MediaStatus); // DO NOT CHANGE. Must always be a constant, otherwise SQLite will recreate table
 			au.Property(x => x.FavouritesIdHash).HasDefaultValue("");
 			au.HasIndex(x => x.Features);
 			au.HasIndex(x => x.DiscordUserId);

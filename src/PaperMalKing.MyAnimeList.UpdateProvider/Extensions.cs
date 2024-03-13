@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -11,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Diagnostics;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
@@ -29,32 +29,41 @@ internal static class Extensions
 {
 	private static readonly DiscordEmbedBuilder.EmbedFooter MalUpdateFooter = new()
 	{
-		IconUrl = Constants.FAV_ICON,
+		IconUrl = Constants.FavIcon,
 		Text = Constants.Name,
 	};
 
-	private static readonly FrozenDictionary<byte, DiscordColor> Colors = new Dictionary<byte, DiscordColor>()
-	{
-		{(byte)AnimeListStatus.watching, Constants.MalGreen},
-		{(byte)AnimeListStatus.completed, Constants.MalBlue},
-		{(byte)AnimeListStatus.on_hold, Constants.MalYellow},
-		{(byte)AnimeListStatus.dropped, Constants.MalRed},
-		{(byte)AnimeListStatus.plan_to_watch, Constants.MalGrey},
-	}.ToFrozenDictionary(optimizeForReading:true);
+	private static readonly DiscordColor[] Colors =
+	[
+		DiscordColor.NotQuiteBlack, Constants.MalGreen, Constants.MalBlue, Constants.MalYellow, Constants.MalRed, Constants.MalGrey,
+	];
 
 	public static ParserOptions ToParserOptions(this MalUserFeatures features)
 	{
 		var options = ParserOptions.None;
-		if (features.HasFlag(MalUserFeatures.AnimeList)) options |= ParserOptions.AnimeList;
-		if (features.HasFlag(MalUserFeatures.MangaList)) options |= ParserOptions.MangaList;
-		if (features.HasFlag(MalUserFeatures.Favorites)) options |= ParserOptions.Favorites;
+		if (features.HasFlag(MalUserFeatures.AnimeList))
+		{
+			options |= ParserOptions.AnimeList;
+		}
+
+		if (features.HasFlag(MalUserFeatures.MangaList))
+		{
+			options |= ParserOptions.MangaList;
+		}
+
+		if (features.HasFlag(MalUserFeatures.Favorites))
+		{
+			options |= ParserOptions.Favorites;
+		}
 
 		return options;
 	}
 
-	public static TRequestOptions ToRequestOptions<TRequestOptions>(this MalUserFeatures features) where TRequestOptions : unmanaged, Enum
+	public static TRequestOptions ToRequestOptions<TRequestOptions>(this MalUserFeatures features)
+		where TRequestOptions : unmanaged, Enum
 	{
-		Debug.Assert(typeof(TRequestOptions) == typeof(AnimeFieldsToRequest) || typeof(TRequestOptions) == typeof(MangaFieldsToRequest));
+		Debug.Assert(typeof(TRequestOptions) == typeof(AnimeFieldsToRequest) || typeof(TRequestOptions) == typeof(MangaFieldsToRequest),
+			$"Only {nameof(AnimeFieldsToRequest)} and {nameof(MangaFieldsToRequest)} are supported");
 		AnimeFieldsToRequest fields = default;
 		if (features.HasFlag(MalUserFeatures.Synopsis))
 		{
@@ -82,7 +91,8 @@ internal static class Extensions
 			mangaFields |= MangaFieldsToRequest.Authors;
 			return Unsafe.As<MangaFieldsToRequest, TRequestOptions>(ref mangaFields);
 		}
-		if(features.HasFlag(MalUserFeatures.Studio))
+
+		if (features.HasFlag(MalUserFeatures.Studio))
 		{
 			fields |= AnimeFieldsToRequest.Studio;
 		}
@@ -90,7 +100,8 @@ internal static class Extensions
 		return Unsafe.As<AnimeFieldsToRequest, TRequestOptions>(ref fields);
 	}
 
-	public static T ToDbFavorite<T>(this BaseFavorite baseFavorite, MalUser user) where T : BaseMalFavorite
+	public static T ToDbFavorite<T>(this BaseFavorite baseFavorite, MalUser user)
+		where T : BaseMalFavorite
 	{
 		return baseFavorite switch
 		{
@@ -99,8 +110,10 @@ internal static class Extensions
 			FavoriteManga favoriteManga => favoriteManga.ToMalFavoriteManga(user) as T,
 			FavoritePerson favoritePerson => favoritePerson.ToMalFavoritePerson(user) as T,
 			FavoriteCompany favoriteCompany => favoriteCompany.ToMalFavoriteCompany(user) as T,
-			_ => throw new InvalidOperationException()
-		} ?? throw new InvalidOperationException();
+			_ => ThrowHelper.ThrowInvalidOperationException<T>(),
+		}
+
+		?? ThrowHelper.ThrowInvalidOperationException<T>();
 	}
 
 	public static MalFavoriteAnime ToMalFavoriteAnime(this FavoriteAnime anime, MalUser user) => new()
@@ -169,29 +182,33 @@ internal static class Extensions
 		var eb = new DiscordEmbedBuilder
 		{
 			Url = favorite.NameUrl,
-		}.WithThumbnail(favorite.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favorite");
+		}.WithThumbnail(favorite.ImageUrl!).WithDescription($"{(added ? "Added" : "Removed")} favorite");
 
 		eb.WithColor(added ? Constants.MalGreen : Constants.MalRed);
 
 		var title = favorite switch
 		{
 			BaseMalListFavorite baseListFavorite => $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear}]",
-			_ => favorite.Name
+			_ => favorite.Name,
 		};
 		eb.WithTitle(title);
 
 		if (favorite is MalFavoriteCharacter favoriteCharacter)
+		{
 			eb.AddField("From", favoriteCharacter.FromTitleName, inline: true);
+		}
 
 		return eb;
 	}
 
-	public static async Task<DiscordEmbedBuilder> ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(this TLe listEntry, User user, MalUserFeatures features, IMyAnimeListClient client, CancellationToken cancellationToken) where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
-																						where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
-																						where TStatus : BaseListEntryStatus<TListStatus>
-																						where TMediaType : unmanaged, Enum
-																						where TNodeStatus : unmanaged, Enum
-																						where TListStatus : unmanaged, Enum
+	public static async Task<DiscordEmbedBuilder> ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
+		this TLe listEntry, User user, MalUserFeatures features, IMyAnimeListClient client, CancellationToken cancellationToken)
+		where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
+		where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
+		where TStatus : BaseListEntryStatus<TListStatus>
+		where TMediaType : unmanaged, Enum
+		where TNodeStatus : unmanaged, Enum
+		where TListStatus : unmanaged, Enum
 	{
 		static string SubEntriesProgress(ulong progressedValue, uint totalValue, bool isInPlans, string ending) =>
 			progressedValue switch
@@ -199,7 +216,7 @@ internal static class Extensions
 				0ul when totalValue == 0u => "",
 				_ when progressedValue == totalValue || (isInPlans && progressedValue == 0ul) => $"{totalValue} {ending}",
 				_ when totalValue == 0u => $"{progressedValue}/? {ending}",
-				_ => $"{progressedValue}/{totalValue} {ending}"
+				_ => $"{progressedValue}/{totalValue} {ending}",
 			};
 
 		static string TitleMediaTypeString(string title, string mediaType, MalUserFeatures features) =>
@@ -207,10 +224,12 @@ internal static class Extensions
 				? title
 				: $"{title} ({mediaType})";
 
-		var eb = new DiscordEmbedBuilder().WithThumbnail(listEntry.Node.Picture?.Large ?? listEntry.Node.Picture?.Medium)
+		var eb = new DiscordEmbedBuilder().WithThumbnail(listEntry.Node.Picture?.Large ?? listEntry.Node.Picture?.Medium!)
 										  .WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl).WithTimestamp(listEntry.Status.UpdatedAt);
 		if (listEntry.Status.Score != 0)
+		{
 			eb.AddField("Score", listEntry.Status.Score.ToString(NumberFormatInfo.InvariantInfo), inline: true);
+		}
 
 		string userProgressText;
 		switch (listEntry)
@@ -218,26 +237,26 @@ internal static class Extensions
 			case AnimeListEntry ale:
 				{
 					var progress = ale.Status.Status.Humanize(LetterCasing.Sentence);
-					var episodeProgress = SubEntriesProgress(ale.Status.EpisodesWatched, ale.Node.Episodes,
-						ale.Status.Status == AnimeListStatus.plan_to_watch, "ep.");
-					userProgressText = episodeProgress.Length != 0 ? $"{progress} - {episodeProgress}" : progress;
+					var episodeProgress = SubEntriesProgress(ale.Status.EpisodesWatched, ale.Node.Episodes, ale.Status.Status == AnimeListStatus.plan_to_watch, "ep.");
+					userProgressText = episodeProgress is not [] ? $"{progress} - {episodeProgress}" : progress;
 					break;
 				}
+
 			case MangaListEntry mle:
 				{
 					var progress = mle.Status.Status.Humanize(LetterCasing.Sentence)!;
-					var chapterProgress = SubEntriesProgress(mle.Status.ChaptersRead, mle.Node.TotalChapters,
-						mle.Status.Status == MangaListStatus.plan_to_read, "ch. ");
+					var chapterProgress = SubEntriesProgress(mle.Status.ChaptersRead, mle.Node.TotalChapters, mle.Status.Status == MangaListStatus.plan_to_read, "ch. ");
 					var volumeProgress =
 						SubEntriesProgress(mle.Status.VolumesRead, mle.Node.TotalVolumes, mle.Status.Status == MangaListStatus.plan_to_read, "v.");
 					userProgressText = string.IsNullOrEmpty(volumeProgress) || !string.IsNullOrEmpty(chapterProgress)
 						? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
 					break;
 				}
+
 			default:
-			{
-				throw new UnreachableException("We shouldnt have any other entry type other than Anime and Manga");
-			}
+				{
+					throw new UnreachableException("We shouldnt have any other entry type other than Anime and Manga");
+				}
 		}
 
 		eb.AddField("Progress", userProgressText, inline: true);
@@ -255,7 +274,7 @@ internal static class Extensions
 			{
 				AnimeListEntry animeListEntry => animeListEntry.Node.Status.Humanize(LetterCasing.Sentence),
 				MangaListEntry mangaListEntry => mangaListEntry.Node.Status.Humanize(LetterCasing.Sentence),
-				_ => throw new UnreachableException()
+				_ => throw new UnreachableException(),
 			};
 			title = $"{shortTitle} [{entryStatus}]";
 		}
@@ -276,15 +295,18 @@ internal static class Extensions
 
 		var mediaInfo = features.HasFlag(MalUserFeatures.Demographic) || features.HasFlag(MalUserFeatures.Themes) ? listEntry switch
 		{
-			MangaListEntry => await client.GetMangaDetailsAsync(listEntry.Node.Id, cancellationToken).ConfigureAwait(false),
-			AnimeListEntry => await client.GetAnimeDetailsAsync(listEntry.Node.Id, cancellationToken).ConfigureAwait(false),
-			_              => throw new UnreachableException()
+			MangaListEntry => await client.GetMangaDetailsAsync(listEntry.Node.Id, cancellationToken),
+			AnimeListEntry => await client.GetAnimeDetailsAsync(listEntry.Node.Id, cancellationToken),
+			_ => throw new UnreachableException(),
 		} : MediaInfo.Empty;
 
-		if (features.HasFlag(MalUserFeatures.Tags) && listEntry.Status.Tags?.Count is not null and not 0)
+		if (features.HasFlag(MalUserFeatures.Tags) && listEntry.Status.Tags is not null and not [])
 		{
 			var joinedTags = string.Join(", ", listEntry.Status.Tags);
-			AddAsFieldOrTruncateToDescription(eb, "Tags", joinedTags);
+			if (!string.IsNullOrWhiteSpace(joinedTags))
+			{
+				AddAsFieldOrTruncateToDescription(eb, "Tags", joinedTags);
+			}
 		}
 
 		if (features.HasFlag(MalUserFeatures.Comments) && !string.IsNullOrWhiteSpace(listEntry.Status.Comments))
@@ -292,26 +314,46 @@ internal static class Extensions
 			AddAsFieldOrTruncateToDescription(eb, "Comments", listEntry.Status.Comments);
 		}
 
-		if (features.HasFlag(MalUserFeatures.Genres) && listEntry.Node.Genres?.Count is not null and not 0)
+		if (features.HasFlag(MalUserFeatures.Genres) && listEntry.Node.Genres is not null and not [])
 		{
 			var genres = string.Join(", ", listEntry.Node.Genres.Take(7).Select(x => x.Name.ToFirstCharUpperCase()));
-			AddAsFieldOrTruncateToDescription(eb, "Genres", genres);
+			if (!string.IsNullOrWhiteSpace(genres))
+			{
+				AddAsFieldOrTruncateToDescription(eb, "Genres", genres);
+			}
 		}
 
-		if (features.HasFlag(MalUserFeatures.Themes) && mediaInfo.Themes.Count > 0)
+		if (features.HasFlag(MalUserFeatures.Themes) && mediaInfo.Themes is not [])
 		{
-			AddAsFieldOrTruncateToDescription(eb, "Themes", string.Join(", ", mediaInfo.Themes.Take(7)));
+			var themes = string.Join(", ", mediaInfo.Themes.Take(7));
+			if (!string.IsNullOrWhiteSpace(themes))
+			{
+				AddAsFieldOrTruncateToDescription(eb, "Themes", themes);
+			}
 		}
 
-		if (features.HasFlag(MalUserFeatures.Demographic) && mediaInfo.Demographic.Count > 0)
+		if (features.HasFlag(MalUserFeatures.Demographic) && mediaInfo.Demographic is not [])
 		{
-			AddAsFieldOrTruncateToDescription(eb, "Demographic", string.Join(", ", mediaInfo.Demographic.Take(3)));
+			var demographic = string.Join(", ", mediaInfo.Demographic.Take(3));
+			if (!string.IsNullOrWhiteSpace(demographic))
+			{
+				AddAsFieldOrTruncateToDescription(eb, "Demographic", demographic);
+			}
 		}
 
 		if (features.HasFlag(MalUserFeatures.Synopsis) && !string.IsNullOrWhiteSpace(listEntry.Node.Synopsis))
 		{
-			var shortSynopsis = listEntry.Node.Synopsis.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-			AddAsFieldOrTruncateToDescription(eb, "Synopsis", shortSynopsis[0], inline: false);
+			var index = listEntry.Node.Synopsis.IndexOf('\n', StringComparison.InvariantCulture);
+			var text = listEntry.Node.Synopsis;
+			if (index > 0)
+			{
+				text = text[..index];
+			}
+
+			if (!string.IsNullOrWhiteSpace(text))
+			{
+				AddAsFieldOrTruncateToDescription(eb, "Synopsis", text, inline: false);
+			}
 		}
 
 		if (features.HasFlag(MalUserFeatures.Dates) && (listEntry.Status.StartDate is not null || listEntry.Status.FinishDate is not null))
@@ -321,44 +363,53 @@ internal static class Extensions
 			var fieldTitle = (isStartNull, isFinishNull) switch
 			{
 				(false, false) => "Start Date - Finish Date",
-				(false, true)  => "Start Date",
-				(true, false)  => "Finish Date",
-				_              => throw new UnreachableException()
+				(false, true) => "Start Date",
+				(true, false) => "Finish Date",
+				_ => throw new UnreachableException(),
 			};
 			const string format = "dd/MM/yyyy";
 			var value = (isStartNull, isFinishNull) switch
 			{
 				(false, false) => $"{listEntry.Status.StartDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo)} - {listEntry.Status.FinishDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo)}",
-				(false, true)  => listEntry.Status.StartDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
-				(true, false)  => listEntry.Status.FinishDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
-				_              => throw new UnreachableException()
+				(false, true) => listEntry.Status.StartDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
+				(true, false) => listEntry.Status.FinishDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
+				_ => throw new UnreachableException(),
 			};
 			eb.AddField(fieldTitle, value);
 		}
 
-		if (features.HasFlag(MalUserFeatures.Studio) && listEntry is AnimeListEntry aListEntry &&
-			aListEntry.Node.Studios?.Count is not null and not 0)
+		if (features.HasFlag(MalUserFeatures.Studio) && listEntry is AnimeListEntry { Node.Studios: not null and not [] } aListEntry)
 		{
 			var studios = string.Join(", ", aListEntry.Node.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
-			AddAsFieldOrTruncateToDescription(eb, "Studios", studios);
+			if (!string.IsNullOrWhiteSpace(studios))
+			{
+				AddAsFieldOrTruncateToDescription(eb, "Studios", studios);
+			}
 		}
 
 		if (features.HasFlag(MalUserFeatures.Seiyu) && listEntry is AnimeListEntry)
 		{
-			var seiyu = await client.GetAnimeSeiyuAsync(listEntry.Node.Id, cancellationToken).ConfigureAwait(false);
-			AddAsFieldOrTruncateToDescription(eb, "Seiyu", string.Join(", ", seiyu.Take(7).Select(x => Formatter.MaskedUrl(x.Name, new(x.Url)))));
+			var seiyu = await client.GetAnimeSeiyuAsync(listEntry.Node.Id, cancellationToken);
+			var text = string.Join(", ", seiyu.Take(7).Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
+			if (!string.IsNullOrWhiteSpace(text))
+			{
+				AddAsFieldOrTruncateToDescription(eb, "Seiyu", text);
+			}
 		}
 
-		if (features.HasFlag(MalUserFeatures.Mangakas) && listEntry is MangaListEntry mListEntry &&
-			mListEntry.Node.Authors?.Count is not null and not 0)
+		if (features.HasFlag(MalUserFeatures.Mangakas) && listEntry is MangaListEntry { Node.Authors: not null and not [] } mListEntry)
 		{
 			var authors = string.Join(", ", mListEntry.Node.Authors.Take(7).Select(x =>
 			{
 				var name =
-					$"{(x.Person.LastName?.Length is not null and not 0 ? $"{x.Person.LastName}, {x.Person.FirstName}" : x.Person.FirstName)} ({x.Role})";
+					$"{(!string.IsNullOrEmpty(x.Person.LastName) ? $"{x.Person.LastName}, {x.Person.FirstName}" : x.Person.FirstName)} ({x.Role})";
 				return Formatter.MaskedUrl(name, new Uri(x.Person.Url));
 			}));
-			AddAsFieldOrTruncateToDescription(eb, "Authors", authors);
+
+			if (!string.IsNullOrWhiteSpace(authors))
+			{
+				AddAsFieldOrTruncateToDescription(eb, "Authors", authors);
+			}
 		}
 
 		eb.WithColor(Colors[listEntry.Status.GetStatusAsUnderlyingType()]);
@@ -376,9 +427,13 @@ internal static class Extensions
 			var l = eb.Description?.Length ?? 0;
 			var descToAdd = $"{fieldName}\n{fieldValue}".Truncate(2048 - l - 1, Truncator.FixedNumberOfCharacters);
 			if (string.IsNullOrEmpty(eb.Description))
+			{
 				eb.WithDescription(descToAdd);
+			}
 			else
+			{
 				eb.Description += $"{'\n'}{descToAdd}";
+			}
 		}
 	}
 
@@ -386,14 +441,15 @@ internal static class Extensions
 	{
 		static void Add(List<FavoriteIdType> aggregator, IReadOnlyList<BaseFavorite> favs, MalFavoriteType type)
 		{
-			aggregator.AddRange(favs.Select(x=>new FavoriteIdType(x.Url!.Id, (byte)type)));
+			aggregator.AddRange(favs.Select(x => new FavoriteIdType(x.Url.Id, (byte)type)));
 		}
+
 		var result = new List<FavoriteIdType>(favorites.Count);
-		Add(result,favorites.FavoriteAnime, MalFavoriteType.Anime);
-		Add(result,favorites.FavoriteManga, MalFavoriteType.Manga);
-		Add(result,favorites.FavoriteCharacters, MalFavoriteType.Character);
-		Add(result,favorites.FavoritePeople, MalFavoriteType.Person);
-		Add(result,favorites.FavoriteCompanies, MalFavoriteType.Company);
+		Add(result, favorites.FavoriteAnime, MalFavoriteType.Anime);
+		Add(result, favorites.FavoriteManga, MalFavoriteType.Manga);
+		Add(result, favorites.FavoriteCharacters, MalFavoriteType.Character);
+		Add(result, favorites.FavoritePeople, MalFavoriteType.Person);
+		Add(result, favorites.FavoriteCompanies, MalFavoriteType.Company);
 		result.Sort();
 		return CollectionsMarshal.AsSpan(result);
 	}

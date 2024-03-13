@@ -5,9 +5,13 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
 
 public sealed class FavoriteCompany : BaseFavorite
 {
-	public FavoriteCompany(MalUrl url, string name, string? imageUrl) : base(url, name, imageUrl)
-	{ }
+	public FavoriteCompany(MalUrl url, string name, string? imageUrl)
+		: base(url, name, imageUrl)
+	{
+	}
 
-	public FavoriteCompany(BaseFavorite other) : base(other)
-	{ }
+	public FavoriteCompany(BaseFavorite other)
+		: base(other)
+	{
+	}
 }

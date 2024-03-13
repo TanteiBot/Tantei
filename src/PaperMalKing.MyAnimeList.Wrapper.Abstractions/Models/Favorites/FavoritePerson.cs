@@ -4,6 +4,8 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
 
 public sealed class FavoritePerson : BaseFavorite
 {
-	public FavoritePerson(BaseFavorite other) : base(other)
-	{ }
+	public FavoritePerson(BaseFavorite other)
+		: base(other)
+	{
+	}
 }

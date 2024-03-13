@@ -7,7 +7,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider;
 
 public sealed class ShikiOptions : ITimerOptions<ShikiUpdateProvider>
 {
-	public const string Shikimori = Constants.NAME;
+	public const string Shikimori = Constants.Name;
 
 	public required string ShikimoriAppName { get; init; }
 

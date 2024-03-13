@@ -4,28 +4,14 @@
 using System;
 using System.Buffers.Binary;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security.Cryptography;
 
 namespace PaperMalKing.Common;
 
-#pragma warning disable CA1724
-//The type name Helpers conflicts in whole or in part with the namespace name 'CommunityToolkit.HighPerformance.Helpers'. Change either name to eliminate the conflict.
-public static class Helpers
-#pragma warning restore CA1724
+public static class HashHelpers
 {
-	private static readonly string EmptySha512Hash;
-
-	[SuppressMessage("Performance", "CA1810:Initialize reference type static fields inline")]
-	[SuppressMessage("Minor Code Smell", "S3963:\"static\" fields should be initialized inline")]
-	static Helpers()
-	{
-		using var incrementalHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512);
-		EmptySha512Hash = FormatHash(0, incrementalHash.GetCurrentHash());
-	}
-
-	public static string ToDiscordMention(ulong id) => $"<@!{id}>";
+	private static readonly string EmptySha512Hash = CreateEmptyHash();
 
 	public static string FavoritesHash(Span<FavoriteIdType> ids)
 	{
@@ -33,6 +19,7 @@ public static class Helpers
 		{
 			return EmptySha512Hash;
 		}
+
 		Span<byte> shaHashDestination = stackalloc byte[SHA512.HashSizeInBytes];
 		Span<byte> buffer = stackalloc byte[sizeof(uint) + 1 + sizeof(byte) + 1];
 		ids.Sort();
@@ -42,14 +29,14 @@ public static class Helpers
 		using var incrementalHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512);
 		foreach (var id in ids)
 		{
-			BinaryPrimitives.WriteUInt32LittleEndian(buffer,id.Id);
+			BinaryPrimitives.WriteUInt32LittleEndian(buffer, id.Id);
 
 			buffer[^2] = id.Type;
 
 			incrementalHash.AppendData(buffer);
 		}
 
-		Debug.Assert(incrementalHash.HashLengthInBytes == shaHashDestination.Length);
+		Debug.Assert(incrementalHash.HashLengthInBytes == shaHashDestination.Length, "Length of hash did not match destination");
 		_ = incrementalHash.GetCurrentHash(shaHashDestination);
 		return FormatHash(ids.Length, shaHashDestination);
 	}
@@ -57,5 +44,11 @@ public static class Helpers
 	private static string FormatHash(int length, Span<byte> shaHashDestination)
 	{
 		return string.Create(CultureInfo.InvariantCulture, $"{length}:{Convert.ToHexString(shaHashDestination)}");
+	}
+
+	private static string CreateEmptyHash()
+	{
+		using var incrementalHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512);
+		return FormatHash(0, incrementalHash.GetCurrentHash());
 	}
 }

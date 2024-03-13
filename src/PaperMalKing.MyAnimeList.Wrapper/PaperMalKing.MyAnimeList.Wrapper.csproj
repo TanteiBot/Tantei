@@ -5,6 +5,8 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="AngleSharp" />
         <PackageReference Include="JikanDotNet"/>
+        <PackageReference Include="CommunityToolkit.Diagnostics" />
+
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\PaperMalKing.MyAnimeList.Wrapper.Abstractions\PaperMalKing.MyAnimeList.Wrapper.Abstractions.csproj" />
