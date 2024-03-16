@@ -69,7 +69,7 @@ internal sealed class UngroupedCommands : BotCommandsModule
 			var dotnetVersion = Environment.Version.ToString(3);
 
 			var commitId = ThisAssembly.GitCommitId[..10];
-			var commitDate = ThisAssembly.GitCommitDate;
+			var commitDate = new DateTimeOffset(ThisAssembly.GitCommitDate);
 			const string desc =
 				"Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.";
 
@@ -78,8 +78,8 @@ internal sealed class UngroupedCommands : BotCommandsModule
 			var versions = string.Create(CultureInfo.InvariantCulture, $"""
 																			Bot version - {botVersion}
 																			Commit - {Formatter.MaskedUrl(commitId, new Uri($"{sourceCodeLink}/tree/{commitId}"))}
-																			Commit date - {commitDate:HH:mm dd/MM/yyyy}
-																			DSharpPlus version - {context.Client.VersionString}
+																			Commit date - <t:{commitDate.ToUnixTimeSeconds()}:f>
+																			DSharpPlus version - {context.Client.VersionString.AsSpan(0, 14)}
 																			.NET version - {dotnetVersion}
 																			""");
 
