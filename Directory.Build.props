@@ -16,6 +16,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NuGetAudit>true</NuGetAudit>
         <NuGetAuditLevel>low</NuGetAuditLevel>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <NoWarn>$(NoWarn);
             CS1591; <!--Missing XML comment for publicly visible type or member-->
             
