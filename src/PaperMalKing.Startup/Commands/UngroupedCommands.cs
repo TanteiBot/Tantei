@@ -78,7 +78,7 @@ internal sealed class UngroupedCommands : BotCommandsModule
 			var versions = string.Create(CultureInfo.InvariantCulture, $"""
 																			Bot version - {botVersion}
 																			Commit - {Formatter.MaskedUrl(commitId, new Uri($"{sourceCodeLink}/tree/{commitId}"))}
-																			Commit date - <t:{commitDate.ToUnixTimeSeconds()}:f>
+																			Commit date - {Formatter.Timestamp(commitDate, TimestampFormat.ShortDateTime)}
 																			DSharpPlus version - {context.Client.VersionString.AsSpan(0, 14)}
 																			.NET version - {dotnetVersion}
 																			""");
