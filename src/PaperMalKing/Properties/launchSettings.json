@@ -8,12 +8,21 @@
     }
   },
   "profiles": {
-    "PaperMalKing.Web": {
+    "Tantei.Web.Development": {
       "commandName": "Project",
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7131;http://localhost:5010",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
+      }
+    },
+    "Tantei.Web.Staging": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:7131;http://localhost:5010",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Staging",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
       }
     },
