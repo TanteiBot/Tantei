@@ -1,0 +1,46 @@
+﻿---
+name: Release
+
+on:
+  release:
+    types: [ published ]
+    
+env:
+  DOTNET_NOLOGO: true
+  node-version: '21.x'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install .NET SDK if needed
+        uses: actions/setup-dotnet@v4
+
+      - name: Set Node.js 21.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.node-version }}
+          
+      - name: Install deps
+        run: dotnet restore    
+      
+      - name: Run publish
+        run: dotnet publish ./src/PaperMalKing/PaperMalKing.csproj -c Release --no-self-contained -o output
+        
+      - name: Create zip
+        run: zip -9 -r Tantei.zip output/
+
+      - name: Add asset to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./Tantei.zip
+          asset_content_type: application/zip
+          asset_name: Tantei.zip
