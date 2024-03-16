@@ -4,6 +4,10 @@ name: Release
 on:
   release:
     types: [ published ]
+    
+env:
+  DOTNET_NOLOGO: true
+  node-version: '21.x'
 
 jobs:
   release:
@@ -16,9 +20,6 @@ jobs:
 
       - name: Install .NET SDK if needed
         uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.dotnet-version-to-install }}
-          dotnet-quality: ${{ env.dotnet-quality}}
 
       - name: Set Node.js 21.x
         uses: actions/setup-node@v4
