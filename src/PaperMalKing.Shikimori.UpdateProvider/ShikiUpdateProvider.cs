@@ -61,28 +61,27 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				break;
 			}
 
-			var historyUpdates = await this._client
-										   .GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken)
-										   ;
+			var historyUpdates = await this._client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken);
 
 			var (addedFavourites, removedFavourites, isfavouritesMismatch) = dbUser switch
 			{
 				_ when dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) => await this.GetFavouritesUpdateAsync(dbUser, db, cancellationToken),
 				_ => ([], [], false),
 			};
+
 			var achievementUpdates = dbUser switch
 			{
 				_ when dbUser.Features.HasFlag(ShikiUserFeatures.Achievements) => await this.GetAchievementsUpdatesAsync(dbUser, cancellationToken),
 				_ => [],
 			};
+
 			if (historyUpdates is [] && addedFavourites is [] && removedFavourites is [] && achievementUpdates is [])
 			{
 				this.Logger.NoUpdatesFound(dbUser.Id);
 				continue;
 			}
 
-			var totalUpdates =
-				new List<DiscordEmbedBuilder>(historyUpdates.Count + addedFavourites.Count + removedFavourites.Count + achievementUpdates.Count);
+			var totalUpdates = new List<DiscordEmbedBuilder>(historyUpdates.Count + addedFavourites.Count + removedFavourites.Count + achievementUpdates.Count);
 			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
 			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
 
@@ -118,7 +117,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			}
 
 			totalUpdates.AddRange(groupedHistoryEntriesWithMediaAndRoles.Select(group => group.ToDiscordEmbed(user, dbUser.Features)));
-			if (historyUpdates is [])
+			if (historyUpdates is not [])
 			{
 				dbUser.LastHistoryEntryId = historyUpdates.Max(h => h.Id);
 			}
