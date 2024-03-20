@@ -196,7 +196,7 @@ internal static partial class Extensions
 				: user.MediaListOptions!.MangaListOptions.IsAdvancedScoringEnabled) &&
 			mediaListEntry.AdvancedScores?.Values.Any(s => s != 0f) == true;
 
-		AniListUpdateType updateType = mediaListEntry.Status switch
+		var updateType = mediaListEntry.Status switch
 		{
 			MediaListStatus.PAUSED when isAnime => AniListUpdateType.PausedAnime,
 			MediaListStatus.CURRENT when isAnime => AniListUpdateType.Watching,

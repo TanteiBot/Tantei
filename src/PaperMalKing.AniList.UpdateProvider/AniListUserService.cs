@@ -24,7 +24,6 @@ namespace PaperMalKing.AniList.UpdateProvider;
 internal sealed class AniListUserService : BaseUpdateProviderUserService<AniListUser>
 {
 	private readonly IAniListClient _client;
-	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
 	public override string Name => ProviderConstants.Name;
 
@@ -36,12 +35,11 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 							: base(logger, dbContextFactory, userService)
 	{
 		this._client = client;
-		this._dbContextFactory = dbContextFactory;
 	}
 
 	public override async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
-		await using var db = this._dbContextFactory.CreateDbContext();
+		await using var db = this.DbContextFactory.CreateDbContext();
 		var dbUser = db.AniListUsers.TagWith("Query user when trying to add one").TagWithCallSite().Include(su => su.DiscordUser)
 					   .ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 		DiscordGuild? guild;
@@ -124,16 +122,11 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 		return this.ListUsersCore(guildId, u => u.LastActivityTimestamp, u => new BaseUser("", u.DiscordUser));
 	}
 
-	[SuppressMessage("Major Code Smell", "S125:Sections of code should not be commented out", Justification = "123")]
 	public async Task SetColorAsync(ulong userId, AniListUpdateType updateType, DiscordColor color)
 	{
-		_ = userId;
-		await using var db = this._dbContextFactory.CreateDbContext();
-		var users = db.AniListUsers.ToArray();
-		var user = users[0];
+		await using var db = this.DbContextFactory.CreateDbContext();
 
-		// var user = db.AniListUsers.TagWith("Getting user to set color").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ??
-		// throw new UserProcessingException("You must create account first");
+		var user = db.AniListUsers.TagWith("Getting user to set color").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ?? throw new UserProcessingException("You must create account first");
 		var byteType = (byte)updateType;
 
 		user.Colors.RemoveAll(c => c.UpdateType == byteType);
@@ -148,7 +141,7 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 
 	public async Task RemoveColorAsync(ulong userId, AniListUpdateType updateType)
 	{
-		await using var db = this._dbContextFactory.CreateDbContext();
+		await using var db = this.DbContextFactory.CreateDbContext();
 		var user = db.AniListUsers.TagWith("Getting user to remove color").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ??
 				   throw new UserProcessingException("You must create account first");
 
@@ -160,7 +153,7 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 	[SuppressMessage("Major Code Smell", "S2971:LINQ expressions should be simplified", Justification = "We must materialize it")]
 	public string? OverridenColors(ulong userId)
 	{
-		using var db = this._dbContextFactory.CreateDbContext();
+		using var db = this.DbContextFactory.CreateDbContext();
 		var colors = db.AniListUsers.TagWith("Getting colors of a user").TagWithCallSite().AsNoTracking().Where(u => u.DiscordUserId == userId).Select(x => x.Colors).ToList().SelectMany(x => x).ToList();
 
 		if (colors is [])

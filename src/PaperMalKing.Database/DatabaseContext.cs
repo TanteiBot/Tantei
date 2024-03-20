@@ -97,6 +97,7 @@ public sealed class DatabaseContext : DbContext
 			mu.Property(p => p.FavoritesIdHash).HasDefaultValue("");
 			mu.HasIndex(x => x.Features);
 			mu.HasIndex(x => x.DiscordUserId);
+			mu.OwnsMany(x => x.Colors, colors => colors.ToJson());
 		});
 
 		modelBuilder.Entity<DiscordGuild>(dg => dg.HasIndex(x => x.DiscordGuildId));

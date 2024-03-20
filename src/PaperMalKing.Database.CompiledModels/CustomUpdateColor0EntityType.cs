@@ -7,29 +7,29 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models;
-using PaperMalKing.Database.Models.AniList;
+using PaperMalKing.Database.Models.MyAnimeList;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class CustomUpdateColorEntityType
+    internal partial class CustomUpdateColor0EntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
-                "PaperMalKing.Database.Models.AniList.AniListUser.Colors#CustomUpdateColor",
+                "PaperMalKing.Database.Models.MyAnimeList.MalUser.Colors#CustomUpdateColor",
                 typeof(CustomUpdateColor),
                 baseEntityType,
                 sharedClrType: true);
 
-            var aniListUserId = runtimeEntityType.AddProperty(
-                "AniListUserId",
+            var malUserUserId = runtimeEntityType.AddProperty(
+                "MalUserUserId",
                 typeof(uint),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
-            aniListUserId.TypeMapping = UIntTypeMapping.Default.Clone(
+            malUserUserId.TypeMapping = UIntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<uint>(
                     (uint v1, uint v2) => v1 == v2,
                     (uint v) => (int)v,
@@ -48,7 +48,8 @@ namespace PaperMalKing.Database.CompiledModels
             var id = runtimeEntityType.AddProperty(
                 "Id",
                 typeof(int),
-                valueGenerated: ValueGenerated.OnAdd,
+                valueGenerated: ValueGenerated.OnAddOrUpdate,
+                beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             id.TypeMapping = IntTypeMapping.Default.Clone(
@@ -112,7 +113,7 @@ namespace PaperMalKing.Database.CompiledModels
                     storeTypeName: "INTEGER"));
 
             var key = runtimeEntityType.AddKey(
-                new[] { aniListUserId, id });
+                new[] { malUserUserId, id });
             runtimeEntityType.SetPrimaryKey(key);
 
             return runtimeEntityType;
@@ -120,8 +121,8 @@ namespace PaperMalKing.Database.CompiledModels
 
         public static RuntimeForeignKey CreateForeignKey1(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
         {
-            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("AniListUserId") },
-                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id") }),
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("MalUserUserId") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("UserId") }),
                 principalEntityType,
                 deleteBehavior: DeleteBehavior.Cascade,
                 required: true,
@@ -131,8 +132,8 @@ namespace PaperMalKing.Database.CompiledModels
                 runtimeForeignKey,
                 onDependent: false,
                 typeof(List<CustomUpdateColor>),
-                propertyInfo: typeof(AniListUser).GetProperty("Colors", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(AniListUser).GetField("<Colors>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(MalUser).GetProperty("Colors", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MalUser).GetField("<Colors>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 eagerLoaded: true);
 
             return runtimeForeignKey;
@@ -144,7 +145,7 @@ namespace PaperMalKing.Database.CompiledModels
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
-            runtimeEntityType.AddAnnotation("Relational:TableName", "AniListUsers");
+            runtimeEntityType.AddAnnotation("Relational:TableName", "MalUsers");
             runtimeEntityType.AddAnnotation("Relational:ViewName", null);
             runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
 

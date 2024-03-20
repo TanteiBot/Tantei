@@ -41,4 +41,6 @@ public sealed class MalUser : IUpdateProviderUser<MalUserFeatures>
 	public IList<MalFavoritePerson> FavoritePeople { get; set; } = null!;
 
 	public IList<MalFavoriteCompany> FavoriteCompanies { get; set; } = null!;
+
+	public required List<CustomUpdateColor> Colors { get; set; } = [];
 }
