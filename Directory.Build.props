@@ -102,6 +102,7 @@
             RCS1031; <!-- Remove unnecessary braces. -->
             RCS1135; <!-- Declare enum member with zero value (when enum has FlagsAttribute).-->
             RCS1139; <!-- Add summary element to documentation comment.-->
+            RCS1158; <!--Static member in generic type should use a type parameter-->
             RCS1181; <!--Convert comment to documentation comment.-->
             RCS1194; <!--Implement exception constructors.-->
 

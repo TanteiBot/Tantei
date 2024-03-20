@@ -163,6 +163,7 @@ public sealed class DatabaseContext : DbContext
 			au.Property(x => x.FavouritesIdHash).HasDefaultValue("");
 			au.HasIndex(x => x.Features);
 			au.HasIndex(x => x.DiscordUserId);
+			au.OwnsMany(x => x.Colors, colors => colors.ToJson());
 		});
 
 		modelBuilder.Entity<AniListFavourite>(af =>

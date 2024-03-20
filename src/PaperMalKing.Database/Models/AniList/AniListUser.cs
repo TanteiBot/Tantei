@@ -26,4 +26,6 @@ public sealed class AniListUser : IUpdateProviderUser<AniListUserFeatures>
 	public required DiscordUser DiscordUser { get; set; }
 
 	public required IList<AniListFavourite> Favourites { get; set; }
+
+	public required List<CustomUpdateColor> Colors { get; set; } = [];
 }

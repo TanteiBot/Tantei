@@ -63,7 +63,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 			var historyUpdates = await this._client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken);
 
-			var (addedFavourites, removedFavourites, isfavouritesMismatch) = dbUser switch
+			var (addedFavourites, removedFavourites, isFavouriteMismatch) = dbUser switch
 			{
 				_ when dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) => await this.GetFavouritesUpdateAsync(dbUser, db, cancellationToken),
 				_ => ([], [], false),
@@ -148,7 +148,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser));
 				this.Logger.FoundUpdatesForUser(totalUpdates.Count, user.Nickname);
-				if (isfavouritesMismatch)
+				if (isFavouriteMismatch)
 				{
 					dbUser.FavouritesIdHash = HashHelpers.FavoritesHash(db.ShikiFavourites.Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id)
 																		  .ThenBy(x => x.FavType)

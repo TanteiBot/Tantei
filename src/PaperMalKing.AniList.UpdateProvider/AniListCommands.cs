@@ -1,12 +1,17 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.Common;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base;
+using PaperMalKing.UpdatesProviders.Base.Exceptions;
 using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.AniList.UpdateProvider;
@@ -15,6 +20,7 @@ namespace PaperMalKing.AniList.UpdateProvider;
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [GuildOnly]
 [SlashRequireGuild]
+[SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "It's ok for commands, since they are called externally")]
 internal sealed class AniListCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from AniList.co")]
@@ -52,14 +58,14 @@ internal sealed class AniListCommands : ApplicationCommandModule
 		[SlashCommand("enable", "Enable features for your updates")]
 		public override Task EnableFeatureCommand(
 												InteractionContext context,
-												[ChoiceProvider(typeof(FeaturesChoiceProvider<AniListUserFeatures>)),
-												Option("feature", "Feature to enable")]
+												[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<AniListUserFeatures>, AniListUserFeatures>)),
+												 Option("feature", "Feature to enable")]
 												string unparsedFeature) => base.EnableFeatureCommand(context, unparsedFeature);
 
 		[SlashCommand("disable", "Disable features for your updates")]
 		public override Task DisableFeatureCommand(
 			InteractionContext context,
-			[ChoiceProvider(typeof(FeaturesChoiceProvider<AniListUserFeatures>)),
+			[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<AniListUserFeatures>, AniListUserFeatures>)),
 			Option("feature", "Feature to enable")]
 			string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);
 
@@ -68,5 +74,70 @@ internal sealed class AniListCommands : ApplicationCommandModule
 
 		[SlashCommand("list", "Show all features that are available for updates from AniList.co")]
 		public override Task ListFeaturesCommand(InteractionContext context) => base.ListFeaturesCommand(context);
+	}
+
+	[SlashCommandGroup("colors", "Manage colors of your updates")]
+	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
+	public sealed class AniListColorsCommands : BotCommandsModule
+	{
+		public ILogger<AniListColorsCommands> Logger { get; }
+
+		public AniListUserService UserService { get; }
+
+		public AniListColorsCommands(ILogger<AniListColorsCommands> logger, AniListUserService userService)
+		{
+			this.Logger = logger;
+			this.UserService = userService;
+		}
+
+		[SlashCommand("set", "Set color for update update")]
+		public async Task SetColor(InteractionContext context,
+								   [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<AniListUpdateType>, AniListUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType,
+								   [Option("color", "Color code in hex like #FFFFFF")] string colorValue)
+		{
+			AniListUpdateType updateType;
+			try
+			{
+				var color = new DiscordColor(colorValue);
+				updateType = UpdateTypesHelper<AniListUpdateType>.Parse(unparsedUpdateType);
+				await this.UserService.SetColorAsync(context.User.Id, updateType, color);
+			}
+			catch (Exception ex)
+			{
+				var embed = ex is ArgumentException or UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
+				await context.EditResponseAsync(embed: embed);
+				this.Logger.LogError(ex, "Failed to set color of {UnparsedUpdateType} to {ColorValue}", unparsedUpdateType, colorValue);
+				throw;
+			}
+
+			await context.EditResponseAsync(EmbedTemplate.SuccessEmbed($"Successfully set color of {updateType.ToInvariantString()}"));
+		}
+
+		[SlashCommand("remove", "Restore default color for update type")]
+		public async Task RemoveColor(InteractionContext context, [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<AniListUpdateType>, AniListUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType)
+		{
+			AniListUpdateType updateType;
+			try
+			{
+				updateType = UpdateTypesHelper<AniListUpdateType>.Parse(unparsedUpdateType);
+				await this.UserService.RemoveColorAsync(context.User.Id, updateType);
+			}
+			catch (Exception ex)
+			{
+				var embed = ex is ArgumentException or UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
+				await context.EditResponseAsync(embed: embed);
+				this.Logger.LogError(ex, "Failed to remove color of {UnparsedUpdateType}", unparsedUpdateType);
+				throw;
+			}
+
+			await context.EditResponseAsync(EmbedTemplate.SuccessEmbed($"Successfully removed color of {updateType.ToInvariantString()}"));
+		}
+
+		[SlashCommand("list", "Lists your overriden types")]
+		public Task<DiscordMessage> ListOverridenColor(InteractionContext context)
+		{
+			var colors = this.UserService.OverridenColors(context.User.Id);
+			return context.EditResponseAsync(EmbedTemplate.SuccessEmbed(string.IsNullOrWhiteSpace(colors) ? "You have no colors overriden" : "Your overriden colors").WithDescription(colors));
+		}
 	}
 }

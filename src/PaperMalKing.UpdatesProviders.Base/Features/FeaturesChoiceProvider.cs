@@ -5,32 +5,23 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using PaperMalKing.Common;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features;
 
-public sealed class FeaturesChoiceProvider<T> : IChoiceProvider
+public sealed class FeaturesChoiceProvider<T> : IEnumChoiceProvider<T>
 	where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
-	private static Task<IEnumerable<DiscordApplicationCommandOptionChoice>>? _choices;
-
-	private static Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Choices =>
-		Volatile.Read(ref _choices) ?? Interlocked.CompareExchange(ref _choices, CreateChoicesAsync(), comparand: null) ?? _choices;
-
-	[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "Task is always complete")]
-	public Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
+	private FeaturesChoiceProvider()
 	{
-		return Choices;
 	}
 
-	private static Task<IEnumerable<DiscordApplicationCommandOptionChoice>> CreateChoicesAsync()
+	[SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "Not really")]
+	public static Task<IEnumerable<DiscordApplicationCommandOptionChoice>> CreateChoicesAsync()
 	{
-		var choices = FeaturesHelper<T>.Features.Select(x => new DiscordApplicationCommandOptionChoice($"{x.Description}: {x.Summary}", x.Description))
-									   .ToArray();
+		var choices = FeaturesHelper<T>.Features.Select(x => x.ToDiscordApplicationCommandOptionChoice()).ToArray();
 		return Task.FromResult(choices.AsEnumerable());
 	}
 }

@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2023 N0D4N
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,16 +11,16 @@ namespace PaperMalKing.Startup.Services;
 
 internal sealed class OnStartupActionsExecutingService : IHostedService
 {
-	private readonly IServiceProvider _serviceProvider;
+	private readonly IServiceScopeFactory _serviceScopeFactory;
 
-	public OnStartupActionsExecutingService(IServiceProvider serviceProvider)
+	public OnStartupActionsExecutingService(IServiceScopeFactory serviceScopeFactory)
 	{
-		this._serviceProvider = serviceProvider;
+		this._serviceScopeFactory = serviceScopeFactory;
 	}
 
 	public async Task StartAsync(CancellationToken cancellationToken)
 	{
-		using var scope = this._serviceProvider.CreateScope();
+		using var scope = this._serviceScopeFactory.CreateScope();
 
 		scope.ServiceProvider.GetRequiredService<ICommandsService>();
 		_ = scope.ServiceProvider.GetRequiredService<UpdatePublishingService>();

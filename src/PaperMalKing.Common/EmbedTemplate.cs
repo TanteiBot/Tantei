@@ -7,6 +7,9 @@ namespace PaperMalKing.Common;
 
 public static class EmbedTemplate
 {
+	private static readonly Optional<DiscordColor> RedColor = DiscordColor.Red;
+	private static readonly Optional<DiscordColor> GreenishColor = new DiscordColor("#10c710");
+
 	public static DiscordEmbed UnknownErrorEmbed { get; } =
 		ErrorEmbed("Unknown error occured, try again later or contact the owner in case of sequential fails", "Unknown Error");
 
@@ -16,7 +19,7 @@ public static class EmbedTemplate
 		{
 			Title = title ?? "Error occured",
 			Description = errorMessage,
-			Color = DiscordColor.Red,
+			Color = RedColor,
 		};
 	}
 
@@ -24,7 +27,7 @@ public static class EmbedTemplate
 	{
 		var embedBuilder = new DiscordEmbedBuilder
 		{
-			Color = new DiscordColor("#10c710"),
+			Color = GreenishColor,
 		};
 		return message.Length > 256 ? embedBuilder.WithDescription(message) : embedBuilder.WithTitle(message);
 	}
