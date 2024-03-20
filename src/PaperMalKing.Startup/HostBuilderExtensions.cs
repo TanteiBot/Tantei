@@ -79,6 +79,7 @@ public static class HostBuilderExtensions
 			services.AddHostedService<OnStartupActionsExecutingService>();
 			services.AddSingleton<UserCleanupService>();
 			services.AddSingleton<GeneralUserService>();
+			services.AddSingleton(typeof(CustomColorService<,>));
 			RunSQLiteConfiguration();
 		});
 		return hostBuilder;

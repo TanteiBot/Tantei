@@ -109,6 +109,7 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 				NekoId = x.Id,
 				Level = x.Level,
 			}).ToList(),
+			Colors = [],
 		};
 		dbUser.Favourites.ForEach(f => f.User = dbUser);
 		db.ShikiUsers.Add(dbUser);

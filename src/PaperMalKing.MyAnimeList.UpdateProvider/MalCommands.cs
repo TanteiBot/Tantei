@@ -85,12 +85,12 @@ internal sealed class MalCommands : ApplicationCommandModule
 	{
 		public ILogger<MalColorsCommands> Logger { get; }
 
-		public MalUserService UserService { get; }
+		public CustomColorService<MalUser, MalUpdateType> ColorService { get; }
 
-		public MalColorsCommands(ILogger<MalColorsCommands> logger, MalUserService userService)
+		public MalColorsCommands(ILogger<MalColorsCommands> logger, CustomColorService<MalUser, MalUpdateType> colorService)
 		{
 			this.Logger = logger;
-			this.UserService = userService;
+			this.ColorService = colorService;
 		}
 
 		[SlashCommand("set", "Set color for update update")]
@@ -103,7 +103,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 			{
 				var color = new DiscordColor(colorValue);
 				updateType = UpdateTypesHelper<MalUpdateType>.Parse(unparsedUpdateType);
-				await this.UserService.SetColorAsync(context.User.Id, updateType, color);
+				await this.ColorService.SetColorAsync(context.User.Id, updateType, color);
 			}
 			catch (Exception ex)
 			{
@@ -123,7 +123,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 			try
 			{
 				updateType = UpdateTypesHelper<MalUpdateType>.Parse(unparsedUpdateType);
-				await this.UserService.RemoveColorAsync(context.User.Id, updateType);
+				await this.ColorService.RemoveColorAsync(context.User.Id, updateType);
 			}
 			catch (Exception ex)
 			{
@@ -139,7 +139,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 		[SlashCommand("list", "Lists your overriden types")]
 		public Task<DiscordMessage> ListOverridenColor(InteractionContext context)
 		{
-			var colors = this.UserService.OverridenColors(context.User.Id);
+			var colors = this.ColorService.OverridenColors(context.User.Id);
 			return context.EditResponseAsync(EmbedTemplate.SuccessEmbed(string.IsNullOrWhiteSpace(colors) ? "You have no colors overriden" : "Your overriden colors").WithDescription(colors));
 		}
 	}

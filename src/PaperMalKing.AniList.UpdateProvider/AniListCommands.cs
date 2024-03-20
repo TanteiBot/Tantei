@@ -82,12 +82,12 @@ internal sealed class AniListCommands : ApplicationCommandModule
 	{
 		public ILogger<AniListColorsCommands> Logger { get; }
 
-		public AniListUserService UserService { get; }
+		public CustomColorService<AniListUser, AniListUpdateType> CustomColorService { get; }
 
-		public AniListColorsCommands(ILogger<AniListColorsCommands> logger, AniListUserService userService)
+		public AniListColorsCommands(ILogger<AniListColorsCommands> logger, CustomColorService<AniListUser, AniListUpdateType> customColorService)
 		{
 			this.Logger = logger;
-			this.UserService = userService;
+			this.CustomColorService = customColorService;
 		}
 
 		[SlashCommand("set", "Set color for update update")]
@@ -100,7 +100,7 @@ internal sealed class AniListCommands : ApplicationCommandModule
 			{
 				var color = new DiscordColor(colorValue);
 				updateType = UpdateTypesHelper<AniListUpdateType>.Parse(unparsedUpdateType);
-				await this.UserService.SetColorAsync(context.User.Id, updateType, color);
+				await this.CustomColorService.SetColorAsync(context.User.Id, updateType, color);
 			}
 			catch (Exception ex)
 			{
@@ -120,7 +120,7 @@ internal sealed class AniListCommands : ApplicationCommandModule
 			try
 			{
 				updateType = UpdateTypesHelper<AniListUpdateType>.Parse(unparsedUpdateType);
-				await this.UserService.RemoveColorAsync(context.User.Id, updateType);
+				await this.CustomColorService.RemoveColorAsync(context.User.Id, updateType);
 			}
 			catch (Exception ex)
 			{
@@ -136,7 +136,7 @@ internal sealed class AniListCommands : ApplicationCommandModule
 		[SlashCommand("list", "Lists your overriden types")]
 		public Task<DiscordMessage> ListOverridenColor(InteractionContext context)
 		{
-			var colors = this.UserService.OverridenColors(context.User.Id);
+			var colors = this.CustomColorService.OverridenColors(context.User.Id);
 			return context.EditResponseAsync(EmbedTemplate.SuccessEmbed(string.IsNullOrWhiteSpace(colors) ? "You have no colors overriden" : "Your overriden colors").WithDescription(colors));
 		}
 	}

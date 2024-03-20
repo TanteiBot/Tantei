@@ -3,17 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper.Abstractions;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
-using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
@@ -120,49 +116,5 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
 		return this.ListUsersCore(guildId, u => u.LastActivityTimestamp, u => new BaseUser("", u.DiscordUser));
-	}
-
-	public async Task SetColorAsync(ulong userId, AniListUpdateType updateType, DiscordColor color)
-	{
-		await using var db = this.DbContextFactory.CreateDbContext();
-
-		var user = db.AniListUsers.TagWith("Getting user to set color").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ?? throw new UserProcessingException("You must create account first");
-		var byteType = (byte)updateType;
-
-		user.Colors.RemoveAll(c => c.UpdateType == byteType);
-		user.Colors.Add(new CustomUpdateColor
-		{
-			UpdateType = byteType,
-			ColorValue = color.Value,
-		});
-
-		await db.SaveChangesAndThrowOnNoneAsync();
-	}
-
-	public async Task RemoveColorAsync(ulong userId, AniListUpdateType updateType)
-	{
-		await using var db = this.DbContextFactory.CreateDbContext();
-		var user = db.AniListUsers.TagWith("Getting user to remove color").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ??
-				   throw new UserProcessingException("You must create account first");
-
-		user.Colors.RemoveAll(c => c.UpdateType == (byte)updateType);
-
-		await db.SaveChangesAndThrowOnNoneAsync();
-	}
-
-	[SuppressMessage("Major Code Smell", "S2971:LINQ expressions should be simplified", Justification = "We must materialize it")]
-	public string? OverridenColors(ulong userId)
-	{
-		using var db = this.DbContextFactory.CreateDbContext();
-		var colors = db.AniListUsers.TagWith("Getting colors of a user").TagWithCallSite().AsNoTracking().Where(u => u.DiscordUserId == userId).Select(x => x.Colors).ToList().SelectMany(x => x).ToList();
-
-		if (colors is [])
-		{
-			return null;
-		}
-
-		return $"Your colors: {string.Join('\n',
-			colors.Select(c =>
-				$"{((AniListUpdateType)c.UpdateType).ToInvariantString()}: #{string.Create(CultureInfo.InvariantCulture, $"{c.ColorValue:X6}")}"))}";
 	}
 }

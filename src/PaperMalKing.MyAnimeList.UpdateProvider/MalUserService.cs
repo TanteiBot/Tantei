@@ -3,16 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
-using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.UpdatesProviders.Base;
@@ -117,49 +113,5 @@ internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
 		return this.ListUsersCore(guildId, u => u.LastUpdatedAnimeListTimestamp, mu => new BaseUser(mu.Username, mu.DiscordUser));
-	}
-
-	public async Task SetColorAsync(ulong userId, MalUpdateType updateType, DiscordColor color)
-	{
-		await using var db = this.DbContextFactory.CreateDbContext();
-
-		var user = db.MalUsers.TagWith("Getting user to set color").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ?? throw new UserProcessingException("You must create account first");
-		var byteType = (byte)updateType;
-
-		user.Colors.RemoveAll(c => c.UpdateType == byteType);
-		user.Colors.Add(new CustomUpdateColor
-		{
-			UpdateType = byteType,
-			ColorValue = color.Value,
-		});
-
-		await db.SaveChangesAndThrowOnNoneAsync();
-	}
-
-	public async Task RemoveColorAsync(ulong userId, MalUpdateType updateType)
-	{
-		await using var db = this.DbContextFactory.CreateDbContext();
-		var user = db.MalUsers.TagWith("Getting user to remove color").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ??
-				   throw new UserProcessingException("You must create account first");
-
-		user.Colors.RemoveAll(c => c.UpdateType == (byte)updateType);
-
-		await db.SaveChangesAndThrowOnNoneAsync();
-	}
-
-	[SuppressMessage("Major Code Smell", "S2971:LINQ expressions should be simplified", Justification = "We must materialize it")]
-	public string? OverridenColors(ulong userId)
-	{
-		using var db = this.DbContextFactory.CreateDbContext();
-		var colors = db.MalUsers.TagWith("Getting colors of a user").TagWithCallSite().AsNoTracking().Where(u => u.DiscordUserId == userId).Select(x => x.Colors).FirstOrDefault();
-
-		if (colors is null or [])
-		{
-			return null;
-		}
-
-		return $"Your colors: {string.Join('\n',
-			colors.Select(c =>
-				$"{((MalUpdateType)c.UpdateType).ToInvariantString()}: #{string.Create(CultureInfo.InvariantCulture, $"{c.ColorValue:X6}")}"))}";
 	}
 }
