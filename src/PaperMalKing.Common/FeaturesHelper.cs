@@ -16,12 +16,12 @@ namespace PaperMalKing.Common;
 public static class FeaturesHelper<T>
 	where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
-	private static FeaturesInfo<T>[]? _featuresInfo;
+	private static EnumInfo<T>[]? _featuresInfo;
 
-	private static FeaturesInfo<T>[] FeaturesInfo =>
+	private static EnumInfo<T>[] FeaturesInfo =>
 		Volatile.Read(ref _featuresInfo) ?? Interlocked.CompareExchange(ref _featuresInfo, CreateFeaturesInfo(), comparand: null) ?? _featuresInfo;
 
-	public static IReadOnlyList<FeaturesInfo<T>> Features => FeaturesInfo;
+	public static IReadOnlyList<EnumInfo<T>> Features => FeaturesInfo;
 
 	public static T Parse(string value)
 	{
@@ -30,21 +30,21 @@ public static class FeaturesHelper<T>
 	}
 
 	[SuppressMessage("Performance", "EA0006:Replace uses of 'Enum.GetName' and 'Enum.ToString' for improved performance", Justification = "Generics don't have access to non-generic extensions")]
-	private static FeaturesInfo<T>[] CreateFeaturesInfo()
+	private static EnumInfo<T>[] CreateFeaturesInfo()
 	{
 		var ti = typeof(T).GetTypeInfo();
 		Debug.Assert(Enum.GetUnderlyingType(typeof(T)) == typeof(ulong), $"All features must have {nameof(UInt64)} as underlying type");
 		return Enum.GetValues<T>().Where(v =>
 			ti.DeclaredMembers.First(xm => string.Equals(xm.Name, v.ToString(), StringComparison.Ordinal))
-			  .GetCustomAttribute<FeatureDescriptionAttribute>() is not null).Select(value =>
+			  .GetCustomAttribute<EnumDescriptionAttribute>() is not null).Select(value =>
 		{
 			Debug.Assert((value.ToUInt64(NumberFormatInfo.InvariantInfo) & (value.ToUInt64(CultureInfo.InvariantCulture) - 1UL)) == 0UL,
 				$"All features of {nameof(T)} must be a power of 2");
 			var name = value.ToString();
 			var attribute = ti.DeclaredMembers.First(xm => string.Equals(xm.Name, name, StringComparison.Ordinal))
-							  .GetCustomAttribute<FeatureDescriptionAttribute>()!;
+							  .GetCustomAttribute<EnumDescriptionAttribute>()!;
 
-			return new FeaturesInfo<T>(name, attribute.Description, attribute.Summary, value);
+			return new EnumInfo<T>(name, attribute.Description, attribute.Summary, value);
 		}).ToArray();
 	}
 }

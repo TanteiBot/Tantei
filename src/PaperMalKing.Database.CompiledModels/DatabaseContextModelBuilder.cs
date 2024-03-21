@@ -19,14 +19,17 @@ namespace PaperMalKing.Database.CompiledModels
             var discordGuildDiscordUser = DiscordGuildDiscordUserEntityType.Create(this);
             var aniListFavourite = AniListFavouriteEntityType.Create(this);
             var aniListUser = AniListUserEntityType.Create(this);
+            var customUpdateColor = CustomUpdateColorEntityType.Create(this);
             var botUser = BotUserEntityType.Create(this);
             var discordGuild = DiscordGuildEntityType.Create(this);
             var discordUser = DiscordUserEntityType.Create(this);
             var baseMalFavorite = BaseMalFavoriteEntityType.Create(this);
             var malUser = MalUserEntityType.Create(this);
+            var customUpdateColor0 = CustomUpdateColor0EntityType.Create(this);
             var shikiDbAchievement = ShikiDbAchievementEntityType.Create(this);
             var shikiFavourite = ShikiFavouriteEntityType.Create(this);
             var shikiUser = ShikiUserEntityType.Create(this);
+            var customUpdateColor1 = CustomUpdateColor1EntityType.Create(this);
             var malFavoriteAnime = MalFavoriteAnimeEntityType.Create(this, baseMalFavorite);
             var malFavoriteCharacter = MalFavoriteCharacterEntityType.Create(this, baseMalFavorite);
             var malFavoriteCompany = MalFavoriteCompanyEntityType.Create(this, baseMalFavorite);
@@ -37,11 +40,14 @@ namespace PaperMalKing.Database.CompiledModels
             DiscordGuildDiscordUserEntityType.CreateForeignKey2(discordGuildDiscordUser, discordUser);
             AniListFavouriteEntityType.CreateForeignKey1(aniListFavourite, aniListUser);
             AniListUserEntityType.CreateForeignKey1(aniListUser, discordUser);
+            CustomUpdateColorEntityType.CreateForeignKey1(customUpdateColor, aniListUser);
             DiscordUserEntityType.CreateForeignKey1(discordUser, botUser);
             MalUserEntityType.CreateForeignKey1(malUser, discordUser);
+            CustomUpdateColor0EntityType.CreateForeignKey1(customUpdateColor0, malUser);
             ShikiDbAchievementEntityType.CreateForeignKey1(shikiDbAchievement, shikiUser);
             ShikiFavouriteEntityType.CreateForeignKey1(shikiFavourite, shikiUser);
             ShikiUserEntityType.CreateForeignKey1(shikiUser, discordUser);
+            CustomUpdateColor1EntityType.CreateForeignKey1(customUpdateColor1, shikiUser);
             MalFavoriteAnimeEntityType.CreateForeignKey1(malFavoriteAnime, malUser);
             MalFavoriteCharacterEntityType.CreateForeignKey1(malFavoriteCharacter, malUser);
             MalFavoriteCompanyEntityType.CreateForeignKey1(malFavoriteCompany, malUser);
@@ -54,14 +60,17 @@ namespace PaperMalKing.Database.CompiledModels
             DiscordGuildDiscordUserEntityType.CreateAnnotations(discordGuildDiscordUser);
             AniListFavouriteEntityType.CreateAnnotations(aniListFavourite);
             AniListUserEntityType.CreateAnnotations(aniListUser);
+            CustomUpdateColorEntityType.CreateAnnotations(customUpdateColor);
             BotUserEntityType.CreateAnnotations(botUser);
             DiscordGuildEntityType.CreateAnnotations(discordGuild);
             DiscordUserEntityType.CreateAnnotations(discordUser);
             BaseMalFavoriteEntityType.CreateAnnotations(baseMalFavorite);
             MalUserEntityType.CreateAnnotations(malUser);
+            CustomUpdateColor0EntityType.CreateAnnotations(customUpdateColor0);
             ShikiDbAchievementEntityType.CreateAnnotations(shikiDbAchievement);
             ShikiFavouriteEntityType.CreateAnnotations(shikiFavourite);
             ShikiUserEntityType.CreateAnnotations(shikiUser);
+            CustomUpdateColor1EntityType.CreateAnnotations(customUpdateColor1);
             MalFavoriteAnimeEntityType.CreateAnnotations(malFavoriteAnime);
             MalFavoriteCharacterEntityType.CreateAnnotations(malFavoriteCharacter);
             MalFavoriteCompanyEntityType.CreateAnnotations(malFavoriteCompany);
@@ -207,6 +216,11 @@ namespace PaperMalKing.Database.CompiledModels
             var aniListUsersTable = new Table("AniListUsers", null, relationalModel);
             var idColumn0 = new Column("Id", "INTEGER", aniListUsersTable);
             aniListUsersTable.Columns.Add("Id", idColumn0);
+            var colorsColumn = new JsonColumn("Colors", "TEXT", aniListUsersTable)
+            {
+                IsNullable = true
+            };
+            aniListUsersTable.Columns.Add("Colors", colorsColumn);
             var discordUserIdColumn = new Column("DiscordUserId", "INTEGER", aniListUsersTable);
             aniListUsersTable.Columns.Add("DiscordUserId", discordUserIdColumn);
             var favouritesIdHashColumn = new Column("FavouritesIdHash", "TEXT", aniListUsersTable);
@@ -242,7 +256,10 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.GetOrCreateTableIndexes(iX_AniListUsers_FeaturesIx).Add(iX_AniListUsers_Features);
             aniListUsersTable.Indexes.Add("IX_AniListUsers_Features", iX_AniListUsers_Features);
             relationalModel.Tables.Add(("AniListUsers", null), aniListUsersTable);
-            var aniListUsersTableMapping = new TableMapping(aniListUser, aniListUsersTable, true);
+            var aniListUsersTableMapping = new TableMapping(aniListUser, aniListUsersTable, true)
+            {
+                IsSharedTablePrincipal = true,
+            };
             aniListUsersTable.AddTypeMapping(aniListUsersTableMapping, false);
             tableMappings1.Add(aniListUsersTableMapping);
             RelationalModel.CreateColumnMapping(idColumn0, aniListUser.FindProperty("Id")!, aniListUsersTableMapping);
@@ -252,21 +269,50 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.CreateColumnMapping(lastActivityTimestampColumn, aniListUser.FindProperty("LastActivityTimestamp")!, aniListUsersTableMapping);
             RelationalModel.CreateColumnMapping(lastReviewTimestampColumn, aniListUser.FindProperty("LastReviewTimestamp")!, aniListUsersTableMapping);
 
-            var botUser = FindEntityType("PaperMalKing.Database.Models.BotUser")!;
+            var customUpdateColor = FindEntityType("PaperMalKing.Database.Models.AniList.AniListUser.Colors#CustomUpdateColor")!;
 
             var defaultTableMappings2 = new List<TableMappingBase<ColumnMappingBase>>();
-            botUser.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings2);
+            customUpdateColor.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings2);
+            var paperMalKingDatabaseModelsAniListAniListUserColorsCustomUpdateColorTableBase = new TableBase("PaperMalKing.Database.Models.AniList.AniListUser.Colors#CustomUpdateColor", null, relationalModel);
+            var colorsColumnBase = new JsonColumnBase("Colors", "TEXT", paperMalKingDatabaseModelsAniListAniListUserColorsCustomUpdateColorTableBase)
+            {
+                IsNullable = true
+            };
+            paperMalKingDatabaseModelsAniListAniListUserColorsCustomUpdateColorTableBase.Columns.Add("Colors", colorsColumnBase);
+            relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.AniList.AniListUser.Colors#CustomUpdateColor", paperMalKingDatabaseModelsAniListAniListUserColorsCustomUpdateColorTableBase);
+            var paperMalKingDatabaseModelsAniListAniListUserColorsCustomUpdateColorMappingBase = new TableMappingBase<ColumnMappingBase>(customUpdateColor, paperMalKingDatabaseModelsAniListAniListUserColorsCustomUpdateColorTableBase, true);
+            paperMalKingDatabaseModelsAniListAniListUserColorsCustomUpdateColorTableBase.AddTypeMapping(paperMalKingDatabaseModelsAniListAniListUserColorsCustomUpdateColorMappingBase, false);
+            defaultTableMappings2.Add(paperMalKingDatabaseModelsAniListAniListUserColorsCustomUpdateColorMappingBase);
+
+            var tableMappings2 = new List<TableMapping>();
+            customUpdateColor.SetRuntimeAnnotation("Relational:TableMappings", tableMappings2);
+            var aniListUsersTableMapping0 = new TableMapping(customUpdateColor, aniListUsersTable, true)
+            {
+                IsSharedTablePrincipal = false,
+            };
+            aniListUsersTable.AddTypeMapping(aniListUsersTableMapping0, true);
+            tableMappings2.Add(aniListUsersTableMapping0);
+            aniListUsersTable.AddRowInternalForeignKey(customUpdateColor, RelationalModel.GetForeignKey(this,
+                "PaperMalKing.Database.Models.AniList.AniListUser.Colors#CustomUpdateColor",
+                new[] { "AniListUserId" },
+                "PaperMalKing.Database.Models.AniList.AniListUser",
+                new[] { "Id" }));
+
+            var botUser = FindEntityType("PaperMalKing.Database.Models.BotUser")!;
+
+            var defaultTableMappings3 = new List<TableMappingBase<ColumnMappingBase>>();
+            botUser.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings3);
             var paperMalKingDatabaseModelsBotUserTableBase = new TableBase("PaperMalKing.Database.Models.BotUser", null, relationalModel);
             var userIdColumnBase0 = new ColumnBase<ColumnMappingBase>("UserId", "INTEGER", paperMalKingDatabaseModelsBotUserTableBase);
             paperMalKingDatabaseModelsBotUserTableBase.Columns.Add("UserId", userIdColumnBase0);
             relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.BotUser", paperMalKingDatabaseModelsBotUserTableBase);
             var paperMalKingDatabaseModelsBotUserMappingBase = new TableMappingBase<ColumnMappingBase>(botUser, paperMalKingDatabaseModelsBotUserTableBase, true);
             paperMalKingDatabaseModelsBotUserTableBase.AddTypeMapping(paperMalKingDatabaseModelsBotUserMappingBase, false);
-            defaultTableMappings2.Add(paperMalKingDatabaseModelsBotUserMappingBase);
+            defaultTableMappings3.Add(paperMalKingDatabaseModelsBotUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)userIdColumnBase0, botUser.FindProperty("UserId")!, paperMalKingDatabaseModelsBotUserMappingBase);
 
-            var tableMappings2 = new List<TableMapping>();
-            botUser.SetRuntimeAnnotation("Relational:TableMappings", tableMappings2);
+            var tableMappings3 = new List<TableMapping>();
+            botUser.SetRuntimeAnnotation("Relational:TableMappings", tableMappings3);
             var botUsersTable = new Table("BotUsers", null, relationalModel);
             var userIdColumn0 = new Column("UserId", "INTEGER", botUsersTable);
             botUsersTable.Columns.Add("UserId", userIdColumn0);
@@ -281,13 +327,13 @@ namespace PaperMalKing.Database.CompiledModels
             relationalModel.Tables.Add(("BotUsers", null), botUsersTable);
             var botUsersTableMapping = new TableMapping(botUser, botUsersTable, true);
             botUsersTable.AddTypeMapping(botUsersTableMapping, false);
-            tableMappings2.Add(botUsersTableMapping);
+            tableMappings3.Add(botUsersTableMapping);
             RelationalModel.CreateColumnMapping(userIdColumn0, botUser.FindProperty("UserId")!, botUsersTableMapping);
 
             var discordGuild = FindEntityType("PaperMalKing.Database.Models.DiscordGuild")!;
 
-            var defaultTableMappings3 = new List<TableMappingBase<ColumnMappingBase>>();
-            discordGuild.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings3);
+            var defaultTableMappings4 = new List<TableMappingBase<ColumnMappingBase>>();
+            discordGuild.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings4);
             var paperMalKingDatabaseModelsDiscordGuildTableBase = new TableBase("PaperMalKing.Database.Models.DiscordGuild", null, relationalModel);
             var discordGuildIdColumnBase = new ColumnBase<ColumnMappingBase>("DiscordGuildId", "INTEGER", paperMalKingDatabaseModelsDiscordGuildTableBase);
             paperMalKingDatabaseModelsDiscordGuildTableBase.Columns.Add("DiscordGuildId", discordGuildIdColumnBase);
@@ -296,12 +342,12 @@ namespace PaperMalKing.Database.CompiledModels
             relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.DiscordGuild", paperMalKingDatabaseModelsDiscordGuildTableBase);
             var paperMalKingDatabaseModelsDiscordGuildMappingBase = new TableMappingBase<ColumnMappingBase>(discordGuild, paperMalKingDatabaseModelsDiscordGuildTableBase, true);
             paperMalKingDatabaseModelsDiscordGuildTableBase.AddTypeMapping(paperMalKingDatabaseModelsDiscordGuildMappingBase, false);
-            defaultTableMappings3.Add(paperMalKingDatabaseModelsDiscordGuildMappingBase);
+            defaultTableMappings4.Add(paperMalKingDatabaseModelsDiscordGuildMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)discordGuildIdColumnBase, discordGuild.FindProperty("DiscordGuildId")!, paperMalKingDatabaseModelsDiscordGuildMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)postingChannelIdColumnBase, discordGuild.FindProperty("PostingChannelId")!, paperMalKingDatabaseModelsDiscordGuildMappingBase);
 
-            var tableMappings3 = new List<TableMapping>();
-            discordGuild.SetRuntimeAnnotation("Relational:TableMappings", tableMappings3);
+            var tableMappings4 = new List<TableMapping>();
+            discordGuild.SetRuntimeAnnotation("Relational:TableMappings", tableMappings4);
             var discordGuildsTable = new Table("DiscordGuilds", null, relationalModel);
             var discordGuildIdColumn = new Column("DiscordGuildId", "INTEGER", discordGuildsTable);
             discordGuildsTable.Columns.Add("DiscordGuildId", discordGuildIdColumn);
@@ -326,14 +372,14 @@ namespace PaperMalKing.Database.CompiledModels
             relationalModel.Tables.Add(("DiscordGuilds", null), discordGuildsTable);
             var discordGuildsTableMapping = new TableMapping(discordGuild, discordGuildsTable, true);
             discordGuildsTable.AddTypeMapping(discordGuildsTableMapping, false);
-            tableMappings3.Add(discordGuildsTableMapping);
+            tableMappings4.Add(discordGuildsTableMapping);
             RelationalModel.CreateColumnMapping(discordGuildIdColumn, discordGuild.FindProperty("DiscordGuildId")!, discordGuildsTableMapping);
             RelationalModel.CreateColumnMapping(postingChannelIdColumn, discordGuild.FindProperty("PostingChannelId")!, discordGuildsTableMapping);
 
             var discordUser = FindEntityType("PaperMalKing.Database.Models.DiscordUser")!;
 
-            var defaultTableMappings4 = new List<TableMappingBase<ColumnMappingBase>>();
-            discordUser.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings4);
+            var defaultTableMappings5 = new List<TableMappingBase<ColumnMappingBase>>();
+            discordUser.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings5);
             var paperMalKingDatabaseModelsDiscordUserTableBase = new TableBase("PaperMalKing.Database.Models.DiscordUser", null, relationalModel);
             var botUserIdColumnBase = new ColumnBase<ColumnMappingBase>("BotUserId", "INTEGER", paperMalKingDatabaseModelsDiscordUserTableBase);
             paperMalKingDatabaseModelsDiscordUserTableBase.Columns.Add("BotUserId", botUserIdColumnBase);
@@ -342,12 +388,12 @@ namespace PaperMalKing.Database.CompiledModels
             relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.DiscordUser", paperMalKingDatabaseModelsDiscordUserTableBase);
             var paperMalKingDatabaseModelsDiscordUserMappingBase = new TableMappingBase<ColumnMappingBase>(discordUser, paperMalKingDatabaseModelsDiscordUserTableBase, true);
             paperMalKingDatabaseModelsDiscordUserTableBase.AddTypeMapping(paperMalKingDatabaseModelsDiscordUserMappingBase, false);
-            defaultTableMappings4.Add(paperMalKingDatabaseModelsDiscordUserMappingBase);
+            defaultTableMappings5.Add(paperMalKingDatabaseModelsDiscordUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)discordUserIdColumnBase0, discordUser.FindProperty("DiscordUserId")!, paperMalKingDatabaseModelsDiscordUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)botUserIdColumnBase, discordUser.FindProperty("BotUserId")!, paperMalKingDatabaseModelsDiscordUserMappingBase);
 
-            var tableMappings4 = new List<TableMapping>();
-            discordUser.SetRuntimeAnnotation("Relational:TableMappings", tableMappings4);
+            var tableMappings5 = new List<TableMapping>();
+            discordUser.SetRuntimeAnnotation("Relational:TableMappings", tableMappings5);
             var discordUsersTable = new Table("DiscordUsers", null, relationalModel);
             var discordUserIdColumn0 = new Column("DiscordUserId", "INTEGER", discordUsersTable);
             discordUsersTable.Columns.Add("DiscordUserId", discordUserIdColumn0);
@@ -380,14 +426,14 @@ namespace PaperMalKing.Database.CompiledModels
             relationalModel.Tables.Add(("DiscordUsers", null), discordUsersTable);
             var discordUsersTableMapping = new TableMapping(discordUser, discordUsersTable, true);
             discordUsersTable.AddTypeMapping(discordUsersTableMapping, false);
-            tableMappings4.Add(discordUsersTableMapping);
+            tableMappings5.Add(discordUsersTableMapping);
             RelationalModel.CreateColumnMapping(discordUserIdColumn0, discordUser.FindProperty("DiscordUserId")!, discordUsersTableMapping);
             RelationalModel.CreateColumnMapping(botUserIdColumn, discordUser.FindProperty("BotUserId")!, discordUsersTableMapping);
 
             var baseMalFavorite = FindEntityType("PaperMalKing.Database.Models.MyAnimeList.BaseMalFavorite")!;
 
-            var defaultTableMappings5 = new List<TableMappingBase<ColumnMappingBase>>();
-            baseMalFavorite.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings5);
+            var defaultTableMappings6 = new List<TableMappingBase<ColumnMappingBase>>();
+            baseMalFavorite.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings6);
             var paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase = new TableBase("PaperMalKing.Database.Models.MyAnimeList.BaseMalFavorite", null, relationalModel);
             var favoriteTypeColumnBase = new ColumnBase<ColumnMappingBase>("FavoriteType", "INTEGER", paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase);
             paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase.Columns.Add("FavoriteType", favoriteTypeColumnBase);
@@ -422,7 +468,7 @@ namespace PaperMalKing.Database.CompiledModels
             relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.MyAnimeList.BaseMalFavorite", paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase);
             var paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase = new TableMappingBase<ColumnMappingBase>(baseMalFavorite, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase, true);
             paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase.AddTypeMapping(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase, false);
-            defaultTableMappings5.Add(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase);
+            defaultTableMappings6.Add(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)favoriteTypeColumnBase, baseMalFavorite.FindProperty("FavoriteType")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase1, baseMalFavorite.FindProperty("Id")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)userIdColumnBase1, baseMalFavorite.FindProperty("UserId")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase);
@@ -430,8 +476,8 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nameColumnBase, baseMalFavorite.FindProperty("Name")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nameUrlColumnBase, baseMalFavorite.FindProperty("NameUrl")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase);
 
-            var tableMappings5 = new List<TableMapping>();
-            baseMalFavorite.SetRuntimeAnnotation("Relational:TableMappings", tableMappings5);
+            var tableMappings6 = new List<TableMapping>();
+            baseMalFavorite.SetRuntimeAnnotation("Relational:TableMappings", tableMappings6);
             var malFavoritesTable = new Table("MalFavorites", null, relationalModel);
             var idColumn1 = new Column("Id", "INTEGER", malFavoritesTable);
             malFavoritesTable.Columns.Add("Id", idColumn1);
@@ -501,7 +547,7 @@ namespace PaperMalKing.Database.CompiledModels
                 IsSharedTablePrincipal = true,
             };
             malFavoritesTable.AddTypeMapping(malFavoritesTableMapping, false);
-            tableMappings5.Add(malFavoritesTableMapping);
+            tableMappings6.Add(malFavoritesTableMapping);
             RelationalModel.CreateColumnMapping(favoriteTypeColumn, baseMalFavorite.FindProperty("FavoriteType")!, malFavoritesTableMapping);
             RelationalModel.CreateColumnMapping(idColumn1, baseMalFavorite.FindProperty("Id")!, malFavoritesTableMapping);
             RelationalModel.CreateColumnMapping(userIdColumn1, baseMalFavorite.FindProperty("UserId")!, malFavoritesTableMapping);
@@ -511,11 +557,11 @@ namespace PaperMalKing.Database.CompiledModels
 
             var malFavoriteAnime = FindEntityType("PaperMalKing.Database.Models.MyAnimeList.MalFavoriteAnime")!;
 
-            var defaultTableMappings6 = new List<TableMappingBase<ColumnMappingBase>>();
-            malFavoriteAnime.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings6);
+            var defaultTableMappings7 = new List<TableMappingBase<ColumnMappingBase>>();
+            malFavoriteAnime.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings7);
             var paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase0 = new TableMappingBase<ColumnMappingBase>(malFavoriteAnime, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase, true);
             paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase.AddTypeMapping(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase0, false);
-            defaultTableMappings6.Add(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase0);
+            defaultTableMappings7.Add(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)favoriteTypeColumnBase, malFavoriteAnime.FindProperty("FavoriteType")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase1, malFavoriteAnime.FindProperty("Id")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)userIdColumnBase1, malFavoriteAnime.FindProperty("UserId")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase0);
@@ -525,14 +571,14 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)startYearColumnBase, malFavoriteAnime.FindProperty("StartYear")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)typeColumnBase, malFavoriteAnime.FindProperty("Type")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase0);
 
-            var tableMappings6 = new List<TableMapping>();
-            malFavoriteAnime.SetRuntimeAnnotation("Relational:TableMappings", tableMappings6);
+            var tableMappings7 = new List<TableMapping>();
+            malFavoriteAnime.SetRuntimeAnnotation("Relational:TableMappings", tableMappings7);
             var malFavoritesTableMapping0 = new TableMapping(malFavoriteAnime, malFavoritesTable, true)
             {
                 IsSharedTablePrincipal = false,
             };
             malFavoritesTable.AddTypeMapping(malFavoritesTableMapping0, false);
-            tableMappings6.Add(malFavoritesTableMapping0);
+            tableMappings7.Add(malFavoritesTableMapping0);
             RelationalModel.CreateColumnMapping(favoriteTypeColumn, malFavoriteAnime.FindProperty("FavoriteType")!, malFavoritesTableMapping0);
             RelationalModel.CreateColumnMapping(idColumn1, malFavoriteAnime.FindProperty("Id")!, malFavoritesTableMapping0);
             RelationalModel.CreateColumnMapping(userIdColumn1, malFavoriteAnime.FindProperty("UserId")!, malFavoritesTableMapping0);
@@ -544,11 +590,11 @@ namespace PaperMalKing.Database.CompiledModels
 
             var malFavoriteCharacter = FindEntityType("PaperMalKing.Database.Models.MyAnimeList.MalFavoriteCharacter")!;
 
-            var defaultTableMappings7 = new List<TableMappingBase<ColumnMappingBase>>();
-            malFavoriteCharacter.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings7);
+            var defaultTableMappings8 = new List<TableMappingBase<ColumnMappingBase>>();
+            malFavoriteCharacter.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings8);
             var paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase1 = new TableMappingBase<ColumnMappingBase>(malFavoriteCharacter, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase, true);
             paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase.AddTypeMapping(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase1, false);
-            defaultTableMappings7.Add(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase1);
+            defaultTableMappings8.Add(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase1);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)favoriteTypeColumnBase, malFavoriteCharacter.FindProperty("FavoriteType")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase1);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase1, malFavoriteCharacter.FindProperty("Id")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase1);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)userIdColumnBase1, malFavoriteCharacter.FindProperty("UserId")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase1);
@@ -557,14 +603,14 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nameColumnBase, malFavoriteCharacter.FindProperty("Name")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase1);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nameUrlColumnBase, malFavoriteCharacter.FindProperty("NameUrl")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase1);
 
-            var tableMappings7 = new List<TableMapping>();
-            malFavoriteCharacter.SetRuntimeAnnotation("Relational:TableMappings", tableMappings7);
+            var tableMappings8 = new List<TableMapping>();
+            malFavoriteCharacter.SetRuntimeAnnotation("Relational:TableMappings", tableMappings8);
             var malFavoritesTableMapping1 = new TableMapping(malFavoriteCharacter, malFavoritesTable, true)
             {
                 IsSharedTablePrincipal = false,
             };
             malFavoritesTable.AddTypeMapping(malFavoritesTableMapping1, false);
-            tableMappings7.Add(malFavoritesTableMapping1);
+            tableMappings8.Add(malFavoritesTableMapping1);
             RelationalModel.CreateColumnMapping(favoriteTypeColumn, malFavoriteCharacter.FindProperty("FavoriteType")!, malFavoritesTableMapping1);
             RelationalModel.CreateColumnMapping(idColumn1, malFavoriteCharacter.FindProperty("Id")!, malFavoritesTableMapping1);
             RelationalModel.CreateColumnMapping(userIdColumn1, malFavoriteCharacter.FindProperty("UserId")!, malFavoritesTableMapping1);
@@ -575,11 +621,11 @@ namespace PaperMalKing.Database.CompiledModels
 
             var malFavoriteCompany = FindEntityType("PaperMalKing.Database.Models.MyAnimeList.MalFavoriteCompany")!;
 
-            var defaultTableMappings8 = new List<TableMappingBase<ColumnMappingBase>>();
-            malFavoriteCompany.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings8);
+            var defaultTableMappings9 = new List<TableMappingBase<ColumnMappingBase>>();
+            malFavoriteCompany.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings9);
             var paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase2 = new TableMappingBase<ColumnMappingBase>(malFavoriteCompany, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase, true);
             paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase.AddTypeMapping(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase2, false);
-            defaultTableMappings8.Add(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase2);
+            defaultTableMappings9.Add(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase2);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)favoriteTypeColumnBase, malFavoriteCompany.FindProperty("FavoriteType")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase2);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase1, malFavoriteCompany.FindProperty("Id")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase2);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)userIdColumnBase1, malFavoriteCompany.FindProperty("UserId")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase2);
@@ -587,14 +633,14 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nameColumnBase, malFavoriteCompany.FindProperty("Name")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase2);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nameUrlColumnBase, malFavoriteCompany.FindProperty("NameUrl")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase2);
 
-            var tableMappings8 = new List<TableMapping>();
-            malFavoriteCompany.SetRuntimeAnnotation("Relational:TableMappings", tableMappings8);
+            var tableMappings9 = new List<TableMapping>();
+            malFavoriteCompany.SetRuntimeAnnotation("Relational:TableMappings", tableMappings9);
             var malFavoritesTableMapping2 = new TableMapping(malFavoriteCompany, malFavoritesTable, true)
             {
                 IsSharedTablePrincipal = false,
             };
             malFavoritesTable.AddTypeMapping(malFavoritesTableMapping2, false);
-            tableMappings8.Add(malFavoritesTableMapping2);
+            tableMappings9.Add(malFavoritesTableMapping2);
             RelationalModel.CreateColumnMapping(favoriteTypeColumn, malFavoriteCompany.FindProperty("FavoriteType")!, malFavoritesTableMapping2);
             RelationalModel.CreateColumnMapping(idColumn1, malFavoriteCompany.FindProperty("Id")!, malFavoritesTableMapping2);
             RelationalModel.CreateColumnMapping(userIdColumn1, malFavoriteCompany.FindProperty("UserId")!, malFavoritesTableMapping2);
@@ -604,11 +650,11 @@ namespace PaperMalKing.Database.CompiledModels
 
             var malFavoriteManga = FindEntityType("PaperMalKing.Database.Models.MyAnimeList.MalFavoriteManga")!;
 
-            var defaultTableMappings9 = new List<TableMappingBase<ColumnMappingBase>>();
-            malFavoriteManga.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings9);
+            var defaultTableMappings10 = new List<TableMappingBase<ColumnMappingBase>>();
+            malFavoriteManga.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings10);
             var paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase3 = new TableMappingBase<ColumnMappingBase>(malFavoriteManga, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase, true);
             paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase.AddTypeMapping(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase3, false);
-            defaultTableMappings9.Add(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase3);
+            defaultTableMappings10.Add(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase3);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)favoriteTypeColumnBase, malFavoriteManga.FindProperty("FavoriteType")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase3);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase1, malFavoriteManga.FindProperty("Id")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase3);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)userIdColumnBase1, malFavoriteManga.FindProperty("UserId")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase3);
@@ -618,14 +664,14 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)startYearColumnBase, malFavoriteManga.FindProperty("StartYear")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase3);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)typeColumnBase, malFavoriteManga.FindProperty("Type")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase3);
 
-            var tableMappings9 = new List<TableMapping>();
-            malFavoriteManga.SetRuntimeAnnotation("Relational:TableMappings", tableMappings9);
+            var tableMappings10 = new List<TableMapping>();
+            malFavoriteManga.SetRuntimeAnnotation("Relational:TableMappings", tableMappings10);
             var malFavoritesTableMapping3 = new TableMapping(malFavoriteManga, malFavoritesTable, true)
             {
                 IsSharedTablePrincipal = false,
             };
             malFavoritesTable.AddTypeMapping(malFavoritesTableMapping3, false);
-            tableMappings9.Add(malFavoritesTableMapping3);
+            tableMappings10.Add(malFavoritesTableMapping3);
             RelationalModel.CreateColumnMapping(favoriteTypeColumn, malFavoriteManga.FindProperty("FavoriteType")!, malFavoritesTableMapping3);
             RelationalModel.CreateColumnMapping(idColumn1, malFavoriteManga.FindProperty("Id")!, malFavoritesTableMapping3);
             RelationalModel.CreateColumnMapping(userIdColumn1, malFavoriteManga.FindProperty("UserId")!, malFavoritesTableMapping3);
@@ -637,11 +683,11 @@ namespace PaperMalKing.Database.CompiledModels
 
             var malFavoritePerson = FindEntityType("PaperMalKing.Database.Models.MyAnimeList.MalFavoritePerson")!;
 
-            var defaultTableMappings10 = new List<TableMappingBase<ColumnMappingBase>>();
-            malFavoritePerson.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings10);
+            var defaultTableMappings11 = new List<TableMappingBase<ColumnMappingBase>>();
+            malFavoritePerson.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings11);
             var paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase4 = new TableMappingBase<ColumnMappingBase>(malFavoritePerson, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase, true);
             paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteTableBase.AddTypeMapping(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase4, false);
-            defaultTableMappings10.Add(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase4);
+            defaultTableMappings11.Add(paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase4);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)favoriteTypeColumnBase, malFavoritePerson.FindProperty("FavoriteType")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase4);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase1, malFavoritePerson.FindProperty("Id")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase4);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)userIdColumnBase1, malFavoritePerson.FindProperty("UserId")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase4);
@@ -649,14 +695,14 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nameColumnBase, malFavoritePerson.FindProperty("Name")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase4);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nameUrlColumnBase, malFavoritePerson.FindProperty("NameUrl")!, paperMalKingDatabaseModelsMyAnimeListBaseMalFavoriteMappingBase4);
 
-            var tableMappings10 = new List<TableMapping>();
-            malFavoritePerson.SetRuntimeAnnotation("Relational:TableMappings", tableMappings10);
+            var tableMappings11 = new List<TableMapping>();
+            malFavoritePerson.SetRuntimeAnnotation("Relational:TableMappings", tableMappings11);
             var malFavoritesTableMapping4 = new TableMapping(malFavoritePerson, malFavoritesTable, true)
             {
                 IsSharedTablePrincipal = false,
             };
             malFavoritesTable.AddTypeMapping(malFavoritesTableMapping4, false);
-            tableMappings10.Add(malFavoritesTableMapping4);
+            tableMappings11.Add(malFavoritesTableMapping4);
             RelationalModel.CreateColumnMapping(favoriteTypeColumn, malFavoritePerson.FindProperty("FavoriteType")!, malFavoritesTableMapping4);
             RelationalModel.CreateColumnMapping(idColumn1, malFavoritePerson.FindProperty("Id")!, malFavoritesTableMapping4);
             RelationalModel.CreateColumnMapping(userIdColumn1, malFavoritePerson.FindProperty("UserId")!, malFavoritesTableMapping4);
@@ -666,8 +712,8 @@ namespace PaperMalKing.Database.CompiledModels
 
             var malUser = FindEntityType("PaperMalKing.Database.Models.MyAnimeList.MalUser")!;
 
-            var defaultTableMappings11 = new List<TableMappingBase<ColumnMappingBase>>();
-            malUser.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings11);
+            var defaultTableMappings12 = new List<TableMappingBase<ColumnMappingBase>>();
+            malUser.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings12);
             var paperMalKingDatabaseModelsMyAnimeListMalUserTableBase = new TableBase("PaperMalKing.Database.Models.MyAnimeList.MalUser", null, relationalModel);
             var discordUserIdColumnBase1 = new ColumnBase<ColumnMappingBase>("DiscordUserId", "INTEGER", paperMalKingDatabaseModelsMyAnimeListMalUserTableBase);
             paperMalKingDatabaseModelsMyAnimeListMalUserTableBase.Columns.Add("DiscordUserId", discordUserIdColumnBase1);
@@ -690,7 +736,7 @@ namespace PaperMalKing.Database.CompiledModels
             relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.MyAnimeList.MalUser", paperMalKingDatabaseModelsMyAnimeListMalUserTableBase);
             var paperMalKingDatabaseModelsMyAnimeListMalUserMappingBase = new TableMappingBase<ColumnMappingBase>(malUser, paperMalKingDatabaseModelsMyAnimeListMalUserTableBase, true);
             paperMalKingDatabaseModelsMyAnimeListMalUserTableBase.AddTypeMapping(paperMalKingDatabaseModelsMyAnimeListMalUserMappingBase, false);
-            defaultTableMappings11.Add(paperMalKingDatabaseModelsMyAnimeListMalUserMappingBase);
+            defaultTableMappings12.Add(paperMalKingDatabaseModelsMyAnimeListMalUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)userIdColumnBase2, malUser.FindProperty("UserId")!, paperMalKingDatabaseModelsMyAnimeListMalUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)discordUserIdColumnBase1, malUser.FindProperty("DiscordUserId")!, paperMalKingDatabaseModelsMyAnimeListMalUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)favoritesIdHashColumnBase, malUser.FindProperty("FavoritesIdHash")!, paperMalKingDatabaseModelsMyAnimeListMalUserMappingBase);
@@ -701,11 +747,16 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)lastUpdatedMangaListTimestampColumnBase, malUser.FindProperty("LastUpdatedMangaListTimestamp")!, paperMalKingDatabaseModelsMyAnimeListMalUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)usernameColumnBase, malUser.FindProperty("Username")!, paperMalKingDatabaseModelsMyAnimeListMalUserMappingBase);
 
-            var tableMappings11 = new List<TableMapping>();
-            malUser.SetRuntimeAnnotation("Relational:TableMappings", tableMappings11);
+            var tableMappings12 = new List<TableMapping>();
+            malUser.SetRuntimeAnnotation("Relational:TableMappings", tableMappings12);
             var malUsersTable = new Table("MalUsers", null, relationalModel);
             var userIdColumn2 = new Column("UserId", "INTEGER", malUsersTable);
             malUsersTable.Columns.Add("UserId", userIdColumn2);
+            var colorsColumn0 = new JsonColumn("Colors", "TEXT", malUsersTable)
+            {
+                IsNullable = true
+            };
+            malUsersTable.Columns.Add("Colors", colorsColumn0);
             var discordUserIdColumn1 = new Column("DiscordUserId", "INTEGER", malUsersTable);
             malUsersTable.Columns.Add("DiscordUserId", discordUserIdColumn1);
             var favoritesIdHashColumn = new Column("FavoritesIdHash", "TEXT", malUsersTable);
@@ -747,9 +798,12 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.GetOrCreateTableIndexes(iX_MalUsers_FeaturesIx).Add(iX_MalUsers_Features);
             malUsersTable.Indexes.Add("IX_MalUsers_Features", iX_MalUsers_Features);
             relationalModel.Tables.Add(("MalUsers", null), malUsersTable);
-            var malUsersTableMapping = new TableMapping(malUser, malUsersTable, true);
+            var malUsersTableMapping = new TableMapping(malUser, malUsersTable, true)
+            {
+                IsSharedTablePrincipal = true,
+            };
             malUsersTable.AddTypeMapping(malUsersTableMapping, false);
-            tableMappings11.Add(malUsersTableMapping);
+            tableMappings12.Add(malUsersTableMapping);
             RelationalModel.CreateColumnMapping(userIdColumn2, malUser.FindProperty("UserId")!, malUsersTableMapping);
             RelationalModel.CreateColumnMapping(discordUserIdColumn1, malUser.FindProperty("DiscordUserId")!, malUsersTableMapping);
             RelationalModel.CreateColumnMapping(favoritesIdHashColumn, malUser.FindProperty("FavoritesIdHash")!, malUsersTableMapping);
@@ -760,10 +814,39 @@ namespace PaperMalKing.Database.CompiledModels
             RelationalModel.CreateColumnMapping(lastUpdatedMangaListTimestampColumn, malUser.FindProperty("LastUpdatedMangaListTimestamp")!, malUsersTableMapping);
             RelationalModel.CreateColumnMapping(usernameColumn, malUser.FindProperty("Username")!, malUsersTableMapping);
 
+            var customUpdateColor0 = FindEntityType("PaperMalKing.Database.Models.MyAnimeList.MalUser.Colors#CustomUpdateColor")!;
+
+            var defaultTableMappings13 = new List<TableMappingBase<ColumnMappingBase>>();
+            customUpdateColor0.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings13);
+            var paperMalKingDatabaseModelsMyAnimeListMalUserColorsCustomUpdateColorTableBase = new TableBase("PaperMalKing.Database.Models.MyAnimeList.MalUser.Colors#CustomUpdateColor", null, relationalModel);
+            var colorsColumnBase0 = new JsonColumnBase("Colors", "TEXT", paperMalKingDatabaseModelsMyAnimeListMalUserColorsCustomUpdateColorTableBase)
+            {
+                IsNullable = true
+            };
+            paperMalKingDatabaseModelsMyAnimeListMalUserColorsCustomUpdateColorTableBase.Columns.Add("Colors", colorsColumnBase0);
+            relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.MyAnimeList.MalUser.Colors#CustomUpdateColor", paperMalKingDatabaseModelsMyAnimeListMalUserColorsCustomUpdateColorTableBase);
+            var paperMalKingDatabaseModelsMyAnimeListMalUserColorsCustomUpdateColorMappingBase = new TableMappingBase<ColumnMappingBase>(customUpdateColor0, paperMalKingDatabaseModelsMyAnimeListMalUserColorsCustomUpdateColorTableBase, true);
+            paperMalKingDatabaseModelsMyAnimeListMalUserColorsCustomUpdateColorTableBase.AddTypeMapping(paperMalKingDatabaseModelsMyAnimeListMalUserColorsCustomUpdateColorMappingBase, false);
+            defaultTableMappings13.Add(paperMalKingDatabaseModelsMyAnimeListMalUserColorsCustomUpdateColorMappingBase);
+
+            var tableMappings13 = new List<TableMapping>();
+            customUpdateColor0.SetRuntimeAnnotation("Relational:TableMappings", tableMappings13);
+            var malUsersTableMapping0 = new TableMapping(customUpdateColor0, malUsersTable, true)
+            {
+                IsSharedTablePrincipal = false,
+            };
+            malUsersTable.AddTypeMapping(malUsersTableMapping0, true);
+            tableMappings13.Add(malUsersTableMapping0);
+            malUsersTable.AddRowInternalForeignKey(customUpdateColor0, RelationalModel.GetForeignKey(this,
+                "PaperMalKing.Database.Models.MyAnimeList.MalUser.Colors#CustomUpdateColor",
+                new[] { "MalUserUserId" },
+                "PaperMalKing.Database.Models.MyAnimeList.MalUser",
+                new[] { "UserId" }));
+
             var shikiDbAchievement = FindEntityType("PaperMalKing.Database.Models.Shikimori.ShikiDbAchievement")!;
 
-            var defaultTableMappings12 = new List<TableMappingBase<ColumnMappingBase>>();
-            shikiDbAchievement.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings12);
+            var defaultTableMappings14 = new List<TableMappingBase<ColumnMappingBase>>();
+            shikiDbAchievement.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings14);
             var paperMalKingDatabaseModelsShikimoriShikiDbAchievementTableBase = new TableBase("PaperMalKing.Database.Models.Shikimori.ShikiDbAchievement", null, relationalModel);
             var achievementsColumnBase = new JsonColumnBase("Achievements", "TEXT", paperMalKingDatabaseModelsShikimoriShikiDbAchievementTableBase)
             {
@@ -773,10 +856,10 @@ namespace PaperMalKing.Database.CompiledModels
             relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.Shikimori.ShikiDbAchievement", paperMalKingDatabaseModelsShikimoriShikiDbAchievementTableBase);
             var paperMalKingDatabaseModelsShikimoriShikiDbAchievementMappingBase = new TableMappingBase<ColumnMappingBase>(shikiDbAchievement, paperMalKingDatabaseModelsShikimoriShikiDbAchievementTableBase, true);
             paperMalKingDatabaseModelsShikimoriShikiDbAchievementTableBase.AddTypeMapping(paperMalKingDatabaseModelsShikimoriShikiDbAchievementMappingBase, false);
-            defaultTableMappings12.Add(paperMalKingDatabaseModelsShikimoriShikiDbAchievementMappingBase);
+            defaultTableMappings14.Add(paperMalKingDatabaseModelsShikimoriShikiDbAchievementMappingBase);
 
-            var tableMappings12 = new List<TableMapping>();
-            shikiDbAchievement.SetRuntimeAnnotation("Relational:TableMappings", tableMappings12);
+            var tableMappings14 = new List<TableMapping>();
+            shikiDbAchievement.SetRuntimeAnnotation("Relational:TableMappings", tableMappings14);
             var shikiUsersTable = new Table("ShikiUsers", null, relationalModel);
             var idColumn2 = new Column("Id", "INTEGER", shikiUsersTable);
             shikiUsersTable.Columns.Add("Id", idColumn2);
@@ -785,6 +868,11 @@ namespace PaperMalKing.Database.CompiledModels
                 IsNullable = true
             };
             shikiUsersTable.Columns.Add("Achievements", achievementsColumn);
+            var colorsColumn1 = new JsonColumn("Colors", "TEXT", shikiUsersTable)
+            {
+                IsNullable = true
+            };
+            shikiUsersTable.Columns.Add("Colors", colorsColumn1);
             var discordUserIdColumn2 = new Column("DiscordUserId", "INTEGER", shikiUsersTable);
             shikiUsersTable.Columns.Add("DiscordUserId", discordUserIdColumn2);
             var favouritesIdHashColumn0 = new Column("FavouritesIdHash", "TEXT", shikiUsersTable);
@@ -823,7 +911,7 @@ namespace PaperMalKing.Database.CompiledModels
                 IsSharedTablePrincipal = false,
             };
             shikiUsersTable.AddTypeMapping(shikiUsersTableMapping, true);
-            tableMappings12.Add(shikiUsersTableMapping);
+            tableMappings14.Add(shikiUsersTableMapping);
             shikiUsersTable.AddRowInternalForeignKey(shikiDbAchievement, RelationalModel.GetForeignKey(this,
                 "PaperMalKing.Database.Models.Shikimori.ShikiDbAchievement",
                 new[] { "ShikiUserId" },
@@ -832,8 +920,8 @@ namespace PaperMalKing.Database.CompiledModels
 
             var shikiFavourite = FindEntityType("PaperMalKing.Database.Models.Shikimori.ShikiFavourite")!;
 
-            var defaultTableMappings13 = new List<TableMappingBase<ColumnMappingBase>>();
-            shikiFavourite.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings13);
+            var defaultTableMappings15 = new List<TableMappingBase<ColumnMappingBase>>();
+            shikiFavourite.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings15);
             var paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase = new TableBase("PaperMalKing.Database.Models.Shikimori.ShikiFavourite", null, relationalModel);
             var favTypeColumnBase = new ColumnBase<ColumnMappingBase>("FavType", "TEXT", paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase);
             paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.Columns.Add("FavType", favTypeColumnBase);
@@ -846,14 +934,14 @@ namespace PaperMalKing.Database.CompiledModels
             relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.Shikimori.ShikiFavourite", paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase);
             var paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase = new TableMappingBase<ColumnMappingBase>(shikiFavourite, paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase, true);
             paperMalKingDatabaseModelsShikimoriShikiFavouriteTableBase.AddTypeMapping(paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase, false);
-            defaultTableMappings13.Add(paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
+            defaultTableMappings15.Add(paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)favTypeColumnBase, shikiFavourite.FindProperty("FavType")!, paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase2, shikiFavourite.FindProperty("Id")!, paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)userIdColumnBase3, shikiFavourite.FindProperty("UserId")!, paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nameColumnBase0, shikiFavourite.FindProperty("Name")!, paperMalKingDatabaseModelsShikimoriShikiFavouriteMappingBase);
 
-            var tableMappings13 = new List<TableMapping>();
-            shikiFavourite.SetRuntimeAnnotation("Relational:TableMappings", tableMappings13);
+            var tableMappings15 = new List<TableMapping>();
+            shikiFavourite.SetRuntimeAnnotation("Relational:TableMappings", tableMappings15);
             var shikiFavouritesTable = new Table("ShikiFavourites", null, relationalModel);
             var idColumn3 = new Column("Id", "INTEGER", shikiFavouritesTable);
             shikiFavouritesTable.Columns.Add("Id", idColumn3);
@@ -882,7 +970,7 @@ namespace PaperMalKing.Database.CompiledModels
             relationalModel.Tables.Add(("ShikiFavourites", null), shikiFavouritesTable);
             var shikiFavouritesTableMapping = new TableMapping(shikiFavourite, shikiFavouritesTable, true);
             shikiFavouritesTable.AddTypeMapping(shikiFavouritesTableMapping, false);
-            tableMappings13.Add(shikiFavouritesTableMapping);
+            tableMappings15.Add(shikiFavouritesTableMapping);
             RelationalModel.CreateColumnMapping(favTypeColumn, shikiFavourite.FindProperty("FavType")!, shikiFavouritesTableMapping);
             RelationalModel.CreateColumnMapping(idColumn3, shikiFavourite.FindProperty("Id")!, shikiFavouritesTableMapping);
             RelationalModel.CreateColumnMapping(userIdColumn3, shikiFavourite.FindProperty("UserId")!, shikiFavouritesTableMapping);
@@ -890,8 +978,8 @@ namespace PaperMalKing.Database.CompiledModels
 
             var shikiUser = FindEntityType("PaperMalKing.Database.Models.Shikimori.ShikiUser")!;
 
-            var defaultTableMappings14 = new List<TableMappingBase<ColumnMappingBase>>();
-            shikiUser.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings14);
+            var defaultTableMappings16 = new List<TableMappingBase<ColumnMappingBase>>();
+            shikiUser.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings16);
             var paperMalKingDatabaseModelsShikimoriShikiUserTableBase = new TableBase("PaperMalKing.Database.Models.Shikimori.ShikiUser", null, relationalModel);
             var discordUserIdColumnBase2 = new ColumnBase<ColumnMappingBase>("DiscordUserId", "INTEGER", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
             paperMalKingDatabaseModelsShikimoriShikiUserTableBase.Columns.Add("DiscordUserId", discordUserIdColumnBase2);
@@ -906,26 +994,55 @@ namespace PaperMalKing.Database.CompiledModels
             relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.Shikimori.ShikiUser", paperMalKingDatabaseModelsShikimoriShikiUserTableBase);
             var paperMalKingDatabaseModelsShikimoriShikiUserMappingBase = new TableMappingBase<ColumnMappingBase>(shikiUser, paperMalKingDatabaseModelsShikimoriShikiUserTableBase, true);
             paperMalKingDatabaseModelsShikimoriShikiUserTableBase.AddTypeMapping(paperMalKingDatabaseModelsShikimoriShikiUserMappingBase, false);
-            defaultTableMappings14.Add(paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
+            defaultTableMappings16.Add(paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase3, shikiUser.FindProperty("Id")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)discordUserIdColumnBase2, shikiUser.FindProperty("DiscordUserId")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)favouritesIdHashColumnBase0, shikiUser.FindProperty("FavouritesIdHash")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)featuresColumnBase1, shikiUser.FindProperty("Features")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)lastHistoryEntryIdColumnBase, shikiUser.FindProperty("LastHistoryEntryId")!, paperMalKingDatabaseModelsShikimoriShikiUserMappingBase);
 
-            var tableMappings14 = new List<TableMapping>();
-            shikiUser.SetRuntimeAnnotation("Relational:TableMappings", tableMappings14);
+            var tableMappings16 = new List<TableMapping>();
+            shikiUser.SetRuntimeAnnotation("Relational:TableMappings", tableMappings16);
             var shikiUsersTableMapping0 = new TableMapping(shikiUser, shikiUsersTable, true)
             {
                 IsSharedTablePrincipal = true,
             };
             shikiUsersTable.AddTypeMapping(shikiUsersTableMapping0, false);
-            tableMappings14.Add(shikiUsersTableMapping0);
+            tableMappings16.Add(shikiUsersTableMapping0);
             RelationalModel.CreateColumnMapping(idColumn2, shikiUser.FindProperty("Id")!, shikiUsersTableMapping0);
             RelationalModel.CreateColumnMapping(discordUserIdColumn2, shikiUser.FindProperty("DiscordUserId")!, shikiUsersTableMapping0);
             RelationalModel.CreateColumnMapping(favouritesIdHashColumn0, shikiUser.FindProperty("FavouritesIdHash")!, shikiUsersTableMapping0);
             RelationalModel.CreateColumnMapping(featuresColumn1, shikiUser.FindProperty("Features")!, shikiUsersTableMapping0);
             RelationalModel.CreateColumnMapping(lastHistoryEntryIdColumn, shikiUser.FindProperty("LastHistoryEntryId")!, shikiUsersTableMapping0);
+
+            var customUpdateColor1 = FindEntityType("PaperMalKing.Database.Models.Shikimori.ShikiUser.Colors#CustomUpdateColor")!;
+
+            var defaultTableMappings17 = new List<TableMappingBase<ColumnMappingBase>>();
+            customUpdateColor1.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings17);
+            var paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorTableBase = new TableBase("PaperMalKing.Database.Models.Shikimori.ShikiUser.Colors#CustomUpdateColor", null, relationalModel);
+            var colorsColumnBase1 = new JsonColumnBase("Colors", "TEXT", paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorTableBase)
+            {
+                IsNullable = true
+            };
+            paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorTableBase.Columns.Add("Colors", colorsColumnBase1);
+            relationalModel.DefaultTables.Add("PaperMalKing.Database.Models.Shikimori.ShikiUser.Colors#CustomUpdateColor", paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorTableBase);
+            var paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorMappingBase = new TableMappingBase<ColumnMappingBase>(customUpdateColor1, paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorTableBase, true);
+            paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorTableBase.AddTypeMapping(paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorMappingBase, false);
+            defaultTableMappings17.Add(paperMalKingDatabaseModelsShikimoriShikiUserColorsCustomUpdateColorMappingBase);
+
+            var tableMappings17 = new List<TableMapping>();
+            customUpdateColor1.SetRuntimeAnnotation("Relational:TableMappings", tableMappings17);
+            var shikiUsersTableMapping1 = new TableMapping(customUpdateColor1, shikiUsersTable, true)
+            {
+                IsSharedTablePrincipal = false,
+            };
+            shikiUsersTable.AddTypeMapping(shikiUsersTableMapping1, true);
+            tableMappings17.Add(shikiUsersTableMapping1);
+            shikiUsersTable.AddRowInternalForeignKey(customUpdateColor1, RelationalModel.GetForeignKey(this,
+                "PaperMalKing.Database.Models.Shikimori.ShikiUser.Colors#CustomUpdateColor",
+                new[] { "ShikiUserId" },
+                "PaperMalKing.Database.Models.Shikimori.ShikiUser",
+                new[] { "Id" }));
             var fK_AniListFavourites_AniListUsers_UserId = new ForeignKeyConstraint(
                 "FK_AniListFavourites_AniListUsers_UserId", aniListFavouritesTable, aniListUsersTable,
                 new[] { userIdColumn },

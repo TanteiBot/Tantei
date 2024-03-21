@@ -10,17 +10,16 @@ using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper.Abstractions;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
-using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
+using DiscordGuild = PaperMalKing.Database.Models.DiscordGuild;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
 internal sealed class AniListUserService : BaseUpdateProviderUserService<AniListUser>
 {
 	private readonly IAniListClient _client;
-	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
 
 	public override string Name => ProviderConstants.Name;
 
@@ -32,12 +31,11 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 							: base(logger, dbContextFactory, userService)
 	{
 		this._client = client;
-		this._dbContextFactory = dbContextFactory;
 	}
 
 	public override async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
-		await using var db = this._dbContextFactory.CreateDbContext();
+		await using var db = this.DbContextFactory.CreateDbContext();
 		var dbUser = db.AniListUsers.TagWith("Query user when trying to add one").TagWithCallSite().Include(su => su.DiscordUser)
 					   .ThenInclude(du => du.Guilds).FirstOrDefault(su => su.DiscordUserId == userId);
 		DiscordGuild? guild;
@@ -103,6 +101,7 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 			LastReviewTimestamp = now,
 			FavouritesIdHash = HashHelpers.FavoritesHash(response.Favourites1.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).ToArray()),
 			Features = AniListUserFeatures.None.GetDefault(),
+			Colors = [],
 		};
 		dbUser.Favourites.ForEach(f =>
 		{

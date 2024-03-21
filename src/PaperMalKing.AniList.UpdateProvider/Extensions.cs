@@ -160,18 +160,27 @@ internal static partial class Extensions
 	public static DiscordEmbedBuilder WithAniListAuthor(this DiscordEmbedBuilder embedBuilder, User user) =>
 		embedBuilder.WithAuthor(user.Name, user.Url, user.Image?.ImageUrl);
 
-	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this Review review, User user)
+	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this Review review, User user, AniListUser dbUser)
 	{
-		return new DiscordEmbedBuilder()
-			   .WithAniListAuthor(user)
-			   .WithTitle($"New review on {review.Media.Title.GetTitle(user.Options.TitleLanguage)} ({review.Media.Format?.Humanize(LetterCasing.Sentence)})")
-			   .WithThumbnail(review.Media.Image?.ImageUrl).WithUrl(review.Url)
-			   .WithTimestamp(DateTimeOffset.FromUnixTimeSeconds(review.CreatedAtTimeStamp))
-			   .WithDescription(review.Summary);
+		var eb = new DiscordEmbedBuilder().WithAniListAuthor(user)
+										  .WithTitle($"New review on {review.Media.Title.GetTitle(user.Options.TitleLanguage)} ({review.Media.Format?.Humanize(LetterCasing.Sentence)})")
+										  .WithThumbnail(review.Media.Image?.ImageUrl).WithUrl(review.Url)
+										  .WithTimestamp(DateTimeOffset.FromUnixTimeSeconds(review.CreatedAtTimeStamp))
+										  .WithDescription(review.Summary);
+
+		var color = dbUser.Colors.Find(c => c.UpdateType == (byte)AniListUpdateType.ReviewCreated);
+
+		if (color is not null)
+		{
+			eb = eb.WithColor(new DiscordColor(color.ColorValue));
+		}
+
+		return eb;
 	}
 
-	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this ListActivity activity, MediaListEntry mediaListEntry, User user, AniListUserFeatures features)
+	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this ListActivity activity, MediaListEntry mediaListEntry, User user, AniListUser dbUser)
 	{
+		var features = dbUser.Features;
 		var isAnime = activity.Media.Type == ListType.ANIME;
 		var isHiddenProgressPresent = !string.IsNullOrEmpty(activity.Progress) && (mediaListEntry.Status == MediaListStatus.PAUSED ||
 																				   mediaListEntry.Status == MediaListStatus.DROPPED ||
@@ -186,13 +195,41 @@ internal static partial class Extensions
 				? user.MediaListOptions!.AnimeListOptions.IsAdvancedScoringEnabled
 				: user.MediaListOptions!.MangaListOptions.IsAdvancedScoringEnabled) &&
 			mediaListEntry.AdvancedScores?.Values.Any(s => s != 0f) == true;
+
+		var updateType = mediaListEntry.Status switch
+		{
+			MediaListStatus.PAUSED when isAnime => AniListUpdateType.PausedAnime,
+			MediaListStatus.CURRENT when isAnime => AniListUpdateType.Watching,
+			MediaListStatus.DROPPED when isAnime => AniListUpdateType.DroppedAnime,
+			MediaListStatus.PLANNING when isAnime => AniListUpdateType.PlanToWatch,
+			MediaListStatus.COMPLETED when isAnime => AniListUpdateType.CompletedAnime,
+			MediaListStatus.REPEATING when isAnime => AniListUpdateType.RewatchingAnime,
+
+			MediaListStatus.PAUSED when !isAnime => AniListUpdateType.PausedManga,
+			MediaListStatus.CURRENT when !isAnime => AniListUpdateType.Reading,
+			MediaListStatus.DROPPED when !isAnime => AniListUpdateType.DroppedManga,
+			MediaListStatus.PLANNING when !isAnime => AniListUpdateType.PlanToRead,
+			MediaListStatus.COMPLETED when !isAnime => AniListUpdateType.CompletedManga,
+			MediaListStatus.REPEATING when !isAnime => AniListUpdateType.RereadingManga,
+			_ => throw new ArgumentOutOfRangeException(nameof(mediaListEntry), "Invalid status"),
+		};
+
+		var storedColor = dbUser.Colors.Find(c => c.UpdateType == (byte)updateType);
+
+		var color = Colors[(int)mediaListEntry.Status];
+
+		if (storedColor is not null)
+		{
+			color = new(storedColor.ColorValue);
+		}
+
 		var eb = new DiscordEmbedBuilder()
 				 .WithAniListAuthor(user)
 				 .WithTimestamp(DateTimeOffset.FromUnixTimeSeconds(activity.CreatedAtTimestamp))
 				 .WithUrl(activity.Media.Url)
 				 .WithMediaTitle(activity.Media, user.Options.TitleLanguage, features)
 				 .WithDescription(desc)
-				 .WithColor(Colors[(int)mediaListEntry.Status])
+				 .WithColor(color)
 				 .WithThumbnail(activity.Media.Image?.ImageUrl);
 		var score = mediaListEntry.GetScore(user.MediaListOptions.ScoreFormat);
 		if (!string.IsNullOrEmpty(score))

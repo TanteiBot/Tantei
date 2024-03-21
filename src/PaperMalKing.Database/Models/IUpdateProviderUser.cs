@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
+using System.Collections.Generic;
 
 namespace PaperMalKing.Database.Models;
 
@@ -16,4 +17,6 @@ public interface IUpdateProviderUser
 	public ulong DiscordUserId { get; init; }
 
 	public DiscordUser DiscordUser { get; set; }
+
+	public List<CustomUpdateColor> Colors { get; set; }
 }

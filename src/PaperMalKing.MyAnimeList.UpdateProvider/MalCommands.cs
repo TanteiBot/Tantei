@@ -2,11 +2,13 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.UpdatesProviders.Base;
+using PaperMalKing.UpdatesProviders.Base.Colors;
 using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider;
@@ -52,7 +54,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 		[SlashCommand("enable", "Enable features for your updates")]
 		public override Task EnableFeatureCommand(
 			InteractionContext context,
-			[ChoiceProvider(typeof(FeaturesChoiceProvider<MalUserFeatures>)),
+			[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<MalUserFeatures>, MalUserFeatures>)),
 			Option("feature", "Feature to enable")]
 			string unparsedFeature)
 		{
@@ -62,7 +64,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 		[SlashCommand("disable", "Disable features for your updates")]
 		public override Task DisableFeatureCommand(
 			InteractionContext context,
-			[ChoiceProvider(typeof(FeaturesChoiceProvider<MalUserFeatures>)),
+			[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<MalUserFeatures>, MalUserFeatures>)),
 			Option("feature", "Feature to enable")]
 			string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);
 
@@ -71,5 +73,26 @@ internal sealed class MalCommands : ApplicationCommandModule
 
 		[SlashCommand("list", "Show all features that are available for updates from MyAnimeList.net")]
 		public override Task ListFeaturesCommand(InteractionContext context) => base.ListFeaturesCommand(context);
+	}
+
+	[SlashCommandGroup("colors", "Manage colors of your updates")]
+	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
+	public sealed class MalColorsCommands : BaseColorsCommandModule<MalUser, MalUpdateType>
+	{
+		public MalColorsCommands(ILogger<MalColorsCommands> logger, CustomColorService<MalUser, MalUpdateType> colorService)
+			: base(logger, colorService)
+		{
+		}
+
+		[SlashCommand("set", "Set color for update update")]
+		public override Task SetColor(InteractionContext context,
+									  [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<MalUpdateType>, MalUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType,
+									  [Option("color", "Color code in hex like #FFFFFF")] string colorValue) => Task.FromResult(base.SetColor(context, unparsedUpdateType, colorValue));
+
+		[SlashCommand("remove", "Restore default color for update type")]
+		public override Task RemoveColor(InteractionContext context, [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<MalUpdateType>, MalUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType) => base.RemoveColor(context, unparsedUpdateType);
+
+		[SlashCommand("list", "Lists your overriden types")]
+		public override Task<DiscordMessage> ListOverridenColor(InteractionContext context) => base.ListOverridenColor(context);
 	}
 }

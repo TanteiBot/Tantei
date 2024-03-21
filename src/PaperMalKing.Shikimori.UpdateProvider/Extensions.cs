@@ -2,8 +2,8 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -39,11 +39,20 @@ internal static partial class Extensions
 	[
 		("смотрю", ProgressType.InProgress), ("пересматриваю", ProgressType.InProgress), ("запланировано", ProgressType.InPlans),
 		("брошено", ProgressType.Dropped), ("просмотрены", ProgressType.InProgress), ("просмотрен", ProgressType.Completed),
-		("отложено", ProgressType.OnHold), ("прочитан", ProgressType.Completed), ("перечитываю", ProgressType.InProgress),
+		("отложено", ProgressType.OnHold), ("прочитана", ProgressType.InProgress), ("прочитаны", ProgressType.InProgress), ("прочитан", ProgressType.Completed), ("перечитываю", ProgressType.InProgress),
 		("читаю", ProgressType.InProgress),
 	];
 
-	private static readonly string[] MangakaRelatedRoles = ["story", "art", "creator", "design"];
+	private static readonly DiscordColor[] Colors =
+	[
+		Constants.ShikiBlue,
+		Constants.ShikiGreen,
+		Constants.ShikiGrey,
+		Constants.ShikiRed,
+		Constants.ShikiBlue,
+	];
+
+	private static readonly FrozenSet<string> MangakaRelatedRoles = new[] { "story", "art", "creator", "design" }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 	private static readonly CultureInfo RuCulture = CultureInfo.GetCultureInfo("ru-RU");
 
 	public static DiscordEmbedBuilder WithShikiAuthor(this DiscordEmbedBuilder builder, UserInfo user) =>
@@ -114,7 +123,7 @@ internal static partial class Extensions
 		return res;
 	}
 
-	public static DiscordEmbedBuilder ToDiscordEmbed(this HistoryMediaRoles history, UserInfo user, ShikiUserFeatures features)
+	public static DiscordEmbedBuilder ToDiscordEmbed(this HistoryMediaRoles history, UserInfo user, ShikiUser dbUser)
 	{
 		static ProgressType CalculateProgressType(List<History> histories)
 		{
@@ -132,23 +141,46 @@ internal static partial class Extensions
 			return ProgressType.InProgress;
 		}
 
+		var features = dbUser.Features;
+
 		var first = history.HistoryEntries[0];
 		var eb = new DiscordEmbedBuilder().WithTimestamp(first.CreatedAt).WithShikiAuthor(user).WithColor(Constants.ShikiBlue);
 		var desc = string.Join("; ", history.HistoryEntries.Select(h => h.Description)).StripHtml().ToSentenceCase(RuCulture)!;
-		eb.WithDescription(desc).WithColor(CalculateProgressType(history.HistoryEntries) switch
-		{
-			ProgressType.Completed => Constants.ShikiGreen,
-			ProgressType.Dropped => Constants.ShikiRed,
-			ProgressType.InPlans=> Constants.ShikiBlue,
-			ProgressType.InProgress=> Constants.ShikiBlue,
-			ProgressType.OnHold=> Constants.ShikiGrey,
-			_ => throw new UnreachableException(),
-		});
+		eb.WithDescription(desc);
 		var target = history.HistoryEntries.Find(x => x.Target is not null)?.Target;
 		if (target is null)
 		{
 			return eb;
 		}
+
+		var progress = CalculateProgressType(history.HistoryEntries);
+
+		var updateType = progress switch
+		{
+			ProgressType.OnHold when target.Type is ListEntryType.Anime => ShikiUpdateType.PausedAnime,
+			ProgressType.InProgress when target.Type is ListEntryType.Anime => ShikiUpdateType.Watching,
+			ProgressType.Dropped when target.Type is ListEntryType.Anime => ShikiUpdateType.DroppedAnime,
+			ProgressType.InPlans when target.Type is ListEntryType.Anime => ShikiUpdateType.PlanToWatch,
+			ProgressType.Completed when target.Type is ListEntryType.Anime => ShikiUpdateType.CompletedAnime,
+
+			ProgressType.OnHold when target.Type is ListEntryType.Manga => ShikiUpdateType.PausedManga,
+			ProgressType.InProgress when target.Type is ListEntryType.Manga => ShikiUpdateType.Reading,
+			ProgressType.Dropped when target.Type is ListEntryType.Manga => ShikiUpdateType.DroppedManga,
+			ProgressType.InPlans when target.Type is ListEntryType.Manga => ShikiUpdateType.PlanToRead,
+			ProgressType.Completed when target.Type is ListEntryType.Manga => ShikiUpdateType.CompletedManga,
+			_ => throw new ArgumentOutOfRangeException(nameof(history), "Invalid status"),
+		};
+
+		var storedColor = dbUser.Colors.Find(c => c.UpdateType == (byte)updateType);
+
+		var color = Colors[(int)progress];
+
+		if (storedColor is not null)
+		{
+			color = new(storedColor.ColorValue);
+		}
+
+		eb = eb.WithColor(color);
 
 		var titleSb = new StringBuilder();
 
@@ -189,8 +221,13 @@ internal static partial class Extensions
 		return eb;
 	}
 
-	public static DiscordEmbedBuilder ToDiscordEmbed(this FavouriteMediaRoles favouriteEntry, UserInfo user, bool added, ShikiUserFeatures features)
+	public static DiscordEmbedBuilder ToDiscordEmbed(this FavouriteMediaRoles favouriteEntry, UserInfo user, bool added, ShikiUser dbUser)
 	{
+		var features = dbUser.Features;
+		var color = dbUser.Colors.Find(added
+			? c => c.UpdateType == (byte)ShikiUpdateType.FavoriteAdded
+			: c => c.UpdateType == (byte)ShikiUpdateType.FavoriteRemoved)?.ColorValue ?? (added ? Constants.ShikiGreen : Constants.ShikiRed);
+
 		var favouriteName = favouriteEntry.FavouriteEntry.GetNameOrAltName(features);
 		var eb = new DiscordEmbedBuilder
 			{
@@ -199,7 +236,7 @@ internal static partial class Extensions
 					$"{favouriteName} [{(favouriteEntry.FavouriteEntry.SpecificType ?? favouriteEntry.FavouriteEntry.GenericType)?.ToFirstCharUpperCase()}]",
 			}.WithThumbnail(favouriteEntry.FavouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favourite")
 			 .WithShikiAuthor(user)
-			 .WithColor(added ? Constants.ShikiGreen : Constants.ShikiRed);
+			 .WithColor(color);
 
 		var isAnime = favouriteEntry.FavouriteEntry.GenericType!.Contains("anime", StringComparison.OrdinalIgnoreCase);
 		var isManga = favouriteEntry.FavouriteEntry.GenericType!.Contains("manga", StringComparison.OrdinalIgnoreCase);
@@ -272,7 +309,7 @@ internal static partial class Extensions
 			if (features.HasFlag(ShikiUserFeatures.Publisher) && media is MangaMedia manga)
 			{
 				var text = string.Join(", ", manga.Publishers.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
-				if (string.IsNullOrEmpty(text))
+				if (!string.IsNullOrEmpty(text))
 				{
 					eb.AddField("Publisher", text, inline: true);
 				}
@@ -283,7 +320,7 @@ internal static partial class Extensions
 				var mangakas = string.Join(
 					", ",
 					roles.Where(x =>
-						x.Person is not null && MangakaRelatedRoles.Exists(y => x.Name.Any(z => z.Contains(y, StringComparison.OrdinalIgnoreCase)))).Take(5).Select(x =>
+						x.Person is not null && MangakaRelatedRoles.Overlaps(x.Name)).Take(5).Select(x =>
 					{
 						var nameOfRole = features.HasFlag(ShikiUserFeatures.Russian)
 							? x.RussianName.FirstOrDefault(y => !string.IsNullOrWhiteSpace(y)) ?? x.Name[0]

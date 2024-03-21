@@ -6,9 +6,9 @@ using System;
 namespace PaperMalKing.Common.Attributes;
 
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
-public sealed class FeatureDescriptionAttribute : Attribute
+public sealed class EnumDescriptionAttribute : Attribute
 {
-	public FeatureDescriptionAttribute(string description, string summary)
+	public EnumDescriptionAttribute(string description, string summary)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(description);
 		ArgumentException.ThrowIfNullOrWhiteSpace(summary);

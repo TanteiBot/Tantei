@@ -11,54 +11,54 @@ public enum MalUserFeatures : ulong
 {
 	None = 0,
 
-	[FeatureDescription("animelist", "Track changes in AnimeList")]
+	[EnumDescription("animelist", "Track changes in AnimeList")]
 	AnimeList = 1,
 
-	[FeatureDescription("mangalist", "Track changes in MangaList")]
+	[EnumDescription("mangalist", "Track changes in MangaList")]
 	MangaList = 1 << 1,
 
-	[FeatureDescription("favorites", "Track changes in favorites")]
+	[EnumDescription("favorites", "Track changes in favorites")]
 	Favorites = 1 << 2,
 
-	[FeatureDescription("mention", "Mention user in update")]
+	[EnumDescription("mention", "Mention user in update")]
 	Mention = 1 << 3,
 
-	[FeatureDescription("website", "Show name and icon of website in update")]
+	[EnumDescription("website", "Show name and icon of website in update")]
 	Website = 1 << 4,
 
-	[FeatureDescription("media format", "Show format of media in update (TV, Movie, Manga etc)")]
+	[EnumDescription("media format", "Show format of media in update (TV, Movie, Manga etc)")]
 	MediaFormat = 1 << 5,
 
-	[FeatureDescription("media status", "show status of media in update (Currently airing, Finished airing etc)")]
+	[EnumDescription("media status", "show status of media in update (Currently airing, Finished airing etc)")]
 	MediaStatus = 1 << 6,
 
-	[FeatureDescription("genres", "Show genres of media in update")]
+	[EnumDescription("genres", "Show genres of media in update")]
 	Genres = 1 << 7,
 
-	[FeatureDescription("synopsis", "Show synopsis of media in update")]
+	[EnumDescription("synopsis", "Show synopsis of media in update")]
 	Synopsis = 1 << 8,
 
-	[FeatureDescription("studios", "Show studios that made anime in update")]
+	[EnumDescription("studios", "Show studios that made anime in update")]
 	Studio = 1 << 9,
 
-	[FeatureDescription("mangakas", "Show mangakas that made manga in update")]
+	[EnumDescription("mangakas", "Show mangakas that made manga in update")]
 	Mangakas = 1 << 10,
 
-	[FeatureDescription("tags", "Show tags of list entry in update")]
+	[EnumDescription("tags", "Show tags of list entry in update")]
 	Tags = 1 << 11,
 
-	[FeatureDescription("comments", "Show comments of list entry in update")]
+	[EnumDescription("comments", "Show comments of list entry in update")]
 	Comments = 1 << 12,
 
-	[FeatureDescription("dates", "Show start and finish dates of list entry")]
+	[EnumDescription("dates", "Show start and finish dates of list entry")]
 	Dates = 1 << 13,
 
-	[FeatureDescription("themes", "Show themes of media in update")]
+	[EnumDescription("themes", "Show themes of media in update")]
 	Themes = 1 << 14,
 
-	[FeatureDescription("demographic", "Show demographic of media in update")]
+	[EnumDescription("demographic", "Show demographic of media in update")]
 	Demographic = 1 << 15,
 
-	[FeatureDescription("seiyu", "Show seiyu of anime in update")]
+	[EnumDescription("seiyu", "Show seiyu of anime in update")]
 	Seiyu = 1 << 16,
 }

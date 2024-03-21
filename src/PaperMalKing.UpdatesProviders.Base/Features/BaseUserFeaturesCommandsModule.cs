@@ -49,8 +49,7 @@ public abstract class BaseUserFeaturesCommandsModule<TUser, TFeature> : BotComma
 		}
 
 		this.Logger.SuccessfullyEnabledFeature(feature, context.Member.DisplayName);
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully enabled {feature.Humanize()} for you"))
-					 ;
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully enabled {feature.Humanize()} for you"));
 	}
 
 	public virtual async Task DisableFeatureCommand(InteractionContext context, string unparsedFeature)

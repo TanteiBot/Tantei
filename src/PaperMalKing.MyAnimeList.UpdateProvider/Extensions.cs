@@ -177,14 +177,18 @@ internal static class Extensions
 		return builder;
 	}
 
-	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this BaseMalFavorite favorite, bool added)
+	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this BaseMalFavorite favorite, bool added, MalUser dbUser)
 	{
 		var eb = new DiscordEmbedBuilder
 		{
 			Url = favorite.NameUrl,
 		}.WithThumbnail(favorite.ImageUrl!).WithDescription($"{(added ? "Added" : "Removed")} favorite");
 
-		eb.WithColor(added ? Constants.MalGreen : Constants.MalRed);
+		var color = dbUser.Colors.Find(added
+			? c => c.UpdateType == (byte)MalUpdateType.FavoriteAdded
+			: c => c.UpdateType == (byte)MalUpdateType.FavoriteRemoved)?.ColorValue ?? (added ? Constants.MalGreen : Constants.MalRed);
+
+		eb.WithColor(color);
 
 		var title = favorite switch
 		{
@@ -202,7 +206,7 @@ internal static class Extensions
 	}
 
 	public static async Task<DiscordEmbedBuilder> ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
-		this TLe listEntry, User user, MalUserFeatures features, IMyAnimeListClient client, CancellationToken cancellationToken)
+		this TLe listEntry, User user, IMyAnimeListClient client, MalUser dbUser, CancellationToken cancellationToken)
 		where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 		where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
 		where TStatus : BaseListEntryStatus<TListStatus>
@@ -224,6 +228,7 @@ internal static class Extensions
 				? title
 				: $"{title} ({mediaType})";
 
+		var features = dbUser.Features;
 		var eb = new DiscordEmbedBuilder().WithThumbnail(listEntry.Node.Picture?.Large ?? listEntry.Node.Picture?.Medium!)
 										  .WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl).WithTimestamp(listEntry.Status.UpdatedAt);
 		if (listEntry.Status.Score != 0)
@@ -412,7 +417,43 @@ internal static class Extensions
 			}
 		}
 
-		eb.WithColor(Colors[listEntry.Status.GetStatusAsUnderlyingType()]);
+		var updateType = listEntry switch
+		{
+			MangaListEntry m => m.Status.Status switch
+			{
+				_ when m.Status.IsRereading => MalUpdateType.RereadingManga,
+				MangaListStatus.on_hold => MalUpdateType.OnHoldManga,
+				MangaListStatus.reading => MalUpdateType.Reading,
+				MangaListStatus.dropped => MalUpdateType.DroppedManga,
+				MangaListStatus.plan_to_read => MalUpdateType.PlanToRead,
+				MangaListStatus.completed => MalUpdateType.CompletedManga,
+				_ => throw new ArgumentOutOfRangeException(nameof(listEntry), "Invalid status"),
+			},
+
+			AnimeListEntry a => a.Status.Status switch
+			{
+				_ when a.Status.IsRewatching => MalUpdateType.RewatchingAnime,
+				AnimeListStatus.on_hold => MalUpdateType.OnHoldManga,
+				AnimeListStatus.watching => MalUpdateType.Watching,
+				AnimeListStatus.dropped => MalUpdateType.DroppedAnime,
+				AnimeListStatus.plan_to_watch => MalUpdateType.PlanToWatch,
+				AnimeListStatus.completed => MalUpdateType.CompletedAnime,
+				_ => throw new ArgumentOutOfRangeException(nameof(listEntry), "Invalid status"),
+			},
+
+			_ => throw new ArgumentOutOfRangeException(nameof(listEntry), "Invalid status"),
+		};
+
+		var storedColor = dbUser.Colors.Find(c => c.UpdateType == (byte)updateType);
+
+		var color = Colors[listEntry.Status.GetStatusAsUnderlyingType()];
+
+		if (storedColor is not null)
+		{
+			color = new(storedColor.ColorValue);
+		}
+
+		eb.WithColor(color);
 		return eb;
 	}
 

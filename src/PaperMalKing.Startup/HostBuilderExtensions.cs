@@ -17,6 +17,7 @@ using PaperMalKing.Startup.Options;
 using PaperMalKing.Startup.Services;
 using PaperMalKing.Startup.Services.Background;
 using PaperMalKing.UpdatesProviders.Base;
+using PaperMalKing.UpdatesProviders.Base.Colors;
 using Serilog;
 using Serilog.Formatting.Display;
 
@@ -79,6 +80,7 @@ public static class HostBuilderExtensions
 			services.AddHostedService<OnStartupActionsExecutingService>();
 			services.AddSingleton<UserCleanupService>();
 			services.AddSingleton<GeneralUserService>();
+			services.AddSingleton(typeof(CustomColorService<,>));
 			RunSQLiteConfiguration();
 		});
 		return hostBuilder;

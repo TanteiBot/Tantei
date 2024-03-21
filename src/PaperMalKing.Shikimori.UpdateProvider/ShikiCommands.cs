@@ -2,11 +2,13 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.UpdatesProviders.Base;
+using PaperMalKing.UpdatesProviders.Base.Colors;
 using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
@@ -52,14 +54,14 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 		[SlashCommand("enable", "Enable features for your updates")]
 		public override Task EnableFeatureCommand(
 								InteractionContext context,
-								[ChoiceProvider(typeof(FeaturesChoiceProvider<ShikiUserFeatures>)),
+								[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<ShikiUserFeatures>, ShikiUserFeatures>)),
 								Option("feature", "Feature to enable")]
 								string unparsedFeature) => base.EnableFeatureCommand(context, unparsedFeature);
 
 		[SlashCommand("disable", "Disable features for your updates")]
 		public override Task DisableFeatureCommand(
 								InteractionContext context,
-								[ChoiceProvider(typeof(FeaturesChoiceProvider<ShikiUserFeatures>)),
+								[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<ShikiUserFeatures>, ShikiUserFeatures>)),
 								Option("feature", "Feature to disable")]
 								string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);
 
@@ -68,5 +70,26 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 
 		[SlashCommand("list", "Show all features that are available for updates from Shikimori.one")]
 		public override Task ListFeaturesCommand(InteractionContext context) => base.ListFeaturesCommand(context);
+	}
+
+	[SlashCommandGroup("colors", "Manage colors of your updates")]
+	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
+	public sealed class ShikiColorsCommands : BaseColorsCommandModule<ShikiUser, ShikiUpdateType>
+	{
+		public ShikiColorsCommands(ILogger<ShikiColorsCommands> logger, CustomColorService<ShikiUser, ShikiUpdateType> colorService)
+			: base(logger, colorService)
+		{
+		}
+
+		[SlashCommand("set", "Set color for update update")]
+		public override Task SetColor(InteractionContext context,
+								   [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<ShikiUpdateType>, ShikiUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType,
+								   [Option("color", "Color code in hex like #FFFFFF")] string colorValue) => base.SetColor(context, unparsedUpdateType, colorValue);
+
+		[SlashCommand("remove", "Restore default color for update type")]
+		public override Task RemoveColor(InteractionContext context, [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<ShikiUpdateType>, ShikiUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType) => base.RemoveColor(context, unparsedUpdateType);
+
+		[SlashCommand("list", "Lists your overriden types")]
+		public override Task<DiscordMessage> ListOverridenColor(InteractionContext context) => base.ListOverridenColor(context);
 	}
 }

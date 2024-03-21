@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
-using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
+using DiscordGuild = PaperMalKing.Database.Models.DiscordGuild;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
@@ -71,7 +71,7 @@ internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 			throw new UserProcessingException(BaseUser.Empty, "You must provide username if you arent already tracked by this bot");
 		}
 
-		var duser = db.DiscordUsers.TagWith("Query discord user to link AniList user to it").TagWithCallSite().Include(x => x.Guilds).FirstOrDefault(user => user.DiscordUserId == userId);
+		var duser = db.DiscordUsers.TagWith("Query discord user to link Mal user to it").TagWithCallSite().Include(x => x.Guilds).FirstOrDefault(user => user.DiscordUserId == userId);
 		var mUser = await this._client.GetUserAsync(username, MalUserFeatures.None.GetDefault().ToParserOptions());
 		var now = TimeProvider.System.GetUtcNow();
 		if (duser is null)
@@ -98,6 +98,7 @@ internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 			LastAnimeUpdateHash = mUser.LatestAnimeUpdateHash ?? "",
 			LastMangaUpdateHash = mUser.LatestMangaUpdateHash ?? "",
 			FavoritesIdHash = HashHelpers.FavoritesHash(mUser.Favorites.GetFavoriteIdTypesFromFavorites()),
+			Colors = [],
 		};
 		dbUser.FavoriteAnimes = mUser.Favorites.FavoriteAnime.Select(anime => anime.ToMalFavoriteAnime(dbUser)).ToList();
 		dbUser.FavoriteMangas = mUser.Favorites.FavoriteManga.Select(manga => manga.ToMalFavoriteManga(dbUser)).ToList();

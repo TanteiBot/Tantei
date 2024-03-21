@@ -74,6 +74,7 @@
             S1244; <!--Do not check floating point inequality with exact values, use a range instead.-->
             S1694; <!--Convert this 'abstract' class to a concrete type with a protected constructor. -->
             S1994; <!--This loop's stop condition tests 'X' but the incrementer updates 'Y'.-->
+            S2139; <!--Either log this exception and handle it, or rethrow it with some contextual information.-->
             S2326; <!--'T' is not used in the interface.-->
             S2743; <!-- Static fields should not be used in generic types-->
             S3906; <!--Change the signature of that event handler to match the specified signature. -->
@@ -102,6 +103,7 @@
             RCS1031; <!-- Remove unnecessary braces. -->
             RCS1135; <!-- Declare enum member with zero value (when enum has FlagsAttribute).-->
             RCS1139; <!-- Add summary element to documentation comment.-->
+            RCS1158; <!--Static member in generic type should use a type parameter-->
             RCS1181; <!--Convert comment to documentation comment.-->
             RCS1194; <!--Implement exception constructors.-->
 

@@ -94,7 +94,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			if (dbUser.Features.HasFlag(AniListUserFeatures.Reviews))
 			{
 				allUpdates.AddRange(recentUserUpdates.Reviews.Where(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)
-													 .Select(r => r.ToDiscordEmbedBuilder(recentUserUpdates.User)));
+													 .Select(r => r.ToDiscordEmbedBuilder(recentUserUpdates.User, dbUser)));
 			}
 
 			foreach (var grouping in recentUserUpdates.Activities.GroupBy(activity => activity.Media.Id))
@@ -105,7 +105,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 					: recentUserUpdates.MangaList.Find(mle => mle.Id == lastListActivityOnMedia.Media.Id);
 				if (mediaListEntry is not null)
 				{
-					allUpdates.Add(lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser.Features));
+					allUpdates.Add(lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser));
 				}
 			}
 
@@ -198,7 +198,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 										List<T> obtainedValues,
 										Wrapper.Abstractions.Models.Enums.FavouriteType type,
 										User user,
-										AniListUserFeatures features)
+										AniListUser dbUser)
 			where T : class, IIdentifiable, ISiteUrlable
 		{
 			foreach (var value in obtainedValues)
@@ -215,7 +215,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 
 				if (added.HasValue)
 				{
-					aggregator.Add(FavouriteToDiscordEmbedBuilderConverter.Convert(value, user, added.Value, features));
+					aggregator.Add(FavouriteToDiscordEmbedBuilderConverter.Convert(value, user, added.Value, dbUser));
 				}
 			}
 		}
@@ -254,11 +254,11 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			hasNextPage = favouritesInfo.HasNextPage;
 		}
 
-		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Anime, Wrapper.Abstractions.Models.Enums.FavouriteType.Anime, response.User, user.Features);
-		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Manga, Wrapper.Abstractions.Models.Enums.FavouriteType.Manga, response.User, user.Features);
-		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Characters, Wrapper.Abstractions.Models.Enums.FavouriteType.Characters, response.User, user.Features);
-		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Staff, Wrapper.Abstractions.Models.Enums.FavouriteType.Staff, response.User, user.Features);
-		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Studios, Wrapper.Abstractions.Models.Enums.FavouriteType.Studios, response.User, user.Features);
+		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Anime, Wrapper.Abstractions.Models.Enums.FavouriteType.Anime, response.User, user);
+		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Manga, Wrapper.Abstractions.Models.Enums.FavouriteType.Manga, response.User, user);
+		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Characters, Wrapper.Abstractions.Models.Enums.FavouriteType.Characters, response.User, user);
+		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Staff, Wrapper.Abstractions.Models.Enums.FavouriteType.Staff, response.User, user);
+		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Studios, Wrapper.Abstractions.Models.Enums.FavouriteType.Studios, response.User, user);
 		results.SortBy(x => x.Color.Value.Value);
 		return results;
 	}

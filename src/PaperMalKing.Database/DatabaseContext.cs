@@ -97,6 +97,7 @@ public sealed class DatabaseContext : DbContext
 			mu.Property(p => p.FavoritesIdHash).HasDefaultValue("");
 			mu.HasIndex(x => x.Features);
 			mu.HasIndex(x => x.DiscordUserId);
+			mu.OwnsMany(x => x.Colors, colors => colors.ToJson());
 		});
 
 		modelBuilder.Entity<DiscordGuild>(dg => dg.HasIndex(x => x.DiscordGuildId));
@@ -141,6 +142,7 @@ public sealed class DatabaseContext : DbContext
 			su.HasIndex(x => x.Features);
 			su.HasIndex(x => x.DiscordUserId);
 			su.OwnsMany(x => x.Achievements, achs => achs.ToJson());
+			su.OwnsMany(x => x.Colors, colors => colors.ToJson());
 		});
 		modelBuilder.Entity<ShikiFavourite>(sf =>
 		{
@@ -163,6 +165,7 @@ public sealed class DatabaseContext : DbContext
 			au.Property(x => x.FavouritesIdHash).HasDefaultValue("");
 			au.HasIndex(x => x.Features);
 			au.HasIndex(x => x.DiscordUserId);
+			au.OwnsMany(x => x.Colors, colors => colors.ToJson());
 		});
 
 		modelBuilder.Entity<AniListFavourite>(af =>

@@ -75,8 +75,8 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				var eb = await baseListEntry
 							   .ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
 								   user,
-								   dbUser.Features,
 								   this._client,
+								   dbUser,
 								   cancellationToken);
 				result.Add(eb);
 			}
@@ -290,7 +290,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			for (var i = 0; i < addedValues.Count; i++)
 			{
 				var fav = cResulting.First(favorite => favorite.Id == addedValues[i].Id);
-				var deb = fav.ToDiscordEmbedBuilder(added: true);
+				var deb = fav.ToDiscordEmbedBuilder(added: true, dbUser);
 				deb.WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl);
 				result.Add(deb);
 			}
@@ -300,7 +300,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			{
 				var fav = dbEntries.First(favorite => favorite.Id == removedValues[i].Id);
 				toRm[i] = fav;
-				var deb = fav.ToDiscordEmbedBuilder(added: false);
+				var deb = fav.ToDiscordEmbedBuilder(added: false, dbUser);
 				deb.WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl);
 				result.Add(deb);
 			}

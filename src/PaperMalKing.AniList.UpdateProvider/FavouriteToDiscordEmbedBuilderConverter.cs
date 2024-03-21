@@ -19,9 +19,13 @@ namespace PaperMalKing.AniList.UpdateProvider;
 
 internal static class FavouriteToDiscordEmbedBuilderConverter
 {
-	private static DiscordEmbedBuilder InitialFavouriteEmbedBuilder(ISiteUrlable value, User user, bool added)
+	private static DiscordEmbedBuilder InitialFavouriteEmbedBuilder(ISiteUrlable value, User user, bool added, AniListUser dbUser)
 	{
-		var eb = new DiscordEmbedBuilder().WithAniListAuthor(user).WithColor(added ? ProviderConstants.AniListBlue : ProviderConstants.AniListRed)
+		var color = dbUser.Colors.Find(added
+			? c => c.UpdateType == (byte)AniListUpdateType.FavouriteAdded
+			: c => c.UpdateType == (byte)AniListUpdateType.FavouriteRemoved)?.ColorValue ?? (added ? ProviderConstants.AniListBlue : ProviderConstants.AniListRed);
+
+		var eb = new DiscordEmbedBuilder().WithAniListAuthor(user).WithColor(color)
 										  .WithDescription($"{(added ? "Added" : "Removed")} favourite").WithUrl(value.Url);
 		if (value is IImageble imageble)
 		{
@@ -37,40 +41,40 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 		return eb;
 	}
 
-	public static DiscordEmbedBuilder Convert(ISiteUrlable obj, User user, bool added, AniListUserFeatures features)
+	public static DiscordEmbedBuilder Convert(ISiteUrlable obj, User user, bool added, AniListUser dbUser)
 	{
 		return obj switch
 		{
-			Media media => Convert(media, user, added, features),
-			Character character => Convert(character, user, added),
-			Staff staff => Convert(staff, user, added, features),
-			Studio studio => Convert(studio, user, added),
+			Media media => Convert(media, user, added, dbUser),
+			Character character => Convert(character, user, added, dbUser),
+			Staff staff => Convert(staff, user, added, dbUser),
+			Studio studio => Convert(studio, user, added, dbUser),
 			_ => throw new UnreachableException(),
 		};
 	}
 
 	[SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "We need to output media type in lower-case")]
-	private static DiscordEmbedBuilder Convert(Media media, User user, bool added, AniListUserFeatures features)
+	private static DiscordEmbedBuilder Convert(Media media, User user, bool added, AniListUser dbUser)
 	{
-		var eb = InitialFavouriteEmbedBuilder(media, user, added).WithMediaTitle(media, user.Options.TitleLanguage, features)
-																 .WithTotalSubEntries(media).EnrichWithMediaInfo(media, user, features);
+		var eb = InitialFavouriteEmbedBuilder(media, user, added, dbUser).WithMediaTitle(media, user.Options.TitleLanguage, dbUser.Features)
+																		 .WithTotalSubEntries(media).EnrichWithMediaInfo(media, user, dbUser.Features);
 		eb.Description += $" {media.Type.ToInvariantString().ToLowerInvariant()}";
 		return eb;
 	}
 
-	private static DiscordEmbedBuilder Convert(Character character, User user, bool added)
+	private static DiscordEmbedBuilder Convert(Character character, User user, bool added, AniListUser dbUser)
 	{
 		var media = character.Media.Values[0];
-		return InitialFavouriteEmbedBuilder(character, user, added)
+		return InitialFavouriteEmbedBuilder(character, user, added, dbUser)
 			   .WithTitle($"{character.Name.GetName(user.Options.TitleLanguage)} [Character]")
 			   .AddShortMediaLink("From", media, user.Options.TitleLanguage);
 	}
 
-	private static DiscordEmbedBuilder Convert(Staff staff, User user, bool added, AniListUserFeatures features)
+	private static DiscordEmbedBuilder Convert(Staff staff, User user, bool added, AniListUser dbUser)
 	{
-		var eb = InitialFavouriteEmbedBuilder(staff, user, added)
+		var eb = InitialFavouriteEmbedBuilder(staff, user, added, dbUser)
 			.WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [{staff.PrimaryOccupations.FirstOrDefault() ?? "Staff"}]");
-		if (features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrEmpty(staff.Description))
+		if (dbUser.Features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrEmpty(staff.Description))
 		{
 			var mediaDescription = staff.Description.StripHtml();
 			mediaDescription = SourceRemovalRegex().Replace(mediaDescription, string.Empty);
@@ -91,10 +95,10 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 		return eb;
 	}
 
-	private static DiscordEmbedBuilder Convert(Studio studio, User user, bool added)
+	private static DiscordEmbedBuilder Convert(Studio studio, User user, bool added, AniListUser dbUser)
 	{
 		var media = studio.Media.Nodes[0];
-		return InitialFavouriteEmbedBuilder(studio, user, added).WithTitle($"{studio.Name} [Studio]")
+		return InitialFavouriteEmbedBuilder(studio, user, added, dbUser).WithTitle($"{studio.Name} [Studio]")
 																.AddShortMediaLink("Most popular title", media, user.Options.TitleLanguage);
 	}
 }
