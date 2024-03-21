@@ -115,23 +115,23 @@
 
 
     <!-- Implicit -->
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.9.2" />
-    <PackageVersion Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
-    <PackageVersion Include="Microsoft.Netcore.Targets" Version="5.0.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.10.0-2.final" />
+    <PackageVersion Include="Microsoft.NETCore.Platforms" Version="8.0.0-preview.7.23375.6" />
+    <PackageVersion Include="Microsoft.Netcore.Targets" Version="6.0.0-preview.4.21253.7" />
     <PackageVersion Include="Polly" Version="8.3.1" />
-    <PackageVersion Include="System.Collections.Immutable" Version="8.0.0" />
-    <PackageVersion Include="System.CodeDom" Version="8.0.0" />
-    <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
-    <PackageVersion Include="System.Management" Version="8.0.0" />
-    <PackageVersion Include="System.Reflection.Metadata" Version="8.0.0" />
+    <PackageVersion Include="System.Collections.Immutable" Version="9.0.0-preview.2.24128.5" />
+    <PackageVersion Include="System.CodeDom" Version="9.0.0-preview.2.24128.5" />
+    <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="9.0.0-preview.2.24128.5" />
+    <PackageVersion Include="System.Management" Version="9.0.0-preview.2.24128.5" />
+    <PackageVersion Include="System.Reflection.Metadata" Version="9.0.0-preview.2.24128.5" />
     <PackageVersion Include="System.Security.Cryptography.Cng" Version="5.0.0" />
     <PackageVersion Include="System.Security.Cryptography.OpenSsl" Version="5.0.0" />
     <PackageVersion Include="System.Security.Principal.Windows" Version="5.0.0" />
-    <PackageVersion Include="System.Text.Json" Version="8.0.3" />
-    <PackageVersion Include="System.Threading.Channels" Version="8.0.0" />
-    <PackageVersion Include="System.Formats.Asn1" Version="8.0.0" />
+    <PackageVersion Include="System.Text.Json" Version="9.0.0-preview.2.24128.5" />
+    <PackageVersion Include="System.Threading.Channels" Version="9.0.0-preview.2.24128.5" />
+    <PackageVersion Include="System.Formats.Asn1" Version="9.0.0-preview.2.24128.5" />
     <PackageVersion Include="Microsoft.CodeAnalysis" Version="4.9.2" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.10.0-2.final" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0-2.final" />
   </ItemGroup>
 </Project>
