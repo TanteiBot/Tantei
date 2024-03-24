@@ -9,14 +9,14 @@ namespace PaperMalKing.Shikimori.UpdateProvider.Achievements;
 public sealed class ShikiAchievementJsonItem
 {
 	[JsonPropertyName("neko_id")]
-	[JsonConverter(typeof(StringPoolingJsonConverter))]
+	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
 	public required string Id { get; init; }
 
 	[JsonPropertyName("level")]
 	public required byte Level { get; init; }
 
 	[JsonPropertyName("image")]
-	[JsonConverter(typeof(StringPoolingJsonConverter))]
+	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
 	public required string Image { get; init; }
 
 	[JsonPropertyName("border_color")]
@@ -24,11 +24,11 @@ public sealed class ShikiAchievementJsonItem
 	public int? BorderColor { get; init; }
 
 	[JsonPropertyName("title_en")]
-	[JsonConverter(typeof(StringPoolingJsonConverter))]
+	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
 	public required string TitleEnglish { get; init; }
 
 	[JsonPropertyName("title_ru")]
-	[JsonConverter(typeof(StringPoolingJsonConverter))]
+	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
 	public required string TitleRussian { get; init; }
 
 	[JsonPropertyName("text_en")]
