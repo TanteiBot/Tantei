@@ -2,27 +2,33 @@
 // Copyright (C) 2021-2023 N0D4N
 
 using System.Text.Json.Serialization;
+using PaperMalKing.Common.Json;
 
 namespace PaperMalKing.Shikimori.UpdateProvider.Achievements;
 
 public sealed class ShikiAchievementJsonItem
 {
 	[JsonPropertyName("neko_id")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string Id { get; init; }
 
 	[JsonPropertyName("level")]
 	public required byte Level { get; init; }
 
 	[JsonPropertyName("image")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string Image { get; init; }
 
 	[JsonPropertyName("border_color")]
-	public string? BorderColor { get; init; }
+	[JsonConverter(typeof(HexNumberJsonConverter))]
+	public int? BorderColor { get; init; }
 
 	[JsonPropertyName("title_en")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string TitleEnglish { get; init; }
 
 	[JsonPropertyName("title_ru")]
+	[JsonConverter(typeof(StringPoolingJsonConverter))]
 	public required string TitleRussian { get; init; }
 
 	[JsonPropertyName("text_en")]
