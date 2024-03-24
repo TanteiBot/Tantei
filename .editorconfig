@@ -30,7 +30,7 @@ dotnet_style_qualification_for_field = true:suggestion
 dotnet_style_qualification_for_method = true:suggestion
 dotnet_style_qualification_for_property = true:suggestion
 dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
-file_header_template = SPDX-License-Identifier: AGPL-3.0-or-later\nCopyright (C) 2021-2023 N0D4N
+file_header_template = SPDX-License-Identifier: AGPL-3.0-or-later\nCopyright (C) 2021-2024 N0D4N
 
 
 # ReSharper properties
