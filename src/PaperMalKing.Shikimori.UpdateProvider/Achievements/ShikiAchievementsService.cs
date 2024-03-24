@@ -21,7 +21,7 @@ internal sealed class ShikiAchievementsService
 				item.Id,
 				item.Level,
 				new Uri(Wrapper.Abstractions.Constants.BaseUrl + item.Image, UriKind.Absolute),
-				item.BorderColor is not null ? new(item.BorderColor) : DiscordColor.None,
+				item.BorderColor.HasValue ? new(item.BorderColor.Value) : DiscordColor.None,
 				item.TitleRussian,
 				item.TextRussian,
 				item.TitleEnglish,

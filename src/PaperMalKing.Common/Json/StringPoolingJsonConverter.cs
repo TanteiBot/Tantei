@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -21,11 +20,6 @@ public sealed class StringPoolingJsonConverter : JsonConverter<string>
 
 	public const int MaxLengthLimit = 128;
 
-	/// <summary>
-	/// 4 is max count of bytes per character.
-	/// </summary>
-	private const int ByteBufferLength = MaxLengthLimit * 4;
-
 	public static string ReadStringOrGetFromPool(ref Utf8JsonReader reader) => ReadStringOrGetFromPool(ref reader, StringPool);
 
 	/// <param name="reader">The reader.</param>
@@ -41,11 +35,8 @@ public sealed class StringPoolingJsonConverter : JsonConverter<string>
 			return reader.GetString()!;
 		}
 
-		scoped Span<byte> bytes = stackalloc byte[ByteBufferLength];
-		var bytesWritten = reader.CopyString(bytes);
-		bytes = bytes[..bytesWritten];
 		scoped Span<char> chars = stackalloc char[MaxLengthLimit];
-		var charsWritten = Encoding.UTF8.GetChars(bytes, chars);
+		var charsWritten = reader.CopyString(chars);
 		return stringPool.GetOrAdd(chars[..charsWritten]);
 	}
 

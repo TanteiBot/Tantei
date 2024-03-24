@@ -27,12 +27,10 @@ public sealed class DateOnlyFromMalConverter : JsonConverter<DateOnly?>
 		scoped Span<char> buffer = stackalloc char[MaxDateLength];
 		var charsWritten = reader.CopyString(buffer);
 		buffer = buffer[..charsWritten];
-		foreach (var t in Formats)
+
+		if (DateOnly.TryParseExact(buffer, Formats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out var result))
 		{
-			if (DateOnly.TryParseExact(buffer, t, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out var result))
-			{
-				return result;
-			}
+			return result;
 		}
 
 		throw new JsonException("Date doesnt match any of the formats specified");
