@@ -80,6 +80,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Startup", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing", "src\PaperMalKing\PaperMalKing.csproj", "{854435D3-D30B-4AB1-A2AA-F025176F4CE1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{8965EE84-73CC-4177-9B62-2AB1000CBBFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.Benchmarks", "benchmarks\Tantei.Benchmarks\Tantei.Benchmarks.csproj", "{0C0B77D2-37E4-45B3-B487-DC05E9690A2D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -174,6 +178,10 @@ Global
 		{854435D3-D30B-4AB1-A2AA-F025176F4CE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{854435D3-D30B-4AB1-A2AA-F025176F4CE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{854435D3-D30B-4AB1-A2AA-F025176F4CE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C0B77D2-37E4-45B3-B487-DC05E9690A2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C0B77D2-37E4-45B3-B487-DC05E9690A2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C0B77D2-37E4-45B3-B487-DC05E9690A2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C0B77D2-37E4-45B3-B487-DC05E9690A2D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -204,5 +212,6 @@ Global
 		{8863214C-5C97-4E51-91DC-BB65767BD85C} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 		{37562E29-1A5C-480C-A7E6-BC317EC6662D} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 		{854435D3-D30B-4AB1-A2AA-F025176F4CE1} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
+		{0C0B77D2-37E4-45B3-B487-DC05E9690A2D} = {8965EE84-73CC-4177-9B62-2AB1000CBBFF}
 	EndGlobalSection
 EndGlobal

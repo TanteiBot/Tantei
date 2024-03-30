@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BenchmarkDotNet" />
+    </ItemGroup>
+
+    <ItemDefinitionGroup>
+        <PackageReference>
+            <PrivateAssets>none;</PrivateAssets>
+        </PackageReference>    
+    </ItemDefinitionGroup>
+    
+</Project>
