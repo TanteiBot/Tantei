@@ -71,6 +71,9 @@
     <PackageVersion Include="JikanDotNet" Version="2.7.0" />
     <PackageVersion Include="System.Threading.RateLimiting" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.EnumStrings" Version="8.0.0-rc.2.23510.2" />
+      
+    <!-- Benchmarking -->
+    <PackageVersion Include="BenchmarkDotNet" Version="0.13.12" />  
 
     <!-- Analyzers-->
     <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.146">
