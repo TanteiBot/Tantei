@@ -22,6 +22,8 @@ public abstract class BaseColorsCommandModule<TUser, TUpdateType> : BotCommandsM
 
 	protected CustomColorService<TUser, TUpdateType> ColorService { get; }
 
+	protected override bool IsResponseVisibleOnlyForRequester => true;
+
 	protected BaseColorsCommandModule(ILogger<BaseColorsCommandModule<TUser, TUpdateType>> logger, CustomColorService<TUser, TUpdateType> colorService)
 	{
 		this.Logger = logger;

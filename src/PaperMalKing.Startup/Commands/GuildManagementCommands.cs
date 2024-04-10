@@ -28,6 +28,8 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 	private readonly GuildManagementService _managementService;
 	private readonly GeneralUserService _userService;
 
+	protected override bool IsResponseVisibleOnlyForRequester => false;
+
 	public GuildManagementCommands(GuildManagementService managementService, GeneralUserService userService)
 	{
 		this._managementService = managementService;
