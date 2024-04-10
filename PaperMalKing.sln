@@ -41,6 +41,7 @@ ProjectSection(SolutionItems) = preProject
 	.github/workflows/build.yml = .github/workflows/build.yml
 	.github/dependabot.yml = .github/dependabot.yml
 	.github\workflows\commentOnDatabase.yml = .github\workflows\commentOnDatabase.yml
+	.github\workflows\release.yml = .github\workflows\release.yml
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperMalKing.Database.Migrations", "src\PaperMalKing.Database.Migrations\PaperMalKing.Database.Migrations.csproj", "{0615E56A-0908-4115-A91E-79BB6B1DB177}"
