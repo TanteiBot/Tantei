@@ -25,6 +25,8 @@ internal sealed class UngroupedCommands : BotCommandsModule
 {
 	private static DiscordEmbed? _aboutEmbed;
 
+	protected override bool IsResponseVisibleOnlyForRequester => false;
+
 	[SlashCommand("say", "Sends embed in selected channel with selected text")]
 	[OwnerOrPermissions(Permissions.ManageGuild)]
 	public async Task SayCommand(

@@ -23,6 +23,8 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 	protected TUpdateProviderUserService UserService { get; }
 
+	protected override bool IsResponseVisibleOnlyForRequester => false;
+
 	protected BaseUpdateProviderUserCommandsModule(TUpdateProviderUserService userService, ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser>> logger)
 	{
 		this.UserService = userService;
@@ -48,8 +50,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 		this.Logger.SuccessfullyAddedUser(username, context.Member, this.UserService.Name);
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully added {user.Username} to {this.UserService.Name} update checker"))
-					 ;
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully added {user.Username} to {this.UserService.Name} update checker"));
 	}
 
 	public virtual async Task RemoveUserInGuildCommand(InteractionContext context)

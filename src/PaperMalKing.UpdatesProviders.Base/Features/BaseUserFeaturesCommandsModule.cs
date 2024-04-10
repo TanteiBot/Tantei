@@ -23,6 +23,8 @@ public abstract class BaseUserFeaturesCommandsModule<TUser, TFeature> : BotComma
 
 	protected ILogger<BaseUserFeaturesCommandsModule<TUser, TFeature>> Logger { get; }
 
+	protected override bool IsResponseVisibleOnlyForRequester => true;
+
 	protected BaseUserFeaturesCommandsModule(BaseUserFeaturesService<TUser, TFeature> userFeaturesService, ILogger<BaseUserFeaturesCommandsModule<TUser, TFeature>> logger)
 	{
 		this.UserFeaturesService = userFeaturesService;

@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
 namespace PaperMalKing.Common;
@@ -11,9 +12,16 @@ namespace PaperMalKing.Common;
 [SuppressMessage("Minor Code Smell", "S1694:An abstract class should have both abstract and concrete methods", Justification = "We only provide common functionality to inheritors")]
 public abstract class BotCommandsModule : ApplicationCommandModule
 {
+	protected abstract bool IsResponseVisibleOnlyForRequester { get; }
+
 	public override async Task<bool> BeforeSlashExecutionAsync(InteractionContext ctx)
 	{
-		await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+		var responseBuilder = new DiscordInteractionResponseBuilder()
+		{
+			IsEphemeral = this.IsResponseVisibleOnlyForRequester,
+		};
+
+		await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, responseBuilder).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
 		return true;
 	}
 }
