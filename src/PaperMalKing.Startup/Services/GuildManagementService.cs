@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2024 N0D4N
 
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -21,15 +20,12 @@ internal sealed class GuildManagementService
 	private readonly UpdatePublishingService _updatePublishingService;
 	private readonly DiscordClient _discordClient;
 
-	[SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "It's meant to be a singleton")]
 	public GuildManagementService(ILogger<GuildManagementService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, UpdatePublishingService updatePublishingService, DiscordClient discordClient)
 	{
 		this._logger = logger;
 		this._dbContextFactory = dbContextFactory;
-		this._logger.LogTrace("Building {@GuildManagementService}", typeof(GuildManagementService));
 		this._updatePublishingService = updatePublishingService;
 		this._discordClient = discordClient;
-		this._logger.LogTrace("Built {@GuildManagementService}", typeof(GuildManagementService));
 	}
 
 	public async Task<DiscordGuild> SetChannelAsync(ulong guildId, ulong channelId)
