@@ -73,4 +73,10 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Information, "Removing user with {Id} because he has no guilds linked")]
 	public static partial void RemovingUserWithNoGuilds(this ILogger<GeneralUserService> logger, ulong id);
+
+	[LoggerMessage(LogLevel.Error, "Failed to set color of {UnparsedUpdateType} to {ColorValue}")]
+	public static partial void FailedToSetColor(this ILogger<BotCommandsModule> logger, Exception ex, string unparsedUpdateType, string colorValue);
+
+	[LoggerMessage(LogLevel.Error, "Failed to remove color of {UnparsedUpdateType}")]
+	public static partial void FailedToRemoveColor(this ILogger<BotCommandsModule> logger, Exception ex, string unparsedUpdateType);
 }

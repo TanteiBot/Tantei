@@ -36,7 +36,6 @@
             CA1819; <!-- Properties should not return arrays-->
             CA1849; <!--synchronously blocks. Await instead. -->
             CA1812; <!--Avoid uninstantiated internal classes-->
-            CA1848; <!--For improved performance, use the LoggerMessage delegates -->
             CA2007; <!--Consider calling ConfigureAwait on the awaited task -->
             CA2234; <!--Pass System.Uri objects instead of strings-->
 

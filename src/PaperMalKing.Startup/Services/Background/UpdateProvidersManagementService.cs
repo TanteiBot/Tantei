@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.Startup.Services.Background;
 
-[SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "It's rarely being logged, so no need to hold for LoggerMessage")]
 internal sealed class UpdateProvidersManagementService : IHostedService
 {
 	private readonly ILogger<UpdateProvidersManagementService> _logger;
@@ -20,20 +19,18 @@ internal sealed class UpdateProvidersManagementService : IHostedService
 	{
 		this._logger = logger;
 
-		this._logger.LogTrace("Building {@UpdateProvidersManagementService}", typeof(UpdateProvidersManagementService));
 		this._updateProvidersConfigurationService = updateProvidersConfigurationService;
-		this._logger.LogTrace("Built {@UpdateProvidersManagementService}", typeof(UpdateProvidersManagementService));
 	}
 
 	public Task StartAsync(CancellationToken cancellationToken)
 	{
-		this._logger.LogInformation("Starting to wait for shutdown for cancelling update providers checking for updates");
+		this._logger.StartingToWaitForShutdown();
 		return Task.CompletedTask;
 	}
 
 	public Task StopAsync(CancellationToken cancellationToken)
 	{
-		this._logger.LogInformation("Stopping update providers");
+		this._logger.StoppingUpdateProviders();
 		var tasks = new Task[this._updateProvidersConfigurationService.Providers.Count];
 		var providers = this._updateProvidersConfigurationService.Providers.Values.ToArray();
 		for (var i = 0; i < providers.Length; i++)

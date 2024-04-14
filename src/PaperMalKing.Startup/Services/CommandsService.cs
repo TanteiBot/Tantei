@@ -21,11 +21,9 @@ internal sealed class CommandsService : ICommandsService
 
 	public SlashCommandsExtension SlashCommandsExtension { get; }
 
-	[SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "It's meant to be a singleton")]
 	public CommandsService(IServiceProvider provider, DiscordClient client, ILogger<CommandsService> logger)
 	{
 		this._logger = logger;
-		this._logger.LogTrace("Building Commands service");
 
 		this.SlashCommandsExtension = client.UseSlashCommands(new()
 		{
@@ -40,10 +38,10 @@ internal sealed class CommandsService : ICommandsService
 		foreach (var assembly in assemblies.Where(a => a.FullName?.Contains("PaperMalKing", StringComparison.OrdinalIgnoreCase) ?? true))
 		{
 			nestedTypesNotToRegister.Clear();
-			this._logger.LogTrace("Found {Assembly} which may contain Commands modules", assembly);
+			this._logger.FoundAssemblyWhichMayContainCommands(assembly);
 			foreach (var type in assembly.DefinedTypes.Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase)))
 			{
-				this._logger.LogTrace("Trying to register {@Type} command module", type);
+				this._logger.TryingToRegisterTypeAsCommandModule(type);
 				try
 				{
 					if (nestedTypesNotToRegister.Contains(type))
@@ -65,14 +63,14 @@ internal sealed class CommandsService : ICommandsService
 				catch (Exception ex)
 					#pragma warning restore CA1031
 				{
-					this._logger.LogError(ex, "Error occured while trying to register {FullName}", type.FullName);
+					this._logger.ErrorOccuredWhileTryingToRegisterCommandModule(ex, type);
 				}
 
-				this._logger.LogDebug("Successfully registered {@Type}", type);
+				this._logger.SuccessfullyRegisteredType(type);
 			}
 		}
 
-		this._logger.LogTrace("Building Commands service finished");
+		this._logger.BuildingCommandsServiceFinished();
 	}
 
 	private Task SlashCommandsExtensionOnSlashCommandExecutedAsync(SlashCommandsExtension sender, SlashCommandExecutedEventArgs e)

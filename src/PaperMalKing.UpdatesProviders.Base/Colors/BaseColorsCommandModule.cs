@@ -43,7 +43,7 @@ public abstract class BaseColorsCommandModule<TUser, TUpdateType> : BotCommandsM
 		{
 			var embed = ex is ArgumentException or UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
-			this.Logger.LogError(ex, "Failed to set color of {UnparsedUpdateType} to {ColorValue}", unparsedUpdateType, colorValue);
+			this.Logger.FailedToSetColor(ex, unparsedUpdateType, colorValue);
 			throw;
 		}
 
@@ -62,7 +62,7 @@ public abstract class BaseColorsCommandModule<TUser, TUpdateType> : BotCommandsM
 		{
 			var embed = ex is ArgumentException or UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
-			this.Logger.LogError(ex, "Failed to remove color of {UnparsedUpdateType}", unparsedUpdateType);
+			this.Logger.FailedToRemoveColor(ex, unparsedUpdateType);
 			throw;
 		}
 

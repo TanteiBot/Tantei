@@ -30,18 +30,14 @@ internal sealed class UpdatePublishingService
 	private readonly ILoggerFactory _loggerFactory;
 	private readonly ConcurrentDictionary<ulong, UpdatePoster> _updatePosters = new();
 
-	[SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "It's meant to be a singleton")]
 	public UpdatePublishingService(ILogger<UpdatePublishingService> logger, DiscordClient discordClient, IDbContextFactory<DatabaseContext> dbContextFactory, UpdateProvidersConfigurationService updateProvidersConfigurationService, ILoggerFactory loggerFactory)
 	{
 		this._logger = logger;
-		this._logger.LogTrace("Building {@UpdatePublishingService}", typeof(UpdatePublishingService));
-
 		this._discordClient = discordClient;
 		this._dbContextFactory = dbContextFactory;
 		this._updateProvidersConfigurationService = updateProvidersConfigurationService;
 		this._loggerFactory = loggerFactory;
 		this._discordClient.GuildDownloadCompleted += this.DiscordClientOnGuildDownloadCompletedAsync;
-		this._logger.LogTrace("Built {@UpdatePublishingService}", typeof(UpdatePublishingService));
 	}
 
 	private Task DiscordClientOnGuildDownloadCompletedAsync(DiscordClient sender, GuildDownloadCompletedEventArgs e)
@@ -49,18 +45,18 @@ internal sealed class UpdatePublishingService
 		_ = Task.Run(async () =>
 		{
 			await using var db = this._dbContextFactory.CreateDbContext();
-			this._logger.LogDebug("Starting querying posting channels");
+			this._logger.StartingQueryingPostingChannels();
 			foreach (var guild in db.DiscordGuilds.TagWith("Query guild to save posting channels").TagWithCallSite().AsNoTracking().ToArray())
 			{
-				this._logger.LogTrace("Trying to get guild with {Id}", guild.DiscordGuildId);
+				this._logger.TryingToGetGuildWithId(guild.DiscordGuildId);
 				var discordGuild = e.Guilds[guild.DiscordGuildId];
-				this._logger.LogTrace("Loaded guild {Guild}", discordGuild);
+				this._logger.LoadedGuild(discordGuild);
 				#pragma warning disable EA0013
 				// Consider removing unnecessary null coalescing (??) since the left-hand value is statically known not to be null
 				var channel = discordGuild.GetChannel(guild.PostingChannelId) ??
 							  (await discordGuild.GetChannelsAsync()).FirstOrDefault(ch => ch.Id == guild.PostingChannelId);
 				#pragma warning restore EA0013
-				this._logger.LogTrace("Loaded channel {Channel} in guild {DiscordGuild}", channel, discordGuild);
+				this._logger.LoadedChannelInGuild(channel, discordGuild);
 				if (channel is not null)
 				{
 					this.AddChannel(channel);
@@ -76,9 +72,9 @@ internal sealed class UpdatePublishingService
 				}
 			}
 
-			this._logger.LogDebug("Ended querying posting channels");
+			this._logger.EndedQueryingPostingChannels();
 			this._discordClient.GuildDownloadCompleted -= this.DiscordClientOnGuildDownloadCompletedAsync;
-		}).ContinueWith(task => this._logger.LogError(task.Exception, "Task on loading channels to post to failed"), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
+		}).ContinueWith(task => this._logger.LoadingChannelsToPostFailed(task.Exception), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Current);
 		return Task.CompletedTask;
 	}
 
