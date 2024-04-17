@@ -21,7 +21,7 @@ public static class ServiceCollectionExtensions
 {
 	public static void AddAniList(this IServiceCollection serviceCollection, IConfiguration configuration)
 	{
-		serviceCollection.AddOptions<AniListOptions>().Bind(configuration.GetSection(AniListOptions.AniList));
+		serviceCollection.AddOptions<AniListOptions>().Bind(configuration.GetSection(AniListOptions.AniList)).ValidateDataAnnotations().ValidateOnStart();
 
 		serviceCollection.AddHttpClient(ProviderConstants.Name).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
 		{

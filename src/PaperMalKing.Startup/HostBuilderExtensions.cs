@@ -52,7 +52,7 @@ public static class HostBuilderExtensions
 			services.AddDbContext<DatabaseContext>(ConfigureDbContext);
 			var config = hostContext.Configuration;
 
-			services.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord));
+			services.AddOptions<DiscordOptions>().Bind(config.GetSection(DiscordOptions.Discord)).ValidateDataAnnotations().ValidateOnStart();
 			services.AddSingleton<DiscordClient>(provider =>
 			{
 				var options = provider.GetRequiredService<IOptions<DiscordOptions>>();

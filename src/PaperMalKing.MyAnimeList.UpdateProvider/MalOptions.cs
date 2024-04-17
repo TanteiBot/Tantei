@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2024 N0D4N
 
+using System.ComponentModel.DataAnnotations;
 using PaperMalKing.Common.Options;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 
@@ -10,11 +11,19 @@ internal sealed class MalOptions : IRateLimitOptions<IMyAnimeListClient>, ITimer
 {
 	public const string MyAnimeList = Constants.Name;
 
-	public required int AmountOfRequests { get; init; }
+	[Required]
+	[Range(0, int.MaxValue)]
+	public int AmountOfRequests { get; init; }
 
-	public required int PeriodInMilliseconds { get; init; }
+	[Required]
+	[Range(0, int.MaxValue)]
+	public int PeriodInMilliseconds { get; init; }
 
-	public required int DelayBetweenChecksInMilliseconds { get; init; }
+	[Required]
+	[Range(0, int.MaxValue)]
+	public int DelayBetweenChecksInMilliseconds { get; init; }
 
-	public required string ClientId { get; init; }
+	[Required]
+	[StringLength(int.MaxValue, MinimumLength = 1)]
+	public string ClientId { get; init; } = null!;
 }
