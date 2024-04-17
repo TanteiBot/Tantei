@@ -26,7 +26,7 @@ public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection AddMyAnimeList(this IServiceCollection serviceCollection, IConfiguration configuration)
 	{
-		serviceCollection.AddOptions<MalOptions>().Bind(configuration.GetSection(Constants.Name));
+		serviceCollection.AddOptions<MalOptions>().Bind(configuration.GetSection(Constants.Name)).ValidateDataAnnotations().ValidateOnStart();
 		serviceCollection.AddSingleton(RateLimiterExtensions.ConfigurationLambda<MalOptions, IMyAnimeListClient>);
 
 		var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError().OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
