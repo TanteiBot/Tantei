@@ -17,7 +17,6 @@
         <NuGetAudit>true</NuGetAudit>
         <NuGetAuditLevel>low</NuGetAuditLevel>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-        <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <NoWarn>$(NoWarn);
             CS1591; <!--Missing XML comment for publicly visible type or member-->
