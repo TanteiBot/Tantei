@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection AddShikimori(this IServiceCollection serviceCollection, IConfiguration configuration)
 	{
-		serviceCollection.AddOptions<ShikiOptions>().Bind(configuration.GetSection(Constants.Name)).ValidateDataAnnotations().ValidateOnStart();
+		serviceCollection.AddOptions<ShikiOptions>().BindConfiguration(Constants.Name).ValidateDataAnnotations().ValidateOnStart();
 
 		var policy = HttpPolicyExtensions.HandleTransientHttpError().OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
 										 .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));

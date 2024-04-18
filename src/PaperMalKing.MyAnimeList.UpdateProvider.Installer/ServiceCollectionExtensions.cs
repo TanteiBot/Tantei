@@ -6,7 +6,6 @@ using System.Net;
 using System.Net.Http;
 using JikanDotNet;
 using JikanDotNet.Config;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,9 +23,9 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Installer;
 
 public static class ServiceCollectionExtensions
 {
-	public static IServiceCollection AddMyAnimeList(this IServiceCollection serviceCollection, IConfiguration configuration)
+	public static IServiceCollection AddMyAnimeList(this IServiceCollection serviceCollection)
 	{
-		serviceCollection.AddOptions<MalOptions>().Bind(configuration.GetSection(Constants.Name)).ValidateDataAnnotations().ValidateOnStart();
+		serviceCollection.AddOptions<MalOptions>().BindConfiguration(Constants.Name).ValidateDataAnnotations().ValidateOnStart();
 		serviceCollection.AddSingleton(RateLimiterExtensions.ConfigurationLambda<MalOptions, IMyAnimeListClient>);
 
 		var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError().OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)

@@ -39,8 +39,8 @@ internal sealed class UpdateProvidersConfigurationService
 
 	public static void ConfigureProviders(IConfiguration configuration, IServiceCollection services)
 	{
-		services.AddAniList(configuration);
-		services.AddMyAnimeList(configuration);
+		services.AddAniList();
+		services.AddMyAnimeList();
 		services.AddShikimori(configuration);
 	}
 }

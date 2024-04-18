@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Text.Json;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.SystemTextJson;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper;
@@ -19,9 +18,9 @@ namespace PaperMalKing.AniList.UpdateProvider.Installer;
 
 public static class ServiceCollectionExtensions
 {
-	public static void AddAniList(this IServiceCollection serviceCollection, IConfiguration configuration)
+	public static void AddAniList(this IServiceCollection serviceCollection)
 	{
-		serviceCollection.AddOptions<AniListOptions>().Bind(configuration.GetSection(AniListOptions.AniList)).ValidateDataAnnotations().ValidateOnStart();
+		serviceCollection.AddOptions<AniListOptions>().BindConfiguration(AniListOptions.AniList).ValidateDataAnnotations().ValidateOnStart();
 
 		serviceCollection.AddHttpClient(ProviderConstants.Name).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
 		{
