@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Text.Json;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.SystemTextJson;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper;
