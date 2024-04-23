@@ -5,7 +5,7 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>  </PropertyGroup>
   <PropertyGroup>
     <EntityFrameworkCoreVersion>8.0.4</EntityFrameworkCoreVersion>
-    <GraphQLClientVersion>6.0.3</GraphQLClientVersion>
+    <GraphQLClientVersion>6.0.5</GraphQLClientVersion>
     <DSharpPlusVersion>4.4.6</DSharpPlusVersion>
     <CommunityTookitVersion>8.2.2</CommunityTookitVersion>
 
