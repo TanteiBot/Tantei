@@ -2,7 +2,10 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using PaperMalKing.Common.Options;
 using PaperMalKing.Common.RateLimiters;
@@ -59,5 +62,31 @@ public static partial class TypeExtensions
 			span[0] = char.ToUpperInvariant(s[0]);
 			s.AsSpan(1).CopyTo(span[1..]);
 		});
+	}
+
+	public static string GetFullMessage(this Exception ex)
+	{
+		if (ex.InnerException is null)
+		{
+			return ex.Message;
+		}
+
+		return string.Join(";\n", GetMessage(ex).Where(x => !string.IsNullOrWhiteSpace(x)));
+
+		static IEnumerable<string> GetMessage(Exception exception)
+		{
+			while (true)
+			{
+				yield return exception.Message;
+
+				if (exception.InnerException is not null)
+				{
+					exception = exception.InnerException;
+					continue;
+				}
+
+				break;
+			}
+		}
 	}
 }

@@ -43,7 +43,7 @@ public abstract class BaseUserFeaturesCommandsModule<TUser, TFeature> : BotComma
 		catch (Exception ex)
 		{
 			var embed = ex is UserFeaturesException ufe
-				? EmbedTemplate.ErrorEmbed(ufe.Message, $"Failed enabling {feature.Humanize()}").Build()
+				? EmbedTemplate.ErrorEmbed(ufe.GetFullMessage(), $"Failed enabling {feature.Humanize()}").Build()
 				: EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			this.Logger.FailedToEnableFeature(ex, feature, context.Member.DisplayName);
@@ -65,7 +65,7 @@ public abstract class BaseUserFeaturesCommandsModule<TUser, TFeature> : BotComma
 		catch (Exception ex)
 		{
 			var embed = ex is UserFeaturesException ufe
-				? EmbedTemplate.ErrorEmbed(ufe.Message, $"Failed disabling {feature.Humanize()}").Build()
+				? EmbedTemplate.ErrorEmbed(ufe.GetFullMessage(), $"Failed disabling {feature.Humanize()}").Build()
 				: EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			this.Logger.FailedToDisableFeature(ex, feature, context.Member.DisplayName);

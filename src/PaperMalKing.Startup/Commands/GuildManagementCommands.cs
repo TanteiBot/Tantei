@@ -44,8 +44,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		channel ??= context.Channel;
 		if (channel.IsCategory || channel.IsThread)
 		{
-			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"))
-						 ;
+			await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"));
 			return;
 		}
 
@@ -56,15 +55,14 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 			{
 				await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed(
 								 $"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages",
-								 "Permissions error"))
-							 ;
+								 "Permissions error"));
 			}
 
 			await this._managementService.SetChannelAsync(channel.GuildId!.Value, channel.Id);
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			throw;
 		}
@@ -100,7 +98,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			throw;
 		}
@@ -117,7 +115,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			throw;
 		}
@@ -137,7 +135,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			throw;
 		}
