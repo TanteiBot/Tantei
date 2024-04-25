@@ -42,7 +42,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			this.Logger.FailAddingUser(ex, username, context.Member, this.UserService.Name);
 			throw;
@@ -63,7 +63,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			this.Logger.FailRemovingUser(ex, context.Member, this.UserService.Name);
 
@@ -72,8 +72,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 		this.Logger.SuccessfullyRemovedUser(context.Member, this.UserService.Name);
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully removed yourself from {this.UserService.Name} update checker"))
-					 ;
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully removed yourself from {this.UserService.Name} update checker"));
 	}
 
 	public virtual async Task RemoveUserHereCommand(InteractionContext context)
@@ -84,7 +83,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			throw;
 		}
@@ -118,7 +117,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.Message) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			throw;
 		}

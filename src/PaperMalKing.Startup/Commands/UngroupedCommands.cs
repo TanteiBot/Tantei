@@ -46,18 +46,20 @@ internal sealed class UngroupedCommands : BotCommandsModule
 			Timestamp = TimeProvider.System.GetUtcNow(),
 			Color = DiscordColor.Blue,
 		}.WithAuthor($"{context.User.Username}#{context.User.Discriminator}", iconUrl: context.User.AvatarUrl);
+
 		try
 		{
 			await channelToSayIn.SendMessageAsync(embed: embed);
 		}
-		#pragma warning disable CA1031
+		#pragma warning disable CA1031, ERP022
 		// Modify 'SayCommand' to catch a more specific allowed exception type, or rethrow the exception
+		// An exit point '}' swallows an unobserved exception
 		catch
-			#pragma warning restore CA1031
 		{
 			await context.EditResponseAsync(
 				new DiscordWebhookBuilder().WithContent("Couldn't send message. Check permissions for bot and try again."));
 		}
+		#pragma warning restore CA1031, ERP022
 	}
 
 	[SlashCommand("About", "Displays info about bot")]

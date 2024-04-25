@@ -105,6 +105,14 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
+    <GlobalPackageReference Include="ErrorProne.NET.CoreAnalyzers" Version="0.6.1-beta.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </GlobalPackageReference>
+    <GlobalPackageReference Include="ErrorProne.NET.Structs" Version="0.6.1-beta.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </GlobalPackageReference>  
       
     <!-- Testing -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
