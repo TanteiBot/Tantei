@@ -5,7 +5,7 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>  </PropertyGroup>
   <PropertyGroup>
     <EntityFrameworkCoreVersion>8.0.4</EntityFrameworkCoreVersion>
-    <GraphQLClientVersion>6.0.3</GraphQLClientVersion>
+    <GraphQLClientVersion>6.0.5</GraphQLClientVersion>
     <DSharpPlusVersion>4.4.6</DSharpPlusVersion>
     <CommunityTookitVersion>8.2.2</CommunityTookitVersion>
 
@@ -81,7 +81,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="9.23.2.88755">
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="9.24.0.89429">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -101,7 +101,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="Roslynator.Analyzers" Version="4.12.1">
+    <GlobalPackageReference Include="Roslynator.Analyzers" Version="4.12.2">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
