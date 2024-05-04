@@ -97,7 +97,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.9.28">
+    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.10.48">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
