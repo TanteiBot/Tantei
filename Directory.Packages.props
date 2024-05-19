@@ -61,7 +61,7 @@
     <!-- Web -->
     <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="8.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.4" />
+    <PackageVersion Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.5" />
 
     <!-- Misc -->
     <PackageVersion Include="CommunityToolkit.HighPerformance" Version="$(CommunityTookitVersion)" />
