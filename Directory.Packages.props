@@ -4,7 +4,7 @@
     <EnablePackageVersionOverride>false</EnablePackageVersionOverride>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>  </PropertyGroup>
   <PropertyGroup>
-    <EntityFrameworkCoreVersion>8.0.5</EntityFrameworkCoreVersion>
+    <EntityFrameworkCoreVersion>8.0.6</EntityFrameworkCoreVersion>
     <GraphQLClientVersion>6.1.0</GraphQLClientVersion>
     <DSharpPlusVersion>4.4.6</DSharpPlusVersion>
     <CommunityTookitVersion>8.2.2</CommunityTookitVersion>
