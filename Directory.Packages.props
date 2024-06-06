@@ -112,7 +112,11 @@
     <GlobalPackageReference Include="ErrorProne.NET.Structs" Version="0.6.1-beta.1">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </GlobalPackageReference>  
+    </GlobalPackageReference>
+    <GlobalPackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </GlobalPackageReference>
       
     <!-- Testing -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
