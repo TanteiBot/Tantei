@@ -18,6 +18,7 @@
         <NuGetAuditLevel>low</NuGetAuditLevel>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+        <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
         <NoWarn>$(NoWarn);
             CS1591; <!--Missing XML comment for publicly visible type or member-->
             
@@ -143,5 +144,6 @@
         <AssemblyAttribute Include="System.CLSCompliantAttribute">
             <_Parameter1>false</_Parameter1>
         </AssemblyAttribute>
+        <AdditionalFiles Include="$(SolutionDir)\BannedSymbols.txt" />
     </ItemGroup>
 </Project>
