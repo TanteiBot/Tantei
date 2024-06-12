@@ -45,11 +45,12 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 	{
 		static bool HasUserBeenInactiveRecently(MalUser x)
 		{
+			const int oneThird = 3;
 			var now = TimeProvider.System.GetUtcNow().ToUnixTimeMilliseconds();
 			if ((now - Math.Max(x.LastUpdatedAnimeListTimestamp.ToUnixTimeMilliseconds(), x.LastUpdatedMangaListTimestamp.ToUnixTimeMilliseconds())) >
 				TimeSpan.FromDays(5).TotalMilliseconds)
 			{
-				return now % 3 == 0;
+				return now % oneThird == 0;
 			}
 
 			return false;
@@ -86,6 +87,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 			using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 			cts.CancelAfter(TimeSpan.FromMinutes(5));
 			var perUserCancellationToken = cts.Token;
+			const int serverSideErrorHttpCode = 500;
 			try
 			{
 				user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), perUserCancellationToken);
@@ -100,7 +102,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 				await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
 				continue;
 			}
-			catch (HttpRequestException exception) when ((int?)exception.StatusCode >= 500)
+			catch (HttpRequestException exception) when ((int?)exception.StatusCode >= serverSideErrorHttpCode)
 			{
 				this.Logger.MalServerError(exception);
 				return;
@@ -161,7 +163,10 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 		}
 	}
 
-	private async IAsyncEnumerable<DiscordEmbedBuilder> GetUpdatesAsync(IReadOnlyList<DiscordEmbedBuilder> animeListUpdates, IReadOnlyList<DiscordEmbedBuilder> mangaListUpdates, MalUser dbUser, User user, DatabaseContext db, [EnumeratorCancellation] CancellationToken cancellationToken)
+	private async IAsyncEnumerable<DiscordEmbedBuilder> GetUpdatesAsync(IReadOnlyList<DiscordEmbedBuilder> animeListUpdates,
+																		IReadOnlyList<DiscordEmbedBuilder> mangaListUpdates,
+																		MalUser dbUser, User user, DatabaseContext db,
+																		[EnumeratorCancellation] CancellationToken cancellationToken)
 	{
 		static DiscordEmbedBuilder FormatEmbed(MalUser dbUser, DiscordEmbedBuilder deb)
 		{
@@ -178,7 +183,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 			return deb;
 		}
 
-		int updatesCount = 0;
+		var updatesCount = 0;
 
 		var isFavoritesHashMismatch = !dbUser.FavoritesIdHash.Equals(HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()), StringComparison.Ordinal);
 
@@ -238,7 +243,8 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 		this.Logger.FoundUpdatesForUser(updatesCount, user.Username);
 	}
 
-	private async Task<IReadOnlyList<DiscordEmbedBuilder>> CheckLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(MalUser dbUser, User user, DateTimeOffset latestUpdateDateTime, CancellationToken ct)
+	private async Task<IReadOnlyList<DiscordEmbedBuilder>> CheckLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
+		MalUser dbUser, User user, DateTimeOffset latestUpdateDateTime, CancellationToken ct)
 		where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 		where TL : IListType
 		where TRO : unmanaged, Enum

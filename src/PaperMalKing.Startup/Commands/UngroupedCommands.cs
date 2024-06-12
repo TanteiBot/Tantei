@@ -97,7 +97,7 @@ internal sealed class UngroupedCommands : BotCommandsModule
 				Color = DiscordColor.DarkBlue,
 			}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
 			 .AddField("Links", Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)), inline: true)
-			 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), inline: true).AddField("Versions", versions, inline: false);
+			 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), inline: true).AddField("Versions", versions);
 
 		Interlocked.Exchange(ref _aboutEmbed, embedBuilder.Build());
 

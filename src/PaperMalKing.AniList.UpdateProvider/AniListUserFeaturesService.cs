@@ -58,6 +58,12 @@ internal sealed class AniListUserFeaturesService(IAniListClient _client, ILogger
 				dbUser.LastReviewTimestamp = now;
 				break;
 			}
+
+			default:
+			{
+				// We dont care about others
+				break;
+			}
 		}
 
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);

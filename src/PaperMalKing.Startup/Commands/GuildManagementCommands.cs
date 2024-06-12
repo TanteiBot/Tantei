@@ -128,5 +128,6 @@ internal sealed class GuildManagementCommands(GuildManagementService _management
 	}
 
 	[SlashCommand("forceremoveuser", "Remove this user from being tracked in this server")]
-	public Task ForceRemoveUserCommand(InteractionContext context, [Option(nameof(user), "Discord user to remove from being tracked")] DiscordUser user) => this.ForceRemoveUserCommand(context, (long)user.Id);
+	public Task ForceRemoveUserCommand(InteractionContext context, [Option(nameof(user), "Discord user to remove from being tracked")] DiscordUser user)
+		=> this.ForceRemoveUserCommand(context, (long)user.Id);
 }

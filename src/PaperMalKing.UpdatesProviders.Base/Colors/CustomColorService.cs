@@ -31,7 +31,8 @@ public sealed class CustomColorService<TUser, TUpdateType>
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
 
-		var user = db.Set<TUser>().TagWith("Getting user to set color").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ?? throw new UserProcessingException("You must create account first");
+		var user = db.Set<TUser>().TagWith("Getting user to set color").TagWithCallSite()
+					 .FirstOrDefault(u => u.DiscordUserId == userId) ?? throw new UserProcessingException("You must create account first");
 		var byteType = Unsafe.As<TUpdateType, byte>(ref updateType);
 
 		user.Colors.RemoveAll(c => c.UpdateType == byteType);
@@ -57,7 +58,6 @@ public sealed class CustomColorService<TUser, TUpdateType>
 		await db.SaveChangesAndThrowOnNoneAsync();
 	}
 
-	[SuppressMessage("Major Code Smell", "S2971:LINQ expressions should be simplified", Justification = "We must materialize it")]
 	[SuppressMessage("Performance", "EA0006:Replace uses of \'Enum.GetName\' and \'Enum.ToString\' for improved performance", Justification = "We don't know type here")]
 	public string? OverridenColors(ulong userId)
 	{

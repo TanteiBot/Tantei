@@ -93,26 +93,26 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 	public virtual async Task ListUsersCommand(InteractionContext context)
 	{
+		const int discordDescriptionLimit = 2048;
 		var sb = new StringBuilder();
 		try
 		{
 			var i = 1;
 			foreach (var user in this.UserService.ListUsers(context.Guild.Id))
 			{
-				if (sb.Length + user.Username.Length > 2048)
+				if (sb.Length + user.Username.Length <= discordDescriptionLimit)
 				{
-					if (sb.Length + "…".Length > 2048)
-					{
-						break;
-					}
-
-					sb.Append('…');
+					sb.AppendLine(CultureInfo.InvariantCulture,
+						$"{i++}. {user.Username} {(user.DiscordUser is null ? "" : DiscordHelpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
+				}
+				else if (sb.Length + "…".Length <= discordDescriptionLimit)
+				{
+						sb.Append('…');
+				}
+				else
+				{
 					break;
 				}
-
-				sb.AppendLine(
-					CultureInfo.InvariantCulture,
-					$"{i++}. {user.Username} {(user.DiscordUser is null ? "" : DiscordHelpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
 			}
 		}
 		catch (Exception ex)

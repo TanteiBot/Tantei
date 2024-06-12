@@ -2,10 +2,11 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CommunityToolkit.HighPerformance.Buffers;
+using System.Threading;
 
 namespace PaperMalKing.Common.Json;
 
@@ -16,18 +17,19 @@ namespace PaperMalKing.Common.Json;
 /// </summary>
 public sealed class StringPoolingJsonConverter : JsonConverter<string>
 {
-	private static readonly StringPool StringPool = new();
+	private static readonly HashSet<string> StringPool = new(StringComparer.Ordinal);
 
 	public const int MaxLengthLimit = 256;
 
-	public static string ReadStringOrGetFromPool(ref Utf8JsonReader reader) => ReadStringOrGetFromPool(ref reader, StringPool);
+	public static string ReadStringOrGetFromPool(ref Utf8JsonReader reader) => ReadStringOrGetFromPool(ref reader, StringPool, readerWriterLock: null);
 
 	/// <param name="reader">The reader.</param>
 	/// <param name="stringPool">Pool to pool to or from value.</param>
+	/// <param name="readerWriterLock">lock controlling access to string pool.</param>
 	/// <remarks>
 	/// Uses ref in order to not copy struct when invoking <see cref="Utf8JsonReader.GetString"/> in unhappy paths.
 	/// </remarks>
-	public static string ReadStringOrGetFromPool(scoped ref Utf8JsonReader reader, StringPool stringPool)
+	public static string ReadStringOrGetFromPool(scoped ref Utf8JsonReader reader, HashSet<string> stringPool, ReaderWriterLockSlim? readerWriterLock)
 	{
 		Debug.Assert(reader.TokenType == JsonTokenType.String, "Must be a string");
 		if (reader.ValueIsEscaped || (reader.HasValueSequence ? reader.ValueSequence.Length : reader.ValueSpan.Length) > MaxLengthLimit)
@@ -37,12 +39,29 @@ public sealed class StringPoolingJsonConverter : JsonConverter<string>
 
 		scoped Span<char> chars = stackalloc char[MaxLengthLimit];
 		var charsWritten = reader.CopyString(chars);
-		return stringPool.GetOrAdd(chars[..charsWritten]);
+		readerWriterLock?.EnterReadLock();
+		var alternateLookup = stringPool.GetAlternateLookup<ReadOnlySpan<char>>();
+
+		var searchValue = chars[..charsWritten];
+		if (!alternateLookup.TryGetValue(searchValue, out var result))
+		{
+			readerWriterLock?.ExitReadLock();
+			readerWriterLock?.EnterWriteLock();
+			result = new string(searchValue);
+			stringPool.Add(result);
+			readerWriterLock?.ExitWriteLock();
+		}
+		else
+		{
+			readerWriterLock?.ExitReadLock();
+		}
+
+		return result;
 	}
 
 	public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
-		return ReadStringOrGetFromPool(ref reader, StringPool);
+		return ReadStringOrGetFromPool(ref reader, StringPool, readerWriterLock: null);
 	}
 
 	public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)

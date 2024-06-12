@@ -25,10 +25,11 @@ public static class EmbedTemplate
 
 	public static DiscordEmbedBuilder SuccessEmbed(string message)
 	{
+		const int discordTitleLengthLimit = 256;
 		var embedBuilder = new DiscordEmbedBuilder
 		{
 			Color = GreenishColor,
 		};
-		return message.Length > 256 ? embedBuilder.WithDescription(message) : embedBuilder.WithTitle(message);
+		return message.Length > discordTitleLengthLimit ? embedBuilder.WithDescription(message) : embedBuilder.WithTitle(message);
 	}
 }

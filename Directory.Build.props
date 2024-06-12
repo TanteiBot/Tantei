@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <LangVersion>12</LangVersion>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
         <OutputType>Library</OutputType>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>nullable</WarningsAsErrors>
@@ -9,7 +9,7 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <DebugType>portable</DebugType>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-        <AnalysisLevel>9</AnalysisLevel>
+        <AnalysisLevel>10</AnalysisLevel>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisMode>All</AnalysisMode>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -19,12 +19,18 @@
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <GitVersion_NoFetchEnabled>true</GitVersion_NoFetchEnabled>
+        <GitVersionTargetFramework>net8.0</GitVersionTargetFramework>
+        <NuGetAudit>true</NuGetAudit>
+        <NuGetAuditLevel>low</NuGetAuditLevel>
+        <NuGetAuditMode>all</NuGetAuditMode>
+        <!--<StaticAnalysisCodeType>General</StaticAnalysisCodeType>-->
         <NoWarn>$(NoWarn);
             CS1591; <!--Missing XML comment for publicly visible type or member-->
             
             CA1000; <!--Do not declare static members on generic types-->
             CA1002; <!--Change 'List ' to use 'Collection ', 'ReadOnlyCollection ' or 'KeyedCollection'-->
             CA1003; <!--Use generic event handler instances-->
+            CA1005; <!-- Consider a design where X has no more than 2 type parameters-->
             CA1008; <!--Enums should have zero value-->
             CA1028; <!--Enum storage should be Int32-->
             CA1032; <!--Implement standard exception constructors-->
@@ -76,8 +82,11 @@
             S1694; <!--Convert this 'abstract' class to a concrete type with a protected constructor. -->
             S1994; <!--This loop's stop condition tests 'X' but the incrementer updates 'Y'.-->
             S2139; <!--Either log this exception and handle it, or rethrow it with some contextual information.-->
+            S2302; <!--Replace the string 'param' with 'nameof(param)'-->
             S2326; <!--'T' is not used in the interface.-->
             S2743; <!-- Static fields should not be used in generic types-->
+            S3236; <!--Remove this argument from the method call; it hides the caller information.-->
+            S3872; <!--Rename the parameter so that it does not duplicate the method name-->
             S3906; <!--Change the signature of that event handler to match the specified signature. -->
             S3908; <!--Refactor this delegate to use 'System.EventHandler<TEventArgs>'. -->
             S3925; <!--Update this implementation of 'ISerializable' to conform to the recommended serialization pattern.-->
@@ -88,6 +97,7 @@
 
             SA1122; <!--Use string.Empty for empty strings -->
             SA1116; <!--The parameters should begin on the line after the declaration, whenever the parameter span across multiple lines-->
+            SA1117; <!-- The parameters should all be placed on the same line or each parameter should be placed on its own line-->
             SA1200; <!--Using directive should appear within a namespace declaration-->
             SA1201; <!--A constructor should not follow a property -->
             SA1202; <!--'public' members should come before 'private' members -->

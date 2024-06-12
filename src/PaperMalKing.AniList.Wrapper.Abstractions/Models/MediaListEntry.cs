@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
@@ -46,6 +47,7 @@ public sealed class MediaListEntry
 	[JsonPropertyName("customLists")]
 	public IReadOnlyList<CustomList>? CustomLists { get; init; } = [];
 
+	[SuppressMessage("Major Code Smell", "S109:Magic numbers should not be used", Justification = "Obvious from usage")]
 	public string GetScore(ScoreFormat scoreFormat)
 	{
 		if (this.Point3Score is 0 && this.Point5Score is 0 && this.Point10Score is 0 && this.Point100Score is 0)

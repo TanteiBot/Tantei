@@ -78,7 +78,8 @@ internal sealed class MalCommands : ApplicationCommandModule
 									  [Option("color", "Color code in hex like #FFFFFF")] string colorValue) => Task.FromResult(base.SetColor(context, unparsedUpdateType, colorValue));
 
 		[SlashCommand("remove", "Restore default color for update type")]
-		public override Task RemoveColor(InteractionContext context, [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<MalUpdateType>, MalUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType) => base.RemoveColor(context, unparsedUpdateType);
+		public override Task RemoveColor(InteractionContext context, [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<MalUpdateType>, MalUpdateType>)),
+																	  Option("updateType", "Type of update to set color for")] string unparsedUpdateType) => base.RemoveColor(context, unparsedUpdateType);
 
 		[SlashCommand("list", "Lists your overriden types")]
 		public override Task<DiscordMessage> ListOverridenColor(InteractionContext context) => base.ListOverridenColor(context);

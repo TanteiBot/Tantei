@@ -26,8 +26,10 @@ namespace PaperMalKing.Shikimori.UpdateProvider;
 
 internal static partial class Extensions
 {
-	[GeneratedRegex(@"\[.+?\]", RegexOptions.Compiled | RegexOptions.NonBacktracking, 2000 /*2s*/)]
-	private static partial Regex BracketsRegex();
+	private const int RegexTimeout = 2000;
+
+	[GeneratedRegex(@"\[.+?\]", RegexOptions.Compiled | RegexOptions.NonBacktracking, RegexTimeout /*2s*/)]
+	private static partial Regex BracketsRegex { get; }
 
 	private static readonly DiscordEmbedBuilder.EmbedFooter ShikiUpdateProviderFooter = new()
 	{
@@ -85,7 +87,8 @@ internal static partial class Extensions
 		var acc = new List<History>(50);
 		var hnp = true;
 		var isLimitReached = false;
-		for (page = 1, limit = 100; hnp && !isLimitReached; page++)
+		const int shikiMaxHistoryLimit = 100;
+		for (page = 1, limit = shikiMaxHistoryLimit; hnp && !isLimitReached; page++)
 		{
 			var (paginatedData, paginatedHasNextPage) =
 				await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken);
@@ -215,6 +218,10 @@ internal static partial class Extensions
 				eb.AddField("Total", $"{episodes} ep.", inline: true);
 			}
 		}
+		else
+		{
+			// No other type besides episodes or chapters exist
+		}
 
 		eb.FillMediaInfo(history.Media, history.Roles, features, target.Type);
 
@@ -337,7 +344,7 @@ internal static partial class Extensions
 
 		if (features.HasFlag(ShikiUserFeatures.Description) && !string.IsNullOrWhiteSpace(media?.Description))
 		{
-			var text = BracketsRegex().Replace(media.Description, "").Truncate(350);
+			var text = BracketsRegex.Replace(media.Description, "").Truncate(350);
 			if (!string.IsNullOrEmpty(text))
 			{
 				eb.AddField("Description", text);

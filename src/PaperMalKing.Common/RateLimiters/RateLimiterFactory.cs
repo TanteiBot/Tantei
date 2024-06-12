@@ -18,12 +18,14 @@ public static class RateLimiterFactory
 			return new RateLimiter<T>(NullRateLimiter.Instance);
 		}
 
+		const int queueLimit = 200;
+
 		return new RateLimiter<T>(new FixedWindowRateLimiter(new()
 		{
 			Window = TimeSpan.FromMilliseconds(rateLimitValue.PeriodInMilliseconds),
 			AutoReplenishment = true,
 			PermitLimit = rateLimitValue.AmountOfRequests,
-			QueueLimit = 200,
+			QueueLimit = queueLimit,
 			QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
 		}));
 	}

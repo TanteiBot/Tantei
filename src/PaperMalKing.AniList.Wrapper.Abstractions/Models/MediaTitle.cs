@@ -10,7 +10,8 @@ namespace PaperMalKing.AniList.Wrapper.Abstractions.Models;
 
 public sealed class MediaTitle
 {
-	private readonly string?[] _titles = new string?[(int)(Enum.GetValuesAsUnderlyingType<TitleLanguage>() as TitleLanguage[])!.MaxBy(x => (byte)x) + 1];
+	private static readonly int MaxTitles = (int)(Enum.GetValuesAsUnderlyingType<TitleLanguage>() as TitleLanguage[])!.MaxBy(static x => (byte)x) + 1;
+	private readonly string?[] _titles = new string?[MaxTitles];
 
 	[JsonPropertyName("stylisedRomaji")]
 	public string? StylisedRomaji

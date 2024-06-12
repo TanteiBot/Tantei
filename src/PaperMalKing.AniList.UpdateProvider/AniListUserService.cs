@@ -78,6 +78,10 @@ internal sealed class AniListUserService(ILogger<AniListUserService> logger, IAn
 		{
 			dUser.Guilds.Add(guild);
 		}
+		else
+		{
+			// Case is handled above
+		}
 
 		dbUser = new()
 		{
@@ -106,6 +110,6 @@ internal sealed class AniListUserService(ILogger<AniListUserService> logger, IAn
 
 	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		return this.ListUsersCore(guildId, u => u.LastActivityTimestamp, u => new("", u.DiscordUser));
+		return this.ListUsersCore(guildId, static u => u.LastActivityTimestamp, static u => new("", u.DiscordUser));
 	}
 }

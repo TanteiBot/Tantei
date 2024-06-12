@@ -11,7 +11,7 @@ public static class DiscordHelpers
 {
 	public static string ToDiscordMention(ulong id) => $"<@!{id}>";
 
-	public static Task<DiscordMessage> EditResponseAsync(this InteractionContext context, DiscordEmbed embed)
+	public static Task<DiscordMessage> EditResponseAsync(this BaseContext context, DiscordEmbed embed)
 	{
 		return context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
 	}

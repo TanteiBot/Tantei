@@ -64,6 +64,12 @@ internal sealed class MalUserFeaturesService(IMyAnimeListClient _client, ILogger
 				dbUser.FavoriteCompanies = user.Favorites.FavoriteCompanies.Select(x => x.ToMalFavoriteCompany(dbUser)).ToList();
 				break;
 			}
+
+			default:
+			{
+				// Ignore all other
+				break;
+			}
 		}
 
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);

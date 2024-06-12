@@ -10,6 +10,7 @@ using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.Common;
 using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Startup.Services;
@@ -38,22 +39,14 @@ internal sealed class CommandsService : ICommandsService
 		{
 			nestedTypesNotToRegister.Clear();
 			this._logger.FoundAssemblyWhichMayContainCommands(assembly);
-			foreach (var type in assembly.DefinedTypes.Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase)))
+			foreach (var type in assembly.DefinedTypes.Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase) && !nestedTypesNotToRegister.Contains(t)))
 			{
 				this._logger.TryingToRegisterTypeAsCommandModule(type);
 				try
 				{
-					if (nestedTypesNotToRegister.Contains(type))
-					{
-						continue;
-					}
-
 					var nestedTypes = type.GetNestedTypes(BindingFlags.Public)
 										  .Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase));
-					foreach (var nestedType in nestedTypes)
-					{
-						nestedTypesNotToRegister.Add(nestedType);
-					}
+					nestedTypesNotToRegister.AddRange(nestedTypes);
 
 					this.SlashCommandsExtension.RegisterCommands(type);
 				}

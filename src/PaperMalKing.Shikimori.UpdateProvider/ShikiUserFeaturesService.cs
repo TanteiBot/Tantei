@@ -65,6 +65,12 @@ internal sealed class ShikiUserFeaturesService(IShikiClient _client, ILogger<Shi
 				}).ToList();
 				break;
 			}
+
+			default:
+			{
+				// We don't care about others
+				break;
+			}
 		}
 
 		if (lastHistoryEntry.HasValue)

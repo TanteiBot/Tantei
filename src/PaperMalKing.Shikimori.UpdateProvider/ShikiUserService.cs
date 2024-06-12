@@ -82,6 +82,10 @@ internal sealed class ShikiUserService(IShikiClient _client, ILogger<ShikiUserSe
 		{
 			dUser.Guilds.Add(guild);
 		}
+		else
+		{
+			// User is already in the guild, handled above
+		}
 
 		dbUser = new()
 		{
