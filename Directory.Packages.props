@@ -131,7 +131,7 @@
 
 
     <!-- Implicit -->
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.9.2" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.10.0" />
     <PackageVersion Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
     <PackageVersion Include="Microsoft.Netcore.Targets" Version="5.0.0" />
     <PackageVersion Include="Polly" Version="8.4.0" />
@@ -147,7 +147,7 @@
     <PackageVersion Include="System.Threading.Channels" Version="8.0.0" />
     <PackageVersion Include="System.Formats.Asn1" Version="8.0.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis" Version="4.9.2" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.10.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
   </ItemGroup>
 </Project>
