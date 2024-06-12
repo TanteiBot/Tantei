@@ -35,10 +35,13 @@ public static class HostBuilderExtensions
 			// SQLITE_CONFIG_MULTITHREAD
 			// https://github.com/dotnet/efcore/issues/9994
 			// https://sqlite.org/threadsafe.html
-			SQLitePCL.raw.sqlite3_config(2);
+			const int sqliteMultithreadedMode = 2;
+			SQLitePCL.raw.sqlite3_config(sqliteMultithreadedMode);
 		}
 
-		hostBuilder.ConfigureAppConfiguration((context, builder) => builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json", optional: true, reloadOnChange: true)).ConfigureServices(services =>
+		hostBuilder.ConfigureAppConfiguration((context, builder) =>
+					   builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json", optional: true, reloadOnChange: true))
+		.ConfigureServices(services =>
 		{
 			static void ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
 			{

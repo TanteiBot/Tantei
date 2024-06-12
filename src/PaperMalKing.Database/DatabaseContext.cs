@@ -45,34 +45,32 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 
 	public DbSet<AniListFavourite> AniListFavourites => this.Set<AniListFavourite>();
 
-	public async Task<int> SaveChangesAndThrowOnNoneAsync(CancellationToken cancellationToken = default)
+	public async Task SaveChangesAndThrowOnNoneAsync(CancellationToken cancellationToken = default)
 	{
 		var rows = await this.TrySaveChangesUntilDatabaseIsUnlockedAsync(cancellationToken);
 		if (rows <= 0)
 		{
 			throw new NoChangesSavedException();
 		}
-
-		return rows;
 	}
 
-	[SuppressMessage("Reliability", "EA0002:Use \'System.TimeProvider\' to make the code easier to test", Justification = "We already use it")]
 	public async Task<int> TrySaveChangesUntilDatabaseIsUnlockedAsync(CancellationToken cancellationToken = default)
 	{
+		const int sqliteBusyCode = 5; // https://www.sqlite.org/rescode.html#busy
 		while (!cancellationToken.IsCancellationRequested)
 		{
 			try
 			{
 				return this.SaveChanges();
 			}
-			catch (SqliteException ex) when (ex.SqliteErrorCode == 5)
+			catch (SqliteException ex) when (ex.SqliteErrorCode == sqliteBusyCode)
 			{
 				// Database is locked
 				await Task.Delay(TimeSpan.FromMilliseconds(500), TimeProvider.System, cancellationToken);
 			}
 		}
 
-		throw new TaskCanceledException("Saving changes were cancelled");
+		throw new OperationCanceledException("Saving changes were cancelled");
 	}
 
 	[SuppressMessage("Roslynator", "RCS1201:Use method chaining.", Justification = "It's not preferred when creating model")]

@@ -14,7 +14,8 @@ using PaperMalKing.Startup.Exceptions;
 namespace PaperMalKing.Startup.Services;
 
 [SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
-internal sealed class GuildManagementService(ILogger<GuildManagementService> _logger, IDbContextFactory<DatabaseContext> _dbContextFactory, UpdatePublishingService _updatePublishingService, DiscordClient _discordClient)
+internal sealed class GuildManagementService(ILogger<GuildManagementService> _logger, IDbContextFactory<DatabaseContext> _dbContextFactory,
+											 UpdatePublishingService _updatePublishingService, DiscordClient _discordClient)
 {
 	public async Task<DiscordGuild> SetChannelAsync(ulong guildId, ulong channelId)
 	{

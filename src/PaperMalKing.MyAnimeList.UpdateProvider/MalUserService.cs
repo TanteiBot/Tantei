@@ -82,6 +82,10 @@ internal sealed class MalUserService(IMyAnimeListClient _client, ILogger<MalUser
 		{
 			duser.Guilds.Add(guild);
 		}
+		else
+		{
+			// User is already in guild, this case is handled above
+		}
 
 		dbUser = new()
 		{
@@ -107,6 +111,6 @@ internal sealed class MalUserService(IMyAnimeListClient _client, ILogger<MalUser
 
 	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		return this.ListUsersCore(guildId, u => u.LastUpdatedAnimeListTimestamp, mu => new BaseUser(mu.Username, mu.DiscordUser));
+		return this.ListUsersCore(guildId, static u => u.LastUpdatedAnimeListTimestamp, static mu => new(mu.Username, mu.DiscordUser));
 	}
 }

@@ -36,7 +36,8 @@ internal sealed class HeaderBasedRateLimitMessageHandler : DelegatingHandler
 			do
 			{
 				var now = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
-				if (now - this._timestamp >= 60)
+				const int secondsInMinute = 60;
+				if (now - this._timestamp >= secondsInMinute)
 				{
 					this._logger.ResettingRateLimiter();
 					this._timestamp = now;
@@ -48,7 +49,7 @@ internal sealed class HeaderBasedRateLimitMessageHandler : DelegatingHandler
 				{
 					var delay = this._timestamp + 60 - now;
 					this._logger.RateLimitExceeded(delay);
-					await Task.Delay(TimeSpan.FromSeconds(Math.Min(delay, 60)), cancellationToken);
+					await Task.Delay(TimeSpan.FromSeconds(Math.Min(delay, secondsInMinute)), cancellationToken);
 					this._timestamp = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
 					this._rateLimitRemaining = RateLimitMaxRequests;
 				}

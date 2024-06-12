@@ -75,4 +75,9 @@ public static class CollectionExtensions
 	{
 		return Array.TrueForAll(array, predicate);
 	}
+
+	public static bool AddRange<T>(this HashSet<T> hs, IEnumerable<T> values)
+	{
+		return values.Aggregate(seed: true, (current, value) => hs.Add(value) && current);
+	}
 }

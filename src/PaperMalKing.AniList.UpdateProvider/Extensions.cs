@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -27,25 +28,27 @@ internal static partial class Extensions
 	private const int InlineFieldValueMaxLength = 30;
 
 	[GeneratedRegex(@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase, matchTimeoutMilliseconds: 30000/*30s*/)]
-	internal static partial Regex SourceRemovalRegex();
+	internal static partial Regex SourceRemovalRegex { get; }
 
 	[GeneratedRegex(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline, matchTimeoutMilliseconds: 30000/*30s*/)]
-	internal static partial Regex EmptyLinesRemovalRegex();
+	internal static partial Regex EmptyLinesRemovalRegex { get; }
 
-	private static readonly string[] IgnoredStartWithRoles =
-	[
+	private static readonly SearchValues<string> IgnoredRoles = SearchValues.Create([
 		"Touch-Up",
 		"Touch Up",
 		"Illustrat",
 		"Collaborat",
 		"Color",
-		"Digital Coloring",
-		"Cooking Supervisor",
-		"Letter",  // Letterer and Lettering
+		"Cooking",
+		"Letter",   // Letterer and Lettering
 		"Translat", // Translator and Translation
-	];
-
-	private static readonly string[] IgnoredContainsRoles = ["Assist", "Edit", "Insert", "Consultant", "Cooperation"];
+		"Assist",
+		"Edit",
+		"Insert",
+		"Consultant",
+		"Cooperation",
+	],
+	StringComparison.OrdinalIgnoreCase);
 
 	private static readonly DiscordColor[] Colors =
 	[
@@ -107,8 +110,7 @@ internal static partial class Extensions
 
 	public static string? GetEmbedFormat(this Media media)
 	{
-		[SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "We pass lower-case value to humanizer")]
-		static string? DefaultFormatting(Media media) => media.Format?.ToInvariantString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+		static string? DefaultFormatting(Media media) => media.Format?.Humanize(LetterCasing.Sentence);
 
 		return media.CountryOfOrigin switch
 		{
@@ -123,9 +125,9 @@ internal static partial class Extensions
 		};
 	}
 
-	[SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "We pass lower-case value to humanizer")]
 	public static DiscordEmbedBuilder WithMediaTitle(this DiscordEmbedBuilder eb, Media media, TitleLanguage titleLanguage, AniListUserFeatures features)
 	{
+		const int discordTitleLimit = 256;
 		var strings = new List<string> { media.Title.GetTitle(titleLanguage) };
 		if (features.HasFlag(AniListUserFeatures.MediaFormat))
 		{
@@ -138,13 +140,13 @@ internal static partial class Extensions
 
 		if (features.HasFlag(AniListUserFeatures.MediaStatus))
 		{
-			strings.Add($" [{media.Status.ToInvariantString().ToLowerInvariant().Humanize(LetterCasing.Sentence)}]");
+			strings.Add($" [{media.Status.Humanize(LetterCasing.Sentence)}]");
 		}
 
-		var sb = new StringBuilder(256);
+		var sb = new StringBuilder(discordTitleLimit);
 		foreach (var titlePart in strings)
 		{
-			if (sb.Length + titlePart.Length <= 256)
+			if (sb.Length + titlePart.Length <= discordTitleLimit)
 			{
 				sb.Append(titlePart);
 			}
@@ -186,13 +188,15 @@ internal static partial class Extensions
 		var isHiddenProgressPresent = !string.IsNullOrEmpty(activity.Progress) && (mediaListEntry.Status == MediaListStatus.PAUSED ||
 																				   mediaListEntry.Status == MediaListStatus.DROPPED ||
 																				   mediaListEntry.Status == MediaListStatus.COMPLETED);
-		var desc = isHiddenProgressPresent ? $"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it" : $"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}";
+		var desc = isHiddenProgressPresent ?
+			$"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it" :
+			$"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}";
 
 		var isAdvancedScoringEnabled =
 			(isAnime
 				? user.MediaListOptions!.AnimeListOptions.IsAdvancedScoringEnabled
 				: user.MediaListOptions!.MangaListOptions.IsAdvancedScoringEnabled) &&
-			mediaListEntry.AdvancedScores?.Values.Any(s => s != 0f) == true;
+			mediaListEntry.AdvancedScores?.Any(s => s.Value != 0f) == true;
 
 		var updateType = (isAnime, mediaListEntry.Status) switch
 		{
@@ -254,7 +258,8 @@ internal static partial class Extensions
 
 		if (!string.IsNullOrEmpty(mediaListEntry.Notes))
 		{
-			eb.AddField("Notes", mediaListEntry.Notes.Truncate(1023), inline: true);
+			const int notesLimit = 1023;
+			eb.AddField("Notes", mediaListEntry.Notes.Truncate(notesLimit), inline: true);
 		}
 
 		if (features.HasFlag(AniListUserFeatures.CustomLists) && mediaListEntry.CustomLists?.Any(x => x.Enabled) == true)
@@ -311,10 +316,7 @@ internal static partial class Extensions
 				var text = string.Join(
 					", ",
 					media.Staff.Nodes
-						 .Where(edge =>
-							 IgnoredStartWithRoles.TrueForAll(r =>
-								 !edge.Role.StartsWith(r, StringComparison.OrdinalIgnoreCase) &&
-								 IgnoredContainsRoles.TrueForAll(cr => !edge.Role.Contains(cr, StringComparison.OrdinalIgnoreCase)))).Take(7)
+						 .Where(edge => !edge.Role.AsSpan().ContainsAny(IgnoredRoles)).Take(7)
 						 .Select(edge =>
 							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
 				if (!string.IsNullOrEmpty(text))
@@ -340,10 +342,11 @@ internal static partial class Extensions
 
 		if (features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrEmpty(media.Description))
 		{
+			const int mediaDescriptionLimit = 350;
 			var mediaDescription = media.Description.StripHtml();
-			mediaDescription = SourceRemovalRegex().Replace(mediaDescription, string.Empty);
-			mediaDescription = EmptyLinesRemovalRegex().Replace(mediaDescription, string.Empty);
-			mediaDescription = Formatter.Strip(mediaDescription).Trim().Truncate(350);
+			mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
+			mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
+			mediaDescription = Formatter.Strip(mediaDescription).Trim().Truncate(mediaDescriptionLimit);
 			if (!string.IsNullOrEmpty(mediaDescription))
 			{
 				eb.AddField("Description", mediaDescription, mediaDescription.Length <= InlineFieldValueMaxLength);

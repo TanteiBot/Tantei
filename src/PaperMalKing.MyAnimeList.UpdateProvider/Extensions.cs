@@ -190,11 +190,10 @@ internal static class Extensions
 
 		eb.WithColor(color);
 
-		var title = favorite switch
-		{
-			BaseMalListFavorite baseListFavorite => $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear}]",
-			_ => favorite.Name,
-		};
+		var title = favorite is BaseMalListFavorite baseListFavorite
+			? $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear}]"
+			: favorite.Name;
+
 		eb.WithTitle(title);
 
 		if (favorite is MalFavoriteCharacter favoriteCharacter)
@@ -288,7 +287,9 @@ internal static class Extensions
 			title = shortTitle;
 		}
 
-		if (title.Length <= 256)
+		const int discordTitleLimit = 256;
+
+		if (title.Length <= discordTitleLimit)
 		{
 			eb.Url = listEntry.Node.Url;
 			eb.Title = title;
@@ -375,7 +376,10 @@ internal static class Extensions
 			const string format = "dd/MM/yyyy";
 			var value = (isStartNull, isFinishNull) switch
 			{
+				#pragma warning disable S103
+				// Split this 202 characters long line
 				(false, false) => $"{listEntry.Status.StartDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo)} - {listEntry.Status.FinishDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo)}",
+				#pragma warning restore S103
 				(false, true) => listEntry.Status.StartDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
 				(true, false) => listEntry.Status.FinishDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
 				_ => throw new UnreachableException(),
@@ -459,7 +463,8 @@ internal static class Extensions
 
 	private static void AddAsFieldOrTruncateToDescription(DiscordEmbedBuilder eb, string fieldName, string fieldValue, bool inline = true)
 	{
-		if (fieldValue.Length <= 1024)
+		const int nonTruncatableFieldLimit = 1024;
+		if (fieldValue.Length <= nonTruncatableFieldLimit)
 		{
 			eb.AddField(fieldName, fieldValue, inline);
 		}

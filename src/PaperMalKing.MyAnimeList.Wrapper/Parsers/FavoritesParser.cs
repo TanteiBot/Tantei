@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using AngleSharp.Dom;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
@@ -11,7 +10,6 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
-[SuppressMessage("Design", "MA0048:File name must match type name", Justification = "We don't want to expose all parsers")]
 internal static partial class UserProfileParser
 {
 	private static class FavoritesParser

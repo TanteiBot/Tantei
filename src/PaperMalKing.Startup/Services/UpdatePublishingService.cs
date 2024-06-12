@@ -30,7 +30,8 @@ internal sealed class UpdatePublishingService
 	private readonly ILoggerFactory _loggerFactory;
 	private readonly ConcurrentDictionary<ulong, UpdatePoster> _updatePosters = new();
 
-	public UpdatePublishingService(ILogger<UpdatePublishingService> logger, DiscordClient discordClient, IDbContextFactory<DatabaseContext> dbContextFactory, UpdateProvidersConfigurationService updateProvidersConfigurationService, ILoggerFactory loggerFactory)
+	public UpdatePublishingService(ILogger<UpdatePublishingService> logger, DiscordClient discordClient, IDbContextFactory<DatabaseContext> dbContextFactory,
+								   UpdateProvidersConfigurationService updateProvidersConfigurationService, ILoggerFactory loggerFactory)
 	{
 		this._logger = logger;
 		this._discordClient = discordClient;

@@ -31,7 +31,7 @@ public sealed class Favourites
 				this.HasNextPage = value.PageInfo.HasNextPage;
 			}
 
-			value.Nodes.ForEach(fav => fav.Type = FavouriteType.Anime);
+			value.Nodes.ForEach(static fav => fav.Type = FavouriteType.Anime);
 			this._allFavourites.AddRange(value.Nodes);
 		}
 	}
@@ -49,7 +49,7 @@ public sealed class Favourites
 				this.HasNextPage = value.PageInfo.HasNextPage;
 			}
 
-			value.Nodes.ForEach(fav => fav.Type = FavouriteType.Manga);
+			value.Nodes.ForEach(static fav => fav.Type = FavouriteType.Manga);
 			this._allFavourites.AddRange(value.Nodes);
 		}
 	}
@@ -67,7 +67,7 @@ public sealed class Favourites
 				this.HasNextPage = value.PageInfo.HasNextPage;
 			}
 
-			value.Nodes.ForEach(fav => fav.Type = FavouriteType.Characters);
+			value.Nodes.ForEach(static fav => fav.Type = FavouriteType.Characters);
 			this._allFavourites.AddRange(value.Nodes);
 		}
 	}
@@ -85,7 +85,7 @@ public sealed class Favourites
 				this.HasNextPage = value.PageInfo.HasNextPage;
 			}
 
-			value.Nodes.ForEach(fav => fav.Type = FavouriteType.Staff);
+			value.Nodes.ForEach(static fav => fav.Type = FavouriteType.Staff);
 			this._allFavourites.AddRange(value.Nodes);
 		}
 	}
@@ -103,7 +103,7 @@ public sealed class Favourites
 				this.HasNextPage = value.PageInfo.HasNextPage;
 			}
 
-			value.Nodes.ForEach(fav => fav.Type = FavouriteType.Studios);
+			value.Nodes.ForEach(static fav => fav.Type = FavouriteType.Studios);
 			this._allFavourites.AddRange(value.Nodes);
 		}
 	}

@@ -114,17 +114,17 @@ internal sealed class DiscordBackgroundService : BackgroundService
 		return Task.CompletedTask;
 	}
 
+	[SuppressMessage("Critical Code Smell", "S134:Control flow statements should not be nested too deeply", Justification = "Cant find a better solution at the moment")]
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
 		this._logger.ConnectingToDiscord();
-		if (this._options.Value.Activities is not [])
+		if (this._options.Value.Activities.Count > 1)
 		{
 			await this._client.ConnectAsync();
 			await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
-			_ = Task.Factory.StartNew(
-				async cancellationToken =>
+			_ = Task.Factory.StartNew(async cancellationToken =>
 			{
-				var token = (CancellationToken)(cancellationToken ?? CancellationToken.None);
+				var token = (CancellationToken)cancellationToken!;
 				while (!token.IsCancellationRequested)
 				{
 					foreach (var options in this._options.Value.Activities)

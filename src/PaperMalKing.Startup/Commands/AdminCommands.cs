@@ -64,14 +64,12 @@ internal sealed class AdminCommands(IHostApplicationLifetime _lifetime,
 	}
 
 	[SlashCommand("cleanup", "Remove users not linked to any guilds")]
-	[SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "We discard parameter")]
 	public Task CleanupCommand(InteractionContext _)
 	{
 		return _cleanupService.ExecuteCleanupAsync();
 	}
 
 	[SlashCommand("forceToLeave", "Forces bot to leave from guild")]
-	[SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "We discard parameter")]
 	public Task ForceToLeave(InteractionContext _, [Option(nameof(guildId), "Id of guild to leave from")] string guildId)
 	{
 		return _guildManagementService.RemoveGuildAsync(ulong.Parse(guildId, CultureInfo.InvariantCulture));
