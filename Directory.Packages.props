@@ -9,7 +9,7 @@
     <DSharpPlusVersion>4.4.6</DSharpPlusVersion>
     <CommunityTookitVersion>8.2.2</CommunityTookitVersion>
 
-    <VerifyVersion>25.0.1</VerifyVersion>
+    <VerifyVersion>25.0.2</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
@@ -131,7 +131,7 @@
 
 
     <!-- Implicit -->
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.9.2" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.10.0" />
     <PackageVersion Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
     <PackageVersion Include="Microsoft.Netcore.Targets" Version="5.0.0" />
     <PackageVersion Include="Polly" Version="8.4.0" />
