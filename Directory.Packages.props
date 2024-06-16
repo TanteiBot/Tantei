@@ -77,7 +77,7 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.13.12" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.157">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.158">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
