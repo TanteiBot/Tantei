@@ -147,7 +147,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 					throw new NoChangesSavedException();
 				}
 
-				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser));
+				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(totalUpdates), dbUser.DiscordUser));
 				this.Logger.FoundUpdatesForUser(totalUpdates.Count, user.Nickname);
 				if (isFavouriteMismatch)
 				{

@@ -93,7 +93,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			{
 				db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
 				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
-				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(recentUserUpdates, dbUser, db, perUserCancellationToken)), this, dbUser.DiscordUser));
+				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(recentUserUpdates, dbUser, db, perUserCancellationToken)), dbUser.DiscordUser));
 			}
 			else
 			{
