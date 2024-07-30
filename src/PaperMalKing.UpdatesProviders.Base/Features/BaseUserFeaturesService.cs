@@ -41,7 +41,7 @@ public abstract class BaseUserFeaturesService<TUser, TFeature>
 		var featureValue = Unsafe.As<TFeature, ulong>(ref feature);
 		if (!features.HasFlag(feature))
 		{
-			throw new UserFeaturesException("This feature wasn't enabled for you,so you cant enable it");
+			throw new UserFeaturesException("This feature wasn't enabled for you, so you cant disable it");
 		}
 
 		f &= ~featureValue;

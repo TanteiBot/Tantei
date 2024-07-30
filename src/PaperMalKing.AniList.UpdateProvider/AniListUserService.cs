@@ -90,7 +90,7 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 
 		dbUser = new()
 		{
-			Favourites = response.Favourites1.ConvertAll(f => new AniListFavourite
+			Favourites = response.Favourites.ConvertAll(f => new AniListFavourite
 			{
 				Id = f.Id,
 				FavouriteType = (FavouriteType)f.Type,
@@ -99,7 +99,7 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 			DiscordUser = dUser,
 			LastActivityTimestamp = now,
 			LastReviewTimestamp = now,
-			FavouritesIdHash = HashHelpers.FavoritesHash(response.Favourites1.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).ToArray()),
+			FavouritesIdHash = HashHelpers.FavoritesHash(response.Favourites.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).ToArray()),
 			Features = AniListUserFeatures.None.GetDefault(),
 			Colors = [],
 		};

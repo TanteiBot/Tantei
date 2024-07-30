@@ -11,7 +11,6 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AnalysisLevel>9</AnalysisLevel>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
         <AnalysisMode>All</AnalysisMode>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NuGetAudit>true</NuGetAudit>
@@ -94,6 +93,7 @@
             SA1300; <!--Element should begin with an uppercase letter -->
             SA1309; <!--Field should not begin with an underscore-->
             SA1402; <!--File may only contain a single type -->
+            SA1515; <!--Single-line comment should be preceded by blank line-->
             SA1600; <!--Elements should be documented -->
             SA1601; <!-- Partial elements should be documented -->
             SA1602; <!--Enumeration items should be documented-->
@@ -125,7 +125,21 @@
         <When Condition="'$(Configuration)' == 'Debug'">
             <PropertyGroup>
                 <WarningsNotAsErrors>$(WarningsNotAsErrors);
+                    CA1822;
+                    
                     IDE0005; <!--Using directive is unnecessary.-->
+                    IDE0051; <!--Private member is unused-->
+                    IDE0060; <!--Remove unused parameter -->
+
+                    S125; <!--Remove this commented out code.-->
+                    S1144; <!--Remove the unused private method-->
+                    S1172; <!--Remove this unused method parameter-->
+
+                    RCS1163; <!--Unused parameter-->
+                    RCS1213; <!--Remove unused method declaration-->
+
+                    SA1027; <!--Tabs and spaces should be used correctly-->
+                    SA1512; <!--Single-line comments should not be followed by blank line-->
                 </WarningsNotAsErrors>
             </PropertyGroup>
         </When>

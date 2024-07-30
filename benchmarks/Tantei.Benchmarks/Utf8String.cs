@@ -12,7 +12,7 @@ namespace Tantei.Benchmarks;
 [MemoryDiagnoser]
 public class Utf8String
 {
-	private static ReadOnlySpan<byte> Bytes => "\\UtfBenchmarks\\\\UtfBenchmarks"u8;
+	private static ReadOnlySpan<byte> Bytes => @"\UtfBenchmarks\\UtfBenchmarks"u8;
 
 	private const int MaxLengthLimit = 32;
 

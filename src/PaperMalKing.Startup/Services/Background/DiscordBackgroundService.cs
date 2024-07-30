@@ -181,12 +181,14 @@ internal sealed class DiscordBackgroundService : BackgroundService
 			activityType = ActivityType.Playing;
 		}
 
-		if (!Enum.TryParse(options.Status, ignoreCase: true, out UserStatus status))
+		if (Enum.TryParse(options.Status, ignoreCase: true, out UserStatus status))
 		{
-			var correctStatuses = string.Join(", ", Enum.GetValues<UserStatus>());
-			this._logger.CouldNotParseCorrectStatus(options.Status, correctStatuses);
-			status = UserStatus.Online;
+			return (new(options.PresenceText, activityType), status);
 		}
+
+		var correctStatuses = string.Join(", ", Enum.GetValues<UserStatus>());
+		this._logger.CouldNotParseCorrectStatus(options.Status, correctStatuses);
+		status = UserStatus.Online;
 
 		return (new(options.PresenceText, activityType), status);
 	}

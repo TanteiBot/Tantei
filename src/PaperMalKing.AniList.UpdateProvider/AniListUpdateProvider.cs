@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -11,6 +12,7 @@ using GraphQL.Client.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualStudio.Threading;
 using PaperMalKing.AniList.UpdateProvider.CombinedResponses;
 using PaperMalKing.AniList.Wrapper.Abstractions;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models;
@@ -39,7 +41,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 
 	public override string Name => ProviderConstants.Name;
 
-	public override event UpdateFoundEvent? UpdateFoundEvent;
+	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
@@ -67,12 +69,10 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			perUserCancellationTokenSource.CancelAfter(TimeSpan.FromMinutes(3));
 			var perUserCancellationToken = perUserCancellationTokenSource.Token;
 			this.Logger.StartingToCheckUpdatesFor(dbUser.Id);
-			var allUpdates = new List<DiscordEmbedBuilder>();
 			CombinedRecentUpdatesResponse recentUserUpdates;
 			try
 			{
-				recentUserUpdates = await this._client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, perUserCancellationToken)
-											  ;
+				recentUserUpdates = await this._client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, perUserCancellationToken);
 			}
 			catch (GraphQLHttpRequestException ex) when (ex.Message.Contains("NotFound", StringComparison.Ordinal))
 			{
@@ -86,89 +86,19 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 														   .OrderBy(x => x.Id).ThenBy(x => x.Type).ToArray()),
 				StringComparison.Ordinal);
 
-			if (dbUser.Features.HasFlag(AniListUserFeatures.Favourites) && isFavouritesHashMismatch)
+			if ((dbUser.Features.HasFlag(AniListUserFeatures.Favourites) && isFavouritesHashMismatch) ||
+				(dbUser.Features.HasFlag(AniListUserFeatures.Reviews) && recentUserUpdates.Reviews.Exists(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)) ||
+				(dbUser.Features.HasFlag(AniListUserFeatures.AnimeList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.ANIME && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)) ||
+				(dbUser.Features.HasFlag(AniListUserFeatures.MangaList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.MANGA && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)))
 			{
-				allUpdates.AddRange(await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, db, perUserCancellationToken));
+				db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
+				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
+				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(recentUserUpdates, dbUser, db, perUserCancellationToken)), this, dbUser.DiscordUser));
 			}
-
-			if (dbUser.Features.HasFlag(AniListUserFeatures.Reviews))
-			{
-				allUpdates.AddRange(recentUserUpdates.Reviews.Where(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)
-													 .Select(r => r.ToDiscordEmbedBuilder(recentUserUpdates.User, dbUser)));
-			}
-
-			foreach (var grouping in recentUserUpdates.Activities.GroupBy(activity => activity.Media.Id))
-			{
-				var lastListActivityOnMedia = grouping.MaxBy(activity => activity.CreatedAtTimestamp)!;
-				var mediaListEntry = lastListActivityOnMedia.Media.Type == ListType.ANIME
-					? recentUserUpdates.AnimeList.Find(mle => mle.Id == lastListActivityOnMedia.Media.Id)
-					: recentUserUpdates.MangaList.Find(mle => mle.Id == lastListActivityOnMedia.Media.Id);
-				if (mediaListEntry is not null)
-				{
-					allUpdates.Add(lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser));
-				}
-			}
-
-			if (allUpdates is [])
+			else
 			{
 				this.Logger.NoUpdatesFound(recentUserUpdates.User.Name);
 				db.Entry(dbUser).State = EntityState.Unchanged;
-				continue;
-			}
-
-			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
-			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
-			var lastActivityTimestamp = recentUserUpdates.Activities is not [] ? recentUserUpdates.Activities.Max(a => a.CreatedAtTimestamp) : 0L;
-			var lastReviewTimeStamp = recentUserUpdates.Reviews is not [] ? recentUserUpdates.Reviews.Max(r => r.CreatedAtTimeStamp) : 0L;
-			if (dbUser.LastActivityTimestamp < lastActivityTimestamp)
-			{
-				dbUser.LastActivityTimestamp = lastActivityTimestamp;
-			}
-
-			if (dbUser.LastReviewTimestamp < lastReviewTimeStamp)
-			{
-				dbUser.LastReviewTimestamp = lastReviewTimeStamp;
-			}
-
-			if (dbUser.Features.HasFlag(AniListUserFeatures.Mention))
-			{
-				allUpdates.ForEach(u => u.AddField("By", DiscordHelpers.ToDiscordMention(dbUser.DiscordUserId), inline: true));
-			}
-
-			if (dbUser.Features.HasFlag(AniListUserFeatures.Website))
-			{
-				allUpdates.ForEach(u => u.WithAniListFooter());
-			}
-
-			allUpdates.SortBy(u => u.Timestamp.GetValueOrDefault());
-			if (perUserCancellationToken.IsCancellationRequested)
-			{
-				db.Entry(dbUser).State = EntityState.Unchanged;
-				this.Logger.CancellationRequested();
-				break;
-			}
-
-			try
-			{
-				if (db.SaveChanges() <= 0)
-				{
-					throw new NoChangesSavedException();
-				}
-
-				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(allUpdates), this, dbUser.DiscordUser));
-				if (isFavouritesHashMismatch)
-				{
-					dbUser.FavouritesIdHash = HashHelpers.FavoritesHash(db.AniListFavourites.TagWith("Query users favorites hash for updating")
-																		  .TagWithCallSite().Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id)
-																		  .ThenBy(x => x.FavouriteType)
-																		  .Select(x => new FavoriteIdType(x.Id, (byte)x.FavouriteType)).ToArray());
-					db.SaveChanges();
-				}
-			}
-			catch (Exception ex)
-			{
-				this.Logger.ErrorHappenedWhileSendingUpdateOrSavingToDb(ex);
-				throw;
 			}
 		}
 	}
@@ -261,5 +191,108 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		GetFavouritesEmbed(results, addedValues, removedValues, combinedResponse.Studios, Wrapper.Abstractions.Models.Enums.FavouriteType.Studios, response.User, user);
 		results.SortBy(x => x.Color.Value.Value);
 		return results;
+	}
+
+	private async IAsyncEnumerable<DiscordEmbedBuilder> GetUpdatesAsync(CombinedRecentUpdatesResponse recentUserUpdates, AniListUser dbUser, DatabaseContext db, [EnumeratorCancellation] CancellationToken cancellationToken)
+	{
+		static DiscordEmbedBuilder FormatEmbed(DiscordEmbedBuilder builder, AniListUser user)
+		{
+			if (user.Features.HasFlag(AniListUserFeatures.Mention))
+			{
+				builder.AddField("By", DiscordHelpers.ToDiscordMention(user.DiscordUserId), inline: true);
+			}
+
+			if (user.Features.HasFlag(AniListUserFeatures.Website))
+			{
+				builder.WithAniListFooter();
+			}
+
+			return builder;
+		}
+
+		var isFavouritesHashMismatch = !string.Equals(
+			dbUser.FavouritesIdHash,
+			HashHelpers.FavoritesHash(recentUserUpdates.Favourites
+													   .Select(x => new FavoriteIdType(x.Id, (byte)x.Type))
+													   .OrderBy(x => x.Id).ThenBy(x => x.Type).ToArray()),
+			StringComparison.Ordinal);
+
+		if (dbUser.Features.HasFlag(AniListUserFeatures.Favourites) && isFavouritesHashMismatch)
+		{
+			var favorites = await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, db, cancellationToken);
+
+			if (favorites.Any())
+			{
+				foreach (var deb in favorites)
+				{
+					yield return FormatEmbed(deb, dbUser);
+				}
+
+				await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+
+				dbUser.FavouritesIdHash = HashHelpers.FavoritesHash(db.AniListFavourites.TagWith("Query users favorites hash for updating")
+																	  .TagWithCallSite().Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id)
+																	  .ThenBy(x => x.FavouriteType)
+																	  .Select(x => new FavoriteIdType(x.Id, (byte)x.FavouriteType)).ToArray());
+				await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+			}
+		}
+
+		if (cancellationToken.IsCancellationRequested)
+		{
+			db.Entry(dbUser).State = EntityState.Unchanged;
+			this.Logger.CancellationRequested();
+			yield break;
+		}
+
+		if (dbUser.Features.HasFlag(AniListUserFeatures.Reviews))
+		{
+			recentUserUpdates.Reviews.RemoveAll(r => r.CreatedAtTimeStamp <= dbUser.LastReviewTimestamp);
+
+			if (recentUserUpdates.Reviews is not [])
+			{
+				foreach (var deb in recentUserUpdates.Reviews)
+				{
+					yield return FormatEmbed(deb.ToDiscordEmbedBuilder(recentUserUpdates.User, dbUser), dbUser);
+				}
+
+				dbUser.LastReviewTimestamp = recentUserUpdates.Reviews.Max(r => r.CreatedAtTimeStamp);
+				await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+			}
+		}
+
+		if (cancellationToken.IsCancellationRequested)
+		{
+			db.Entry(dbUser).State = EntityState.Unchanged;
+			this.Logger.CancellationRequested();
+			yield break;
+		}
+
+		if (dbUser.Features.HasFlag(AniListUserFeatures.AnimeList) || dbUser.Features.HasFlag(AniListUserFeatures.MangaList))
+		{
+			foreach (var grouping in recentUserUpdates.Activities.GroupBy(activity => activity.Media.Id).OrderBy(a => a.Max(aa => aa.CreatedAtTimestamp)))
+			{
+				var lastListActivityOnMedia = grouping.MaxBy(activity => activity.CreatedAtTimestamp)!;
+				var mediaListEntry = lastListActivityOnMedia.Media.Type == ListType.ANIME
+					? recentUserUpdates.AnimeList.Find(mle => mle.Id == lastListActivityOnMedia.Media.Id)
+					: recentUserUpdates.MangaList.Find(mle => mle.Id == lastListActivityOnMedia.Media.Id);
+				if (mediaListEntry is not null)
+				{
+					var embed = lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser);
+
+					yield return FormatEmbed(embed, dbUser);
+
+					dbUser.LastActivityTimestamp = lastListActivityOnMedia.CreatedAtTimestamp;
+					await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+
+					if (cancellationToken.IsCancellationRequested)
+					{
+						db.Entry(dbUser).State = EntityState.Unchanged;
+						this.Logger.CancellationRequested();
+						yield break;
+					}
+				}
+			}
+		}
 	}
 }

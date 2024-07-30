@@ -30,7 +30,7 @@ public abstract class BaseColorsCommandModule<TUser, TUpdateType> : BotCommandsM
 		this.ColorService = colorService;
 	}
 
-	public async virtual Task SetColor(InteractionContext context, string unparsedUpdateType, string colorValue)
+	public virtual async Task SetColor(InteractionContext context, string unparsedUpdateType, string colorValue)
 	{
 		TUpdateType updateType;
 		try
@@ -50,7 +50,7 @@ public abstract class BaseColorsCommandModule<TUser, TUpdateType> : BotCommandsM
 		await context.EditResponseAsync(EmbedTemplate.SuccessEmbed($"Successfully set color of {updateType}"));
 	}
 
-	public async virtual Task RemoveColor(InteractionContext context, string unparsedUpdateType)
+	public virtual async Task RemoveColor(InteractionContext context, string unparsedUpdateType)
 	{
 		TUpdateType updateType;
 		try

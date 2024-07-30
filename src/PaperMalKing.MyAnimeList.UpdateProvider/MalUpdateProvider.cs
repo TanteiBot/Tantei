@@ -13,6 +13,7 @@ using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualStudio.Threading;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.MyAnimeList;
@@ -42,7 +43,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		this._dbContextFactory = dbContextFactory;
 	}
 
-	public override event UpdateFoundEvent? UpdateFoundEvent;
+	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
@@ -84,7 +85,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			return result;
 		}
 
-		static bool FilterInactiveUsers(MalUser x)
+		static bool HasUserBeenInactiveRecently(MalUser x)
 		{
 			var now = TimeProvider.System.GetUtcNow().ToUnixTimeMilliseconds();
 			if ((now - Math.Max(x.LastUpdatedAnimeListTimestamp.ToUnixTimeMilliseconds(), x.LastUpdatedMangaListTimestamp.ToUnixTimeMilliseconds())) >
@@ -104,10 +105,10 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		await using var db = this._dbContextFactory.CreateDbContext();
 
 		var users = db.MalUsers.TagWith("Query users for update checking").TagWithCallSite().Where(user => user.DiscordUser.Guilds.Any() &&
-
-			// Is bitwise to allow executing on server
+			// Is bitwise to allow executing as SQL
 			((user.Features & MalUserFeatures.AnimeList) != 0 || (user.Features & MalUserFeatures.MangaList) != 0 ||
 			 (user.Features & MalUserFeatures.Favorites) != 0)).OrderBy(_ => EF.Functions.Random()).ToArray();
+
 		foreach (var dbUser in users)
 		{
 			if (cancellationToken.IsCancellationRequested)
@@ -115,7 +116,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				break;
 			}
 
-			if (FilterInactiveUsers(dbUser))
+			if (HasUserBeenInactiveRecently(dbUser))
 			{
 				this.Logger.SkippingCheckForUser(dbUser.Username,
 					dbUser.LastUpdatedAnimeListTimestamp > dbUser.LastUpdatedMangaListTimestamp ? dbUser.LastUpdatedAnimeListTimestamp : dbUser.LastUpdatedMangaListTimestamp);
@@ -240,7 +241,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 					throw new NoChangesSavedException();
 				}
 
-				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser));
+				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser));
 				this.Logger.FoundUpdatesForUser(totalUpdates.Count, dbUser.Username);
 				if (isFavoritesHashMismatch)
 				{
@@ -316,7 +317,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 		this.Logger.CheckingFavoritesUpdates(dbUser.Username);
 
-		var list = new List<DiscordEmbedBuilder>(0);
+		var list = new List<DiscordEmbedBuilder>();
 		list.AddRange(ToDiscordEmbedBuilders(this.Logger, db.MalFavoriteAnimes, user.Favorites.FavoriteAnime, user, dbUser));
 		list.AddRange(ToDiscordEmbedBuilders(this.Logger, db.MalFavoriteMangas, user.Favorites.FavoriteManga, user, dbUser));
 		list.AddRange(ToDiscordEmbedBuilders(this.Logger, db.MalFavoriteCharacters, user.Favorites.FavoriteCharacters, user, dbUser));

@@ -11,6 +11,7 @@ using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualStudio.Threading;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Database;
@@ -40,7 +41,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 	public override string Name => Constants.Name;
 
-	public override event UpdateFoundEvent? UpdateFoundEvent;
+	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
@@ -146,7 +147,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 					throw new NoChangesSavedException();
 				}
 
-				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser));
+				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser));
 				this.Logger.FoundUpdatesForUser(totalUpdates.Count, user.Nickname);
 				if (isFavouriteMismatch)
 				{

@@ -66,39 +66,41 @@ internal sealed class UngroupedCommands : BotCommandsModule
 	[SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:Parameter should not span multiple lines", Justification = "We format versions in multi-line string")]
 	public Task<DiscordMessage> AboutCommand(InteractionContext context)
 	{
-		if (_aboutEmbed is null)
+		if (_aboutEmbed is not null)
 		{
-			var owners = context.Client.CurrentApplication.Owners.Select(x => $"{x.Username} ({x.Mention})").ToArray();
-			var botVersion = ThisAssembly.AssemblyVersion.AsSpan(0, 5);
-			var dotnetVersion = Environment.Version.ToString(3);
-
-			var commitId = ThisAssembly.GitCommitId[..10];
-			var commitDate = new DateTimeOffset(ThisAssembly.GitCommitDate);
-			const string desc =
-				"Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.";
-
-			const string sourceCodeLink = "https://github.com/TanteiBot/Tantei";
-
-			var versions = string.Create(CultureInfo.InvariantCulture, $"""
-																			Bot version - {botVersion}
-																			Commit - {Formatter.MaskedUrl(commitId, new Uri($"{sourceCodeLink}/tree/{commitId}"))}
-																			Commit date - {Formatter.Timestamp(commitDate, TimestampFormat.ShortDateTime)}
-																			DSharpPlus version - {context.Client.VersionString.AsSpan(0, 14)}
-																			.NET version - {dotnetVersion}
-																			""");
-
-			var embedBuilder = new DiscordEmbedBuilder
-				{
-					Title = "About",
-					Url = sourceCodeLink,
-					Description = desc,
-					Color = DiscordColor.DarkBlue,
-				}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
-				 .AddField("Links", Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)), inline: true)
-				 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), inline: true).AddField("Versions", versions, inline: false);
-
-			Interlocked.Exchange(ref _aboutEmbed, embedBuilder.Build());
+			return context.EditResponseAsync(embed: _aboutEmbed);
 		}
+
+		var owners = context.Client.CurrentApplication.Owners.Select(x => $"{x.Username} ({x.Mention})").ToArray();
+		var botVersion = ThisAssembly.AssemblyVersion.AsSpan(0, 5);
+		var dotnetVersion = Environment.Version.ToString(3);
+
+		var commitId = ThisAssembly.GitCommitId[..10];
+		var commitDate = new DateTimeOffset(ThisAssembly.GitCommitDate);
+		const string desc =
+			"Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.";
+
+		const string sourceCodeLink = "https://github.com/TanteiBot/Tantei";
+
+		var versions = string.Create(CultureInfo.InvariantCulture, $"""
+																	Bot version - {botVersion}
+																	Commit - {Formatter.MaskedUrl(commitId, new Uri($"{sourceCodeLink}/tree/{commitId}"))}
+																	Commit date - {Formatter.Timestamp(commitDate, TimestampFormat.ShortDateTime)}
+																	DSharpPlus version - {context.Client.VersionString.AsSpan(0, 14)}
+																	.NET version - {dotnetVersion}
+																	""");
+
+		var embedBuilder = new DiscordEmbedBuilder
+			{
+				Title = "About",
+				Url = sourceCodeLink,
+				Description = desc,
+				Color = DiscordColor.DarkBlue,
+			}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
+			 .AddField("Links", Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)), inline: true)
+			 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), inline: true).AddField("Versions", versions, inline: false);
+
+		Interlocked.Exchange(ref _aboutEmbed, embedBuilder.Build());
 
 		return context.EditResponseAsync(embed: _aboutEmbed);
 	}

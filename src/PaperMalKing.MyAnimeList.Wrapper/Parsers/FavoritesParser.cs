@@ -36,12 +36,7 @@ internal static partial class UserProfileParser
 		private static FavoriteCompany[] ParseFavoriteCompanies(IDocument parent)
 		{
 			var companyFavoritesNodes = GetFavoritesNodes(parent, "company_favorites");
-			if (companyFavoritesNodes is null)
-			{
-				return [];
-			}
-
-			return ParseFavoriteBase(companyFavoritesNodes, node => new FavoriteCompany(ParseBaseFavorite(node)));
+			return companyFavoritesNodes is null ? [] : ParseFavoriteBase(companyFavoritesNodes, node => new FavoriteCompany(ParseBaseFavorite(node)));
 		}
 
 		private static FavoriteAnime[] ParseFavoriteAnime(IDocument parent)
@@ -89,12 +84,7 @@ internal static partial class UserProfileParser
 		private static FavoritePerson[] ParseFavoritePerson(IDocument parent)
 		{
 			var personFavoriteNodes = GetFavoritesNodes(parent, "person_favorites");
-			if (personFavoriteNodes is null)
-			{
-				return [];
-			}
-
-			return ParseFavoriteBase(personFavoriteNodes, node => new FavoritePerson(ParseBaseFavorite(node)));
+			return personFavoriteNodes is null ? [] : ParseFavoriteBase(personFavoriteNodes, node => new FavoritePerson(ParseBaseFavorite(node)));
 		}
 
 		private static IHtmlCollection<IElement>? GetFavoritesNodes(IDocument parent, string sectionName)

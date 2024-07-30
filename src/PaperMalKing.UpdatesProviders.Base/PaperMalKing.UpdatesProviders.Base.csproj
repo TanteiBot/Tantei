@@ -6,8 +6,13 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
         <PackageReference Include="Humanizer.Core" />
+        <PackageReference Include="Microsoft.VisualStudio.Threading" />
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
         <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="UpdateFoundEvent.cs" />
     </ItemGroup>
 
 </Project>
