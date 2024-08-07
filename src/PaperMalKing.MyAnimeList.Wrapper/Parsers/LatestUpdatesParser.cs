@@ -36,8 +36,7 @@ internal static class LatestUpdatesParser
 			var link = dataNode.QuerySelector("a")!.GetAttribute("href")!;
 			var id = Helper.ExtractIdFromMalUrl(link);
 
-			return
-				$"{new StringBuilder(dataNode.QuerySelector("div.data > div:last-of-type")!.TextContent).Replace(" ", "").Replace("\n", "").ToString().ToUpperInvariant()}:{id}";
+			return $"{new StringBuilder(dataNode.QuerySelector("div.data > div:last-of-type")!.TextContent).Replace(" ", "").Replace("\n", "").ToString().ToUpperInvariant()}:{id}";
 		}));
 	}
 }
