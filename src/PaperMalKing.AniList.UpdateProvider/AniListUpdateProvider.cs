@@ -87,6 +87,12 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 														   .OrderBy(x => x.Id).ThenBy(x => x.Type).ToArray()),
 				StringComparison.Ordinal);
 
+			var favorites = isFavouritesHashMismatch switch
+			{
+				true when dbUser.Features.HasFlag(AniListUserFeatures.Favourites) => await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, db, cancellationToken),
+				_ => [],
+			};
+
 			if ((dbUser.Features.HasFlag(AniListUserFeatures.Favourites) && isFavouritesHashMismatch) ||
 				(dbUser.Features.HasFlag(AniListUserFeatures.Reviews) && recentUserUpdates.Reviews.Exists(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)) ||
 				(dbUser.Features.HasFlag(AniListUserFeatures.AnimeList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.ANIME && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)) ||
@@ -94,7 +100,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			{
 				db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
 				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
-				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(recentUserUpdates, dbUser, db, perUserCancellationToken)), dbUser.DiscordUser));
+				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(recentUserUpdates, favorites, dbUser, db, perUserCancellationToken)), dbUser.DiscordUser));
 			}
 			else
 			{
@@ -194,7 +200,11 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		return results;
 	}
 
-	private async IAsyncEnumerable<DiscordEmbedBuilder> GetUpdatesAsync(CombinedRecentUpdatesResponse recentUserUpdates, AniListUser dbUser, DatabaseContext db, [EnumeratorCancellation] CancellationToken cancellationToken)
+	private async IAsyncEnumerable<DiscordEmbedBuilder> GetUpdatesAsync(CombinedRecentUpdatesResponse recentUserUpdates,
+																		IReadOnlyList<DiscordEmbedBuilder> favorites,
+																		AniListUser dbUser,
+																		DatabaseContext db,
+																		[EnumeratorCancellation] CancellationToken cancellationToken)
 	{
 		static DiscordEmbedBuilder FormatEmbed(DiscordEmbedBuilder builder, AniListUser user)
 		{
@@ -213,33 +223,21 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 
 		int updatesCount = 0;
 
-		var isFavouritesHashMismatch = !string.Equals(
-			dbUser.FavouritesIdHash,
-			HashHelpers.FavoritesHash(recentUserUpdates.Favourites
-													   .Select(x => new FavoriteIdType(x.Id, (byte)x.Type))
-													   .OrderBy(x => x.Id).ThenBy(x => x.Type).ToArray()),
-			StringComparison.Ordinal);
-
-		if (dbUser.Features.HasFlag(AniListUserFeatures.Favourites) && isFavouritesHashMismatch)
+		if (favorites.Any())
 		{
-			var favorites = await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, db, cancellationToken);
-
-			if (favorites.Any())
+			foreach (var deb in favorites)
 			{
-				foreach (var deb in favorites)
-				{
-					yield return FormatEmbed(deb, dbUser);
-					updatesCount++;
-				}
-
-				await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
-
-				dbUser.FavouritesIdHash = HashHelpers.FavoritesHash(db.AniListFavourites.TagWith("Query users favorites hash for updating")
-																	  .TagWithCallSite().Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id)
-																	  .ThenBy(x => x.FavouriteType)
-																	  .Select(x => new FavoriteIdType(x.Id, (byte)x.FavouriteType)).ToArray());
-				await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+				yield return FormatEmbed(deb, dbUser);
+				updatesCount++;
 			}
+
+			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+
+			dbUser.FavouritesIdHash = HashHelpers.FavoritesHash(db.AniListFavourites.TagWith("Query users favorites hash for updating")
+																  .TagWithCallSite().Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id)
+																  .ThenBy(x => x.FavouriteType)
+																  .Select(x => new FavoriteIdType(x.Id, (byte)x.FavouriteType)).ToArray());
+			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
 		}
 
 		if (cancellationToken.IsCancellationRequested)
