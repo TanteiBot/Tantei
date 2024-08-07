@@ -167,6 +167,8 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			return deb;
 		}
 
+		int updatesCount = 0;
+
 		var isFavoritesHashMismatch = !string.Equals(
 			dbUser.FavoritesIdHash,
 			HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()),
@@ -181,6 +183,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			foreach (var deb in favoritesUpdates)
 			{
 				yield return FormatEmbed(dbUser, deb);
+				updatesCount++;
 			}
 
 			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
@@ -216,6 +219,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			foreach (var deb in animeListUpdates)
 			{
 				yield return FormatEmbed(dbUser, deb);
+				updatesCount++;
 			}
 
 			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
@@ -245,10 +249,13 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			foreach (var deb in mangaListUpdates)
 			{
 				yield return FormatEmbed(dbUser, deb);
+				updatesCount++;
 			}
 
 			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
 		}
+
+		this.Logger.FoundUpdatesForUser(updatesCount, user.Username);
 	}
 
 	private async Task<IReadOnlyList<DiscordEmbedBuilder>> CheckLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(MalUser dbUser, User user, DateTimeOffset latestUpdateDateTime, Action<MalUser, User, DateTimeOffset> dbUpdateAction, CancellationToken ct)

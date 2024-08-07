@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -210,6 +211,8 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			return builder;
 		}
 
+		int updatesCount = 0;
+
 		var isFavouritesHashMismatch = !string.Equals(
 			dbUser.FavouritesIdHash,
 			HashHelpers.FavoritesHash(recentUserUpdates.Favourites
@@ -226,6 +229,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				foreach (var deb in favorites)
 				{
 					yield return FormatEmbed(deb, dbUser);
+					updatesCount++;
 				}
 
 				await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
@@ -254,6 +258,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				foreach (var deb in recentUserUpdates.Reviews)
 				{
 					yield return FormatEmbed(deb.ToDiscordEmbedBuilder(recentUserUpdates.User, dbUser), dbUser);
+					updatesCount++;
 				}
 
 				dbUser.LastReviewTimestamp = recentUserUpdates.Reviews.Max(r => r.CreatedAtTimeStamp);
@@ -282,6 +287,8 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 
 					yield return FormatEmbed(embed, dbUser);
 
+					updatesCount++;
+
 					dbUser.LastActivityTimestamp = lastListActivityOnMedia.CreatedAtTimestamp;
 					await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
 
@@ -294,5 +301,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				}
 			}
 		}
+
+		this.Logger.FoundUpdatesForUser(updatesCount, recentUserUpdates.User.Name ?? dbUser.Id.ToString(CultureInfo.InvariantCulture));
 	}
 }

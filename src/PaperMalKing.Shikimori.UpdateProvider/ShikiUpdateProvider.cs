@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -64,11 +65,15 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 			var historyUpdates = await this._client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken);
 
-			var (addedFavourites, removedFavourites, isFavouriteMismatch) = dbUser switch
-			{
-				_ when dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) => await this.GetFavouritesUpdateAsync(dbUser, db, cancellationToken),
-				_ => ([], [], false),
-			};
+			var favs = await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken);
+			var isFavouritesMismatch = !string.Equals(
+				dbUser.FavouritesIdHash,
+				HashHelpers.FavoritesHash(favs.AllFavourites.OrderBy(x => x.Id)
+											  .ThenBy(x => x.GenericType, StringComparer.Ordinal)
+											  .Select(
+												  x => new FavoriteIdType(x.Id, (byte)x.GenericType![0]))
+											  .ToArray()),
+				StringComparison.Ordinal);
 
 			var achievementUpdates = dbUser switch
 			{
@@ -76,25 +81,84 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				_ => [],
 			};
 
-			if (historyUpdates is [] && addedFavourites is [] && removedFavourites is [] && achievementUpdates is [])
+			if (historyUpdates is not [] || isFavouritesMismatch || achievementUpdates is not [])
+			{
+				db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
+				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
+				var user = await this._client.GetUserInfoAsync(dbUser.Id, cancellationToken);
+
+				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(user, dbUser, db, favs, isFavouritesMismatch, historyUpdates, achievementUpdates, cancellationToken)), dbUser.DiscordUser));
+			}
+			else
 			{
 				this.Logger.NoUpdatesFound(dbUser.Id);
-				continue;
+			}
+		}
+	}
+
+	private async IAsyncEnumerable<DiscordEmbedBuilder> GetUpdatesAsync(UserInfo user,
+																		ShikiUser dbUser,
+																		DatabaseContext db,
+																		Favourites favs,
+																		bool isFavouritesMismatch,
+																		IReadOnlyList<History> historyUpdates,
+																		IReadOnlyList<ShikiAchievement> achievementUpdates,
+																		[EnumeratorCancellation] CancellationToken cancellationToken)
+	{
+		static DiscordEmbedBuilder FormatEmbed(ShikiUser dbUser, DiscordEmbedBuilder deb)
+		{
+			if (dbUser.Features.HasFlag(ShikiUserFeatures.Mention))
+			{
+				deb.AddField("By", DiscordHelpers.ToDiscordMention(dbUser.DiscordUserId), inline: true);
 			}
 
-			var totalUpdates = new List<DiscordEmbedBuilder>(historyUpdates.Count + addedFavourites.Count + removedFavourites.Count + achievementUpdates.Count);
-			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
-			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
+			if (dbUser.Features.HasFlag(ShikiUserFeatures.Website))
+			{
+				deb.WithShikiUpdateProviderFooter();
+			}
 
-			var user = await this._client.GetUserInfoAsync(dbUser.Id, cancellationToken);
-			totalUpdates.AddRange(removedFavourites.Select(rf => rf.ToDiscordEmbed(user, added: false, dbUser)));
-			totalUpdates.AddRange(addedFavourites.Select(af => af.ToDiscordEmbed(user, added: true, dbUser)));
-			totalUpdates.AddRange(achievementUpdates.Select(au => au.ToDiscordEmbed(user, dbUser.Features)));
-			var groupedHistoryEntriesWithMediaAndRoles = new List<HistoryMediaRoles>(historyUpdates.GroupSimilarHistoryEntries().Select(x =>
-				new HistoryMediaRoles
-				{
-					HistoryEntries = x,
-				}));
+			return deb;
+		}
+
+		int updatesCount = 0;
+
+		if (achievementUpdates is not [])
+		{
+			foreach (var achievementUpdate in achievementUpdates)
+			{
+				yield return FormatEmbed(dbUser, achievementUpdate.ToDiscordEmbed(user, dbUser.Features));
+
+				updatesCount++;
+			}
+
+			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+		}
+
+		var (addedFavourites, removedFavourites) = dbUser switch
+		{
+			_ when dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) && isFavouritesMismatch => await this.GetFavouritesUpdateAsync(favs, dbUser, db, cancellationToken),
+			_ => ([], []),
+		};
+
+		if (addedFavourites is not [] || removedFavourites is not [])
+		{
+			foreach (var deb in addedFavourites.Select(af => af.ToDiscordEmbed(user, added: true, dbUser)).Concat(removedFavourites.Select(rf => rf.ToDiscordEmbed(user, added: false, dbUser))))
+			{
+				yield return FormatEmbed(dbUser, deb);
+
+				updatesCount++;
+			}
+
+			dbUser.FavouritesIdHash = HashHelpers.FavoritesHash(db.ShikiFavourites.Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id)
+																				  .ThenBy(x => x.FavType)
+																				  .Select(x => new FavoriteIdType(x.Id, (byte)x.FavType[0])).ToArray());
+			db.SaveChanges();
+		}
+
+		if (historyUpdates is not [])
+		{
+			var groupedHistoryEntriesWithMediaAndRoles = new List<HistoryMediaRoles>(historyUpdates.GroupSimilarHistoryEntries().Select(x => new HistoryMediaRoles(x)));
+
 			if (groupedHistoryEntriesWithMediaAndRoles.Exists(x => x.HistoryEntries.Find(y => y.Target is not null) is not null))
 			{
 				foreach (var historyMediaRole in groupedHistoryEntriesWithMediaAndRoles.Where(x =>
@@ -111,62 +175,37 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 					if (dbUser.Features.HasFlag(ShikiUserFeatures.Mangaka) || dbUser.Features.HasFlag(ShikiUserFeatures.Director))
 					{
-						historyMediaRole.Roles = await this._client.GetMediaStaffAsync(history.Target!.Id, history.Target.Type, cancellationToken)
-														   ;
+						historyMediaRole.Roles = await this._client.GetMediaStaffAsync(history.Target!.Id, history.Target.Type, cancellationToken);
 					}
 				}
 			}
 
-			totalUpdates.AddRange(groupedHistoryEntriesWithMediaAndRoles.Select(group => group.ToDiscordEmbed(user, dbUser)));
-			if (historyUpdates is not [])
+			if (groupedHistoryEntriesWithMediaAndRoles is not [])
 			{
-				dbUser.LastHistoryEntryId = historyUpdates.Max(h => h.Id);
-			}
+				var resultingId = historyUpdates.Max(x => x.Id);
 
-			if (dbUser.Features.HasFlag(ShikiUserFeatures.Mention))
-			{
-				totalUpdates.ForEach(deb => deb.AddField("By", DiscordHelpers.ToDiscordMention(dbUser.DiscordUserId), inline: true));
-			}
-
-			if (dbUser.Features.HasFlag(ShikiUserFeatures.Website))
-			{
-				totalUpdates.ForEach(deb => deb.WithShikiUpdateProviderFooter());
-			}
-
-			if (cancellationToken.IsCancellationRequested)
-			{
-				this.Logger.CancellationRequested();
-				db.Entry(user).State = EntityState.Unchanged;
-				continue;
-			}
-
-			try
-			{
-				if (db.SaveChanges() <= 0)
+				for (var i = 0; i < groupedHistoryEntriesWithMediaAndRoles.Count; i++)
 				{
-					throw new NoChangesSavedException();
+					var groupedHistory = groupedHistoryEntriesWithMediaAndRoles[i];
+					yield return FormatEmbed(dbUser, groupedHistory.ToDiscordEmbed(user, dbUser));
+
+					if (i == 0 || dbUser.LastHistoryEntryId < groupedHistory.MinId)
+					{
+						dbUser.LastHistoryEntryId = groupedHistory.MinId;
+						await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+					}
 				}
 
-				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(totalUpdates), dbUser.DiscordUser));
-				this.Logger.FoundUpdatesForUser(totalUpdates.Count, user.Nickname);
-				if (isFavouriteMismatch)
-				{
-					dbUser.FavouritesIdHash = HashHelpers.FavoritesHash(db.ShikiFavourites.Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id)
-																		  .ThenBy(x => x.FavType)
-																		  .Select(x => new FavoriteIdType(x.Id, (byte)x.FavType[0])).ToArray());
-					db.SaveChanges();
-				}
-			}
-			catch (Exception ex)
-			{
-				this.Logger.ErrorHappenedWhileSendingUpdateOrSavingToDb(ex);
-				throw;
+				dbUser.LastHistoryEntryId = resultingId;
+				await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
 			}
 		}
+
+		this.Logger.FoundUpdatesForUser(updatesCount, user.Nickname);
 	}
 
-	private async Task<(IReadOnlyList<FavouriteMediaRoles> AddedValues, IReadOnlyList<FavouriteMediaRoles> RemovedValues, bool IsFavouritesMismatch)>
-		GetFavouritesUpdateAsync(ShikiUser dbUser, DatabaseContext db, CancellationToken cancellationToken)
+	private async Task<(IReadOnlyList<FavouriteMediaRoles> AddedValues, IReadOnlyList<FavouriteMediaRoles> RemovedValues)>
+		GetFavouritesUpdateAsync(Favourites favs, ShikiUser dbUser, DatabaseContext db, CancellationToken cancellationToken)
 	{
 		async Task FillMediaAndRolesAsync(FavouriteMediaRoles favouriteMediaRoles)
 		{
@@ -218,20 +257,6 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			};
 		}
 
-		var favs = await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken);
-		var isFavouritesMismatch = !string.Equals(
-												dbUser.FavouritesIdHash,
-												HashHelpers.FavoritesHash(favs.AllFavourites.OrderBy(x => x.Id)
-																			  .ThenBy(x => x.GenericType, StringComparer.Ordinal)
-																			  .Select(
-																				  x => new FavoriteIdType(x.Id, (byte)x.GenericType![0]))
-																			  .ToArray()),
-												StringComparison.Ordinal);
-		if (!isFavouritesMismatch)
-		{
-			return ([], [], isFavouritesMismatch);
-		}
-
 		var dbFavs = db.ShikiFavourites.TagWith("Query favorites info").TagWithCallSite().Where(x => x.UserId == dbUser.Id).OrderBy(x => x.Id)
 					   .ThenBy(x => x.FavType).Select(f => new FavouriteEntry
 					   {
@@ -241,7 +266,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 					   }).ToArray();
 		if (favs.AllFavourites.SequenceEqual(dbFavs))
 		{
-			return ([], [], isFavouritesMismatch);
+			return ([], []);
 		}
 
 		var (addedValues, removedValues) = dbFavs.GetDifference(favs.AllFavourites);
@@ -267,7 +292,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			await FillMediaAndRolesAsync(favouriteMediaRoles);
 		}
 
-		return (addedFavourites, removedFavourites, isFavouritesMismatch);
+		return (addedFavourites, removedFavourites);
 	}
 
 	private async Task<IReadOnlyList<ShikiAchievement>> GetAchievementsUpdatesAsync(ShikiUser dbUser, CancellationToken cancellationToken)

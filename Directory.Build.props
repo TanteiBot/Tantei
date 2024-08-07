@@ -15,6 +15,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NuGetAudit>true</NuGetAudit>
         <NuGetAuditLevel>low</NuGetAuditLevel>
+        <NuGetAuditMode>all</NuGetAuditMode>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
@@ -128,6 +129,7 @@
                     CA1822;
                     
                     IDE0005; <!--Using directive is unnecessary.-->
+                    IDE0009; <!--Add 'this' or 'Me' qualification-->
                     IDE0051; <!--Private member is unused-->
                     IDE0060; <!--Remove unused parameter -->
 
@@ -139,7 +141,13 @@
                     RCS1213; <!--Remove unused method declaration-->
 
                     SA1027; <!--Tabs and spaces should be used correctly-->
+                    SA1101; <!--Prefix local calls with this-->
                     SA1512; <!--Single-line comments should not be followed by blank line-->
+
+                    NU1901; <!-- Package has a known low severity vulnerability -->
+                    NU1902; <!-- Package has a known low moderate vulnerability -->
+                    NU1903; <!-- Package has a known low high vulnerability -->
+                    NU1904; <!-- Package has a known low critical vulnerability -->
                 </WarningsNotAsErrors>
             </PropertyGroup>
         </When>
