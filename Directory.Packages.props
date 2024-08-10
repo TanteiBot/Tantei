@@ -74,7 +74,7 @@
     <PackageVersion Include="Microsoft.Extensions.EnumStrings" Version="8.0.0-rc.2.23510.2" />
       
     <!-- Benchmarking -->
-    <PackageVersion Include="BenchmarkDotNet" Version="0.13.12" />  
+    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />  
 
     <!-- Analyzers-->
     <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.163">
