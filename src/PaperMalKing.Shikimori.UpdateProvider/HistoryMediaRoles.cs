@@ -15,4 +15,6 @@ internal sealed record HistoryMediaRoles(List<History> HistoryEntries)
 	public IReadOnlyList<Role>? Roles { get; set; }
 
 	public uint MinId => this.HistoryEntries is null or [] ? 0 : this.HistoryEntries.Min(h => h.Id);
+
+	public uint MaxId => this.HistoryEntries is null or [] ? 0 : this.HistoryEntries.Max(h => h.Id);
 }

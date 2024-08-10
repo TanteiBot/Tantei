@@ -128,14 +128,13 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			return collection.Any(predicate) ? collection.Where(predicate).Select(f => f.Id).ToArray() : [];
 		}
 
-		static void GetFavouritesEmbed<T>(
-										List<DiscordEmbedBuilder> aggregator,
-										IReadOnlyList<IdentifiableFavourite> addedValues,
-										IReadOnlyList<IdentifiableFavourite> removedValues,
-										List<T> obtainedValues,
-										Wrapper.Abstractions.Models.Enums.FavouriteType type,
-										User user,
-										AniListUser dbUser)
+		static void GetFavouritesEmbed<T>(List<DiscordEmbedBuilder> aggregator,
+										  IReadOnlyList<IdentifiableFavourite> addedValues,
+										  IReadOnlyList<IdentifiableFavourite> removedValues,
+										  List<T> obtainedValues,
+										  Wrapper.Abstractions.Models.Enums.FavouriteType type,
+										  User user,
+										  AniListUser dbUser)
 			where T : class, IIdentifiable, ISiteUrlable
 		{
 			foreach (var value in obtainedValues)

@@ -81,13 +81,19 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				_ => [],
 			};
 
+			var groupedHistoryEntriesWithMediaAndRoles = historyUpdates switch
+			{
+				not [] => await this.GroupHistoryEntriesAsync(historyUpdates, dbUser, cancellationToken),
+				_ => [],
+			};
+
 			if (historyUpdates is not [] || isFavouritesMismatch || achievementUpdates is not [])
 			{
 				db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
 				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
 				var user = await this._client.GetUserInfoAsync(dbUser.Id, cancellationToken);
 
-				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(user, dbUser, db, favs, isFavouritesMismatch, historyUpdates, achievementUpdates, cancellationToken)), dbUser.DiscordUser));
+				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(user, dbUser, db, favs, isFavouritesMismatch, groupedHistoryEntriesWithMediaAndRoles, achievementUpdates, cancellationToken)), dbUser.DiscordUser));
 			}
 			else
 			{
@@ -101,7 +107,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 																		DatabaseContext db,
 																		Favourites favs,
 																		bool isFavouritesMismatch,
-																		IReadOnlyList<History> historyUpdates,
+																		IReadOnlyList<HistoryMediaRoles> groupedHistoryEntriesWithMediaAndRoles,
 																		IReadOnlyList<ShikiAchievement> achievementUpdates,
 																		[EnumeratorCancellation] CancellationToken cancellationToken)
 	{
@@ -155,53 +161,52 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			db.SaveChanges();
 		}
 
-		if (historyUpdates is not [])
+		if (groupedHistoryEntriesWithMediaAndRoles is not [])
 		{
-			var groupedHistoryEntriesWithMediaAndRoles = new List<HistoryMediaRoles>(historyUpdates.GroupSimilarHistoryEntries().Select(x => new HistoryMediaRoles(x)));
+			var resultingId = groupedHistoryEntriesWithMediaAndRoles.Max(gh => gh.MaxId);
 
-			if (groupedHistoryEntriesWithMediaAndRoles.Exists(x => x.HistoryEntries.Find(y => y.Target is not null) is not null))
+			for (var i = 0; i < groupedHistoryEntriesWithMediaAndRoles.Count; i++)
 			{
-				foreach (var historyMediaRole in groupedHistoryEntriesWithMediaAndRoles.Where(x =>
-							 x.HistoryEntries.Exists(historyEntry => historyEntry.Target is not null)))
-				{
-					var history = historyMediaRole.HistoryEntries.First(x => x.Target is not null);
-					if (dbUser.Features.HasFlag(ShikiUserFeatures.Description) || dbUser.Features.HasFlag(ShikiUserFeatures.Studio) ||
-						dbUser.Features.HasFlag(ShikiUserFeatures.Publisher) || dbUser.Features.HasFlag(ShikiUserFeatures.Genres))
-					{
-						historyMediaRole.Media = history.Target!.Type == ListEntryType.Anime
-							? await this._client.GetMediaAsync<AnimeMedia>(history.Target!.Id, ListEntryType.Anime, cancellationToken)
-							: await this._client.GetMediaAsync<MangaMedia>(history.Target!.Id, ListEntryType.Manga, cancellationToken);
-					}
+				var groupedHistory = groupedHistoryEntriesWithMediaAndRoles[i];
+				yield return FormatEmbed(dbUser, groupedHistory.ToDiscordEmbed(user, dbUser));
 
-					if (dbUser.Features.HasFlag(ShikiUserFeatures.Mangaka) || dbUser.Features.HasFlag(ShikiUserFeatures.Director))
-					{
-						historyMediaRole.Roles = await this._client.GetMediaStaffAsync(history.Target!.Id, history.Target.Type, cancellationToken);
-					}
+				if (i == 0 || dbUser.LastHistoryEntryId < groupedHistory.MinId)
+				{
+					dbUser.LastHistoryEntryId = groupedHistory.MinId;
+					await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
 				}
 			}
 
-			if (groupedHistoryEntriesWithMediaAndRoles is not [])
-			{
-				var resultingId = historyUpdates.Max(x => x.Id);
-
-				for (var i = 0; i < groupedHistoryEntriesWithMediaAndRoles.Count; i++)
-				{
-					var groupedHistory = groupedHistoryEntriesWithMediaAndRoles[i];
-					yield return FormatEmbed(dbUser, groupedHistory.ToDiscordEmbed(user, dbUser));
-
-					if (i == 0 || dbUser.LastHistoryEntryId < groupedHistory.MinId)
-					{
-						dbUser.LastHistoryEntryId = groupedHistory.MinId;
-						await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
-					}
-				}
-
-				dbUser.LastHistoryEntryId = resultingId;
-				await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
-			}
+			dbUser.LastHistoryEntryId = resultingId;
+			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
 		}
 
 		this.Logger.FoundUpdatesForUser(updatesCount, user.Nickname);
+	}
+
+	private async Task<IReadOnlyList<HistoryMediaRoles>> GroupHistoryEntriesAsync(IReadOnlyList<History> historyUpdates, ShikiUser dbUser, CancellationToken cancellationToken)
+	{
+		var groupedHistoryEntriesWithMediaAndRoles = new List<HistoryMediaRoles>(historyUpdates.GroupSimilarHistoryEntries().Select(x => new HistoryMediaRoles(x)));
+
+		foreach (var historyMediaRole in groupedHistoryEntriesWithMediaAndRoles.Where(x =>
+					 x.HistoryEntries.Exists(historyEntry => historyEntry.Target is not null)))
+		{
+			var history = historyMediaRole.HistoryEntries.First(x => x.Target is not null);
+			if (dbUser.Features.HasFlag(ShikiUserFeatures.Description) || dbUser.Features.HasFlag(ShikiUserFeatures.Studio) ||
+				dbUser.Features.HasFlag(ShikiUserFeatures.Publisher) || dbUser.Features.HasFlag(ShikiUserFeatures.Genres))
+			{
+				historyMediaRole.Media = history.Target!.Type == ListEntryType.Anime
+					? await this._client.GetMediaAsync<AnimeMedia>(history.Target!.Id, ListEntryType.Anime, cancellationToken)
+					: await this._client.GetMediaAsync<MangaMedia>(history.Target!.Id, ListEntryType.Manga, cancellationToken);
+			}
+
+			if (dbUser.Features.HasFlag(ShikiUserFeatures.Mangaka) || dbUser.Features.HasFlag(ShikiUserFeatures.Director))
+			{
+				historyMediaRole.Roles = await this._client.GetMediaStaffAsync(history.Target!.Id, history.Target.Type, cancellationToken);
+			}
+		}
+
+		return groupedHistoryEntriesWithMediaAndRoles;
 	}
 
 	private async Task<(IReadOnlyList<FavouriteMediaRoles> AddedValues, IReadOnlyList<FavouriteMediaRoles> RemovedValues)>
