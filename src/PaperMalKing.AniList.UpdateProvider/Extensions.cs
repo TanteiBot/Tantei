@@ -394,4 +394,10 @@ internal static partial class Extensions
 		eb.Footer = AniListFooter;
 		return eb;
 	}
+
+	public static FavoriteIdType[] ToFavoriteIdType<T>(this T favorites)
+		where T : ICollection<IdentifiableFavourite>
+	{
+		return [..favorites.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).OrderBy(x => x.Id).ThenBy(x => x.Type)];
+	}
 }

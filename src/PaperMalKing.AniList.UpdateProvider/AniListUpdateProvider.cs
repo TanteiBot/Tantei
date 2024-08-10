@@ -80,12 +80,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 				continue;
 			}
 
-			var isFavouritesHashMismatch = !string.Equals(
-				dbUser.FavouritesIdHash,
-				HashHelpers.FavoritesHash(recentUserUpdates.Favourites
-														   .Select(x => new FavoriteIdType(x.Id, (byte)x.Type))
-														   .OrderBy(x => x.Id).ThenBy(x => x.Type).ToArray()),
-				StringComparison.Ordinal);
+			var isFavouritesHashMismatch = !dbUser.FavouritesIdHash.Equals(HashHelpers.FavoritesHash(recentUserUpdates.Favourites.ToFavoriteIdType()), StringComparison.Ordinal);
 
 			var favorites = isFavouritesHashMismatch switch
 			{

@@ -66,14 +66,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			var historyUpdates = await this._client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken);
 
 			var favs = await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken);
-			var isFavouritesMismatch = !string.Equals(
-				dbUser.FavouritesIdHash,
-				HashHelpers.FavoritesHash(favs.AllFavourites.OrderBy(x => x.Id)
-											  .ThenBy(x => x.GenericType, StringComparer.Ordinal)
-											  .Select(
-												  x => new FavoriteIdType(x.Id, (byte)x.GenericType![0]))
-											  .ToArray()),
-				StringComparison.Ordinal);
+			var isFavouritesMismatch = !dbUser.FavouritesIdHash.Equals(HashHelpers.FavoritesHash(favs.AllFavourites.ToFavoriteIdType()), StringComparison.Ordinal);
 
 			var achievementUpdates = dbUser switch
 			{
@@ -312,7 +305,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				continue;
 			}
 
-			var acs = dbUser.Achievements.Find(x => string.Equals(x.NekoId, id, StringComparison.Ordinal));
+			var acs = dbUser.Achievements.Find(x => x.NekoId.Equals(id, StringComparison.Ordinal));
 			if (acs is not null && acs.Level < level)
 			{
 					acs.Level = level;

@@ -352,4 +352,10 @@ internal static partial class Extensions
 			}
 		}
 	}
+
+	public static FavoriteIdType[] ToFavoriteIdType<T>(this T favorites)
+		where T : IReadOnlyCollection<FavouriteEntry>
+	{
+		return [..favorites.Select(x => new FavoriteIdType(x.Id, (byte)x.GenericType![0])).OrderBy(x => x.Id).ThenBy(x => x.Type)];
+	}
 }

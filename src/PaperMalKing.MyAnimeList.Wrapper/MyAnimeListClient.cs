@@ -153,7 +153,7 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		try
 		{
 			var animeCharacters = await this._jikanClient.GetAnimeCharactersAsync(id, cancellationToken);
-			return animeCharacters.Data.SelectMany(x => x.VoiceActors).Where(x => string.Equals(x.Language, "Japanese", StringComparison.Ordinal))
+			return animeCharacters.Data.SelectMany(x => x.VoiceActors).Where(x => x.Language.Equals("Japanese", StringComparison.Ordinal))
 								  .Select(x => new SeyuInfo
 								  {
 									  Name = x.Person.Name,

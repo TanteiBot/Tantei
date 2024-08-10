@@ -119,15 +119,12 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				return;
 			}
 
-			var isFavoritesHashMismatch = !string.Equals(
-				dbUser.FavoritesIdHash,
-				HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()),
-				StringComparison.Ordinal);
+			var isFavoritesHashMismatch = !dbUser.FavoritesIdHash.Equals(HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()), StringComparison.Ordinal);
 
 			var animeListUpdates = dbUser.Features.HasFlag(MalUserFeatures.AnimeList)
 				? user.HasPublicAnimeUpdates switch
 				{
-					true when !string.Equals(dbUser.LastAnimeUpdateHash, user.LatestAnimeUpdateHash, StringComparison.Ordinal) => await
+					true when !dbUser.LastAnimeUpdateHash.Equals(user.LatestAnimeUpdateHash, StringComparison.Ordinal) => await
 						this.CheckLatestListUpdatesAsync<AnimeListEntry, AnimeListType, AnimeFieldsToRequest, AnimeListEntryNode, AnimeListEntryStatus,
 							AnimeMediaType, AnimeAiringStatus, AnimeListStatus>(
 							dbUser,
@@ -141,7 +138,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var mangaListUpdates = dbUser.Features.HasFlag(MalUserFeatures.MangaList)
 				? user.HasPublicMangaUpdates switch
 				{
-					true when !string.Equals(dbUser.LastMangaUpdateHash, user.LatestMangaUpdateHash, StringComparison.Ordinal) => await
+					true when !dbUser.LastMangaUpdateHash.Equals(user.LatestMangaUpdateHash, StringComparison.Ordinal) => await
 						this.CheckLatestListUpdatesAsync<MangaListEntry, MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus,
 							MangaMediaType, MangaPublishingStatus, MangaListStatus>(
 							dbUser,
@@ -194,10 +191,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 		int updatesCount = 0;
 
-		var isFavoritesHashMismatch = !string.Equals(
-			dbUser.FavoritesIdHash,
-			HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()),
-			StringComparison.Ordinal);
+		var isFavoritesHashMismatch = !dbUser.FavoritesIdHash.Equals(HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()), StringComparison.Ordinal);
 
 		var favoritesUpdates = dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch
 			? this.CheckFavoritesUpdates(dbUser, user, db)
