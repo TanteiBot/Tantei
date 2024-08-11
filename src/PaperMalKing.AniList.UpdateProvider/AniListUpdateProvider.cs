@@ -82,11 +82,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 
 			var isFavouritesHashMismatch = !dbUser.FavouritesIdHash.Equals(HashHelpers.FavoritesHash(recentUserUpdates.Favourites.ToFavoriteIdType()), StringComparison.Ordinal);
 
-			var favorites = isFavouritesHashMismatch switch
-			{
-				true when dbUser.Features.HasFlag(AniListUserFeatures.Favourites) => await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, db, cancellationToken),
-				_ => [],
-			};
+			var favorites = (isFavouritesHashMismatch && dbUser.Features.HasFlag(AniListUserFeatures.Favourites)) ? await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, db, cancellationToken) : [];
 
 			if ((dbUser.Features.HasFlag(AniListUserFeatures.Favourites) && isFavouritesHashMismatch) ||
 				(dbUser.Features.HasFlag(AniListUserFeatures.Reviews) && recentUserUpdates.Reviews.Exists(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)) ||

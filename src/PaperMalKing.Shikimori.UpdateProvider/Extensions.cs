@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -67,11 +68,11 @@ internal static partial class Extensions
 	{
 		uint page = 1;
 		byte limit = 10;
-		var options = features switch
+		var options = (features.HasFlag(ShikiUserFeatures.AnimeList), features.HasFlag(ShikiUserFeatures.MangaList)) switch
 		{
-			_ when features.HasFlag(ShikiUserFeatures.AnimeList) && features.HasFlag(ShikiUserFeatures.MangaList) => HistoryRequestOptions.Any,
-			_ when features.HasFlag(ShikiUserFeatures.AnimeList) && !features.HasFlag(ShikiUserFeatures.MangaList) => HistoryRequestOptions.Anime,
-			_ when features.HasFlag(ShikiUserFeatures.MangaList) && !features.HasFlag(ShikiUserFeatures.AnimeList) => HistoryRequestOptions.Manga,
+			(true, true) => HistoryRequestOptions.Any,
+			(true, false) => HistoryRequestOptions.Anime,
+			(false, true) => HistoryRequestOptions.Manga,
 			_ => ThrowHelper.ThrowArgumentOutOfRangeException<HistoryRequestOptions>(nameof(features), features, message: null),
 		};
 
@@ -155,19 +156,19 @@ internal static partial class Extensions
 
 		var progress = CalculateProgressType(history.HistoryEntries);
 
-		var updateType = progress switch
+		var updateType = (target.Type, progress) switch
 		{
-			ProgressType.OnHold when target.Type is ListEntryType.Anime => ShikiUpdateType.PausedAnime,
-			ProgressType.InProgress when target.Type is ListEntryType.Anime => ShikiUpdateType.Watching,
-			ProgressType.Dropped when target.Type is ListEntryType.Anime => ShikiUpdateType.DroppedAnime,
-			ProgressType.InPlans when target.Type is ListEntryType.Anime => ShikiUpdateType.PlanToWatch,
-			ProgressType.Completed when target.Type is ListEntryType.Anime => ShikiUpdateType.CompletedAnime,
+			(ListEntryType.Anime, ProgressType.OnHold) => ShikiUpdateType.PausedAnime,
+			(ListEntryType.Anime, ProgressType.InProgress) => ShikiUpdateType.Watching,
+			(ListEntryType.Anime, ProgressType.Dropped) => ShikiUpdateType.DroppedAnime,
+			(ListEntryType.Anime, ProgressType.InPlans) => ShikiUpdateType.PlanToWatch,
+			(ListEntryType.Anime, ProgressType.Completed) => ShikiUpdateType.CompletedAnime,
 
-			ProgressType.OnHold when target.Type is ListEntryType.Manga => ShikiUpdateType.PausedManga,
-			ProgressType.InProgress when target.Type is ListEntryType.Manga => ShikiUpdateType.Reading,
-			ProgressType.Dropped when target.Type is ListEntryType.Manga => ShikiUpdateType.DroppedManga,
-			ProgressType.InPlans when target.Type is ListEntryType.Manga => ShikiUpdateType.PlanToRead,
-			ProgressType.Completed when target.Type is ListEntryType.Manga => ShikiUpdateType.CompletedManga,
+			(ListEntryType.Manga, ProgressType.OnHold) => ShikiUpdateType.PausedManga,
+			(ListEntryType.Manga, ProgressType.InProgress) => ShikiUpdateType.Reading,
+			(ListEntryType.Manga, ProgressType.Dropped) => ShikiUpdateType.DroppedManga,
+			(ListEntryType.Manga, ProgressType.InPlans) => ShikiUpdateType.PlanToRead,
+			(ListEntryType.Manga, ProgressType.Completed) => ShikiUpdateType.CompletedManga,
 			_ => throw new ArgumentOutOfRangeException(nameof(history), "Invalid status"),
 		};
 
@@ -275,11 +276,12 @@ internal static partial class Extensions
 	public static string GetNameOrAltName(this IMultiLanguageName namedEntity, ShikiUserFeatures features) =>
 		GetNameOrAltName(namedEntity, features.HasFlag(ShikiUserFeatures.Russian));
 
-	public static string GetNameOrAltName(this IMultiLanguageName namedEntity, bool useRussianAsMain) => useRussianAsMain switch
+	public static string GetNameOrAltName(this IMultiLanguageName namedEntity, bool useRussianAsMain)
 	{
-		true => string.IsNullOrWhiteSpace(namedEntity.RussianName) ? namedEntity.Name! : namedEntity.RussianName,
-		_ => string.IsNullOrWhiteSpace(namedEntity.Name) ? namedEntity.RussianName! : namedEntity.Name,
-	};
+		(var mainLang, var secondaryLang) = useRussianAsMain ? (namedEntity.RussianName, namedEntity.Name) : (namedEntity.Name, namedEntity.RussianName);
+
+		return string.IsNullOrWhiteSpace(mainLang) ? secondaryLang! : mainLang;
+	}
 
 	private static void FillMediaInfo(this DiscordEmbedBuilder eb, BaseMedia? media, IReadOnlyList<Role>? roles, ShikiUserFeatures features, ListEntryType type)
 	{

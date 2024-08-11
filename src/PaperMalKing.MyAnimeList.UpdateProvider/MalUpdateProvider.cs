@@ -121,32 +121,21 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 			var isFavoritesHashMismatch = !dbUser.FavoritesIdHash.Equals(HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()), StringComparison.Ordinal);
 
-			var animeListUpdates = dbUser.Features.HasFlag(MalUserFeatures.AnimeList)
-				? user.HasPublicAnimeUpdates switch
-				{
-					true when !dbUser.LastAnimeUpdateHash.Equals(user.LatestAnimeUpdateHash, StringComparison.Ordinal) => await
-						this.CheckLatestListUpdatesAsync<AnimeListEntry, AnimeListType, AnimeFieldsToRequest, AnimeListEntryNode, AnimeListEntryStatus,
-							AnimeMediaType, AnimeAiringStatus, AnimeListStatus>(
-							dbUser,
-							user,
-							dbUser.LastUpdatedAnimeListTimestamp,
-							cancellationToken),
-					_ => [],
-				}
-				: [];
+			var animeListUpdates =
+				(dbUser.Features.HasFlag(MalUserFeatures.AnimeList) && user.HasPublicAnimeUpdates &&
+				 !dbUser.LastAnimeUpdateHash.Equals(user.LatestAnimeUpdateHash, StringComparison.Ordinal))
+					? await this
+						.CheckLatestListUpdatesAsync<AnimeListEntry, AnimeListType, AnimeFieldsToRequest, AnimeListEntryNode, AnimeListEntryStatus,
+							AnimeMediaType, AnimeAiringStatus, AnimeListStatus>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp, cancellationToken)
+					: [];
 
-			var mangaListUpdates = dbUser.Features.HasFlag(MalUserFeatures.MangaList)
-				? user.HasPublicMangaUpdates switch
-				{
-					true when !dbUser.LastMangaUpdateHash.Equals(user.LatestMangaUpdateHash, StringComparison.Ordinal) => await
-						this.CheckLatestListUpdatesAsync<MangaListEntry, MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus,
+			var mangaListUpdates = (dbUser.Features.HasFlag(MalUserFeatures.MangaList) && user.HasPublicMangaUpdates && !dbUser.LastMangaUpdateHash.Equals(user.LatestMangaUpdateHash, StringComparison.Ordinal))
+				? await this.CheckLatestListUpdatesAsync<MangaListEntry, MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus,
 							MangaMediaType, MangaPublishingStatus, MangaListStatus>(
 							dbUser,
 							user,
 							dbUser.LastUpdatedMangaListTimestamp,
-							cancellationToken),
-					_ => [],
-				}
+							cancellationToken)
 				: [];
 
 			if ((dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch) ||

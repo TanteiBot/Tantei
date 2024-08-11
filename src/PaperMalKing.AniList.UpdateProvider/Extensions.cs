@@ -178,6 +178,7 @@ internal static partial class Extensions
 		return eb;
 	}
 
+	[SuppressMessage("Major Code Smell", "S3358:Ternary operators should not be nested", Justification = "Nesting is done in string interpolation")]
 	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this ListActivity activity, MediaListEntry mediaListEntry, User user, AniListUser dbUser)
 	{
 		var features = dbUser.Features;
@@ -185,32 +186,29 @@ internal static partial class Extensions
 		var isHiddenProgressPresent = !string.IsNullOrEmpty(activity.Progress) && (mediaListEntry.Status == MediaListStatus.PAUSED ||
 																				   mediaListEntry.Status == MediaListStatus.DROPPED ||
 																				   mediaListEntry.Status == MediaListStatus.COMPLETED);
-		var desc = isHiddenProgressPresent switch
-		{
-			true => $"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it",
-			_ => $"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}",
-		};
+		var desc = isHiddenProgressPresent ? $"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it" : $"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}";
+
 		var isAdvancedScoringEnabled =
 			(isAnime
 				? user.MediaListOptions!.AnimeListOptions.IsAdvancedScoringEnabled
 				: user.MediaListOptions!.MangaListOptions.IsAdvancedScoringEnabled) &&
 			mediaListEntry.AdvancedScores?.Values.Any(s => s != 0f) == true;
 
-		var updateType = mediaListEntry.Status switch
+		var updateType = (isAnime, mediaListEntry.Status) switch
 		{
-			MediaListStatus.PAUSED when isAnime => AniListUpdateType.PausedAnime,
-			MediaListStatus.CURRENT when isAnime => AniListUpdateType.Watching,
-			MediaListStatus.DROPPED when isAnime => AniListUpdateType.DroppedAnime,
-			MediaListStatus.PLANNING when isAnime => AniListUpdateType.PlanToWatch,
-			MediaListStatus.COMPLETED when isAnime => AniListUpdateType.CompletedAnime,
-			MediaListStatus.REPEATING when isAnime => AniListUpdateType.RewatchingAnime,
+			(true, MediaListStatus.PAUSED) => AniListUpdateType.PausedAnime,
+			(true, MediaListStatus.CURRENT) => AniListUpdateType.Watching,
+			(true, MediaListStatus.DROPPED) => AniListUpdateType.DroppedAnime,
+			(true, MediaListStatus.PLANNING) => AniListUpdateType.PlanToWatch,
+			(true, MediaListStatus.COMPLETED) => AniListUpdateType.CompletedAnime,
+			(true, MediaListStatus.REPEATING) => AniListUpdateType.RewatchingAnime,
 
-			MediaListStatus.PAUSED when !isAnime => AniListUpdateType.PausedManga,
-			MediaListStatus.CURRENT when !isAnime => AniListUpdateType.Reading,
-			MediaListStatus.DROPPED when !isAnime => AniListUpdateType.DroppedManga,
-			MediaListStatus.PLANNING when !isAnime => AniListUpdateType.PlanToRead,
-			MediaListStatus.COMPLETED when !isAnime => AniListUpdateType.CompletedManga,
-			MediaListStatus.REPEATING when !isAnime => AniListUpdateType.RereadingManga,
+			(false, MediaListStatus.PAUSED) => AniListUpdateType.PausedManga,
+			(false, MediaListStatus.CURRENT) => AniListUpdateType.Reading,
+			(false, MediaListStatus.DROPPED) => AniListUpdateType.DroppedManga,
+			(false, MediaListStatus.PLANNING) => AniListUpdateType.PlanToRead,
+			(false, MediaListStatus.COMPLETED) => AniListUpdateType.CompletedManga,
+			(false, MediaListStatus.REPEATING) => AniListUpdateType.RereadingManga,
 			_ => throw new ArgumentOutOfRangeException(nameof(mediaListEntry), "Invalid status"),
 		};
 

@@ -68,17 +68,10 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			var favs = await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken);
 			var isFavouritesMismatch = !dbUser.FavouritesIdHash.Equals(HashHelpers.FavoritesHash(favs.AllFavourites.ToFavoriteIdType()), StringComparison.Ordinal);
 
-			var achievementUpdates = dbUser switch
-			{
-				_ when dbUser.Features.HasFlag(ShikiUserFeatures.Achievements) => await this.GetAchievementsUpdatesAsync(dbUser, cancellationToken),
-				_ => [],
-			};
+			var achievementUpdates = dbUser.Features.HasFlag(ShikiUserFeatures.Achievements) ? await this.GetAchievementsUpdatesAsync(dbUser, cancellationToken) : [];
 
-			var groupedHistoryEntriesWithMediaAndRoles = historyUpdates switch
-			{
-				not [] => await this.GroupHistoryEntriesAsync(historyUpdates, dbUser, cancellationToken),
-				_ => [],
-			};
+			var groupedHistoryEntriesWithMediaAndRoles =
+				historyUpdates is not [] ? await this.GroupHistoryEntriesAsync(historyUpdates, dbUser, cancellationToken) : [];
 
 			if (historyUpdates is not [] || isFavouritesMismatch || achievementUpdates is not [])
 			{
@@ -133,11 +126,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
 		}
 
-		var (addedFavourites, removedFavourites) = dbUser switch
-		{
-			_ when dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) && isFavouritesMismatch => await this.GetFavouritesUpdateAsync(favs, dbUser, db, cancellationToken),
-			_ => ([], []),
-		};
+		var (addedFavourites, removedFavourites) = dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) && isFavouritesMismatch ? await this.GetFavouritesUpdateAsync(favs, dbUser, db, cancellationToken) : ([], []);
 
 		if (addedFavourites is not [] || removedFavourites is not [])
 		{
@@ -213,6 +202,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				_ when favouriteMediaRoles.FavouriteEntry.GenericType!.Contains("anime", StringComparison.OrdinalIgnoreCase) => (false, true),
 				_ => (false, false),
 			};
+
 			if ((dbUser.Features.HasFlag(ShikiUserFeatures.Mangaka) && isManga) || (dbUser.Features.HasFlag(ShikiUserFeatures.Director) && isAnime))
 			{
 				favouriteMediaRoles.Roles = await this._client.GetMediaStaffAsync(
@@ -227,10 +217,8 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			{
 				favouriteMediaRoles.Media = (isManga, isAnime) switch
 				{
-					(true, _) => await this._client
-										   .GetMediaAsync<MangaMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Manga, cancellationToken),
-					(_, true) => await this._client
-										   .GetMediaAsync<AnimeMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Anime, cancellationToken),
+					(true, _) => await this._client.GetMediaAsync<MangaMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Manga, cancellationToken),
+					(_, true) => await this._client.GetMediaAsync<AnimeMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Anime, cancellationToken),
 					_ => throw new UnreachableException(),
 				};
 			}

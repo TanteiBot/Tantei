@@ -3,6 +3,7 @@
 
 using System.Text.Json.Serialization;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
+using static PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums.TitleLanguage;
 
 namespace PaperMalKing.AniList.Wrapper.Abstractions.Models;
 
@@ -16,12 +17,9 @@ public sealed class GenericName
 
 	public string GetName(TitleLanguage language)
 	{
-		return language switch
+		return (this.Full is not null) switch
 		{
-			TitleLanguage.ROMAJI_STYLISED when this.Full != null => this.Full,
-			TitleLanguage.ENGLISH when this.Full != null => this.Full,
-			TitleLanguage.ENGLISH_STYLISED when this.Full != null => this.Full,
-			TitleLanguage.ROMAJI when this.Full != null => this.Full,
+			true when language is ROMAJI_STYLISED or ENGLISH or ENGLISH_STYLISED or ROMAJI => this.Full,
 			_ => this.Native,
 		};
 	}
