@@ -6,12 +6,39 @@ using DSharpPlus.Entities;
 
 namespace PaperMalKing.UpdatesProviders.Base;
 
-public class BaseUpdate : IUpdate
+public sealed class BaseUpdate : IUpdate
 {
+	private readonly IReadOnlyList<DiscordEmbedBuilder> _updates = [];
+
+	private readonly IAsyncEnumerable<DiscordEmbedBuilder> _asyncUpdates = EmptyAsync();
+
 	public BaseUpdate(IReadOnlyList<DiscordEmbedBuilder> updateEmbeds)
 	{
-		this.UpdateEmbeds = updateEmbeds;
+		this._updates = updateEmbeds;
 	}
 
-	public IReadOnlyList<DiscordEmbedBuilder> UpdateEmbeds { get; }
+	public BaseUpdate(IAsyncEnumerable<DiscordEmbedBuilder> updates)
+	{
+		this._asyncUpdates = updates;
+	}
+
+	public async IAsyncEnumerable<DiscordEmbed> GetUpdateEmbedsAsync()
+	{
+		foreach (var embed in this._updates)
+		{
+			yield return embed.Build();
+		}
+
+		await foreach (var embed in this._asyncUpdates)
+		{
+			yield return embed.Build();
+		}
+	}
+
+	#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+	private static async IAsyncEnumerable<DiscordEmbedBuilder> EmptyAsync()
+	#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+	{
+		yield break;
+	}
 }

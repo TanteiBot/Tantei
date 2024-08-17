@@ -85,7 +85,7 @@ internal sealed class UpdatePublishingService
 		}
 		else
 		{
-			throw new GuildManagementException("Couldnt remove or update channel");
+			throw new GuildManagementException("Couldn't remove or update channel");
 		}
 	}
 
@@ -98,14 +98,29 @@ internal sealed class UpdatePublishingService
 		this.AddChannel(updatedValue);
 	}
 
-	private Task PublishUpdatesAsync(UpdateFoundEventArgs args)
+	private async Task PublishUpdatesAsync(object? sender, UpdateFoundEventArgs args)
 	{
 		var tasks = new List<Task>(args.DiscordUser.Guilds.Count);
-		foreach (var guild in args.DiscordUser.Guilds)
-		{
-			tasks.Add(this._updatePosters[guild.PostingChannelId].PostUpdatesAsync(args.Update.UpdateEmbeds));
-		}
 
-		return Task.WhenAll(tasks);
+		try
+		{
+			await Task.WhenAll(args.DiscordUser.Guilds.Select(g => g.PostingChannelId).Select(i => this._updatePosters[i].PreparePostingUpdatesAsync()));
+
+			await foreach (var embed in args.Update.GetUpdateEmbedsAsync())
+			{
+				tasks.AddRange(args.DiscordUser.Guilds.Select(guild => this._updatePosters[guild.PostingChannelId].PostUpdateAsync(embed)));
+
+				await Task.WhenAll(tasks);
+
+				tasks.Clear();
+			}
+		}
+		finally
+		{
+			foreach (var guild in args.DiscordUser.Guilds)
+			{
+				this._updatePosters[guild.PostingChannelId].FinishPostingUpdates();
+			}
+		}
 	}
 }

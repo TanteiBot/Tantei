@@ -42,16 +42,18 @@ internal sealed class UserCleanupService
 			{
 				foreach (var guildId in discordUser.Guilds.Select(x => x.DiscordGuildId))
 				{
-					if (this._discordClient.Guilds.TryGetValue(guildId, out var guild))
+					if (!this._discordClient.Guilds.TryGetValue(guildId, out var guild))
 					{
-						try
-						{
-							_ = await guild.GetMemberAsync(userId);
-						}
-						catch (NotFoundException)
-						{
-							await this._userService.RemoveUserInGuildAsync(guildId, userId);
-						}
+						continue;
+					}
+
+					try
+					{
+						_ = await guild.GetMemberAsync(userId);
+					}
+					catch (NotFoundException)
+					{
+						await this._userService.RemoveUserInGuildAsync(guildId, userId);
 					}
 				}
 			}

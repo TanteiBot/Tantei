@@ -7,12 +7,14 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualStudio.Threading;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models.MyAnimeList;
@@ -42,49 +44,11 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		this._dbContextFactory = dbContextFactory;
 	}
 
-	public override event UpdateFoundEvent? UpdateFoundEvent;
+	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
-		async Task<IReadOnlyList<DiscordEmbedBuilder>>
-			CheckLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
-				MalUser dbUser, User user, DateTimeOffset latestUpdateDateTime, Action<MalUser, User, DateTimeOffset> dbUpdateAction, CancellationToken ct)
-									where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
-									where TL : IListType
-									where TRO : unmanaged, Enum
-									where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
-									where TStatus : BaseListEntryStatus<TListStatus>
-									where TMediaType : unmanaged, Enum
-									where TNodeStatus : unmanaged, Enum
-									where TListStatus : unmanaged, Enum
-		{
-			var listUpdates = await this._client
-										.GetLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
-											user.Username, dbUser.Features.ToRequestOptions<TRO>(), ct);
-			if (listUpdates is [])
-			{
-				return [];
-			}
-
-			var newLatestUpdateTimeStamp = listUpdates.MaxBy(x => x.Status.UpdatedAt)!.Status.UpdatedAt;
-			dbUpdateAction(dbUser, user, newLatestUpdateTimeStamp);
-
-			var result = new List<DiscordEmbedBuilder>();
-			foreach (var baseListEntry in listUpdates.Where(x => x.Status.UpdatedAt > latestUpdateDateTime))
-			{
-				var eb = await baseListEntry
-							   .ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
-								   user,
-								   this._client,
-								   dbUser,
-								   cancellationToken);
-				result.Add(eb);
-			}
-
-			return result;
-		}
-
-		static bool FilterInactiveUsers(MalUser x)
+		static bool HasUserBeenInactiveRecently(MalUser x)
 		{
 			var now = TimeProvider.System.GetUtcNow().ToUnixTimeMilliseconds();
 			if ((now - Math.Max(x.LastUpdatedAnimeListTimestamp.ToUnixTimeMilliseconds(), x.LastUpdatedMangaListTimestamp.ToUnixTimeMilliseconds())) >
@@ -104,10 +68,10 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		await using var db = this._dbContextFactory.CreateDbContext();
 
 		var users = db.MalUsers.TagWith("Query users for update checking").TagWithCallSite().Where(user => user.DiscordUser.Guilds.Any() &&
-
-			// Is bitwise to allow executing on server
+			// Is bitwise to allow executing as SQL
 			((user.Features & MalUserFeatures.AnimeList) != 0 || (user.Features & MalUserFeatures.MangaList) != 0 ||
 			 (user.Features & MalUserFeatures.Favorites) != 0)).OrderBy(_ => EF.Functions.Random()).ToArray();
+
 		foreach (var dbUser in users)
 		{
 			if (cancellationToken.IsCancellationRequested)
@@ -115,7 +79,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				break;
 			}
 
-			if (FilterInactiveUsers(dbUser))
+			if (HasUserBeenInactiveRecently(dbUser))
 			{
 				this.Logger.SkippingCheckForUser(dbUser.Username,
 					dbUser.LastUpdatedAnimeListTimestamp > dbUser.LastUpdatedMangaListTimestamp ? dbUser.LastUpdatedAnimeListTimestamp : dbUser.LastUpdatedMangaListTimestamp);
@@ -126,20 +90,20 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			User? user;
 			using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 			cts.CancelAfter(TimeSpan.FromMinutes(5));
-			var ct = cts.Token;
+			var perUserCancellationToken = cts.Token;
 			try
 			{
-				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), ct);
+				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), perUserCancellationToken);
 				this.Logger.LoadedProfile(user.Username);
 			}
 			catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
 			{
 				this.Logger.UserNotFound(exception, dbUser.Username);
-				var username = await this._client.GetUsernameAsync(dbUser.UserId, ct);
+				var username = await this._client.GetUsernameAsync(dbUser.UserId, perUserCancellationToken);
 				this.Logger.NewUsernameForUser(dbUser.Username, username);
 				dbUser.Username = username;
 				await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
-				return;
+				continue;
 			}
 			catch (HttpRequestException exception) when ((int?)exception.StatusCode >= 500)
 			{
@@ -155,108 +119,156 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 				return;
 			}
 
-			var isFavoritesHashMismatch = !string.Equals(
-				dbUser.FavoritesIdHash,
-				HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()),
-				StringComparison.Ordinal);
-			var favoritesUpdates = dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch
-				? this.CheckFavoritesUpdates(dbUser, user, db)
-				: ReadOnlyCollection<DiscordEmbedBuilder>.Empty;
+			var isFavoritesHashMismatch = !dbUser.FavoritesIdHash.Equals(HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()), StringComparison.Ordinal);
 
-			var animeListUpdates = dbUser.Features.HasFlag(MalUserFeatures.AnimeList)
-				? user.HasPublicAnimeUpdates switch
-				{
-					true when !string.Equals(dbUser.LastAnimeUpdateHash, user.LatestAnimeUpdateHash, StringComparison.Ordinal) => await
-						CheckLatestListUpdatesAsync<AnimeListEntry, AnimeListType, AnimeFieldsToRequest, AnimeListEntryNode, AnimeListEntryStatus,
-							AnimeMediaType, AnimeAiringStatus, AnimeListStatus>(
+			var animeListUpdates =
+				(dbUser.Features.HasFlag(MalUserFeatures.AnimeList) && user.HasPublicAnimeUpdates &&
+				 !dbUser.LastAnimeUpdateHash.Equals(user.LatestAnimeUpdateHash, StringComparison.Ordinal))
+					? await this
+						.CheckLatestListUpdatesAsync<AnimeListEntry, AnimeListType, AnimeFieldsToRequest, AnimeListEntryNode, AnimeListEntryStatus,
+							AnimeMediaType, AnimeAiringStatus, AnimeListStatus>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp, cancellationToken)
+					: [];
+
+			var mangaListUpdates = (dbUser.Features.HasFlag(MalUserFeatures.MangaList) && user.HasPublicMangaUpdates && !dbUser.LastMangaUpdateHash.Equals(user.LatestMangaUpdateHash, StringComparison.Ordinal))
+				? await this.CheckLatestListUpdatesAsync<MangaListEntry, MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus,
+							MangaMediaType, MangaPublishingStatus, MangaListStatus>(
 							dbUser,
 							user,
-							dbUser.LastUpdatedAnimeListTimestamp,
-							(u, user, timestamp) =>
-							{
-								u.LastAnimeUpdateHash = user.LatestAnimeUpdateHash!;
-								u.LastUpdatedAnimeListTimestamp = timestamp;
-							},
-							ct),
-					_ => [],
-				}
+							dbUser.LastUpdatedMangaListTimestamp,
+							cancellationToken)
 				: [];
 
-			var mangaListUpdates = dbUser.Features.HasFlag(MalUserFeatures.MangaList)
-				? user.HasPublicMangaUpdates switch
+			if ((dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch) ||
+				animeListUpdates is not [] || mangaListUpdates is not [])
+			{
+				db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
+				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
+				try
 				{
-					true when !string.Equals(dbUser.LastMangaUpdateHash, user.LatestMangaUpdateHash, StringComparison.Ordinal) => await
-						CheckLatestListUpdatesAsync<MangaListEntry, MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus,
-							MangaMediaType, MangaPublishingStatus, MangaListStatus>(
-								dbUser,
-								user,
-								dbUser.LastUpdatedMangaListTimestamp,
-								(u, user, timestamp) =>
-								{
-									u.LastMangaUpdateHash = user.LatestMangaUpdateHash!;
-									u.LastUpdatedMangaListTimestamp = timestamp;
-								},
-								ct),
-					_ => [],
+					await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(animeListUpdates, mangaListUpdates, dbUser, user, db, cancellationToken)), dbUser.DiscordUser));
 				}
-				: [];
-
-			var updatesCount = animeListUpdates.Count + mangaListUpdates.Count + favoritesUpdates.Count;
-			if (updatesCount == 0)
+				catch (Exception ex)
+				{
+					this.Logger.ErrorHappenedWhileSendingUpdateOrSavingToDb(ex);
+					throw;
+				}
+			}
+			else
 			{
 				db.Entry(dbUser).State = EntityState.Unchanged;
 				this.Logger.NoUpdatesFound(dbUser.Username);
-				continue;
 			}
+		}
+	}
 
-			var totalUpdates = new List<DiscordEmbedBuilder>(updatesCount);
-			totalUpdates.AddRange(animeListUpdates);
-			totalUpdates.AddRange(mangaListUpdates);
-			totalUpdates.AddRange(favoritesUpdates);
-			totalUpdates.SortBy(x => x.Timestamp ?? DateTimeOffset.MinValue);
-			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
-			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
+	private async IAsyncEnumerable<DiscordEmbedBuilder> GetUpdatesAsync(IReadOnlyList<DiscordEmbedBuilder> animeListUpdates, IReadOnlyList<DiscordEmbedBuilder> mangaListUpdates, MalUser dbUser, User user, DatabaseContext db, [EnumeratorCancellation] CancellationToken cancellationToken)
+	{
+		static DiscordEmbedBuilder FormatEmbed(MalUser dbUser, DiscordEmbedBuilder deb)
+		{
 			if (dbUser.Features.HasFlag(MalUserFeatures.Mention))
 			{
-				totalUpdates.ForEach(b => b.AddField("By", DiscordHelpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), inline: true));
+				deb.AddField("By", DiscordHelpers.ToDiscordMention(dbUser.DiscordUser.DiscordUserId), inline: true);
 			}
 
 			if (dbUser.Features.HasFlag(MalUserFeatures.Website))
 			{
-				totalUpdates.ForEach(b => b.WithMalUpdateProviderFooter());
+				deb.WithMalUpdateProviderFooter();
 			}
 
-			if (ct.IsCancellationRequested)
-			{
-				this.Logger.CancellationRequested();
-				db.Entry(dbUser).State = EntityState.Unchanged;
-				continue;
-			}
-
-			try
-			{
-				if (db.SaveChanges() <= 0)
-				{
-					throw new NoChangesSavedException();
-				}
-
-				await this.UpdateFoundEvent.Invoke(new(new BaseUpdate(totalUpdates), this, dbUser.DiscordUser));
-				this.Logger.FoundUpdatesForUser(totalUpdates.Count, dbUser.Username);
-				if (isFavoritesHashMismatch)
-				{
-					dbUser.FavoritesIdHash = HashHelpers.FavoritesHash(db.BaseMalFavorites.TagWith("Query favorites to calculate hash").TagWithCallSite()
-																		 .Where(x => x.UserId == dbUser.UserId).OrderBy(x => x.Id)
-																		 .ThenBy(x => (byte)x.FavoriteType)
-																		 .Select(x => new FavoriteIdType(x.Id, (byte)x.FavoriteType)).ToArray());
-					db.SaveChanges();
-				}
-			}
-			catch (Exception ex)
-			{
-				this.Logger.ErrorHappenedWhileSendingUpdateOrSavingToDb(ex);
-				throw;
-			}
+			return deb;
 		}
+
+		int updatesCount = 0;
+
+		var isFavoritesHashMismatch = !dbUser.FavoritesIdHash.Equals(HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()), StringComparison.Ordinal);
+
+		var favoritesUpdates = dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch
+			? this.CheckFavoritesUpdates(dbUser, user, db)
+			: ReadOnlyCollection<DiscordEmbedBuilder>.Empty;
+
+		if (favoritesUpdates is not [])
+		{
+			foreach (var deb in favoritesUpdates)
+			{
+				yield return FormatEmbed(dbUser, deb);
+				updatesCount++;
+			}
+
+			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+
+			dbUser.FavoritesIdHash = HashHelpers.FavoritesHash(db.BaseMalFavorites.TagWith("Query favorites to calculate hash").TagWithCallSite()
+																 .Where(x => x.UserId == dbUser.UserId).OrderBy(x => x.Id)
+																 .ThenBy(x => (byte)x.FavoriteType)
+																 .Select(x => new FavoriteIdType(x.Id, (byte)x.FavoriteType)).ToArray());
+			db.SaveChanges();
+		}
+
+		if (animeListUpdates is not [])
+		{
+			foreach (var deb in animeListUpdates.OrderBy(x => x.Timestamp))
+			{
+				yield return FormatEmbed(dbUser, deb);
+				dbUser.LastUpdatedAnimeListTimestamp = deb.Timestamp!.Value;
+				await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+
+				updatesCount++;
+			}
+
+			dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdateHash ?? "";
+
+			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+		}
+
+		if (mangaListUpdates is not [])
+		{
+			foreach (var deb in mangaListUpdates)
+			{
+				yield return FormatEmbed(dbUser, deb);
+				dbUser.LastUpdatedMangaListTimestamp = deb.Timestamp!.Value;
+				await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+
+				updatesCount++;
+			}
+
+			dbUser.LastAnimeUpdateHash = user.LatestMangaUpdateHash ?? "";
+
+			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+		}
+
+		this.Logger.FoundUpdatesForUser(updatesCount, user.Username);
+	}
+
+	private async Task<IReadOnlyList<DiscordEmbedBuilder>> CheckLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(MalUser dbUser, User user, DateTimeOffset latestUpdateDateTime, CancellationToken ct)
+		where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
+		where TL : IListType
+		where TRO : unmanaged, Enum
+		where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
+		where TStatus : BaseListEntryStatus<TListStatus>
+		where TMediaType : unmanaged, Enum
+		where TNodeStatus : unmanaged, Enum
+		where TListStatus : unmanaged, Enum
+	{
+		var listUpdates = await this._client
+									.GetLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
+										user.Username, dbUser.Features.ToRequestOptions<TRO>(), ct);
+		if (listUpdates is [])
+		{
+			return [];
+		}
+
+		var result = new List<DiscordEmbedBuilder>();
+		foreach (var baseListEntry in listUpdates.Where(x => x.Status.UpdatedAt > latestUpdateDateTime))
+		{
+			var eb = await baseListEntry
+				.ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
+					user,
+					this._client,
+					dbUser,
+					ct);
+			result.Add(eb);
+		}
+
+		return result;
 	}
 
 	private ReadOnlyCollection<DiscordEmbedBuilder> CheckFavoritesUpdates(MalUser dbUser, User user, DatabaseContext db)
@@ -316,7 +328,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 
 		this.Logger.CheckingFavoritesUpdates(dbUser.Username);
 
-		var list = new List<DiscordEmbedBuilder>(0);
+		var list = new List<DiscordEmbedBuilder>();
 		list.AddRange(ToDiscordEmbedBuilders(this.Logger, db.MalFavoriteAnimes, user.Favorites.FavoriteAnime, user, dbUser));
 		list.AddRange(ToDiscordEmbedBuilders(this.Logger, db.MalFavoriteMangas, user.Favorites.FavoriteManga, user, dbUser));
 		list.AddRange(ToDiscordEmbedBuilders(this.Logger, db.MalFavoriteCharacters, user.Favorites.FavoriteCharacters, user, dbUser));

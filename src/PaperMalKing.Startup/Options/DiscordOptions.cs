@@ -54,15 +54,17 @@ public sealed class DiscordOptions : IValidatableObject
 		Validator.TryValidateProperty(this.ClientSecret, new(this, serviceProvider: null, items: null) { MemberName = nameof(this.ClientSecret), }, res);
 		Validator.TryValidateProperty(this.Activities, new(this, serviceProvider: null, items: null) { MemberName = nameof(this.Activities), }, res);
 
-		if (this.Activities is { Count: > 1 })
+		if (this.Activities is not { Count: > 1 })
 		{
-			foreach (var activity in this.Activities)
-			{
-				Validator.TryValidateProperty(activity.ActivityType,  new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.ActivityType), }, res);
-				Validator.TryValidateProperty(activity.PresenceText,  new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.PresenceText), }, res);
-				Validator.TryValidateProperty(activity.TimeToBeDisplayedInMilliseconds,  new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.TimeToBeDisplayedInMilliseconds), }, res);
-				Validator.TryValidateProperty(activity.Status,  new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.Status), }, res);
-			}
+			return res;
+		}
+
+		foreach (var activity in this.Activities)
+		{
+			Validator.TryValidateProperty(activity.ActivityType,  new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.ActivityType), }, res);
+			Validator.TryValidateProperty(activity.PresenceText,  new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.PresenceText), }, res);
+			Validator.TryValidateProperty(activity.TimeToBeDisplayedInMilliseconds,  new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.TimeToBeDisplayedInMilliseconds), }, res);
+			Validator.TryValidateProperty(activity.Status,  new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.Status), }, res);
 		}
 
 		return res;

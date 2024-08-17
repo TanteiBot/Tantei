@@ -35,13 +35,13 @@ public static class FeaturesHelper<T>
 		var ti = typeof(T).GetTypeInfo();
 		Debug.Assert(Enum.GetUnderlyingType(typeof(T)) == typeof(ulong), $"All features must have {nameof(UInt64)} as underlying type");
 		return Enum.GetValues<T>().Where(v =>
-			ti.DeclaredMembers.First(xm => string.Equals(xm.Name, v.ToString(), StringComparison.Ordinal))
+			ti.DeclaredMembers.First(xm => xm.Name.Equals(v.ToString(), StringComparison.Ordinal))
 			  .GetCustomAttribute<EnumDescriptionAttribute>() is not null).Select(value =>
 		{
 			Debug.Assert((value.ToUInt64(NumberFormatInfo.InvariantInfo) & (value.ToUInt64(CultureInfo.InvariantCulture) - 1UL)) == 0UL,
 				$"All features of {nameof(T)} must be a power of 2");
 			var name = value.ToString();
-			var attribute = ti.DeclaredMembers.First(xm => string.Equals(xm.Name, name, StringComparison.Ordinal))
+			var attribute = ti.DeclaredMembers.First(xm => xm.Name.Equals(name, StringComparison.Ordinal))
 							  .GetCustomAttribute<EnumDescriptionAttribute>()!;
 
 			return new EnumInfo<T>(name, attribute.Description, attribute.Summary, value);

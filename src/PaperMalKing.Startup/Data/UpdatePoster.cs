@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -24,27 +23,18 @@ internal sealed class UpdatePoster : IDisposable
 		this._semaphore = new(1, 1);
 	}
 
-	public async Task PostUpdatesAsync(IReadOnlyList<DiscordEmbedBuilder> embeds)
+	public Task PreparePostingUpdatesAsync() => this._semaphore.WaitAsync();
+
+	public int FinishPostingUpdates() => this._semaphore.Release();
+
+	public Task<DiscordMessage> PostUpdateAsync(DiscordEmbed embed)
 	{
-		await this._semaphore.WaitAsync();
-		try
-		{
-			for (var i = 0; i < embeds.Count; i++)
-			{
-				var embed = embeds[i].Build();
-				this._logger.PostingUpdate(this._channel, embed);
-				await this._channel.SendMessageAsync(embed: embed);
-			}
-		}
-		finally
-		{
-			this._semaphore.Release();
-		}
+		this._logger.PostingUpdate(this._channel, embed);
+		return this._channel.SendMessageAsync(embed: embed);
 	}
 
 	public void Dispose()
 	{
-		var semaphore = this._semaphore;
-		semaphore.Dispose();
+		this._semaphore.Dispose();
 	}
 }

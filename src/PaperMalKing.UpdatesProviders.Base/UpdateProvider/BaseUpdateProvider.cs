@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Threading;
 
 namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
@@ -30,7 +31,7 @@ public abstract class BaseUpdateProvider : IUpdateProvider
 
 	public abstract string Name { get; }
 
-	public abstract event UpdateFoundEvent? UpdateFoundEvent;
+	public abstract event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
 	[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "We stored it there in our class")]
 	public async Task TriggerStoppingAsync()

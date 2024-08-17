@@ -37,6 +37,7 @@ internal sealed class AniListUserFeaturesService : BaseUserFeaturesService<AniLi
 
 		dbUser.Features |= feature;
 		var now = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
+
 		switch (feature)
 		{
 			case AniListUserFeatures.AnimeList:

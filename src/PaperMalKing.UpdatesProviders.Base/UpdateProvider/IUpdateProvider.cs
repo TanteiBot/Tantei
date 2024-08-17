@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Threading;
 
 namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
@@ -10,9 +11,9 @@ public interface IUpdateProvider
 {
 	string Name { get; }
 
-	event UpdateFoundEvent UpdateFoundEvent;
+	event AsyncEventHandler<UpdateFoundEventArgs> UpdateFoundEvent;
 
-	public Task TriggerStoppingAsync();
+	Task TriggerStoppingAsync();
 
 	DateTimeOffset? DateTimeOfNextUpdate { get; }
 

@@ -103,7 +103,7 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 			DiscordUser = dUser,
 			DiscordUserId = userId,
 			LastHistoryEntryId = history.Data.Max(he => he.Id),
-			FavouritesIdHash = HashHelpers.FavoritesHash(favourites.AllFavourites.Select(x => new FavoriteIdType(x.Id, (byte)x.GenericType![0])).ToArray()),
+			FavouritesIdHash = HashHelpers.FavoritesHash(favourites.AllFavourites.ToFavoriteIdType()),
 			Achievements = achievements.Select(x => new ShikiDbAchievement
 			{
 				NekoId = x.Id,

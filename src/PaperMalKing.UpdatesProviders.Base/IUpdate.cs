@@ -8,5 +8,5 @@ namespace PaperMalKing.UpdatesProviders.Base;
 
 public interface IUpdate
 {
-	IReadOnlyList<DiscordEmbedBuilder> UpdateEmbeds { get; }
+	IAsyncEnumerable<DiscordEmbed> GetUpdateEmbedsAsync();
 }
