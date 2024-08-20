@@ -88,6 +88,6 @@ app.MapGet("api/getUpdateTimes", (IEnumerable<IUpdateProvider> updateProviders) 
 {
 	up.Name,
 	InProgress = up.IsUpdateInProgress,
-	NextIn = up.DateTimeOfNextUpdate > TimeProvider.System.GetUtcNow() ? up.DateTimeOfNextUpdate - TimeProvider.System.GetUtcNow() : default,
+	NextIn = up.DateTimeOfNextUpdate > TimeProvider.System.GetUtcNow() ? up.DateTimeOfNextUpdate - TimeProvider.System.GetUtcNow() : null,
 }));
 app.Run();

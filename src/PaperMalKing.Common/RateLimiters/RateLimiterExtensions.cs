@@ -21,6 +21,6 @@ public static class RateLimiterExtensions
 		where TO : class, IRateLimitOptions<T>
 	{
 		var options = servicesProvider.GetRequiredService<IOptions<TO>>();
-		return options.Value.ToRateLimiter();
+		return RateLimiterFactory.Create<T>(new RateLimitValue(options.Value.AmountOfRequests, options.Value.PeriodInMilliseconds));
 	}
 }

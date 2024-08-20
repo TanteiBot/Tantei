@@ -2,12 +2,14 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.RateLimiting;
 
 namespace PaperMalKing.Common.RateLimiters;
 
 public static class RateLimiterFactory
 {
+	[SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Its candled in created ratelimiter")]
 	public static RateLimiter<T> Create<T>(RateLimitValue rateLimitValue)
 	{
 		ArgumentNullException.ThrowIfNull(rateLimitValue);

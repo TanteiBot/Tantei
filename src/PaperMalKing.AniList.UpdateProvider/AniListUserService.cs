@@ -17,21 +17,10 @@ using DiscordGuild = PaperMalKing.Database.Models.DiscordGuild;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
-internal sealed class AniListUserService : BaseUpdateProviderUserService<AniListUser>
+internal sealed class AniListUserService(ILogger<AniListUserService> logger, IAniListClient _client, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService)
+	: BaseUpdateProviderUserService<AniListUser>(logger, dbContextFactory, userService)
 {
-	private readonly IAniListClient _client;
-
 	public override string Name => ProviderConstants.Name;
-
-	public AniListUserService(
-							ILogger<AniListUserService> logger,
-							IAniListClient client,
-							IDbContextFactory<DatabaseContext> dbContextFactory,
-							GeneralUserService userService)
-							: base(logger, dbContextFactory, userService)
-	{
-		this._client = client;
-	}
 
 	public override async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
@@ -72,7 +61,7 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 
 		var dUser = db.DiscordUsers.TagWith("Query discord user to link AniList user to it").TagWithCallSite().Include(x => x.Guilds)
 					  .FirstOrDefault(du => du.DiscordUserId == userId);
-		var response = await this._client.GetCompleteUserInitialInfoAsync(username);
+		var response = await _client.GetCompleteUserInitialInfoAsync(username);
 		var now = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
 		if (dUser is null)
 		{
@@ -115,6 +104,6 @@ internal sealed class AniListUserService : BaseUpdateProviderUserService<AniList
 
 	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		return this.ListUsersCore(guildId, u => u.LastActivityTimestamp, u => new BaseUser("", u.DiscordUser));
+		return this.ListUsersCore(guildId, u => u.LastActivityTimestamp, u => new("", u.DiscordUser));
 	}
 }

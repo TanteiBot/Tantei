@@ -93,6 +93,7 @@
             SA1202; <!--'public' members should come before 'private' members -->
             SA1300; <!--Element should begin with an uppercase letter -->
             SA1309; <!--Field should not begin with an underscore-->
+            SA1313; <!--Parameter should begin with lower-case letter-->
             SA1402; <!--File may only contain a single type -->
             SA1515; <!--Single-line comment should be preceded by blank line-->
             SA1600; <!--Elements should be documented -->
@@ -106,6 +107,7 @@
             RCS1031; <!-- Remove unnecessary braces. -->
             RCS1135; <!-- Declare enum member with zero value (when enum has FlagsAttribute).-->
             RCS1139; <!-- Add summary element to documentation comment.-->
+            RCS1141; <!--Add 'param' element to documentation comment-->
             RCS1158; <!--Static member in generic type should use a type parameter-->
             RCS1181; <!--Convert comment to documentation comment.-->
             RCS1194; <!--Implement exception constructors.-->

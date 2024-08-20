@@ -21,13 +21,9 @@ internal sealed class AniListCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from AniList.co")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class AniListUserCommands : BaseUpdateProviderUserCommandsModule<AniListUserService, AniListUser>
+	public sealed class AniListUserCommands(AniListUserService userService, ILogger<AniListUserCommands> logger)
+		: BaseUpdateProviderUserCommandsModule<AniListUserService, AniListUser>(userService, logger)
 	{
-		public AniListUserCommands(AniListUserService userService, ILogger<AniListUserCommands> logger)
-			: base(userService, logger)
-		{
-		}
-
 		[SlashCommand("add", "Add your AniList account to being tracked")]
 		public override Task AddUserCommand(InteractionContext context, [Option(nameof(username), "Your username on AniList")] string? username = null) =>
 			base.AddUserCommand(context, username);
@@ -44,26 +40,20 @@ internal sealed class AniListCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("features", "Manage your features for updates send from AniList.co")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class AniListUserFeaturesCommands : BaseUserFeaturesCommandsModule<AniListUser, AniListUserFeatures>
+	public sealed class AniListUserFeaturesCommands(BaseUserFeaturesService<AniListUser, AniListUserFeatures> userFeaturesService, ILogger<AniListUserFeaturesCommands> logger)
+		: BaseUserFeaturesCommandsModule<AniListUser, AniListUserFeatures>(userFeaturesService, logger)
 	{
-		public AniListUserFeaturesCommands(BaseUserFeaturesService<AniListUser, AniListUserFeatures> userFeaturesService, ILogger<AniListUserFeaturesCommands> logger)
-			: base(userFeaturesService, logger)
-		{
-		}
-
 		[SlashCommand("enable", "Enable features for your updates")]
-		public override Task EnableFeatureCommand(
-												InteractionContext context,
-												[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<AniListUserFeatures>, AniListUserFeatures>)),
-												 Option("feature", "Feature to enable")]
-												string unparsedFeature) => base.EnableFeatureCommand(context, unparsedFeature);
+		public override Task EnableFeatureCommand(InteractionContext context,
+												  [ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<AniListUserFeatures>, AniListUserFeatures>)),
+												   Option("feature", "Feature to enable")]
+												  string unparsedFeature) => base.EnableFeatureCommand(context, unparsedFeature);
 
 		[SlashCommand("disable", "Disable features for your updates")]
-		public override Task DisableFeatureCommand(
-			InteractionContext context,
-			[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<AniListUserFeatures>, AniListUserFeatures>)),
-			Option("feature", "Feature to enable")]
-			string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);
+		public override Task DisableFeatureCommand(InteractionContext context,
+												   [ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<AniListUserFeatures>, AniListUserFeatures>)),
+													Option("feature", "Feature to enable")]
+												   string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);
 
 		[SlashCommand("enabled", "Show features that are enabled for yourself")]
 		public override Task EnabledFeaturesCommand(InteractionContext context) => base.EnabledFeaturesCommand(context);
@@ -74,13 +64,9 @@ internal sealed class AniListCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("colors", "Manage colors of your updates")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class AniListColorsCommands : BaseColorsCommandModule<AniListUser, AniListUpdateType>
+	public sealed class AniListColorsCommands(ILogger<AniListColorsCommands> logger, CustomColorService<AniListUser, AniListUpdateType> customColorService)
+		: BaseColorsCommandModule<AniListUser, AniListUpdateType>(logger, customColorService)
 	{
-		public AniListColorsCommands(ILogger<AniListColorsCommands> logger, CustomColorService<AniListUser, AniListUpdateType> customColorService)
-			: base(logger, customColorService)
-		{
-		}
-
 		[SlashCommand("set", "Set color for update update")]
 		public override Task SetColor(InteractionContext context,
 								   [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<AniListUpdateType>, AniListUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType,

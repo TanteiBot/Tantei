@@ -23,23 +23,12 @@ namespace PaperMalKing.Startup.Commands;
 [SuppressMessage("Style", """VSTHRD200:Use "Async" suffix for async methods""", Justification = "It doesn't apply to commands")]
 [GuildOnly]
 [SlashRequireGuild]
-internal sealed class GuildManagementCommands : BotCommandsModule
+internal sealed class GuildManagementCommands(GuildManagementService _managementService, GeneralUserService _userService) : BotCommandsModule
 {
-	private readonly GuildManagementService _managementService;
-	private readonly GeneralUserService _userService;
-
 	protected override bool IsResponseVisibleOnlyForRequester => false;
 
-	public GuildManagementCommands(GuildManagementService managementService, GeneralUserService userService)
-	{
-		this._managementService = managementService;
-		this._userService = userService;
-	}
-
 	[SlashCommand("set", "Sets channel to post updates to")]
-	public async Task SetChannelCommand(
-		InteractionContext context,
-		[Option(nameof(channel), "Channel updates should be posted", autocomplete: false)] DiscordChannel? channel = null)
+	public async Task SetChannelCommand(InteractionContext context, [Option(nameof(channel), "Channel updates should be posted", autocomplete: false)] DiscordChannel? channel = null)
 	{
 		channel ??= context.Channel;
 		if (channel.IsCategory || channel.IsThread)
@@ -58,7 +47,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 								 "Permissions error"));
 			}
 
-			await this._managementService.SetChannelAsync(channel.GuildId!.Value, channel.Id);
+			await _managementService.SetChannelAsync(channel.GuildId!.Value, channel.Id);
 		}
 		catch (Exception ex)
 		{
@@ -71,15 +60,12 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 	}
 
 	[SlashCommand("update", "Updates channel where updates are posted")]
-	public async Task UpdateChannelCommand(
-		InteractionContext context,
-		[Option(nameof(channel), "New channel where updates should be posted")] DiscordChannel? channel = null)
+	public async Task UpdateChannelCommand(InteractionContext context, [Option(nameof(channel), "New channel where updates should be posted")] DiscordChannel? channel = null)
 	{
 		channel ??= context.Channel;
 		if (channel.IsCategory || channel.IsThread)
 		{
-			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"))
-						 ;
+			await context.EditResponseAsync(EmbedTemplate.ErrorEmbed("You cant set posting channel to category or to a thread"));
 			return;
 		}
 
@@ -90,11 +76,10 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 			{
 				await context.EditResponseAsync(embed: EmbedTemplate.ErrorEmbed(
 								 $"Bot wouldn't be able to send updates to channel {channel} because it lacks permission to send messages",
-								 "Permissions error"))
-							 ;
+								 "Permissions error"));
 			}
 
-			await this._managementService.UpdateChannelAsync(channel.GuildId!.Value, channel.Id);
+			await _managementService.UpdateChannelAsync(channel.GuildId!.Value, channel.Id);
 		}
 		catch (Exception ex)
 		{
@@ -111,7 +96,7 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 	{
 		try
 		{
-			await this._managementService.RemoveGuildAsync(context.Guild.Id);
+			await _managementService.RemoveGuildAsync(context.Guild.Id);
 		}
 		catch (Exception ex)
 		{
@@ -120,18 +105,15 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 			throw;
 		}
 
-		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("Successfully removed this server from being tracked"))
-					 ;
+		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("Successfully removed this server from being tracked"));
 	}
 
 	[SlashCommand("forceremoveuserById", "Remove this user from being tracked in this server")]
-	public async Task ForceRemoveUserCommand(
-						InteractionContext context,
-						[Option(nameof(userId), "Discord user's id which should be to removed from being tracked")] long userId)
+	public async Task ForceRemoveUserCommand(InteractionContext context, [Option(nameof(userId), "Discord user's id which should be to removed from being tracked")] long userId)
 	{
 		try
 		{
-			await this._userService.RemoveUserInGuildAsync(context.Guild.Id, (ulong)userId);
+			await _userService.RemoveUserInGuildAsync(context.Guild.Id, (ulong)userId);
 		}
 		catch (Exception ex)
 		{
@@ -146,7 +128,5 @@ internal sealed class GuildManagementCommands : BotCommandsModule
 	}
 
 	[SlashCommand("forceremoveuser", "Remove this user from being tracked in this server")]
-	public Task ForceRemoveUserCommand(
-		InteractionContext context,
-		[Option(nameof(user), "Discord user to remove from being tracked")] DiscordUser user) => this.ForceRemoveUserCommand(context, (long)user.Id);
+	public Task ForceRemoveUserCommand(InteractionContext context, [Option(nameof(user), "Discord user to remove from being tracked")] DiscordUser user) => this.ForceRemoveUserCommand(context, (long)user.Id);
 }

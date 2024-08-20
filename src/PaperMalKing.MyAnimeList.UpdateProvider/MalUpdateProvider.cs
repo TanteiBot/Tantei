@@ -30,19 +30,10 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
-internal sealed class MalUpdateProvider : BaseUpdateProvider
+internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOptions<MalOptions> options, IMyAnimeListClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory)
+	: BaseUpdateProvider(logger, TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 {
-	private readonly IMyAnimeListClient _client;
-	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
-
 	public override string Name => Constants.Name;
-
-	public MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOptions<MalOptions> options, IMyAnimeListClient client, IDbContextFactory<DatabaseContext> dbContextFactory)
-		: base(logger, TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
-	{
-		this._client = client;
-		this._dbContextFactory = dbContextFactory;
-	}
 
 	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
@@ -65,7 +56,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			return;
 		}
 
-		await using var db = this._dbContextFactory.CreateDbContext();
+		await using var db = _dbContextFactory.CreateDbContext();
 
 		var users = db.MalUsers.TagWith("Query users for update checking").TagWithCallSite().Where(user => user.DiscordUser.Guilds.Any() &&
 			// Is bitwise to allow executing as SQL
@@ -93,13 +84,13 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 			var perUserCancellationToken = cts.Token;
 			try
 			{
-				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), perUserCancellationToken);
+				user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), perUserCancellationToken);
 				this.Logger.LoadedProfile(user.Username);
 			}
 			catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
 			{
 				this.Logger.UserNotFound(exception, dbUser.Username);
-				var username = await this._client.GetUsernameAsync(dbUser.UserId, perUserCancellationToken);
+				var username = await _client.GetUsernameAsync(dbUser.UserId, perUserCancellationToken);
 				this.Logger.NewUsernameForUser(dbUser.Username, username);
 				dbUser.Username = username;
 				await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
@@ -248,8 +239,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		where TNodeStatus : unmanaged, Enum
 		where TListStatus : unmanaged, Enum
 	{
-		var listUpdates = await this._client
-									.GetLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
+		var listUpdates = await _client.GetLatestListUpdatesAsync<TLe, TL, TRO, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
 										user.Username, dbUser.Features.ToRequestOptions<TRO>(), ct);
 		if (listUpdates is [])
 		{
@@ -260,11 +250,7 @@ internal sealed class MalUpdateProvider : BaseUpdateProvider
 		foreach (var baseListEntry in listUpdates.Where(x => x.Status.UpdatedAt > latestUpdateDateTime))
 		{
 			var eb = await baseListEntry
-				.ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
-					user,
-					this._client,
-					dbUser,
-					ct);
+				.ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(user, _client, dbUser, ct);
 			result.Add(eb);
 		}
 

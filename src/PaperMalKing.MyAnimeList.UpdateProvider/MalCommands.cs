@@ -21,13 +21,9 @@ internal sealed class MalCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from MyAnimeList.net")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class MalUserCommands : BaseUpdateProviderUserCommandsModule<MalUserService, MalUser>
+	public sealed class MalUserCommands(MalUserService userService, ILogger<MalUserCommands> logger)
+		: BaseUpdateProviderUserCommandsModule<MalUserService, MalUser>(userService, logger)
 	{
-		public MalUserCommands(MalUserService userService, ILogger<MalUserCommands> logger)
-			: base(userService, logger)
-		{
-		}
-
 		[SlashCommand("add", "Add your MyAnimeList account to being tracked")]
 		public override Task AddUserCommand(InteractionContext context, [Option(nameof(username), "Your username on MyAnimeList.net")] string? username = null) =>
 			base.AddUserCommand(context, username);
@@ -44,13 +40,9 @@ internal sealed class MalCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("features", "Manage your features for updates send from MyAnimeList.net")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class MalUserFeaturesCommands : BaseUserFeaturesCommandsModule<MalUser, MalUserFeatures>
+	public sealed class MalUserFeaturesCommands(BaseUserFeaturesService<MalUser, MalUserFeatures> userFeaturesService, ILogger<MalUserFeaturesCommands> logger)
+		: BaseUserFeaturesCommandsModule<MalUser, MalUserFeatures>(userFeaturesService, logger)
 	{
-		public MalUserFeaturesCommands(BaseUserFeaturesService<MalUser, MalUserFeatures> userFeaturesService, ILogger<MalUserFeaturesCommands> logger)
-			: base(userFeaturesService, logger)
-		{
-		}
-
 		[SlashCommand("enable", "Enable features for your updates")]
 		public override Task EnableFeatureCommand(
 			InteractionContext context,
@@ -77,13 +69,9 @@ internal sealed class MalCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("colors", "Manage colors of your updates")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class MalColorsCommands : BaseColorsCommandModule<MalUser, MalUpdateType>
+	public sealed class MalColorsCommands(ILogger<MalColorsCommands> logger, CustomColorService<MalUser, MalUpdateType> colorService)
+		: BaseColorsCommandModule<MalUser, MalUpdateType>(logger, colorService)
 	{
-		public MalColorsCommands(ILogger<MalColorsCommands> logger, CustomColorService<MalUser, MalUpdateType> colorService)
-			: base(logger, colorService)
-		{
-		}
-
 		[SlashCommand("set", "Set color for update update")]
 		public override Task SetColor(InteractionContext context,
 									  [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<MalUpdateType>, MalUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType,

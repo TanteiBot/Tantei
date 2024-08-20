@@ -18,20 +18,11 @@ using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
 namespace PaperMalKing.Shikimori.Wrapper;
 
-public sealed class ShikiClient : IShikiClient
+public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _logger) : IShikiClient
 {
-	private readonly HttpClient _httpClient;
-	private readonly ILogger<ShikiClient> _logger;
-
-	public ShikiClient(HttpClient httpClient, ILogger<ShikiClient> logger)
-	{
-		this._httpClient = httpClient;
-		this._logger = logger;
-	}
-
 	public async Task<UserInfo> GetUserAsync(string nickname, CancellationToken cancellationToken = default)
 	{
-		this._logger.RequestingUserInfo(nickname);
+		_logger.RequestingUserInfo(nickname);
 
 		nickname = WebUtility.UrlEncode(nickname);
 		var url = $"{Constants.BaseUsersApiUrl}/{nickname}";
@@ -47,15 +38,15 @@ public sealed class ShikiClient : IShikiClient
 			},
 		};
 
-		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+		using var response = await _httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 		return (await response.Content.ReadFromJsonAsync(JsonContext.Default.UserInfo, cancellationToken))!;
 	}
 
 	public async Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default)
 	{
-		this._logger.RequestingFavorites(userId);
+		_logger.RequestingFavorites(userId);
 		var url = $"{Constants.BaseUsersApiUrl}/{userId}/favourites";
-		var favs = await this._httpClient.GetFromJsonAsync(url, JsonContext.Default.Favourites, cancellationToken);
+		var favs = await _httpClient.GetFromJsonAsync(url, JsonContext.Default.Favourites, cancellationToken);
 		return favs!;
 	}
 
@@ -63,7 +54,7 @@ public sealed class ShikiClient : IShikiClient
 	{
 		var url = $"{Constants.BaseUsersApiUrl}/{userId}/history";
 		limit = limit > Constants.HistoryLimit ? Constants.HistoryLimit : limit;
-		this._logger.RequestingHistoryPage(userId, page);
+		_logger.RequestingHistoryPage(userId, page);
 
 		#pragma warning disable CA2000
 		// Call System.IDisposable.Dispose on object created by 'new StringContent("1")' before all references to it are out of scope
@@ -82,7 +73,7 @@ public sealed class ShikiClient : IShikiClient
 		{
 			Content = content,
 		};
-		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+		using var response = await _httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
 		var data = (await response.Content.ReadFromJsonAsync(JsonContext.Default.HistoryArray, cancellationToken))!;
 		var hasNextPage = data.Length == limit + 1;
@@ -93,8 +84,8 @@ public sealed class ShikiClient : IShikiClient
 		where TMedia : BaseMedia
 	{
 		var url = BuildUrlForRequestingMedia(id, type);
-		this._logger.RequestingMedia(id, type);
-		return this._httpClient.GetFromJsonAsync<TMedia>(url, cancellationToken);
+		_logger.RequestingMedia(id, type);
+		return _httpClient.GetFromJsonAsync<TMedia>(url, cancellationToken);
 	}
 
 	private static string BuildUrlForRequestingMedia(ulong id, ListEntryType type) =>
@@ -103,8 +94,8 @@ public sealed class ShikiClient : IShikiClient
 	public async Task<IReadOnlyList<Role>> GetMediaStaffAsync(ulong id, ListEntryType type, CancellationToken cancellationToken = default)
 	{
 		var url = $"{BuildUrlForRequestingMedia(id, type)}/roles";
-		this._logger.RequestingStaff(id, type);
-		var roles = await this._httpClient.GetFromJsonAsync(url, JsonContext.Default.ListRole, cancellationToken);
+		_logger.RequestingStaff(id, type);
+		var roles = await _httpClient.GetFromJsonAsync(url, JsonContext.Default.ListRole, cancellationToken);
 		roles!.RemoveAll(x => x.Person is null);
 		roles.TrimExcess();
 		return roles;
@@ -113,14 +104,14 @@ public sealed class ShikiClient : IShikiClient
 	public Task<UserInfo> GetUserInfoAsync(uint userId, CancellationToken cancellationToken = default)
 	{
 		var url = $"{Constants.BaseUsersApiUrl}/{userId}/info";
-		this._logger.RequestingUserInfo(userId);
-		return this._httpClient.GetFromJsonAsync(url, JsonContext.Default.UserInfo, cancellationToken)!;
+		_logger.RequestingUserInfo(userId);
+		return _httpClient.GetFromJsonAsync(url, JsonContext.Default.UserInfo, cancellationToken)!;
 	}
 
 	public async Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken = default)
 	{
 		const string url = $"{Constants.BaseApiUrl}/achievements";
-		this._logger.RequestingUserAchievements(userId);
+		_logger.RequestingUserAchievements(userId);
 		using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 		{
 			Content = new MultipartFormDataContent
@@ -131,7 +122,7 @@ public sealed class ShikiClient : IShikiClient
 				#pragma warning restore CA2000
 			},
 		};
-		using var response = await this._httpClient.SendAsync(rm, HttpCompletionOption.ResponseContentRead, cancellationToken);
+		using var response = await _httpClient.SendAsync(rm, HttpCompletionOption.ResponseContentRead, cancellationToken);
 		var achievements = (await response.Content.ReadFromJsonAsync(JsonContext.Default.UserAchievementArray, cancellationToken))!;
 		var r = new List<UserAchievement>(achievements.Length);
 		r.AddRange(achievements.Where(x => x is { Level: > 0 }).GroupBy(x => x.Id, StringComparer.Ordinal).Select(userAchievement => new UserAchievement(userAchievement.Key, userAchievement.Max(x => x.Level))));

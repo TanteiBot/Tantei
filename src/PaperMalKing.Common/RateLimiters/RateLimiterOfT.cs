@@ -8,21 +8,20 @@ using System.Threading.Tasks;
 
 namespace PaperMalKing.Common.RateLimiters;
 
-public sealed class RateLimiter<T> : RateLimiter
+public sealed class RateLimiter<T>(RateLimiter _rateLimiterImplementation) : RateLimiter
 {
-	private readonly RateLimiter _rateLimiterImplementation;
+	public override RateLimiterStatistics? GetStatistics() => _rateLimiterImplementation.GetStatistics();
 
-	public RateLimiter(RateLimiter rateLimiterImplementation)
-	{
-		this._rateLimiterImplementation = rateLimiterImplementation;
-	}
-
-	public override RateLimiterStatistics? GetStatistics() => this._rateLimiterImplementation.GetStatistics();
-
-	protected override RateLimitLease AttemptAcquireCore(int permitCount) => this._rateLimiterImplementation.AttemptAcquire(permitCount);
+	protected override RateLimitLease AttemptAcquireCore(int permitCount) => _rateLimiterImplementation.AttemptAcquire(permitCount);
 
 	protected override ValueTask<RateLimitLease> AcquireAsyncCore(int permitCount, CancellationToken cancellationToken) =>
-		this._rateLimiterImplementation.AcquireAsync(permitCount, cancellationToken);
+		_rateLimiterImplementation.AcquireAsync(permitCount, cancellationToken);
 
-	public override TimeSpan? IdleDuration => this._rateLimiterImplementation.IdleDuration;
+	public override TimeSpan? IdleDuration => _rateLimiterImplementation.IdleDuration;
+
+	protected override void Dispose(bool disposing)
+	{
+		_rateLimiterImplementation.Dispose();
+		base.Dispose(disposing);
+	}
 }

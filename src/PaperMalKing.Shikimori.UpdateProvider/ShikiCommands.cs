@@ -21,13 +21,8 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 {
 	[SlashCommandGroup("user", "Commands for managing user updates from Shikimori.one")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class ShikiUserCommands : BaseUpdateProviderUserCommandsModule<ShikiUserService, ShikiUser>
+	public sealed class ShikiUserCommands(ShikiUserService userService, ILogger<ShikiUserCommands> logger) : BaseUpdateProviderUserCommandsModule<ShikiUserService, ShikiUser>(userService, logger)
 	{
-		public ShikiUserCommands(ShikiUserService userService, ILogger<ShikiUserCommands> logger)
-			: base(userService, logger)
-		{
-		}
-
 		[SlashCommand("add", "Add your Shikimori account to being tracked")]
 		public override Task AddUserCommand(InteractionContext context, [Option(nameof(username), "Your username on Shikimori")] string? username = null) =>
 			base.AddUserCommand(context, username);
@@ -44,13 +39,9 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("features", "Manage your features for updates send from Shikimori.one")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class ShikiUserFeaturesCommands : BaseUserFeaturesCommandsModule<ShikiUser, ShikiUserFeatures>
+	public sealed class ShikiUserFeaturesCommands(BaseUserFeaturesService<ShikiUser, ShikiUserFeatures> userFeaturesService, ILogger<ShikiUserFeaturesCommands> logger)
+		: BaseUserFeaturesCommandsModule<ShikiUser, ShikiUserFeatures>(userFeaturesService, logger)
 	{
-		public ShikiUserFeaturesCommands(BaseUserFeaturesService<ShikiUser, ShikiUserFeatures> userFeaturesService, ILogger<ShikiUserFeaturesCommands> logger)
-			: base(userFeaturesService, logger)
-		{
-		}
-
 		[SlashCommand("enable", "Enable features for your updates")]
 		public override Task EnableFeatureCommand(
 								InteractionContext context,
@@ -74,13 +65,9 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("colors", "Manage colors of your updates")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class ShikiColorsCommands : BaseColorsCommandModule<ShikiUser, ShikiUpdateType>
+	public sealed class ShikiColorsCommands(ILogger<ShikiColorsCommands> logger, CustomColorService<ShikiUser, ShikiUpdateType> colorService)
+		: BaseColorsCommandModule<ShikiUser, ShikiUpdateType>(logger, colorService)
 	{
-		public ShikiColorsCommands(ILogger<ShikiColorsCommands> logger, CustomColorService<ShikiUser, ShikiUpdateType> colorService)
-			: base(logger, colorService)
-		{
-		}
-
 		[SlashCommand("set", "Set color for update update")]
 		public override Task SetColor(InteractionContext context,
 								   [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<ShikiUpdateType>, ShikiUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType,

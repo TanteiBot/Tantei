@@ -9,18 +9,11 @@ using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Startup.Services;
 
-internal sealed class OnStartupActionsExecutingService : IHostedService
+internal sealed class OnStartupActionsExecutingService(IServiceScopeFactory _serviceScopeFactory) : IHostedService
 {
-	private readonly IServiceScopeFactory _serviceScopeFactory;
-
-	public OnStartupActionsExecutingService(IServiceScopeFactory serviceScopeFactory)
-	{
-		this._serviceScopeFactory = serviceScopeFactory;
-	}
-
 	public async Task StartAsync(CancellationToken cancellationToken)
 	{
-		using var scope = this._serviceScopeFactory.CreateScope();
+		using var scope = _serviceScopeFactory.CreateScope();
 
 		scope.ServiceProvider.GetRequiredService<ICommandsService>();
 		_ = scope.ServiceProvider.GetRequiredService<UpdatePublishingService>();

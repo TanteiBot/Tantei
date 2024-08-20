@@ -15,16 +15,9 @@ using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
-internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUser, ShikiUserFeatures>
+internal sealed class ShikiUserFeaturesService(IShikiClient _client, ILogger<ShikiUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
+	: BaseUserFeaturesService<ShikiUser, ShikiUserFeatures>(dbContextFactory, logger)
 {
-	private readonly IShikiClient _client;
-
-	public ShikiUserFeaturesService(IShikiClient client, ILogger<ShikiUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
-		: base(dbContextFactory, logger)
-	{
-		this._client = client;
-	}
-
 	public override async Task EnableFeaturesAsync(ShikiUserFeatures feature, ulong userId)
 	{
 		await using var db = this.DbContextFactory.CreateDbContext();
@@ -35,22 +28,21 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 			throw new UserFeaturesException("You already have this feature enabled");
 		}
 
-		var lastHistoryEntry = default(uint?);
+		uint? lastHistoryEntry = null;
 		dbUser.Features |= feature;
 		switch (feature)
 		{
 			case ShikiUserFeatures.AnimeList:
 			case ShikiUserFeatures.MangaList:
 			{
-				var (data, _) = await this._client.GetUserHistoryAsync(dbUser.Id, 1, 1, HistoryRequestOptions.Any, CancellationToken.None)
-										  ;
+				var (data, _) = await _client.GetUserHistoryAsync(dbUser.Id, 1, 1, HistoryRequestOptions.Any, CancellationToken.None);
 				lastHistoryEntry = data.MaxBy(h => h.Id)!.Id;
 				break;
 			}
 
 			case ShikiUserFeatures.Favourites:
 			{
-				var favourites = await this._client.GetUserFavouritesAsync(dbUser.Id, CancellationToken.None);
+				var favourites = await _client.GetUserFavouritesAsync(dbUser.Id, CancellationToken.None);
 				dbUser.Favourites = favourites.AllFavourites.Select(fe => new ShikiFavourite
 				{
 					Id = fe.Id,
@@ -63,7 +55,7 @@ internal sealed class ShikiUserFeaturesService : BaseUserFeaturesService<ShikiUs
 
 			case ShikiUserFeatures.Achievements:
 			{
-				var achievements = await this._client.GetUserAchievementsAsync(dbUser.Id);
+				var achievements = await _client.GetUserAchievementsAsync(dbUser.Id);
 				dbUser.Achievements = achievements.Select(x => new ShikiDbAchievement
 				{
 					NekoId = x.Id,

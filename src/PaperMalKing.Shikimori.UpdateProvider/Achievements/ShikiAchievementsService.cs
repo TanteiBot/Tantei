@@ -11,12 +11,12 @@ namespace PaperMalKing.Shikimori.UpdateProvider.Achievements;
 
 internal sealed class ShikiAchievementsService
 {
-	private readonly FrozenDictionary<(string Id, byte Level), ShikiAchievement> _achievements;
+	private readonly FrozenDictionary<AchievementKey, ShikiAchievement> _achievements;
 
 	public ShikiAchievementsService(NekoFileJson neko)
 	{
 		this._achievements = neko.Achievements.ToDictionary(
-			item => (item.Id, item.Level),
+			item => new AchievementKey(item.Id, item.Level),
 			item => new ShikiAchievement(
 				item.Id,
 				item.Level,
@@ -29,5 +29,7 @@ internal sealed class ShikiAchievementsService
 				neko.HumanNames.GetValueOrDefault(item.Id))).ToFrozenDictionary();
 	}
 
-	public ShikiAchievement? GetAchievementOrNull(string id, byte level) => this._achievements.GetValueOrDefault((id, level));
+	public ShikiAchievement? GetAchievementOrNull(string id, byte level) => this._achievements.GetValueOrDefault(new(id, level));
+
+	private readonly record struct AchievementKey(string Id, byte Level);
 }

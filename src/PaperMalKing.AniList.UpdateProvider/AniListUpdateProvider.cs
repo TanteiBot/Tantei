@@ -28,18 +28,9 @@ using FavouriteType = PaperMalKing.Database.Models.AniList.FavouriteType;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
-internal sealed class AniListUpdateProvider : BaseUpdateProvider
+internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logger, IOptions<AniListOptions> options, IAniListClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory)
+	: BaseUpdateProvider(logger, TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 {
-	private readonly IAniListClient _client;
-	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
-
-	public AniListUpdateProvider(ILogger<AniListUpdateProvider> logger, IOptions<AniListOptions> options, IAniListClient client, IDbContextFactory<DatabaseContext> dbContextFactory)
-		: base(logger, TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
-	{
-		this._client = client;
-		this._dbContextFactory = dbContextFactory;
-	}
-
 	public override string Name => ProviderConstants.Name;
 
 	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
@@ -51,7 +42,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			return;
 		}
 
-		await using var db = this._dbContextFactory.CreateDbContext();
+		await using var db = _dbContextFactory.CreateDbContext();
 		var users = db.AniListUsers.TagWith("Query users for update checking").TagWithCallSite().Where(u =>
 							u.DiscordUser.Guilds.Any() &&
 							((u.Features & AniListUserFeatures.AnimeList) != 0 ||
@@ -73,7 +64,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 			CombinedRecentUpdatesResponse recentUserUpdates;
 			try
 			{
-				recentUserUpdates = await this._client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, perUserCancellationToken);
+				recentUserUpdates = await _client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, perUserCancellationToken);
 			}
 			catch (GraphQLHttpRequestException ex) when (ex.Message.Contains("NotFound", StringComparison.Ordinal))
 			{
@@ -175,8 +166,7 @@ internal sealed class AniListUpdateProvider : BaseUpdateProvider
 		var results = new List<DiscordEmbedBuilder>(changedValues.Count);
 		for (byte page = 1; hasNextPage; page++)
 		{
-			var favouritesInfo = await this._client
-										   .FavouritesInfoAsync(page, animeIds, mangaIds, charIds, staffIds, studioIds, (RequestOptions)user.Features, cancellationToken);
+			var favouritesInfo = await _client.FavouritesInfoAsync(page, animeIds, mangaIds, charIds, staffIds, studioIds, (RequestOptions)user.Features, cancellationToken);
 			combinedResponse.Add(favouritesInfo);
 			hasNextPage = favouritesInfo.HasNextPage;
 		}
