@@ -15,7 +15,7 @@ using PaperMalKing.Database.Models.Shikimori;
 
 namespace PaperMalKing.Database;
 
-public sealed class DatabaseContext : DbContext
+public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
 	public DbSet<BotUser> BotUsers => this.Set<BotUser>();
 
@@ -44,11 +44,6 @@ public sealed class DatabaseContext : DbContext
 	public DbSet<AniListUser> AniListUsers => this.Set<AniListUser>();
 
 	public DbSet<AniListFavourite> AniListFavourites => this.Set<AniListFavourite>();
-
-	public DatabaseContext(DbContextOptions<DatabaseContext> options)
-		: base(options)
-	{
-	}
 
 	public async Task<int> SaveChangesAndThrowOnNoneAsync(CancellationToken cancellationToken = default)
 	{

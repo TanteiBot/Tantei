@@ -26,20 +26,9 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
-internal sealed class ShikiUpdateProvider : BaseUpdateProvider
+internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptions<ShikiOptions> options, IShikiClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory, ShikiAchievementsService _achievementsService)
+	: BaseUpdateProvider(logger, TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
 {
-	private readonly IShikiClient _client;
-	private readonly IDbContextFactory<DatabaseContext> _dbContextFactory;
-	private readonly ShikiAchievementsService _achievementsService;
-
-	public ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptions<ShikiOptions> options, IShikiClient client, IDbContextFactory<DatabaseContext> dbContextFactory, ShikiAchievementsService achievementsService)
-		: base(logger, TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
-	{
-		this._client = client;
-		this._dbContextFactory = dbContextFactory;
-		this._achievementsService = achievementsService;
-	}
-
 	public override string Name => Constants.Name;
 
 	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
@@ -51,7 +40,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			return;
 		}
 
-		await using var db = this._dbContextFactory.CreateDbContext();
+		await using var db = _dbContextFactory.CreateDbContext();
 
 		foreach (var dbUser in db.ShikiUsers.TagWith("Query users for update checking").TagWithCallSite().Where(u =>
 					 u.DiscordUser.Guilds.Any() && ((u.Features & ShikiUserFeatures.AnimeList) != 0 ||
@@ -63,9 +52,9 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				break;
 			}
 
-			var historyUpdates = await this._client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken);
+			var historyUpdates = await _client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken);
 
-			var favs = await this._client.GetUserFavouritesAsync(dbUser.Id, cancellationToken);
+			var favs = await _client.GetUserFavouritesAsync(dbUser.Id, cancellationToken);
 			var isFavouritesMismatch = !dbUser.FavouritesIdHash.Equals(HashHelpers.FavoritesHash(favs.AllFavourites.ToFavoriteIdType()), StringComparison.Ordinal);
 
 			var achievementUpdates = dbUser.Features.HasFlag(ShikiUserFeatures.Achievements) ? await this.GetAchievementsUpdatesAsync(dbUser, cancellationToken) : [];
@@ -77,7 +66,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			{
 				db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
 				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
-				var user = await this._client.GetUserInfoAsync(dbUser.Id, cancellationToken);
+				var user = await _client.GetUserInfoAsync(dbUser.Id, cancellationToken);
 
 				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(user, dbUser, db, favs, isFavouritesMismatch, groupedHistoryEntriesWithMediaAndRoles, achievementUpdates, cancellationToken)), dbUser.DiscordUser));
 			}
@@ -178,13 +167,13 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 				dbUser.Features.HasFlag(ShikiUserFeatures.Publisher) || dbUser.Features.HasFlag(ShikiUserFeatures.Genres))
 			{
 				historyMediaRole.Media = history.Target!.Type == ListEntryType.Anime
-					? await this._client.GetMediaAsync<AnimeMedia>(history.Target!.Id, ListEntryType.Anime, cancellationToken)
-					: await this._client.GetMediaAsync<MangaMedia>(history.Target!.Id, ListEntryType.Manga, cancellationToken);
+					? await _client.GetMediaAsync<AnimeMedia>(history.Target!.Id, ListEntryType.Anime, cancellationToken)
+					: await _client.GetMediaAsync<MangaMedia>(history.Target!.Id, ListEntryType.Manga, cancellationToken);
 			}
 
 			if (dbUser.Features.HasFlag(ShikiUserFeatures.Mangaka) || dbUser.Features.HasFlag(ShikiUserFeatures.Director))
 			{
-				historyMediaRole.Roles = await this._client.GetMediaStaffAsync(history.Target!.Id, history.Target.Type, cancellationToken);
+				historyMediaRole.Roles = await _client.GetMediaStaffAsync(history.Target!.Id, history.Target.Type, cancellationToken);
 			}
 		}
 
@@ -205,7 +194,7 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 			if ((dbUser.Features.HasFlag(ShikiUserFeatures.Mangaka) && isManga) || (dbUser.Features.HasFlag(ShikiUserFeatures.Director) && isAnime))
 			{
-				favouriteMediaRoles.Roles = await this._client.GetMediaStaffAsync(
+				favouriteMediaRoles.Roles = await _client.GetMediaStaffAsync(
 					favouriteMediaRoles.FavouriteEntry.Id,
 					isAnime ? ListEntryType.Anime : ListEntryType.Manga,
 					cancellationToken);
@@ -217,8 +206,8 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 			{
 				favouriteMediaRoles.Media = (isManga, isAnime) switch
 				{
-					(true, _) => await this._client.GetMediaAsync<MangaMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Manga, cancellationToken),
-					(_, true) => await this._client.GetMediaAsync<AnimeMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Anime, cancellationToken),
+					(true, _) => await _client.GetMediaAsync<MangaMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Manga, cancellationToken),
+					(_, true) => await _client.GetMediaAsync<AnimeMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Anime, cancellationToken),
 					_ => throw new UnreachableException(),
 				};
 			}
@@ -283,11 +272,11 @@ internal sealed class ShikiUpdateProvider : BaseUpdateProvider
 
 	private async Task<IReadOnlyList<ShikiAchievement>> GetAchievementsUpdatesAsync(ShikiUser dbUser, CancellationToken cancellationToken)
 	{
-		var achievements = await this._client.GetUserAchievementsAsync(dbUser.Id, cancellationToken);
+		var achievements = await _client.GetUserAchievementsAsync(dbUser.Id, cancellationToken);
 		var result = new List<ShikiAchievement>();
 		foreach (var (id, level) in achievements)
 		{
-			var achievementInfo = this._achievementsService.GetAchievementOrNull(id, level);
+			var achievementInfo = _achievementsService.GetAchievementOrNull(id, level);
 			if (achievementInfo is null)
 			{
 				continue;

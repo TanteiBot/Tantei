@@ -9,29 +9,20 @@ using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.Startup.Services.Background;
 
-internal sealed class UpdateProvidersManagementService : IHostedService
+internal sealed class UpdateProvidersManagementService(ILogger<UpdateProvidersManagementService> _logger, UpdateProvidersConfigurationService _updateProvidersConfigurationService)
+	: IHostedService
 {
-	private readonly ILogger<UpdateProvidersManagementService> _logger;
-	private readonly UpdateProvidersConfigurationService _updateProvidersConfigurationService;
-
-	public UpdateProvidersManagementService(ILogger<UpdateProvidersManagementService> logger, UpdateProvidersConfigurationService updateProvidersConfigurationService)
-	{
-		this._logger = logger;
-
-		this._updateProvidersConfigurationService = updateProvidersConfigurationService;
-	}
-
 	public Task StartAsync(CancellationToken cancellationToken)
 	{
-		this._logger.StartingToWaitForShutdown();
+		_logger.StartingToWaitForShutdown();
 		return Task.CompletedTask;
 	}
 
 	public Task StopAsync(CancellationToken cancellationToken)
 	{
-		this._logger.StoppingUpdateProviders();
-		var tasks = new Task[this._updateProvidersConfigurationService.Providers.Count];
-		var providers = this._updateProvidersConfigurationService.Providers.Values.ToArray();
+		_logger.StoppingUpdateProviders();
+		var tasks = new Task[_updateProvidersConfigurationService.Providers.Count];
+		var providers = _updateProvidersConfigurationService.Providers.Values.ToArray();
 		for (var i = 0; i < providers.Length; i++)
 		{
 			var provider = providers[i];

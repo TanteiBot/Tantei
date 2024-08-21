@@ -11,7 +11,7 @@ public sealed class GuildManagementException : Exception
 
 	public ulong? ChannelId { get; }
 
-	public GuildManagementException(string message, ulong? guildId = default, ulong? channelId = default)
+	public GuildManagementException(string message, ulong? guildId = null, ulong? channelId = null)
 		: base(message)
 	{
 		this.GuildId = guildId;

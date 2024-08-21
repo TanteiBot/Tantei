@@ -5,10 +5,4 @@ using System;
 
 namespace PaperMalKing.Database;
 
-public sealed class NoChangesSavedException : Exception
-{
-	public NoChangesSavedException()
-		: base("No changes were saved to database")
-	{
-	}
-}
+public sealed class NoChangesSavedException() : Exception("No changes were saved to database");

@@ -9,20 +9,13 @@ using System.Threading.Tasks;
 
 namespace PaperMalKing.Common.RateLimiters;
 
-public sealed class RateLimiterHttpMessageHandler : DelegatingHandler
+public sealed class RateLimiterHttpMessageHandler(RateLimiter _rateLimiter) : DelegatingHandler
 {
-	public RateLimiter RateLimiter { get; }
-
-	internal RateLimiterHttpMessageHandler(RateLimiter rateLimiter)
-	{
-		this.RateLimiter = rateLimiter;
-	}
-
 	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 	{
 		while (!cancellationToken.IsCancellationRequested)
 		{
-			using var rateLimitLease = await this.RateLimiter.AcquireAsync(1, cancellationToken);
+			using var rateLimitLease = await _rateLimiter.AcquireAsync(1, cancellationToken);
 			if (rateLimitLease.IsAcquired)
 			{
 				return await base.SendAsync(request, cancellationToken);
@@ -35,7 +28,7 @@ public sealed class RateLimiterHttpMessageHandler : DelegatingHandler
 
 	protected override void Dispose(bool disposing)
 	{
-		this.RateLimiter.Dispose();
+		_rateLimiter.Dispose();
 		base.Dispose(disposing);
 	}
 }

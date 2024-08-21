@@ -17,16 +17,9 @@ using DiscordGuild = PaperMalKing.Database.Models.DiscordGuild;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
-internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
+internal sealed class MalUserService(IMyAnimeListClient _client, ILogger<MalUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService)
+	: BaseUpdateProviderUserService<MalUser>(logger, dbContextFactory, userService)
 {
-	private readonly IMyAnimeListClient _client;
-
-	public MalUserService(IMyAnimeListClient client, ILogger<MalUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService)
-		: base(logger, dbContextFactory, userService)
-	{
-		this._client = client;
-	}
-
 	public override string Name => Constants.Name;
 
 	public override async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
@@ -72,7 +65,7 @@ internal sealed class MalUserService : BaseUpdateProviderUserService<MalUser>
 		}
 
 		var duser = db.DiscordUsers.TagWith("Query discord user to link Mal user to it").TagWithCallSite().Include(x => x.Guilds).FirstOrDefault(user => user.DiscordUserId == userId);
-		var mUser = await this._client.GetUserAsync(username, MalUserFeatures.None.GetDefault().ToParserOptions());
+		var mUser = await _client.GetUserAsync(username, MalUserFeatures.None.GetDefault().ToParserOptions());
 		var now = TimeProvider.System.GetUtcNow();
 		if (duser is null)
 		{

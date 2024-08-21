@@ -9,15 +9,8 @@ using Serilog.Formatting.Display;
 
 namespace PaperMalKing.Startup;
 
-internal sealed class SystemdTextFormatter : ITextFormatter
+internal sealed class SystemdTextFormatter(MessageTemplateTextFormatter _messageTemplateTextFormatter) : ITextFormatter
 {
-	private readonly MessageTemplateTextFormatter _messageTemplateTextFormatter;
-
-	public SystemdTextFormatter(MessageTemplateTextFormatter messageTemplateTextFormatter)
-	{
-		this._messageTemplateTextFormatter = messageTemplateTextFormatter;
-	}
-
 	public void Format(LogEvent logEvent, TextWriter output)
 	{
 		var syslogLevel = logEvent.Level switch
@@ -30,6 +23,6 @@ internal sealed class SystemdTextFormatter : ITextFormatter
 			_ => throw new ArgumentOutOfRangeException(nameof(logEvent)),
 		};
 		output.Write(syslogLevel);
-		this._messageTemplateTextFormatter.Format(logEvent, output);
+		_messageTemplateTextFormatter.Format(logEvent, output);
 	}
 }

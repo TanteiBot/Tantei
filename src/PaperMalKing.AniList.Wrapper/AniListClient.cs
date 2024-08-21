@@ -12,31 +12,22 @@ using PaperMalKing.AniList.Wrapper.GraphQL;
 
 namespace PaperMalKing.AniList.Wrapper;
 
-internal sealed class AniListClient : IAniListClient
+internal sealed class AniListClient(GraphQLHttpClient _client, ILogger<AniListClient> _logger) : IAniListClient
 {
-	private readonly GraphQLHttpClient _client;
-	private readonly ILogger<AniListClient> _logger;
-
-	public AniListClient(GraphQLHttpClient client, ILogger<AniListClient> logger)
-	{
-		this._client = client;
-		this._logger = logger;
-	}
-
 	public async Task<InitialUserInfoResponse> GetInitialUserInfoAsync(string username, byte favouritesPage = 1, CancellationToken cancellationToken = default)
 	{
-		this._logger.RequestingInitialInfo(username, favouritesPage);
+		_logger.RequestingInitialInfo(username, favouritesPage);
 		var request = Requests.GetUserInitialInfoByUsernameRequest(username, favouritesPage);
-		var response = await this._client.SendQueryAsync<InitialUserInfoResponse>(request, cancellationToken);
+		var response = await _client.SendQueryAsync<InitialUserInfoResponse>(request, cancellationToken);
 		return response.Data;
 	}
 
 	public async Task<CheckForUpdatesResponse> CheckForUpdatesAsync(uint userId, byte page, long activitiesTimeStamp, ushort perChunk, ushort chunk, RequestOptions options, CancellationToken cancellationToken)
 	{
 		cancellationToken.ThrowIfCancellationRequested();
-		this._logger.RequestingUpdatesCheck(userId, page);
+		_logger.RequestingUpdatesCheck(userId, page);
 		var request = Requests.CheckForUpdatesRequest(userId, page, activitiesTimeStamp, perChunk, chunk, options);
-		var response = await this._client.SendQueryAsync<CheckForUpdatesResponse>(request, cancellationToken);
+		var response = await _client.SendQueryAsync<CheckForUpdatesResponse>(request, cancellationToken);
 		return response.Data;
 	}
 
@@ -48,7 +39,7 @@ internal sealed class AniListClient : IAniListClient
 		}
 
 		var request = Requests.FavouritesInfoRequest(page, animeIds, mangaIds, charIds, staffIds, studioIds, options);
-		var response = await this._client.SendQueryAsync<FavouritesResponse>(request, cancellationToken);
+		var response = await _client.SendQueryAsync<FavouritesResponse>(request, cancellationToken);
 		return response.Data;
 	}
 }

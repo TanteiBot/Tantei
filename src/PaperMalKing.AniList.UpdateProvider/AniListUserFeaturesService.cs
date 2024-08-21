@@ -15,16 +15,9 @@ using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
-internal sealed class AniListUserFeaturesService : BaseUserFeaturesService<AniListUser, AniListUserFeatures>
+internal sealed class AniListUserFeaturesService(IAniListClient _client, ILogger<AniListUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
+	: BaseUserFeaturesService<AniListUser, AniListUserFeatures>(dbContextFactory, logger)
 {
-	private readonly IAniListClient _client;
-
-	public AniListUserFeaturesService(IAniListClient client, ILogger<AniListUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
-		: base(dbContextFactory, logger)
-	{
-		this._client = client;
-	}
-
 	public override async Task EnableFeaturesAsync(AniListUserFeatures feature, ulong userId)
 	{
 		await using var db = this.DbContextFactory.CreateDbContext();
@@ -49,8 +42,7 @@ internal sealed class AniListUserFeaturesService : BaseUserFeaturesService<AniLi
 
 			case AniListUserFeatures.Favourites:
 			{
-				var fr = await this._client
-								   .GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites | AniListUserFeatures.AnimeList, CancellationToken.None);
+				var fr = await _client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites | AniListUserFeatures.AnimeList, CancellationToken.None);
 				dbUser.Favourites = fr.Favourites.ConvertAll(f => new AniListFavourite
 				{
 					Id = f.Id,

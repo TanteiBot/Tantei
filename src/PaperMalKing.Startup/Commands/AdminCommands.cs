@@ -17,31 +17,17 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 namespace PaperMalKing.Startup.Commands;
 
 /// <remarks>
-/// We dont use bot commands module since most commands are immediately executed or dont provide any feedback.
+/// We don't use <see cref="BotCommandsModule"/> since most commands are immediately executed or dont provide any feedback.
 /// </remarks>
 [SlashCommandGroup("admin", "Commands for owner")]
 [SlashRequireOwner]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [SuppressMessage("Style", """VSTHRD200:Use "Async" suffix for async methods""", Justification = "It doesn't apply to commands")]
-internal sealed class
-	AdminCommands : ApplicationCommandModule
+internal sealed class AdminCommands(IHostApplicationLifetime _lifetime,
+									UpdateProvidersConfigurationService _providersConfigurationService,
+									UserCleanupService _cleanupService,
+									GuildManagementService _guildManagementService) : ApplicationCommandModule
 {
-	private readonly UpdateProvidersConfigurationService _providersConfigurationService;
-	private readonly UserCleanupService _cleanupService;
-	private readonly GuildManagementService _guildManagementService;
-	private readonly IHostApplicationLifetime _lifetime;
-
-	public AdminCommands(IHostApplicationLifetime lifetime,
-						 UpdateProvidersConfigurationService providersConfigurationService,
-						 UserCleanupService cleanupService,
-						 GuildManagementService guildManagementService)
-	{
-		this._lifetime = lifetime;
-		this._providersConfigurationService = providersConfigurationService;
-		this._cleanupService = cleanupService;
-		this._guildManagementService = guildManagementService;
-	}
-
 	[SlashCommand("check", "Forcefully starts checking for updates in provider")]
 	public async Task ForceCheckCommand(InteractionContext context, [Option(nameof(name), "Update provider name")] string name)
 	{
@@ -49,13 +35,13 @@ internal sealed class
 		BaseUpdateProvider? baseUpdateProvider;
 		await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-		if (this._providersConfigurationService.Providers.TryGetValue(name, out var provider) && provider is BaseUpdateProvider bup)
+		if (_providersConfigurationService.Providers.TryGetValue(name, out var provider) && provider is BaseUpdateProvider bup)
 		{
 			baseUpdateProvider = bup;
 		}
 		else
 		{
-			var upc = this._providersConfigurationService.Providers.Values.FirstOrDefault(p => string.Equals(p.Name.Where(char.IsUpper).ToString(), name, StringComparison.Ordinal));
+			var upc = _providersConfigurationService.Providers.Values.FirstOrDefault(p => string.Equals(p.Name.Where(char.IsUpper).ToString(), name, StringComparison.Ordinal));
 			baseUpdateProvider = upc as BaseUpdateProvider;
 		}
 
@@ -74,20 +60,20 @@ internal sealed class
 	public async Task StopBotCommand(InteractionContext context)
 	{
 		await context.CreateResponseAsync("Exiting");
-		this._lifetime.StopApplication();
+		_lifetime.StopApplication();
 	}
 
 	[SlashCommand("cleanup", "Remove users not linked to any guilds")]
 	[SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "We discard parameter")]
 	public Task CleanupCommand(InteractionContext _)
 	{
-		return this._cleanupService.ExecuteCleanupAsync();
+		return _cleanupService.ExecuteCleanupAsync();
 	}
 
 	[SlashCommand("forceToLeave", "Forces bot to leave from guild")]
 	[SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "We discard parameter")]
 	public Task ForceToLeave(InteractionContext _, [Option(nameof(guildId), "Id of guild to leave from")] string guildId)
 	{
-		return this._guildManagementService.RemoveGuildAsync(ulong.Parse(guildId, CultureInfo.InvariantCulture));
+		return _guildManagementService.RemoveGuildAsync(ulong.Parse(guildId, CultureInfo.InvariantCulture));
 	}
 }

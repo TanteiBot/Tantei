@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using PaperMalKing.Common.Options;
-using PaperMalKing.Common.RateLimiters;
 
 namespace PaperMalKing.Common;
 
@@ -37,12 +35,6 @@ public static partial class TypeExtensions
 	}
 
 	public static string StripHtml(this string value) => HtmlRegex().Replace(value, string.Empty);
-
-	public static RateLimiter<T> ToRateLimiter<T>(this IRateLimitOptions<T> rateLimitOptions)
-	{
-		var rateLimit = new RateLimitValue(rateLimitOptions.AmountOfRequests, rateLimitOptions.PeriodInMilliseconds);
-		return RateLimiterFactory.Create<T>(rateLimit);
-	}
 
 	public static string ToFirstCharUpperCase(this string? str)
 	{

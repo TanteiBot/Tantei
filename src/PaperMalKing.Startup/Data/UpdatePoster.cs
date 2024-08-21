@@ -9,19 +9,9 @@ using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.Startup.Data;
 
-internal sealed class UpdatePoster : IDisposable
+internal sealed class UpdatePoster(ILogger<UpdatePoster> _logger, DiscordChannel _channel) : IDisposable
 {
-	private readonly SemaphoreSlim _semaphore;
-
-	private readonly ILogger<UpdatePoster> _logger;
-	private readonly DiscordChannel _channel;
-
-	public UpdatePoster(ILogger<UpdatePoster> logger, DiscordChannel channel)
-	{
-		this._logger = logger;
-		this._channel = channel;
-		this._semaphore = new(1, 1);
-	}
+	private readonly SemaphoreSlim _semaphore = new(1, 1);
 
 	public Task PreparePostingUpdatesAsync() => this._semaphore.WaitAsync();
 
@@ -29,8 +19,8 @@ internal sealed class UpdatePoster : IDisposable
 
 	public Task<DiscordMessage> PostUpdateAsync(DiscordEmbed embed)
 	{
-		this._logger.PostingUpdate(this._channel, embed);
-		return this._channel.SendMessageAsync(embed: embed);
+		_logger.PostingUpdate(_channel, embed);
+		return _channel.SendMessageAsync(embed: embed);
 	}
 
 	public void Dispose()

@@ -9,18 +9,11 @@ using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Startup.Services;
 
-internal sealed class MigrateOnStartupService : IExecuteOnStartupService
+internal sealed class MigrateOnStartupService(IDbContextFactory<DatabaseContext> _factory) : IExecuteOnStartupService
 {
-	private readonly IDbContextFactory<DatabaseContext> _factory;
-
-	public MigrateOnStartupService(IDbContextFactory<DatabaseContext> factory)
-	{
-		this._factory = factory;
-	}
-
 	public async Task ExecuteAsync(CancellationToken cancellationToken = default)
 	{
-		await using var db = this._factory.CreateDbContext();
+		await using var db = _factory.CreateDbContext();
 
 		db.Database.Migrate();
 

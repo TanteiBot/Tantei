@@ -16,16 +16,9 @@ using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
-internal sealed class MalUserFeaturesService : BaseUserFeaturesService<MalUser, MalUserFeatures>
+internal sealed class MalUserFeaturesService(IMyAnimeListClient _client, ILogger<MalUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
+	: BaseUserFeaturesService<MalUser, MalUserFeatures>(dbContextFactory, logger)
 {
-	private readonly IMyAnimeListClient _client;
-
-	public MalUserFeaturesService(IMyAnimeListClient client, ILogger<MalUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
-		: base(dbContextFactory, logger)
-	{
-		this._client = client;
-	}
-
 	public override async Task EnableFeaturesAsync(MalUserFeatures feature, ulong userId)
 	{
 		await using var db = this.DbContextFactory.CreateDbContext();
@@ -45,7 +38,7 @@ internal sealed class MalUserFeaturesService : BaseUserFeaturesService<MalUser, 
 		{
 			case MalUserFeatures.AnimeList:
 			{
-				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
+				user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
 				dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdateHash ?? "";
 				dbUser.LastUpdatedAnimeListTimestamp = now;
 				break;
@@ -53,7 +46,7 @@ internal sealed class MalUserFeaturesService : BaseUserFeaturesService<MalUser, 
 
 			case MalUserFeatures.MangaList:
 			{
-				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
+				user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
 				dbUser.LastMangaUpdateHash = user.LatestMangaUpdateHash ?? "";
 				dbUser.LastUpdatedMangaListTimestamp = now;
 				break;
@@ -61,7 +54,7 @@ internal sealed class MalUserFeaturesService : BaseUserFeaturesService<MalUser, 
 
 			case MalUserFeatures.Favorites:
 			{
-				user = await this._client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
+				user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
 				dbUser.FavoriteAnimes = user.Favorites.FavoriteAnime.Select(x => x.ToMalFavoriteAnime(dbUser)).ToList();
 				dbUser.FavoriteMangas = user.Favorites.FavoriteManga.Select(x => x.ToMalFavoriteManga(dbUser)).ToList();
 				dbUser.FavoriteCharacters = user.Favorites.FavoriteCharacters.Select(x => x.ToMalFavoriteCharacter(dbUser)).ToList();

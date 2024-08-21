@@ -17,17 +17,10 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
-internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser>
+internal sealed class ShikiUserService(IShikiClient _client, ILogger<ShikiUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService)
+	: BaseUpdateProviderUserService<ShikiUser>(logger, dbContextFactory, userService)
 {
-	private readonly IShikiClient _client;
-
 	public override string Name => Constants.Name;
-
-	public ShikiUserService(IShikiClient client, ILogger<ShikiUserService> logger, IDbContextFactory<DatabaseContext> dbContextFactory, GeneralUserService userService)
-		: base(logger, dbContextFactory, userService)
-	{
-		this._client = client;
-	}
 
 	public override async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
@@ -70,10 +63,10 @@ internal sealed class ShikiUserService : BaseUpdateProviderUserService<ShikiUser
 		}
 
 		var dUser = db.DiscordUsers.TagWith("Query discord user to link AniList user to it").TagWithCallSite().Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId);
-		var shikiUser = await this._client.GetUserAsync(username);
-		var history = await this._client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any);
-		var favourites = await this._client.GetUserFavouritesAsync(shikiUser.Id);
-		var achievements = await this._client.GetUserAchievementsAsync(shikiUser.Id);
+		var shikiUser = await _client.GetUserAsync(username);
+		var history = await _client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any);
+		var favourites = await _client.GetUserFavouritesAsync(shikiUser.Id);
+		var achievements = await _client.GetUserAchievementsAsync(shikiUser.Id);
 		if (dUser is null)
 		{
 			dUser = new()

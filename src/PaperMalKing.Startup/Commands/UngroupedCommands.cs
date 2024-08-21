@@ -77,8 +77,7 @@ internal sealed class UngroupedCommands : BotCommandsModule
 
 		var commitId = ThisAssembly.GitCommitId[..10];
 		var commitDate = new DateTimeOffset(ThisAssembly.GitCommitDate);
-		const string desc =
-			"Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.";
+		const string desc = "Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.";
 
 		const string sourceCodeLink = "https://github.com/TanteiBot/Tantei";
 
