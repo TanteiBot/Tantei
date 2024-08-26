@@ -1,4 +1,9 @@
 {
+  "Seq": {
+    "IsEnabled": false,
+    "LogIngestionUrl": "http://localhost:5341/ingest/otlp/v1/logs",
+    "ApiKey": "1234"
+  },
   "ConnectionStrings": {
     "Default": "Data Source=data.db"
   },

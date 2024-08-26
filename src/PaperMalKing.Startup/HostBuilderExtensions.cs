@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ using PaperMalKing.Startup.Services.Background;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Colors;
 using Serilog;
-using Serilog.Formatting.Display;
+using Serilog.Sinks.OpenTelemetry;
 
 namespace PaperMalKing.Startup;
 
@@ -94,13 +95,31 @@ public static class HostBuilderExtensions
 			var template =
 				$$"""[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {{(SystemdHelpers.IsSystemdService() ? "" : "{Level:u3}")}}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}""";
 			var loggerSinkConfiguration = configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo;
-			if (SystemdHelpers.IsSystemdService())
-			{
-				loggerSinkConfiguration.Console(formatter: new SystemdTextFormatter(new MessageTemplateTextFormatter(template)));
-			}
-			else
-			{
+			configuration = SystemdHelpers.IsSystemdService() ?
+				loggerSinkConfiguration.Console(formatter: new SystemdTextFormatter(new(template))) :
 				loggerSinkConfiguration.Console(outputTemplate: template, formatProvider: CultureInfo.InvariantCulture);
+
+			var seqSection = context.Configuration.GetSection("Seq");
+
+			var isSeqEnabled = seqSection.GetValue<bool>("IsEnabled", defaultValue: false);
+			if (isSeqEnabled)
+			{
+				configuration.WriteTo.OpenTelemetry(ot =>
+				{
+					ot.Endpoint = seqSection.GetValue<string>("LogIngestionUrl");
+					ot.Protocol = OtlpProtocol.HttpProtobuf;
+					ot.Headers = new Dictionary<string, string>(1, StringComparer.Ordinal)
+					{
+						["X-Seq-ApiKey"] = seqSection.GetValue<string>("ApiKey")!,
+					};
+
+					const string tanteiName = "Tantei";
+					const string tanteiDevName = $"{tanteiName}-dev";
+					ot.ResourceAttributes = new Dictionary<string, object>(1, StringComparer.Ordinal)
+					{
+						["service.name"] = context.HostingEnvironment.IsDevelopment() ? tanteiDevName : tanteiName,
+					};
+				});
 			}
 		});
 		return hostBuilder;
