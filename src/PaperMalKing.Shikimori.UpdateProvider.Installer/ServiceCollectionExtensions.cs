@@ -57,7 +57,6 @@ public static class ServiceCollectionExtensions
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<ShikiUser, ShikiUserFeatures>, ShikiUserFeaturesService>();
 		serviceCollection.AddSingleton<ShikiUserService>();
-		serviceCollection.AddSingleton<IUpdateProvider, ShikiUpdateProvider>();
 		var path = configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json";
 		var file = File.Exists(path)
 			? JsonSerializer.Deserialize<NekoFileJson>(File.ReadAllText(path))!
@@ -67,6 +66,10 @@ public static class ServiceCollectionExtensions
 				HumanNames = new(0, StringComparer.Ordinal),
 			};
 		serviceCollection.AddSingleton<ShikiAchievementsService>(_ => new(file));
+
+		serviceCollection.AddSingleton<ShikiUpdateProvider>();
+		serviceCollection.AddSingleton<IUpdateProvider>(f => f.GetRequiredService<ShikiUpdateProvider>());
+		serviceCollection.AddHostedService(f => f.GetRequiredService<ShikiUpdateProvider>());
 
 		return serviceCollection;
 	}

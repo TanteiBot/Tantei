@@ -47,7 +47,7 @@ internal sealed class AdminCommands(IHostApplicationLifetime _lifetime,
 
 		if (baseUpdateProvider != null)
 		{
-			baseUpdateProvider.RestartTimer(TimeSpan.Zero);
+			baseUpdateProvider.StartOrRestartAfter(TimeSpan.Zero);
 			await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("Success"));
 		}
 		else

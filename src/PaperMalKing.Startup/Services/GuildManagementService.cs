@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2024 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -12,11 +13,12 @@ using PaperMalKing.Startup.Exceptions;
 
 namespace PaperMalKing.Startup.Services;
 
+[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 internal sealed class GuildManagementService(ILogger<GuildManagementService> _logger, IDbContextFactory<DatabaseContext> _dbContextFactory, UpdatePublishingService _updatePublishingService, DiscordClient _discordClient)
 {
 	public async Task<DiscordGuild> SetChannelAsync(ulong guildId, ulong channelId)
 	{
-		await using var db = _dbContextFactory.CreateDbContext();
+		using var db = _dbContextFactory.CreateDbContext();
 		var guild = db.DiscordGuilds.TagWith("Query guild to set a channel for it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild != null)
 		{
@@ -41,7 +43,7 @@ internal sealed class GuildManagementService(ILogger<GuildManagementService> _lo
 
 	public async Task RemoveGuildAsync(ulong guildId)
 	{
-		await using var db = _dbContextFactory.CreateDbContext();
+		using var db = _dbContextFactory.CreateDbContext();
 		var guild = db.DiscordGuilds.TagWith("Query guild to remove it").TagWithCallSite().FirstOrDefault() ??
 					throw new GuildManagementException("You can't remove this server from posting updates", guildId);
 		_logger.RemovingChannel(guildId);
@@ -54,7 +56,7 @@ internal sealed class GuildManagementService(ILogger<GuildManagementService> _lo
 
 	public async Task UpdateChannelAsync(ulong guildId, ulong channelId)
 	{
-		await using var db = _dbContextFactory.CreateDbContext();
+		using var db = _dbContextFactory.CreateDbContext();
 		var guild =
 			db.DiscordGuilds.TagWith("Query guild to update channel for it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId) ??
 			throw new GuildManagementException("You can't update channel for posting updates without setting it first", guildId, channelId);

@@ -117,12 +117,6 @@ internal static partial class Log
 	[LoggerMessage(LogLevel.Trace, "Building Commands service finished")]
 	public static partial void BuildingCommandsServiceFinished(this ILogger<CommandsService> logger);
 
-	[LoggerMessage(LogLevel.Information, "Starting to wait for shutdown for cancelling update providers checking for updates")]
-	public static partial void StartingToWaitForShutdown(this ILogger<UpdateProvidersManagementService> logger);
-
-	[LoggerMessage(LogLevel.Information, "Stopping update providers")]
-	public static partial void StoppingUpdateProviders(this ILogger<UpdateProvidersManagementService> logger);
-
 	[LoggerMessage(LogLevel.Debug, "Starting querying posting channels")]
 	public static partial void StartingQueryingPostingChannels(this ILogger<UpdatePublishingService> logger);
 

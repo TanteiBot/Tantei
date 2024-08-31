@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,9 +20,10 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider;
 internal sealed class MalUserFeaturesService(IMyAnimeListClient _client, ILogger<MalUserFeaturesService> logger, IDbContextFactory<DatabaseContext> dbContextFactory)
 	: BaseUserFeaturesService<MalUser, MalUserFeatures>(dbContextFactory, logger)
 {
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	public override async Task EnableFeaturesAsync(MalUserFeatures feature, ulong userId)
 	{
-		await using var db = this.DbContextFactory.CreateDbContext();
+		using var db = this.DbContextFactory.CreateDbContext();
 		var dbUser =
 			db.MalUsers.TagWith("Query user for enabling feature").TagWithCallSite().FirstOrDefault(u => u.DiscordUser.DiscordUserId == userId) ??
 			throw new UserFeaturesException("You must register first before enabling features");

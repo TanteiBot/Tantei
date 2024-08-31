@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -22,9 +23,10 @@ internal sealed class MalUserService(IMyAnimeListClient _client, ILogger<MalUser
 {
 	public override string Name => Constants.Name;
 
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	public override async Task<BaseUser> AddUserAsync(ulong userId, ulong guildId, string? username = null)
 	{
-		await using var db = this.DbContextFactory.CreateDbContext();
+		using var db = this.DbContextFactory.CreateDbContext();
 		var dbUser = db.MalUsers.TagWith("Query user when trying to add one").TagWithCallSite().Include(u => u.DiscordUser).ThenInclude(du => du.Guilds)
 					   .FirstOrDefault(u => u.DiscordUserId == userId);
 		DiscordGuild? guild;

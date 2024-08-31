@@ -15,6 +15,7 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base.Colors;
 
+[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 public sealed class CustomColorService<TUser, TUpdateType>
 	where TUser : class, IUpdateProviderUser
 	where TUpdateType : unmanaged, Enum
@@ -28,7 +29,7 @@ public sealed class CustomColorService<TUser, TUpdateType>
 
 	public async Task SetColorAsync(ulong userId, TUpdateType updateType, DiscordColor color)
 	{
-		await using var db = this.DbContextFactory.CreateDbContext();
+		using var db = this.DbContextFactory.CreateDbContext();
 
 		var user = db.Set<TUser>().TagWith("Getting user to set color").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ?? throw new UserProcessingException("You must create account first");
 		var byteType = Unsafe.As<TUpdateType, byte>(ref updateType);
@@ -45,7 +46,7 @@ public sealed class CustomColorService<TUser, TUpdateType>
 
 	public async Task RemoveColorAsync(ulong userId, TUpdateType updateType)
 	{
-		await using var db = this.DbContextFactory.CreateDbContext();
+		using var db = this.DbContextFactory.CreateDbContext();
 		var user = db.Set<TUser>().TagWith("Getting user to remove color").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ??
 				   throw new UserProcessingException("You must create account first");
 

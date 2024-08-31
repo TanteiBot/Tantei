@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,11 +40,12 @@ internal sealed class UpdatePublishingService
 		this._discordClient.GuildDownloadCompleted += this.DiscordClientOnGuildDownloadCompletedAsync;
 	}
 
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	private Task DiscordClientOnGuildDownloadCompletedAsync(DiscordClient sender, GuildDownloadCompletedEventArgs e)
 	{
 		_ = Task.Run(async () =>
 		{
-			await using var db = this._dbContextFactory.CreateDbContext();
+			using var db = this._dbContextFactory.CreateDbContext();
 			this._logger.StartingQueryingPostingChannels();
 			foreach (var guild in db.DiscordGuilds.TagWith("Query guild to save posting channels").TagWithCallSite().AsNoTracking().ToArray())
 			{
@@ -67,7 +69,7 @@ internal sealed class UpdatePublishingService
 				provider.UpdateFoundEvent += this.PublishUpdatesAsync;
 				if (provider is BaseUpdateProvider baseUpdateProvider)
 				{
-					baseUpdateProvider.RestartTimer(TimeSpan.FromSeconds(5));
+					baseUpdateProvider.StartOrRestartAfter(TimeSpan.FromSeconds(5));
 				}
 			}
 

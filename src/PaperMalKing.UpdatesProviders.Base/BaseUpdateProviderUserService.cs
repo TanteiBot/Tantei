@@ -48,7 +48,7 @@ public abstract class BaseUpdateProviderUserService<TUser>
 	public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
 	{
 		await this._generalUserService.RemoveUserInGuildAsync(guildId, userId);
-		await this._generalUserService.RemoveUserIfInNoGuildsAsync(userId);
+		this._generalUserService.RemoveUserIfInNoGuilds(userId);
 	}
 
 	public abstract IReadOnlyList<BaseUser> ListUsers(ulong guildId);

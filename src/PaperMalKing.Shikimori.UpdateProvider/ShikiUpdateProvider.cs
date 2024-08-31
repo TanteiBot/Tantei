@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -26,13 +27,16 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
-internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptions<ShikiOptions> options, IShikiClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory, ShikiAchievementsService _achievementsService)
-	: BaseUpdateProvider(logger, TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
+internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptionsMonitor<ShikiOptions> _options, IShikiClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory, ShikiAchievementsService _achievementsService)
+	: BaseUpdateProvider(logger)
 {
+	protected override TimeSpan DelayBetweenTimerFires => TimeSpan.FromMilliseconds(_options.CurrentValue.DelayBetweenChecksInMilliseconds);
+
 	public override string Name => Constants.Name;
 
 	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
 		if (this.UpdateFoundEvent is null)
@@ -40,7 +44,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 			return;
 		}
 
-		await using var db = _dbContextFactory.CreateDbContext();
+		using var db = _dbContextFactory.CreateDbContext();
 
 		foreach (var dbUser in db.ShikiUsers.TagWith("Query users for update checking").TagWithCallSite().Where(u =>
 					 u.DiscordUser.Guilds.Any() && ((u.Features & ShikiUserFeatures.AnimeList) != 0 ||

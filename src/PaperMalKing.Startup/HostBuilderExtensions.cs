@@ -38,8 +38,7 @@ public static class HostBuilderExtensions
 			SQLitePCL.raw.sqlite3_config(2);
 		}
 
-		hostBuilder.ConfigureAppConfiguration(x => x.AddJsonFile("appsetings-shared", optional: true, reloadOnChange: false))
-				   .ConfigureServices((hostContext, services) =>
+		hostBuilder.ConfigureServices((hostContext, services) =>
 		{
 			static void ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
 			{
@@ -77,7 +76,6 @@ public static class HostBuilderExtensions
 			services.AddSingleton<GuildManagementService>();
 			UpdateProvidersConfigurationService.ConfigureProviders(config, services);
 
-			services.AddHostedService<UpdateProvidersManagementService>();
 			services.AddHostedService<DiscordBackgroundService>();
 			services.AddHostedService<OnStartupActionsExecutingService>();
 			services.AddSingleton<UserCleanupService>();

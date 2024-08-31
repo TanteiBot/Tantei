@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -28,13 +29,16 @@ using FavouriteType = PaperMalKing.Database.Models.AniList.FavouriteType;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
-internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logger, IOptions<AniListOptions> options, IAniListClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory)
-	: BaseUpdateProvider(logger, TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
+internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logger, IOptionsMonitor<AniListOptions> _options, IAniListClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory)
+	: BaseUpdateProvider(logger)
 {
+	protected override TimeSpan DelayBetweenTimerFires => TimeSpan.FromMilliseconds(_options.CurrentValue.DelayBetweenChecksInMilliseconds);
+
 	public override string Name => ProviderConstants.Name;
 
 	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
 		if (this.UpdateFoundEvent is null)
@@ -42,13 +46,13 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 			return;
 		}
 
-		await using var db = _dbContextFactory.CreateDbContext();
+		using var db = _dbContextFactory.CreateDbContext();
 		var users = db.AniListUsers.TagWith("Query users for update checking").TagWithCallSite().Where(u =>
-							u.DiscordUser.Guilds.Any() &&
-							((u.Features & AniListUserFeatures.AnimeList) != 0 ||
-							(u.Features & AniListUserFeatures.MangaList) != 0 ||
-							(u.Features & AniListUserFeatures.Favourites) != 0 ||
-							(u.Features & AniListUserFeatures.Reviews) != 0))
+						  u.DiscordUser.Guilds.Any() &&
+						  ((u.Features & AniListUserFeatures.AnimeList) != 0 ||
+						   (u.Features & AniListUserFeatures.MangaList) != 0 ||
+						   (u.Features & AniListUserFeatures.Favourites) != 0 ||
+						   (u.Features & AniListUserFeatures.Reviews) != 0))
 					  .OrderBy(static _ => EF.Functions.Random()).ToArray();
 		foreach (var dbUser in users)
 		{

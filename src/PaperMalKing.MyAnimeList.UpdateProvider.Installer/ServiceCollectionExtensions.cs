@@ -72,7 +72,11 @@ public static class ServiceCollectionExtensions
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<MalUser, MalUserFeatures>, MalUserFeaturesService>();
 		serviceCollection.AddSingleton<MalUserService>();
-		serviceCollection.AddSingleton<IUpdateProvider, MalUpdateProvider>();
+
+		serviceCollection.AddSingleton<MalUpdateProvider>();
+		serviceCollection.AddSingleton<IUpdateProvider>(f => f.GetRequiredService<MalUpdateProvider>());
+		serviceCollection.AddHostedService(f => f.GetRequiredService<MalUpdateProvider>());
+
 		return serviceCollection;
 	}
 
