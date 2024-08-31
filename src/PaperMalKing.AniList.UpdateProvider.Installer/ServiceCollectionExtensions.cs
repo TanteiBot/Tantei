@@ -46,6 +46,9 @@ public static class ServiceCollectionExtensions
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<AniListUser, AniListUserFeatures>, AniListUserFeaturesService>();
 		serviceCollection.AddSingleton<AniListUserService>();
-		serviceCollection.AddSingleton<IUpdateProvider, AniListUpdateProvider>();
+
+		serviceCollection.AddSingleton<AniListUpdateProvider>();
+		serviceCollection.AddSingleton<IUpdateProvider>(f => f.GetRequiredService<AniListUpdateProvider>());
+		serviceCollection.AddHostedService(f => f.GetRequiredService<AniListUpdateProvider>());
 	}
 }

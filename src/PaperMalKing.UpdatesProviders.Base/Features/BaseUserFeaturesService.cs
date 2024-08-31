@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -31,9 +32,10 @@ public abstract class BaseUserFeaturesService<TUser, TFeature>
 
 	public abstract Task EnableFeaturesAsync(TFeature feature, ulong userId);
 
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	public async Task DisableFeaturesAsync(TFeature feature, ulong userId)
 	{
-		await using var db = this.DbContextFactory.CreateDbContext();
+		using var db = this.DbContextFactory.CreateDbContext();
 		var dbUser = db.Set<TUser>().TagWith("Query user to disable a feature").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == userId) ??
 					 throw new UserFeaturesException("You must register first before disabling features");
 		var features = dbUser.Features;

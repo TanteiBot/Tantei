@@ -5,87 +5,119 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
 namespace PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-public abstract class BaseUpdateProvider : IUpdateProvider
+public abstract class BaseUpdateProvider : BackgroundService, IUpdateProvider
 {
-	private CancellationTokenSource? _cts;
-
-	protected ILogger<BaseUpdateProvider> Logger { get; }
-
-	protected Timer Timer { get; }
-
-	protected TimeSpan DelayBetweenTimerFires { get; }
-
-	private Task _updateCheckingRunningTask = Task.CompletedTask;
-
-	protected BaseUpdateProvider(ILogger<BaseUpdateProvider> logger, TimeSpan delayBetweenTimerFires)
-	{
-		this.Logger = logger;
-		this.DelayBetweenTimerFires = delayBetweenTimerFires;
-		this.Timer = new(_ => this.TimerCallback(), state: null, Timeout.Infinite, Timeout.Infinite);
-	}
-
 	public abstract string Name { get; }
 
 	public abstract event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
-	[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "We stored it there in our class")]
-	public async Task TriggerStoppingAsync()
-	{
-		await (this._cts?.CancelAsync() ?? Task.CompletedTask);
-		this.Logger.StopUpdateProvider(this.Name);
-		await this._updateCheckingRunningTask;
-	}
+	protected abstract TimeSpan DelayBetweenTimerFires { get; }
+
+	protected abstract Task CheckForUpdatesAsync(CancellationToken cancellationToken);
 
 	public DateTimeOffset? DateTimeOfNextUpdate { get; private set; }
 
 	public bool IsUpdateInProgress { get; private set; }
 
-	[SuppressMessage("Major Bug", """S3168:"async" methods should not return "void" """, Justification = "We can't use non-async voids in timer delegate")]
-	[SuppressMessage("Usage", "VSTHRD100:Avoid async void methods", Justification = "We can't use non-async voids in timer delegate")]
-	[SuppressMessage("AsyncUsage", "AsyncFixer03:Fire-and-forget async-void methods or delegates", Justification = "We can't use non-async voids in timer delegate")]
-	private async void TimerCallback()
+	protected ILogger<BaseUpdateProvider> Logger { get; }
+
+	private CancellationTokenSource _restartTokenSource;
+
+	protected BaseUpdateProvider(ILogger<BaseUpdateProvider> logger)
 	{
-		this.IsUpdateInProgress = true;
-		this.DateTimeOfNextUpdate = null;
-		using var cts = new CancellationTokenSource();
-		this._cts = cts;
-		try
+		this._restartTokenSource = new();
+		this.Logger = logger;
+	}
+
+	public override Task StopAsync(CancellationToken cancellationToken)
+	{
+		this.Logger.StopUpdateProvider(this.Name);
+		return base.StopAsync(cancellationToken);
+	}
+
+	public void StartOrRestartAfter(TimeSpan delay)
+	{
+		this._restartTokenSource.CancelAfter(delay);
+	}
+
+	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+	{
+		while (!this._restartTokenSource.IsCancellationRequested)
 		{
-			this.Logger.StartCheckingForUpdates(this.Name);
-			this._updateCheckingRunningTask = this.CheckForUpdatesAsync(this._cts.Token);
-			await this._updateCheckingRunningTask;
+			await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
 		}
-		catch (TaskCanceledException) when (cts.IsCancellationRequested)
+
+		var rts = this._restartTokenSource;
+
+		this._restartTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+		rts.Dispose();
+
+		while (!stoppingToken.IsCancellationRequested)
 		{
-			// Ignore
-			// We were cancelled
-		}
-		#pragma warning disable CA1031
-		// Modify 'TimerCallback' to catch a more specific allowed exception type, or rethrow the exception
-		catch (Exception e)
+			if (this._restartTokenSource.IsCancellationRequested)
+			{
+				rts = this._restartTokenSource;
+
+				this._restartTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+				rts.Dispose();
+			}
+
+			this.IsUpdateInProgress = true;
+			this.DateTimeOfNextUpdate = null;
+			TimeSpan delayBetweenTimerFires;
+			try
+			{
+				this.Logger.StartCheckingForUpdates(this.Name);
+				await this.CheckForUpdatesAsync(stoppingToken);
+			}
+			catch (TaskCanceledException) when (stoppingToken.IsCancellationRequested)
+			{
+				// Ignore
+				// We were cancelled
+			}
+			#pragma warning disable CA1031
+			// Modify 'ExecuteAsync' to catch a more specific allowed exception type, or rethrow the exception
+			catch (Exception e)
 			#pragma warning restore CA1031
-		{
-			this.Logger.ErrorOnUpdateCheck(e, this.Name);
-		}
-		finally
-		{
-			this._cts = null;
-			this.RestartTimer(this.DelayBetweenTimerFires);
-			this.Logger.EndCheckingForUpdates(this.Name, this.DelayBetweenTimerFires);
-			this.IsUpdateInProgress = false;
-			this.DateTimeOfNextUpdate = TimeProvider.System.GetUtcNow() + this.DelayBetweenTimerFires;
+			{
+				this.Logger.ErrorOnUpdateCheck(e, this.Name);
+			}
+			finally
+			{
+				delayBetweenTimerFires = this.DelayBetweenTimerFires;
+				this.Logger.EndCheckingForUpdates(this.Name, delayBetweenTimerFires);
+				this.IsUpdateInProgress = false;
+				this.DateTimeOfNextUpdate = TimeProvider.System.GetUtcNow() + delayBetweenTimerFires;
+			}
+
+			try
+			{
+				await Task.Delay(delayBetweenTimerFires, this._restartTokenSource.Token);
+			}
+			#pragma warning disable CA1031
+			// Modify 'ExecuteAsync' to catch a more specific allowed exception type, or rethrow the exception
+			catch
+			#pragma warning restore CA1031
+			{
+				// Ignore
+			#pragma warning disable ERP022
+			// Unobserved exception in a generic exception handler
+			}
+			#pragma warning restore ERP022
 		}
 	}
 
-	public void RestartTimer(TimeSpan delay)
+	[SuppressMessage("Major Code Smell", "S3971:\"GC.SuppressFinalize\" should not be called", Justification = "We call it in dispose method")]
+	public override void Dispose()
 	{
-		this.Timer.Change(delay, Timeout.InfiniteTimeSpan);
+		GC.SuppressFinalize(this);
+		this._restartTokenSource.Dispose();
+		base.Dispose();
 	}
-
-	protected abstract Task CheckForUpdatesAsync(CancellationToken cancellationToken);
 }

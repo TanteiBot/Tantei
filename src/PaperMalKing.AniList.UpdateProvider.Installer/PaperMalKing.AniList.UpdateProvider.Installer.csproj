@@ -5,6 +5,7 @@
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
         <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
         <PackageReference Include="Microsoft.Extensions.Http.Polly" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
         <PackageReference Include="Polly.Contrib.WaitAndRetry" />
         <PackageReference Include="System.Threading.RateLimiting" />
         <PackageReference Include="GraphQL.Client" />

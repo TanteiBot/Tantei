@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -30,13 +31,16 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
-internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOptions<MalOptions> options, IMyAnimeListClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory)
-	: BaseUpdateProvider(logger, TimeSpan.FromMilliseconds(options.Value.DelayBetweenChecksInMilliseconds))
+internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOptionsMonitor<MalOptions> _options, IMyAnimeListClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory)
+	: BaseUpdateProvider(logger)
 {
+	protected override TimeSpan DelayBetweenTimerFires => TimeSpan.FromMilliseconds(_options.CurrentValue.DelayBetweenChecksInMilliseconds);
+
 	public override string Name => Constants.Name;
 
 	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
 		static bool HasUserBeenInactiveRecently(MalUser x)
@@ -56,7 +60,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 			return;
 		}
 
-		await using var db = _dbContextFactory.CreateDbContext();
+		using var db = _dbContextFactory.CreateDbContext();
 
 		var users = db.MalUsers.TagWith("Query users for update checking").TagWithCallSite().Where(user => user.DiscordUser.Guilds.Any() &&
 			// Is bitwise to allow executing as SQL

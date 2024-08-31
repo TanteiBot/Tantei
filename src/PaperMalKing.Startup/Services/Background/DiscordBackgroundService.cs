@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,8 +28,7 @@ internal sealed class DiscordBackgroundService : BackgroundService
 	private readonly GuildManagementService _guildManagementService;
 	private readonly GeneralUserService _userService;
 
-	public DiscordBackgroundService(
-									IOptions<DiscordOptions> options,
+	public DiscordBackgroundService(IOptions<DiscordOptions> options,
 									ILogger<DiscordBackgroundService> logger,
 									DiscordClient client,
 									IDbContextFactory<DatabaseContext> dbContextFactory,
@@ -89,12 +89,13 @@ internal sealed class DiscordBackgroundService : BackgroundService
 		return Task.CompletedTask;
 	}
 
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	private Task ClientOnGuildMemberRemovedAsync(DiscordClient sender, GuildMemberRemoveEventArgs e)
 	{
 		_ = Task.Factory.StartNew(
 			async () =>
 		{
-			await using var db = this._dbContextFactory.CreateDbContext();
+			using var db = this._dbContextFactory.CreateDbContext();
 			this._logger.UserLeftGuild(e.Member, e.Guild);
 			var isUserInDb = db.DiscordUsers.TagWith("Check for users presence in DB when member leaves").TagWithCallSite()
 							   .Any(u => u.DiscordUserId == e.Member.Id);
@@ -139,9 +140,9 @@ internal sealed class DiscordBackgroundService : BackgroundService
 							await this._client.UpdateStatusAsync(discordActivity, userStatus);
 							await Task.Delay(TimeSpan.FromMilliseconds(options.TimeToBeDisplayedInMilliseconds), token);
 						}
-						catch (TaskCanceledException e)
+						catch (TaskCanceledException)
 						{
-							this._logger.ActivityChangingCanceled(e);
+							// Ignore
 						}
 						#pragma warning disable CA1031
 						// Modify 'ExecuteAsync' to catch a more specific allowed exception type, or rethrow the exception
