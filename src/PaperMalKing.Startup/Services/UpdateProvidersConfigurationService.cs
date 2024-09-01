@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.UpdateProvider.Installer;
@@ -37,10 +36,10 @@ internal sealed class UpdateProvidersConfigurationService
 		logger.BuiltUpdateProvidersConfigurationService(typeof(UpdateProvidersConfigurationService));
 	}
 
-	public static void ConfigureProviders(IConfiguration configuration, IServiceCollection services)
+	public static void ConfigureProviders(IServiceCollection services)
 	{
 		services.AddAniList();
 		services.AddMyAnimeList();
-		services.AddShikimori(configuration);
+		services.AddShikimori();
 	}
 }

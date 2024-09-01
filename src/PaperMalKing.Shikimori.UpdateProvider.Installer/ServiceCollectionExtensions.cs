@@ -2,11 +2,8 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
-using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -25,7 +22,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider.Installer;
 
 public static class ServiceCollectionExtensions
 {
-	public static IServiceCollection AddShikimori(this IServiceCollection serviceCollection, IConfiguration configuration)
+	public static IServiceCollection AddShikimori(this IServiceCollection serviceCollection)
 	{
 		serviceCollection.AddOptions<ShikiOptions>().BindConfiguration(Constants.Name).ValidateDataAnnotations().ValidateOnStart();
 
@@ -57,15 +54,9 @@ public static class ServiceCollectionExtensions
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<ShikiUser, ShikiUserFeatures>, ShikiUserFeaturesService>();
 		serviceCollection.AddSingleton<ShikiUserService>();
-		var path = configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json";
-		var file = File.Exists(path)
-			? JsonSerializer.Deserialize<NekoFileJson>(File.ReadAllText(path))!
-			: new()
-			{
-				Achievements = [],
-				HumanNames = new(0, StringComparer.Ordinal),
-			};
-		serviceCollection.AddSingleton<ShikiAchievementsService>(_ => new(file));
+
+		serviceCollection.AddOptions<NekoFileJson>().BindConfiguration("ShikimoriNeko").ValidateDataAnnotations().ValidateOnStart();
+		serviceCollection.AddSingleton<ShikiAchievementsService>();
 
 		serviceCollection.AddSingleton<ShikiUpdateProvider>();
 		serviceCollection.AddSingleton<IUpdateProvider>(f => f.GetRequiredService<ShikiUpdateProvider>());

@@ -38,7 +38,7 @@ public static class HostBuilderExtensions
 			SQLitePCL.raw.sqlite3_config(2);
 		}
 
-		hostBuilder.ConfigureServices((hostContext, services) =>
+		hostBuilder.ConfigureAppConfiguration((context, builder) => builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json", optional: true, reloadOnChange: true)).ConfigureServices(services =>
 		{
 			static void ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
 			{
@@ -51,7 +51,6 @@ public static class HostBuilderExtensions
 			services.AddDbContextFactory<DatabaseContext>(ConfigureDbContext);
 			services.AddDbContext<DatabaseContext>(ConfigureDbContext);
 			services.AddSingleton<IExecuteOnStartupService, MigrateOnStartupService>();
-			var config = hostContext.Configuration;
 
 			services.AddOptions<DiscordOptions>().BindConfiguration(DiscordOptions.Discord).ValidateDataAnnotations().ValidateOnStart();
 			services.AddSingleton<DiscordClient>(provider =>
@@ -74,7 +73,7 @@ public static class HostBuilderExtensions
 			services.AddSingleton<ICommandsService, CommandsService>();
 			services.AddSingleton<UpdateProvidersConfigurationService>();
 			services.AddSingleton<GuildManagementService>();
-			UpdateProvidersConfigurationService.ConfigureProviders(config, services);
+			UpdateProvidersConfigurationService.ConfigureProviders(services);
 
 			services.AddHostedService<DiscordBackgroundService>();
 			services.AddHostedService<OnStartupActionsExecutingService>();
