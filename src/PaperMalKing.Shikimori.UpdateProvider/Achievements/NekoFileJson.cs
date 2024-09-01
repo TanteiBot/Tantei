@@ -7,7 +7,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider.Achievements;
 
 public sealed class NekoFileJson
 {
-	public required Dictionary<string, string> HumanNames { get; init; }
+	public IReadOnlyDictionary<string, string>? HumanNames { get; init; }
 
-	public required IReadOnlyList<ShikiAchievementJsonItem> Achievements { get; init; }
+	public IReadOnlyList<ShikiAchievementJsonItem>? Achievements { get; init; }
 }
