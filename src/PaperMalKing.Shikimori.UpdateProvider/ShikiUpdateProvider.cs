@@ -153,7 +153,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 			}
 
 			dbUser.LastHistoryEntryId = resultingId;
-			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
+			db.SaveChanges();
 		}
 
 		this.Logger.FoundUpdatesForUser(updatesCount, user.Nickname);
