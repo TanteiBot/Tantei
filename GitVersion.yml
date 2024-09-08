@@ -3,7 +3,7 @@ update-build-number: false
 
 branches:
   'all':
-    regex: "(.*?)"
+    regex: "release\/v2"
     label: all
     increment: None
     prevent-increment:
