@@ -5,6 +5,7 @@ branches:
   'all':
     regex: "(.*?)"
     label: all
+    increment: None
     prevent-increment:
       when-current-commit-tagged: true
     pre-release-weight: 0
