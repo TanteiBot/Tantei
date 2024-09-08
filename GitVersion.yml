@@ -1,1 +1,8 @@
 ﻿commit-date-format: o
+update-build-number: false
+
+branches:
+  'release':
+    regex: release\/v2
+    prevent-increment:
+      when-current-commit-tagged: true
