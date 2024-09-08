@@ -11,7 +11,7 @@ internal static partial class Log
 	[LoggerMessage(LogLevel.Debug, "Requesting {UserId} favourites")]
 	public static partial void RequestingFavorites(this ILogger<ShikiClient> client, uint userId);
 
-	[LoggerMessage(LogLevel.Debug, "Requesting {@UserId} history. Page {@Page}")]
+	[LoggerMessage(LogLevel.Debug, "Requesting {UserId} history. Page {Page}")]
 	public static partial void RequestingHistoryPage(this ILogger<ShikiClient> logger, uint userId, uint page);
 
 	[LoggerMessage(LogLevel.Debug, "Requesting media with id: {MediaId}, and type: {Type}")]
