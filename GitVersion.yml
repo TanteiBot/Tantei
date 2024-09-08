@@ -1,11 +1,15 @@
 ﻿commit-date-format: o
 update-build-number: false
+mode: ManualDeployment
+increment: None
+is-release-branch: true
+is-main-branch: true
+commit-message-incrementing: Disabled
+track-merge-message: false
+label: all
 
 branches:
-  'all':
-    regex: "release\/v2"
+  release:
     label: all
     increment: None
-    prevent-increment:
-      when-current-commit-tagged: true
-    pre-release-weight: 0
+    regex: (?<BranchName>.+)
