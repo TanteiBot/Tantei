@@ -10,7 +10,7 @@ public sealed class UngroupedTests
 	[Fact]
 	public void DTOCorrectlyParsesGitVersionDate()
 	{
-		DateTimeOffset.ParseExact(GitVersionInformation.CommitDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+		DateTimeOffset.ParseExact(GitVersionInformation.CommitDate, "o", CultureInfo.InvariantCulture);
 
 		Assert.True(true);
 	}

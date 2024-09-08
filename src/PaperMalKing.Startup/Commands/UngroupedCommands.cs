@@ -76,7 +76,7 @@ internal sealed class UngroupedCommands : BotCommandsModule
 		var dotnetVersion = Environment.Version.ToString(3);
 
 		const string commitId = GitVersionInformation.ShortSha;
-		var commitDate = DateTimeOffset.ParseExact(GitVersionInformation.CommitDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+		var commitDate = DateTimeOffset.ParseExact(GitVersionInformation.CommitDate, "o", CultureInfo.InvariantCulture);
 		const string desc = "Tantei is bot designed to automatically track and send to Discord its users updates from MyAnimeList, AniList, Shikimori.";
 
 		const string sourceCodeLink = "https://github.com/TanteiBot/Tantei";
