@@ -2,7 +2,8 @@
 update-build-number: false
 
 branches:
-  'release':
-    regex: release\/v2
+  'all':
+    regex: "(.*?)"
     prevent-increment:
       when-current-commit-tagged: true
+    pre-release-weight: 0
