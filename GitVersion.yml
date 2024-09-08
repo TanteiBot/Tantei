@@ -4,6 +4,7 @@ update-build-number: false
 branches:
   'all':
     regex: "(.*?)"
+    label: all
     prevent-increment:
       when-current-commit-tagged: true
     pre-release-weight: 0
