@@ -18,7 +18,7 @@ public static partial class UpdateProviderLog
 	[LoggerMessage(LogLevel.Trace, "No updates found for {Username}")]
 	public static partial void NoUpdatesFound(this ILogger<BaseUpdateProvider> logger, string? username);
 
-	[LoggerMessage(LogLevel.Trace, "No updates found for {@Id}")]
+	[LoggerMessage(LogLevel.Trace, "No updates found for {Id}")]
 	public static partial void NoUpdatesFound(this ILogger<BaseUpdateProvider> logger, uint id);
 
 	[LoggerMessage(LogLevel.Information, "Cancellation requested. Stopping")]

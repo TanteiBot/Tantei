@@ -24,7 +24,7 @@ internal sealed class UpdateProvidersConfigurationService
 		logger.BuildingUpdateProvidersConfigurationService(typeof(UpdateProvidersConfigurationService));
 		foreach (var updateProvider in updateProviders)
 		{
-			logger.RegisteringUpdateProvider(updateProvider);
+			logger.RegisteringUpdateProvider(updateProvider.Name);
 			this._providers.Add(updateProvider.Name, updateProvider);
 		}
 

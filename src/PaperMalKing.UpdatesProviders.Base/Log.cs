@@ -20,8 +20,7 @@ internal static partial class Log
 	[LoggerMessage(LogLevel.Error, "Exception occured while checking for updates in {Name} updates provider")]
 	public static partial void ErrorOnUpdateCheck(this ILogger<BaseUpdateProvider> logger, Exception ex, string name);
 
-	[LoggerMessage(LogLevel.Information,
-		"Ended checking for updates in {Name} updates provider. Next planned update check is in {@DelayBetweenTimerFires}")]
+	[LoggerMessage(LogLevel.Information, "Ended checking for updates in {Name} updates provider. Next planned update check is in {DelayBetweenTimerFires}")]
 	public static partial void EndCheckingForUpdates(this ILogger<BaseUpdateProvider> logger, string name, TimeSpan delayBetweenTimerFires);
 
 	[LoggerMessage(LogLevel.Information, "Trying to add {ProviderUsername} {Member} to {Name} update provider")]

@@ -9,7 +9,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper;
 
 internal static partial class Log
 {
-	[LoggerMessage(LogLevel.Debug, "Requesting {@Username} profile")]
+	[LoggerMessage(LogLevel.Debug, "Requesting {Username} profile")]
 	public static partial void RequestingProfile(this ILogger<MyAnimeListClient> logger, string username);
 
 	[LoggerMessage(LogLevel.Trace, "Starting parsing {Username} profile")]
@@ -21,7 +21,7 @@ internal static partial class Log
 	[LoggerMessage(LogLevel.Debug, "Requesting username by id {Id}")]
 	public static partial void RequestingUsername(this ILogger<MyAnimeListClient> logger, uint id);
 
-	[LoggerMessage(LogLevel.Debug, "Requesting {Username} {@Type} list")]
+	[LoggerMessage(LogLevel.Debug, "Requesting {Username} {Type} list")]
 	public static partial void RequestingList(this ILogger<MyAnimeListClient> logger, string username, ListEntryType type);
 
 	[LoggerMessage(LogLevel.Debug, "Requesting {Id} anime details")]

@@ -3,13 +3,11 @@
 
 using System;
 using System.Reflection;
-using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Startup.Data;
 using PaperMalKing.Startup.Services;
 using PaperMalKing.Startup.Services.Background;
-using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.Startup;
 
@@ -23,8 +21,8 @@ internal static partial class Log
 	public static partial void BuiltUpdateProvidersConfigurationService(this ILogger<UpdateProvidersConfigurationService> logger,
 																		Type updateProvidersConfigurationService);
 
-	[LoggerMessage(LogLevel.Debug, "Registering {@UpdateProvider} update provider")]
-	public static partial void RegisteringUpdateProvider(this ILogger<UpdateProvidersConfigurationService> logger, IUpdateProvider updateProvider);
+	[LoggerMessage(LogLevel.Debug, "Registering {UpdateProvider} update provider")]
+	public static partial void RegisteringUpdateProvider(this ILogger<UpdateProvidersConfigurationService> logger, string updateProvider);
 
 	[LoggerMessage(LogLevel.Critical, "No update providers were registered")]
 	public static partial void NoUpdateProvidersRegistered(this ILogger<UpdateProvidersConfigurationService> logger);
@@ -86,9 +84,6 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Information, "Disconnecting from Discord")]
 	public static partial void DisconnectingFromDiscord(this ILogger<DiscordBackgroundService> logger);
-
-	[LoggerMessage(LogLevel.Information, "Activity changing canceled")]
-	public static partial void ActivityChangingCanceled(this ILogger<DiscordBackgroundService> logger, TaskCanceledException exception);
 
 	[LoggerMessage(LogLevel.Error, "Error occured while updating Discord presence")]
 	public static partial void ErrorOccuredWhileChangingDiscordPresence(this ILogger<DiscordBackgroundService> logger, Exception? exception);
