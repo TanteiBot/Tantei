@@ -225,7 +225,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 				updatesCount++;
 			}
 
-			dbUser.LastAnimeUpdateHash = user.LatestMangaUpdateHash ?? "";
+			dbUser.LastMangaUpdateHash = user.LatestMangaUpdateHash ?? "";
 
 			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
 		}
