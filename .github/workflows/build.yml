@@ -91,7 +91,7 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: 'csharp'
-          # queries: +security-and-quality
+          queries: +security-and-quality
 
       - name: Build .NET
         run: dotnet build
