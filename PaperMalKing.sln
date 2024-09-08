@@ -9,7 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE.md = LICENSE.md
 		.editorconfig = .editorconfig
 		Directory.Build.props = Directory.Build.props
-		version.json = version.json
 		Directory.Packages.props = Directory.Packages.props
 		makefile = makefile
 		makefile.p = makefile.p
@@ -86,6 +85,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{8965EE84-73CC-4177-9B62-2AB1000CBBFF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.Benchmarks", "benchmarks\Tantei.Benchmarks\Tantei.Benchmarks.csproj", "{0C0B77D2-37E4-45B3-B487-DC05E9690A2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.Tests", "tests\Tantei.Tests\Tantei.Tests.csproj", "{D3FABEB7-8923-4BC2-8FF0-79B7834DDEAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -185,6 +186,10 @@ Global
 		{0C0B77D2-37E4-45B3-B487-DC05E9690A2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C0B77D2-37E4-45B3-B487-DC05E9690A2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C0B77D2-37E4-45B3-B487-DC05E9690A2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3FABEB7-8923-4BC2-8FF0-79B7834DDEAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3FABEB7-8923-4BC2-8FF0-79B7834DDEAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3FABEB7-8923-4BC2-8FF0-79B7834DDEAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3FABEB7-8923-4BC2-8FF0-79B7834DDEAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -216,5 +221,6 @@ Global
 		{37562E29-1A5C-480C-A7E6-BC317EC6662D} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 		{854435D3-D30B-4AB1-A2AA-F025176F4CE1} = {3520F9C0-017D-4CA0-ABF6-D711310B6232}
 		{0C0B77D2-37E4-45B3-B487-DC05E9690A2D} = {8965EE84-73CC-4177-9B62-2AB1000CBBFF}
+		{D3FABEB7-8923-4BC2-8FF0-79B7834DDEAC} = {1DF4A161-80A8-4A54-AF01-AF006A6C38E0}
 	EndGlobalSection
 EndGlobal

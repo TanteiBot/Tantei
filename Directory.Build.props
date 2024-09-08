@@ -19,6 +19,7 @@
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
+        <GitVersion_NoFetchEnabled>true</GitVersion_NoFetchEnabled>
         <NoWarn>$(NoWarn);
             CS1591; <!--Missing XML comment for publicly visible type or member-->
             
