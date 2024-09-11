@@ -186,30 +186,13 @@ dotnet_diagnostic.BL0005.severity = error
 dotnet_diagnostic.BL0006.severity = error
 # Title    : Component parameters should be auto properties
 dotnet_diagnostic.BL0007.severity = error
-# Title    : Do not declare static members on generic types
-# Category : Design
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1000
-dotnet_diagnostic.CA1000.severity = error
 # Title    : Types that own disposable fields should be disposable
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1001
 dotnet_diagnostic.CA1001.severity = error
-# Title    : Do not expose generic lists
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1002
-dotnet_diagnostic.CA1002.severity = error
-# Title    : Use generic event handler instances
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1003
-dotnet_diagnostic.CA1003.severity = error
-# Title    : Avoid excessive parameters on generic types
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1005
-dotnet_diagnostic.CA1005.severity = error
-# Title    : Enums should have zero value
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1008
-dotnet_diagnostic.CA1008.severity = error
 # Title    : Generic interface should also be implemented
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1010
 dotnet_diagnostic.CA1010.severity = error
 dotnet_code_quality.CA1010.api_surface = all
-dotnet_code_quality.CA1010.additional_required_generic_interfaces = T:System.Collections.IDictionary->T:System.Collections.Generic.IDictionary`2
 # Title    : Abstract types should not have public constructors
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1012
 dotnet_diagnostic.CA1012.severity = error
@@ -240,9 +223,6 @@ dotnet_diagnostic.CA1024.severity = error
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1027
 dotnet_diagnostic.CA1027.severity = error
 dotnet_code_quality.CA1027.api_surface = all
-# Title    : Enum Storage should be Int32
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1028
-dotnet_diagnostic.CA1028.severity = error
 # Title    : Use events where appropriate
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1030
 dotnet_diagnostic.CA1030.severity = error
@@ -250,15 +230,9 @@ dotnet_code_quality.CA1030.api_surface = public
 # Title    : Do not catch general exception types
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1031
 dotnet_diagnostic.CA1031.severity = error
-# Title    : Implement standard exception constructors
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1032
-dotnet_diagnostic.CA1032.severity = error
 # Title    : Interface methods should be callable by child types
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1033
 dotnet_diagnostic.CA1033.severity = error
-# Title    : Nested types should not be visible
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1034
-dotnet_diagnostic.CA1034.severity = error
 # Title    : Override methods on comparable types
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1036
 dotnet_diagnostic.CA1036.severity = error
@@ -294,15 +268,6 @@ dotnet_diagnostic.CA1051.severity = error
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1052
 dotnet_diagnostic.CA1052.severity = error
 dotnet_code_quality.CA1052.api_surface = all
-# Title    : URI-like parameters should not be strings
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1054
-dotnet_diagnostic.CA1054.severity = error
-# Title    : URI-like return values should not be strings
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1055
-dotnet_diagnostic.CA1055.severity = error
-# Title    : URI-like properties should not be strings
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1056
-dotnet_diagnostic.CA1056.severity = error
 # Title    : Types should not extend certain base types
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1058
 dotnet_diagnostic.CA1058.severity = error
@@ -314,9 +279,6 @@ dotnet_diagnostic.CA1060.severity = error
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1061
 dotnet_diagnostic.CA1061.severity = error
 dotnet_code_quality.CA1061.api_surface = all
-# Title    : Validate arguments of public methods
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1062
-dotnet_diagnostic.CA1062.severity = error
 # Title    : Implement IDisposable Correctly
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1063
 dotnet_diagnostic.CA1063.severity = error
@@ -430,10 +392,6 @@ dotnet_diagnostic.CA1513.severity = error
 # Category : Naming
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1700
 dotnet_diagnostic.CA1700.severity = error
-# Title    : Identifiers should not contain underscores
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1707
-# Comment  : StyleCop handles this
-dotnet_diagnostic.CA1707.severity = error
 # Title    : Identifiers should differ by more than case
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1708
 dotnet_diagnostic.CA1708.severity = error
@@ -499,20 +457,12 @@ dotnet_code_quality.CA1815.api_surface = public
 # Title    : Dispose methods should call SuppressFinalize
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1816
 dotnet_diagnostic.CA1816.severity = error
-# Title    : Properties should not return arrays
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1819
-dotnet_diagnostic.CA1819.severity = error
-dotnet_code_quality.CA1819.api_surface = public
 # Title    : Test for empty strings using string length
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1820
 dotnet_diagnostic.CA1820.severity = error
 # Title    : Remove empty Finalizers
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1821
 dotnet_diagnostic.CA1821.severity = error
-# Title    : Mark members as static
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822
-dotnet_diagnostic.CA1822.severity = error
-dotnet_code_quality.CA1822.api_surface = all
 # Title    : Avoid unused private fields
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1823
 dotnet_diagnostic.CA1823.severity = error
@@ -590,9 +540,6 @@ dotnet_diagnostic.CA1847.severity = error
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1848
 # Comment  : Use R9 logging model instead
 dotnet_diagnostic.CA1848.severity = error
-# Title    : Call async methods when in an async method
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1849
-dotnet_diagnostic.CA1849.severity = error
 # Title    : Prefer static 'HashData' method over 'ComputeHash'
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1850
 dotnet_diagnostic.CA1850.severity = error
@@ -627,9 +574,6 @@ dotnet_diagnostic.CA1859.severity = error
 # Title    : Avoid using 'Enumerable.Any()' extension method
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1860
 dotnet_diagnostic.CA1860.severity = error
-# Title    : Avoid constant arrays as arguments
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1861
-dotnet_diagnostic.CA1861.severity = error
 # Title    : Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1862
 dotnet_diagnostic.CA1862.severity = error
@@ -662,11 +606,6 @@ dotnet_diagnostic.CA2000.severity = error
 # Title    : Do not lock on objects with weak identity
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2002
 dotnet_diagnostic.CA2002.severity = error
-# Title    : Consider calling ConfigureAwait on the awaited task
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2007
-dotnet_diagnostic.CA2007.severity = error
-dotnet_code_quality.CA2007.output_kinds = all
-dotnet_code_quality.CA2007.exclude_async_void_methods = false
 # Title    : Do not create tasks without passing a TaskScheduler
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2008
 dotnet_diagnostic.CA2008.severity = error
@@ -762,9 +701,6 @@ dotnet_diagnostic.CA2219.severity = error
 # Title    : Operator overloads have named alternates
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2225
 dotnet_diagnostic.CA2225.severity = error
-# Title    : Collection properties should be read only
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2227
-dotnet_diagnostic.CA2227.severity = error
 # Title    : Implement serialization constructors
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2229
 # Comment  : Obsolete
@@ -773,9 +709,6 @@ dotnet_diagnostic.CA2229.severity = error
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2231
 dotnet_diagnostic.CA2231.severity = error
 dotnet_code_quality.CA2231.api_surface = public
-# Title    : Pass system uri objects instead of strings
-# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2234
-dotnet_diagnostic.CA2234.severity = error
 # Title    : Mark all non-serializable fields
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2235
 dotnet_diagnostic.CA2235.severity = error
@@ -1129,15 +1062,6 @@ dotnet_diagnostic.CA5404.severity = error
 # Title    : Do not always skip token validation in delegates
 # Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5405
 dotnet_diagnostic.CA5405.severity = error
-# Title    : Use source generated logging methods for improved performance
-# Help Link: https://aka.ms/dotnet-extensions-errors/EA0000
-dotnet_diagnostic.EA0000.severity = error
-# Title    : Perform message formatting in the body of the logging method
-# Help Link: https://aka.ms/dotnet-extensions-errors/EA0001
-dotnet_diagnostic.EA0001.severity = error
-# Title    : Use 'System.TimeProvider' to make the code easier to test
-# Help Link: https://aka.ms/dotnet-extensions-errors/EA0002
-dotnet_diagnostic.EA0002.severity = error
 # Title    : Use the character-based overloads of 'String.StartsWith' or 'String.EndsWith'
 # Help Link: https://aka.ms/dotnet-extensions-errors/EA0003
 dotnet_diagnostic.EA0003.severity = error
@@ -1172,10 +1096,6 @@ dotnet_diagnostic.EA0012.severity = error
 # Title    : Consider removing unnecessary null coalescing operator (??)
 # Help Link: https://aka.ms/dotnet-extensions-errors/EA0013
 dotnet_diagnostic.EA0013.severity = error
-# Title    : The async method doesn't support cancellation
-# Category : Resilience
-# Help Link: https://aka.ms/dotnet-extensions-errors/EA0014
-dotnet_diagnostic.EA0014.severity = error
 # Title    : Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
 # Category : Trimming
 dotnet_diagnostic.IL2026.severity = error
@@ -1343,15 +1263,6 @@ dotnet_diagnostic.S106.severity = error
 # Title    : Collapsible "if" statements should be merged
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-1066
 dotnet_diagnostic.S1066.severity = error
-# Title    : Expressions should not be too complex
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1067
-dotnet_diagnostic.S1067.severity = error
-# Title    : Methods should not have too many parameters
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-107
-dotnet_diagnostic.S107.severity = error
-# Title    : URIs should not be hardcoded
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1075
-dotnet_diagnostic.S1075.severity = error
 # Title    : Nested blocks of code should not be left empty
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-108
 dotnet_diagnostic.S108.severity = error
@@ -1370,19 +1281,9 @@ dotnet_diagnostic.S1121.severity = error
 # Title    : Boolean literals should not be redundant
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-1125
 dotnet_diagnostic.S1125.severity = error
-# Title    : Deprecated code should be removed
-# Category : Info Code Smell
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1133
-dotnet_diagnostic.S1133.severity = error
 # Title    : Track uses of "FIXME" tags
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-1134
 dotnet_diagnostic.S1134.severity = error
-# Title    : Track uses of "TODO" tags
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1135
-dotnet_diagnostic.S1135.severity = error
-# Title    : Unused private types or members should be removed
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1144
-dotnet_diagnostic.S1144.severity = error
 # Title    : Useless "if(true) {...}" and "if(false){...}" blocks should be removed
 # Category : Major Bug
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-1145
@@ -1403,15 +1304,9 @@ dotnet_diagnostic.S1163.severity = error
 # Title    : Empty arrays and collections should be returned instead of null
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-1168
 dotnet_diagnostic.S1168.severity = error
-# Title    : Unused method parameters should be removed
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1172
-dotnet_diagnostic.S1172.severity = error
 # Title    : Overriding members should do more than simply call the same member in the base class
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-1185
 dotnet_diagnostic.S1185.severity = error
-# Title    : Methods should not be empty
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1186
-dotnet_diagnostic.S1186.severity = error
 # Title    : String literals should not be duplicated
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-1192
 dotnet_diagnostic.S1192.severity = error
@@ -1427,12 +1322,6 @@ dotnet_diagnostic.S122.severity = error
 # Title    : Method parameters, caught exceptions and foreach variables' initial values should not be ignored
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-1226
 dotnet_diagnostic.S1226.severity = error
-# Title    : Floating point numbers should not be tested for equality
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1244
-dotnet_diagnostic.S1244.severity = error
-# Title    : Sections of code should not be commented out
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-125
-dotnet_diagnostic.S125.severity = error
 # Title    : "if ... else if" constructs should end with "else" clauses
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-126
 dotnet_diagnostic.S126.severity = error
@@ -1476,9 +1365,6 @@ dotnet_diagnostic.S1656.severity = error
 # Title    : Multiple variables should not be declared on the same line
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-1659
 dotnet_diagnostic.S1659.severity = error
-# Title    : An abstract class should have both abstract and concrete methods
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1694
-dotnet_diagnostic.S1694.severity = error
 # Title    : NullReferenceException should not be caught
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-1696
 dotnet_diagnostic.S1696.severity = error
@@ -1521,9 +1407,6 @@ dotnet_diagnostic.S1940.severity = error
 # Title    : Invalid casts should be avoided
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-1944
 dotnet_diagnostic.S1944.severity = error
-# Title    : "for" loop increment clauses should modify the loops' counters
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1994
-dotnet_diagnostic.S1994.severity = error
 # Title    : Hashes should include an unpredictable salt
 # Category : Critical Vulnerability
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-2053
@@ -1635,16 +1518,9 @@ dotnet_diagnostic.S2290.severity = error
 # Title    : Overflow checking should not be disabled for "Enumerable.Sum"
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-2291
 dotnet_diagnostic.S2291.severity = error
-# Title    : "nameof" should be used
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2302
-dotnet_diagnostic.S2302.severity = error
 # Title    : "async" and "await" should not be used as identifiers
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-2306
 dotnet_diagnostic.S2306.severity = error
-# Title    : Unused type parameters should be removed
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2326
-# Comment  : Valid pattern used in a number of places
-dotnet_diagnostic.S2326.severity = error
 # Title    : "try" statements with identical "catch" and/or "finally" blocks should be merged
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-2327
 dotnet_diagnostic.S2327.severity = error
@@ -1731,9 +1607,6 @@ dotnet_diagnostic.S2701.severity = error
 # Title    : "catch" clauses should do more than rethrow
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-2737
 dotnet_diagnostic.S2737.severity = error
-# Title    : Static fields should not be used in generic types
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2743
-dotnet_diagnostic.S2743.severity = error
 # Title    : XML parsers should not be vulnerable to XXE attacks
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-2755
 dotnet_diagnostic.S2755.severity = error
@@ -1821,19 +1694,12 @@ dotnet_diagnostic.S3234.severity = error
 # Title    : Redundant parentheses should not be used
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3235
 dotnet_diagnostic.S3235.severity = error
-# Title    : Caller information arguments should not be provided explicitly
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3236
-dotnet_diagnostic.S3236.severity = error
 # Title    : "value" contextual keyword should be used
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3237
 dotnet_diagnostic.S3237.severity = error
 # Title    : Methods should not return values that are never used
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3241
 dotnet_diagnostic.S3241.severity = error
-# Title    : Method parameters should be declared with base types
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3242
-# Comment  : We want to encourage concrete types instead of interface types when possible as it's considerably faster.
-dotnet_diagnostic.S3242.severity = suggestion
 # Title    : Anonymous delegates should not be used to unsubscribe from Events
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3244
 dotnet_diagnostic.S3244.severity = error
@@ -1852,9 +1718,6 @@ dotnet_diagnostic.S3251.severity = error
 # Title    : Constructor and destructor declarations should not be redundant
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3253
 dotnet_diagnostic.S3253.severity = error
-# Title    : Default parameter values should not be passed as arguments
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3254
-dotnet_diagnostic.S3254.severity = error
 # Title    : "string.IsNullOrEmpty" should be used
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3256
 dotnet_diagnostic.S3256.severity = error
@@ -2012,9 +1875,6 @@ dotnet_diagnostic.S3717.severity = error
 # Title    : "SafeHandle.DangerousGetHandle" should not be called
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3869
 dotnet_diagnostic.S3869.severity = error
-# Title    : Parameter names should not duplicate the names of their methods
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3872
-dotnet_diagnostic.S3872.severity = error
 # Title    : "operator==" should not be overloaded on reference types
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3875
 dotnet_diagnostic.S3875.severity = error
@@ -2061,19 +1921,9 @@ dotnet_diagnostic.S3903.severity = error
 # Title    : Assemblies should have version information
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3904
 dotnet_diagnostic.S3904.severity = error
-# Title    : Event Handlers should have the correct signature
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3906
-dotnet_diagnostic.S3906.severity = error
-# Title    : Generic event handlers should be used
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3908
-dotnet_diagnostic.S3908.severity = error
 # Title    : All branches in a conditional structure should not have exactly the same implementation
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3923
 dotnet_diagnostic.S3923.severity = error
-# Title    : "ISerializable" should be implemented correctly
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3925
-# Comment  : TODO - is ISerializable still relevant?
-dotnet_diagnostic.S3925.severity = error
 # Title    : Deserialization methods should be provided for "OptionalField" members
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3926
 dotnet_diagnostic.S3926.severity = error
@@ -2110,12 +1960,6 @@ dotnet_diagnostic.S3981.severity = error
 # Title    : Exceptions should not be created without being thrown
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3984
 dotnet_diagnostic.S3984.severity = error
-# Title    : URI return values should not be strings
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3995
-dotnet_diagnostic.S3995.severity = error
-# Title    : URI properties should not be strings
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3996
-dotnet_diagnostic.S3996.severity = error
 # Title    : String URI overloads should call "System.Uri" overloads
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-3997
 dotnet_diagnostic.S3997.severity = error
@@ -2137,9 +1981,6 @@ dotnet_diagnostic.S4016.severity = error
 # Title    : Base class methods should not be hidden
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-4019
 dotnet_diagnostic.S4019.severity = error
-# Title    : Enumerations should have "Int32" storage
-# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4022
-dotnet_diagnostic.S4022.severity = error
 # Title    : Interfaces should not be empty
 # Help Link: https://rules.sonarsource.com/csharp/RSPEC-4023
 dotnet_diagnostic.S4023.severity = error
@@ -2502,9 +2343,6 @@ dotnet_diagnostic.VSTHRD108.severity = error
 # Title    : Switch instead of assert in async methods
 # Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD109.md
 dotnet_diagnostic.VSTHRD109.severity = error
-# Title    : Use ConfigureAwait(bool)
-# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD111.md
-dotnet_diagnostic.VSTHRD111.severity = error
 # Title    : Implement System.IAsyncDisposable
 # Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD112.md
 dotnet_diagnostic.VSTHRD112.severity = error
@@ -2523,23 +2361,12 @@ dotnet_diagnostic.VSTHRD200.severity = error
 # Attributes: general
 # Generated : 2024-03-07 23:40:47Z
 # Attributes: api, general
-dotnet_code_quality.CA1000.api_surface = public
-dotnet_code_quality.CA1002.api_surface = public
-dotnet_code_quality.CA1003.api_surface = all
-dotnet_code_quality.CA1005.api_surface = public
-dotnet_code_quality.CA1008.api_surface = public
 dotnet_code_quality.CA1010.api_surface = public
 dotnet_code_quality.CA1024.api_surface = public
 dotnet_code_quality.CA1036.api_surface = all
 dotnet_code_quality.CA1043.api_surface = public, protected
 dotnet_code_quality.CA1050.api_surface = public
 dotnet_code_quality.CA1051.api_surface = public
-dotnet_code_quality.CA1054.api_surface = public
-dotnet_code_quality.CA1055.api_surface = public
-dotnet_code_quality.CA1056.api_surface = public
-dotnet_code_quality.CA1062.api_surface = public, protected
-dotnet_code_quality.CA1062.exclude_extension_method_this_parameter = false
-dotnet_code_quality.CA1062.null_check_validation_methods = IfNull|IfNullOrEmpty|IfNullOrWhitespace|IfNullOrMemberNull
 dotnet_code_quality.CA1068.api_surface = public, protected
 dotnet_code_quality.CA1700.api_surface = public
 dotnet_code_quality.CA1708.api_surface = public
@@ -2553,7 +2380,6 @@ dotnet_code_quality.CA2225.api_surface = public
 # Generated : 2024-03-07 23:40:46Z
 # Attributes: general, performance, production
 dotnet_code_quality.CA1064.api_surface = all
-dotnet_code_quality.CA2234.api_surface = all
 # Attributes: api, general, performance, production
 # Attributes: general, test
 # Analyzers : ILLink.RoslynAnalyzer, Microsoft.Analyzers.Extra, Microsoft.Analyzers.Local, Microsoft.AspNetCore.App.Analyzers, Microsoft.AspNetCore.Components.Analyzers, Microsoft.CodeAnalysis.CSharp.NetAnalyzers, Microsoft.CodeAnalysis.NetAnalyzers, Microsoft.VisualStudio.Threading.Analyzers, Microsoft.VisualStudio.Threading.Analyzers.CSharp, SonarAnalyzer.CSharp, xunit.analyzers

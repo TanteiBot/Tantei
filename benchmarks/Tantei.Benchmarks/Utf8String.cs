@@ -28,7 +28,7 @@ public class Utf8String
 	public string Utf8Class()
 	{
 		scoped Span<char> chars = stackalloc char[MaxLengthLimit];
-		Utf8.ToUtf16(Bytes, chars, out _, out var charsWritten);
+		_ = Utf8.ToUtf16(Bytes, chars, out _, out var charsWritten);
 		return chars[..charsWritten].ToString();
 	}
 }

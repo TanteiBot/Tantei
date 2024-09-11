@@ -51,7 +51,7 @@ internal sealed class UngroupedCommands : BotCommandsModule
 		{
 			await channelToSayIn.SendMessageAsync(embed: embed);
 		}
-		#pragma warning disable CA1031, ERP022
+#pragma warning disable CA1031, ERP022
 		// Modify 'SayCommand' to catch a more specific allowed exception type, or rethrow the exception
 		// An exit point '}' swallows an unobserved exception
 		catch
@@ -59,7 +59,7 @@ internal sealed class UngroupedCommands : BotCommandsModule
 			await context.EditResponseAsync(
 				new DiscordWebhookBuilder().WithContent("Couldn't send message. Check permissions for bot and try again."));
 		}
-		#pragma warning restore CA1031, ERP022
+#pragma warning restore CA1031, ERP022
 	}
 
 	[SlashCommand("About", "Displays info about bot")]
@@ -90,14 +90,14 @@ internal sealed class UngroupedCommands : BotCommandsModule
 																	""");
 
 		var embedBuilder = new DiscordEmbedBuilder
-			{
-				Title = "About",
-				Url = sourceCodeLink,
-				Description = desc,
-				Color = DiscordColor.DarkBlue,
-			}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
-			 .AddField("Links", Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)), inline: true)
-			 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), inline: true).AddField("Versions", versions);
+		{
+			Title = "About",
+			Url = sourceCodeLink,
+			Description = desc,
+			Color = DiscordColor.DarkBlue,
+		}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
+		 .AddField("Links", Formatter.MaskedUrl("Source code", new Uri(sourceCodeLink, UriKind.Absolute)), inline: true)
+		 .AddField(owners.Length > 1 ? "Contacts" : "Contact", string.Join('\n', owners), inline: true).AddField("Versions", versions);
 
 		Interlocked.Exchange(ref _aboutEmbed, embedBuilder.Build());
 

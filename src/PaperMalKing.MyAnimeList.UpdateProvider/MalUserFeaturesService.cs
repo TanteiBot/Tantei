@@ -39,37 +39,37 @@ internal sealed class MalUserFeaturesService(IMyAnimeListClient _client, ILogger
 		switch (feature)
 		{
 			case MalUserFeatures.AnimeList:
-			{
-				user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
-				dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdateHash ?? "";
-				dbUser.LastUpdatedAnimeListTimestamp = now;
-				break;
-			}
+				{
+					user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
+					dbUser.LastAnimeUpdateHash = user.LatestAnimeUpdateHash ?? "";
+					dbUser.LastUpdatedAnimeListTimestamp = now;
+					break;
+				}
 
 			case MalUserFeatures.MangaList:
-			{
-				user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
-				dbUser.LastMangaUpdateHash = user.LatestMangaUpdateHash ?? "";
-				dbUser.LastUpdatedMangaListTimestamp = now;
-				break;
-			}
+				{
+					user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
+					dbUser.LastMangaUpdateHash = user.LatestMangaUpdateHash ?? "";
+					dbUser.LastUpdatedMangaListTimestamp = now;
+					break;
+				}
 
 			case MalUserFeatures.Favorites:
-			{
-				user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
-				dbUser.FavoriteAnimes = user.Favorites.FavoriteAnime.Select(x => x.ToMalFavoriteAnime(dbUser)).ToList();
-				dbUser.FavoriteMangas = user.Favorites.FavoriteManga.Select(x => x.ToMalFavoriteManga(dbUser)).ToList();
-				dbUser.FavoriteCharacters = user.Favorites.FavoriteCharacters.Select(x => x.ToMalFavoriteCharacter(dbUser)).ToList();
-				dbUser.FavoritePeople = user.Favorites.FavoritePeople.Select(x => x.ToMalFavoritePerson(dbUser)).ToList();
-				dbUser.FavoriteCompanies = user.Favorites.FavoriteCompanies.Select(x => x.ToMalFavoriteCompany(dbUser)).ToList();
-				break;
-			}
+				{
+					user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
+					dbUser.FavoriteAnimes = user.Favorites.FavoriteAnime.Select(x => x.ToMalFavoriteAnime(dbUser)).ToList();
+					dbUser.FavoriteMangas = user.Favorites.FavoriteManga.Select(x => x.ToMalFavoriteManga(dbUser)).ToList();
+					dbUser.FavoriteCharacters = user.Favorites.FavoriteCharacters.Select(x => x.ToMalFavoriteCharacter(dbUser)).ToList();
+					dbUser.FavoritePeople = user.Favorites.FavoritePeople.Select(x => x.ToMalFavoritePerson(dbUser)).ToList();
+					dbUser.FavoriteCompanies = user.Favorites.FavoriteCompanies.Select(x => x.ToMalFavoriteCompany(dbUser)).ToList();
+					break;
+				}
 
 			default:
-			{
-				// Ignore all other
-				break;
-			}
+				{
+					// Ignore all other
+					break;
+				}
 		}
 
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);

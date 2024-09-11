@@ -107,7 +107,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 				}
 				else if (sb.Length + "…".Length <= discordDescriptionLimit)
 				{
-						sb.Append('…');
+					sb.Append('…');
 				}
 				else
 				{

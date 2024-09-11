@@ -12,20 +12,12 @@ using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.AniList.UpdateProvider.Installer;
 
-internal sealed class HeaderBasedRateLimitMessageHandler : DelegatingHandler
+internal sealed class HeaderBasedRateLimitMessageHandler(ILogger<HeaderBasedRateLimitMessageHandler> _logger) : DelegatingHandler
 {
 	private const sbyte RateLimitMaxRequests = 90;
-	private readonly ILogger<HeaderBasedRateLimitMessageHandler> _logger;
 	private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
-	private sbyte _rateLimitRemaining;
-	private long _timestamp;
-
-	public HeaderBasedRateLimitMessageHandler(ILogger<HeaderBasedRateLimitMessageHandler> logger)
-	{
-		this._logger = logger;
-		this._rateLimitRemaining = RateLimitMaxRequests;
-		this._timestamp = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
-	}
+	private sbyte _rateLimitRemaining = RateLimitMaxRequests;
+	private long _timestamp = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
 
 	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 	{
@@ -39,7 +31,7 @@ internal sealed class HeaderBasedRateLimitMessageHandler : DelegatingHandler
 				const int secondsInMinute = 60;
 				if (now - this._timestamp >= secondsInMinute)
 				{
-					this._logger.ResettingRateLimiter();
+					_logger.ResettingRateLimiter();
 					this._timestamp = now;
 					this._rateLimitRemaining = RateLimitMaxRequests;
 				}
@@ -48,7 +40,7 @@ internal sealed class HeaderBasedRateLimitMessageHandler : DelegatingHandler
 				if (this._rateLimitRemaining < 0)
 				{
 					var delay = this._timestamp + 60 - now;
-					this._logger.RateLimitExceeded(delay);
+					_logger.RateLimitExceeded(delay);
 					await Task.Delay(TimeSpan.FromSeconds(Math.Min(delay, secondsInMinute)), cancellationToken);
 					this._timestamp = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
 					this._rateLimitRemaining = RateLimitMaxRequests;
@@ -59,13 +51,13 @@ internal sealed class HeaderBasedRateLimitMessageHandler : DelegatingHandler
 				if (response is { StatusCode: HttpStatusCode.TooManyRequests, Headers.RetryAfter.Delta: { } })
 				{
 					var delay = response.Headers.RetryAfter.Delta.Value.Add(TimeSpan.FromSeconds(1));
-					this._logger.Got429HttpResponse(delay);
+					_logger.Got429HttpResponse(delay);
 					await Task.Delay(delay, cancellationToken);
 				}
 				else
 				{
 					this._rateLimitRemaining = sbyte.Parse(response.Headers.GetValues("X-RateLimit-Remaining").First(), NumberFormatInfo.InvariantInfo);
-					this._logger.RateLimitRemaining(this._rateLimitRemaining);
+					_logger.RateLimitRemaining(this._rateLimitRemaining);
 				}
 			}
 			while (!cancellationToken.IsCancellationRequested && response.StatusCode == HttpStatusCode.TooManyRequests);

@@ -58,11 +58,12 @@ public static class ServiceCollectionExtensions
 						 .ConfigureHttpClient(client => client.BaseAddress = new("https://api.jikan.moe/v4/"));
 		serviceCollection.AddSingleton<IJikan>(provider => new Jikan(
 			new()
-		{
-			SuppressException = false,
-			LimiterConfigurations = TaskLimiterConfiguration.None, // We use System.Threading.RateLimiting
-		},
+			{
+				SuppressException = false,
+				LimiterConfigurations = TaskLimiterConfiguration.None, // We use System.Threading.RateLimiting
+			},
 			provider.GetRequiredService<IHttpClientFactory>().CreateClient(Constants.JikanHttpClientName)));
+
 		serviceCollection.AddSingleton<IMyAnimeListClient, MyAnimeListClient>(provider =>
 		{
 			var factory = provider.GetRequiredService<IHttpClientFactory>();

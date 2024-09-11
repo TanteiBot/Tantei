@@ -5,16 +5,9 @@ using System;
 
 namespace PaperMalKing.Startup.Exceptions;
 
-public sealed class GuildManagementException : Exception
+public sealed class GuildManagementException(string message, ulong? guildId = null, ulong? channelId = null) : Exception(message)
 {
-	public ulong? GuildId { get; }
+	public ulong? GuildId { get; } = guildId;
 
-	public ulong? ChannelId { get; }
-
-	public GuildManagementException(string message, ulong? guildId = null, ulong? channelId = null)
-		: base(message)
-	{
-		this.GuildId = guildId;
-		this.ChannelId = channelId;
-	}
+	public ulong? ChannelId { get; } = channelId;
 }

@@ -37,9 +37,9 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 	{
 		using var response = await this.GetAsync(url, cancellationToken);
 		await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-		#pragma warning disable CA2000
+#pragma warning disable CA2000
 		var browsingContext = new BrowsingContext();
-		#pragma warning restore CA2000
+#pragma warning restore CA2000
 		return await browsingContext.OpenAsync(htmlResponse => htmlResponse.Content(stream), cancellationToken);
 	}
 

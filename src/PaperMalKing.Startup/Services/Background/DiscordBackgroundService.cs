@@ -144,10 +144,10 @@ internal sealed class DiscordBackgroundService : BackgroundService
 						{
 							// Ignore
 						}
-						#pragma warning disable CA1031
+#pragma warning disable CA1031
 						// Modify 'ExecuteAsync' to catch a more specific allowed exception type, or rethrow the exception
 						catch (Exception ex)
-							#pragma warning restore CA1031
+#pragma warning restore CA1031
 						{
 							this._logger.ErrorOccuredWhileChangingDiscordPresence(ex);
 						}

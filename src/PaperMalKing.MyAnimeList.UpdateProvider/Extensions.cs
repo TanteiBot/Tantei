@@ -376,10 +376,10 @@ internal static class Extensions
 			const string format = "dd/MM/yyyy";
 			var value = (isStartNull, isFinishNull) switch
 			{
-				#pragma warning disable S103
+#pragma warning disable S103
 				// Split this 202 characters long line
 				(false, false) => $"{listEntry.Status.StartDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo)} - {listEntry.Status.FinishDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo)}",
-				#pragma warning restore S103
+#pragma warning restore S103
 				(false, true) => listEntry.Status.StartDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
 				(true, false) => listEntry.Status.FinishDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
 				_ => throw new UnreachableException(),
