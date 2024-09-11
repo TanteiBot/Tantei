@@ -44,8 +44,6 @@
             CA2007; <!--Consider calling ConfigureAwait on the awaited task -->
             CA2234; <!--Pass System.Uri objects instead of strings-->
 
-            EA0000;
-            EA0001;
             EA0002; <!--Use 'System.TimeProvider' to make the code easier to test-->
             EA0014; <!--Add CancellationToken as the parameter of asynchronous method-->
 
@@ -59,7 +57,6 @@
             MA0046; <!--Use EventHandler<T> to declare events-->
             MA0051; <!--Method is too long-->
             MA0099; <!-- Use Explicit enum value instead of 0 -->
-            MA0101; <!--String contains an implicit end of line character-->
             MA0136; <!-- Raw String contains an implicit end of line character-->
 
             IDE0010; <!--Add missing cases to switch statement-->
@@ -74,17 +71,13 @@
             S1075; <!--Refactor your code not to use hardcoded absolute paths or URIs.-->
             S1133; <!--Do not forget to remove this deprecated code someday. -->
             S1244; <!--Do not check floating point inequality with exact values, use a range instead.-->
-            S1694; <!--Convert this 'abstract' class to a concrete type with a protected constructor. -->
             S1994; <!--This loop's stop condition tests 'X' but the incrementer updates 'Y'.-->
             S2139; <!--Either log this exception and handle it, or rethrow it with some contextual information.-->
             S2302; <!--Replace the string 'param' with 'nameof(param)'-->
             S2326; <!--'T' is not used in the interface.-->
             S2743; <!-- Static fields should not be used in generic types-->
             S3236; <!--Remove this argument from the method call; it hides the caller information.-->
-            S3872; <!--Rename the parameter so that it does not duplicate the method name-->
-            S3906; <!--Change the signature of that event handler to match the specified signature. -->
             S3908; <!--Refactor this delegate to use 'System.EventHandler<TEventArgs>'. -->
-            S3925; <!--Update this implementation of 'ISerializable' to conform to the recommended serialization pattern.-->
             S3995; <!-- Change this return type to 'System.Uri'. -->
             S3996; <!--Change this property type to 'System.Uri'. -->
             S4022; <!--Change this enum storage to 'Int32'-->
