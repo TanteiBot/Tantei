@@ -53,11 +53,11 @@ internal sealed class UpdatePublishingService
 				this._logger.TryingToGetGuildWithId(guild.DiscordGuildId);
 				var discordGuild = e.Guilds[guild.DiscordGuildId];
 				this._logger.LoadedGuild(discordGuild);
-				#pragma warning disable EA0013
+#pragma warning disable EA0013
 				// Consider removing unnecessary null coalescing (??) since the left-hand value is statically known not to be null
 				var channel = discordGuild.GetChannel(guild.PostingChannelId) ??
 							  (await discordGuild.GetChannelsAsync()).FirstOrDefault(ch => ch.Id == guild.PostingChannelId);
-				#pragma warning restore EA0013
+#pragma warning restore EA0013
 				this._logger.LoadedChannelInGuild(channel, discordGuild);
 				if (channel is not null)
 				{

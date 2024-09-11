@@ -4,9 +4,7 @@ namespace PaperMalKing.Database.Migrations;
 
 public partial class InitialMigration : Migration
 {
-	#pragma warning disable MA0051
 	protected override void Up(MigrationBuilder migrationBuilder)
-		#pragma warning restore MA0051
 	{
 		migrationBuilder.CreateTable(
 			name: "BotUsers",

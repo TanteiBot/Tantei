@@ -11,5 +11,9 @@
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
         <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
     </ItemGroup>
+    
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);IDE0290;<!--use primary constructor --></NoWarn>
+    </PropertyGroup>
 
 </Project>

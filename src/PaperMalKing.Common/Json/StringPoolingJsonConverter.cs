@@ -47,8 +47,8 @@ public sealed class StringPoolingJsonConverter : JsonConverter<string>
 		{
 			readerWriterLock?.ExitReadLock();
 			readerWriterLock?.EnterWriteLock();
-			result = new string(searchValue);
-			stringPool.Add(result);
+			result = new(searchValue);
+			_ = stringPool.Add(result);
 			readerWriterLock?.ExitWriteLock();
 		}
 		else

@@ -82,7 +82,7 @@ app.Map(new PathString(spaPath), client =>
 
 Delegate handler =
 	[Authorize(AuthenticationSchemes = "Discord")]
-	(HttpContext context) => Task.FromResult(context.TraceIdentifier);
+(HttpContext context) => Task.FromResult(context.TraceIdentifier);
 app.MapGet("discord", handler);
 app.MapGet("api/getUpdateTimes", (IEnumerable<IUpdateProvider> updateProviders) => updateProviders.Select(up => new
 {

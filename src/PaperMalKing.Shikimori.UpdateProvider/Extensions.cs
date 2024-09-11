@@ -237,13 +237,12 @@ internal static partial class Extensions
 
 		var favouriteName = favouriteEntry.FavouriteEntry.GetNameOrAltName(features);
 		var eb = new DiscordEmbedBuilder
-			{
-				Url = favouriteEntry.FavouriteEntry.Url,
-				Title =
-					$"{favouriteName} [{(favouriteEntry.FavouriteEntry.SpecificType ?? favouriteEntry.FavouriteEntry.GenericType)?.ToFirstCharUpperCase()}]",
-			}.WithThumbnail(favouriteEntry.FavouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favourite")
-			 .WithShikiAuthor(user)
-			 .WithColor(color);
+		{
+			Url = favouriteEntry.FavouriteEntry.Url,
+			Title = $"{favouriteName} [{(favouriteEntry.FavouriteEntry.SpecificType ?? favouriteEntry.FavouriteEntry.GenericType)?.ToFirstCharUpperCase()}]",
+		}.WithThumbnail(favouriteEntry.FavouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favourite")
+		 .WithShikiAuthor(user)
+		 .WithColor(color);
 
 		var isAnime = favouriteEntry.FavouriteEntry.GenericType!.Contains("anime", StringComparison.OrdinalIgnoreCase);
 		var isManga = favouriteEntry.FavouriteEntry.GenericType!.Contains("manga", StringComparison.OrdinalIgnoreCase);
@@ -364,6 +363,6 @@ internal static partial class Extensions
 	public static FavoriteIdType[] ToFavoriteIdType<T>(this T favorites)
 		where T : IReadOnlyCollection<FavouriteEntry>
 	{
-		return [..favorites.Select(x => new FavoriteIdType(x.Id, (byte)x.GenericType![0])).OrderBy(x => x.Id).ThenBy(x => x.Type)];
+		return [.. favorites.Select(x => new FavoriteIdType(x.Id, (byte)x.GenericType![0])).OrderBy(x => x.Id).ThenBy(x => x.Type)];
 	}
 }

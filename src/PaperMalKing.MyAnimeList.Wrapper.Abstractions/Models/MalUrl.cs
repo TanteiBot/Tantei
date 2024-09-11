@@ -3,16 +3,11 @@
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 
-public sealed class MalUrl
+public sealed class MalUrl(string url)
 {
 	private uint? _id;
 
-	public string Url { get; }
+	public string Url { get; } = url;
 
 	public uint Id => this._id ??= Helper.ExtractIdFromMalUrl(this.Url);
-
-	public MalUrl(string url)
-	{
-		this.Url = url;
-	}
 }

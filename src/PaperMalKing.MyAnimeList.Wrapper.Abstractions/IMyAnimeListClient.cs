@@ -29,7 +29,7 @@ public interface IMyAnimeListClient
 		where TNodeStatus : unmanaged, Enum
 		where TListStatus : unmanaged, Enum;
 
-	Task<MediaInfo> GetAnimeDetailsAsync(long id,  CancellationToken cancellationToken = default);
+	Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken = default);
 
 	Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken = default);
 

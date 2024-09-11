@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -25,6 +26,7 @@ public sealed class OwnerOrPermissionsAttribute : SlashCheckBaseAttribute
 	/// Defines that command or group of commands can only be executed by owner of the bot or user with specified permissions.
 	/// </summary>
 	/// <param name="permissions">Permissions needed to execute command.</param>
+	[SuppressMessage("Style", "IDE0290:Use primary constructor", Justification = "Not worth it on attribute")]
 	public OwnerOrPermissionsAttribute(Permissions permissions)
 	{
 		this.Permissions = permissions;
