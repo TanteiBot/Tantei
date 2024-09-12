@@ -52,7 +52,7 @@ public static class HostBuilderExtensions
 			}
 
 			services.AddDbContextFactory<DatabaseContext>(ConfigureDbContext);
-			services.AddDbContext<DatabaseContext>(ConfigureDbContext);
+			services.AddDbContext<DatabaseContext>(ConfigureDbContext, optionsLifetime: ServiceLifetime.Singleton);
 			services.AddSingleton<IExecuteOnStartupService, MigrateOnStartupService>();
 
 			services.AddOptions<DiscordOptions>().BindConfiguration(DiscordOptions.Discord).ValidateDataAnnotations().ValidateOnStart();

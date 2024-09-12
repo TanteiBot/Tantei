@@ -3,7 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PaperMalKing.Database.Models.MyAnimeList;
 
 #pragma warning disable 219, 612, 618
@@ -11,7 +15,8 @@ using PaperMalKing.Database.Models.MyAnimeList;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class MalFavoritePersonEntityType
+    [EntityFrameworkInternal]
+    public partial class MalFavoritePersonEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -20,7 +25,10 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(MalFavoritePerson),
                 baseEntityType,
                 discriminatorProperty: "FavoriteType",
-                discriminatorValue: MalFavoriteType.Person);
+                discriminatorValue: MalFavoriteType.Person,
+                propertyCount: 0,
+                navigationCount: 1,
+                foreignKeyCount: 1);
 
             return runtimeEntityType;
         }
@@ -40,6 +48,27 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(BaseMalFavorite).GetProperty("User", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(BaseMalFavorite).GetField("<User>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
+            user.SetGetter(
+                MalUser (MalFavoritePerson entity) => BaseMalFavoriteUnsafeAccessors.User(entity),
+                bool (MalFavoritePerson entity) => BaseMalFavoriteUnsafeAccessors.User(entity) == null,
+                MalUser (MalFavoritePerson instance) => BaseMalFavoriteUnsafeAccessors.User(instance),
+                bool (MalFavoritePerson instance) => BaseMalFavoriteUnsafeAccessors.User(instance) == null);
+            user.SetSetter(
+                (MalFavoritePerson entity, MalUser value) => BaseMalFavoriteUnsafeAccessors.User(entity) = value);
+            user.SetMaterializationSetter(
+                (MalFavoritePerson entity, MalUser value) => BaseMalFavoriteUnsafeAccessors.User(entity) = value);
+            user.SetAccessors(
+                MalUser (InternalEntityEntry entry) => BaseMalFavoriteUnsafeAccessors.User(((MalFavoritePerson)(entry.Entity))),
+                MalUser (InternalEntityEntry entry) => BaseMalFavoriteUnsafeAccessors.User(((MalFavoritePerson)(entry.Entity))),
+                null,
+                MalUser (InternalEntityEntry entry) => entry.GetCurrentValue<MalUser>(user),
+                null);
+            user.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: 3,
+                storeGenerationIndex: -1);
             var favoritePeople = principalEntityType.AddNavigation("FavoritePeople",
                 runtimeForeignKey,
                 onDependent: false,
@@ -47,11 +76,73 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(MalUser).GetProperty("FavoritePeople", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(MalUser).GetField("<FavoritePeople>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
+            favoritePeople.SetGetter(
+                IList<MalFavoritePerson> (MalUser entity) => MalUserUnsafeAccessors.FavoritePeople(entity),
+                bool (MalUser entity) => MalUserUnsafeAccessors.FavoritePeople(entity) == null,
+                IList<MalFavoritePerson> (MalUser instance) => MalUserUnsafeAccessors.FavoritePeople(instance),
+                bool (MalUser instance) => MalUserUnsafeAccessors.FavoritePeople(instance) == null);
+            favoritePeople.SetSetter(
+                (MalUser entity, IList<MalFavoritePerson> value) => MalUserUnsafeAccessors.FavoritePeople(entity) = value);
+            favoritePeople.SetMaterializationSetter(
+                (MalUser entity, IList<MalFavoritePerson> value) => MalUserUnsafeAccessors.FavoritePeople(entity) = value);
+            favoritePeople.SetAccessors(
+                IList<MalFavoritePerson> (InternalEntityEntry entry) => MalUserUnsafeAccessors.FavoritePeople(((MalUser)(entry.Entity))),
+                IList<MalFavoritePerson> (InternalEntityEntry entry) => MalUserUnsafeAccessors.FavoritePeople(((MalUser)(entry.Entity))),
+                null,
+                IList<MalFavoritePerson> (InternalEntityEntry entry) => entry.GetCurrentValue<IList<MalFavoritePerson>>(favoritePeople),
+                null);
+            favoritePeople.SetPropertyIndexes(
+                index: 6,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: 8,
+                storeGenerationIndex: -1);
+            favoritePeople.SetCollectionAccessor<MalUser, IList<MalFavoritePerson>, MalFavoritePerson>(
+                IList<MalFavoritePerson> (MalUser entity) => MalUserUnsafeAccessors.FavoritePeople(entity),
+                (MalUser entity, IList<MalFavoritePerson> collection) => MalUserUnsafeAccessors.FavoritePeople(entity) = ((IList<MalFavoritePerson>)(collection)),
+                (MalUser entity, IList<MalFavoritePerson> collection) => MalUserUnsafeAccessors.FavoritePeople(entity) = ((IList<MalFavoritePerson>)(collection)),
+                IList<MalFavoritePerson> (MalUser entity, Action<MalUser, IList<MalFavoritePerson>> setter) => ClrCollectionAccessorFactory.CreateAndSet<MalUser, IList<MalFavoritePerson>, List<MalFavoritePerson>>(entity, setter),
+                IList<MalFavoritePerson> () => new List<MalFavoritePerson>());
             return runtimeForeignKey;
         }
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
+            var id = runtimeEntityType.FindProperty("Id");
+            var userId = runtimeEntityType.FindProperty("UserId");
+            var favoriteType = runtimeEntityType.FindProperty("FavoriteType");
+            var imageUrl = runtimeEntityType.FindProperty("ImageUrl");
+            var name = runtimeEntityType.FindProperty("Name");
+            var nameUrl = runtimeEntityType.FindProperty("NameUrl");
+            var user = runtimeEntityType.FindNavigation("User");
+            runtimeEntityType.SetOriginalValuesFactory(
+                ISnapshot (InternalEntityEntry source) =>
+                {
+                    var entity = ((MalFavoritePerson)(source.Entity));
+                    return ((ISnapshot)(new Snapshot<uint, uint, MalFavoriteType, string, string, string>(((ValueComparer<uint>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(id)), ((ValueComparer<uint>)(((IProperty)userId).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(userId)), ((ValueComparer<MalFavoriteType>)(((IProperty)favoriteType).GetValueComparer())).Snapshot(source.GetCurrentValue<MalFavoriteType>(favoriteType)), (source.GetCurrentValue<string>(imageUrl) == null ? null : ((ValueComparer<string>)(((IProperty)imageUrl).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(imageUrl))), (source.GetCurrentValue<string>(name) == null ? null : ((ValueComparer<string>)(((IProperty)name).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(name))), (source.GetCurrentValue<string>(nameUrl) == null ? null : ((ValueComparer<string>)(((IProperty)nameUrl).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(nameUrl))))));
+                });
+            runtimeEntityType.SetStoreGeneratedValuesFactory(
+                ISnapshot () => ((ISnapshot)(new Snapshot<uint>(((ValueComparer<uint>)(((IProperty)userId).GetValueComparer())).Snapshot(default(uint))))));
+            runtimeEntityType.SetTemporaryValuesFactory(
+                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<uint>(default(uint)))));
+            runtimeEntityType.SetShadowValuesFactory(
+                ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
+            runtimeEntityType.SetEmptyShadowValuesFactory(
+                ISnapshot () => Snapshot.Empty);
+            runtimeEntityType.SetRelationshipSnapshotFactory(
+                ISnapshot (InternalEntityEntry source) =>
+                {
+                    var entity = ((MalFavoritePerson)(source.Entity));
+                    return ((ISnapshot)(new Snapshot<uint, uint, MalFavoriteType, object>(((ValueComparer<uint>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<uint>(id)), ((ValueComparer<uint>)(((IProperty)userId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<uint>(userId)), ((ValueComparer<MalFavoriteType>)(((IProperty)favoriteType).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<MalFavoriteType>(favoriteType)), BaseMalFavoriteUnsafeAccessors.User(entity))));
+                });
+            runtimeEntityType.Counts = new PropertyCounts(
+                propertyCount: 6,
+                navigationCount: 1,
+                complexPropertyCount: 0,
+                originalValueCount: 6,
+                shadowCount: 0,
+                relationshipCount: 4,
+                storeGeneratedCount: 1);
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);

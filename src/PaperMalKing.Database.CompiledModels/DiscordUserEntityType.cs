@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models;
@@ -14,14 +17,21 @@ using PaperMalKing.Database.Models;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class DiscordUserEntityType
+    [EntityFrameworkInternal]
+    public partial class DiscordUserEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.DiscordUser",
                 typeof(DiscordUser),
-                baseEntityType);
+                baseEntityType,
+                propertyCount: 2,
+                navigationCount: 1,
+                skipNavigationCount: 1,
+                foreignKeyCount: 1,
+                unnamedIndexCount: 2,
+                keyCount: 1);
 
             var discordUserId = runtimeEntityType.AddProperty(
                 "DiscordUserId",
@@ -30,7 +40,29 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(DiscordUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0ul);
+            discordUserId.SetGetter(
+                ulong (DiscordUser entity) => DiscordUserUnsafeAccessors.DiscordUserId(entity),
+                bool (DiscordUser entity) => DiscordUserUnsafeAccessors.DiscordUserId(entity) == 0UL,
+                ulong (DiscordUser instance) => DiscordUserUnsafeAccessors.DiscordUserId(instance),
+                bool (DiscordUser instance) => DiscordUserUnsafeAccessors.DiscordUserId(instance) == 0UL);
+            discordUserId.SetSetter(
+                (DiscordUser entity, ulong value) => DiscordUserUnsafeAccessors.DiscordUserId(entity) = value);
+            discordUserId.SetMaterializationSetter(
+                (DiscordUser entity, ulong value) => DiscordUserUnsafeAccessors.DiscordUserId(entity) = value);
+            discordUserId.SetAccessors(
+                ulong (InternalEntityEntry entry) => DiscordUserUnsafeAccessors.DiscordUserId(((DiscordUser)(entry.Entity))),
+                ulong (InternalEntityEntry entry) => DiscordUserUnsafeAccessors.DiscordUserId(((DiscordUser)(entry.Entity))),
+                ulong (InternalEntityEntry entry) => entry.ReadOriginalValue<ulong>(discordUserId, 0),
+                ulong (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<ulong>(discordUserId, 0),
+                object (ValueBuffer valueBuffer) => valueBuffer[0]);
+            discordUserId.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: 0,
+                shadowIndex: -1,
+                relationshipIndex: 0,
+                storeGenerationIndex: -1);
             discordUserId.TypeMapping = SqliteULongTypeMapping.Default;
+            discordUserId.SetCurrentValueComparer(new EntryCurrentValueComparer<ulong>(discordUserId));
 
             var botUserId = runtimeEntityType.AddProperty(
                 "BotUserId",
@@ -38,21 +70,43 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(DiscordUser).GetProperty("BotUserId", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DiscordUser).GetField("<BotUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0u);
+            botUserId.SetGetter(
+                uint (DiscordUser entity) => DiscordUserUnsafeAccessors.BotUserId(entity),
+                bool (DiscordUser entity) => DiscordUserUnsafeAccessors.BotUserId(entity) == 0U,
+                uint (DiscordUser instance) => DiscordUserUnsafeAccessors.BotUserId(instance),
+                bool (DiscordUser instance) => DiscordUserUnsafeAccessors.BotUserId(instance) == 0U);
+            botUserId.SetSetter(
+                (DiscordUser entity, uint value) => DiscordUserUnsafeAccessors.BotUserId(entity) = value);
+            botUserId.SetMaterializationSetter(
+                (DiscordUser entity, uint value) => DiscordUserUnsafeAccessors.BotUserId(entity) = value);
+            botUserId.SetAccessors(
+                uint (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<uint>(0) : (entry.FlaggedAsTemporary(1) && DiscordUserUnsafeAccessors.BotUserId(((DiscordUser)(entry.Entity))) == 0U ? entry.ReadTemporaryValue<uint>(0) : DiscordUserUnsafeAccessors.BotUserId(((DiscordUser)(entry.Entity))))),
+                uint (InternalEntityEntry entry) => DiscordUserUnsafeAccessors.BotUserId(((DiscordUser)(entry.Entity))),
+                uint (InternalEntityEntry entry) => entry.ReadOriginalValue<uint>(botUserId, 1),
+                uint (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<uint>(botUserId, 1),
+                object (ValueBuffer valueBuffer) => valueBuffer[1]);
+            botUserId.SetPropertyIndexes(
+                index: 1,
+                originalValueIndex: 1,
+                shadowIndex: -1,
+                relationshipIndex: 1,
+                storeGenerationIndex: 0);
             botUserId.TypeMapping = UIntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 keyComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 providerValueComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
+            botUserId.SetCurrentValueComparer(new EntryCurrentValueComparer<uint>(botUserId));
 
             var key = runtimeEntityType.AddKey(
                 new[] { discordUserId });
@@ -84,6 +138,27 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(DiscordUser).GetProperty("BotUser", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DiscordUser).GetField("<BotUser>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
+            botUser.SetGetter(
+                BotUser (DiscordUser entity) => DiscordUserUnsafeAccessors.BotUser(entity),
+                bool (DiscordUser entity) => DiscordUserUnsafeAccessors.BotUser(entity) == null,
+                BotUser (DiscordUser instance) => DiscordUserUnsafeAccessors.BotUser(instance),
+                bool (DiscordUser instance) => DiscordUserUnsafeAccessors.BotUser(instance) == null);
+            botUser.SetSetter(
+                (DiscordUser entity, BotUser value) => DiscordUserUnsafeAccessors.BotUser(entity) = value);
+            botUser.SetMaterializationSetter(
+                (DiscordUser entity, BotUser value) => DiscordUserUnsafeAccessors.BotUser(entity) = value);
+            botUser.SetAccessors(
+                BotUser (InternalEntityEntry entry) => DiscordUserUnsafeAccessors.BotUser(((DiscordUser)(entry.Entity))),
+                BotUser (InternalEntityEntry entry) => DiscordUserUnsafeAccessors.BotUser(((DiscordUser)(entry.Entity))),
+                null,
+                BotUser (InternalEntityEntry entry) => entry.GetCurrentValue<BotUser>(botUser),
+                null);
+            botUser.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: 2,
+                storeGenerationIndex: -1);
             var discordUser = principalEntityType.AddNavigation("DiscordUser",
                 runtimeForeignKey,
                 onDependent: false,
@@ -91,6 +166,27 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(BotUser).GetProperty("DiscordUser", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(BotUser).GetField("<DiscordUser>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
+            discordUser.SetGetter(
+                DiscordUser (BotUser entity) => BotUserUnsafeAccessors.DiscordUser(entity),
+                bool (BotUser entity) => BotUserUnsafeAccessors.DiscordUser(entity) == null,
+                DiscordUser (BotUser instance) => BotUserUnsafeAccessors.DiscordUser(instance),
+                bool (BotUser instance) => BotUserUnsafeAccessors.DiscordUser(instance) == null);
+            discordUser.SetSetter(
+                (BotUser entity, DiscordUser value) => BotUserUnsafeAccessors.DiscordUser(entity) = value);
+            discordUser.SetMaterializationSetter(
+                (BotUser entity, DiscordUser value) => BotUserUnsafeAccessors.DiscordUser(entity) = value);
+            discordUser.SetAccessors(
+                DiscordUser (InternalEntityEntry entry) => BotUserUnsafeAccessors.DiscordUser(((BotUser)(entry.Entity))),
+                DiscordUser (InternalEntityEntry entry) => BotUserUnsafeAccessors.DiscordUser(((BotUser)(entry.Entity))),
+                null,
+                DiscordUser (InternalEntityEntry entry) => entry.GetCurrentValue<DiscordUser>(discordUser),
+                null);
+            discordUser.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: 1,
+                storeGenerationIndex: -1);
             return runtimeForeignKey;
         }
 
@@ -116,11 +212,72 @@ namespace PaperMalKing.Database.CompiledModels
                 inverse.Inverse = skipNavigation;
             }
 
+            skipNavigation.SetGetter(
+                IList<DiscordGuild> (DiscordUser entity) => DiscordUserUnsafeAccessors.Guilds(entity),
+                bool (DiscordUser entity) => DiscordUserUnsafeAccessors.Guilds(entity) == null,
+                IList<DiscordGuild> (DiscordUser instance) => DiscordUserUnsafeAccessors.Guilds(instance),
+                bool (DiscordUser instance) => DiscordUserUnsafeAccessors.Guilds(instance) == null);
+            skipNavigation.SetSetter(
+                (DiscordUser entity, IList<DiscordGuild> value) => DiscordUserUnsafeAccessors.Guilds(entity) = value);
+            skipNavigation.SetMaterializationSetter(
+                (DiscordUser entity, IList<DiscordGuild> value) => DiscordUserUnsafeAccessors.Guilds(entity) = value);
+            skipNavigation.SetAccessors(
+                IList<DiscordGuild> (InternalEntityEntry entry) => DiscordUserUnsafeAccessors.Guilds(((DiscordUser)(entry.Entity))),
+                IList<DiscordGuild> (InternalEntityEntry entry) => DiscordUserUnsafeAccessors.Guilds(((DiscordUser)(entry.Entity))),
+                null,
+                IList<DiscordGuild> (InternalEntityEntry entry) => entry.GetCurrentValue<IList<DiscordGuild>>(skipNavigation),
+                null);
+            skipNavigation.SetPropertyIndexes(
+                index: 1,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: 3,
+                storeGenerationIndex: -1);
+            skipNavigation.SetCollectionAccessor<DiscordUser, IList<DiscordGuild>, DiscordGuild>(
+                IList<DiscordGuild> (DiscordUser entity) => DiscordUserUnsafeAccessors.Guilds(entity),
+                (DiscordUser entity, IList<DiscordGuild> collection) => DiscordUserUnsafeAccessors.Guilds(entity) = ((IList<DiscordGuild>)(collection)),
+                (DiscordUser entity, IList<DiscordGuild> collection) => DiscordUserUnsafeAccessors.Guilds(entity) = ((IList<DiscordGuild>)(collection)),
+                IList<DiscordGuild> (DiscordUser entity, Action<DiscordUser, IList<DiscordGuild>> setter) => ClrCollectionAccessorFactory.CreateAndSet<DiscordUser, IList<DiscordGuild>, List<DiscordGuild>>(entity, setter),
+                IList<DiscordGuild> () => new List<DiscordGuild>());
             return skipNavigation;
         }
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
+            var discordUserId = runtimeEntityType.FindProperty("DiscordUserId");
+            var botUserId = runtimeEntityType.FindProperty("BotUserId");
+            var key = runtimeEntityType.FindKey(new[] { discordUserId });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<ulong>(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<ulong>(key));
+            var botUser = runtimeEntityType.FindNavigation("BotUser");
+            runtimeEntityType.SetOriginalValuesFactory(
+                ISnapshot (InternalEntityEntry source) =>
+                {
+                    var entity = ((DiscordUser)(source.Entity));
+                    return ((ISnapshot)(new Snapshot<ulong, uint>(((ValueComparer<ulong>)(((IProperty)discordUserId).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong>(discordUserId)), ((ValueComparer<uint>)(((IProperty)botUserId).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(botUserId)))));
+                });
+            runtimeEntityType.SetStoreGeneratedValuesFactory(
+                ISnapshot () => ((ISnapshot)(new Snapshot<uint>(((ValueComparer<uint>)(((IProperty)botUserId).GetValueComparer())).Snapshot(default(uint))))));
+            runtimeEntityType.SetTemporaryValuesFactory(
+                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<uint>(default(uint)))));
+            runtimeEntityType.SetShadowValuesFactory(
+                ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
+            runtimeEntityType.SetEmptyShadowValuesFactory(
+                ISnapshot () => Snapshot.Empty);
+            runtimeEntityType.SetRelationshipSnapshotFactory(
+                ISnapshot (InternalEntityEntry source) =>
+                {
+                    var entity = ((DiscordUser)(source.Entity));
+                    return ((ISnapshot)(new Snapshot<ulong, uint, object, object>(((ValueComparer<ulong>)(((IProperty)discordUserId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<ulong>(discordUserId)), ((ValueComparer<uint>)(((IProperty)botUserId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<uint>(botUserId)), DiscordUserUnsafeAccessors.BotUser(entity), null)));
+                });
+            runtimeEntityType.Counts = new PropertyCounts(
+                propertyCount: 2,
+                navigationCount: 2,
+                complexPropertyCount: 0,
+                originalValueCount: 2,
+                shadowCount: 0,
+                relationshipCount: 4,
+                storeGeneratedCount: 1);
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);

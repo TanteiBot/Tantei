@@ -33,12 +33,12 @@ internal sealed class CombinedRecentUpdatesResponse
 		this.Reviews.AddRange(response.Reviews.Values);
 
 		this.Activities.AddRange(response.ListActivities.Values);
-		foreach (var mediaListGroup in response.AnimeList)
+		foreach (var mediaListGroup in response.AnimeList.Lists)
 		{
 			this.AnimeList.AddRange(mediaListGroup.Entries);
 		}
 
-		foreach (var mediaListGroup in response.MangaList)
+		foreach (var mediaListGroup in response.MangaList.Lists)
 		{
 			this.MangaList.AddRange(mediaListGroup.Entries);
 		}
