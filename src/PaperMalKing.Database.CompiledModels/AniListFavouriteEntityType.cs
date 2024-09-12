@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -15,14 +18,20 @@ using PaperMalKing.Database.Models.AniList;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class AniListFavouriteEntityType
+    [EntityFrameworkInternal]
+    public partial class AniListFavouriteEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.AniList.AniListFavourite",
                 typeof(AniListFavourite),
-                baseEntityType);
+                baseEntityType,
+                propertyCount: 3,
+                navigationCount: 1,
+                foreignKeyCount: 1,
+                unnamedIndexCount: 1,
+                keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
@@ -31,21 +40,43 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(AniListFavourite).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
+            id.SetGetter(
+                uint (AniListFavourite entity) => AniListFavouriteUnsafeAccessors.Id(entity),
+                bool (AniListFavourite entity) => AniListFavouriteUnsafeAccessors.Id(entity) == 0U,
+                uint (AniListFavourite instance) => AniListFavouriteUnsafeAccessors.Id(instance),
+                bool (AniListFavourite instance) => AniListFavouriteUnsafeAccessors.Id(instance) == 0U);
+            id.SetSetter(
+                (AniListFavourite entity, uint value) => AniListFavouriteUnsafeAccessors.Id(entity) = value);
+            id.SetMaterializationSetter(
+                (AniListFavourite entity, uint value) => AniListFavouriteUnsafeAccessors.Id(entity) = value);
+            id.SetAccessors(
+                uint (InternalEntityEntry entry) => AniListFavouriteUnsafeAccessors.Id(((AniListFavourite)(entry.Entity))),
+                uint (InternalEntityEntry entry) => AniListFavouriteUnsafeAccessors.Id(((AniListFavourite)(entry.Entity))),
+                uint (InternalEntityEntry entry) => entry.ReadOriginalValue<uint>(id, 0),
+                uint (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<uint>(id, 0),
+                object (ValueBuffer valueBuffer) => valueBuffer[0]);
+            id.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: 0,
+                shadowIndex: -1,
+                relationshipIndex: 0,
+                storeGenerationIndex: -1);
             id.TypeMapping = UIntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 keyComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 providerValueComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
+            id.SetCurrentValueComparer(new EntryCurrentValueComparer<uint>(id));
 
             var favouriteType = runtimeEntityType.AddProperty(
                 "FavouriteType",
@@ -53,29 +84,51 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(AniListFavourite).GetProperty("FavouriteType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListFavourite).GetField("<FavouriteType>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
+            favouriteType.SetGetter(
+                FavouriteType (AniListFavourite entity) => AniListFavouriteUnsafeAccessors.FavouriteType(entity),
+                bool (AniListFavourite entity) => object.Equals(((object)(AniListFavouriteUnsafeAccessors.FavouriteType(entity))), ((object)(FavouriteType.Anime))),
+                FavouriteType (AniListFavourite instance) => AniListFavouriteUnsafeAccessors.FavouriteType(instance),
+                bool (AniListFavourite instance) => object.Equals(((object)(AniListFavouriteUnsafeAccessors.FavouriteType(instance))), ((object)(FavouriteType.Anime))));
+            favouriteType.SetSetter(
+                (AniListFavourite entity, FavouriteType value) => AniListFavouriteUnsafeAccessors.FavouriteType(entity) = value);
+            favouriteType.SetMaterializationSetter(
+                (AniListFavourite entity, FavouriteType value) => AniListFavouriteUnsafeAccessors.FavouriteType(entity) = value);
+            favouriteType.SetAccessors(
+                FavouriteType (InternalEntityEntry entry) => AniListFavouriteUnsafeAccessors.FavouriteType(((AniListFavourite)(entry.Entity))),
+                FavouriteType (InternalEntityEntry entry) => AniListFavouriteUnsafeAccessors.FavouriteType(((AniListFavourite)(entry.Entity))),
+                FavouriteType (InternalEntityEntry entry) => entry.ReadOriginalValue<FavouriteType>(favouriteType, 1),
+                FavouriteType (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<FavouriteType>(favouriteType, 1),
+                object (ValueBuffer valueBuffer) => valueBuffer[1]);
+            favouriteType.SetPropertyIndexes(
+                index: 1,
+                originalValueIndex: 1,
+                shadowIndex: -1,
+                relationshipIndex: 1,
+                storeGenerationIndex: -1);
             favouriteType.TypeMapping = ByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<FavouriteType>(
-                    (FavouriteType v1, FavouriteType v2) => object.Equals((object)v1, (object)v2),
-                    (FavouriteType v) => v.GetHashCode(),
-                    (FavouriteType v) => v),
+                    bool (FavouriteType v1, FavouriteType v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    int (FavouriteType v) => ((object)v).GetHashCode(),
+                    FavouriteType (FavouriteType v) => v),
                 keyComparer: new ValueComparer<FavouriteType>(
-                    (FavouriteType v1, FavouriteType v2) => object.Equals((object)v1, (object)v2),
-                    (FavouriteType v) => v.GetHashCode(),
-                    (FavouriteType v) => v),
+                    bool (FavouriteType v1, FavouriteType v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    int (FavouriteType v) => ((object)v).GetHashCode(),
+                    FavouriteType (FavouriteType v) => v),
                 providerValueComparer: new ValueComparer<byte>(
-                    (byte v1, byte v2) => v1 == v2,
-                    (byte v) => (int)v,
-                    (byte v) => v),
+                    bool (byte v1, byte v2) => v1 == v2,
+                    int (byte v) => ((int)(v)),
+                    byte (byte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
                 converter: new ValueConverter<FavouriteType, byte>(
-                    (FavouriteType value) => (byte)value,
-                    (byte value) => (FavouriteType)value),
+                    byte (FavouriteType value) => ((byte)(value)),
+                    FavouriteType (byte value) => ((FavouriteType)(value))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<FavouriteType, byte>(
                     JsonByteReaderWriter.Instance,
                     new ValueConverter<FavouriteType, byte>(
-                        (FavouriteType value) => (byte)value,
-                        (byte value) => (FavouriteType)value)));
+                        byte (FavouriteType value) => ((byte)(value)),
+                        FavouriteType (byte value) => ((FavouriteType)(value)))));
+            favouriteType.SetCurrentValueComparer(new EntryCurrentValueComparer<FavouriteType>(favouriteType));
             favouriteType.SetSentinelFromProviderValue((byte)0);
 
             var userId = runtimeEntityType.AddProperty(
@@ -85,21 +138,43 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(AniListFavourite).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
+            userId.SetGetter(
+                uint (AniListFavourite entity) => AniListFavouriteUnsafeAccessors.UserId(entity),
+                bool (AniListFavourite entity) => AniListFavouriteUnsafeAccessors.UserId(entity) == 0U,
+                uint (AniListFavourite instance) => AniListFavouriteUnsafeAccessors.UserId(instance),
+                bool (AniListFavourite instance) => AniListFavouriteUnsafeAccessors.UserId(instance) == 0U);
+            userId.SetSetter(
+                (AniListFavourite entity, uint value) => AniListFavouriteUnsafeAccessors.UserId(entity) = value);
+            userId.SetMaterializationSetter(
+                (AniListFavourite entity, uint value) => AniListFavouriteUnsafeAccessors.UserId(entity) = value);
+            userId.SetAccessors(
+                uint (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(2) ? entry.ReadStoreGeneratedValue<uint>(0) : (entry.FlaggedAsTemporary(2) && AniListFavouriteUnsafeAccessors.UserId(((AniListFavourite)(entry.Entity))) == 0U ? entry.ReadTemporaryValue<uint>(0) : AniListFavouriteUnsafeAccessors.UserId(((AniListFavourite)(entry.Entity))))),
+                uint (InternalEntityEntry entry) => AniListFavouriteUnsafeAccessors.UserId(((AniListFavourite)(entry.Entity))),
+                uint (InternalEntityEntry entry) => entry.ReadOriginalValue<uint>(userId, 2),
+                uint (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<uint>(userId, 2),
+                object (ValueBuffer valueBuffer) => valueBuffer[2]);
+            userId.SetPropertyIndexes(
+                index: 2,
+                originalValueIndex: 2,
+                shadowIndex: -1,
+                relationshipIndex: 2,
+                storeGenerationIndex: 0);
             userId.TypeMapping = UIntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 keyComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 providerValueComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
+            userId.SetCurrentValueComparer(new EntryCurrentValueComparer<uint>(userId));
 
             var key = runtimeEntityType.AddKey(
                 new[] { id, favouriteType, userId });
@@ -126,6 +201,27 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(AniListFavourite).GetProperty("User", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListFavourite).GetField("<User>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
+            user.SetGetter(
+                AniListUser (AniListFavourite entity) => AniListFavouriteUnsafeAccessors.User(entity),
+                bool (AniListFavourite entity) => AniListFavouriteUnsafeAccessors.User(entity) == null,
+                AniListUser (AniListFavourite instance) => AniListFavouriteUnsafeAccessors.User(instance),
+                bool (AniListFavourite instance) => AniListFavouriteUnsafeAccessors.User(instance) == null);
+            user.SetSetter(
+                (AniListFavourite entity, AniListUser value) => AniListFavouriteUnsafeAccessors.User(entity) = value);
+            user.SetMaterializationSetter(
+                (AniListFavourite entity, AniListUser value) => AniListFavouriteUnsafeAccessors.User(entity) = value);
+            user.SetAccessors(
+                AniListUser (InternalEntityEntry entry) => AniListFavouriteUnsafeAccessors.User(((AniListFavourite)(entry.Entity))),
+                AniListUser (InternalEntityEntry entry) => AniListFavouriteUnsafeAccessors.User(((AniListFavourite)(entry.Entity))),
+                null,
+                AniListUser (InternalEntityEntry entry) => entry.GetCurrentValue<AniListUser>(user),
+                null);
+            user.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: 3,
+                storeGenerationIndex: -1);
             var favourites = principalEntityType.AddNavigation("Favourites",
                 runtimeForeignKey,
                 onDependent: false,
@@ -133,11 +229,73 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(AniListUser).GetProperty("Favourites", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListUser).GetField("<Favourites>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
+            favourites.SetGetter(
+                IList<AniListFavourite> (AniListUser entity) => AniListUserUnsafeAccessors.Favourites(entity),
+                bool (AniListUser entity) => AniListUserUnsafeAccessors.Favourites(entity) == null,
+                IList<AniListFavourite> (AniListUser instance) => AniListUserUnsafeAccessors.Favourites(instance),
+                bool (AniListUser instance) => AniListUserUnsafeAccessors.Favourites(instance) == null);
+            favourites.SetSetter(
+                (AniListUser entity, IList<AniListFavourite> value) => AniListUserUnsafeAccessors.Favourites(entity) = value);
+            favourites.SetMaterializationSetter(
+                (AniListUser entity, IList<AniListFavourite> value) => AniListUserUnsafeAccessors.Favourites(entity) = value);
+            favourites.SetAccessors(
+                IList<AniListFavourite> (InternalEntityEntry entry) => AniListUserUnsafeAccessors.Favourites(((AniListUser)(entry.Entity))),
+                IList<AniListFavourite> (InternalEntityEntry entry) => AniListUserUnsafeAccessors.Favourites(((AniListUser)(entry.Entity))),
+                null,
+                IList<AniListFavourite> (InternalEntityEntry entry) => entry.GetCurrentValue<IList<AniListFavourite>>(favourites),
+                null);
+            favourites.SetPropertyIndexes(
+                index: 2,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: 4,
+                storeGenerationIndex: -1);
+            favourites.SetCollectionAccessor<AniListUser, IList<AniListFavourite>, AniListFavourite>(
+                IList<AniListFavourite> (AniListUser entity) => AniListUserUnsafeAccessors.Favourites(entity),
+                (AniListUser entity, IList<AniListFavourite> collection) => AniListUserUnsafeAccessors.Favourites(entity) = ((IList<AniListFavourite>)(collection)),
+                (AniListUser entity, IList<AniListFavourite> collection) => AniListUserUnsafeAccessors.Favourites(entity) = ((IList<AniListFavourite>)(collection)),
+                IList<AniListFavourite> (AniListUser entity, Action<AniListUser, IList<AniListFavourite>> setter) => ClrCollectionAccessorFactory.CreateAndSet<AniListUser, IList<AniListFavourite>, List<AniListFavourite>>(entity, setter),
+                IList<AniListFavourite> () => new List<AniListFavourite>());
             return runtimeForeignKey;
         }
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
+            var id = runtimeEntityType.FindProperty("Id");
+            var favouriteType = runtimeEntityType.FindProperty("FavouriteType");
+            var userId = runtimeEntityType.FindProperty("UserId");
+            var key = runtimeEntityType.FindKey(new[] { id, favouriteType, userId });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
+            var user = runtimeEntityType.FindNavigation("User");
+            runtimeEntityType.SetOriginalValuesFactory(
+                ISnapshot (InternalEntityEntry source) =>
+                {
+                    var entity = ((AniListFavourite)(source.Entity));
+                    return ((ISnapshot)(new Snapshot<uint, FavouriteType, uint>(((ValueComparer<uint>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(id)), ((ValueComparer<FavouriteType>)(((IProperty)favouriteType).GetValueComparer())).Snapshot(source.GetCurrentValue<FavouriteType>(favouriteType)), ((ValueComparer<uint>)(((IProperty)userId).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(userId)))));
+                });
+            runtimeEntityType.SetStoreGeneratedValuesFactory(
+                ISnapshot () => ((ISnapshot)(new Snapshot<uint>(((ValueComparer<uint>)(((IProperty)userId).GetValueComparer())).Snapshot(default(uint))))));
+            runtimeEntityType.SetTemporaryValuesFactory(
+                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<uint>(default(uint)))));
+            runtimeEntityType.SetShadowValuesFactory(
+                ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
+            runtimeEntityType.SetEmptyShadowValuesFactory(
+                ISnapshot () => Snapshot.Empty);
+            runtimeEntityType.SetRelationshipSnapshotFactory(
+                ISnapshot (InternalEntityEntry source) =>
+                {
+                    var entity = ((AniListFavourite)(source.Entity));
+                    return ((ISnapshot)(new Snapshot<uint, FavouriteType, uint, object>(((ValueComparer<uint>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<uint>(id)), ((ValueComparer<FavouriteType>)(((IProperty)favouriteType).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<FavouriteType>(favouriteType)), ((ValueComparer<uint>)(((IProperty)userId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<uint>(userId)), AniListFavouriteUnsafeAccessors.User(entity))));
+                });
+            runtimeEntityType.Counts = new PropertyCounts(
+                propertyCount: 3,
+                navigationCount: 1,
+                complexPropertyCount: 0,
+                originalValueCount: 3,
+                shadowCount: 0,
+                relationshipCount: 4,
+                storeGeneratedCount: 1);
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);

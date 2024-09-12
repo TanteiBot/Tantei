@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models.Shikimori;
@@ -14,14 +17,20 @@ using PaperMalKing.Database.Models.Shikimori;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class ShikiFavouriteEntityType
+    [EntityFrameworkInternal]
+    public partial class ShikiFavouriteEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.Shikimori.ShikiFavourite",
                 typeof(ShikiFavourite),
-                baseEntityType);
+                baseEntityType,
+                propertyCount: 4,
+                navigationCount: 1,
+                foreignKeyCount: 1,
+                unnamedIndexCount: 1,
+                keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
@@ -30,21 +39,43 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(ShikiFavourite).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
+            id.SetGetter(
+                uint (ShikiFavourite entity) => ShikiFavouriteUnsafeAccessors.Id(entity),
+                bool (ShikiFavourite entity) => ShikiFavouriteUnsafeAccessors.Id(entity) == 0U,
+                uint (ShikiFavourite instance) => ShikiFavouriteUnsafeAccessors.Id(instance),
+                bool (ShikiFavourite instance) => ShikiFavouriteUnsafeAccessors.Id(instance) == 0U);
+            id.SetSetter(
+                (ShikiFavourite entity, uint value) => ShikiFavouriteUnsafeAccessors.Id(entity) = value);
+            id.SetMaterializationSetter(
+                (ShikiFavourite entity, uint value) => ShikiFavouriteUnsafeAccessors.Id(entity) = value);
+            id.SetAccessors(
+                uint (InternalEntityEntry entry) => ShikiFavouriteUnsafeAccessors.Id(((ShikiFavourite)(entry.Entity))),
+                uint (InternalEntityEntry entry) => ShikiFavouriteUnsafeAccessors.Id(((ShikiFavourite)(entry.Entity))),
+                uint (InternalEntityEntry entry) => entry.ReadOriginalValue<uint>(id, 0),
+                uint (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<uint>(id, 0),
+                object (ValueBuffer valueBuffer) => valueBuffer[0]);
+            id.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: 0,
+                shadowIndex: -1,
+                relationshipIndex: 0,
+                storeGenerationIndex: -1);
             id.TypeMapping = UIntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 keyComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 providerValueComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
+            id.SetCurrentValueComparer(new EntryCurrentValueComparer<uint>(id));
 
             var favType = runtimeEntityType.AddProperty(
                 "FavType",
@@ -52,7 +83,29 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(ShikiFavourite).GetProperty("FavType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiFavourite).GetField("<FavType>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
+            favType.SetGetter(
+                string (ShikiFavourite entity) => ShikiFavouriteUnsafeAccessors.FavType(entity),
+                bool (ShikiFavourite entity) => ShikiFavouriteUnsafeAccessors.FavType(entity) == null,
+                string (ShikiFavourite instance) => ShikiFavouriteUnsafeAccessors.FavType(instance),
+                bool (ShikiFavourite instance) => ShikiFavouriteUnsafeAccessors.FavType(instance) == null);
+            favType.SetSetter(
+                (ShikiFavourite entity, string value) => ShikiFavouriteUnsafeAccessors.FavType(entity) = value);
+            favType.SetMaterializationSetter(
+                (ShikiFavourite entity, string value) => ShikiFavouriteUnsafeAccessors.FavType(entity) = value);
+            favType.SetAccessors(
+                string (InternalEntityEntry entry) => ShikiFavouriteUnsafeAccessors.FavType(((ShikiFavourite)(entry.Entity))),
+                string (InternalEntityEntry entry) => ShikiFavouriteUnsafeAccessors.FavType(((ShikiFavourite)(entry.Entity))),
+                string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(favType, 1),
+                string (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<string>(favType, 1),
+                object (ValueBuffer valueBuffer) => valueBuffer[1]);
+            favType.SetPropertyIndexes(
+                index: 1,
+                originalValueIndex: 1,
+                shadowIndex: -1,
+                relationshipIndex: 1,
+                storeGenerationIndex: -1);
             favType.TypeMapping = SqliteStringTypeMapping.Default;
+            favType.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(favType));
 
             var userId = runtimeEntityType.AddProperty(
                 "UserId",
@@ -61,27 +114,70 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(ShikiFavourite).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
+            userId.SetGetter(
+                uint (ShikiFavourite entity) => ShikiFavouriteUnsafeAccessors.UserId(entity),
+                bool (ShikiFavourite entity) => ShikiFavouriteUnsafeAccessors.UserId(entity) == 0U,
+                uint (ShikiFavourite instance) => ShikiFavouriteUnsafeAccessors.UserId(instance),
+                bool (ShikiFavourite instance) => ShikiFavouriteUnsafeAccessors.UserId(instance) == 0U);
+            userId.SetSetter(
+                (ShikiFavourite entity, uint value) => ShikiFavouriteUnsafeAccessors.UserId(entity) = value);
+            userId.SetMaterializationSetter(
+                (ShikiFavourite entity, uint value) => ShikiFavouriteUnsafeAccessors.UserId(entity) = value);
+            userId.SetAccessors(
+                uint (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(2) ? entry.ReadStoreGeneratedValue<uint>(0) : (entry.FlaggedAsTemporary(2) && ShikiFavouriteUnsafeAccessors.UserId(((ShikiFavourite)(entry.Entity))) == 0U ? entry.ReadTemporaryValue<uint>(0) : ShikiFavouriteUnsafeAccessors.UserId(((ShikiFavourite)(entry.Entity))))),
+                uint (InternalEntityEntry entry) => ShikiFavouriteUnsafeAccessors.UserId(((ShikiFavourite)(entry.Entity))),
+                uint (InternalEntityEntry entry) => entry.ReadOriginalValue<uint>(userId, 2),
+                uint (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<uint>(userId, 2),
+                object (ValueBuffer valueBuffer) => valueBuffer[2]);
+            userId.SetPropertyIndexes(
+                index: 2,
+                originalValueIndex: 2,
+                shadowIndex: -1,
+                relationshipIndex: 2,
+                storeGenerationIndex: 0);
             userId.TypeMapping = UIntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 keyComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 providerValueComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
+                    bool (uint v1, uint v2) => v1 == v2,
+                    int (uint v) => ((int)(v)),
+                    uint (uint v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
+            userId.SetCurrentValueComparer(new EntryCurrentValueComparer<uint>(userId));
 
             var name = runtimeEntityType.AddProperty(
                 "Name",
                 typeof(string),
                 propertyInfo: typeof(ShikiFavourite).GetProperty("Name", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiFavourite).GetField("<Name>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            name.SetGetter(
+                string (ShikiFavourite entity) => ShikiFavouriteUnsafeAccessors.Name(entity),
+                bool (ShikiFavourite entity) => ShikiFavouriteUnsafeAccessors.Name(entity) == null,
+                string (ShikiFavourite instance) => ShikiFavouriteUnsafeAccessors.Name(instance),
+                bool (ShikiFavourite instance) => ShikiFavouriteUnsafeAccessors.Name(instance) == null);
+            name.SetSetter(
+                (ShikiFavourite entity, string value) => ShikiFavouriteUnsafeAccessors.Name(entity) = value);
+            name.SetMaterializationSetter(
+                (ShikiFavourite entity, string value) => ShikiFavouriteUnsafeAccessors.Name(entity) = value);
+            name.SetAccessors(
+                string (InternalEntityEntry entry) => ShikiFavouriteUnsafeAccessors.Name(((ShikiFavourite)(entry.Entity))),
+                string (InternalEntityEntry entry) => ShikiFavouriteUnsafeAccessors.Name(((ShikiFavourite)(entry.Entity))),
+                string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(name, 3),
+                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(name),
+                object (ValueBuffer valueBuffer) => valueBuffer[3]);
+            name.SetPropertyIndexes(
+                index: 3,
+                originalValueIndex: 3,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             name.TypeMapping = SqliteStringTypeMapping.Default;
 
             var key = runtimeEntityType.AddKey(
@@ -109,6 +205,27 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(ShikiFavourite).GetProperty("User", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiFavourite).GetField("<User>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
+            user.SetGetter(
+                ShikiUser (ShikiFavourite entity) => ShikiFavouriteUnsafeAccessors.User(entity),
+                bool (ShikiFavourite entity) => ShikiFavouriteUnsafeAccessors.User(entity) == null,
+                ShikiUser (ShikiFavourite instance) => ShikiFavouriteUnsafeAccessors.User(instance),
+                bool (ShikiFavourite instance) => ShikiFavouriteUnsafeAccessors.User(instance) == null);
+            user.SetSetter(
+                (ShikiFavourite entity, ShikiUser value) => ShikiFavouriteUnsafeAccessors.User(entity) = value);
+            user.SetMaterializationSetter(
+                (ShikiFavourite entity, ShikiUser value) => ShikiFavouriteUnsafeAccessors.User(entity) = value);
+            user.SetAccessors(
+                ShikiUser (InternalEntityEntry entry) => ShikiFavouriteUnsafeAccessors.User(((ShikiFavourite)(entry.Entity))),
+                ShikiUser (InternalEntityEntry entry) => ShikiFavouriteUnsafeAccessors.User(((ShikiFavourite)(entry.Entity))),
+                null,
+                ShikiUser (InternalEntityEntry entry) => entry.GetCurrentValue<ShikiUser>(user),
+                null);
+            user.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: 3,
+                storeGenerationIndex: -1);
             var favourites = principalEntityType.AddNavigation("Favourites",
                 runtimeForeignKey,
                 onDependent: false,
@@ -116,11 +233,74 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(ShikiUser).GetProperty("Favourites", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiUser).GetField("<Favourites>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
+            favourites.SetGetter(
+                IList<ShikiFavourite> (ShikiUser entity) => ShikiUserUnsafeAccessors.Favourites(entity),
+                bool (ShikiUser entity) => ShikiUserUnsafeAccessors.Favourites(entity) == null,
+                IList<ShikiFavourite> (ShikiUser instance) => ShikiUserUnsafeAccessors.Favourites(instance),
+                bool (ShikiUser instance) => ShikiUserUnsafeAccessors.Favourites(instance) == null);
+            favourites.SetSetter(
+                (ShikiUser entity, IList<ShikiFavourite> value) => ShikiUserUnsafeAccessors.Favourites(entity) = value);
+            favourites.SetMaterializationSetter(
+                (ShikiUser entity, IList<ShikiFavourite> value) => ShikiUserUnsafeAccessors.Favourites(entity) = value);
+            favourites.SetAccessors(
+                IList<ShikiFavourite> (InternalEntityEntry entry) => ShikiUserUnsafeAccessors.Favourites(((ShikiUser)(entry.Entity))),
+                IList<ShikiFavourite> (InternalEntityEntry entry) => ShikiUserUnsafeAccessors.Favourites(((ShikiUser)(entry.Entity))),
+                null,
+                IList<ShikiFavourite> (InternalEntityEntry entry) => entry.GetCurrentValue<IList<ShikiFavourite>>(favourites),
+                null);
+            favourites.SetPropertyIndexes(
+                index: 3,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: 5,
+                storeGenerationIndex: -1);
+            favourites.SetCollectionAccessor<ShikiUser, IList<ShikiFavourite>, ShikiFavourite>(
+                IList<ShikiFavourite> (ShikiUser entity) => ShikiUserUnsafeAccessors.Favourites(entity),
+                (ShikiUser entity, IList<ShikiFavourite> collection) => ShikiUserUnsafeAccessors.Favourites(entity) = ((IList<ShikiFavourite>)(collection)),
+                (ShikiUser entity, IList<ShikiFavourite> collection) => ShikiUserUnsafeAccessors.Favourites(entity) = ((IList<ShikiFavourite>)(collection)),
+                IList<ShikiFavourite> (ShikiUser entity, Action<ShikiUser, IList<ShikiFavourite>> setter) => ClrCollectionAccessorFactory.CreateAndSet<ShikiUser, IList<ShikiFavourite>, List<ShikiFavourite>>(entity, setter),
+                IList<ShikiFavourite> () => new List<ShikiFavourite>());
             return runtimeForeignKey;
         }
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
+            var id = runtimeEntityType.FindProperty("Id");
+            var favType = runtimeEntityType.FindProperty("FavType");
+            var userId = runtimeEntityType.FindProperty("UserId");
+            var name = runtimeEntityType.FindProperty("Name");
+            var key = runtimeEntityType.FindKey(new[] { id, favType, userId });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
+            var user = runtimeEntityType.FindNavigation("User");
+            runtimeEntityType.SetOriginalValuesFactory(
+                ISnapshot (InternalEntityEntry source) =>
+                {
+                    var entity = ((ShikiFavourite)(source.Entity));
+                    return ((ISnapshot)(new Snapshot<uint, string, uint, string>(((ValueComparer<uint>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(id)), (source.GetCurrentValue<string>(favType) == null ? null : ((ValueComparer<string>)(((IProperty)favType).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(favType))), ((ValueComparer<uint>)(((IProperty)userId).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(userId)), (source.GetCurrentValue<string>(name) == null ? null : ((ValueComparer<string>)(((IProperty)name).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(name))))));
+                });
+            runtimeEntityType.SetStoreGeneratedValuesFactory(
+                ISnapshot () => ((ISnapshot)(new Snapshot<uint>(((ValueComparer<uint>)(((IProperty)userId).GetValueComparer())).Snapshot(default(uint))))));
+            runtimeEntityType.SetTemporaryValuesFactory(
+                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<uint>(default(uint)))));
+            runtimeEntityType.SetShadowValuesFactory(
+                ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
+            runtimeEntityType.SetEmptyShadowValuesFactory(
+                ISnapshot () => Snapshot.Empty);
+            runtimeEntityType.SetRelationshipSnapshotFactory(
+                ISnapshot (InternalEntityEntry source) =>
+                {
+                    var entity = ((ShikiFavourite)(source.Entity));
+                    return ((ISnapshot)(new Snapshot<uint, string, uint, object>(((ValueComparer<uint>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<uint>(id)), (source.GetCurrentValue<string>(favType) == null ? null : ((ValueComparer<string>)(((IProperty)favType).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<string>(favType))), ((ValueComparer<uint>)(((IProperty)userId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<uint>(userId)), ShikiFavouriteUnsafeAccessors.User(entity))));
+                });
+            runtimeEntityType.Counts = new PropertyCounts(
+                propertyCount: 4,
+                navigationCount: 1,
+                complexPropertyCount: 0,
+                originalValueCount: 4,
+                shadowCount: 0,
+                relationshipCount: 4,
+                storeGeneratedCount: 1);
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
