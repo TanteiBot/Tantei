@@ -7,7 +7,7 @@ Tantei is Discord bot that tracks user's updates from various anime/manga list w
 
 Installation
 ---------------------
-Prerequisites: git, [.NET SDK 8.0](https://get.dot.net/8)
+Prerequisites: git, [.NET SDK 9.0](https://get.dot.net/9)
 - `git clone --branch v2 https://github.com/TanteiBot/Tantei.git`
 - `cd Tantei/`
 - `dotnet publish -c Release -o publish/ PaperMalKing/PaperMalKing.csproj`
