@@ -123,7 +123,7 @@ internal static partial class UserProfileParser
 
 			var titleNode = parent.QuerySelector(".title")!;
 			var imageUrlNode = parent.QuerySelector(".image")!;
-			return new BaseFavorite(new MalUrl(urlUnparsed), titleNode.TextContent, imageUrlNode.GetAttribute("data-src")!.Replace("/r/140x220", "", StringComparison.OrdinalIgnoreCase));
+			return new(new(urlUnparsed), titleNode.TextContent, imageUrlNode.GetAttribute("data-src")!.Replace("/r/140x220", "", StringComparison.OrdinalIgnoreCase));
 		}
 	}
 }

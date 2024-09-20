@@ -82,6 +82,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 				continue;
 			}
 
+			using var scope = logger.CheckingForUsersUpdatesScope(dbUser.Username);
 			this.Logger.StartingToCheckUpdatesFor(dbUser.Username);
 			User? user;
 			using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);

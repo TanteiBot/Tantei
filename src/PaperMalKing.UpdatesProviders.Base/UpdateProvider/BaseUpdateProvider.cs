@@ -71,6 +71,7 @@ public abstract class BaseUpdateProvider : BackgroundService, IUpdateProvider
 			this.IsUpdateInProgress = true;
 			this.DateTimeOfNextUpdate = null;
 			TimeSpan delayBetweenTimerFires;
+			var scope = this.Logger.BeginScope("Update checking");
 			try
 			{
 				this.Logger.StartCheckingForUpdates(this.Name);
@@ -90,6 +91,7 @@ public abstract class BaseUpdateProvider : BackgroundService, IUpdateProvider
 			}
 			finally
 			{
+				scope?.Dispose();
 				delayBetweenTimerFires = this.DelayBetweenTimerFires;
 				this.Logger.EndCheckingForUpdates(this.Name, delayBetweenTimerFires);
 				this.IsUpdateInProgress = false;

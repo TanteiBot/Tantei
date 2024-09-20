@@ -242,7 +242,7 @@ internal static class Extensions
 				{
 					var progress = ale.Status.Status.Humanize(LetterCasing.Sentence);
 					var episodeProgress = SubEntriesProgress(ale.Status.EpisodesWatched, ale.Node.Episodes, ale.Status.Status == AnimeListStatus.plan_to_watch, "ep.");
-					userProgressText = episodeProgress is not [] ? $"{progress} - {episodeProgress}" : progress;
+					userProgressText = episodeProgress is [] ? progress : $"{progress} - {episodeProgress}";
 					break;
 				}
 
@@ -296,7 +296,7 @@ internal static class Extensions
 		}
 		else
 		{
-			eb.Description = Formatter.MaskedUrl(title, new Uri(listEntry.Node.Url));
+			eb.Description = Formatter.MaskedUrl(title, new(listEntry.Node.Url));
 		}
 
 		var mediaInfo = features.HasFlag(MalUserFeatures.Demographic) || features.HasFlag(MalUserFeatures.Themes) ? listEntry switch
@@ -412,7 +412,7 @@ internal static class Extensions
 			{
 				var name =
 					$"{(!string.IsNullOrEmpty(x.Person.LastName) ? $"{x.Person.LastName}, {x.Person.FirstName}" : x.Person.FirstName)} ({x.Role})";
-				return Formatter.MaskedUrl(name, new Uri(x.Person.Url));
+				return Formatter.MaskedUrl(name, new(x.Person.Url));
 			}));
 
 			if (!string.IsNullOrWhiteSpace(authors))

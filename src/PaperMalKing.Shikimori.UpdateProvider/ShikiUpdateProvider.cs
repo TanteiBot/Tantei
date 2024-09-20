@@ -58,6 +58,9 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 				break;
 			}
 
+			using var scope = logger.CheckingForUsersUpdatesScope(dbUser.Id);
+			logger.StartingToCheckUpdatesFor(dbUser.Id);
+
 			var historyUpdates = await _client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken);
 
 			var favs = await _client.GetUserFavouritesAsync(dbUser.Id, cancellationToken);
@@ -231,7 +234,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 
 		static Func<FavouriteEntry, ShikiFavourite> Selector(ShikiUser shikiUser)
 		{
-			return fe => new ShikiFavourite
+			return fe => new()
 			{
 				Id = fe.Id,
 				Name = fe.Name,

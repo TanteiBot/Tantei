@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
+using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
-using DiscordGuild = PaperMalKing.Database.Models.DiscordGuild;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider;
 

@@ -33,6 +33,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 	public virtual async Task AddUserCommand(InteractionContext context, string? username = null)
 	{
+		using var scope = this.Logger.AddUserScope(username);
 		this.Logger.StartAddingUser(username, context.Member, this.UserService.Name);
 		BaseUser user;
 
@@ -53,8 +54,9 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully added {user.Username} to {this.UserService.Name} update checker"));
 	}
 
-	public virtual async Task RemoveUserInGuildCommand(InteractionContext context)
+	public virtual async Task RemoveUserCommand(InteractionContext context)
 	{
+		using var scope = this.Logger.RemoveUserScope(context.Member.DisplayName);
 		this.Logger.StartRemovingUser(context.Member, this.UserService.Name);
 
 		try
@@ -77,6 +79,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 	public virtual async Task RemoveUserHereCommand(InteractionContext context)
 	{
+		using var scope = this.Logger.RemoveUserInGuildScope(context.User.Username, context.Guild.Name);
 		try
 		{
 			await this.UserService.RemoveUserHereAsync(context.User.Id, context.Guild.Id);

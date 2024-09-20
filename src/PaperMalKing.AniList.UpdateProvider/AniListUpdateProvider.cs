@@ -62,6 +62,7 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 				break;
 			}
 
+			using var scope = logger.CheckingForUsersUpdatesScope(dbUser.Id);
 			using var perUserCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 			perUserCancellationTokenSource.CancelAfter(TimeSpan.FromMinutes(3));
 			var perUserCancellationToken = perUserCancellationTokenSource.Token;

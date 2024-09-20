@@ -11,10 +11,10 @@ using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper.Abstractions;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
+using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
-using DiscordGuild = PaperMalKing.Database.Models.DiscordGuild;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
