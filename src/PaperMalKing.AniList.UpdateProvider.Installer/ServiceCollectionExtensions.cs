@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
 			var logger = provider.GetRequiredService<ILogger<AniListClient>>();
 			var options = new GraphQLHttpClientOptions
 			{
-				EndPoint = new Uri(ClientConstants.BaseUrl),
+				EndPoint = new(ClientConstants.BaseUrl),
 			};
 			var gqlc = new GraphQLHttpClient(options, new SystemTextJsonSerializer(new JsonSerializerOptions(JsonSerializerDefaults.Web)), httpClient);
 

@@ -36,7 +36,7 @@ public sealed class CustomColorService<TUser, TUpdateType>
 		var byteType = Unsafe.As<TUpdateType, byte>(ref updateType);
 
 		user.Colors.RemoveAll(c => c.UpdateType == byteType);
-		user.Colors.Add(new CustomUpdateColor
+		user.Colors.Add(new()
 		{
 			UpdateType = byteType,
 			ColorValue = color.Value,

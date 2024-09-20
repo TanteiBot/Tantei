@@ -33,7 +33,7 @@ internal sealed class ShikiAchievementsService : IDisposable
 			item => new ShikiAchievement(
 				item.neko_id,
 				item.level,
-				new Uri(Wrapper.Abstractions.Constants.BaseUrl + item.image, UriKind.Absolute),
+				new(Wrapper.Abstractions.Constants.BaseUrl + item.image, UriKind.Absolute),
 				item.border_color.HasValue ? new(item.border_color.Value) : DiscordColor.None,
 				item.title_ru,
 				item.text_ru,

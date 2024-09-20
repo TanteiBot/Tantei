@@ -15,7 +15,7 @@ public static class EmbedTemplate
 
 	public static DiscordEmbedBuilder ErrorEmbed(string errorMessage, string? title = null)
 	{
-		return new DiscordEmbedBuilder
+		return new()
 		{
 			Title = title ?? "Error occured",
 			Description = errorMessage,

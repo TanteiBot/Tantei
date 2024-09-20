@@ -36,7 +36,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 
 	private static DiscordEmbedBuilder AddShortMediaLink(this DiscordEmbedBuilder eb, string fieldName, Media media, TitleLanguage language)
 	{
-		eb.AddField(fieldName, Formatter.MaskedUrl(media.Title.GetTitle(language), new Uri(media.Url)), inline: true);
+		eb.AddField(fieldName, Formatter.MaskedUrl(media.Title.GetTitle(language), new(media.Url)), inline: true);
 		return eb;
 	}
 

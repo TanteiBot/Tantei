@@ -174,7 +174,7 @@ internal static partial class Extensions
 
 		if (color is not null)
 		{
-			eb = eb.WithColor(new DiscordColor(color.ColorValue));
+			eb = eb.WithColor(new(color.ColorValue));
 		}
 
 		return eb;
@@ -279,7 +279,7 @@ internal static partial class Extensions
 			if (features.HasFlag(AniListUserFeatures.Studio))
 			{
 				var text = string.Join(", ", media.Studios.Nodes.Where(s => s.IsAnimationStudio)
-												  .Select(studio => Formatter.MaskedUrl(studio.Name, new Uri(studio.Url))));
+												  .Select(studio => Formatter.MaskedUrl(studio.Name, new(studio.Url))));
 				if (!string.IsNullOrEmpty(text))
 				{
 					eb.AddField("Made by", text, inline: true);
@@ -382,7 +382,7 @@ internal static partial class Extensions
 			fieldVal.Add($"{volumes} v.");
 		}
 
-		if (fieldVal is not [])
+		if (fieldVal is not [] and not null)
 		{
 			eb.AddField("Total", string.Join(", ", fieldVal), inline: true);
 		}

@@ -29,7 +29,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 			base.AddUserCommand(context, username);
 
 		[SlashCommand("remove", "Remove your MyAnimeList account updates from being tracked")]
-		public override Task RemoveUserInGuildCommand(InteractionContext context) => base.RemoveUserInGuildCommand(context);
+		public override Task RemoveUserCommand(InteractionContext context) => base.RemoveUserCommand(context);
 
 		[SlashCommand("list", "List accounts of all tracked user's on MyAnimeList in this server")]
 		public override Task ListUsersCommand(InteractionContext context) => base.ListUsersCommand(context);
