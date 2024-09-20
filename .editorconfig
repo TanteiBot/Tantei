@@ -2581,3 +2581,12 @@ dotnet_diagnostic.xUnit3000.severity = error
 # Title    : Classes that implement Xunit.Abstractions.IXunitSerializable must have a public parameterless constructor
 # Help Link: https://xunit.net/xunit.analyzers/rules/xUnit3001
 dotnet_diagnostic.xUnit3001.severity = error
+
+
+[*{Commands,CommandsModule}.cs]
+# Commands dont follow standard c# rules
+dotnet_diagnostic.VSTHRD200.severity = none
+dotnet_diagnostic.CA1822.severity = none
+
+[*ListType.cs]
+dotnet_diagnostic.S103.severity = none # Lines should not be too long

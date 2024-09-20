@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,7 +21,6 @@ namespace PaperMalKing.Startup.Commands;
 [SlashCommandGroup("admin", "Commands for owner")]
 [SlashRequireOwner]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-[SuppressMessage("Style", """VSTHRD200:Use "Async" suffix for async methods""", Justification = "It doesn't apply to commands")]
 internal sealed class AdminCommands(IHostApplicationLifetime _lifetime,
 									UpdateProvidersConfigurationService _providersConfigurationService,
 									UserCleanupService _cleanupService,

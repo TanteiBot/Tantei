@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -20,7 +19,6 @@ namespace PaperMalKing.Startup.Commands;
 [SlashCommandGroup("sm", "Commands for managing server")]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [OwnerOrPermissions(Permissions.ManageGuild)]
-[SuppressMessage("Style", """VSTHRD200:Use "Async" suffix for async methods""", Justification = "It doesn't apply to commands")]
 [GuildOnly]
 [SlashRequireGuild]
 internal sealed class GuildManagementCommands(GuildManagementService _managementService, GeneralUserService _userService) : BotCommandsModule

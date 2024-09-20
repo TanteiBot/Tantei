@@ -17,8 +17,6 @@ using PaperMalKing.Common.Attributes;
 namespace PaperMalKing.Startup.Commands;
 
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-[SuppressMessage("Style", """VSTHRD200:Use "Async" suffix for async methods""", Justification = "It doesn't apply to commands")]
-[SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "It doesn't apply to commands")]
 [GuildOnly]
 [SlashRequireGuild]
 internal sealed class UngroupedCommands : BotCommandsModule
@@ -59,7 +57,7 @@ internal sealed class UngroupedCommands : BotCommandsModule
 			await context.EditResponseAsync(
 				new DiscordWebhookBuilder().WithContent("Couldn't send message. Check permissions for bot and try again."));
 		}
-#pragma warning restore CA1031, ERP022
+#pragma warning restore
 	}
 
 	[SlashCommand("About", "Displays info about bot")]

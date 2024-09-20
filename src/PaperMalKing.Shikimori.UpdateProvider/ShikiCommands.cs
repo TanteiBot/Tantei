@@ -66,7 +66,7 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 	[SlashCommandGroup("colors", "Manage colors of your updates")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 	public sealed class ShikiColorsCommands(ILogger<ShikiColorsCommands> logger, CustomColorService<ShikiUser, ShikiUpdateType> colorService)
-		: BaseColorsCommandModule<ShikiUser, ShikiUpdateType>(logger, colorService)
+		: BaseColorsCommandsModule<ShikiUser, ShikiUpdateType>(logger, colorService)
 	{
 		[SlashCommand("set", "Set color for update update")]
 		public override Task SetColor(InteractionContext context,
