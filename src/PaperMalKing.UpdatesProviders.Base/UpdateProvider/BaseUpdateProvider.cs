@@ -85,7 +85,7 @@ public abstract class BaseUpdateProvider : BackgroundService, IUpdateProvider
 #pragma warning disable CA1031
 			// Modify 'ExecuteAsync' to catch a more specific allowed exception type, or rethrow the exception
 			catch (Exception e)
-#pragma warning restore CA1031
+#pragma warning restore
 			{
 				this.Logger.ErrorOnUpdateCheck(e, this.Name);
 			}
@@ -109,7 +109,7 @@ public abstract class BaseUpdateProvider : BackgroundService, IUpdateProvider
 				// Ignore
 				// Unobserved exception in a generic exception handler
 			}
-#pragma warning restore ERP022, CA1031
+#pragma warning restore
 		}
 	}
 

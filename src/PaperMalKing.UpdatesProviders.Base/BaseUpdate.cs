@@ -35,9 +35,10 @@ public sealed class BaseUpdate : IUpdate
 		}
 	}
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+#pragma warning disable CS1998
+	// Async method lacks 'await' operators and will run synchronously
 	private static async IAsyncEnumerable<DiscordEmbedBuilder> EmptyAsync()
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+#pragma warning restore
 	{
 		yield break;
 	}

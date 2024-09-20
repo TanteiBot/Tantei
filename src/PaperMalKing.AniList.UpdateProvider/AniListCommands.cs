@@ -65,7 +65,7 @@ internal sealed class AniListCommands : ApplicationCommandModule
 	[SlashCommandGroup("colors", "Manage colors of your updates")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 	public sealed class AniListColorsCommands(ILogger<AniListColorsCommands> logger, CustomColorService<AniListUser, AniListUpdateType> customColorService)
-		: BaseColorsCommandModule<AniListUser, AniListUpdateType>(logger, customColorService)
+		: BaseColorsCommandsModule<AniListUser, AniListUpdateType>(logger, customColorService)
 	{
 		[SlashCommand("set", "Set color for update update")]
 		public override Task SetColor(InteractionContext context,

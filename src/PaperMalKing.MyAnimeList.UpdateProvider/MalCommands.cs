@@ -70,7 +70,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 	[SlashCommandGroup("colors", "Manage colors of your updates")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 	public sealed class MalColorsCommands(ILogger<MalColorsCommands> logger, CustomColorService<MalUser, MalUpdateType> colorService)
-		: BaseColorsCommandModule<MalUser, MalUpdateType>(logger, colorService)
+		: BaseColorsCommandsModule<MalUser, MalUpdateType>(logger, colorService)
 	{
 		[SlashCommand("set", "Set color for update update")]
 		public override Task SetColor(InteractionContext context,

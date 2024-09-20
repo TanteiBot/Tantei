@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using PaperMalKing.Common.Enums;
 using static PaperMalKing.MyAnimeList.Wrapper.Abstractions.AnimeFieldsToRequest;
@@ -14,7 +13,6 @@ public abstract class AnimeListType : IListType
 {
 	public static ListEntryType ListEntryType => ListEntryType.Anime;
 
-	[SuppressMessage("Major Code Smell", "S103:Lines should not be too long", Justification = "It should be a single line")]
 	public static string LatestUpdatesUrl<TRequestOptions>(string username, TRequestOptions options)
 		where TRequestOptions : unmanaged, Enum
 	{

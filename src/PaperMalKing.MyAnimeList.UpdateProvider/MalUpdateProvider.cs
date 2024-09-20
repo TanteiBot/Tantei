@@ -116,7 +116,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 #pragma warning disable CA1031
 			// Modify 'CheckForUpdatesAsync' to catch a more specific allowed exception type, or rethrow the exception
 			catch (Exception exception)
-#pragma warning restore CA1031
+#pragma warning restore
 			{
 				this.Logger.EncounteredUnknownError(exception);
 				return;
