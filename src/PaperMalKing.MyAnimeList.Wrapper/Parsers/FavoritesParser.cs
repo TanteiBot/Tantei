@@ -5,7 +5,6 @@ using System;
 using System.Globalization;
 using AngleSharp.Dom;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
