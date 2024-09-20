@@ -14,7 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		makefile.p = makefile.p
 		tantei.service = tantei.service
 		.gitignore = .gitignore
-		global.json = global.json
 		justfile = justfile
 		BannedSymbols.txt = BannedSymbols.txt
 		global.json = global.json
