@@ -105,6 +105,11 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 				this.Logger.MalServerError(exception);
 				return;
 			}
+			catch (OperationCanceledException) when (perUserCancellationToken.IsCancellationRequested)
+			{
+				// Ignore we were canceled
+				return;
+			}
 			#pragma warning disable CA1031
 			// Modify 'CheckForUpdatesAsync' to catch a more specific allowed exception type, or rethrow the exception
 			catch (Exception exception)

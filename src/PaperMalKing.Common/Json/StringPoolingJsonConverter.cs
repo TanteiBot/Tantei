@@ -18,7 +18,7 @@ public sealed class StringPoolingJsonConverter : JsonConverter<string>
 {
 	private static readonly StringPool StringPool = new();
 
-	public const int MaxLengthLimit = 128;
+	public const int MaxLengthLimit = 256;
 
 	public static string ReadStringOrGetFromPool(ref Utf8JsonReader reader) => ReadStringOrGetFromPool(ref reader, StringPool);
 
@@ -30,7 +30,7 @@ public sealed class StringPoolingJsonConverter : JsonConverter<string>
 	public static string ReadStringOrGetFromPool(scoped ref Utf8JsonReader reader, StringPool stringPool)
 	{
 		Debug.Assert(reader.TokenType == JsonTokenType.String, "Must be a string");
-		if (reader.ValueIsEscaped || (reader.HasValueSequence ? reader.ValueSequence.Length : reader.ValueSpan.Length) > 256)
+		if (reader.ValueIsEscaped || (reader.HasValueSequence ? reader.ValueSequence.Length : reader.ValueSpan.Length) > MaxLengthLimit)
 		{
 			return reader.GetString()!;
 		}

@@ -76,7 +76,7 @@ public abstract class BaseUpdateProvider : BackgroundService, IUpdateProvider
 				this.Logger.StartCheckingForUpdates(this.Name);
 				await this.CheckForUpdatesAsync(stoppingToken);
 			}
-			catch (TaskCanceledException) when (stoppingToken.IsCancellationRequested)
+			catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
 			{
 				// Ignore
 				// We were cancelled

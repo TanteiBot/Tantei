@@ -35,14 +35,30 @@
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         </Content>
         <Content Include="ClientApp\tsconfig.json" />
-        <None Update="template.appsettings.Production.json" CopyToPublishDirectory="Always">
+        <Content Update="template.appsettings.Production.json" CopyToPublishDirectory="Always">
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        </None>
-        <None Update="appsettings.json" CopyToPublishDirectory="Always">
+        </Content>
+        <Content Update="appsettings.json" CopyToPublishDirectory="Always">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        </None>
+        </Content>
+        <Content Update="appsettings.Production.json" CopyToPublishDirectory="Never">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        </Content>
+        <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        </Content>
+        <Content Update="appsettings.Staging.json" CopyToPublishDirectory="Never">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        </Content>
+        <Content Update="neko.json" CopyToPublishDirectory="Never">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
