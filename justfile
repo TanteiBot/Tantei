@@ -13,7 +13,7 @@ script LastMigration:
     cd ./src/PaperMalKing/ && dotnet ef migrations script {{LastMigration}}
     
 publish:
-    rm -r -fo output && dotnet publish ./src/PaperMalKing/PaperMalKing.csproj -c Release -o output
+    rm -r -fo output | dotnet publish ./src/PaperMalKing/PaperMalKing.csproj -c Release -o output
     
 benchmark Filter:
     cd ./benchmarks/Tantei.Benchmarks && dotnet run -c Release -- --filter *{{Filter}}*

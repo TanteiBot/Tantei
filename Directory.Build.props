@@ -128,7 +128,11 @@
         <When Condition="'$(Configuration)' == 'Debug'">
             <PropertyGroup>
                 <WarningsNotAsErrors>$(WarningsNotAsErrors);
+                    CA1031; <!--Modify to catch a more specific allowed exception type, or rethrow the exception-->
                     CA1822;
+                    CS0168; <!--The variable is declared but never used-->
+
+                    ERP022; <!--An exit point swallows an unobserved exception-->
                     
                     IDE0005; <!--Using directive is unnecessary.-->
                     IDE0009; <!--Add 'this' or 'Me' qualification-->

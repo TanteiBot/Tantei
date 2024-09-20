@@ -140,7 +140,7 @@ internal sealed class DiscordBackgroundService : BackgroundService
 							await this._client.UpdateStatusAsync(discordActivity, userStatus);
 							await Task.Delay(TimeSpan.FromMilliseconds(options.TimeToBeDisplayedInMilliseconds), token);
 						}
-						catch (TaskCanceledException)
+						catch (OperationCanceledException) when (token.IsCancellationRequested)
 						{
 							// Ignore
 						}
