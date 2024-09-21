@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
+using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
@@ -69,8 +70,7 @@ public sealed class CustomColorService<TUser, TUpdateType>
 			return null;
 		}
 
-		return $"Your colors: {string.Join('\n',
-			colors.Select(c =>
-				$"{(TUpdateType)(object)c.UpdateType}: #{string.Create(CultureInfo.InvariantCulture, $"{c.ColorValue:X6}")}"))}";
+		return $"Your colors: {colors.Select(c =>
+			$"{(TUpdateType)(object)c.UpdateType}: #{string.Create(CultureInfo.InvariantCulture, $"{c.ColorValue:X6}")}").JoinToString('\n')}";
 	}
 }

@@ -44,9 +44,7 @@ internal static partial class UserProfileParser
 				return [];
 			}
 
-			return ParseFavoriteBase(
-				animeFavoritesNodes,
-				node => new FavoriteAnime(ParseListEntryFavorite(node)));
+			return ParseFavoriteBase(animeFavoritesNodes, node => new FavoriteAnime(ParseListEntryFavorite(node)));
 		}
 
 		private static FavoriteManga[] ParseFavoriteManga(IDocument parent)
@@ -57,9 +55,7 @@ internal static partial class UserProfileParser
 				return [];
 			}
 
-			return ParseFavoriteBase(
-				mangaFavoriteNodes,
-				node => new FavoriteManga(ParseListEntryFavorite(node)));
+			return ParseFavoriteBase(mangaFavoriteNodes, node => new FavoriteManga(ParseListEntryFavorite(node)));
 		}
 
 		private static FavoriteCharacter[] ParseFavoriteCharacter(IDocument parent)

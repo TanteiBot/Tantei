@@ -44,8 +44,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 		: BaseUserFeaturesCommandsModule<MalUser, MalUserFeatures>(userFeaturesService, logger)
 	{
 		[SlashCommand("enable", "Enable features for your updates")]
-		public override Task EnableFeatureCommand(
-			InteractionContext context,
+		public override Task EnableFeatureCommand(InteractionContext context,
 			[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<MalUserFeatures>, MalUserFeatures>)),
 			Option("feature", "Feature to enable")]
 			string unparsedFeature)
@@ -54,8 +53,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 		}
 
 		[SlashCommand("disable", "Disable features for your updates")]
-		public override Task DisableFeatureCommand(
-			InteractionContext context,
+		public override Task DisableFeatureCommand(InteractionContext context,
 			[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<MalUserFeatures>, MalUserFeatures>)),
 			Option("feature", "Feature to enable")]
 			string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);

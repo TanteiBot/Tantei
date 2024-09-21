@@ -132,14 +132,13 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 							AnimeMediaType, AnimeAiringStatus, AnimeListStatus>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp, cancellationToken)
 					: [];
 
-			var mangaListUpdates = (dbUser.Features.HasFlag(MalUserFeatures.MangaList) && user.HasPublicMangaUpdates && !dbUser.LastMangaUpdateHash.Equals(user.LatestMangaUpdateHash, StringComparison.Ordinal))
-				? await this.CheckLatestListUpdatesAsync<MangaListEntry, MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus,
-							MangaMediaType, MangaPublishingStatus, MangaListStatus>(
-							dbUser,
-							user,
-							dbUser.LastUpdatedMangaListTimestamp,
+			var mangaListUpdates =
+				(dbUser.Features.HasFlag(MalUserFeatures.MangaList) && user.HasPublicMangaUpdates && !dbUser.LastMangaUpdateHash.Equals(user.LatestMangaUpdateHash, StringComparison.Ordinal))
+					? await this
+						.CheckLatestListUpdatesAsync<MangaListEntry, MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus,
+							MangaMediaType, MangaPublishingStatus, MangaListStatus>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp,
 							cancellationToken)
-				: [];
+					: [];
 
 			if ((dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch) ||
 				animeListUpdates is not [] || mangaListUpdates is not [])

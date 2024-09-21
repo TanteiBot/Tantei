@@ -10,7 +10,7 @@ namespace PaperMalKing.Common;
 
 public static partial class TypeExtensions
 {
-	[GeneratedRegex("<.*?>", RegexOptions.Compiled, matchTimeoutMilliseconds: 60000/*1m*/)]
+	[GeneratedRegex("<.*?>", RegexOptions.Compiled, matchTimeoutMilliseconds: 1000/*1s*/)]
 	private static partial Regex HtmlRegex { get; }
 
 	public static string? ToSentenceCase(this string? value, CultureInfo cultureInfo)
@@ -61,7 +61,7 @@ public static partial class TypeExtensions
 			return ex.Message;
 		}
 
-		return string.Join(";\n", GetMessage(ex));
+		return GetMessage(ex).JoinToString(";\n");
 
 		static IEnumerable<string> GetMessage(Exception exception)
 		{

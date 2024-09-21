@@ -45,8 +45,7 @@ public static class HostBuilderExtensions
 		{
 			static void ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
 			{
-				builder.UseSqlite(
-					services.GetRequiredService<IConfiguration>().GetConnectionString("Default"),
+				builder.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("Default"),
 					o => o.MigrationsAssembly("PaperMalKing.Database.Migrations"))
 					   .UseModel(DatabaseContextModel.Instance);
 			}

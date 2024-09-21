@@ -9,8 +9,7 @@ namespace PaperMalKing.Common;
 
 public static class CollectionExtensions
 {
-	public static (IReadOnlyList<T> AddedValues, IReadOnlyList<T> RemovedValues) GetDifference<T>(
-		this IReadOnlyList<T> original, IReadOnlyList<T> resulting)
+	public static (IReadOnlyList<T> AddedValues, IReadOnlyList<T> RemovedValues) GetDifference<T>(this IReadOnlyList<T> original, IReadOnlyList<T> resulting)
 		where T : IEquatable<T>
 	{
 		var originalHs = new HashSet<T>(original);
@@ -80,4 +79,10 @@ public static class CollectionExtensions
 	{
 		return values.Aggregate(seed: true, (current, value) => hs.Add(value) && current);
 	}
+
+	public static string JoinToString(this IEnumerable<string> values) => values.JoinToString(", ");
+
+	public static string JoinToString(this IEnumerable<string> values, string separator) => string.Join(separator, values);
+
+	public static string JoinToString(this IEnumerable<string> values, char separator) => string.Join(separator, values);
 }

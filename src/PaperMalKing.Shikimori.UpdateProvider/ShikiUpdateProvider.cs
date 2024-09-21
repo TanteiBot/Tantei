@@ -205,8 +205,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 
 			if ((dbUser.Features.HasFlag(ShikiUserFeatures.Mangaka) && isManga) || (dbUser.Features.HasFlag(ShikiUserFeatures.Director) && isAnime))
 			{
-				favouriteMediaRoles.Roles = await _client.GetMediaStaffAsync(
-					favouriteMediaRoles.FavouriteEntry.Id,
+				favouriteMediaRoles.Roles = await _client.GetMediaStaffAsync(favouriteMediaRoles.FavouriteEntry.Id,
 					isAnime ? ListEntryType.Anime : ListEntryType.Manga,
 					cancellationToken);
 			}

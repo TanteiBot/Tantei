@@ -43,15 +43,13 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 		: BaseUserFeaturesCommandsModule<ShikiUser, ShikiUserFeatures>(userFeaturesService, logger)
 	{
 		[SlashCommand("enable", "Enable features for your updates")]
-		public override Task EnableFeatureCommand(
-								InteractionContext context,
+		public override Task EnableFeatureCommand(InteractionContext context,
 								[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<ShikiUserFeatures>, ShikiUserFeatures>)),
 								Option("feature", "Feature to enable")]
 								string unparsedFeature) => base.EnableFeatureCommand(context, unparsedFeature);
 
 		[SlashCommand("disable", "Disable features for your updates")]
-		public override Task DisableFeatureCommand(
-								InteractionContext context,
+		public override Task DisableFeatureCommand(InteractionContext context,
 								[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<ShikiUserFeatures>, ShikiUserFeatures>)),
 								Option("feature", "Feature to disable")]
 								string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);

@@ -41,8 +41,7 @@ internal sealed class ShikiUserService(IShikiClient _client, ILogger<ShikiUserSe
 			guild = db.DiscordGuilds.TagWith("Query guild to add existing user to it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
 			{
-				throw new UserProcessingException(
-					BaseUser.FromUsername(username),
+				throw new UserProcessingException(BaseUser.FromUsername(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
 			}
 
@@ -54,8 +53,7 @@ internal sealed class ShikiUserService(IShikiClient _client, ILogger<ShikiUserSe
 		guild = db.DiscordGuilds.TagWith("Query guild to add new user to it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
 		{
-			throw new UserProcessingException(
-				BaseUser.FromUsername(username),
+			throw new UserProcessingException(BaseUser.FromUsername(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
 		}
 
