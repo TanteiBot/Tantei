@@ -60,7 +60,7 @@
     <PackageVersion Include="Polly.Contrib.WaitAndRetry" Version="1.1.1" />
 
     <!-- Web -->
-    <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="8.1.0" />
+    <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="8.2.0" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.8" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.8" />
 
