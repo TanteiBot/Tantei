@@ -308,7 +308,7 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Tags) && listEntry.Status.Tags is not null and not [])
 		{
-			var joinedTags = string.Join(", ", listEntry.Status.Tags);
+			var joinedTags = listEntry.Status.Tags.JoinToString();
 			if (!string.IsNullOrWhiteSpace(joinedTags))
 			{
 				AddAsFieldOrTruncateToDescription(eb, "Tags", joinedTags);
@@ -322,7 +322,7 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Genres) && listEntry.Node.Genres is not null and not [])
 		{
-			var genres = string.Join(", ", listEntry.Node.Genres.Take(7).Select(x => x.Name.ToFirstCharUpperCase()));
+			var genres = listEntry.Node.Genres.Take(7).Select(x => x.Name.ToFirstCharUpperCase()).JoinToString();
 			if (!string.IsNullOrWhiteSpace(genres))
 			{
 				AddAsFieldOrTruncateToDescription(eb, "Genres", genres);
@@ -331,7 +331,7 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Themes) && mediaInfo.Themes is not [])
 		{
-			var themes = string.Join(", ", mediaInfo.Themes.Take(7));
+			var themes = mediaInfo.Themes.Take(7).JoinToString();
 			if (!string.IsNullOrWhiteSpace(themes))
 			{
 				AddAsFieldOrTruncateToDescription(eb, "Themes", themes);
@@ -340,7 +340,7 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Demographic) && mediaInfo.Demographic is not [])
 		{
-			var demographic = string.Join(", ", mediaInfo.Demographic.Take(3));
+			var demographic = mediaInfo.Demographic.Take(3).JoinToString();
 			if (!string.IsNullOrWhiteSpace(demographic))
 			{
 				AddAsFieldOrTruncateToDescription(eb, "Demographic", demographic);
@@ -389,7 +389,7 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Studio) && listEntry is AnimeListEntry { Node.Studios: not null and not [] } aListEntry)
 		{
-			var studios = string.Join(", ", aListEntry.Node.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
+			var studios = aListEntry.Node.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))).JoinToString();
 			if (!string.IsNullOrWhiteSpace(studios))
 			{
 				AddAsFieldOrTruncateToDescription(eb, "Studios", studios);
@@ -399,7 +399,7 @@ internal static class Extensions
 		if (features.HasFlag(MalUserFeatures.Seiyu) && listEntry is AnimeListEntry)
 		{
 			var seiyu = await client.GetAnimeSeiyuAsync(listEntry.Node.Id, cancellationToken);
-			var text = string.Join(", ", seiyu.Take(7).Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
+			var text = seiyu.Take(7).Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))).JoinToString();
 			if (!string.IsNullOrWhiteSpace(text))
 			{
 				AddAsFieldOrTruncateToDescription(eb, "Seiyu", text);
@@ -408,12 +408,12 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Mangakas) && listEntry is MangaListEntry { Node.Authors: not null and not [] } mListEntry)
 		{
-			var authors = string.Join(", ", mListEntry.Node.Authors.Take(7).Select(x =>
+			var authors = mListEntry.Node.Authors.Take(7).Select(x =>
 			{
 				var name =
 					$"{(!string.IsNullOrEmpty(x.Person.LastName) ? $"{x.Person.LastName}, {x.Person.FirstName}" : x.Person.FirstName)} ({x.Role})";
 				return Formatter.MaskedUrl(name, new(x.Person.Url));
-			}));
+			}).JoinToString();
 
 			if (!string.IsNullOrWhiteSpace(authors))
 			{

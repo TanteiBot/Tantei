@@ -27,10 +27,10 @@ internal static partial class Extensions
 {
 	private const int InlineFieldValueMaxLength = 30;
 
-	[GeneratedRegex(@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase, matchTimeoutMilliseconds: 30000/*30s*/)]
+	[GeneratedRegex(@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase, matchTimeoutMilliseconds: 1000/*1s*/)]
 	internal static partial Regex SourceRemovalRegex { get; }
 
-	[GeneratedRegex(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline, matchTimeoutMilliseconds: 30000/*30s*/)]
+	[GeneratedRegex(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline, matchTimeoutMilliseconds: 1000/*1s*/)]
 	internal static partial Regex EmptyLinesRemovalRegex { get; }
 
 	private static readonly SearchValues<string> IgnoredRoles = SearchValues.Create([
@@ -62,11 +62,8 @@ internal static partial class Extensions
 		IconUrl = ProviderConstants.IconUrl,
 	};
 
-	public static async Task<CombinedRecentUpdatesResponse> GetAllRecentUserUpdatesAsync(
-		this IAniListClient client,
-		AniListUser user,
-		AniListUserFeatures features,
-		CancellationToken cancellationToken)
+	public static async Task<CombinedRecentUpdatesResponse> GetAllRecentUserUpdatesAsync(this IAniListClient client, AniListUser user,
+																						 AniListUserFeatures features, CancellationToken cancellationToken)
 	{
 		const ushort initialPerChunkValue = 50;
 		const ushort extendedPerChunkValue = 500;
@@ -185,9 +182,8 @@ internal static partial class Extensions
 	{
 		var features = dbUser.Features;
 		var isAnime = activity.Media.Type == ListType.ANIME;
-		var isHiddenProgressPresent = !string.IsNullOrEmpty(activity.Progress) && (mediaListEntry.Status == MediaListStatus.PAUSED ||
-																				   mediaListEntry.Status == MediaListStatus.DROPPED ||
-																				   mediaListEntry.Status == MediaListStatus.COMPLETED);
+		var isHiddenProgressPresent = !string.IsNullOrEmpty(activity.Progress) && mediaListEntry.Status is MediaListStatus.PAUSED or MediaListStatus.DROPPED or MediaListStatus.COMPLETED;
+
 		var desc = isHiddenProgressPresent ?
 			$"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it" :
 			$"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}";
@@ -264,7 +260,7 @@ internal static partial class Extensions
 
 		if (features.HasFlag(AniListUserFeatures.CustomLists) && mediaListEntry.CustomLists?.Any(x => x.Enabled) == true)
 		{
-			eb.AddField("Custom lists", string.Join(", ", mediaListEntry.CustomLists.Where(x => x.Enabled).Select(x => x.Name)), inline: true);
+			eb.AddField("Custom lists", mediaListEntry.CustomLists.Where(x => x.Enabled).Select(x => x.Name).JoinToString(), inline: true);
 		}
 
 		return eb.EnrichWithMediaInfo(activity.Media, user, features);
@@ -278,8 +274,9 @@ internal static partial class Extensions
 		{
 			if (features.HasFlag(AniListUserFeatures.Studio))
 			{
-				var text = string.Join(", ", media.Studios.Nodes.Where(s => s.IsAnimationStudio)
-												  .Select(studio => Formatter.MaskedUrl(studio.Name, new(studio.Url))));
+				var text = media.Studios.Nodes.Where(s => s.IsAnimationStudio)
+								.Select(studio => Formatter.MaskedUrl(studio.Name, new(studio.Url))).JoinToString();
+
 				if (!string.IsNullOrEmpty(text))
 				{
 					eb.AddField("Made by", text, inline: true);
@@ -297,11 +294,11 @@ internal static partial class Extensions
 
 			if (features.HasFlag(AniListUserFeatures.Seyu))
 			{
-				var seyus = string.Join(", ", media.Characters.Nodes.Where(x => x.VoiceActors is not []).Select(x =>
+				var seyus = media.Characters.Nodes.Where(x => x.VoiceActors is not []).Select(x =>
 				{
 					var seyu = x.VoiceActors[0];
 					return Formatter.MaskedUrl(seyu.Name.GetName(user.Options.TitleLanguage), new(seyu.Url));
-				}));
+				}).JoinToString();
 				if (!string.IsNullOrEmpty(seyus))
 				{
 					eb.AddField("Seyu", seyus);
@@ -313,12 +310,10 @@ internal static partial class Extensions
 			// If not anime then its manga
 			if (features.HasFlag(AniListUserFeatures.Mangaka))
 			{
-				var text = string.Join(
-					", ",
-					media.Staff.Nodes
-						 .Where(edge => !edge.Role.AsSpan().ContainsAny(IgnoredRoles)).Take(7)
-						 .Select(edge =>
-							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
+				var text = media.Staff.Nodes
+								.Where(edge => !edge.Role.AsSpan().ContainsAny(IgnoredRoles)).Take(7)
+								.Select(edge =>
+									$"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}").JoinToString();
 				if (!string.IsNullOrEmpty(text))
 				{
 					eb.AddField("Made by", text, inline: true);
@@ -328,15 +323,13 @@ internal static partial class Extensions
 
 		if (features.HasFlag(AniListUserFeatures.Genres) && media.Genres is not [])
 		{
-			var fieldVal = string.Join(", ", media.Genres);
+			var fieldVal = media.Genres.JoinToString();
 			eb.AddField("Genres", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 		}
 
 		if (features.HasFlag(AniListUserFeatures.Tags) && media.Tags is not [])
 		{
-			var fieldVal = string.Join(
-				", ",
-				media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? $"||{t.Name}||" : t.Name));
+			var fieldVal = media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? Formatter.Spoiler(t.Name) : t.Name).JoinToString();
 			eb.AddField("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 		}
 
@@ -384,7 +377,7 @@ internal static partial class Extensions
 
 		if (fieldVal is not [] and not null)
 		{
-			eb.AddField("Total", string.Join(", ", fieldVal), inline: true);
+			eb.AddField("Total", fieldVal.JoinToString(), inline: true);
 		}
 
 		return eb;

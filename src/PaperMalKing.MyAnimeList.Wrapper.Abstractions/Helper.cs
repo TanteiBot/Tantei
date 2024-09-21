@@ -8,7 +8,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 
 public static partial class Helper
 {
-	[GeneratedRegex(@"(?<=\/)(?<id>\d+)(?=\/)", RegexOptions.Compiled, matchTimeoutMilliseconds: 20000 /*20s*/)]
+	[GeneratedRegex(@"(?<=\/)(?<id>\d+)(?=\/)", RegexOptions.Compiled, matchTimeoutMilliseconds: 1000 /*1s*/)]
 	private static partial Regex IdFromUrlRegex { get; }
 
 	public static uint ExtractIdFromMalUrl(string url) => uint.Parse(IdFromUrlRegex.Match(url).Groups["id"].Value, NumberFormatInfo.InvariantInfo);

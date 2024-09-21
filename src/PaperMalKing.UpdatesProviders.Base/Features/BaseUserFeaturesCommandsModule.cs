@@ -75,7 +75,7 @@ public abstract class BaseUserFeaturesCommandsModule<TUser, TFeature> : BotComma
 	}
 
 	public virtual Task ListFeaturesCommand(InteractionContext context) => context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("All features")
-		.WithDescription(string.Join(";\n", FeaturesHelper<TFeature>.Features.Select(x => $"[{x.Description}] - {x.Summary}"))));
+		.WithDescription(FeaturesHelper<TFeature>.Features.Select(x => $"[{x.Description}] - {x.Summary}").JoinToString(";\n")));
 
 	public virtual Task EnabledFeaturesCommand(InteractionContext context)
 	{
