@@ -34,6 +34,7 @@ public static class ServiceCollectionExtensions
 						 .ConfigurePrimaryHttpMessageHandler(_ => HttpClientHandlerFactory()).AddHttpMessageHandler(GetRateLimiterHandler)
 						 .ConfigureHttpClient(client =>
 						 {
+							 client.Timeout = TimeSpan.FromSeconds(120L);
 							 client.DefaultRequestHeaders.UserAgent.Clear();
 							 client.DefaultRequestHeaders.UserAgent.ParseAdd(
 								 "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36");
