@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -45,9 +46,33 @@ public static class HostBuilderExtensions
 		{
 			static void ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
 			{
+				var environment = services.GetRequiredService<IHostEnvironment>();
+
 				builder.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("Default"),
 					o => o.MigrationsAssembly("PaperMalKing.Database.Migrations"))
-					   .UseModel(DatabaseContextModel.Instance);
+					   .UseModel(DatabaseContextModel.Instance)
+					   .ConfigureWarnings(w =>
+					   {
+						   List<EventId> eventIds =
+						   [
+							   RelationalEventId.MultipleCollectionIncludeWarning, RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
+							   RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
+							   RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable,
+							   RelationalEventId.KeyPropertiesNotMappedToTable, RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables,
+							   RelationalEventId.ForeignKeyTpcPrincipalWarning,
+						   ];
+
+						   if (environment.IsDevelopment())
+						   {
+							   w.Throw([.. eventIds])
+								.Log((RelationalEventId.PendingModelChangesWarning, LogLevel.Error));
+						   }
+						   else
+						   {
+							   eventIds.Add(RelationalEventId.PendingModelChangesWarning);
+							   w.Throw([.. eventIds]);
+						   }
+					   });
 			}
 
 			services.AddDbContextFactory<DatabaseContext>(ConfigureDbContext);
