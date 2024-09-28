@@ -43,7 +43,7 @@ public static class ServiceCollectionExtensions
 		}).ConfigureHttpClient((provider, client) =>
 		{
 			client.DefaultRequestHeaders.UserAgent.Clear();
-			client.DefaultRequestHeaders.UserAgent.ParseAdd($"{provider.GetRequiredService<IOptions<ShikiOptions>>().Value.ShikimoriAppName}");
+			client.DefaultRequestHeaders.UserAgent.ParseAdd(provider.GetRequiredService<IOptions<ShikiOptions>>().Value.ShikimoriAppName);
 			client.BaseAddress = new(Wrapper.Abstractions.Constants.BaseUrl);
 		});
 		serviceCollection.AddSingleton<IShikiClient, ShikiClient>(provider =>
