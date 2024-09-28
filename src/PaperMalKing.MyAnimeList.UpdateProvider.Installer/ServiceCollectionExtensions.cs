@@ -29,15 +29,14 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton(RateLimiterExtensions.ConfigurationLambda<MalOptions, IMyAnimeListClient>);
 
 		var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError().OrResult(static message => message.StatusCode == HttpStatusCode.TooManyRequests)
-											  .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));
+											  .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 3));
 		serviceCollection.AddHttpClient(Constants.UnOfficialApiHttpClientName).AddPolicyHandler(retryPolicy)
 						 .ConfigurePrimaryHttpMessageHandler(_ => HttpClientHandlerFactory()).AddHttpMessageHandler(GetRateLimiterHandler)
 						 .ConfigureHttpClient(client =>
 						 {
 							 client.Timeout = TimeSpan.FromSeconds(120L);
 							 client.DefaultRequestHeaders.UserAgent.Clear();
-							 client.DefaultRequestHeaders.UserAgent.ParseAdd(
-								 "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36");
+							 client.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.UserAgent);
 						 });
 		serviceCollection.AddHttpClient(Constants.OfficialApiHttpClientName).AddPolicyHandler(retryPolicy)
 						 .ConfigurePrimaryHttpMessageHandler(_ => HttpClientHandlerFactory()).AddHttpMessageHandler(GetRateLimiterHandler)
@@ -56,7 +55,7 @@ public static class ServiceCollectionExtensions
 							 var rl = new RateLimitValue(3, TimeSpan.FromSeconds(1, 500)); // 3rps with 0.5 as inaccuracy
 							 return RateLimiterFactory.Create<IJikan>(rl).ToHttpMessageHandler();
 						 })
-						 .ConfigureHttpClient(client => client.BaseAddress = new("https://api.jikan.moe/v4/"));
+						 .ConfigureHttpClient(client => client.BaseAddress = new(Constants.JikanApiUrl));
 		serviceCollection.AddSingleton<IJikan>(provider => new Jikan(
 			new()
 			{
