@@ -273,7 +273,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 			where TWf : BaseFavorite
 		{
 			var withUserQuery = dbSet.Where(x => x.UserId == user.Id).TagWith("Query favorite info for user").TagWithCallSite();
-			var dbIds = withUserQuery.Select(x => x.Id).OrderBy(x => x).ToArray();
+			var dbIds = withUserQuery.Select(x => x.Id).Order().ToArray();
 			var sr = resulting.Select(fav => fav.Url.Id).Order().ToArray();
 			if (dbIds.AsSpan().SequenceEqual(sr))
 			{
