@@ -268,7 +268,7 @@ namespace PaperMalKing.Database.CompiledModels
                 ISnapshot (InternalEntityEntry source) =>
                 {
                     var entity = ((DiscordUser)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<ulong, uint, object, object>(((ValueComparer<ulong>)(((IProperty)discordUserId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<ulong>(discordUserId)), ((ValueComparer<uint>)(((IProperty)botUserId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<uint>(botUserId)), DiscordUserUnsafeAccessors.BotUser(entity), null)));
+                    return ((ISnapshot)(new Snapshot<ulong, uint, object, object>(((ValueComparer<ulong>)(((IProperty)discordUserId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<ulong>(discordUserId)), ((ValueComparer<uint>)(((IProperty)botUserId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<uint>(botUserId)), DiscordUserUnsafeAccessors.BotUser(entity), (object)(null))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,
