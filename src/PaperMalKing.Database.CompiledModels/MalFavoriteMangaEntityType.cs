@@ -3,13 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models.MyAnimeList;
 
 #pragma warning disable 219, 612, 618
@@ -38,70 +33,12 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(BaseMalListFavorite).GetProperty("StartYear", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(BaseMalListFavorite).GetField("<StartYear>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (ushort)0);
-            startYear.SetGetter(
-                ushort (MalFavoriteManga entity) => BaseMalListFavoriteUnsafeAccessors.StartYear(entity),
-                bool (MalFavoriteManga entity) => BaseMalListFavoriteUnsafeAccessors.StartYear(entity) == 0,
-                ushort (MalFavoriteManga instance) => BaseMalListFavoriteUnsafeAccessors.StartYear(instance),
-                bool (MalFavoriteManga instance) => BaseMalListFavoriteUnsafeAccessors.StartYear(instance) == 0);
-            startYear.SetSetter(
-                (MalFavoriteManga entity, ushort value) => BaseMalListFavoriteUnsafeAccessors.StartYear(entity) = value);
-            startYear.SetMaterializationSetter(
-                (MalFavoriteManga entity, ushort value) => BaseMalListFavoriteUnsafeAccessors.StartYear(entity) = value);
-            startYear.SetAccessors(
-                ushort (InternalEntityEntry entry) => BaseMalListFavoriteUnsafeAccessors.StartYear(((MalFavoriteManga)(entry.Entity))),
-                ushort (InternalEntityEntry entry) => BaseMalListFavoriteUnsafeAccessors.StartYear(((MalFavoriteManga)(entry.Entity))),
-                ushort (InternalEntityEntry entry) => entry.ReadOriginalValue<ushort>(startYear, 6),
-                ushort (InternalEntityEntry entry) => entry.GetCurrentValue<ushort>(startYear),
-                object (ValueBuffer valueBuffer) => valueBuffer[6]);
-            startYear.SetPropertyIndexes(
-                index: 6,
-                originalValueIndex: 6,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            startYear.TypeMapping = UShortTypeMapping.Default.Clone(
-                comparer: new ValueComparer<ushort>(
-                    bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
-                    ushort (ushort v) => v),
-                keyComparer: new ValueComparer<ushort>(
-                    bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
-                    ushort (ushort v) => v),
-                providerValueComparer: new ValueComparer<ushort>(
-                    bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
-                    ushort (ushort v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var type = runtimeEntityType.AddProperty(
                 "Type",
                 typeof(string),
                 propertyInfo: typeof(BaseMalListFavorite).GetProperty("Type", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(BaseMalListFavorite).GetField("<Type>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-            type.SetGetter(
-                string (MalFavoriteManga entity) => BaseMalListFavoriteUnsafeAccessors.Type(entity),
-                bool (MalFavoriteManga entity) => BaseMalListFavoriteUnsafeAccessors.Type(entity) == null,
-                string (MalFavoriteManga instance) => BaseMalListFavoriteUnsafeAccessors.Type(instance),
-                bool (MalFavoriteManga instance) => BaseMalListFavoriteUnsafeAccessors.Type(instance) == null);
-            type.SetSetter(
-                (MalFavoriteManga entity, string value) => BaseMalListFavoriteUnsafeAccessors.Type(entity) = value);
-            type.SetMaterializationSetter(
-                (MalFavoriteManga entity, string value) => BaseMalListFavoriteUnsafeAccessors.Type(entity) = value);
-            type.SetAccessors(
-                string (InternalEntityEntry entry) => BaseMalListFavoriteUnsafeAccessors.Type(((MalFavoriteManga)(entry.Entity))),
-                string (InternalEntityEntry entry) => BaseMalListFavoriteUnsafeAccessors.Type(((MalFavoriteManga)(entry.Entity))),
-                string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(type, 7),
-                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(type),
-                object (ValueBuffer valueBuffer) => valueBuffer[7]);
-            type.SetPropertyIndexes(
-                index: 7,
-                originalValueIndex: 7,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            type.TypeMapping = SqliteStringTypeMapping.Default;
 
             return runtimeEntityType;
         }
@@ -121,27 +58,6 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(BaseMalFavorite).GetProperty("User", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(BaseMalFavorite).GetField("<User>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
-            user.SetGetter(
-                MalUser (MalFavoriteManga entity) => BaseMalFavoriteUnsafeAccessors.User(entity),
-                bool (MalFavoriteManga entity) => BaseMalFavoriteUnsafeAccessors.User(entity) == null,
-                MalUser (MalFavoriteManga instance) => BaseMalFavoriteUnsafeAccessors.User(instance),
-                bool (MalFavoriteManga instance) => BaseMalFavoriteUnsafeAccessors.User(instance) == null);
-            user.SetSetter(
-                (MalFavoriteManga entity, MalUser value) => BaseMalFavoriteUnsafeAccessors.User(entity) = value);
-            user.SetMaterializationSetter(
-                (MalFavoriteManga entity, MalUser value) => BaseMalFavoriteUnsafeAccessors.User(entity) = value);
-            user.SetAccessors(
-                MalUser (InternalEntityEntry entry) => BaseMalFavoriteUnsafeAccessors.User(((MalFavoriteManga)(entry.Entity))),
-                MalUser (InternalEntityEntry entry) => BaseMalFavoriteUnsafeAccessors.User(((MalFavoriteManga)(entry.Entity))),
-                null,
-                MalUser (InternalEntityEntry entry) => entry.GetCurrentValue<MalUser>(user),
-                null);
-            user.SetPropertyIndexes(
-                index: 0,
-                originalValueIndex: -1,
-                shadowIndex: -1,
-                relationshipIndex: 3,
-                storeGenerationIndex: -1);
             var favoriteMangas = principalEntityType.AddNavigation("FavoriteMangas",
                 runtimeForeignKey,
                 onDependent: false,
@@ -149,75 +65,11 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(MalUser).GetProperty("FavoriteMangas", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(MalUser).GetField("<FavoriteMangas>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
-            favoriteMangas.SetGetter(
-                IList<MalFavoriteManga> (MalUser entity) => MalUserUnsafeAccessors.FavoriteMangas(entity),
-                bool (MalUser entity) => MalUserUnsafeAccessors.FavoriteMangas(entity) == null,
-                IList<MalFavoriteManga> (MalUser instance) => MalUserUnsafeAccessors.FavoriteMangas(instance),
-                bool (MalUser instance) => MalUserUnsafeAccessors.FavoriteMangas(instance) == null);
-            favoriteMangas.SetSetter(
-                (MalUser entity, IList<MalFavoriteManga> value) => MalUserUnsafeAccessors.FavoriteMangas(entity) = value);
-            favoriteMangas.SetMaterializationSetter(
-                (MalUser entity, IList<MalFavoriteManga> value) => MalUserUnsafeAccessors.FavoriteMangas(entity) = value);
-            favoriteMangas.SetAccessors(
-                IList<MalFavoriteManga> (InternalEntityEntry entry) => MalUserUnsafeAccessors.FavoriteMangas(((MalUser)(entry.Entity))),
-                IList<MalFavoriteManga> (InternalEntityEntry entry) => MalUserUnsafeAccessors.FavoriteMangas(((MalUser)(entry.Entity))),
-                null,
-                IList<MalFavoriteManga> (InternalEntityEntry entry) => entry.GetCurrentValue<IList<MalFavoriteManga>>(favoriteMangas),
-                null);
-            favoriteMangas.SetPropertyIndexes(
-                index: 5,
-                originalValueIndex: -1,
-                shadowIndex: -1,
-                relationshipIndex: 7,
-                storeGenerationIndex: -1);
-            favoriteMangas.SetCollectionAccessor<MalUser, IList<MalFavoriteManga>, MalFavoriteManga>(
-                IList<MalFavoriteManga> (MalUser entity) => MalUserUnsafeAccessors.FavoriteMangas(entity),
-                (MalUser entity, IList<MalFavoriteManga> collection) => MalUserUnsafeAccessors.FavoriteMangas(entity) = ((IList<MalFavoriteManga>)(collection)),
-                (MalUser entity, IList<MalFavoriteManga> collection) => MalUserUnsafeAccessors.FavoriteMangas(entity) = ((IList<MalFavoriteManga>)(collection)),
-                IList<MalFavoriteManga> (MalUser entity, Action<MalUser, IList<MalFavoriteManga>> setter) => ClrCollectionAccessorFactory.CreateAndSet<MalUser, IList<MalFavoriteManga>, List<MalFavoriteManga>>(entity, setter),
-                IList<MalFavoriteManga> () => new List<MalFavoriteManga>());
             return runtimeForeignKey;
         }
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id");
-            var userId = runtimeEntityType.FindProperty("UserId");
-            var favoriteType = runtimeEntityType.FindProperty("FavoriteType");
-            var imageUrl = runtimeEntityType.FindProperty("ImageUrl");
-            var name = runtimeEntityType.FindProperty("Name");
-            var nameUrl = runtimeEntityType.FindProperty("NameUrl");
-            var startYear = runtimeEntityType.FindProperty("StartYear");
-            var type = runtimeEntityType.FindProperty("Type");
-            var user = runtimeEntityType.FindNavigation("User");
-            runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (InternalEntityEntry source) =>
-                {
-                    var entity = ((MalFavoriteManga)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<uint, uint, MalFavoriteType, string, string, string, ushort, string>(((ValueComparer<uint>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(id)), ((ValueComparer<uint>)(((IProperty)userId).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(userId)), ((ValueComparer<MalFavoriteType>)(((IProperty)favoriteType).GetValueComparer())).Snapshot(source.GetCurrentValue<MalFavoriteType>(favoriteType)), (source.GetCurrentValue<string>(imageUrl) == null ? null : ((ValueComparer<string>)(((IProperty)imageUrl).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(imageUrl))), (source.GetCurrentValue<string>(name) == null ? null : ((ValueComparer<string>)(((IProperty)name).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(name))), (source.GetCurrentValue<string>(nameUrl) == null ? null : ((ValueComparer<string>)(((IProperty)nameUrl).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(nameUrl))), ((ValueComparer<ushort>)(((IProperty)startYear).GetValueComparer())).Snapshot(source.GetCurrentValue<ushort>(startYear)), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))))));
-                });
-            runtimeEntityType.SetStoreGeneratedValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<uint>(((ValueComparer<uint>)(((IProperty)userId).GetValueComparer())).Snapshot(default(uint))))));
-            runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<uint>(default(uint)))));
-            runtimeEntityType.SetShadowValuesFactory(
-                ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
-            runtimeEntityType.SetEmptyShadowValuesFactory(
-                ISnapshot () => Snapshot.Empty);
-            runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (InternalEntityEntry source) =>
-                {
-                    var entity = ((MalFavoriteManga)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<uint, uint, MalFavoriteType, object>(((ValueComparer<uint>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<uint>(id)), ((ValueComparer<uint>)(((IProperty)userId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<uint>(userId)), ((ValueComparer<MalFavoriteType>)(((IProperty)favoriteType).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<MalFavoriteType>(favoriteType)), BaseMalFavoriteUnsafeAccessors.User(entity))));
-                });
-            runtimeEntityType.Counts = new PropertyCounts(
-                propertyCount: 8,
-                navigationCount: 1,
-                complexPropertyCount: 0,
-                originalValueCount: 8,
-                shadowCount: 0,
-                relationshipCount: 4,
-                storeGeneratedCount: 1);
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
