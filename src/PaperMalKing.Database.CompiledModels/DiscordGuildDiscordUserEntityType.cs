@@ -3,13 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -38,106 +33,12 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(ulong),
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
-            guildsDiscordGuildId.SetGetter(
-                ulong (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("GuildsDiscordGuildId") ? entity["GuildsDiscordGuildId"] : null) == null ? 0UL : ((ulong)((((IDictionary<string, object>)entity).ContainsKey("GuildsDiscordGuildId") ? entity["GuildsDiscordGuildId"] : null)))),
-                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("GuildsDiscordGuildId") ? entity["GuildsDiscordGuildId"] : null) == null,
-                ulong (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("GuildsDiscordGuildId") ? instance["GuildsDiscordGuildId"] : null) == null ? 0UL : ((ulong)((((IDictionary<string, object>)instance).ContainsKey("GuildsDiscordGuildId") ? instance["GuildsDiscordGuildId"] : null)))),
-                bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("GuildsDiscordGuildId") ? instance["GuildsDiscordGuildId"] : null) == null);
-            guildsDiscordGuildId.SetSetter(
-                (Dictionary<string, object> entity, ulong value) => entity["GuildsDiscordGuildId"] = ((object)(value)));
-            guildsDiscordGuildId.SetMaterializationSetter(
-                (Dictionary<string, object> entity, ulong value) => entity["GuildsDiscordGuildId"] = ((object)(value)));
-            guildsDiscordGuildId.SetAccessors(
-                ulong (InternalEntityEntry entry) =>
-                {
-                    if (entry.FlaggedAsStoreGenerated(0))
-                    {
-                        return entry.ReadStoreGeneratedValue<ulong>(0);
-                    }
-                    else
-                    {
-                        {
-                            if (entry.FlaggedAsTemporary(0) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("GuildsDiscordGuildId") ? ((Dictionary<string, object>)(entry.Entity))["GuildsDiscordGuildId"] : null) == null)
-                            {
-                                return entry.ReadTemporaryValue<ulong>(0);
-                            }
-                            else
-                            {
-                                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("GuildsDiscordGuildId") ? ((Dictionary<string, object>)(entry.Entity))["GuildsDiscordGuildId"] : null);
-                                return (nullableValue == null ? default(ulong) : ((ulong)(nullableValue)));
-                            }
-                        }
-                    }
-                },
-                ulong (InternalEntityEntry entry) =>
-                {
-                    var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("GuildsDiscordGuildId") ? ((Dictionary<string, object>)(entry.Entity))["GuildsDiscordGuildId"] : null);
-                    return (nullableValue == null ? default(ulong) : ((ulong)(nullableValue)));
-                },
-                ulong (InternalEntityEntry entry) => entry.ReadOriginalValue<ulong>(guildsDiscordGuildId, 0),
-                ulong (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<ulong>(guildsDiscordGuildId, 0),
-                object (ValueBuffer valueBuffer) => valueBuffer[0]);
-            guildsDiscordGuildId.SetPropertyIndexes(
-                index: 0,
-                originalValueIndex: 0,
-                shadowIndex: -1,
-                relationshipIndex: 0,
-                storeGenerationIndex: 0);
-            guildsDiscordGuildId.TypeMapping = SqliteULongTypeMapping.Default;
-            guildsDiscordGuildId.SetCurrentValueComparer(new EntryCurrentValueComparer<ulong>(guildsDiscordGuildId));
 
             var usersDiscordUserId = runtimeEntityType.AddProperty(
                 "UsersDiscordUserId",
                 typeof(ulong),
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
-            usersDiscordUserId.SetGetter(
-                ulong (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("UsersDiscordUserId") ? entity["UsersDiscordUserId"] : null) == null ? 0UL : ((ulong)((((IDictionary<string, object>)entity).ContainsKey("UsersDiscordUserId") ? entity["UsersDiscordUserId"] : null)))),
-                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("UsersDiscordUserId") ? entity["UsersDiscordUserId"] : null) == null,
-                ulong (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("UsersDiscordUserId") ? instance["UsersDiscordUserId"] : null) == null ? 0UL : ((ulong)((((IDictionary<string, object>)instance).ContainsKey("UsersDiscordUserId") ? instance["UsersDiscordUserId"] : null)))),
-                bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("UsersDiscordUserId") ? instance["UsersDiscordUserId"] : null) == null);
-            usersDiscordUserId.SetSetter(
-                (Dictionary<string, object> entity, ulong value) => entity["UsersDiscordUserId"] = ((object)(value)));
-            usersDiscordUserId.SetMaterializationSetter(
-                (Dictionary<string, object> entity, ulong value) => entity["UsersDiscordUserId"] = ((object)(value)));
-            usersDiscordUserId.SetAccessors(
-                ulong (InternalEntityEntry entry) =>
-                {
-                    if (entry.FlaggedAsStoreGenerated(1))
-                    {
-                        return entry.ReadStoreGeneratedValue<ulong>(1);
-                    }
-                    else
-                    {
-                        {
-                            if (entry.FlaggedAsTemporary(1) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("UsersDiscordUserId") ? ((Dictionary<string, object>)(entry.Entity))["UsersDiscordUserId"] : null) == null)
-                            {
-                                return entry.ReadTemporaryValue<ulong>(1);
-                            }
-                            else
-                            {
-                                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("UsersDiscordUserId") ? ((Dictionary<string, object>)(entry.Entity))["UsersDiscordUserId"] : null);
-                                return (nullableValue == null ? default(ulong) : ((ulong)(nullableValue)));
-                            }
-                        }
-                    }
-                },
-                ulong (InternalEntityEntry entry) =>
-                {
-                    var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("UsersDiscordUserId") ? ((Dictionary<string, object>)(entry.Entity))["UsersDiscordUserId"] : null);
-                    return (nullableValue == null ? default(ulong) : ((ulong)(nullableValue)));
-                },
-                ulong (InternalEntityEntry entry) => entry.ReadOriginalValue<ulong>(usersDiscordUserId, 1),
-                ulong (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<ulong>(usersDiscordUserId, 1),
-                object (ValueBuffer valueBuffer) => valueBuffer[1]);
-            usersDiscordUserId.SetPropertyIndexes(
-                index: 1,
-                originalValueIndex: 1,
-                shadowIndex: -1,
-                relationshipIndex: 1,
-                storeGenerationIndex: 1);
-            usersDiscordUserId.TypeMapping = SqliteULongTypeMapping.Default;
-            usersDiscordUserId.SetCurrentValueComparer(new EntryCurrentValueComparer<ulong>(usersDiscordUserId));
 
             var key = runtimeEntityType.AddKey(
                 new[] { guildsDiscordGuildId, usersDiscordUserId });
@@ -173,39 +74,6 @@ namespace PaperMalKing.Database.CompiledModels
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var guildsDiscordGuildId = runtimeEntityType.FindProperty("GuildsDiscordGuildId");
-            var usersDiscordUserId = runtimeEntityType.FindProperty("UsersDiscordUserId");
-            var key = runtimeEntityType.FindKey(new[] { guildsDiscordGuildId, usersDiscordUserId });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
-            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
-            runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (InternalEntityEntry source) =>
-                {
-                    var entity = ((Dictionary<string, object>)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<ulong, ulong>(((ValueComparer<ulong>)(((IProperty)guildsDiscordGuildId).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong>(guildsDiscordGuildId)), ((ValueComparer<ulong>)(((IProperty)usersDiscordUserId).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong>(usersDiscordUserId)))));
-                });
-            runtimeEntityType.SetStoreGeneratedValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<ulong, ulong>(((ValueComparer<ulong>)(((IProperty)guildsDiscordGuildId).GetValueComparer())).Snapshot(default(ulong)), ((ValueComparer<ulong>)(((IProperty)usersDiscordUserId).GetValueComparer())).Snapshot(default(ulong))))));
-            runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<ulong, ulong>(default(ulong), default(ulong)))));
-            runtimeEntityType.SetShadowValuesFactory(
-                ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
-            runtimeEntityType.SetEmptyShadowValuesFactory(
-                ISnapshot () => Snapshot.Empty);
-            runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (InternalEntityEntry source) =>
-                {
-                    var entity = ((Dictionary<string, object>)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<ulong, ulong>(((ValueComparer<ulong>)(((IProperty)guildsDiscordGuildId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<ulong>(guildsDiscordGuildId)), ((ValueComparer<ulong>)(((IProperty)usersDiscordUserId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<ulong>(usersDiscordUserId)))));
-                });
-            runtimeEntityType.Counts = new PropertyCounts(
-                propertyCount: 2,
-                navigationCount: 0,
-                complexPropertyCount: 0,
-                originalValueCount: 2,
-                shadowCount: 0,
-                relationshipCount: 2,
-                storeGeneratedCount: 2);
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);

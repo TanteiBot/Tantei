@@ -2,13 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models;
 
 #pragma warning disable 219, 612, 618
@@ -37,29 +32,6 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(DiscordGuild).GetField("<DiscordGuildId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0ul);
-            discordGuildId.SetGetter(
-                ulong (DiscordGuild entity) => DiscordGuildUnsafeAccessors.DiscordGuildId(entity),
-                bool (DiscordGuild entity) => DiscordGuildUnsafeAccessors.DiscordGuildId(entity) == 0UL,
-                ulong (DiscordGuild instance) => DiscordGuildUnsafeAccessors.DiscordGuildId(instance),
-                bool (DiscordGuild instance) => DiscordGuildUnsafeAccessors.DiscordGuildId(instance) == 0UL);
-            discordGuildId.SetSetter(
-                (DiscordGuild entity, ulong value) => DiscordGuildUnsafeAccessors.DiscordGuildId(entity) = value);
-            discordGuildId.SetMaterializationSetter(
-                (DiscordGuild entity, ulong value) => DiscordGuildUnsafeAccessors.DiscordGuildId(entity) = value);
-            discordGuildId.SetAccessors(
-                ulong (InternalEntityEntry entry) => DiscordGuildUnsafeAccessors.DiscordGuildId(((DiscordGuild)(entry.Entity))),
-                ulong (InternalEntityEntry entry) => DiscordGuildUnsafeAccessors.DiscordGuildId(((DiscordGuild)(entry.Entity))),
-                ulong (InternalEntityEntry entry) => entry.ReadOriginalValue<ulong>(discordGuildId, 0),
-                ulong (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<ulong>(discordGuildId, 0),
-                object (ValueBuffer valueBuffer) => valueBuffer[0]);
-            discordGuildId.SetPropertyIndexes(
-                index: 0,
-                originalValueIndex: 0,
-                shadowIndex: -1,
-                relationshipIndex: 0,
-                storeGenerationIndex: -1);
-            discordGuildId.TypeMapping = SqliteULongTypeMapping.Default;
-            discordGuildId.SetCurrentValueComparer(new EntryCurrentValueComparer<ulong>(discordGuildId));
 
             var postingChannelId = runtimeEntityType.AddProperty(
                 "PostingChannelId",
@@ -67,28 +39,6 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(DiscordGuild).GetProperty("PostingChannelId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DiscordGuild).GetField("<PostingChannelId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0ul);
-            postingChannelId.SetGetter(
-                ulong (DiscordGuild entity) => DiscordGuildUnsafeAccessors.PostingChannelId(entity),
-                bool (DiscordGuild entity) => DiscordGuildUnsafeAccessors.PostingChannelId(entity) == 0UL,
-                ulong (DiscordGuild instance) => DiscordGuildUnsafeAccessors.PostingChannelId(instance),
-                bool (DiscordGuild instance) => DiscordGuildUnsafeAccessors.PostingChannelId(instance) == 0UL);
-            postingChannelId.SetSetter(
-                (DiscordGuild entity, ulong value) => DiscordGuildUnsafeAccessors.PostingChannelId(entity) = value);
-            postingChannelId.SetMaterializationSetter(
-                (DiscordGuild entity, ulong value) => DiscordGuildUnsafeAccessors.PostingChannelId(entity) = value);
-            postingChannelId.SetAccessors(
-                ulong (InternalEntityEntry entry) => DiscordGuildUnsafeAccessors.PostingChannelId(((DiscordGuild)(entry.Entity))),
-                ulong (InternalEntityEntry entry) => DiscordGuildUnsafeAccessors.PostingChannelId(((DiscordGuild)(entry.Entity))),
-                ulong (InternalEntityEntry entry) => entry.ReadOriginalValue<ulong>(postingChannelId, 1),
-                ulong (InternalEntityEntry entry) => entry.GetCurrentValue<ulong>(postingChannelId),
-                object (ValueBuffer valueBuffer) => valueBuffer[1]);
-            postingChannelId.SetPropertyIndexes(
-                index: 1,
-                originalValueIndex: 1,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            postingChannelId.TypeMapping = SqliteULongTypeMapping.Default;
 
             var key = runtimeEntityType.AddKey(
                 new[] { discordGuildId });
@@ -122,71 +72,11 @@ namespace PaperMalKing.Database.CompiledModels
                 inverse.Inverse = skipNavigation;
             }
 
-            skipNavigation.SetGetter(
-                IList<DiscordUser> (DiscordGuild entity) => DiscordGuildUnsafeAccessors.Users(entity),
-                bool (DiscordGuild entity) => DiscordGuildUnsafeAccessors.Users(entity) == null,
-                IList<DiscordUser> (DiscordGuild instance) => DiscordGuildUnsafeAccessors.Users(instance),
-                bool (DiscordGuild instance) => DiscordGuildUnsafeAccessors.Users(instance) == null);
-            skipNavigation.SetSetter(
-                (DiscordGuild entity, IList<DiscordUser> value) => DiscordGuildUnsafeAccessors.Users(entity) = value);
-            skipNavigation.SetMaterializationSetter(
-                (DiscordGuild entity, IList<DiscordUser> value) => DiscordGuildUnsafeAccessors.Users(entity) = value);
-            skipNavigation.SetAccessors(
-                IList<DiscordUser> (InternalEntityEntry entry) => DiscordGuildUnsafeAccessors.Users(((DiscordGuild)(entry.Entity))),
-                IList<DiscordUser> (InternalEntityEntry entry) => DiscordGuildUnsafeAccessors.Users(((DiscordGuild)(entry.Entity))),
-                null,
-                IList<DiscordUser> (InternalEntityEntry entry) => entry.GetCurrentValue<IList<DiscordUser>>(skipNavigation),
-                null);
-            skipNavigation.SetPropertyIndexes(
-                index: 0,
-                originalValueIndex: -1,
-                shadowIndex: -1,
-                relationshipIndex: 1,
-                storeGenerationIndex: -1);
-            skipNavigation.SetCollectionAccessor<DiscordGuild, IList<DiscordUser>, DiscordUser>(
-                IList<DiscordUser> (DiscordGuild entity) => DiscordGuildUnsafeAccessors.Users(entity),
-                (DiscordGuild entity, IList<DiscordUser> collection) => DiscordGuildUnsafeAccessors.Users(entity) = ((IList<DiscordUser>)(collection)),
-                (DiscordGuild entity, IList<DiscordUser> collection) => DiscordGuildUnsafeAccessors.Users(entity) = ((IList<DiscordUser>)(collection)),
-                IList<DiscordUser> (DiscordGuild entity, Action<DiscordGuild, IList<DiscordUser>> setter) => ClrCollectionAccessorFactory.CreateAndSet<DiscordGuild, IList<DiscordUser>, List<DiscordUser>>(entity, setter),
-                IList<DiscordUser> () => new List<DiscordUser>());
             return skipNavigation;
         }
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var discordGuildId = runtimeEntityType.FindProperty("DiscordGuildId");
-            var postingChannelId = runtimeEntityType.FindProperty("PostingChannelId");
-            var key = runtimeEntityType.FindKey(new[] { discordGuildId });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<ulong>(key));
-            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<ulong>(key));
-            runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (InternalEntityEntry source) =>
-                {
-                    var entity = ((DiscordGuild)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<ulong, ulong>(((ValueComparer<ulong>)(((IProperty)discordGuildId).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong>(discordGuildId)), ((ValueComparer<ulong>)(((IProperty)postingChannelId).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong>(postingChannelId)))));
-                });
-            runtimeEntityType.SetStoreGeneratedValuesFactory(
-                ISnapshot () => Snapshot.Empty);
-            runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (InternalEntityEntry source) => Snapshot.Empty);
-            runtimeEntityType.SetShadowValuesFactory(
-                ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
-            runtimeEntityType.SetEmptyShadowValuesFactory(
-                ISnapshot () => Snapshot.Empty);
-            runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (InternalEntityEntry source) =>
-                {
-                    var entity = ((DiscordGuild)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<ulong, object>(((ValueComparer<ulong>)(((IProperty)discordGuildId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<ulong>(discordGuildId)), (object)(null))));
-                });
-            runtimeEntityType.Counts = new PropertyCounts(
-                propertyCount: 2,
-                navigationCount: 1,
-                complexPropertyCount: 0,
-                originalValueCount: 2,
-                shadowCount: 0,
-                relationshipCount: 2,
-                storeGeneratedCount: 0);
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);

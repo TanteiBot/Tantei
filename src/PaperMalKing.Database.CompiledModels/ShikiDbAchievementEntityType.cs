@@ -3,13 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models.Shikimori;
 
 #pragma warning disable 219, 612, 618
@@ -35,34 +30,6 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(uint),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
-            shikiUserId.SetAccessors(
-                uint (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<uint>(0) : (entry.FlaggedAsTemporary(0) && entry.ReadShadowValue<uint>(0) == 0U ? entry.ReadTemporaryValue<uint>(0) : entry.ReadShadowValue<uint>(0))),
-                uint (InternalEntityEntry entry) => entry.ReadShadowValue<uint>(0),
-                uint (InternalEntityEntry entry) => entry.ReadOriginalValue<uint>(shikiUserId, 0),
-                uint (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<uint>(shikiUserId, 0),
-                object (ValueBuffer valueBuffer) => valueBuffer[0]);
-            shikiUserId.SetPropertyIndexes(
-                index: 0,
-                originalValueIndex: 0,
-                shadowIndex: 0,
-                relationshipIndex: 0,
-                storeGenerationIndex: 0);
-            shikiUserId.TypeMapping = UIntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<uint>(
-                    bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
-                    uint (uint v) => v),
-                keyComparer: new ValueComparer<uint>(
-                    bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
-                    uint (uint v) => v),
-                providerValueComparer: new ValueComparer<uint>(
-                    bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
-                    uint (uint v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
-            shikiUserId.SetCurrentValueComparer(new EntryCurrentValueComparer<uint>(shikiUserId));
 
             var __synthesizedOrdinal = runtimeEntityType.AddProperty(
                 "__synthesizedOrdinal",
@@ -71,34 +38,6 @@ namespace PaperMalKing.Database.CompiledModels
                 beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
-            __synthesizedOrdinal.SetAccessors(
-                int (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<int>(1) : (entry.FlaggedAsTemporary(1) && entry.ReadShadowValue<int>(1) == 0 ? entry.ReadTemporaryValue<int>(1) : entry.ReadShadowValue<int>(1))),
-                int (InternalEntityEntry entry) => entry.ReadShadowValue<int>(1),
-                int (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(__synthesizedOrdinal, 1),
-                int (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<int>(__synthesizedOrdinal, 1),
-                object (ValueBuffer valueBuffer) => valueBuffer[1]);
-            __synthesizedOrdinal.SetPropertyIndexes(
-                index: 1,
-                originalValueIndex: 1,
-                shadowIndex: 1,
-                relationshipIndex: 1,
-                storeGenerationIndex: 1);
-            __synthesizedOrdinal.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                providerValueComparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
-            __synthesizedOrdinal.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(__synthesizedOrdinal));
 
             var level = runtimeEntityType.AddProperty(
                 "Level",
@@ -106,70 +45,12 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(ShikiDbAchievement).GetProperty("Level", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiDbAchievement).GetField("<Level>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (byte)0);
-            level.SetGetter(
-                byte (ShikiDbAchievement entity) => ShikiDbAchievementUnsafeAccessors.Level(entity),
-                bool (ShikiDbAchievement entity) => ShikiDbAchievementUnsafeAccessors.Level(entity) == 0,
-                byte (ShikiDbAchievement instance) => ShikiDbAchievementUnsafeAccessors.Level(instance),
-                bool (ShikiDbAchievement instance) => ShikiDbAchievementUnsafeAccessors.Level(instance) == 0);
-            level.SetSetter(
-                (ShikiDbAchievement entity, byte value) => ShikiDbAchievementUnsafeAccessors.Level(entity) = value);
-            level.SetMaterializationSetter(
-                (ShikiDbAchievement entity, byte value) => ShikiDbAchievementUnsafeAccessors.Level(entity) = value);
-            level.SetAccessors(
-                byte (InternalEntityEntry entry) => ShikiDbAchievementUnsafeAccessors.Level(((ShikiDbAchievement)(entry.Entity))),
-                byte (InternalEntityEntry entry) => ShikiDbAchievementUnsafeAccessors.Level(((ShikiDbAchievement)(entry.Entity))),
-                byte (InternalEntityEntry entry) => entry.ReadOriginalValue<byte>(level, 2),
-                byte (InternalEntityEntry entry) => entry.GetCurrentValue<byte>(level),
-                object (ValueBuffer valueBuffer) => valueBuffer[2]);
-            level.SetPropertyIndexes(
-                index: 2,
-                originalValueIndex: 2,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            level.TypeMapping = ByteTypeMapping.Default.Clone(
-                comparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
-                    byte (byte v) => v),
-                keyComparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
-                    byte (byte v) => v),
-                providerValueComparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
-                    byte (byte v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var nekoId = runtimeEntityType.AddProperty(
                 "NekoId",
                 typeof(string),
                 propertyInfo: typeof(ShikiDbAchievement).GetProperty("NekoId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiDbAchievement).GetField("<NekoId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-            nekoId.SetGetter(
-                string (ShikiDbAchievement entity) => ShikiDbAchievementUnsafeAccessors.NekoId(entity),
-                bool (ShikiDbAchievement entity) => ShikiDbAchievementUnsafeAccessors.NekoId(entity) == null,
-                string (ShikiDbAchievement instance) => ShikiDbAchievementUnsafeAccessors.NekoId(instance),
-                bool (ShikiDbAchievement instance) => ShikiDbAchievementUnsafeAccessors.NekoId(instance) == null);
-            nekoId.SetSetter(
-                (ShikiDbAchievement entity, string value) => ShikiDbAchievementUnsafeAccessors.NekoId(entity) = value);
-            nekoId.SetMaterializationSetter(
-                (ShikiDbAchievement entity, string value) => ShikiDbAchievementUnsafeAccessors.NekoId(entity) = value);
-            nekoId.SetAccessors(
-                string (InternalEntityEntry entry) => ShikiDbAchievementUnsafeAccessors.NekoId(((ShikiDbAchievement)(entry.Entity))),
-                string (InternalEntityEntry entry) => ShikiDbAchievementUnsafeAccessors.NekoId(((ShikiDbAchievement)(entry.Entity))),
-                string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(nekoId, 3),
-                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(nekoId),
-                object (ValueBuffer valueBuffer) => valueBuffer[3]);
-            nekoId.SetPropertyIndexes(
-                index: 3,
-                originalValueIndex: 3,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            nekoId.TypeMapping = SqliteStringTypeMapping.Default;
 
             var key = runtimeEntityType.AddKey(
                 new[] { shikiUserId, __synthesizedOrdinal });
@@ -195,73 +76,11 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(ShikiUser).GetField("<Achievements>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 eagerLoaded: true);
 
-            achievements.SetGetter(
-                List<ShikiDbAchievement> (ShikiUser entity) => ShikiUserUnsafeAccessors.Achievements(entity),
-                bool (ShikiUser entity) => ShikiUserUnsafeAccessors.Achievements(entity) == null,
-                List<ShikiDbAchievement> (ShikiUser instance) => ShikiUserUnsafeAccessors.Achievements(instance),
-                bool (ShikiUser instance) => ShikiUserUnsafeAccessors.Achievements(instance) == null);
-            achievements.SetSetter(
-                (ShikiUser entity, List<ShikiDbAchievement> value) => ShikiUserUnsafeAccessors.Achievements(entity) = value);
-            achievements.SetMaterializationSetter(
-                (ShikiUser entity, List<ShikiDbAchievement> value) => ShikiUserUnsafeAccessors.Achievements(entity) = value);
-            achievements.SetAccessors(
-                List<ShikiDbAchievement> (InternalEntityEntry entry) => ShikiUserUnsafeAccessors.Achievements(((ShikiUser)(entry.Entity))),
-                List<ShikiDbAchievement> (InternalEntityEntry entry) => ShikiUserUnsafeAccessors.Achievements(((ShikiUser)(entry.Entity))),
-                null,
-                List<ShikiDbAchievement> (InternalEntityEntry entry) => entry.GetCurrentValue<List<ShikiDbAchievement>>(achievements),
-                null);
-            achievements.SetPropertyIndexes(
-                index: 0,
-                originalValueIndex: -1,
-                shadowIndex: -1,
-                relationshipIndex: 2,
-                storeGenerationIndex: -1);
-            achievements.SetCollectionAccessor<ShikiUser, List<ShikiDbAchievement>, ShikiDbAchievement>(
-                List<ShikiDbAchievement> (ShikiUser entity) => ShikiUserUnsafeAccessors.Achievements(entity),
-                (ShikiUser entity, List<ShikiDbAchievement> collection) => ShikiUserUnsafeAccessors.Achievements(entity) = ((List<ShikiDbAchievement>)(collection)),
-                (ShikiUser entity, List<ShikiDbAchievement> collection) => ShikiUserUnsafeAccessors.Achievements(entity) = ((List<ShikiDbAchievement>)(collection)),
-                List<ShikiDbAchievement> (ShikiUser entity, Action<ShikiUser, List<ShikiDbAchievement>> setter) => ClrCollectionAccessorFactory.CreateAndSet<ShikiUser, List<ShikiDbAchievement>, List<ShikiDbAchievement>>(entity, setter),
-                List<ShikiDbAchievement> () => new List<ShikiDbAchievement>());
             return runtimeForeignKey;
         }
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var shikiUserId = runtimeEntityType.FindProperty("ShikiUserId");
-            var __synthesizedOrdinal = runtimeEntityType.FindProperty("__synthesizedOrdinal");
-            var level = runtimeEntityType.FindProperty("Level");
-            var nekoId = runtimeEntityType.FindProperty("NekoId");
-            var key = runtimeEntityType.FindKey(new[] { shikiUserId, __synthesizedOrdinal });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
-            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
-            runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (InternalEntityEntry source) =>
-                {
-                    var entity = ((ShikiDbAchievement)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<uint, int, byte, string>(((ValueComparer<uint>)(((IProperty)shikiUserId).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(shikiUserId)), ((ValueComparer<int>)(((IProperty)__synthesizedOrdinal).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(__synthesizedOrdinal)), ((ValueComparer<byte>)(((IProperty)level).GetValueComparer())).Snapshot(source.GetCurrentValue<byte>(level)), (source.GetCurrentValue<string>(nekoId) == null ? null : ((ValueComparer<string>)(((IProperty)nekoId).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(nekoId))))));
-                });
-            runtimeEntityType.SetStoreGeneratedValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<uint, int>(((ValueComparer<uint>)(((IProperty)shikiUserId).GetValueComparer())).Snapshot(default(uint)), ((ValueComparer<int>)(((IProperty)__synthesizedOrdinal).GetValueComparer())).Snapshot(default(int))))));
-            runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<uint, int>(default(uint), default(int)))));
-            runtimeEntityType.SetShadowValuesFactory(
-                ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<uint, int>((source.ContainsKey("ShikiUserId") ? ((uint)(source["ShikiUserId"])) : 0U), (source.ContainsKey("__synthesizedOrdinal") ? ((int)(source["__synthesizedOrdinal"])) : 0)))));
-            runtimeEntityType.SetEmptyShadowValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<uint, int>(default(uint), default(int)))));
-            runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (InternalEntityEntry source) =>
-                {
-                    var entity = ((ShikiDbAchievement)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<uint, int>(((ValueComparer<uint>)(((IProperty)shikiUserId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<uint>(shikiUserId)), ((ValueComparer<int>)(((IProperty)__synthesizedOrdinal).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(__synthesizedOrdinal)))));
-                });
-            runtimeEntityType.Counts = new PropertyCounts(
-                propertyCount: 4,
-                navigationCount: 0,
-                complexPropertyCount: 0,
-                originalValueCount: 4,
-                shadowCount: 2,
-                relationshipCount: 2,
-                storeGeneratedCount: 2);
             runtimeEntityType.AddAnnotation("Relational:ContainerColumnName", "Achievements");
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
