@@ -17,7 +17,7 @@ namespace PaperMalKing.Database.CompiledModels
     public partial class DatabaseContextModel
     {
         private DatabaseContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("6e31959a-b5b6-458b-95ff-cdcb983e8fed"), entityTypeCount: 19)
+            : base(skipDetectChanges: false, modelId: new Guid("04658b7b-32f7-48b6-a34d-757572fc732b"), entityTypeCount: 19)
         {
         }
 
@@ -84,7 +84,7 @@ namespace PaperMalKing.Database.CompiledModels
             MalFavoriteMangaEntityType.CreateAnnotations(malFavoriteManga);
             MalFavoritePersonEntityType.CreateAnnotations(malFavoritePerson);
 
-            AddAnnotation("ProductVersion", "9.0.0-rc.1.24451.1");
+            AddAnnotation("ProductVersion", "9.0.0-rc.2.24474.1");
             AddRuntimeAnnotation("Relational:RelationalModelFactory", () => CreateRelationalModel());
         }
 

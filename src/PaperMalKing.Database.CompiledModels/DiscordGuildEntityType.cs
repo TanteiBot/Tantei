@@ -177,7 +177,7 @@ namespace PaperMalKing.Database.CompiledModels
                 ISnapshot (InternalEntityEntry source) =>
                 {
                     var entity = ((DiscordGuild)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<ulong, object>(((ValueComparer<ulong>)(((IProperty)discordGuildId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<ulong>(discordGuildId)), null)));
+                    return ((ISnapshot)(new Snapshot<ulong, object>(((ValueComparer<ulong>)(((IProperty)discordGuildId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<ulong>(discordGuildId)), (object)(null))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,
