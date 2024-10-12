@@ -61,7 +61,7 @@
 
     <!-- Web -->
     <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="8.2.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.8" />
+    <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.10" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.10" />
 
     <!-- Misc -->
@@ -143,11 +143,11 @@
     <PackageVersion Include="System.CodeDom" Version="8.0.0" />
     <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" />
     <PackageVersion Include="System.Management" Version="8.0.0" />
-    <PackageVersion Include="System.Reflection.Metadata" Version="8.0.0" />
+    <PackageVersion Include="System.Reflection.Metadata" Version="8.0.1" />
     <PackageVersion Include="System.Security.Cryptography.Cng" Version="5.0.0" />
     <PackageVersion Include="System.Security.Cryptography.OpenSsl" Version="5.0.0" />
     <PackageVersion Include="System.Security.Principal.Windows" Version="5.0.0" />
-    <PackageVersion Include="System.Text.Json" Version="8.0.4" />
+    <PackageVersion Include="System.Text.Json" Version="8.0.5" />
     <PackageVersion Include="System.Threading.Channels" Version="8.0.0" />
     <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" />
     <PackageVersion Include="Microsoft.CodeAnalysis" Version="4.11.0" />

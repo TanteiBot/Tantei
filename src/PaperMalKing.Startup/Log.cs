@@ -50,7 +50,7 @@ internal static partial class Log
 	public static partial void SettingChannelForGuild(this ILogger<GuildManagementService> logger, DiscordGuild guild, DiscordChannel channel);
 
 	[LoggerMessage(LogLevel.Information, "Removing guild with {Id}")]
-	public static partial void RemovingChannel(this ILogger<GuildManagementService> logger, ulong id);
+	public static partial void RemovingGuild(this ILogger<GuildManagementService> logger, ulong id);
 
 	[LoggerMessage(LogLevel.Information, "Guild {Guild} became unavailable")]
 	public static partial void GuildBecameUnavailable(this ILogger<DiscordBackgroundService> logger, DiscordGuild guild);
