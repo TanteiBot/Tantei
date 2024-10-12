@@ -4,6 +4,7 @@
 using System;
 using System.Buffers.Binary;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security.Cryptography;
 
@@ -13,6 +14,7 @@ public static class HashHelpers
 {
 	private static readonly string EmptySha512Hash = CreateEmptyHash();
 
+	[SuppressMessage("Major Code Smell", "S109:Magic numbers should not be used", Justification = "Its bytes positions")]
 	public static string FavoritesHash(Span<FavoriteIdType> ids)
 	{
 		if (ids.IsEmpty)

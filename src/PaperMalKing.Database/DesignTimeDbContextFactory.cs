@@ -14,7 +14,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<DatabaseCo
 	{
 		args.ForEach(Console.WriteLine);
 		var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
-		optionsBuilder.UseSqlite(o => o.MigrationsAssembly("PaperMalKing.Database.Migrations"));
-		return new DatabaseContext(optionsBuilder.Options);
+		optionsBuilder.UseSqlite(static o => o.MigrationsAssembly("PaperMalKing.Database.Migrations"));
+		return new(optionsBuilder.Options);
 	}
 }

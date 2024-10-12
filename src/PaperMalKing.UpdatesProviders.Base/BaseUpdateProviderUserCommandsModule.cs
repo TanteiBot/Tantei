@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +13,6 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base;
 
-[SuppressMessage("Style", """VSTHRD200:Use "Async" suffix for async methods""", Justification = "This rule does not apply to commands")]
 public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser> : BotCommandsModule
 	where TUpdateProviderUserService : BaseUpdateProviderUserService<TUser>
 	where TUser : class, IUpdateProviderUser
@@ -33,6 +31,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 	public virtual async Task AddUserCommand(InteractionContext context, string? username = null)
 	{
+		using var scope = this.Logger.AddUserScope(username);
 		this.Logger.StartAddingUser(username, context.Member, this.UserService.Name);
 		BaseUser user;
 
@@ -53,8 +52,9 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		await context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed($"Successfully added {user.Username} to {this.UserService.Name} update checker"));
 	}
 
-	public virtual async Task RemoveUserInGuildCommand(InteractionContext context)
+	public virtual async Task RemoveUserCommand(InteractionContext context)
 	{
+		using var scope = this.Logger.RemoveUserScope(context.Member.DisplayName);
 		this.Logger.StartRemovingUser(context.Member, this.UserService.Name);
 
 		try
@@ -77,6 +77,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 	public virtual async Task RemoveUserHereCommand(InteractionContext context)
 	{
+		using var scope = this.Logger.RemoveUserInGuildScope(context.User.Username, context.Guild.Name);
 		try
 		{
 			await this.UserService.RemoveUserHereAsync(context.User.Id, context.Guild.Id);
@@ -93,26 +94,26 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 
 	public virtual async Task ListUsersCommand(InteractionContext context)
 	{
+		const int discordDescriptionLimit = 2048;
 		var sb = new StringBuilder();
 		try
 		{
 			var i = 1;
 			foreach (var user in this.UserService.ListUsers(context.Guild.Id))
 			{
-				if (sb.Length + user.Username.Length > 2048)
+				if (sb.Length + user.Username.Length <= discordDescriptionLimit)
 				{
-					if (sb.Length + "…".Length > 2048)
-					{
-						break;
-					}
-
+					sb.AppendLine(CultureInfo.InvariantCulture,
+						$"{i++}. {user.Username} {(user.DiscordUser is null ? "" : DiscordHelpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
+				}
+				else if (sb.Length + "…".Length <= discordDescriptionLimit)
+				{
 					sb.Append('…');
+				}
+				else
+				{
 					break;
 				}
-
-				sb.AppendLine(
-					CultureInfo.InvariantCulture,
-					$"{i++}. {user.Username} {(user.DiscordUser is null ? "" : DiscordHelpers.ToDiscordMention(user.DiscordUser.DiscordUserId))}");
 			}
 		}
 		catch (Exception ex)

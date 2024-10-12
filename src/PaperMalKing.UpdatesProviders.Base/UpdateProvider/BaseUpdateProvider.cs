@@ -71,6 +71,7 @@ public abstract class BaseUpdateProvider : BackgroundService, IUpdateProvider
 			this.IsUpdateInProgress = true;
 			this.DateTimeOfNextUpdate = null;
 			TimeSpan delayBetweenTimerFires;
+			var scope = this.Logger.BeginScope("Update checking");
 			try
 			{
 				this.Logger.StartCheckingForUpdates(this.Name);
@@ -81,15 +82,16 @@ public abstract class BaseUpdateProvider : BackgroundService, IUpdateProvider
 				// Ignore
 				// We were cancelled
 			}
-			#pragma warning disable CA1031
+#pragma warning disable CA1031
 			// Modify 'ExecuteAsync' to catch a more specific allowed exception type, or rethrow the exception
 			catch (Exception e)
-			#pragma warning restore CA1031
+#pragma warning restore
 			{
 				this.Logger.ErrorOnUpdateCheck(e, this.Name);
 			}
 			finally
 			{
+				scope?.Dispose();
 				delayBetweenTimerFires = this.DelayBetweenTimerFires;
 				this.Logger.EndCheckingForUpdates(this.Name, delayBetweenTimerFires);
 				this.IsUpdateInProgress = false;
@@ -100,16 +102,14 @@ public abstract class BaseUpdateProvider : BackgroundService, IUpdateProvider
 			{
 				await Task.Delay(delayBetweenTimerFires, this._restartTokenSource.Token);
 			}
-			#pragma warning disable CA1031
+#pragma warning disable CA1031, ERP022
 			// Modify 'ExecuteAsync' to catch a more specific allowed exception type, or rethrow the exception
 			catch
-			#pragma warning restore CA1031
 			{
 				// Ignore
-			#pragma warning disable ERP022
-			// Unobserved exception in a generic exception handler
+				// Unobserved exception in a generic exception handler
 			}
-			#pragma warning restore ERP022
+#pragma warning restore
 		}
 	}
 

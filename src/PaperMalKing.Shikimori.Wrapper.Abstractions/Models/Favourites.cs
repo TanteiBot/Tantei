@@ -10,6 +10,9 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 
 public sealed class Favourites : IJsonOnDeserialized
 {
+	private const string PeopleType = "people";
+	private const string MangasType = "mangas";
+
 	private readonly List<FavouriteEntry> _allFavourites = new(20);
 
 	public IReadOnlyList<FavouriteEntry> AllFavourites => this._allFavourites;
@@ -25,7 +28,7 @@ public sealed class Favourites : IJsonOnDeserialized
 	public IReadOnlyList<FavouriteEntry> Mangas
 	{
 		get => ThrowNotSupportedException();
-		init => this.SetTypesThenAddToAll(value, "mangas", "Manga");
+		init => this.SetTypesThenAddToAll(value, MangasType, "Manga");
 	}
 
 	[JsonPropertyName("characters")]
@@ -39,35 +42,35 @@ public sealed class Favourites : IJsonOnDeserialized
 	public IReadOnlyList<FavouriteEntry> People
 	{
 		get => ThrowNotSupportedException();
-		init => this.SetTypesThenAddToAll(value, "people", "Person");
+		init => this.SetTypesThenAddToAll(value, PeopleType, "Person");
 	}
 
 	[JsonPropertyName("mangakas")]
 	public IReadOnlyList<FavouriteEntry> Mangakas
 	{
 		get => ThrowNotSupportedException();
-		init => this.SetTypesThenAddToAll(value, "people", "Mangaka");
+		init => this.SetTypesThenAddToAll(value, PeopleType, "Mangaka");
 	}
 
 	[JsonPropertyName("seyu")]
 	public IReadOnlyList<FavouriteEntry> Seyu
 	{
 		get => ThrowNotSupportedException();
-		init => this.SetTypesThenAddToAll(value, "people", "Seyu");
+		init => this.SetTypesThenAddToAll(value, PeopleType, "Seyu");
 	}
 
 	[JsonPropertyName("producers")]
 	public IReadOnlyList<FavouriteEntry> Producers
 	{
 		get => ThrowNotSupportedException();
-		init => this.SetTypesThenAddToAll(value, "people", "Producer");
+		init => this.SetTypesThenAddToAll(value, PeopleType, "Producer");
 	}
 
 	[JsonPropertyName("ranobe")]
 	public IReadOnlyList<FavouriteEntry> Ranobe
 	{
 		get => ThrowNotSupportedException();
-		init => this.SetTypesThenAddToAll(value, "mangas", "Ranobe");
+		init => this.SetTypesThenAddToAll(value, MangasType, "Ranobe");
 	}
 
 	private void SetTypesThenAddToAll(IReadOnlyList<FavouriteEntry> entries, string genericType, string? specificType)

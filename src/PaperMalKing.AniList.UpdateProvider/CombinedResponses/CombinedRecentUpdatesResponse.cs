@@ -9,6 +9,8 @@ namespace PaperMalKing.AniList.UpdateProvider.CombinedResponses;
 
 internal sealed class CombinedRecentUpdatesResponse
 {
+	private const int AniListMediaLimit = 50;
+
 	public List<Review> Reviews { get; } = [];
 
 	public List<ListActivity> Activities { get; } = [];
@@ -17,9 +19,9 @@ internal sealed class CombinedRecentUpdatesResponse
 
 	public User User => this._user!;
 
-	public List<MediaListEntry> AnimeList { get; } = new(50);
+	public List<MediaListEntry> AnimeList { get; } = new(AniListMediaLimit);
 
-	public List<MediaListEntry> MangaList { get; } = new(50);
+	public List<MediaListEntry> MangaList { get; } = new(AniListMediaLimit);
 
 	public List<IdentifiableFavourite> Favourites { get; } = [];
 

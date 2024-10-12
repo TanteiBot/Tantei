@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using PaperMalKing.Database.Models.MyAnimeList;
 
@@ -11,7 +12,8 @@ using PaperMalKing.Database.Models.MyAnimeList;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class MalFavoriteCompanyEntityType
+    [EntityFrameworkInternal]
+    public partial class MalFavoriteCompanyEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -20,7 +22,10 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(MalFavoriteCompany),
                 baseEntityType,
                 discriminatorProperty: "FavoriteType",
-                discriminatorValue: MalFavoriteType.Company);
+                discriminatorValue: MalFavoriteType.Company,
+                propertyCount: 0,
+                navigationCount: 1,
+                foreignKeyCount: 1);
 
             return runtimeEntityType;
         }

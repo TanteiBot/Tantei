@@ -34,16 +34,16 @@ public static class ServiceCollectionExtensions
 			PooledConnectionLifetime = TimeSpan.FromMinutes(15),
 		}).AddPolicyHandler(policy).AddHttpMessageHandler(_ =>
 		{
-			var rl = new RateLimitValue(50, TimeSpan.FromMinutes(1.05d)); // 90rpm with .05 as inaccuracy
+			var rl = new RateLimitValue(50, TimeSpan.FromMinutes(1, 5)); // 90rpm with .05 as inaccuracy
 			return RateLimiterFactory.Create<ShikiClient>(rl).ToHttpMessageHandler();
 		}).AddHttpMessageHandler(_ =>
 		{
-			var rl = new RateLimitValue(3, TimeSpan.FromSeconds(1.05d)); // 5rps with .05 as inaccuracy
+			var rl = new RateLimitValue(3, TimeSpan.FromSeconds(1, 200)); // 5rps with .05 as inaccuracy
 			return RateLimiterFactory.Create<ShikiClient>(rl).ToHttpMessageHandler();
 		}).ConfigureHttpClient((provider, client) =>
 		{
 			client.DefaultRequestHeaders.UserAgent.Clear();
-			client.DefaultRequestHeaders.UserAgent.ParseAdd($"{provider.GetRequiredService<IOptions<ShikiOptions>>().Value.ShikimoriAppName}");
+			client.DefaultRequestHeaders.UserAgent.ParseAdd(provider.GetRequiredService<IOptions<ShikiOptions>>().Value.ShikimoriAppName);
 			client.BaseAddress = new(Wrapper.Abstractions.Constants.BaseUrl);
 		});
 		serviceCollection.AddSingleton<IShikiClient, ShikiClient>(provider =>

@@ -28,7 +28,7 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 			base.AddUserCommand(context, username);
 
 		[SlashCommand("remove", "Remove your Shikimori account updates from being tracked")]
-		public override Task RemoveUserInGuildCommand(InteractionContext context) => base.RemoveUserInGuildCommand(context);
+		public override Task RemoveUserCommand(InteractionContext context) => base.RemoveUserCommand(context);
 
 		[SlashCommand("list", "List accounts of all tracked user's on Shikimori in this server")]
 		public override Task ListUsersCommand(InteractionContext context) => base.ListUsersCommand(context);
@@ -43,15 +43,13 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 		: BaseUserFeaturesCommandsModule<ShikiUser, ShikiUserFeatures>(userFeaturesService, logger)
 	{
 		[SlashCommand("enable", "Enable features for your updates")]
-		public override Task EnableFeatureCommand(
-								InteractionContext context,
+		public override Task EnableFeatureCommand(InteractionContext context,
 								[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<ShikiUserFeatures>, ShikiUserFeatures>)),
 								Option("feature", "Feature to enable")]
 								string unparsedFeature) => base.EnableFeatureCommand(context, unparsedFeature);
 
 		[SlashCommand("disable", "Disable features for your updates")]
-		public override Task DisableFeatureCommand(
-								InteractionContext context,
+		public override Task DisableFeatureCommand(InteractionContext context,
 								[ChoiceProvider(typeof(EnumChoiceProvider<FeaturesChoiceProvider<ShikiUserFeatures>, ShikiUserFeatures>)),
 								Option("feature", "Feature to disable")]
 								string unparsedFeature) => base.DisableFeatureCommand(context, unparsedFeature);
@@ -66,7 +64,7 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 	[SlashCommandGroup("colors", "Manage colors of your updates")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 	public sealed class ShikiColorsCommands(ILogger<ShikiColorsCommands> logger, CustomColorService<ShikiUser, ShikiUpdateType> colorService)
-		: BaseColorsCommandModule<ShikiUser, ShikiUpdateType>(logger, colorService)
+		: BaseColorsCommandsModule<ShikiUser, ShikiUpdateType>(logger, colorService)
 	{
 		[SlashCommand("set", "Set color for update update")]
 		public override Task SetColor(InteractionContext context,
@@ -74,7 +72,8 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 								   [Option("color", "Color code in hex like #FFFFFF")] string colorValue) => base.SetColor(context, unparsedUpdateType, colorValue);
 
 		[SlashCommand("remove", "Restore default color for update type")]
-		public override Task RemoveColor(InteractionContext context, [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<ShikiUpdateType>, ShikiUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType) => base.RemoveColor(context, unparsedUpdateType);
+		public override Task RemoveColor(InteractionContext context, [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<ShikiUpdateType>, ShikiUpdateType>)),
+																	  Option("updateType", "Type of update to set color for")] string unparsedUpdateType) => base.RemoveColor(context, unparsedUpdateType);
 
 		[SlashCommand("list", "Lists your overriden types")]
 		public override Task<DiscordMessage> ListOverridenColor(InteractionContext context) => base.ListOverridenColor(context);

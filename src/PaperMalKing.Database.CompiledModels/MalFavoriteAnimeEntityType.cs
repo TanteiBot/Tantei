@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models.MyAnimeList;
 
 #pragma warning disable 219, 612, 618
@@ -14,7 +12,8 @@ using PaperMalKing.Database.Models.MyAnimeList;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class MalFavoriteAnimeEntityType
+    [EntityFrameworkInternal]
+    public partial class MalFavoriteAnimeEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -23,7 +22,10 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(MalFavoriteAnime),
                 baseEntityType,
                 discriminatorProperty: "FavoriteType",
-                discriminatorValue: MalFavoriteType.Anime);
+                discriminatorValue: MalFavoriteType.Anime,
+                propertyCount: 2,
+                navigationCount: 1,
+                foreignKeyCount: 1);
 
             var startYear = runtimeEntityType.AddProperty(
                 "StartYear",
@@ -31,28 +33,12 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(BaseMalListFavorite).GetProperty("StartYear", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(BaseMalListFavorite).GetField("<StartYear>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (ushort)0);
-            startYear.TypeMapping = UShortTypeMapping.Default.Clone(
-                comparer: new ValueComparer<ushort>(
-                    (ushort v1, ushort v2) => v1 == v2,
-                    (ushort v) => (int)v,
-                    (ushort v) => v),
-                keyComparer: new ValueComparer<ushort>(
-                    (ushort v1, ushort v2) => v1 == v2,
-                    (ushort v) => (int)v,
-                    (ushort v) => v),
-                providerValueComparer: new ValueComparer<ushort>(
-                    (ushort v1, ushort v2) => v1 == v2,
-                    (ushort v) => (int)v,
-                    (ushort v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var type = runtimeEntityType.AddProperty(
                 "Type",
                 typeof(string),
                 propertyInfo: typeof(BaseMalListFavorite).GetProperty("Type", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(BaseMalListFavorite).GetField("<Type>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-            type.TypeMapping = SqliteStringTypeMapping.Default;
 
             return runtimeEntityType;
         }

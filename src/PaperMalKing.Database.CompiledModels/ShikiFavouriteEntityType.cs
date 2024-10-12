@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models.Shikimori;
 
 #pragma warning disable 219, 612, 618
@@ -14,14 +12,20 @@ using PaperMalKing.Database.Models.Shikimori;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class ShikiFavouriteEntityType
+    [EntityFrameworkInternal]
+    public partial class ShikiFavouriteEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.Shikimori.ShikiFavourite",
                 typeof(ShikiFavourite),
-                baseEntityType);
+                baseEntityType,
+                propertyCount: 4,
+                navigationCount: 1,
+                foreignKeyCount: 1,
+                unnamedIndexCount: 1,
+                keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
@@ -30,21 +34,6 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(ShikiFavourite).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
-            id.TypeMapping = UIntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                keyComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                providerValueComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var favType = runtimeEntityType.AddProperty(
                 "FavType",
@@ -52,7 +41,6 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(ShikiFavourite).GetProperty("FavType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiFavourite).GetField("<FavType>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
-            favType.TypeMapping = SqliteStringTypeMapping.Default;
 
             var userId = runtimeEntityType.AddProperty(
                 "UserId",
@@ -61,28 +49,12 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(ShikiFavourite).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
-            userId.TypeMapping = UIntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                keyComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                providerValueComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var name = runtimeEntityType.AddProperty(
                 "Name",
                 typeof(string),
                 propertyInfo: typeof(ShikiFavourite).GetProperty("Name", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiFavourite).GetField("<Name>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-            name.TypeMapping = SqliteStringTypeMapping.Default;
 
             var key = runtimeEntityType.AddKey(
                 new[] { id, favType, userId });

@@ -3,9 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.Shikimori;
 
@@ -14,7 +13,8 @@ using PaperMalKing.Database.Models.Shikimori;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class CustomUpdateColor1EntityType
+    [EntityFrameworkInternal]
+    public partial class CustomUpdateColor1EntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -22,50 +22,24 @@ namespace PaperMalKing.Database.CompiledModels
                 "PaperMalKing.Database.Models.Shikimori.ShikiUser.Colors#CustomUpdateColor",
                 typeof(CustomUpdateColor),
                 baseEntityType,
-                sharedClrType: true);
+                sharedClrType: true,
+                propertyCount: 4,
+                foreignKeyCount: 1,
+                keyCount: 1);
 
             var shikiUserId = runtimeEntityType.AddProperty(
                 "ShikiUserId",
                 typeof(uint),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
-            shikiUserId.TypeMapping = UIntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                keyComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                providerValueComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
-            var id = runtimeEntityType.AddProperty(
-                "Id",
+            var __synthesizedOrdinal = runtimeEntityType.AddProperty(
+                "__synthesizedOrdinal",
                 typeof(int),
-                valueGenerated: ValueGenerated.OnAdd,
+                valueGenerated: ValueGenerated.OnAddOrUpdate,
+                beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
-            id.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                providerValueComparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var colorValue = runtimeEntityType.AddProperty(
                 "ColorValue",
@@ -73,21 +47,6 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(CustomUpdateColor).GetProperty("ColorValue", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CustomUpdateColor).GetField("<ColorValue>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0);
-            colorValue.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                providerValueComparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var updateType = runtimeEntityType.AddProperty(
                 "UpdateType",
@@ -95,24 +54,9 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(CustomUpdateColor).GetProperty("UpdateType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CustomUpdateColor).GetField("<UpdateType>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (byte)0);
-            updateType.TypeMapping = ByteTypeMapping.Default.Clone(
-                comparer: new ValueComparer<byte>(
-                    (byte v1, byte v2) => v1 == v2,
-                    (byte v) => (int)v,
-                    (byte v) => v),
-                keyComparer: new ValueComparer<byte>(
-                    (byte v1, byte v2) => v1 == v2,
-                    (byte v) => (int)v,
-                    (byte v) => v),
-                providerValueComparer: new ValueComparer<byte>(
-                    (byte v1, byte v2) => v1 == v2,
-                    (byte v) => (int)v,
-                    (byte v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var key = runtimeEntityType.AddKey(
-                new[] { shikiUserId, id });
+                new[] { shikiUserId, __synthesizedOrdinal });
             runtimeEntityType.SetPrimaryKey(key);
 
             return runtimeEntityType;

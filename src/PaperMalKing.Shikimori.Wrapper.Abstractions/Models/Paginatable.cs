@@ -3,21 +3,5 @@
 
 namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 
-public sealed class Paginatable<T>
-{
-	public T Data { get; }
-
-	public bool HasNextPage { get; }
-
-	public Paginatable(T data, bool hasNextPage)
-	{
-		this.Data = data;
-		this.HasNextPage = hasNextPage;
-	}
-
-	public void Deconstruct(out T data, out bool hasNextPage)
-	{
-		data = this.Data;
-		hasNextPage = this.HasNextPage;
-	}
-}
+public sealed record Paginatable<T>(T Data, bool HasNextPage)
+	where T : class;

@@ -6,10 +6,13 @@
         <PackageReference Include="AngleSharp" />
         <PackageReference Include="JikanDotNet"/>
         <PackageReference Include="CommunityToolkit.Diagnostics" />
-
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\PaperMalKing.MyAnimeList.Wrapper.Abstractions\PaperMalKing.MyAnimeList.Wrapper.Abstractions.csproj" />
     </ItemGroup>
+    
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);S3242;</NoWarn>
+    </PropertyGroup>
 
 </Project>

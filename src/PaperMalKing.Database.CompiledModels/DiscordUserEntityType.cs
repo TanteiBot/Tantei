@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models;
 
 #pragma warning disable 219, 612, 618
@@ -14,14 +12,21 @@ using PaperMalKing.Database.Models;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class DiscordUserEntityType
+    [EntityFrameworkInternal]
+    public partial class DiscordUserEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.DiscordUser",
                 typeof(DiscordUser),
-                baseEntityType);
+                baseEntityType,
+                propertyCount: 2,
+                navigationCount: 1,
+                skipNavigationCount: 1,
+                foreignKeyCount: 1,
+                unnamedIndexCount: 2,
+                keyCount: 1);
 
             var discordUserId = runtimeEntityType.AddProperty(
                 "DiscordUserId",
@@ -30,7 +35,6 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(DiscordUser).GetField("<DiscordUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0ul);
-            discordUserId.TypeMapping = SqliteULongTypeMapping.Default;
 
             var botUserId = runtimeEntityType.AddProperty(
                 "BotUserId",
@@ -38,21 +42,6 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(DiscordUser).GetProperty("BotUserId", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DiscordUser).GetField("<BotUserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0u);
-            botUserId.TypeMapping = UIntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                keyComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                providerValueComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var key = runtimeEntityType.AddKey(
                 new[] { discordUserId });

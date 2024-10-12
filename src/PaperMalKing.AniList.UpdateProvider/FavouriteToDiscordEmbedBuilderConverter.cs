@@ -1,9 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2024 N0D4N
 
-using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -22,8 +20,8 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 	private static DiscordEmbedBuilder InitialFavouriteEmbedBuilder(ISiteUrlable value, User user, bool added, AniListUser dbUser)
 	{
 		var color = dbUser.Colors.Find(added
-			? c => c.UpdateType == (byte)AniListUpdateType.FavouriteAdded
-			: c => c.UpdateType == (byte)AniListUpdateType.FavouriteRemoved)?.ColorValue ?? (added ? ProviderConstants.AniListBlue : ProviderConstants.AniListRed);
+			? static c => c.UpdateType == (byte)AniListUpdateType.FavouriteAdded
+			: static c => c.UpdateType == (byte)AniListUpdateType.FavouriteRemoved)?.ColorValue ?? (added ? ProviderConstants.AniListBlue : ProviderConstants.AniListRed);
 
 		var eb = new DiscordEmbedBuilder().WithAniListAuthor(user).WithColor(color)
 										  .WithDescription($"{(added ? "Added" : "Removed")} favourite").WithUrl(value.Url);
@@ -37,7 +35,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 
 	private static DiscordEmbedBuilder AddShortMediaLink(this DiscordEmbedBuilder eb, string fieldName, Media media, TitleLanguage language)
 	{
-		eb.AddField(fieldName, Formatter.MaskedUrl(media.Title.GetTitle(language), new Uri(media.Url)), inline: true);
+		eb.AddField(fieldName, Formatter.MaskedUrl(media.Title.GetTitle(language), new(media.Url)), inline: true);
 		return eb;
 	}
 
@@ -53,12 +51,11 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 		};
 	}
 
-	[SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "We need to output media type in lower-case")]
 	private static DiscordEmbedBuilder Convert(Media media, User user, bool added, AniListUser dbUser)
 	{
 		var eb = InitialFavouriteEmbedBuilder(media, user, added, dbUser).WithMediaTitle(media, user.Options.TitleLanguage, dbUser.Features)
 																		 .WithTotalSubEntries(media).EnrichWithMediaInfo(media, user, dbUser.Features);
-		eb.Description += $" {media.Type.ToInvariantString().ToLowerInvariant()}";
+		eb.Description += $" {media.Type.Humanize(LetterCasing.Sentence)}";
 		return eb;
 	}
 
@@ -76,13 +73,14 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 			.WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [{staff.PrimaryOccupations.FirstOrDefault() ?? "Staff"}]");
 		if (dbUser.Features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrEmpty(staff.Description))
 		{
+			const int mediaDescriptionLimit = 350;
 			var mediaDescription = staff.Description.StripHtml();
-			mediaDescription = SourceRemovalRegex().Replace(mediaDescription, string.Empty);
-			mediaDescription = EmptyLinesRemovalRegex().Replace(mediaDescription, string.Empty);
-			mediaDescription = mediaDescription.Trim().Truncate(350);
+			mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
+			mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
+			mediaDescription = mediaDescription.Trim().Truncate(mediaDescriptionLimit);
 			if (!string.IsNullOrEmpty(mediaDescription))
 			{
-				eb.AddField("Description", mediaDescription, inline: false);
+				eb.AddField("Description", mediaDescription);
 			}
 		}
 

@@ -3,15 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class DiscordGuildDiscordUserEntityType
+    [EntityFrameworkInternal]
+    public partial class DiscordGuildDiscordUserEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -21,21 +22,23 @@ namespace PaperMalKing.Database.CompiledModels
                 baseEntityType,
                 sharedClrType: true,
                 indexerPropertyInfo: RuntimeEntityType.FindIndexerProperty(typeof(Dictionary<string, object>)),
-                propertyBag: true);
+                propertyBag: true,
+                propertyCount: 2,
+                foreignKeyCount: 2,
+                unnamedIndexCount: 1,
+                keyCount: 1);
 
             var guildsDiscordGuildId = runtimeEntityType.AddProperty(
                 "GuildsDiscordGuildId",
                 typeof(ulong),
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
-            guildsDiscordGuildId.TypeMapping = SqliteULongTypeMapping.Default;
 
             var usersDiscordUserId = runtimeEntityType.AddProperty(
                 "UsersDiscordUserId",
                 typeof(ulong),
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
-            usersDiscordUserId.TypeMapping = SqliteULongTypeMapping.Default;
 
             var key = runtimeEntityType.AddKey(
                 new[] { guildsDiscordGuildId, usersDiscordUserId });

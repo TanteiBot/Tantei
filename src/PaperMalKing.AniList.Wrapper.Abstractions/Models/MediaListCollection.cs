@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.AniList.Wrapper.Abstractions.Models;
 
-[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "We match AniList name here")]
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "We follow AniListNaming")]
 public sealed class MediaListCollection
 {
 	[JsonPropertyName("lists")]

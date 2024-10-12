@@ -36,35 +36,41 @@ internal sealed class ShikiUserFeaturesService(IShikiClient _client, ILogger<Shi
 		{
 			case ShikiUserFeatures.AnimeList:
 			case ShikiUserFeatures.MangaList:
-			{
-				var (data, _) = await _client.GetUserHistoryAsync(dbUser.Id, 1, 1, HistoryRequestOptions.Any, CancellationToken.None);
-				lastHistoryEntry = data.MaxBy(h => h.Id)!.Id;
-				break;
-			}
+				{
+					var (data, _) = await _client.GetUserHistoryAsync(dbUser.Id, 1, 1, HistoryRequestOptions.Any, CancellationToken.None);
+					lastHistoryEntry = data.MaxBy(h => h.Id)!.Id;
+					break;
+				}
 
 			case ShikiUserFeatures.Favourites:
-			{
-				var favourites = await _client.GetUserFavouritesAsync(dbUser.Id, CancellationToken.None);
-				dbUser.Favourites = favourites.AllFavourites.Select(fe => new ShikiFavourite
 				{
-					Id = fe.Id,
-					Name = fe.Name,
-					FavType = fe.GenericType!,
-					User = dbUser,
-				}).ToList();
-				break;
-			}
+					var favourites = await _client.GetUserFavouritesAsync(dbUser.Id, CancellationToken.None);
+					dbUser.Favourites = favourites.AllFavourites.Select(fe => new ShikiFavourite
+					{
+						Id = fe.Id,
+						Name = fe.Name,
+						FavType = fe.GenericType!,
+						User = dbUser,
+					}).ToList();
+					break;
+				}
 
 			case ShikiUserFeatures.Achievements:
-			{
-				var achievements = await _client.GetUserAchievementsAsync(dbUser.Id);
-				dbUser.Achievements = achievements.Select(x => new ShikiDbAchievement
 				{
-					NekoId = x.Id,
-					Level = x.Level,
-				}).ToList();
-				break;
-			}
+					var achievements = await _client.GetUserAchievementsAsync(dbUser.Id);
+					dbUser.Achievements = achievements.Select(x => new ShikiDbAchievement
+					{
+						NekoId = x.Id,
+						Level = x.Level,
+					}).ToList();
+					break;
+				}
+
+			default:
+				{
+					// We don't care about others
+					break;
+				}
 		}
 
 		if (lastHistoryEntry.HasValue)

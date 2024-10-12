@@ -22,7 +22,8 @@ internal sealed class AniListClient(GraphQLHttpClient _client, ILogger<AniListCl
 		return response.Data;
 	}
 
-	public async Task<CheckForUpdatesResponse> CheckForUpdatesAsync(uint userId, byte page, long activitiesTimeStamp, ushort perChunk, ushort chunk, RequestOptions options, CancellationToken cancellationToken)
+	public async Task<CheckForUpdatesResponse> CheckForUpdatesAsync(uint userId, byte page, long activitiesTimeStamp, ushort perChunk, ushort chunk,
+																	RequestOptions options, CancellationToken cancellationToken)
 	{
 		cancellationToken.ThrowIfCancellationRequested();
 		_logger.RequestingUpdatesCheck(userId, page);
@@ -31,7 +32,8 @@ internal sealed class AniListClient(GraphQLHttpClient _client, ILogger<AniListCl
 		return response.Data;
 	}
 
-	public async Task<FavouritesResponse> FavouritesInfoAsync(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds, uint[] studioIds, RequestOptions options, CancellationToken cancellationToken = default)
+	public async Task<FavouritesResponse> FavouritesInfoAsync(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds, uint[] studioIds,
+															  RequestOptions options, CancellationToken cancellationToken = default)
 	{
 		if (animeIds is [] && mangaIds is [] && charIds is [] && staffIds is [] && studioIds is [])
 		{

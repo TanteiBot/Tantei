@@ -34,7 +34,7 @@ namespace PaperMalKing.Database.CompiledModels
             }
 
             model.Customize();
-            _instance = model;
+            _instance = (DatabaseContextModel)model.FinalizeModel();
         }
 
         private static DatabaseContextModel _instance;

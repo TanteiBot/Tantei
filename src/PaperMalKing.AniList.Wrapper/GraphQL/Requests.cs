@@ -21,7 +21,8 @@ internal static class Requests
 			new
 			{
 				userId,
-				page, activitiesFilterTimeStamp = activityTimeStamp,
+				page,
+				activitiesFilterTimeStamp = activityTimeStamp,
 				perChunk,
 				chunk,
 			});

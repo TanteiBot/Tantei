@@ -29,7 +29,7 @@ internal sealed class AniListCommands : ApplicationCommandModule
 			base.AddUserCommand(context, username);
 
 		[SlashCommand("remove", "Remove your AniList account updates from being tracked")]
-		public override Task RemoveUserInGuildCommand(InteractionContext context) => base.RemoveUserInGuildCommand(context);
+		public override Task RemoveUserCommand(InteractionContext context) => base.RemoveUserCommand(context);
 
 		[SlashCommand("list", "List accounts of all tracked users on AniList in this server")]
 		public override Task ListUsersCommand(InteractionContext context) => base.ListUsersCommand(context);
@@ -65,7 +65,7 @@ internal sealed class AniListCommands : ApplicationCommandModule
 	[SlashCommandGroup("colors", "Manage colors of your updates")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 	public sealed class AniListColorsCommands(ILogger<AniListColorsCommands> logger, CustomColorService<AniListUser, AniListUpdateType> customColorService)
-		: BaseColorsCommandModule<AniListUser, AniListUpdateType>(logger, customColorService)
+		: BaseColorsCommandsModule<AniListUser, AniListUpdateType>(logger, customColorService)
 	{
 		[SlashCommand("set", "Set color for update update")]
 		public override Task SetColor(InteractionContext context,
@@ -73,7 +73,8 @@ internal sealed class AniListCommands : ApplicationCommandModule
 								   [Option("color", "Color code in hex like #FFFFFF")] string colorValue) => base.SetColor(context, unparsedUpdateType, colorValue);
 
 		[SlashCommand("remove", "Restore default color for update type")]
-		public override Task RemoveColor(InteractionContext context, [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<AniListUpdateType>, AniListUpdateType>)), Option("updateType", "Type of update to set color for")] string unparsedUpdateType) => base.RemoveColor(context, unparsedUpdateType);
+		public override Task RemoveColor(InteractionContext context, [ChoiceProvider(typeof(EnumChoiceProvider<ColorsChoiceProvider<AniListUpdateType>, AniListUpdateType>)),
+																	  Option("updateType", "Type of update to set color for")] string unparsedUpdateType) => base.RemoveColor(context, unparsedUpdateType);
 
 		[SlashCommand("list", "Lists your overriden types")]
 		public override Task<DiscordMessage> ListOverridenColor(InteractionContext context) => base.ListOverridenColor(context);

@@ -3,11 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Json;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PaperMalKing.Database.Models.AniList;
 
 #pragma warning disable 219, 612, 618
@@ -15,14 +12,20 @@ using PaperMalKing.Database.Models.AniList;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class AniListFavouriteEntityType
+    [EntityFrameworkInternal]
+    public partial class AniListFavouriteEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.AniList.AniListFavourite",
                 typeof(AniListFavourite),
-                baseEntityType);
+                baseEntityType,
+                propertyCount: 3,
+                navigationCount: 1,
+                foreignKeyCount: 1,
+                unnamedIndexCount: 1,
+                keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
@@ -31,21 +34,6 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(AniListFavourite).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
-            id.TypeMapping = UIntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                keyComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                providerValueComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var favouriteType = runtimeEntityType.AddProperty(
                 "FavouriteType",
@@ -53,29 +41,6 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(AniListFavourite).GetProperty("FavouriteType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(AniListFavourite).GetField("<FavouriteType>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
-            favouriteType.TypeMapping = ByteTypeMapping.Default.Clone(
-                comparer: new ValueComparer<FavouriteType>(
-                    (FavouriteType v1, FavouriteType v2) => object.Equals((object)v1, (object)v2),
-                    (FavouriteType v) => v.GetHashCode(),
-                    (FavouriteType v) => v),
-                keyComparer: new ValueComparer<FavouriteType>(
-                    (FavouriteType v1, FavouriteType v2) => object.Equals((object)v1, (object)v2),
-                    (FavouriteType v) => v.GetHashCode(),
-                    (FavouriteType v) => v),
-                providerValueComparer: new ValueComparer<byte>(
-                    (byte v1, byte v2) => v1 == v2,
-                    (byte v) => (int)v,
-                    (byte v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"),
-                converter: new ValueConverter<FavouriteType, byte>(
-                    (FavouriteType value) => (byte)value,
-                    (byte value) => (FavouriteType)value),
-                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<FavouriteType, byte>(
-                    JsonByteReaderWriter.Instance,
-                    new ValueConverter<FavouriteType, byte>(
-                        (FavouriteType value) => (byte)value,
-                        (byte value) => (FavouriteType)value)));
             favouriteType.SetSentinelFromProviderValue((byte)0);
 
             var userId = runtimeEntityType.AddProperty(
@@ -85,21 +50,6 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(AniListFavourite).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
-            userId.TypeMapping = UIntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                keyComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                providerValueComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var key = runtimeEntityType.AddKey(
                 new[] { id, favouriteType, userId });

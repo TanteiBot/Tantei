@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using AngleSharp.Dom;
 using CommunityToolkit.Diagnostics;
+using PaperMalKing.Common;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 
@@ -31,12 +32,12 @@ internal static class LatestUpdatesParser
 			return null;
 		}
 
-		return string.Join('|', nodes.Select(dataNode =>
+		return nodes.Select(dataNode =>
 		{
 			var link = dataNode.QuerySelector("a")!.GetAttribute("href")!;
 			var id = Helper.ExtractIdFromMalUrl(link);
 
 			return $"{new StringBuilder(dataNode.QuerySelector("div.data > div:last-of-type")!.TextContent).Replace(" ", "").Replace("\n", "").ToString().ToUpperInvariant()}:{id}";
-		}));
+		}).JoinToString('|');
 	}
 }

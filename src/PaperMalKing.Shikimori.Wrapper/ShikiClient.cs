@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -18,6 +19,7 @@ using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
 namespace PaperMalKing.Shikimori.Wrapper;
 
+[SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Will be handled by its parent")]
 public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _logger) : IShikiClient
 {
 	public async Task<UserInfo> GetUserAsync(string nickname, CancellationToken cancellationToken = default)
@@ -31,10 +33,7 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		{
 			Content = new MultipartFormDataContent
 			{
-				#pragma warning disable CA2000
-				// Call System.IDisposable.Dispose on object created by 'new StringContent("1")' before all references to it are out of scope
 				{ new StringContent("1"), "is_nickname" },
-				#pragma warning restore CA2000
 			},
 		};
 
@@ -56,8 +55,6 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		limit = limit > Constants.HistoryLimit ? Constants.HistoryLimit : limit;
 		_logger.RequestingHistoryPage(userId, page);
 
-		#pragma warning disable CA2000
-		// Call System.IDisposable.Dispose on object created by 'new StringContent("1")' before all references to it are out of scope
 		using var content = new MultipartFormDataContent
 		{
 			{ new StringContent(page.ToString(CultureInfo.InvariantCulture)), "page" },
@@ -67,7 +64,6 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		{
 			content.Add(new StringContent(options.ToInvariantString()), "target_type");
 		}
-		#pragma warning restore CA2000
 
 		using var rm = new HttpRequestMessage(HttpMethod.Get, url)
 		{
@@ -116,16 +112,14 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		{
 			Content = new MultipartFormDataContent
 			{
-				#pragma warning disable CA2000
-				// Call System.IDisposable.Dispose on object created by 'new StringContent("1")' before all references to it are out of scope
 				{ new StringContent(userId.ToString("D", CultureInfo.InvariantCulture)), "user_id" },
-				#pragma warning restore CA2000
 			},
 		};
 		using var response = await _httpClient.SendAsync(rm, HttpCompletionOption.ResponseContentRead, cancellationToken);
 		var achievements = (await response.Content.ReadFromJsonAsync(JsonContext.Default.UserAchievementArray, cancellationToken))!;
 		var r = new List<UserAchievement>(achievements.Length);
-		r.AddRange(achievements.Where(x => x is { Level: > 0 }).GroupBy(x => x.Id, StringComparer.Ordinal).Select(userAchievement => new UserAchievement(userAchievement.Key, userAchievement.Max(x => x.Level))));
+		r.AddRange(achievements.Where(x => x is { Level: > 0 }).GroupBy(x => x.Id, StringComparer.Ordinal)
+							   .Select(userAchievement => new UserAchievement(userAchievement.Key, userAchievement.Max(x => x.Level))));
 
 		return r;
 	}
