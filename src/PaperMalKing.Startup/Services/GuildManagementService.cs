@@ -46,7 +46,7 @@ internal sealed class GuildManagementService(ILogger<GuildManagementService> _lo
 		using var db = _dbContextFactory.CreateDbContext();
 		var guild = db.DiscordGuilds.TagWith("Query guild to remove it").TagWithCallSite().FirstOrDefault() ??
 					throw new GuildManagementException("You can't remove this server from posting updates", guildId);
-		_logger.RemovingChannel(guildId);
+		_logger.RemovingGuild(guildId);
 
 		db.DiscordGuilds.Where(g => g.DiscordGuildId == guildId).ExecuteDelete();
 		db.DiscordGuilds.Remove(guild);
