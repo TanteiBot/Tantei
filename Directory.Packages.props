@@ -73,7 +73,7 @@
     <PackageVersion Include="System.Threading.RateLimiting" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.EnumStrings" Version="8.0.0-rc.2.23510.2" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="17.11.20" />
-    <GlobalPackageReference Include="GitVersion.MsBuild" Version="6.0.2">
+    <GlobalPackageReference Include="GitVersion.MsBuild" Version="6.0.3">
         <PrivateAssets>All</PrivateAssets>
     </GlobalPackageReference>
       
