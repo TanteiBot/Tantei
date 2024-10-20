@@ -2,31 +2,12 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
-using CommunityToolkit.Diagnostics;
+using System.Collections.Generic;
 
 namespace PaperMalKing.Common;
 
-public sealed class FavoriteIdType : IComparable<FavoriteIdType>, IEquatable<FavoriteIdType>, IComparable
+public sealed record FavoriteIdType(uint Id, byte Type) : IComparable<FavoriteIdType>, IComparable
 {
-	public bool Equals(FavoriteIdType? other)
-	{
-		return other is not null && (ReferenceEquals(this, other) || (this.Id == other.Id && this.Type == other.Type));
-	}
-
-	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is FavoriteIdType other && this.Equals(other));
-
-	public override int GetHashCode() => HashCode.Combine(this.Id, this.Type);
-
-	public static bool operator ==(FavoriteIdType? left, FavoriteIdType? right) => Equals(left, right);
-
-	public static bool operator !=(FavoriteIdType? left, FavoriteIdType? right) => !Equals(left, right);
-
-	public FavoriteIdType(uint id, byte type)
-	{
-		this.Id = id;
-		this.Type = type;
-	}
-
 	public int CompareTo(FavoriteIdType? other)
 	{
 		if (ReferenceEquals(this, other))
@@ -39,42 +20,35 @@ public sealed class FavoriteIdType : IComparable<FavoriteIdType>, IEquatable<Fav
 			return 1;
 		}
 
-		var idComparison = this.Id.CompareTo(other.Id);
-		return idComparison != 0 ? idComparison : this.Type.CompareTo(other.Type);
+		var typeComparison = this.Type.CompareTo(other.Type);
+		if (typeComparison != 0)
+		{
+			return typeComparison;
+		}
+
+		return this.Id.CompareTo(other.Id);
 	}
 
 	public int CompareTo(object? obj)
 	{
-		if (obj is FavoriteIdType x)
+		if (obj is null)
 		{
-			return this.CompareTo(x);
+			return 1;
 		}
 
-		ThrowHelper.ThrowArgumentException(nameof(obj), "");
-		return default;
+		if (ReferenceEquals(this, obj))
+		{
+			return 0;
+		}
+
+		return obj is FavoriteIdType other ? this.CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(FavoriteIdType)}", nameof(obj));
 	}
 
-	public static bool operator <(FavoriteIdType left, FavoriteIdType right)
-	{
-		return left is null ? right is not null : left.CompareTo(right) < 0;
-	}
+	public static bool operator <(FavoriteIdType? left, FavoriteIdType? right) => Comparer<FavoriteIdType>.Default.Compare(left, right) < 0;
 
-	public static bool operator <=(FavoriteIdType left, FavoriteIdType right)
-	{
-		return left is null || left.CompareTo(right) <= 0;
-	}
+	public static bool operator >(FavoriteIdType? left, FavoriteIdType? right) => Comparer<FavoriteIdType>.Default.Compare(left, right) > 0;
 
-	public static bool operator >(FavoriteIdType left, FavoriteIdType right)
-	{
-		return left?.CompareTo(right) > 0;
-	}
+	public static bool operator <=(FavoriteIdType? left, FavoriteIdType? right) => Comparer<FavoriteIdType>.Default.Compare(left, right) <= 0;
 
-	public static bool operator >=(FavoriteIdType left, FavoriteIdType right)
-	{
-		return left is null ? right is null : left.CompareTo(right) >= 0;
-	}
-
-	public uint Id { get; init; }
-
-	public byte Type { get; init; }
+	public static bool operator >=(FavoriteIdType? left, FavoriteIdType? right) => Comparer<FavoriteIdType>.Default.Compare(left, right) >= 0;
 }

@@ -2,11 +2,10 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
-using CommunityToolkit.HighPerformance.Buffers;
 
 namespace PaperMalKing.Common.Json;
 
@@ -18,16 +17,27 @@ namespace PaperMalKing.Common.Json;
 /// </summary>
 public sealed class ClearableStringPoolingJsonConverter : JsonConverter<string>
 {
-	private static readonly StringPool StringPool = new();
+	private static readonly HashSet<string> StringPool = new(StringComparer.Ordinal);
 
-	[SuppressMessage("Performance", "CA1823:Avoid unused private fields", Justification = "We store it just in case")]
-	[SuppressMessage("Roslynator", "RCS1213:Remove unused member declaration.", Justification = "We store it just in case")]
-	[SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "We store it just in case")]
-	private static readonly Timer Timer = new(_ => StringPool.Reset(), state: null, dueTime: TimeSpan.Zero, TimeSpan.FromHours(3));
+	private static readonly ReaderWriterLockSlim ReaderWriterLock = new(LockRecursionPolicy.NoRecursion);
+
+#pragma warning disable CA1823, RCS1213, IDE0052, S1144
+	// W: Avoid unused private fields
+	// A: We store it just in case
+	private static readonly Timer Timer = new(static _ =>
+	{
+		ReaderWriterLock.EnterWriteLock();
+		StringPool.Clear();
+		ReaderWriterLock.ExitWriteLock();
+	},
+	state: null,
+	dueTime: TimeSpan.Zero,
+	TimeSpan.FromHours(3));
+#pragma warning restore
 
 	public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
-		return StringPoolingJsonConverter.ReadStringOrGetFromPool(ref reader, StringPool);
+		return StringPoolingJsonConverter.ReadStringOrGetFromPool(ref reader, StringPool, ReaderWriterLock);
 	}
 
 	public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)

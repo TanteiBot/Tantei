@@ -7,9 +7,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaLi
 
 namespace PaperMalKing.MyAnimeList.Wrapper;
 
-[JsonSerializable(
-	typeof(ListQueryResult<AnimeListEntry, AnimeListEntryNode, AnimeListEntryStatus, AnimeMediaType, AnimeAiringStatus, AnimeListStatus>))]
-[JsonSerializable(
-	typeof(ListQueryResult<MangaListEntry, MangaListEntryNode, MangaListEntryStatus, MangaMediaType, MangaPublishingStatus, MangaListStatus>))]
-[JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Metadata)]
+[JsonSerializable(typeof(ListQueryResult<AnimeListEntry, AnimeListEntryNode, AnimeListEntryStatus, AnimeMediaType, AnimeAiringStatus, AnimeListStatus>))]
+[JsonSerializable(typeof(ListQueryResult<MangaListEntry, MangaListEntryNode, MangaListEntryStatus, MangaMediaType, MangaPublishingStatus, MangaListStatus>))]
+[JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Metadata, RespectNullableAnnotations = true, RespectRequiredConstructorParameters = true)]
 internal sealed partial class JsonContext : JsonSerializerContext;

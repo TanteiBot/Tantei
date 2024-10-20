@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using PaperMalKing.Database.Models.MyAnimeList;
 
 #pragma warning disable 219, 612, 618
@@ -12,7 +12,8 @@ using PaperMalKing.Database.Models.MyAnimeList;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class MalFavoriteCharacterEntityType
+    [EntityFrameworkInternal]
+    public partial class MalFavoriteCharacterEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -21,14 +22,16 @@ namespace PaperMalKing.Database.CompiledModels
                 typeof(MalFavoriteCharacter),
                 baseEntityType,
                 discriminatorProperty: "FavoriteType",
-                discriminatorValue: MalFavoriteType.Character);
+                discriminatorValue: MalFavoriteType.Character,
+                propertyCount: 1,
+                navigationCount: 1,
+                foreignKeyCount: 1);
 
             var fromTitleName = runtimeEntityType.AddProperty(
                 "FromTitleName",
                 typeof(string),
                 propertyInfo: typeof(MalFavoriteCharacter).GetProperty("FromTitleName", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(MalFavoriteCharacter).GetField("<FromTitleName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-            fromTitleName.TypeMapping = SqliteStringTypeMapping.Default;
 
             return runtimeEntityType;
         }

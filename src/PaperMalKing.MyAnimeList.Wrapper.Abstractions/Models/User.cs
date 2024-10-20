@@ -16,8 +16,7 @@ public sealed class User
 
 	public string ProfileUrl => this._profileUrl ??= Constants.ProfileUrl + this.Username;
 
-	public string AvatarUrl =>
-		this._avatarUrl ??=
+	public string AvatarUrl => this._avatarUrl ??=
 			string.Create(CultureInfo.InvariantCulture, $"{Constants.UserAvatar}{this.Id}.jpg?t={TimeProvider.System.GetUtcNow().ToUnixTimeSeconds()}");
 
 	public uint Id { get; init; }

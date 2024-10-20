@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2024 N0D4N
 
-using System.ComponentModel;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
@@ -9,15 +8,21 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Man
 [JsonConverter(typeof(JsonStringEnumConverter<MangaPublishingStatus>))]
 public enum MangaPublishingStatus : byte
 {
-	unknown = 0,
-	[Description("Finished")]
-	finished = 1,
-	[Description("Currently publishing")]
-	currently_publishing = 2,
-	[Description("Not yet published")]
-	not_yet_published = 3,
-	[Description("Discontinued")]
-	discontinued = 4,
-	[Description("Hiatus")]
-	on_hiatus = 5,
+	[JsonStringEnumMemberName("unknown")]
+	Unknown = 0,
+
+	[JsonStringEnumMemberName("finished")]
+	Finished = 1,
+
+	[JsonStringEnumMemberName("currently_publishing")]
+	CurrentlyPublishing = 2,
+
+	[JsonStringEnumMemberName("not_yet_published")]
+	NotYetPublished = 3,
+
+	[JsonStringEnumMemberName("discontinued")]
+	Discontinued = 4,
+
+	[JsonStringEnumMemberName("on_hiatus")]
+	OnHiatus = 5,
 }

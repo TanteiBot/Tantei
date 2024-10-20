@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
+using PaperMalKing.Common;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
@@ -31,11 +32,12 @@ public sealed class CustomColorService<TUser, TUpdateType>
 	{
 		using var db = this.DbContextFactory.CreateDbContext();
 
-		var user = db.Set<TUser>().TagWith("Getting user to set color").TagWithCallSite().FirstOrDefault(u => u.DiscordUserId == userId) ?? throw new UserProcessingException("You must create account first");
+		var user = db.Set<TUser>().TagWith("Getting user to set color").TagWithCallSite()
+					 .FirstOrDefault(u => u.DiscordUserId == userId) ?? throw new UserProcessingException("You must create account first");
 		var byteType = Unsafe.As<TUpdateType, byte>(ref updateType);
 
 		user.Colors.RemoveAll(c => c.UpdateType == byteType);
-		user.Colors.Add(new CustomUpdateColor
+		user.Colors.Add(new()
 		{
 			UpdateType = byteType,
 			ColorValue = color.Value,
@@ -57,7 +59,6 @@ public sealed class CustomColorService<TUser, TUpdateType>
 		await db.SaveChangesAndThrowOnNoneAsync();
 	}
 
-	[SuppressMessage("Major Code Smell", "S2971:LINQ expressions should be simplified", Justification = "We must materialize it")]
 	[SuppressMessage("Performance", "EA0006:Replace uses of \'Enum.GetName\' and \'Enum.ToString\' for improved performance", Justification = "We don't know type here")]
 	public string? OverridenColors(ulong userId)
 	{
@@ -69,8 +70,7 @@ public sealed class CustomColorService<TUser, TUpdateType>
 			return null;
 		}
 
-		return $"Your colors: {string.Join('\n',
-			colors.Select(c =>
-				$"{(TUpdateType)(object)c.UpdateType}: #{string.Create(CultureInfo.InvariantCulture, $"{c.ColorValue:X6}")}"))}";
+		return $"Your colors: {colors.Select(c =>
+			$"{(TUpdateType)(object)c.UpdateType}: #{string.Create(CultureInfo.InvariantCulture, $"{c.ColorValue:X6}")}").JoinToString('\n')}";
 	}
 }

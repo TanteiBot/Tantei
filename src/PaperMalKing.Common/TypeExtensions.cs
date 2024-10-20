@@ -4,15 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace PaperMalKing.Common;
 
 public static partial class TypeExtensions
 {
-	[GeneratedRegex("<.*?>", RegexOptions.Compiled, matchTimeoutMilliseconds: 60000/*1m*/)]
-	private static partial Regex HtmlRegex();
+	[GeneratedRegex("<.*?>", RegexOptions.Compiled, matchTimeoutMilliseconds: 1000/*1s*/)]
+	private static partial Regex HtmlRegex { get; }
 
 	public static string? ToSentenceCase(this string? value, CultureInfo cultureInfo)
 	{
@@ -34,7 +33,7 @@ public static partial class TypeExtensions
 		return value;
 	}
 
-	public static string StripHtml(this string value) => HtmlRegex().Replace(value, string.Empty);
+	public static string StripHtml(this string value) => HtmlRegex.Replace(value, string.Empty);
 
 	public static string ToFirstCharUpperCase(this string? str)
 	{
@@ -62,13 +61,16 @@ public static partial class TypeExtensions
 			return ex.Message;
 		}
 
-		return string.Join(";\n", GetMessage(ex).Where(x => !string.IsNullOrWhiteSpace(x)));
+		return GetMessage(ex).JoinToString(";\n");
 
 		static IEnumerable<string> GetMessage(Exception exception)
 		{
 			while (true)
 			{
-				yield return exception.Message;
+				if (!string.IsNullOrWhiteSpace(exception.Message))
+				{
+					yield return exception.Message;
+				}
 
 				if (exception.InnerException is not null)
 				{

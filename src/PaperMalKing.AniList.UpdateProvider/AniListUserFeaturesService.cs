@@ -37,27 +37,33 @@ internal sealed class AniListUserFeaturesService(IAniListClient _client, ILogger
 		{
 			case AniListUserFeatures.AnimeList:
 			case AniListUserFeatures.MangaList:
-			{
-				dbUser.LastActivityTimestamp = now;
-				break;
-			}
+				{
+					dbUser.LastActivityTimestamp = now;
+					break;
+				}
 
 			case AniListUserFeatures.Favourites:
-			{
-				var fr = await _client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites | AniListUserFeatures.AnimeList, CancellationToken.None);
-				dbUser.Favourites = fr.Favourites.ConvertAll(f => new AniListFavourite
 				{
-					Id = f.Id,
-					FavouriteType = (FavouriteType)f.Type,
-				});
-				break;
-			}
+					var fr = await _client.GetAllRecentUserUpdatesAsync(dbUser, AniListUserFeatures.Favourites | AniListUserFeatures.AnimeList, CancellationToken.None);
+					dbUser.Favourites = fr.Favourites.ConvertAll(f => new AniListFavourite
+					{
+						Id = f.Id,
+						FavouriteType = (FavouriteType)f.Type,
+					});
+					break;
+				}
 
 			case AniListUserFeatures.Reviews:
-			{
-				dbUser.LastReviewTimestamp = now;
-				break;
-			}
+				{
+					dbUser.LastReviewTimestamp = now;
+					break;
+				}
+
+			default:
+				{
+					// We dont care about others
+					break;
+				}
 		}
 
 		await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);

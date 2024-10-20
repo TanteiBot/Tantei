@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using PaperMalKing.Database.Models.Shikimori;
 
 #pragma warning disable 219, 612, 618
@@ -14,57 +12,32 @@ using PaperMalKing.Database.Models.Shikimori;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class ShikiDbAchievementEntityType
+    [EntityFrameworkInternal]
+    public partial class ShikiDbAchievementEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.Shikimori.ShikiDbAchievement",
                 typeof(ShikiDbAchievement),
-                baseEntityType);
+                baseEntityType,
+                propertyCount: 4,
+                foreignKeyCount: 1,
+                keyCount: 1);
 
             var shikiUserId = runtimeEntityType.AddProperty(
                 "ShikiUserId",
                 typeof(uint),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0u);
-            shikiUserId.TypeMapping = UIntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                keyComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                providerValueComparer: new ValueComparer<uint>(
-                    (uint v1, uint v2) => v1 == v2,
-                    (uint v) => (int)v,
-                    (uint v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
-            var id = runtimeEntityType.AddProperty(
-                "Id",
+            var __synthesizedOrdinal = runtimeEntityType.AddProperty(
+                "__synthesizedOrdinal",
                 typeof(int),
-                valueGenerated: ValueGenerated.OnAdd,
+                valueGenerated: ValueGenerated.OnAddOrUpdate,
+                beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
-            id.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                providerValueComparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var level = runtimeEntityType.AddProperty(
                 "Level",
@@ -72,31 +45,15 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(ShikiDbAchievement).GetProperty("Level", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiDbAchievement).GetField("<Level>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (byte)0);
-            level.TypeMapping = ByteTypeMapping.Default.Clone(
-                comparer: new ValueComparer<byte>(
-                    (byte v1, byte v2) => v1 == v2,
-                    (byte v) => (int)v,
-                    (byte v) => v),
-                keyComparer: new ValueComparer<byte>(
-                    (byte v1, byte v2) => v1 == v2,
-                    (byte v) => (int)v,
-                    (byte v) => v),
-                providerValueComparer: new ValueComparer<byte>(
-                    (byte v1, byte v2) => v1 == v2,
-                    (byte v) => (int)v,
-                    (byte v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
 
             var nekoId = runtimeEntityType.AddProperty(
                 "NekoId",
                 typeof(string),
                 propertyInfo: typeof(ShikiDbAchievement).GetProperty("NekoId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(ShikiDbAchievement).GetField("<NekoId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-            nekoId.TypeMapping = SqliteStringTypeMapping.Default;
 
             var key = runtimeEntityType.AddKey(
-                new[] { shikiUserId, id });
+                new[] { shikiUserId, __synthesizedOrdinal });
             runtimeEntityType.SetPrimaryKey(key);
 
             return runtimeEntityType;

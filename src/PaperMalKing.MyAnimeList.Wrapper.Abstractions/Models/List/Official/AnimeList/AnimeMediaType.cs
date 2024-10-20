@@ -9,23 +9,34 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Ani
 [JsonConverter(typeof(JsonStringEnumConverter<AnimeMediaType>))]
 public enum AnimeMediaType : byte
 {
-	unknown = 0,
-	[Description("TV")]
-	tv = 1,
-	[Description("OVA")]
-	ova = 2,
-	[Description("Movie")]
-	movie = 3,
-	[Description("Special")]
-	special = 4,
-	[Description("ONA")]
-	ona = 5,
-	[Description("Music")]
-	music = 6,
+	[JsonStringEnumMemberName("unknown")]
+	Unknown = 0,
+
+	[JsonStringEnumMemberName("tv")]
+	TV = 1,
+
+	[JsonStringEnumMemberName("ova")]
+	OVA = 2,
+
+	[JsonStringEnumMemberName("movie")]
+	Movie = 3,
+
+	[JsonStringEnumMemberName("special")]
+	Special = 4,
+
+	[JsonStringEnumMemberName("ona")]
+	ONA = 5,
+
+	[JsonStringEnumMemberName("music")]
+	Music = 6,
+
 	[Description("TV Special")]
-	tv_special = 7,
-	[Description("CM")]
-	cm = 8,
-	[Description("PV")]
-	pv = 9,
+	[JsonStringEnumMemberName("tv_special")]
+	TvSpecial = 7,
+
+	[JsonStringEnumMemberName("cm")]
+	CM = 8,
+
+	[JsonStringEnumMemberName("pv")]
+	PV = 9,
 }

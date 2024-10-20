@@ -2,16 +2,13 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using AngleSharp.Dom;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
-[SuppressMessage("Design", "MA0048:File name must match type name", Justification = "We don't want to expose all parsers")]
 internal static partial class UserProfileParser
 {
 	private static class FavoritesParser
@@ -47,9 +44,7 @@ internal static partial class UserProfileParser
 				return [];
 			}
 
-			return ParseFavoriteBase(
-				animeFavoritesNodes,
-				node => new FavoriteAnime(ParseListEntryFavorite(node)));
+			return ParseFavoriteBase(animeFavoritesNodes, node => new FavoriteAnime(ParseListEntryFavorite(node)));
 		}
 
 		private static FavoriteManga[] ParseFavoriteManga(IDocument parent)
@@ -60,9 +55,7 @@ internal static partial class UserProfileParser
 				return [];
 			}
 
-			return ParseFavoriteBase(
-				mangaFavoriteNodes,
-				node => new FavoriteManga(ParseListEntryFavorite(node)));
+			return ParseFavoriteBase(mangaFavoriteNodes, node => new FavoriteManga(ParseListEntryFavorite(node)));
 		}
 
 		private static FavoriteCharacter[] ParseFavoriteCharacter(IDocument parent)
@@ -125,7 +118,7 @@ internal static partial class UserProfileParser
 
 			var titleNode = parent.QuerySelector(".title")!;
 			var imageUrlNode = parent.QuerySelector(".image")!;
-			return new BaseFavorite(new MalUrl(urlUnparsed), titleNode.TextContent, imageUrlNode.GetAttribute("data-src")!.Replace("/r/140x220", "", StringComparison.OrdinalIgnoreCase));
+			return new(new(urlUnparsed), titleNode.TextContent, imageUrlNode.GetAttribute("data-src")!.Replace("/r/140x220", "", StringComparison.OrdinalIgnoreCase));
 		}
 	}
 }

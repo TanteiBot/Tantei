@@ -15,15 +15,17 @@ public static class RateLimiterFactory
 		ArgumentNullException.ThrowIfNull(rateLimitValue);
 		if (rateLimitValue.AmountOfRequests == 0 || rateLimitValue.PeriodInMilliseconds == 0)
 		{
-			return new RateLimiter<T>(NullRateLimiter.Instance);
+			return new(NullRateLimiter.Instance);
 		}
 
-		return new RateLimiter<T>(new FixedWindowRateLimiter(new()
+		const int queueLimit = 200;
+
+		return new(new FixedWindowRateLimiter(new()
 		{
 			Window = TimeSpan.FromMilliseconds(rateLimitValue.PeriodInMilliseconds),
 			AutoReplenishment = true,
 			PermitLimit = rateLimitValue.AmountOfRequests,
-			QueueLimit = 200,
+			QueueLimit = queueLimit,
 			QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
 		}));
 	}

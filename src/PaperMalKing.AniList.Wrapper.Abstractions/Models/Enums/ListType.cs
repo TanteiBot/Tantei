@@ -10,6 +10,9 @@ namespace PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 [EnumStrings]
 public enum ListType : byte
 {
-	ANIME = 0,
-	MANGA = 1,
+	[JsonStringEnumMemberName("ANIME")]
+	Anime = 0,
+
+	[JsonStringEnumMemberName("Manga")]
+	Manga = 1,
 }

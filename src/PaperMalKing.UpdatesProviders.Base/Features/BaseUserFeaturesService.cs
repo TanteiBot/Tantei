@@ -55,6 +55,7 @@ public abstract class BaseUserFeaturesService<TUser, TFeature>
 
 	protected abstract ValueTask DisableFeatureCleanupAsync(DatabaseContext db, TUser user, TFeature featureToDisable);
 
+	[SuppressMessage("Minor Code Smell", "S3257:Declarations and initializations should be as concise as possible", Justification = "False positive")]
 	public string EnabledFeatures(ulong userId)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();

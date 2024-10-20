@@ -26,24 +26,23 @@ internal sealed class UserCleanupService(ILogger<UserCleanupService> _logger, Di
 			if (discordUser.Guilds is [])
 			{
 				_userService.RemoveUserIfInNoGuilds(userId);
+				continue;
 			}
-			else
-			{
-				foreach (var guildId in discordUser.Guilds.Select(x => x.DiscordGuildId))
-				{
-					if (!_discordClient.Guilds.TryGetValue(guildId, out var guild))
-					{
-						continue;
-					}
 
-					try
-					{
-						_ = await guild.GetMemberAsync(userId);
-					}
-					catch (NotFoundException)
-					{
-						await _userService.RemoveUserInGuildAsync(guildId, userId);
-					}
+			foreach (var guildId in discordUser.Guilds.Select(x => x.DiscordGuildId))
+			{
+				if (!_discordClient.Guilds.TryGetValue(guildId, out var guild))
+				{
+					continue;
+				}
+
+				try
+				{
+					_ = await guild.GetMemberAsync(userId);
+				}
+				catch (NotFoundException)
+				{
+					await _userService.RemoveUserInGuildAsync(guildId, userId);
 				}
 			}
 		}

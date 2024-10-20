@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using PaperMalKing.Database.Models;
 
 #pragma warning disable 219, 612, 618
@@ -11,14 +11,19 @@ using PaperMalKing.Database.Models;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    internal partial class DiscordGuildEntityType
+    [EntityFrameworkInternal]
+    public partial class DiscordGuildEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
                 "PaperMalKing.Database.Models.DiscordGuild",
                 typeof(DiscordGuild),
-                baseEntityType);
+                baseEntityType,
+                propertyCount: 2,
+                skipNavigationCount: 1,
+                unnamedIndexCount: 1,
+                keyCount: 1);
 
             var discordGuildId = runtimeEntityType.AddProperty(
                 "DiscordGuildId",
@@ -27,7 +32,6 @@ namespace PaperMalKing.Database.CompiledModels
                 fieldInfo: typeof(DiscordGuild).GetField("<DiscordGuildId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0ul);
-            discordGuildId.TypeMapping = SqliteULongTypeMapping.Default;
 
             var postingChannelId = runtimeEntityType.AddProperty(
                 "PostingChannelId",
@@ -35,7 +39,6 @@ namespace PaperMalKing.Database.CompiledModels
                 propertyInfo: typeof(DiscordGuild).GetProperty("PostingChannelId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DiscordGuild).GetField("<PostingChannelId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0ul);
-            postingChannelId.TypeMapping = SqliteULongTypeMapping.Default;
 
             var key = runtimeEntityType.AddKey(
                 new[] { discordGuildId });

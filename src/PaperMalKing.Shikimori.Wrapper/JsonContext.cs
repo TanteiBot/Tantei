@@ -8,7 +8,8 @@ using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
 namespace PaperMalKing.Shikimori.Wrapper;
 
-[JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Metadata, IgnoreReadOnlyProperties = true)]
+[JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Metadata, IgnoreReadOnlyProperties = true, RespectNullableAnnotations = true,
+	RespectRequiredConstructorParameters = true)]
 [JsonSerializable(typeof(AnimeMedia))]
 [JsonSerializable(typeof(MangaMedia))]
 [JsonSerializable(typeof(Favourites))]

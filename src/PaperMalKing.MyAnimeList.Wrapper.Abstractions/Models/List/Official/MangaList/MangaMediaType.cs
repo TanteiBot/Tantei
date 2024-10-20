@@ -9,21 +9,32 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Man
 [JsonConverter(typeof(JsonStringEnumConverter<MangaMediaType>))]
 public enum MangaMediaType : byte
 {
-	unknown = 0,
-	[Description("Manga")]
-	manga = 1,
-	[Description("Novel")]
-	novel = 2,
+	[JsonStringEnumMemberName("unknown")]
+	Unknown = 0,
+
+	[JsonStringEnumMemberName("manga")]
+	Manga = 1,
+
+	[JsonStringEnumMemberName("novel")]
+	Novel = 2,
+
 	[Description("One-shot")]
-	one_shot = 3,
-	[Description("Doujinshi")]
-	doujinshi = 4,
-	[Description("Manhwa")]
-	manhwa = 5,
-	[Description("Manhua")]
-	manhua = 6,
+	[JsonStringEnumMemberName("one_shot")]
+	OneShot = 3,
+
+	[JsonStringEnumMemberName("doujinshi")]
+	Doujinshi = 4,
+
+	[JsonStringEnumMemberName("manhwa")]
+	Manhwa = 5,
+
+	[JsonStringEnumMemberName("manhua")]
+	Manhua = 6,
+
 	[Description("Eol")]
-	oel = 7,
-	[Description("Light novel")]
-	light_novel = 8,
+	[JsonStringEnumMemberName("oel")]
+	Oel = 7,
+
+	[JsonStringEnumMemberName("light_novel")]
+	LightNovel = 8,
 }

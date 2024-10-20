@@ -136,3 +136,2457 @@ dotnet_diagnostic.IDE0072.severity = suggestion
 
 dotnet_code_quality.api_surface = all
 #required_modifiers.required_modifiers = none
+
+# Created by DiagConfig, the diagnostic config generator
+# Generated : 2024-03-07 23:40:48Z
+# Max Tier  : 3
+# Attributes: general, performance
+# Analyzers : ILLink.RoslynAnalyzer, Microsoft.Analyzers.Extra, Microsoft.Analyzers.Local, Microsoft.AspNetCore.App.Analyzers, Microsoft.AspNetCore.Components.Analyzers, Microsoft.CodeAnalysis.CSharp.NetAnalyzers, Microsoft.CodeAnalysis.NetAnalyzers, Microsoft.VisualStudio.Threading.Analyzers, Microsoft.VisualStudio.Threading.Analyzers.CSharp, SonarAnalyzer.CSharp
+
+is_global = true
+global_level = -1
+# Title    : Do not use model binding attributes with route handlers
+# Category : Usage
+# Help Link: https://aka.ms/aspnet/analyzers
+dotnet_diagnostic.ASP0003.severity = error
+# Title    : Do not use action results with route handlers
+dotnet_diagnostic.ASP0004.severity = error
+# Title    : Do not place attribute on method called by route handler lambda
+dotnet_diagnostic.ASP0005.severity = error
+# Title    : Do not use non-literal sequence numbers
+dotnet_diagnostic.ASP0006.severity = error
+# Title    : Route parameter and argument optionality is mismatched
+dotnet_diagnostic.ASP0007.severity = error
+# Title    : Do not use ConfigureWebHost with WebApplicationBuilder.Host
+dotnet_diagnostic.ASP0008.severity = error
+# Title    : Do not use Configure with WebApplicationBuilder.WebHost
+dotnet_diagnostic.ASP0009.severity = error
+# Title    : Do not use UseStartup with WebApplicationBuilder.WebHost
+dotnet_diagnostic.ASP0010.severity = error
+# Title    : Suggest using builder.Logging over Host.ConfigureLogging or WebHost.ConfigureLogging
+dotnet_diagnostic.ASP0011.severity = error
+# Title    : Suggest using builder.Services over Host.ConfigureServices or WebHost.ConfigureServices
+dotnet_diagnostic.ASP0012.severity = error
+# Title    : Suggest switching from using Configure methods to WebApplicationBuilder.Configuration
+dotnet_diagnostic.ASP0013.severity = error
+# Title    : Suggest using top level route registrations
+dotnet_diagnostic.ASP0014.severity = error
+# Title    : Component parameter should have public setters.
+# Category : Encapsulation
+dotnet_diagnostic.BL0001.severity = error
+# Title    : Component has multiple CaptureUnmatchedValues parameters
+dotnet_diagnostic.BL0002.severity = error
+# Title    : Component parameter with CaptureUnmatchedValues has the wrong type
+dotnet_diagnostic.BL0003.severity = error
+# Title    : Component parameter should be public.
+dotnet_diagnostic.BL0004.severity = error
+# Title    : Component parameter should not be set outside of its component.
+dotnet_diagnostic.BL0005.severity = error
+# Title    : Do not use RenderTree types
+dotnet_diagnostic.BL0006.severity = error
+# Title    : Component parameters should be auto properties
+dotnet_diagnostic.BL0007.severity = error
+# Title    : Types that own disposable fields should be disposable
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1001
+dotnet_diagnostic.CA1001.severity = error
+# Title    : Generic interface should also be implemented
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1010
+dotnet_diagnostic.CA1010.severity = error
+dotnet_code_quality.CA1010.api_surface = all
+# Title    : Abstract types should not have public constructors
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1012
+dotnet_diagnostic.CA1012.severity = error
+dotnet_code_quality.CA1012.api_surface = all
+# Title    : Mark assemblies with CLSCompliant
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1014
+dotnet_diagnostic.CA1014.severity = error
+# Title    : Mark assemblies with assembly version
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1016
+dotnet_diagnostic.CA1016.severity = error
+# Title    : Mark assemblies with ComVisible
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1017
+dotnet_diagnostic.CA1017.severity = error
+# Title    : Mark attributes with AttributeUsageAttribute
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1018
+dotnet_diagnostic.CA1018.severity = error
+# Title    : Define accessors for attribute arguments
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1019
+dotnet_diagnostic.CA1019.severity = error
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1019
+# Title    : Avoid out parameters
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1021
+dotnet_diagnostic.CA1021.severity = error
+# Title    : Use properties where appropriate
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1024
+dotnet_diagnostic.CA1024.severity = error
+# Title    : Mark enums with FlagsAttribute
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1027
+dotnet_diagnostic.CA1027.severity = error
+dotnet_code_quality.CA1027.api_surface = all
+# Title    : Use events where appropriate
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1030
+dotnet_diagnostic.CA1030.severity = error
+dotnet_code_quality.CA1030.api_surface = public
+# Title    : Do not catch general exception types
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1031
+dotnet_diagnostic.CA1031.severity = error
+# Title    : Interface methods should be callable by child types
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1033
+dotnet_diagnostic.CA1033.severity = error
+# Title    : Override methods on comparable types
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1036
+dotnet_diagnostic.CA1036.severity = error
+# Title    : Avoid empty interfaces
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1040
+# Comment  : Reasonably frequent in modern .NET programming
+dotnet_diagnostic.CA1040.severity = error
+# Title    : Provide ObsoleteAttribute message
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1041
+dotnet_diagnostic.CA1041.severity = error
+dotnet_code_quality.CA1041.api_surface = all
+# Title    : Use Integral Or String Argument For Indexers
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1043
+dotnet_diagnostic.CA1043.severity = error
+# Title    : Properties should not be write only
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1044
+dotnet_diagnostic.CA1044.severity = error
+# Title    : Do not overload equality operator on reference types
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1046
+dotnet_diagnostic.CA1046.severity = error
+dotnet_code_quality.CA1046.api_surface = all
+# Title    : Do not declare protected member in sealed type
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1047
+dotnet_diagnostic.CA1047.severity = error
+dotnet_code_quality.CA1047.api_surface = all
+# Title    : Declare types in namespaces
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1050
+dotnet_diagnostic.CA1050.severity = error
+# Title    : Do not declare visible instance fields
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1051
+dotnet_diagnostic.CA1051.severity = error
+# Title    : Static holder types should be Static or NotInheritable
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1052
+dotnet_diagnostic.CA1052.severity = error
+dotnet_code_quality.CA1052.api_surface = all
+# Title    : Types should not extend certain base types
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1058
+dotnet_diagnostic.CA1058.severity = error
+dotnet_code_quality.CA1058.api_surface = public
+# Title    : Move pinvokes to native methods class
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1060
+dotnet_diagnostic.CA1060.severity = error
+# Title    : Do not hide base class methods
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1061
+dotnet_diagnostic.CA1061.severity = error
+dotnet_code_quality.CA1061.api_surface = all
+# Title    : Implement IDisposable Correctly
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1063
+dotnet_diagnostic.CA1063.severity = error
+dotnet_code_quality.CA1063.api_surface = public
+# Title    : Exceptions should be public
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1064
+dotnet_diagnostic.CA1064.severity = error
+# Title    : Do not raise exceptions in unexpected locations
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1065
+dotnet_diagnostic.CA1065.severity = error
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1065
+# Title    : Implement IEquatable when overriding Object.Equals
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1066
+dotnet_diagnostic.CA1066.severity = error
+# Title    : Override Object.Equals(object) when implementing IEquatable<T>
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1067
+dotnet_diagnostic.CA1067.severity = error
+# Title    : CancellationToken parameters must come last
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1068
+dotnet_diagnostic.CA1068.severity = error
+# Title    : Enums values should not be duplicated
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1069
+dotnet_diagnostic.CA1069.severity = error
+# Title    : Do not declare event fields as virtual
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1070
+dotnet_diagnostic.CA1070.severity = error
+dotnet_code_quality.CA1070.api_surface = all
+# Title    : Avoid using cref tags with a prefix
+# Category : Documentation
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1200
+dotnet_diagnostic.CA1200.severity = error
+# Title    : Do not pass literals as localized parameters
+# Category : Globalization
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1303
+dotnet_diagnostic.CA1303.severity = error
+# Title    : Specify CultureInfo
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1304
+dotnet_diagnostic.CA1304.severity = error
+# Title    : Specify IFormatProvider
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305
+dotnet_diagnostic.CA1305.severity = error
+# Title    : Specify StringComparison for clarity
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1307
+dotnet_diagnostic.CA1307.severity = error
+# Title    : Normalize strings to uppercase
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1308
+dotnet_diagnostic.CA1308.severity = error
+# Title    : Use ordinal string comparison
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1309
+dotnet_diagnostic.CA1309.severity = error
+# Title    : Specify StringComparison for correctness
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1310
+dotnet_diagnostic.CA1310.severity = error
+# Title    : Specify a culture or use an invariant version
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1311
+dotnet_diagnostic.CA1311.severity = error
+# Title    : P/Invokes should not be visible
+# Category : Interoperability
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1401
+dotnet_diagnostic.CA1401.severity = error
+# Title    : Validate platform compatibility
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416
+dotnet_diagnostic.CA1416.severity = error
+# Title    : Do not use 'OutAttribute' on string parameters for P/Invokes
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1417
+dotnet_diagnostic.CA1417.severity = error
+# Title    : Use valid platform string
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1418
+dotnet_diagnostic.CA1418.severity = error
+# Title    : Provide a parameterless constructor that is as visible as the containing type for concrete types derived from 'System.Runtime.InteropServices.SafeHandle'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1419
+dotnet_diagnostic.CA1419.severity = error
+# Title    : Property, type, or attribute requires runtime marshalling
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1420
+dotnet_diagnostic.CA1420.severity = error
+# Title    : This method uses runtime marshalling even when the 'DisableRuntimeMarshallingAttribute' is applied
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1421
+dotnet_diagnostic.CA1421.severity = error
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1422
+dotnet_diagnostic.CA1422.severity = error
+# Title    : Avoid excessive inheritance
+# Category : Maintainability
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1501
+dotnet_diagnostic.CA1501.severity = error
+dotnet_code_quality.CA1501.api_surface = public
+# Title    : Avoid unmaintainable code
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1505
+dotnet_diagnostic.CA1505.severity = error
+# Title    : Use nameof to express symbol names
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1507
+dotnet_diagnostic.CA1507.severity = error
+# Title    : Avoid dead conditional code
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1508
+dotnet_diagnostic.CA1508.severity = error
+# Title    : Invalid entry in code metrics rule specification file
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1509
+dotnet_diagnostic.CA1509.severity = error
+# Title    : Use ArgumentNullException throw helper
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1510
+dotnet_diagnostic.CA1510.severity = error
+# Title    : Use ArgumentException throw helper
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1511
+dotnet_diagnostic.CA1511.severity = error
+# Title    : Use ArgumentOutOfRangeException throw helper
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1512
+dotnet_diagnostic.CA1512.severity = error
+# Title    : Use ObjectDisposedException throw helper
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1513
+dotnet_diagnostic.CA1513.severity = error
+# Title    : Do not name enum values 'Reserved'
+# Category : Naming
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1700
+dotnet_diagnostic.CA1700.severity = error
+# Title    : Identifiers should differ by more than case
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1708
+dotnet_diagnostic.CA1708.severity = error
+# Title    : Identifiers should have correct suffix
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1710
+dotnet_diagnostic.CA1710.severity = error
+# Title    : Identifiers should not have incorrect suffix
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1711
+dotnet_diagnostic.CA1711.severity = error
+# Title    : Do not prefix enum values with type name
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1712
+dotnet_diagnostic.CA1712.severity = error
+# Title    : Events should not have 'Before' or 'After' prefix
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1713
+dotnet_diagnostic.CA1713.severity = error
+# Title    : Identifiers should not match keywords
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1716
+dotnet_diagnostic.CA1716.severity = error
+dotnet_code_quality.CA1716.api_surface = all
+dotnet_code_quality.CA1716.analyzed_symbol_kinds = all
+# Title    : Identifier contains type name
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1720
+dotnet_diagnostic.CA1720.severity = error
+# Title    : Property names should not match get methods
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1721
+dotnet_diagnostic.CA1721.severity = error
+# Title    : Type names should not match namespaces
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1724
+dotnet_diagnostic.CA1724.severity = error
+# Title    : Parameter names should match base declaration
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1725
+dotnet_diagnostic.CA1725.severity = error
+dotnet_code_quality.CA1725.api_surface = public, protected
+# Title    : Use PascalCase for named placeholders
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1727
+dotnet_diagnostic.CA1727.severity = error
+# Title    : Use literals where appropriate
+# Category : Performance
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1802
+dotnet_diagnostic.CA1802.severity = error
+dotnet_code_quality.CA1802.required_modifiers = static
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1802
+# Title    : Do not initialize unnecessarily
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1805
+dotnet_diagnostic.CA1805.severity = error
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1805
+# Title    : Do not ignore method results
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1806
+dotnet_diagnostic.CA1806.severity = error
+# Title    : Initialize reference type static fields inline
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1810
+dotnet_diagnostic.CA1810.severity = error
+# Title    : Avoid unsealed attributes
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1813
+dotnet_diagnostic.CA1813.severity = error
+# Title    : Prefer jagged arrays over multidimensional
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1814
+dotnet_diagnostic.CA1814.severity = error
+# Title    : Override equals and operator equals on value types
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1815
+dotnet_diagnostic.CA1815.severity = error
+dotnet_code_quality.CA1815.api_surface = public
+# Title    : Dispose methods should call SuppressFinalize
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1816
+dotnet_diagnostic.CA1816.severity = error
+# Title    : Test for empty strings using string length
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1820
+dotnet_diagnostic.CA1820.severity = error
+# Title    : Remove empty Finalizers
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1821
+dotnet_diagnostic.CA1821.severity = error
+# Title    : Avoid unused private fields
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1823
+dotnet_diagnostic.CA1823.severity = error
+# Title    : Mark assemblies with NeutralResourcesLanguageAttribute
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1824
+dotnet_diagnostic.CA1824.severity = error
+# Title    : Avoid zero-length array allocations
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1825
+dotnet_diagnostic.CA1825.severity = error
+# Title    : Do not use Enumerable methods on indexable collections
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1826
+dotnet_diagnostic.CA1826.severity = error
+# Title    : Do not use Count() or LongCount() when Any() can be used
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1827
+dotnet_diagnostic.CA1827.severity = error
+# Title    : Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1828
+dotnet_diagnostic.CA1828.severity = error
+# Title    : Use Length/Count property instead of Count() when available
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1829
+dotnet_diagnostic.CA1829.severity = error
+# Title    : Prefer strongly-typed Append and Insert method overloads on StringBuilder
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1830
+dotnet_diagnostic.CA1830.severity = error
+# Title    : Use AsSpan or AsMemory instead of Range-based indexers when appropriate
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1831
+dotnet_diagnostic.CA1831.severity = error
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1832
+dotnet_diagnostic.CA1832.severity = error
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1833
+dotnet_diagnostic.CA1833.severity = error
+# Title    : Consider using 'StringBuilder.Append(char)' when applicable
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1834
+dotnet_diagnostic.CA1834.severity = error
+# Title    : Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1835
+dotnet_diagnostic.CA1835.severity = error
+# Title    : Prefer IsEmpty over Count
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1836
+dotnet_diagnostic.CA1836.severity = error
+# Title    : Use 'Environment.ProcessId'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1837
+dotnet_diagnostic.CA1837.severity = error
+# Title    : Avoid 'StringBuilder' parameters for P/Invokes
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1838
+dotnet_diagnostic.CA1838.severity = error
+# Title    : Use 'Environment.ProcessPath'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1839
+dotnet_diagnostic.CA1839.severity = error
+# Title    : Use 'Environment.CurrentManagedThreadId'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1840
+dotnet_diagnostic.CA1840.severity = error
+# Title    : Prefer Dictionary.Contains methods
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1841
+dotnet_diagnostic.CA1841.severity = error
+# Title    : Do not use 'WhenAll' with a single task
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1842
+dotnet_diagnostic.CA1842.severity = error
+# Title    : Do not use 'WaitAll' with a single task
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1843
+dotnet_diagnostic.CA1843.severity = error
+# Title    : Provide memory-based overrides of async methods when subclassing 'Stream'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1844
+dotnet_diagnostic.CA1844.severity = error
+# Title    : Use span-based 'string.Concat'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1845
+dotnet_diagnostic.CA1845.severity = error
+# Title    : Prefer 'AsSpan' over 'Substring'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1846
+dotnet_diagnostic.CA1846.severity = error
+# Title    : Use char literal for a single character lookup
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1847
+dotnet_diagnostic.CA1847.severity = error
+# Title    : Use the LoggerMessage delegates
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1848
+# Comment  : Use R9 logging model instead
+dotnet_diagnostic.CA1848.severity = error
+# Title    : Prefer static 'HashData' method over 'ComputeHash'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1850
+dotnet_diagnostic.CA1850.severity = error
+# Title    : Possible multiple enumerations of 'IEnumerable' collection
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1851
+dotnet_diagnostic.CA1851.severity = error
+# Title    : Seal internal types
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1852
+dotnet_diagnostic.CA1852.severity = error
+dotnet_code_quality.CA1852.ignore_internalsvisibleto = true
+# Title    : Unnecessary call to 'Dictionary.ContainsKey(key)'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1853
+dotnet_diagnostic.CA1853.severity = error
+# Title    : Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1854
+dotnet_diagnostic.CA1854.severity = error
+# Title    : Prefer 'Clear' over 'Fill'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1855
+dotnet_diagnostic.CA1855.severity = error
+# Title    : Incorrect usage of ConstantExpected attribute
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1856
+dotnet_diagnostic.CA1856.severity = error
+# Title    : A constant is expected for the parameter
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1857
+dotnet_diagnostic.CA1857.severity = error
+# Title    : Use 'StartsWith' instead of 'IndexOf'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1858
+dotnet_diagnostic.CA1858.severity = error
+# Title    : Use concrete types when possible for improved performance
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1859
+dotnet_diagnostic.CA1859.severity = error
+# Title    : Avoid using 'Enumerable.Any()' extension method
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1860
+dotnet_diagnostic.CA1860.severity = error
+# Title    : Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1862
+dotnet_diagnostic.CA1862.severity = error
+# Title    : Use 'CompositeFormat'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1863
+dotnet_diagnostic.CA1863.severity = error
+# Title    : Prefer the 'IDictionary.TryAdd(TKey, TValue)' method
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1864
+dotnet_diagnostic.CA1864.severity = error
+# Title    : Use char overload
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1865
+dotnet_diagnostic.CA1865.severity = error
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1866
+dotnet_diagnostic.CA1866.severity = error
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1867
+dotnet_diagnostic.CA1867.severity = error
+# Title    : Unnecessary call to 'Contains(item)'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1868
+dotnet_diagnostic.CA1868.severity = error
+# Title    : Cache and reuse 'JsonSerializerOptions' instances
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869
+dotnet_diagnostic.CA1869.severity = error
+# Title    : Use a cached 'SearchValues' instance
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1870
+dotnet_diagnostic.CA1870.severity = error
+# Title    : Dispose objects before losing scope
+# Category : Reliability
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2000
+dotnet_diagnostic.CA2000.severity = error
+# Title    : Do not lock on objects with weak identity
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2002
+dotnet_diagnostic.CA2002.severity = error
+# Title    : Do not create tasks without passing a TaskScheduler
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2008
+dotnet_diagnostic.CA2008.severity = error
+# Title    : Do not call ToImmutableCollection on an ImmutableCollection value
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2009
+dotnet_diagnostic.CA2009.severity = error
+# Title    : Avoid infinite recursion
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2011
+dotnet_diagnostic.CA2011.severity = error
+# Title    : Use ValueTasks correctly
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2012
+dotnet_diagnostic.CA2012.severity = error
+# Title    : Do not use ReferenceEquals with value types
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2013
+dotnet_diagnostic.CA2013.severity = error
+# Title    : Do not use stackalloc in loops
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2014
+dotnet_diagnostic.CA2014.severity = error
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2014
+# Title    : Do not define finalizers for types derived from MemoryManager<T>
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2015
+dotnet_diagnostic.CA2015.severity = error
+# Title    : Forward the 'CancellationToken' parameter to methods
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2016
+dotnet_diagnostic.CA2016.severity = error
+# Title    : Parameter count mismatch
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2017
+dotnet_diagnostic.CA2017.severity = error
+# Title    : 'Buffer.BlockCopy' expects the number of bytes to be copied for the 'count' argument
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2018
+dotnet_diagnostic.CA2018.severity = error
+# Title    : Improper 'ThreadStatic' field initialization
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2019
+dotnet_diagnostic.CA2019.severity = error
+# Title    : Prevent behavioral change
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2020
+dotnet_diagnostic.CA2020.severity = error
+# Title    : Do not call Enumerable.Cast<T> or Enumerable.OfType<T> with incompatible types
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2021
+dotnet_diagnostic.CA2021.severity = error
+# Title    : Review SQL queries for security vulnerabilities
+# Category : Security
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2100
+dotnet_diagnostic.CA2100.severity = error
+# Title    : Specify marshaling for P/Invoke string arguments
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2101
+dotnet_diagnostic.CA2101.severity = error
+# Title    : Review visible event handlers
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2109
+dotnet_diagnostic.CA2109.severity = error
+# Title    : Seal methods that satisfy private interfaces
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2119
+dotnet_diagnostic.CA2119.severity = error
+# Title    : Do Not Catch Corrupted State Exceptions
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2153
+dotnet_diagnostic.CA2153.severity = error
+# Title    : Rethrow to preserve stack details
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2200
+dotnet_diagnostic.CA2200.severity = error
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2200
+# Title    : Do not raise reserved exception types
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2201
+dotnet_diagnostic.CA2201.severity = error
+# Title    : Initialize value type static fields inline
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2207
+dotnet_diagnostic.CA2207.severity = error
+# Title    : Instantiate argument exceptions correctly
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2208
+dotnet_diagnostic.CA2208.severity = error
+dotnet_code_quality.CA2208.api_surface = all
+# Title    : Non-constant fields should not be visible
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2211
+dotnet_diagnostic.CA2211.severity = error
+# Title    : Disposable fields should be disposed
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2213
+dotnet_diagnostic.CA2213.severity = error
+# Title    : Do not call overridable methods in constructors
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2214
+dotnet_diagnostic.CA2214.severity = error
+# Title    : Dispose methods should call base class dispose
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2215
+dotnet_diagnostic.CA2215.severity = error
+# Title    : Disposable types should declare finalizer
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2216
+dotnet_diagnostic.CA2216.severity = error
+# Title    : Do not mark enums with FlagsAttribute
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2217
+dotnet_diagnostic.CA2217.severity = error
+dotnet_code_quality.CA2217.api_surface = all
+# Title    : Do not raise exceptions in finally clauses
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2219
+dotnet_diagnostic.CA2219.severity = error
+# Title    : Operator overloads have named alternates
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2225
+dotnet_diagnostic.CA2225.severity = error
+# Title    : Implement serialization constructors
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2229
+# Comment  : Obsolete
+dotnet_diagnostic.CA2229.severity = error
+# Title    : Overload operator equals on overriding value type Equals
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2231
+dotnet_diagnostic.CA2231.severity = error
+dotnet_code_quality.CA2231.api_surface = public
+# Title    : Mark all non-serializable fields
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2235
+dotnet_diagnostic.CA2235.severity = error
+# Title    : Mark ISerializable types with serializable
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2237
+dotnet_diagnostic.CA2237.severity = error
+# Title    : Provide correct arguments to formatting methods
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2241
+dotnet_diagnostic.CA2241.severity = error
+dotnet_code_quality.CA2241.try_determine_additional_string_formatting_methods_automatically = false
+# Title    : Test for NaN correctly
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2242
+dotnet_diagnostic.CA2242.severity = error
+# Title    : Attribute string literals should parse correctly
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2243
+dotnet_diagnostic.CA2243.severity = error
+# Title    : Do not duplicate indexed element initializations
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2244
+dotnet_diagnostic.CA2244.severity = error
+# Title    : Do not assign a property to itself
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2245
+dotnet_diagnostic.CA2245.severity = error
+# Title    : Assigning symbol and its member in the same statement
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2246
+dotnet_diagnostic.CA2246.severity = error
+# Title    : Argument passed to TaskCompletionSource constructor should be TaskCreationOptions enum instead of TaskContinuationOptions enum
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2247
+dotnet_diagnostic.CA2247.severity = error
+# Title    : Provide correct 'enum' argument to 'Enum.HasFlag'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2248
+dotnet_diagnostic.CA2248.severity = error
+# Title    : Consider using 'string.Contains' instead of 'string.IndexOf'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2249
+dotnet_diagnostic.CA2249.severity = error
+# Title    : Use 'ThrowIfCancellationRequested'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2250
+dotnet_diagnostic.CA2250.severity = error
+# Title    : Use 'string.Equals'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2251
+dotnet_diagnostic.CA2251.severity = error
+# Title    : This API requires opting into preview features
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2252
+dotnet_diagnostic.CA2252.severity = error
+# Title    : Named placeholders should not be numeric values
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2253
+dotnet_diagnostic.CA2253.severity = error
+# Title    : Template should be a static expression
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2254
+dotnet_diagnostic.CA2254.severity = error
+# Title    : The 'ModuleInitializer' attribute should not be used in libraries
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2255
+dotnet_diagnostic.CA2255.severity = error
+# Title    : All members declared in parent interfaces must have an implementation in a DynamicInterfaceCastableImplementation-attributed interface
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2256
+dotnet_diagnostic.CA2256.severity = error
+# Title    : Members defined on an interface with the 'DynamicInterfaceCastableImplementationAttribute' should be 'static'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2257
+dotnet_diagnostic.CA2257.severity = error
+# Title    : Providing a 'DynamicInterfaceCastableImplementation' interface in Visual Basic is unsupported
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2258
+dotnet_diagnostic.CA2258.severity = error
+# Title    : 'ThreadStatic' only affects static fields
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2259
+dotnet_diagnostic.CA2259.severity = error
+# Title    : Use correct type parameter
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2260
+dotnet_diagnostic.CA2260.severity = error
+# Title    : Do not use ConfigureAwaitOptions.SuppressThrowing with Task<TResult>
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2261
+dotnet_diagnostic.CA2261.severity = error
+# Title    : Do not use insecure deserializer BinaryFormatter
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2300
+dotnet_diagnostic.CA2300.severity = error
+# Title    : Do not call BinaryFormatter.Deserialize without first setting BinaryFormatter.Binder
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2301
+dotnet_diagnostic.CA2301.severity = error
+# Title    : Ensure BinaryFormatter.Binder is set before calling BinaryFormatter.Deserialize
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2302
+dotnet_diagnostic.CA2302.severity = error
+# Title    : Do not use insecure deserializer LosFormatter
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2305
+dotnet_diagnostic.CA2305.severity = error
+# Title    : Do not use insecure deserializer NetDataContractSerializer
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2310
+dotnet_diagnostic.CA2310.severity = error
+# Title    : Do not deserialize without first setting NetDataContractSerializer.Binder
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2311
+dotnet_diagnostic.CA2311.severity = error
+# Title    : Ensure NetDataContractSerializer.Binder is set before deserializing
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2312
+dotnet_diagnostic.CA2312.severity = error
+# Title    : Do not use insecure deserializer ObjectStateFormatter
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2315
+dotnet_diagnostic.CA2315.severity = error
+# Title    : Do not deserialize with JavaScriptSerializer using a SimpleTypeResolver
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2321
+dotnet_diagnostic.CA2321.severity = error
+# Title    : Ensure JavaScriptSerializer is not initialized with SimpleTypeResolver before deserializing
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2322
+dotnet_diagnostic.CA2322.severity = error
+# Title    : Do not use TypeNameHandling values other than error
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2326
+dotnet_diagnostic.CA2326.severity = error
+# Title    : Do not use insecure JsonSerializerSettings
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2327
+dotnet_diagnostic.CA2327.severity = error
+# Title    : Ensure that JsonSerializerSettings are secure
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2328
+dotnet_diagnostic.CA2328.severity = error
+# Title    : Do not deserialize with JsonSerializer using an insecure configuration
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2329
+dotnet_diagnostic.CA2329.severity = error
+# Title    : Ensure that JsonSerializer has a secure configuration when deserializing
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2330
+dotnet_diagnostic.CA2330.severity = error
+# Title    : Do not use DataTable.ReadXml() with untrusted data
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2350
+dotnet_diagnostic.CA2350.severity = error
+# Title    : Do not use DataSet.ReadXml() with untrusted data
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2351
+dotnet_diagnostic.CA2351.severity = error
+# Title    : Unsafe DataSet or DataTable in serializable type can be vulnerable to remote code execution attacks
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2352
+dotnet_diagnostic.CA2352.severity = error
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2352
+# Title    : Unsafe DataSet or DataTable in serializable type
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2353
+dotnet_diagnostic.CA2353.severity = error
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2353
+# Title    : Unsafe DataSet or DataTable in deserialized object graph can be vulnerable to remote code execution attacks
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2354
+dotnet_diagnostic.CA2354.severity = error
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2354
+# Title    : Unsafe DataSet or DataTable type found in deserializable object graph
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2355
+dotnet_diagnostic.CA2355.severity = error
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2355
+# Title    : Unsafe DataSet or DataTable type in web deserializable object graph
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2356
+dotnet_diagnostic.CA2356.severity = error
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2356
+# Title    : Ensure auto-generated class containing DataSet.ReadXml() is not used with untrusted data
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2361
+dotnet_diagnostic.CA2361.severity = error
+# Title    : Unsafe DataSet or DataTable in auto-generated serializable type can be vulnerable to remote code execution attacks
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2362
+dotnet_diagnostic.CA2362.severity = error
+# Title    : Unsafe DataSet or DataTable in autogenerated serializable type can be vulnerable to remote code execution attacks
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2362
+# Title    : Review code for SQL injection vulnerabilities
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3001
+dotnet_diagnostic.CA3001.severity = error
+# Title    : Review code for XSS vulnerabilities
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3002
+dotnet_diagnostic.CA3002.severity = error
+# Title    : Review code for file path injection vulnerabilities
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3003
+dotnet_diagnostic.CA3003.severity = error
+# Title    : Review code for information disclosure vulnerabilities
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3004
+dotnet_diagnostic.CA3004.severity = error
+# Title    : Review code for LDAP injection vulnerabilities
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3005
+dotnet_diagnostic.CA3005.severity = error
+# Title    : Review code for process command injection vulnerabilities
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3006
+dotnet_diagnostic.CA3006.severity = error
+# Title    : Review code for open redirect vulnerabilities
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3007
+dotnet_diagnostic.CA3007.severity = error
+# Title    : Review code for XPath injection vulnerabilities
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3008
+dotnet_diagnostic.CA3008.severity = error
+# Title    : Review code for XML injection vulnerabilities
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3009
+dotnet_diagnostic.CA3009.severity = error
+# Title    : Review code for XAML injection vulnerabilities
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3010
+dotnet_diagnostic.CA3010.severity = error
+# Title    : Review code for DLL injection vulnerabilities
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3011
+dotnet_diagnostic.CA3011.severity = error
+# Title    : Review code for regex injection vulnerabilities
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3012
+dotnet_diagnostic.CA3012.severity = error
+# Title    : Do Not Add Schema By URL
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3061
+dotnet_diagnostic.CA3061.severity = error
+# Title    : Insecure DTD processing in XML
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3075
+dotnet_diagnostic.CA3075.severity = error
+# Title    : Insecure XSLT script processing.
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3076
+dotnet_diagnostic.CA3076.severity = error
+# Title    : Insecure XSLT script processing
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3076
+# Title    : Insecure Processing in API Design, XmlDocument and XmlTextReader
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3077
+dotnet_diagnostic.CA3077.severity = error
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3077
+# Title    : Mark Verb Handlers With Validate Antiforgery Token
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca3147
+dotnet_diagnostic.CA3147.severity = error
+# Title    : Do Not Use Weak Cryptographic Algorithms
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5350
+dotnet_diagnostic.CA5350.severity = error
+# Title    : Do Not Use Broken Cryptographic Algorithms
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5351
+dotnet_diagnostic.CA5351.severity = error
+# Title    : Review cipher mode usage with cryptography experts
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5358
+dotnet_diagnostic.CA5358.severity = error
+# Title    : Do Not Disable Certificate Validation
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5359
+dotnet_diagnostic.CA5359.severity = error
+# Title    : Do Not Call Dangerous Methods In Deserialization
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5360
+dotnet_diagnostic.CA5360.severity = error
+# Title    : Do Not Disable SChannel Use of Strong Crypto
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5361
+dotnet_diagnostic.CA5361.severity = error
+# Title    : Potential reference cycle in deserialized object graph
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5362
+dotnet_diagnostic.CA5362.severity = error
+# Title    : Do Not Disable Request Validation
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5363
+dotnet_diagnostic.CA5363.severity = error
+# Title    : Do Not Use Deprecated Security Protocols
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5364
+dotnet_diagnostic.CA5364.severity = error
+# Title    : Do Not Disable HTTP Header Checking
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5365
+dotnet_diagnostic.CA5365.severity = error
+# Title    : Use XmlReader for 'DataSet.ReadXml()'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5366
+dotnet_diagnostic.CA5366.severity = error
+# Title    : Do Not Serialize Types With Pointer Fields
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5367
+dotnet_diagnostic.CA5367.severity = error
+# Title    : Set ViewStateUserKey For Classes Derived From Page
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5368
+dotnet_diagnostic.CA5368.severity = error
+# Title    : Use XmlReader for 'XmlSerializer.Deserialize()'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5369
+dotnet_diagnostic.CA5369.severity = error
+# Title    : Use XmlReader for XmlValidatingReader constructor
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5370
+dotnet_diagnostic.CA5370.severity = error
+# Title    : Use XmlReader for 'XmlSchema.Read()'
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5371
+dotnet_diagnostic.CA5371.severity = error
+# Title    : Use XmlReader for XPathDocument constructor
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5372
+dotnet_diagnostic.CA5372.severity = error
+# Title    : Do not use obsolete key derivation function
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5373
+dotnet_diagnostic.CA5373.severity = error
+# Title    : Do Not Use XslTransform
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5374
+dotnet_diagnostic.CA5374.severity = error
+# Title    : Do Not Use Account Shared Access Signature
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5375
+dotnet_diagnostic.CA5375.severity = error
+# Title    : Use SharedAccessProtocol HttpsOnly
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5376
+dotnet_diagnostic.CA5376.severity = error
+# Title    : Use Container Level Access Policy
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5377
+dotnet_diagnostic.CA5377.severity = error
+# Title    : Do not disable ServicePointManagerSecurityProtocols
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5378
+dotnet_diagnostic.CA5378.severity = error
+# Title    : Ensure Key Derivation Function algorithm is sufficiently strong
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5379
+dotnet_diagnostic.CA5379.severity = error
+# Title    : Do Not Add Certificates To Root Store
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5380
+dotnet_diagnostic.CA5380.severity = error
+# Title    : Ensure Certificates Are Not Added To Root Store
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5381
+dotnet_diagnostic.CA5381.severity = error
+# Title    : Use Secure Cookies In ASP.NET Core
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5382
+dotnet_diagnostic.CA5382.severity = error
+# Title    : Ensure Use Secure Cookies In ASP.NET Core
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5383
+dotnet_diagnostic.CA5383.severity = error
+# Title    : Do Not Use Digital Signature Algorithm (DSA)
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5384
+dotnet_diagnostic.CA5384.severity = error
+# Title    : Use Rivest-Shamir-Adleman (RSA) Algorithm With Sufficient Key Size
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5385
+dotnet_diagnostic.CA5385.severity = error
+# Title    : Avoid hardcoding SecurityProtocolType value
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5386
+dotnet_diagnostic.CA5386.severity = error
+# Title    : Do Not Use Weak Key Derivation Function With Insufficient Iteration Count
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5387
+dotnet_diagnostic.CA5387.severity = error
+# Title    : Ensure Sufficient Iteration Count When Using Weak Key Derivation Function
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5388
+dotnet_diagnostic.CA5388.severity = error
+# Title    : Do Not Add Archive Item's Path To The Target File System Path
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5389
+dotnet_diagnostic.CA5389.severity = error
+# Title    : Do not hard-code encryption key
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5390
+dotnet_diagnostic.CA5390.severity = error
+# Title    : Use antiforgery tokens in ASP.NET Core MVC controllers
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5391
+dotnet_diagnostic.CA5391.severity = error
+# Title    : Use DefaultDllImportSearchPaths attribute for P/Invokes
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5392
+dotnet_diagnostic.CA5392.severity = error
+# Title    : Do not use unsafe DllImportSearchPath value
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5393
+dotnet_diagnostic.CA5393.severity = error
+# Title    : Do not use insecure randomness
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5394
+dotnet_diagnostic.CA5394.severity = error
+# Title    : Miss HttpVerb attribute for action methods
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5395
+dotnet_diagnostic.CA5395.severity = error
+# Title    : Set HttpOnly to true for HttpCookie
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5396
+dotnet_diagnostic.CA5396.severity = error
+# Title    : Do not use deprecated SslProtocols values
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5397
+dotnet_diagnostic.CA5397.severity = error
+# Title    : Avoid hardcoded SslProtocols values
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5398
+dotnet_diagnostic.CA5398.severity = error
+# Title    : HttpClients should enable certificate revocation list checks
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5399
+dotnet_diagnostic.CA5399.severity = error
+# Title    : Ensure HttpClient certificate revocation list check is not disabled
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5400
+dotnet_diagnostic.CA5400.severity = error
+# Title    : Do not use CreateEncryptor with non-default IV
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5401
+dotnet_diagnostic.CA5401.severity = error
+# Title    : Use CreateEncryptor with the default IV 
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5402
+dotnet_diagnostic.CA5402.severity = error
+# Title    : Do not hard-code certificate
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5403
+dotnet_diagnostic.CA5403.severity = error
+# Title    : Do not disable token validation checks
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5404
+dotnet_diagnostic.CA5404.severity = error
+# Title    : Do not always skip token validation in delegates
+# Help Link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5405
+dotnet_diagnostic.CA5405.severity = error
+# Title    : Use the character-based overloads of 'String.StartsWith' or 'String.EndsWith'
+# Help Link: https://aka.ms/dotnet-extensions-errors/EA0003
+dotnet_diagnostic.EA0003.severity = error
+# Title    : Make types declared in an executable internal
+# Help Link: https://aka.ms/dotnet-extensions-errors/EA0004
+dotnet_diagnostic.EA0004.severity = error
+# Title    : Consider using an array instead of a collection
+# Help Link: https://aka.ms/dotnet-extensions-errors/EA0005
+dotnet_diagnostic.EA0005.severity = error
+# Title    : Replace uses of 'Enum.GetName' and 'Enum.ToString' for improved performance
+# Help Link: https://aka.ms/dotnet-extensions-errors/EA0006
+dotnet_diagnostic.EA0006.severity = error
+# Title    : Use 'System.ValueTuple' instead of 'System.Tuple' for improved performance
+# Help Link: https://aka.ms/dotnet-extensions-errors/EA0007
+dotnet_diagnostic.EA0007.severity = error
+# Title    : Use generic collections instead of legacy collections for improved performance
+# Help Link: https://aka.ms/dotnet-extensions-errors/EA0008
+dotnet_diagnostic.EA0008.severity = error
+# Title    : Use 'System.MemoryExtensions.Split' for improved performance
+# Help Link: https://aka.ms/dotnet-extensions-errors/EA0009
+dotnet_diagnostic.EA0009.severity = error
+# Title    : Fire-and-forget async call inside a 'using' block
+# Category : Correctness
+# Help Link: https://aka.ms/dotnet-extensions-errors/EA0010
+dotnet_diagnostic.EA0010.severity = error
+# Title    : Consider removing unnecessary conditional access operator (?)
+# Help Link: https://aka.ms/dotnet-extensions-errors/EA0011
+dotnet_diagnostic.EA0011.severity = error
+# Title    : Consider removing unnecessary null coalescing assignment (??=)
+# Help Link: https://aka.ms/dotnet-extensions-errors/EA0012
+dotnet_diagnostic.EA0012.severity = error
+# Title    : Consider removing unnecessary null coalescing operator (??)
+# Help Link: https://aka.ms/dotnet-extensions-errors/EA0013
+dotnet_diagnostic.EA0013.severity = error
+# Title    : Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
+# Category : Trimming
+dotnet_diagnostic.IL2026.severity = error
+# Title    : The value passed as the assembly name or type name to the CreateInstance method can't be statically analyzed.
+dotnet_diagnostic.IL2032.severity = error
+# Title    : The 'DynamicallyAccessedMembersAttribute' is not allowed on methods. It is allowed on method return value or method parameters.
+dotnet_diagnostic.IL2041.severity = error
+# Title    : 'DynamicallyAccessedMembersAttribute' on property conflicts with the same attribute on its accessor.
+dotnet_diagnostic.IL2043.severity = error
+# Title    : 'RequiresUnreferencedCodeAttribute' annotations must match across all interface implementations or overrides.
+dotnet_diagnostic.IL2046.severity = error
+# Title    : Correctness of COM interop cannot be guaranteed after trimming. Interfaces and interface members might be removed.
+dotnet_diagnostic.IL2050.severity = error
+# Title    : Either the type on which the MakeGenericType is called can't be statically determined, or the type parameters to be used for generic arguments can't be statically determined.
+dotnet_diagnostic.IL2055.severity = error
+# Title    : Unrecognized value passed to the parameter of method. It's not possible to guarantee the availability of the target type.
+dotnet_diagnostic.IL2057.severity = error
+# Title    : Parameters passed to method cannot be analyzed. Consider using methods 'System.Type.GetType' and `System.Activator.CreateInstance` instead.
+dotnet_diagnostic.IL2058.severity = error
+# Title    : The type passed to the RunClassConstructor is not statically known, Trimmer can't make sure that its static constructor is available.
+dotnet_diagnostic.IL2059.severity = error
+# Title    : Call to 'System.Reflection.MethodInfo.MakeGenericMethod' can not be statically analyzed. It's not possible to guarantee the availability of requirements of the generic method.
+dotnet_diagnostic.IL2060.severity = error
+# Title    : The parameter of method has a DynamicallyAccessedMembersAttribute, but the value passed to it can not be statically analyzed.
+dotnet_diagnostic.IL2062.severity = error
+# Title    : The return value of method has a DynamicallyAccessedMembersAttribute, but the value returned from the method can not be statically analyzed.
+dotnet_diagnostic.IL2063.severity = error
+# Title    : The field has a DynamicallyAccessedMembersAttribute, but the value assigned to it can not be statically analyzed.
+dotnet_diagnostic.IL2064.severity = error
+# Title    : The method has a DynamicallyAccessedMembersAttribute (which applies to the implicit 'this' parameter), but the value used for the 'this' parameter can not be statically analyzed.
+dotnet_diagnostic.IL2065.severity = error
+# Title    : The generic parameter of type or method has a DynamicallyAccessedMembersAttribute, but the value used for it can not be statically analyzed.
+dotnet_diagnostic.IL2066.severity = error
+# Title    : Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The parameter of method does not have matching annotations.
+dotnet_diagnostic.IL2067.severity = error
+# Title    : Target method return value does not satisfy 'DynamicallyAccessedMembersAttribute' requirements. The parameter of method does not have matching annotations.
+dotnet_diagnostic.IL2068.severity = error
+# Title    : Value stored in field does not satisfy 'DynamicallyAccessedMembersAttribute' requirements. The parameter of method does not have matching annotations.
+dotnet_diagnostic.IL2069.severity = error
+# Title    : 'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The parameter of method does not have matching annotations.
+dotnet_diagnostic.IL2070.severity = error
+# Title    : Generic argument does not satisfy 'DynamicallyAccessedMembersAttribute' in target method or type. The parameter of method does not have matching annotations.
+dotnet_diagnostic.IL2071.severity = error
+# Title    : Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.
+dotnet_diagnostic.IL2072.severity = error
+# Title    : Target method return value does not satisfy 'DynamicallyAccessedMembersAttribute' requirements. The return value of the source method does not have matching annotations.
+dotnet_diagnostic.IL2073.severity = error
+# Title    : Value stored in field does not satisfy 'DynamicallyAccessedMembersAttribute' requirements. The return value of the source method does not have matching annotations.
+dotnet_diagnostic.IL2074.severity = error
+# Title    : 'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.
+dotnet_diagnostic.IL2075.severity = error
+# Title    : Target generic argument does not satisfy 'DynamicallyAccessedMembersAttribute' in target method or type. The return value of the source method does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
+dotnet_diagnostic.IL2076.severity = error
+# Title    : Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The source field does not have matching annotations.
+dotnet_diagnostic.IL2077.severity = error
+# Title    : Target method return value does not satisfy 'DynamicallyAccessedMembersAttribute' requirements. The source field does not have matching annotations.
+dotnet_diagnostic.IL2078.severity = error
+# Title    : Value stored in target field does not satisfy 'DynamicallyAccessedMembersAttribute' requirements. The source field does not have matching annotations.
+dotnet_diagnostic.IL2079.severity = error
+# Title    : 'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The source field does not have matching annotations.
+dotnet_diagnostic.IL2080.severity = error
+# Title    : Target generic argument does not satisfy 'DynamicallyAccessedMembersAttribute' in target method or type. The source field does not have matching annotations.
+dotnet_diagnostic.IL2081.severity = error
+# Title    : Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The implicit 'this' argument of source method does not have matching annotations.
+dotnet_diagnostic.IL2082.severity = error
+# Title    : Target method return value does not satisfy 'DynamicallyAccessedMembersAttribute' requirements. The implicit 'this' argument of source method does not have matching annotations.
+dotnet_diagnostic.IL2083.severity = error
+# Title    : Value stored in target field does not satisfy 'DynamicallyAccessedMembersAttribute' requirements. The implicit 'this' argument of source method does not have matching annotations.
+dotnet_diagnostic.IL2084.severity = error
+# Title    : 'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The implicit 'this' argument of source method does not have matching annotations.
+dotnet_diagnostic.IL2085.severity = error
+# Title    : Target generic argument does not satisfy 'DynamicallyAccessedMembersAttribute' in target method or type. The implicit 'this' argument of source method does not have matching annotations.
+dotnet_diagnostic.IL2086.severity = error
+# Title    : Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The generic parameter of the source method or type does not have matching annotations.
+dotnet_diagnostic.IL2087.severity = error
+# Title    : Target method return value does not satisfy 'DynamicallyAccessedMembersAttribute' requirements. The generic parameter of the source method or type does not have matching annotations.
+dotnet_diagnostic.IL2088.severity = error
+# Title    : Value stored in target field does not satisfy 'DynamicallyAccessedMembersAttribute' requirements. The generic parameter of the source method or type does not have matching annotations.
+dotnet_diagnostic.IL2089.severity = error
+# Title    : 'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The generic parameter of the source method or type does not have matching annotations.
+dotnet_diagnostic.IL2090.severity = error
+# Title    : Target generic argument does not satisfy 'DynamicallyAccessedMembersAttribute' in target method or type. The generic parameter of the source method or type does not have matching annotations.
+dotnet_diagnostic.IL2091.severity = error
+# Title    : 'DynamicallyAccessedMemberTypes' on the parameter of method don't match overridden parameter of method. All overridden members must have the same 'DynamicallyAccessedMembersAttribute' usage.
+dotnet_diagnostic.IL2092.severity = error
+# Title    : 'DynamicallyAccessedMemberTypes' on the return value of method don't match overridden return value of method. All overridden members must have the same 'DynamicallyAccessedMembersAttribute' usage.
+dotnet_diagnostic.IL2093.severity = error
+# Title    : 'DynamicallyAccessedMemberTypes' on the implicit 'this' parameter of method don't match overridden implicit 'this' parameter of method. All overridden members must have the same 'DynamicallyAccessedMembersAttribute' usage.
+dotnet_diagnostic.IL2094.severity = error
+# Title    : 'DynamicallyAccessedMemberTypes' on the generic parameter of method or type don't match overridden generic parameter method or type. All overridden members must have the same 'DynamicallyAccessedMembersAttribute' usage.
+dotnet_diagnostic.IL2095.severity = error
+# Title    : Call to 'Type.GetType' method can perform case insensitive lookup of the type, currently trimming can not guarantee presence of all the matching types.
+dotnet_diagnostic.IL2096.severity = error
+# Title    : Field has 'DynamicallyAccessedMembersAttribute', but that attribute can only be applied to fields of type 'System.Type' or 'System.String'.
+dotnet_diagnostic.IL2097.severity = error
+# Title    : Parameter of method has 'DynamicallyAccessedMembersAttribute', but that attribute can only be applied to parameters of type 'System.Type' or 'System.String'.
+dotnet_diagnostic.IL2098.severity = error
+# Title    : Property has 'DynamicallyAccessedMembersAttribute', but that attribute can only be applied to properties of type 'System.Type' or 'System.String'.
+dotnet_diagnostic.IL2099.severity = error
+# Title    : Value passed to the parameter of method cannot be statically determined as a property accessor.
+dotnet_diagnostic.IL2103.severity = error
+# Title    : Return type of method has 'DynamicallyAccessedMembersAttribute', but that attribute can only be applied to properties of type 'System.Type' or 'System.String'.
+dotnet_diagnostic.IL2106.severity = error
+# Title    : Types that derive from a base class with 'RequiresUnreferencedCodeAttribute' need to explicitly use the 'RequiresUnreferencedCodeAttribute' or suppress this error
+dotnet_diagnostic.IL2109.severity = error
+# Title    : Field with 'DynamicallyAccessedMembersAttribute' is accessed via reflection. Trimmer can't guarantee availability of the requirements of the field.
+dotnet_diagnostic.IL2110.severity = error
+# Title    : Method with parameters or return value with `DynamicallyAccessedMembersAttribute` is accessed via reflection. Trimmer can't guarantee availability of the requirements of the method.
+dotnet_diagnostic.IL2111.severity = error
+# Title    : The use of 'RequiresUnreferencedCodeAttribute' on static constructors is disallowed since is a method not callable by the user, is only called by the runtime. Placing the attribute directly on the static constructor will have no effect, instead use 'RequiresUnreferencedCodeAttribute' on the type which will handle error and silencing from the static constructor.
+dotnet_diagnostic.IL2116.severity = error
+# Title    : Avoid accessing Assembly file path when publishing as a single file
+# Category : SingleFile
+dotnet_diagnostic.IL3000.severity = error
+# Title    : Avoid using accessing Assembly file path when publishing as a single-file
+# Category : Publish
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/il3000
+dotnet_diagnostic.IL3001.severity = error
+# Help Link: https://docs.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/il3001
+# Title    : Avoid calling members marked with 'RequiresAssemblyFilesAttribute' when publishing as a single-file
+dotnet_diagnostic.IL3002.severity = error
+# Title    : 'RequiresAssemblyFilesAttribute' annotations must match across all interface implementations or overrides.
+dotnet_diagnostic.IL3003.severity = error
+# Title    : The use of 'RequiresAssemblyFilesAttribute' on static constructors is disallowed since is a method not callable by the user, is only called by the runtime. Placing the attribute directly on the static constructor will have no effect, instead use 'RequiresUnreferencedCodeAttribute' on the type which will handle error and silencing from the static constructor.
+dotnet_diagnostic.IL3004.severity = error
+# Title    : Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.
+# Category : AOT
+dotnet_diagnostic.IL3050.severity = error
+# Title    : 'RequiresDynamicCodeAttribute' annotations must match across all interface implementations or overrides.
+dotnet_diagnostic.IL3051.severity = error
+# Title    : The use of 'RequiresDynamicCodeAttribute' on static constructors is disallowed since is a method not callable by the user, is only called by the runtime. Placing the attribute directly on the static constructor will have no effect, instead use 'RequiresUnreferencedCodeAttribute' on the type which will handle error and silencing from the static constructor.
+dotnet_diagnostic.IL3056.severity = error
+# Title    : Use the 'Microsoft.Shared.Diagnostics.Throws' class instead of explicitly throwing exception for improved performance
+dotnet_diagnostic.LA0000.severity = error
+dotnet_diagnostic.LA0001.severity = error
+# Title    : Use 'Microsoft.Shared.Text.NumericExtensions.ToInvariantString' for improved performance
+dotnet_diagnostic.LA0002.severity = error
+# Title    : Newly added symbols must be marked as experimental
+dotnet_diagnostic.LA0003.severity = error
+# Title    : Experimental symbols cannot be marked as obsolete
+dotnet_diagnostic.LA0004.severity = error
+# Title    : Published symbols cannot be marked experimental
+dotnet_diagnostic.LA0005.severity = error
+# Title    : Published symbols cannot be deleted to maintain compatibility
+dotnet_diagnostic.LA0006.severity = error
+# Title    : Published symbols cannot be changed to maintain compatibility
+dotnet_diagnostic.LA0007.severity = error
+# Title    : Method overrides should not change parameter defaults
+# Category : Critical Code Smell
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1006
+dotnet_diagnostic.S1006.severity = error
+# Title    : Types should be named in PascalCase
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-101
+dotnet_diagnostic.S101.severity = error
+# Title    : Lines should not be too long
+# Category : Major Code Smell
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-103
+dotnet_diagnostic.S103.severity = error
+# Title    : Files should not have too many lines of code
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-104
+dotnet_diagnostic.S104.severity = error
+# Title    : Standard outputs should not be used directly to log anything
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-106
+dotnet_diagnostic.S106.severity = error
+# Title    : Collapsible "if" statements should be merged
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1066
+dotnet_diagnostic.S1066.severity = error
+# Title    : Nested blocks of code should not be left empty
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-108
+dotnet_diagnostic.S108.severity = error
+# Title    : Magic numbers should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-109
+dotnet_diagnostic.S109.severity = error
+# Title    : Inheritance tree of classes should not be too deep
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-110
+dotnet_diagnostic.S110.severity = error
+# Title    : Local variables should not shadow class fields or properties
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1117
+dotnet_diagnostic.S1117.severity = error
+# Title    : Assignments should not be made from within sub-expressions
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1121
+dotnet_diagnostic.S1121.severity = error
+# Title    : Boolean literals should not be redundant
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1125
+dotnet_diagnostic.S1125.severity = error
+# Title    : Track uses of "FIXME" tags
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1134
+dotnet_diagnostic.S1134.severity = error
+# Title    : Useless "if(true) {...}" and "if(false){...}" blocks should be removed
+# Category : Major Bug
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1145
+dotnet_diagnostic.S1145.severity = error
+# Title    : Exit methods should not be called
+# Category : Blocker Code Smell
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1147
+dotnet_diagnostic.S1147.severity = error
+# Title    : "switch case" clauses should not have too many lines of code
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1151
+dotnet_diagnostic.S1151.severity = error
+# Title    : "Any()" should be used to test for emptiness
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1155
+dotnet_diagnostic.S1155.severity = error
+# Title    : Exceptions should not be thrown in finally blocks
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1163
+dotnet_diagnostic.S1163.severity = error
+# Title    : Empty arrays and collections should be returned instead of null
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1168
+dotnet_diagnostic.S1168.severity = error
+# Title    : Overriding members should do more than simply call the same member in the base class
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1185
+dotnet_diagnostic.S1185.severity = error
+# Title    : String literals should not be duplicated
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1192
+dotnet_diagnostic.S1192.severity = error
+# Title    : Nested code blocks should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1199
+dotnet_diagnostic.S1199.severity = error
+# Title    : "GC.Collect" should not be called
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1215
+dotnet_diagnostic.S1215.severity = error
+# Title    : Statements should be on separate lines
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-122
+dotnet_diagnostic.S122.severity = error
+# Title    : Method parameters, caught exceptions and foreach variables' initial values should not be ignored
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1226
+dotnet_diagnostic.S1226.severity = error
+# Title    : "if ... else if" constructs should end with "else" clauses
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-126
+dotnet_diagnostic.S126.severity = error
+# Title    : A "while" loop should be used instead of a "for" loop
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1264
+dotnet_diagnostic.S1264.severity = error
+# Title    : "for" loop stop conditions should be invariant
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-127
+dotnet_diagnostic.S127.severity = error
+# Title    : "switch" statements should have at least 3 "case" clauses
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1301
+dotnet_diagnostic.S1301.severity = error
+# Title    : "switch/Select" statements should contain a "default/Case Else" clauses
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-131
+dotnet_diagnostic.S131.severity = error
+# Title    : Using hardcoded IP addresses is security-sensitive
+# Category : Major Security Hotspot
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1313
+dotnet_diagnostic.S1313.severity = error
+# Title    : Control flow statements "if", "switch", "for", "foreach", "while", "do"  and "try" should not be nested too deeply
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-134
+dotnet_diagnostic.S134.severity = error
+# Title    : Culture should be specified for "string" operations
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1449
+dotnet_diagnostic.S1449.severity = error
+# Title    : Private fields only used as local variables in methods should become local variables
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1450
+dotnet_diagnostic.S1450.severity = error
+# Title    : "switch" statements should not have too many "case" clauses
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1479
+dotnet_diagnostic.S1479.severity = error
+# Title    : Tests should not be ignored
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1607
+dotnet_diagnostic.S1607.severity = error
+# Title    : Strings should not be concatenated using '+' in a loop
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1643
+dotnet_diagnostic.S1643.severity = error
+# Title    : Variables should not be self-assigned
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1656
+dotnet_diagnostic.S1656.severity = error
+# Title    : Multiple variables should not be declared on the same line
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1659
+dotnet_diagnostic.S1659.severity = error
+# Title    : NullReferenceException should not be caught
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1696
+dotnet_diagnostic.S1696.severity = error
+# Title    : Short-circuit logic should be used to prevent null pointer dereferences in conditionals
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1697
+dotnet_diagnostic.S1697.severity = error
+# Title    : "==" should not be used when "Equals" is overridden
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1698
+dotnet_diagnostic.S1698.severity = error
+# Title    : Constructors should only call non-overridable methods
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1699
+dotnet_diagnostic.S1699.severity = error
+# Title    : Loops with at most one iteration should be refactored
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1751
+dotnet_diagnostic.S1751.severity = error
+# Title    : Identical expressions should not be used on both sides of operators
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1764
+dotnet_diagnostic.S1764.severity = error
+# Title    : "switch" statements should not be nested
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1821
+dotnet_diagnostic.S1821.severity = error
+# Title    : Objects should not be created to be dropped immediately without being used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1848
+dotnet_diagnostic.S1848.severity = error
+# Title    : "ToString()" calls should not be redundant
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1858
+dotnet_diagnostic.S1858.severity = error
+# Title    : Related "if/else if" statements should not have the same condition
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1862
+dotnet_diagnostic.S1862.severity = error
+# Title    : Two branches in a conditional structure should not have exactly the same implementation
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1871
+dotnet_diagnostic.S1871.severity = error
+# Title    : Inheritance list should not be redundant
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1939
+dotnet_diagnostic.S1939.severity = error
+# Title    : Boolean checks should not be inverted
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1940
+dotnet_diagnostic.S1940.severity = error
+# Title    : Invalid casts should be avoided
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-1944
+dotnet_diagnostic.S1944.severity = error
+# Title    : Hashes should include an unpredictable salt
+# Category : Critical Vulnerability
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2053
+# Comment  : Analysis is too slow
+dotnet_diagnostic.S2053.severity = error
+# Title    : Hard-coded credentials are security-sensitive
+# Category : Blocker Security Hotspot
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2068
+dotnet_diagnostic.S2068.severity = error
+# Title    : Formatting SQL queries is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2077
+dotnet_diagnostic.S2077.severity = error
+# Title    : Creating cookies without the "secure" flag is security-sensitive
+# Category : Minor Security Hotspot
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2092
+dotnet_diagnostic.S2092.severity = error
+# Title    : Classes should not be empty
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2094
+dotnet_diagnostic.S2094.severity = error
+# Title    : Collections should not be passed as arguments to their own methods
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2114
+dotnet_diagnostic.S2114.severity = error
+# Title    : A secure password should be used when connecting to a database
+# Category : Blocker Vulnerability
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2115
+dotnet_diagnostic.S2115.severity = error
+# Title    : Values should not be uselessly incremented
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2123
+dotnet_diagnostic.S2123.severity = error
+# Title    : Underscores should be used to make large numbers readable
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2148
+dotnet_diagnostic.S2148.severity = error
+# Title    : "sealed" classes should not have "protected" members
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2156
+dotnet_diagnostic.S2156.severity = error
+# Title    : Classes named like "Exception" should extend "Exception" or a subclass
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2166
+dotnet_diagnostic.S2166.severity = error
+# Title    : Short-circuit logic should be used in boolean contexts
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2178
+dotnet_diagnostic.S2178.severity = error
+# Title    : Integral numbers should not be shifted by zero or more than their number of bits-1
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2183
+dotnet_diagnostic.S2183.severity = error
+# Title    : Results of integer division should not be assigned to floating point variables
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2184
+dotnet_diagnostic.S2184.severity = error
+# Title    : Test classes should contain at least one test case
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2187
+dotnet_diagnostic.S2187.severity = error
+# Title    : Loops and recursions should not be infinite
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2190
+dotnet_diagnostic.S2190.severity = error
+# Title    : Modulus results should not be checked for direct equality
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2197
+dotnet_diagnostic.S2197.severity = error
+# Title    : Unnecessary mathematical comparisons should not be made
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2198
+dotnet_diagnostic.S2198.severity = error
+# Title    : Runtime type checking should be simplified
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2219
+dotnet_diagnostic.S2219.severity = error
+# Title    : Locks should be released on all paths
+# Category : Critical Bug
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2222
+dotnet_diagnostic.S2222.severity = error
+# Title    : Non-constant static fields should not be visible
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2223
+dotnet_diagnostic.S2223.severity = error
+# Title    : "ToString()" method should not return null
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2225
+dotnet_diagnostic.S2225.severity = error
+# Title    : Console logging should not be used
+# Category : Minor Vulnerability
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2228
+dotnet_diagnostic.S2228.severity = error
+# Title    : Arguments should be passed in the same order as the method parameters
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2234
+dotnet_diagnostic.S2234.severity = error
+# Title    : Using pseudorandom number generators (PRNGs) is security-sensitive
+# Category : Critical Security Hotspot
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2245
+dotnet_diagnostic.S2245.severity = error
+# Title    : A "for" loop update clause should move the counter in the right direction
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2251
+dotnet_diagnostic.S2251.severity = error
+# Title    : For-loop conditions should be true at least once
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2252
+dotnet_diagnostic.S2252.severity = error
+# Title    : Writing cookies is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2255
+dotnet_diagnostic.S2255.severity = error
+# Title    : Using non-standard cryptographic algorithms is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2257
+dotnet_diagnostic.S2257.severity = error
+# Title    : Null pointers should not be dereferenced
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2259
+# Comment  : Redundant, covered by modern C# compiler
+dotnet_diagnostic.S2259.severity = error
+# Title    : Composite format strings should not lead to unexpected behavior at runtime
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2275
+dotnet_diagnostic.S2275.severity = error
+# Title    : Neither DES (Data Encryption Standard) nor DESede (3DES) should be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2278
+dotnet_diagnostic.S2278.severity = error
+# Title    : Field-like events should not be virtual
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2290
+dotnet_diagnostic.S2290.severity = error
+# Title    : Overflow checking should not be disabled for "Enumerable.Sum"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2291
+dotnet_diagnostic.S2291.severity = error
+# Title    : "async" and "await" should not be used as identifiers
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2306
+dotnet_diagnostic.S2306.severity = error
+# Title    : "try" statements with identical "catch" and/or "finally" blocks should be merged
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2327
+dotnet_diagnostic.S2327.severity = error
+# Title    : "GetHashCode" should not reference mutable fields
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2328
+dotnet_diagnostic.S2328.severity = error
+# Title    : Array covariance should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2330
+dotnet_diagnostic.S2330.severity = error
+# Title    : Redundant modifiers should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2333
+dotnet_diagnostic.S2333.severity = error
+# Title    : Enumeration type names should not have "Flags" or "Enum" suffixes
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2344
+dotnet_diagnostic.S2344.severity = error
+# Title    : Flags enumerations should explicitly initialize all their members
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2345
+dotnet_diagnostic.S2345.severity = error
+# Title    : Fields should be private
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2357
+dotnet_diagnostic.S2357.severity = error
+# Title    : Properties should not make collection or array copies
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2365
+dotnet_diagnostic.S2365.severity = error
+# Title    : Public methods should not have multidimensional array parameters
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2368
+dotnet_diagnostic.S2368.severity = error
+# Title    : Exceptions should not be thrown from property getters
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2372
+dotnet_diagnostic.S2372.severity = error
+# Title    : Write-only properties should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2376
+dotnet_diagnostic.S2376.severity = error
+# Title    : Mutable fields should not be "public static"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2386
+dotnet_diagnostic.S2386.severity = error
+# Title    : Child class fields should not shadow parent class fields
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2387
+dotnet_diagnostic.S2387.severity = error
+# Title    : Unnecessary bit operations should not be performed
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2437
+dotnet_diagnostic.S2437.severity = error
+# Title    : Blocks should be synchronized on read-only fields
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2445
+# Comment  : Noise
+dotnet_diagnostic.S2445.severity = error
+# Title    : Whitespace and control characters in string literals should be explicit
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2479
+dotnet_diagnostic.S2479.severity = error
+# Title    : Generic exceptions should not be ignored
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2486
+dotnet_diagnostic.S2486.severity = error
+# Title    : Shared resources should not be used for locking
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2551
+dotnet_diagnostic.S2551.severity = error
+# Title    : Boolean expressions should not be gratuitous
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2589
+# Comment  : Too many false positives.
+dotnet_diagnostic.S2589.severity = error
+# Title    : Setting loose file permissions is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2612
+dotnet_diagnostic.S2612.severity = error
+# Title    : The length returned from a stream read should be checked
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2674
+dotnet_diagnostic.S2674.severity = error
+# Title    : Multiline blocks should be enclosed in curly braces
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2681
+dotnet_diagnostic.S2681.severity = error
+# Title    : "NaN" should not be used in comparisons
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2688
+dotnet_diagnostic.S2688.severity = error
+# Title    : "IndexOf" checks should not be for positive numbers
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2692
+dotnet_diagnostic.S2692.severity = error
+# Title    : Instance members should not write to "static" fields
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2696
+dotnet_diagnostic.S2696.severity = error
+# Title    : Tests should include assertions
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2699
+dotnet_diagnostic.S2699.severity = error
+# Title    : Literal boolean values should not be used in assertions
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2701
+dotnet_diagnostic.S2701.severity = error
+# Title    : "catch" clauses should do more than rethrow
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2737
+dotnet_diagnostic.S2737.severity = error
+# Title    : XML parsers should not be vulnerable to XXE attacks
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2755
+dotnet_diagnostic.S2755.severity = error
+# Title    : Non-existent operators like "=+" should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2757
+dotnet_diagnostic.S2757.severity = error
+# Title    : The ternary operator should not return the same value regardless of the condition
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2758
+dotnet_diagnostic.S2758.severity = error
+# Title    : Sequential tests should not check the same condition
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2760
+dotnet_diagnostic.S2760.severity = error
+# Title    : Doubled prefix operators "!!" and "~~" should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2761
+dotnet_diagnostic.S2761.severity = error
+# Title    : SQL keywords should be delimited by whitespace
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2857
+dotnet_diagnostic.S2857.severity = error
+# Title    : "Thread.Sleep" should not be used in tests
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2925
+dotnet_diagnostic.S2925.severity = error
+# Title    : Property assignments should not be made for "readonly" fields not constrained to reference types
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2934
+dotnet_diagnostic.S2934.severity = error
+# Title    : Classes should "Dispose" of members from the classes' own "Dispose" methods
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2952
+dotnet_diagnostic.S2952.severity = error
+# Title    : Methods named "Dispose" should implement "IDisposable.Dispose"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2953
+dotnet_diagnostic.S2953.severity = error
+# Title    : Generic parameters not constrained to reference types should not be compared to "null"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2955
+dotnet_diagnostic.S2955.severity = error
+# Title    : Assertions should be complete
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2970
+dotnet_diagnostic.S2970.severity = error
+# Title    : "IEnumerable" LINQs should be simplified
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2971
+dotnet_diagnostic.S2971.severity = error
+# Title    : "Object.ReferenceEquals" should not be used for value types
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2995
+dotnet_diagnostic.S2995.severity = error
+# Title    : "ThreadStatic" fields should not be initialized
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2996
+dotnet_diagnostic.S2996.severity = error
+# Title    : "IDisposables" created in a "using" statement should not be returned
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-2997
+dotnet_diagnostic.S2997.severity = error
+# Title    : "ThreadStatic" should not be used on non-static fields
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3005
+dotnet_diagnostic.S3005.severity = error
+# Title    : Static fields should not be updated in constructors
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3010
+dotnet_diagnostic.S3010.severity = error
+# Title    : Reflection should not be used to increase accessibility of classes, methods, or fields
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3011
+dotnet_diagnostic.S3011.severity = error
+# Title    : "is" should not be used with "this"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3060
+dotnet_diagnostic.S3060.severity = error
+# Title    : "StringBuilder" data should be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3063
+dotnet_diagnostic.S3063.severity = error
+# Title    : Multiple "OrderBy" calls should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3169
+dotnet_diagnostic.S3169.severity = error
+# Title    : Delegates should not be subtracted
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3172
+dotnet_diagnostic.S3172.severity = error
+# Title    : "interface" instances should not be cast to concrete types
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3215
+dotnet_diagnostic.S3215.severity = error
+# Title    : "Explicit" conversions of "foreach" loops should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3217
+dotnet_diagnostic.S3217.severity = error
+# Title    : Inner class members should not shadow outer class "static" or type members
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3218
+dotnet_diagnostic.S3218.severity = error
+# Title    : Method calls should not resolve ambiguously to overloads with "params"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3220
+dotnet_diagnostic.S3220.severity = error
+# Title    : "GC.SuppressFinalize" should not be invoked for types without destructors
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3234
+dotnet_diagnostic.S3234.severity = error
+# Title    : Redundant parentheses should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3235
+dotnet_diagnostic.S3235.severity = error
+# Title    : "value" contextual keyword should be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3237
+dotnet_diagnostic.S3237.severity = error
+# Title    : Methods should not return values that are never used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3241
+dotnet_diagnostic.S3241.severity = error
+# Title    : Anonymous delegates should not be used to unsubscribe from Events
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3244
+dotnet_diagnostic.S3244.severity = error
+# Title    : Generic type parameters should be co/contravariant when possible
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3246
+dotnet_diagnostic.S3246.severity = error
+# Title    : Duplicate casts should not be made
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3247
+dotnet_diagnostic.S3247.severity = error
+# Title    : Classes directly extending "object" should not call "base" in "GetHashCode" or "Equals"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3249
+dotnet_diagnostic.S3249.severity = error
+# Title    : Implementations should be provided for "partial" methods
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3251
+dotnet_diagnostic.S3251.severity = error
+# Title    : Constructor and destructor declarations should not be redundant
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3253
+dotnet_diagnostic.S3253.severity = error
+# Title    : "string.IsNullOrEmpty" should be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3256
+dotnet_diagnostic.S3256.severity = error
+# Title    : Declarations and initializations should be as concise as possible
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3257
+# Comment  : Too many false positives
+dotnet_diagnostic.S3257.severity = error
+# Title    : Namespaces should not be empty
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3261
+dotnet_diagnostic.S3261.severity = error
+# Title    : "params" should be used on overrides
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3262
+dotnet_diagnostic.S3262.severity = error
+# Title    : Static fields should appear in the order they must be initialized 
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3263
+dotnet_diagnostic.S3263.severity = error
+# Title    : Events should be invoked
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3264
+dotnet_diagnostic.S3264.severity = error
+# Title    : Non-flags enums should not be used in bitwise operations
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3265
+dotnet_diagnostic.S3265.severity = error
+# Title    : Loops should be simplified with "LINQ" expressions
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3267
+dotnet_diagnostic.S3267.severity = error
+# Title    : Cipher Block Chaining IVs should be unpredictable
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3329
+dotnet_diagnostic.S3329.severity = error
+# Title    : Creating cookies without the "HttpOnly" flag is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3330
+dotnet_diagnostic.S3330.severity = error
+# Title    : Caller information parameters should come at the end of the parameter list
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3343
+dotnet_diagnostic.S3343.severity = error
+# Title    : Expressions used in "Debug.Assert" should not produce side effects
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3346
+dotnet_diagnostic.S3346.severity = error
+# Title    : Unchanged local variables should be "const"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3353
+dotnet_diagnostic.S3353.severity = error
+# Title    : Ternary operators should not be nested
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3358
+dotnet_diagnostic.S3358.severity = error
+# Title    : Date and time should not be used as a type for primary keys
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3363
+dotnet_diagnostic.S3363.severity = error
+# Title    : "this" should not be exposed from constructors
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3366
+dotnet_diagnostic.S3366.severity = error
+# Title    : "base.Equals" should not be used to check for reference equality in "Equals" if "base" is not "object"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3397
+dotnet_diagnostic.S3397.severity = error
+# Title    : "private" methods called only by inner classes should be moved to those classes
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3398
+dotnet_diagnostic.S3398.severity = error
+# Title    : Methods should not return constants
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3400
+dotnet_diagnostic.S3400.severity = error
+# Title    : Assertion arguments should be passed in the correct order
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3415
+dotnet_diagnostic.S3415.severity = error
+# Title    : Method overloads with default parameter values should not overlap
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3427
+dotnet_diagnostic.S3427.severity = error
+# Title    : "[ExpectedException]" should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3431
+dotnet_diagnostic.S3431.severity = error
+# Title    : Test method signatures should be correct
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3433
+dotnet_diagnostic.S3433.severity = error
+# Title    : Variables should not be checked against the values they're about to be assigned
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3440
+dotnet_diagnostic.S3440.severity = error
+# Title    : Redundant property names should be omitted in anonymous classes
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3441
+dotnet_diagnostic.S3441.severity = error
+# Title    : "abstract" classes should not have "public" constructors
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3442
+dotnet_diagnostic.S3442.severity = error
+# Title    : Type should not be examined on "System.Type" instances
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3443
+dotnet_diagnostic.S3443.severity = error
+# Title    : Interfaces should not simply inherit from base interfaces with colliding members
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3444
+dotnet_diagnostic.S3444.severity = error
+# Title    : Exceptions should not be explicitly rethrown
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3445
+dotnet_diagnostic.S3445.severity = error
+# Title    : "[Optional]" should not be used on "ref" or "out" parameters
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3447
+dotnet_diagnostic.S3447.severity = error
+# Title    : Right operands of shift operators should be integers
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3449
+dotnet_diagnostic.S3449.severity = error
+# Title    : Parameters with "[DefaultParameterValue]" attributes should also be marked "[Optional]"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3450
+dotnet_diagnostic.S3450.severity = error
+# Title    : "[DefaultValue]" should not be used when "[DefaultParameterValue]" is meant
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3451
+dotnet_diagnostic.S3451.severity = error
+# Title    : Classes should not have only "private" constructors
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3453
+dotnet_diagnostic.S3453.severity = error
+# Title    : "string.ToCharArray()" and "ReadOnlySpan<T>.ToArray()" should not be called redundantly
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3456
+dotnet_diagnostic.S3456.severity = error
+# Title    : Composite format strings should be used correctly
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3457
+dotnet_diagnostic.S3457.severity = error
+# Title    : Empty "case" clauses that fall through to the "default" should be omitted
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3458
+dotnet_diagnostic.S3458.severity = error
+# Title    : Unassigned members should be removed
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3459
+dotnet_diagnostic.S3459.severity = error
+# Title    : Type inheritance should not be recursive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3464
+dotnet_diagnostic.S3464.severity = error
+# Title    : Optional parameters should be passed to "base" calls
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3466
+dotnet_diagnostic.S3466.severity = error
+# Title    : Empty "default" clauses should be removed
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3532
+dotnet_diagnostic.S3532.severity = error
+# Title    : "ServiceContract" and "OperationContract" attributes should be used together
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3597
+dotnet_diagnostic.S3597.severity = error
+# Title    : One-way "OperationContract" methods should have "void" return type
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3598
+dotnet_diagnostic.S3598.severity = error
+# Title    : "params" should not be introduced on overrides
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3600
+dotnet_diagnostic.S3600.severity = error
+# Title    : Methods with "Pure" attribute should return a value 
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3603
+dotnet_diagnostic.S3603.severity = error
+# Title    : Member initializer values should not be redundant
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3604
+dotnet_diagnostic.S3604.severity = error
+# Title    : Nullable type comparison should not be redundant
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3610
+dotnet_diagnostic.S3610.severity = error
+# Title    : Jump statements should not be redundant
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3626
+dotnet_diagnostic.S3626.severity = error
+# Title    : Empty nullable value should not be accessed
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3655
+dotnet_diagnostic.S3655.severity = error
+# Title    : Exception constructors should not throw exceptions
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3693
+dotnet_diagnostic.S3693.severity = error
+# Title    : Track use of "NotImplementedException"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3717
+dotnet_diagnostic.S3717.severity = error
+# Title    : "SafeHandle.DangerousGetHandle" should not be called
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3869
+dotnet_diagnostic.S3869.severity = error
+# Title    : "operator==" should not be overloaded on reference types
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3875
+dotnet_diagnostic.S3875.severity = error
+# Title    : Strings or integral types should be used for indexers
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3876
+dotnet_diagnostic.S3876.severity = error
+# Title    : Exceptions should not be thrown from unexpected methods
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3877
+dotnet_diagnostic.S3877.severity = error
+# Title    : Arrays should not be created for params parameters
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3878
+dotnet_diagnostic.S3878.severity = error
+# Title    : Finalizers should not be empty
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3880
+dotnet_diagnostic.S3880.severity = error
+# Title    : "IDisposable" should be implemented correctly
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3881
+dotnet_diagnostic.S3881.severity = error
+# Title    : "CoSetProxyBlanket" and "CoInitializeSecurity" should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3884
+dotnet_diagnostic.S3884.severity = error
+# Title    : "Assembly.Load" should be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3885
+dotnet_diagnostic.S3885.severity = error
+# Title    : Mutable, non-private fields should not be "readonly"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3887
+dotnet_diagnostic.S3887.severity = error
+# Title    : "Thread.Resume" and "Thread.Suspend" should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3889
+dotnet_diagnostic.S3889.severity = error
+# Title    : Classes that provide "Equals(<T>)" should implement "IEquatable<T>"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3897
+dotnet_diagnostic.S3897.severity = error
+# Title    : Value types should implement "IEquatable<T>"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3898
+dotnet_diagnostic.S3898.severity = error
+# Title    : "Assembly.GetExecutingAssembly" should not be called
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3902
+dotnet_diagnostic.S3902.severity = error
+# Title    : Types should be defined in named namespaces
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3903
+# Comment  : Doesn't work with file-scoped namespaces, so disabling for now.
+dotnet_diagnostic.S3903.severity = error
+# Title    : Assemblies should have version information
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3904
+dotnet_diagnostic.S3904.severity = error
+# Title    : All branches in a conditional structure should not have exactly the same implementation
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3923
+dotnet_diagnostic.S3923.severity = error
+# Title    : Deserialization methods should be provided for "OptionalField" members
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3926
+dotnet_diagnostic.S3926.severity = error
+# Title    : Serialization event handlers should be implemented correctly
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3927
+dotnet_diagnostic.S3927.severity = error
+# Title    : Parameter names used into ArgumentException constructors should match an existing one 
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3928
+dotnet_diagnostic.S3928.severity = error
+# Title    : Number patterns should be regular
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3937
+dotnet_diagnostic.S3937.severity = error
+# Title    : Calculations should not overflow
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3949
+dotnet_diagnostic.S3949.severity = error
+# Title    : Objects should not be disposed more than once
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3966
+dotnet_diagnostic.S3966.severity = error
+# Title    : Multidimensional arrays should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3967
+dotnet_diagnostic.S3967.severity = error
+# Title    : "GC.SuppressFinalize" should not be called
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3971
+dotnet_diagnostic.S3971.severity = error
+# Title    : Conditionals should start on new lines
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3972
+dotnet_diagnostic.S3972.severity = error
+# Title    : A conditionally executed single line should be denoted by indentation
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3973
+dotnet_diagnostic.S3973.severity = error
+# Title    : Collection sizes and array length comparisons should make sense
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3981
+dotnet_diagnostic.S3981.severity = error
+# Title    : Exceptions should not be created without being thrown
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3984
+dotnet_diagnostic.S3984.severity = error
+# Title    : String URI overloads should call "System.Uri" overloads
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3997
+dotnet_diagnostic.S3997.severity = error
+# Title    : Threads should not lock on objects with weak identity
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-3998
+dotnet_diagnostic.S3998.severity = error
+# Title    : Pointers to unmanaged memory should not be visible
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4000
+dotnet_diagnostic.S4000.severity = error
+# Title    : Disposable types should declare finalizers
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4002
+dotnet_diagnostic.S4002.severity = error
+# Title    : Inherited member visibility should not be decreased
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4015
+dotnet_diagnostic.S4015.severity = error
+# Title    : Enumeration members should not be named "Reserved"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4016
+dotnet_diagnostic.S4016.severity = error
+# Title    : Base class methods should not be hidden
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4019
+dotnet_diagnostic.S4019.severity = error
+# Title    : Interfaces should not be empty
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4023
+dotnet_diagnostic.S4023.severity = error
+# Title    : Child class fields should not differ from parent class fields only by capitalization
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4025
+dotnet_diagnostic.S4025.severity = error
+# Title    : Assemblies should be marked with "NeutralResourcesLanguageAttribute"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4026
+dotnet_diagnostic.S4026.severity = error
+# Title    : Classes implementing "IEquatable<T>" should be sealed
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4035
+dotnet_diagnostic.S4035.severity = error
+# Title    : Searching OS commands in PATH is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4036
+dotnet_diagnostic.S4036.severity = error
+# Title    : Interface methods should be callable by derived types
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4039
+dotnet_diagnostic.S4039.severity = error
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4041
+dotnet_diagnostic.S4041.severity = error
+# Title    : Generics should be used when appropriate
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4047
+dotnet_diagnostic.S4047.severity = error
+# Title    : Operators should be overloaded consistently
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4050
+dotnet_diagnostic.S4050.severity = error
+# Title    : Types should not extend outdated base types
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4052
+dotnet_diagnostic.S4052.severity = error
+# Title    : Locales should be set for data types
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4057
+dotnet_diagnostic.S4057.severity = error
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4059
+dotnet_diagnostic.S4059.severity = error
+# Title    : "params" should be used instead of "varargs"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4061
+dotnet_diagnostic.S4061.severity = error
+# Title    : Method overloads should be grouped together
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4136
+dotnet_diagnostic.S4136.severity = error
+# Title    : Duplicate values should not be passed as arguments
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4142
+dotnet_diagnostic.S4142.severity = error
+# Title    : Collection elements should not be replaced unconditionally
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4143
+dotnet_diagnostic.S4143.severity = error
+# Title    : Methods should not have identical implementations
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4144
+dotnet_diagnostic.S4144.severity = error
+# Title    : Empty collections should not be accessed or iterated
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4158
+dotnet_diagnostic.S4158.severity = error
+# Title    : Classes should implement their "ExportAttribute" interfaces
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4159
+dotnet_diagnostic.S4159.severity = error
+# Title    : Native methods should be wrapped
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4200
+dotnet_diagnostic.S4200.severity = error
+# Title    : Null checks should not be used with "is"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4201
+dotnet_diagnostic.S4201.severity = error
+# Title    : Windows Forms entry points should be marked with STAThread
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4210
+dotnet_diagnostic.S4210.severity = error
+# Title    : Members should not have conflicting transparency annotations
+# Category : Major Vulnerability
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4211
+dotnet_diagnostic.S4211.severity = error
+# Title    : Serialization constructors should be secured
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4212
+dotnet_diagnostic.S4212.severity = error
+# Title    : "P/Invoke" methods should not be visible
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4214
+dotnet_diagnostic.S4214.severity = error
+# Title    : Events should have proper arguments
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4220
+dotnet_diagnostic.S4220.severity = error
+# Title    : Extension methods should not extend "object"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4225
+dotnet_diagnostic.S4225.severity = error
+# Title    : "ConstructorArgument" parameters should exist in constructors
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4260
+dotnet_diagnostic.S4260.severity = error
+# Title    : Getters and setters should access the expected fields
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4275
+dotnet_diagnostic.S4275.severity = error
+# Title    : "Shared" parts should not be created with "new"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4277
+dotnet_diagnostic.S4277.severity = error
+# Title    : Weak SSL/TLS protocols should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4423
+dotnet_diagnostic.S4423.severity = error
+# Title    : Cryptographic keys should be robust
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4426
+dotnet_diagnostic.S4426.severity = error
+# Title    : "PartCreationPolicyAttribute" should be used with "ExportAttribute"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4428
+dotnet_diagnostic.S4428.severity = error
+# Title    : AES encryption algorithm should be used with secured mode
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4432
+dotnet_diagnostic.S4432.severity = error
+# Title    : LDAP connections should be authenticated
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4433
+dotnet_diagnostic.S4433.severity = error
+# Title    : Parameter validation in yielding methods should be wrapped
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4456
+dotnet_diagnostic.S4456.severity = error
+# Title    : Parameter validation in "async"/"await" methods should be wrapped
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4457
+dotnet_diagnostic.S4457.severity = error
+# Title    : Disabling CSRF protections is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4502
+dotnet_diagnostic.S4502.severity = error
+# Title    : Delivering code in production with debug features activated is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4507
+dotnet_diagnostic.S4507.severity = error
+# Title    : "default" clauses should be first or last
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4524
+dotnet_diagnostic.S4524.severity = error
+# Title    : "DebuggerDisplayAttribute" strings should reference existing members
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4545
+dotnet_diagnostic.S4545.severity = error
+# Title    : ASP.NET HTTP request validation feature should not be disabled
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4564
+dotnet_diagnostic.S4564.severity = error
+# Title    : "new Guid()" should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4581
+dotnet_diagnostic.S4581.severity = error
+# Title    : Calls to delegate's method "BeginInvoke" should be paired with calls to "EndInvoke"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4583
+dotnet_diagnostic.S4583.severity = error
+# Title    : Non-async "Task/Task<T>" methods should not return null
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4586
+dotnet_diagnostic.S4586.severity = error
+# Title    : Start index should be used instead of calling Substring
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4635
+dotnet_diagnostic.S4635.severity = error
+# Title    : Comments should not be empty
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4663
+dotnet_diagnostic.S4663.severity = error
+# Title    : Using regular expressions is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4784
+dotnet_diagnostic.S4784.severity = error
+# Title    : Encrypting data is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4787
+dotnet_diagnostic.S4787.severity = error
+# Title    : Using weak hashing algorithms is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4790
+dotnet_diagnostic.S4790.severity = error
+# Title    : Configuring loggers is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4792
+dotnet_diagnostic.S4792.severity = error
+# Title    : Using Sockets is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4818
+dotnet_diagnostic.S4818.severity = error
+# Title    : Using command line arguments is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4823
+dotnet_diagnostic.S4823.severity = error
+# Title    : Reading the Standard Input is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4829
+dotnet_diagnostic.S4829.severity = error
+# Title    : Controlling permissions is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-4834
+dotnet_diagnostic.S4834.severity = error
+# Title    : "ValueTask" should be consumed correctly
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5034
+dotnet_diagnostic.S5034.severity = error
+# Title    : Expanding archive files without controlling resource consumption is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5042
+dotnet_diagnostic.S5042.severity = error
+# Title    : Having a permissive Cross-Origin Resource Sharing policy is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5122
+dotnet_diagnostic.S5122.severity = error
+# Title    : Using clear-text protocols is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5332
+dotnet_diagnostic.S5332.severity = error
+# Title    : Using publicly writable directories is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5443
+dotnet_diagnostic.S5443.severity = error
+# Title    : Insecure temporary file creation methods should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5445
+dotnet_diagnostic.S5445.severity = error
+# Title    : Encryption algorithms should be used with secure mode and padding scheme
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5542
+dotnet_diagnostic.S5542.severity = error
+# Title    : Cipher algorithms should be robust
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5547
+dotnet_diagnostic.S5547.severity = error
+# Title    : JWT should be signed and verified with strong cipher algorithms
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5659
+dotnet_diagnostic.S5659.severity = error
+# Title    : Allowing requests with excessive content length is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5693
+dotnet_diagnostic.S5693.severity = error
+# Title    : Disabling ASP.NET "Request Validation" feature is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5753
+dotnet_diagnostic.S5753.severity = error
+# Title    : Deserializing objects without performing data validation is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5766
+dotnet_diagnostic.S5766.severity = error
+# Title    : Types allowed to be deserialized should be restricted
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5773
+dotnet_diagnostic.S5773.severity = error
+# Title    : Regular expressions should be syntactically valid
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-5856
+dotnet_diagnostic.S5856.severity = error
+# Title    : Azure Functions should be stateless
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6419
+dotnet_diagnostic.S6419.severity = error
+# Title    : Client instances should not be recreated on each Azure Function invocation
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6420
+dotnet_diagnostic.S6420.severity = error
+# Title    : Azure Functions should use Structured Error Handling
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6421
+dotnet_diagnostic.S6421.severity = error
+# Title    : Calls to "async" methods should not be blocking in Azure Functions
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6422
+dotnet_diagnostic.S6422.severity = error
+# Title    : Azure Functions should log all failures
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6423
+dotnet_diagnostic.S6423.severity = error
+# Title    : Interfaces for durable entities should satisfy the restrictions
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6424
+dotnet_diagnostic.S6424.severity = error
+# Title    : Not specifying a timeout for regular expressions is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6444
+dotnet_diagnostic.S6444.severity = error
+# Title    : Blocks should not be synchronized on local variables
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6507
+dotnet_diagnostic.S6507.severity = error
+# Title    : "ExcludeFromCodeCoverage" attributes should include a justification
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6513
+dotnet_diagnostic.S6513.severity = error
+# Title    : Avoid using "DateTime.Now" for benchmarking or timing operations
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6561
+dotnet_diagnostic.S6561.severity = error
+# Title    : Always set the "DateTimeKind" when creating new "DateTime" instances
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6562
+dotnet_diagnostic.S6562.severity = error
+# Title    : Use UTC when recording DateTime instants
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6563
+dotnet_diagnostic.S6563.severity = error
+# Title    : Use "DateTimeOffset" instead of "DateTime"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6566
+dotnet_diagnostic.S6566.severity = error
+# Title    : Use "TimeZoneInfo.FindSystemTimeZoneById" without converting the timezones with "TimezoneConverter"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6575
+dotnet_diagnostic.S6575.severity = error
+# Title    : Use a format provider when parsing date and time
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6580
+dotnet_diagnostic.S6580.severity = error
+# Title    : Use the "UnixEpoch" field instead of creating "DateTime" instances that point to the beginning of the Unix epoch
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6588
+dotnet_diagnostic.S6588.severity = error
+# Title    : "Find" method should be used instead of the "FirstOrDefault" extension
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6602
+dotnet_diagnostic.S6602.severity = error
+# Title    : The collection-specific "TrueForAll" method should be used instead of the "All" extension
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6603
+dotnet_diagnostic.S6603.severity = error
+# Title    : Collection-specific "Exists" method should be used instead of the "Any" extension
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6605
+dotnet_diagnostic.S6605.severity = error
+# Title    : The collection should be filtered before sorting by using "Where" before "OrderBy"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6607
+dotnet_diagnostic.S6607.severity = error
+# Title    : Prefer indexing instead of "Enumerable" methods on types implementing "IList"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6608
+dotnet_diagnostic.S6608.severity = error
+# Title    : "Min/Max" properties of "Set" types should be used instead of the "Enumerable" extension methods
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6609
+dotnet_diagnostic.S6609.severity = error
+# Title    : "StartsWith" and "EndsWith" overloads that take a "char" should be used instead of the ones that take a "string"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6610
+dotnet_diagnostic.S6610.severity = error
+# Title    : The lambda parameter should be used instead of capturing arguments in "ConcurrentDictionary" methods
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6612
+dotnet_diagnostic.S6612.severity = error
+# Title    : "First" and "Last" properties of "LinkedList" should be used instead of the "First()" and "Last()" extension methods
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6613
+dotnet_diagnostic.S6613.severity = error
+# Title    : "Contains" should be used instead of "Any" for simple equality checks
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6617
+dotnet_diagnostic.S6617.severity = error
+# Title    : "string.Create" should be used instead of "FormattableString"
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6618
+dotnet_diagnostic.S6618.severity = error
+# Title    : Using unsafe code blocks is security-sensitive
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-6640
+dotnet_diagnostic.S6640.severity = error
+# Title    : Literal suffixes should be upper case
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-818
+dotnet_diagnostic.S818.severity = error
+# Title    : Increment (++) and decrement (--) operators should not be used in a method call or mixed with other operators in an expression
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-881
+dotnet_diagnostic.S881.severity = error
+# Title    : "goto" statement should not be used
+# Help Link: https://rules.sonarsource.com/csharp/RSPEC-907
+dotnet_diagnostic.S907.severity = error
+# Title    : Copy-paste token calculator
+# Category : 
+dotnet_diagnostic.S9999-cpd.severity = error
+# Title    : Log generator
+dotnet_diagnostic.S9999-log.severity = error
+# Title    : File metadata generator
+dotnet_diagnostic.S9999-metadata.severity = error
+# Title    : Metrics calculator
+dotnet_diagnostic.S9999-metrics.severity = error
+# Title    : Symbol reference calculator
+dotnet_diagnostic.S9999-symbolRef.severity = error
+# Title    : Token type calculator
+dotnet_diagnostic.S9999-token-type.severity = error
+# Title    : Analysis error generator
+dotnet_diagnostic.S9999-error.severity = error
+# Title    : Avoid legacy thread switching APIs
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD001.md
+dotnet_diagnostic.VSTHRD001.severity = error
+# Title    : Avoid problematic synchronous waits
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD002.md
+dotnet_diagnostic.VSTHRD002.severity = error
+# Title    : Avoid awaiting foreign Tasks
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD003.md
+dotnet_diagnostic.VSTHRD003.severity = error
+# Title    : Await SwitchToMainThreadAsync
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD004.md
+dotnet_diagnostic.VSTHRD004.severity = error
+# Title    : Invoke single-threaded types on Main thread
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD010.md
+dotnet_diagnostic.VSTHRD010.severity = error
+# Title    : Use AsyncLazy<T>
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD011.md
+dotnet_diagnostic.VSTHRD011.severity = error
+# Title    : Provide JoinableTaskFactory where allowed
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD012.md
+dotnet_diagnostic.VSTHRD012.severity = error
+# Title    : Avoid async void methods
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD100.md
+dotnet_diagnostic.VSTHRD100.severity = error
+# Title    : Avoid unsupported async delegates
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD101.md
+dotnet_diagnostic.VSTHRD101.severity = error
+# Title    : Implement internal logic asynchronously
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD102.md
+dotnet_diagnostic.VSTHRD102.severity = error
+# Title    : Offer async methods
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD104.md
+dotnet_diagnostic.VSTHRD104.severity = error
+# Title    : Avoid method overloads that assume TaskScheduler.Current
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD105.md
+dotnet_diagnostic.VSTHRD105.severity = error
+# Title    : Use InvokeAsync to raise async events
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD106.md
+dotnet_diagnostic.VSTHRD106.severity = error
+# Title    : Await Task within using expression
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD107.md
+dotnet_diagnostic.VSTHRD107.severity = error
+# Title    : Assert thread affinity unconditionally
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD108.md
+dotnet_diagnostic.VSTHRD108.severity = error
+# Title    : Switch instead of assert in async methods
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD109.md
+dotnet_diagnostic.VSTHRD109.severity = error
+# Title    : Implement System.IAsyncDisposable
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD112.md
+dotnet_diagnostic.VSTHRD112.severity = error
+# Title    : Check for System.IAsyncDisposable
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD113.md
+dotnet_diagnostic.VSTHRD113.severity = error
+# Title    : Avoid returning a null Task
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD114.md
+dotnet_diagnostic.VSTHRD114.severity = error
+# Title    : Use "Async" suffix for async methods
+# Category : Style
+# Help Link: https://github.com/Microsoft/vs-threading/blob/main/doc/analyzers/VSTHRD200.md
+dotnet_diagnostic.VSTHRD200.severity = error
+# Created by DiagConfig, the diagnostic config generator
+# Generated : 2024-03-07 23:40:45Z
+# Attributes: general
+# Generated : 2024-03-07 23:40:47Z
+# Attributes: api, general
+dotnet_code_quality.CA1010.api_surface = public
+dotnet_code_quality.CA1024.api_surface = public
+dotnet_code_quality.CA1036.api_surface = all
+dotnet_code_quality.CA1043.api_surface = public, protected
+dotnet_code_quality.CA1050.api_surface = public
+dotnet_code_quality.CA1051.api_surface = public
+dotnet_code_quality.CA1068.api_surface = public, protected
+dotnet_code_quality.CA1700.api_surface = public
+dotnet_code_quality.CA1708.api_surface = public
+dotnet_code_quality.CA1710.api_surface = public
+dotnet_code_quality.CA1711.api_surface = public
+dotnet_code_quality.CA1720.api_surface = public
+dotnet_code_quality.CA1721.api_surface = public
+dotnet_code_quality.CA1724.api_surface = public
+dotnet_code_quality.CA2109.api_surface = public
+dotnet_code_quality.CA2225.api_surface = public
+# Generated : 2024-03-07 23:40:46Z
+# Attributes: general, performance, production
+dotnet_code_quality.CA1064.api_surface = all
+# Attributes: api, general, performance, production
+# Attributes: general, test
+# Analyzers : ILLink.RoslynAnalyzer, Microsoft.Analyzers.Extra, Microsoft.Analyzers.Local, Microsoft.AspNetCore.App.Analyzers, Microsoft.AspNetCore.Components.Analyzers, Microsoft.CodeAnalysis.CSharp.NetAnalyzers, Microsoft.CodeAnalysis.NetAnalyzers, Microsoft.VisualStudio.Threading.Analyzers, Microsoft.VisualStudio.Threading.Analyzers.CSharp, SonarAnalyzer.CSharp, xunit.analyzers
+# Title    : Test classes must be public
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1000
+dotnet_diagnostic.xUnit1000.severity = error
+# Title    : Fact methods cannot have parameters
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1001
+dotnet_diagnostic.xUnit1001.severity = error
+# Title    : Test methods cannot have multiple Fact or Theory attributes
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1002
+dotnet_diagnostic.xUnit1002.severity = error
+# Title    : Theory methods must have test data
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1003
+dotnet_diagnostic.xUnit1003.severity = error
+# Title    : Test methods should not be skipped
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1004
+dotnet_diagnostic.xUnit1004.severity = error
+# Title    : Fact methods should not have test data
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1005
+dotnet_diagnostic.xUnit1005.severity = error
+# Title    : Theory methods should have parameters
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1006
+dotnet_diagnostic.xUnit1006.severity = error
+# Title    : ClassData must point at a valid class
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1007
+dotnet_diagnostic.xUnit1007.severity = error
+# Title    : Test data attribute should only be used on a Theory
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1008
+dotnet_diagnostic.xUnit1008.severity = error
+# Title    : InlineData values must match the number of method parameters
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1009
+dotnet_diagnostic.xUnit1009.severity = error
+# Title    : The value is not convertible to the method parameter type
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1010
+dotnet_diagnostic.xUnit1010.severity = error
+# Title    : There is no matching method parameter
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1011
+dotnet_diagnostic.xUnit1011.severity = error
+# Title    : Null should not be used for value type parameters
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1012
+dotnet_diagnostic.xUnit1012.severity = error
+# Title    : Public method should be marked as test
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1013
+dotnet_diagnostic.xUnit1013.severity = error
+# Title    : MemberData should use nameof operator for member name
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1014
+dotnet_diagnostic.xUnit1014.severity = error
+# Title    : MemberData must reference an existing member
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1015
+dotnet_diagnostic.xUnit1015.severity = error
+# Title    : MemberData must reference a public member
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1016
+dotnet_diagnostic.xUnit1016.severity = error
+# Title    : MemberData must reference a static member
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1017
+dotnet_diagnostic.xUnit1017.severity = error
+# Title    : MemberData must reference a valid member kind
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1018
+dotnet_diagnostic.xUnit1018.severity = error
+# Title    : MemberData must reference a member providing a valid data type
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1019
+dotnet_diagnostic.xUnit1019.severity = error
+# Title    : MemberData must reference a property with a public getter
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1020
+dotnet_diagnostic.xUnit1020.severity = error
+# Title    : MemberData should not have parameters if the referenced member is not a method
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1021
+dotnet_diagnostic.xUnit1021.severity = error
+# Title    : Theory methods cannot have a parameter array
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1022
+dotnet_diagnostic.xUnit1022.severity = error
+# Title    : Theory methods cannot have default parameter values
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1023
+dotnet_diagnostic.xUnit1023.severity = error
+# Title    : Test methods cannot have overloads
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1024
+dotnet_diagnostic.xUnit1024.severity = error
+# Title    : InlineData should be unique within the Theory it belongs to
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1025
+dotnet_diagnostic.xUnit1025.severity = error
+# Title    : Theory methods should use all of their parameters
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1026
+dotnet_diagnostic.xUnit1026.severity = error
+# Title    : Collection definition classes must be public
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1027
+dotnet_diagnostic.xUnit1027.severity = error
+# Title    : Test method must have valid return type
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1028
+dotnet_diagnostic.xUnit1028.severity = error
+# Title    : Local functions cannot be test functions
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1029
+dotnet_diagnostic.xUnit1029.severity = error
+# Title    : Do not call ConfigureAwait(false) in test method
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1030
+dotnet_diagnostic.xUnit1030.severity = error
+# Title    : Do not use blocking task operations in test method
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1031
+dotnet_diagnostic.xUnit1031.severity = error
+# Title    : Test classes cannot be nested within a generic class
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1032
+dotnet_diagnostic.xUnit1032.severity = error
+# Title    : Test classes decorated with 'Xunit.IClassFixture<TFixture>' or 'Xunit.ICollectionFixture<TFixture>' should add a constructor argument of type TFixture
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1033
+dotnet_diagnostic.xUnit1033.severity = error
+# Title    : Null should only be used for nullable parameters
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1034
+dotnet_diagnostic.xUnit1034.severity = error
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1035
+dotnet_diagnostic.xUnit1035.severity = error
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1036
+dotnet_diagnostic.xUnit1036.severity = error
+# Title    : There are fewer TheoryData type arguments than required by the parameters of the test method
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1037
+dotnet_diagnostic.xUnit1037.severity = error
+# Title    : There are more TheoryData type arguments than allowed by the parameters of the test method
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1038
+dotnet_diagnostic.xUnit1038.severity = error
+# Title    : The type argument to TheoryData is not compatible with the type of the corresponding test method parameter
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1039
+dotnet_diagnostic.xUnit1039.severity = error
+# Title    : The type argument to TheoryData is nullable, while the type of the corresponding test method parameter is not
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit1040
+dotnet_diagnostic.xUnit1040.severity = error
+# Title    : Constants and literals should be the expected argument
+# Category : Assertions
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2000
+dotnet_diagnostic.xUnit2000.severity = error
+# Title    : Do not use invalid equality check
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2001
+dotnet_diagnostic.xUnit2001.severity = error
+# Title    : Do not use null check on value type
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2002
+dotnet_diagnostic.xUnit2002.severity = error
+# Title    : Do not use equality check to test for null value
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2003
+dotnet_diagnostic.xUnit2003.severity = error
+# Title    : Do not use equality check to test for boolean conditions
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2004
+dotnet_diagnostic.xUnit2004.severity = error
+# Title    : Do not use identity check on value type
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2005
+dotnet_diagnostic.xUnit2005.severity = error
+# Title    : Do not use invalid string equality check
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2006
+dotnet_diagnostic.xUnit2006.severity = error
+# Title    : Do not use typeof expression to check the type
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2007
+dotnet_diagnostic.xUnit2007.severity = error
+# Title    : Do not use boolean check to match on regular expressions
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2008
+dotnet_diagnostic.xUnit2008.severity = error
+# Title    : Do not use boolean check to check for substrings
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2009
+dotnet_diagnostic.xUnit2009.severity = error
+# Title    : Do not use boolean check to check for string equality
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2010
+dotnet_diagnostic.xUnit2010.severity = error
+# Title    : Do not use empty collection check
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2011
+dotnet_diagnostic.xUnit2011.severity = error
+# Title    : Do not use boolean check to check if a value exists in a collection
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2012
+dotnet_diagnostic.xUnit2012.severity = error
+# Title    : Do not use equality check to check for collection size.
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2013
+dotnet_diagnostic.xUnit2013.severity = error
+# Title    : Do not use throws check to check for asynchronously thrown exception
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2014
+dotnet_diagnostic.xUnit2014.severity = error
+# Title    : Do not use typeof expression to check the exception type
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2015
+dotnet_diagnostic.xUnit2015.severity = error
+# Title    : Keep precision in the allowed range when asserting equality of doubles or decimals.
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2016
+dotnet_diagnostic.xUnit2016.severity = error
+# Title    : Do not use Contains() to check if a value exists in a collection
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2017
+dotnet_diagnostic.xUnit2017.severity = error
+# Title    : Do not compare an object's exact type to an abstract class or interface
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2018
+dotnet_diagnostic.xUnit2018.severity = error
+# Title    : Do not use obsolete throws check to check for asynchronously thrown exception
+# Help Link: https://xunit.github.io/xunit.analyzers/rules/xUnit2019
+dotnet_diagnostic.xUnit2019.severity = error
+# Title    : Do not use always-failing boolean assertions
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2020
+dotnet_diagnostic.xUnit2020.severity = error
+# Title    : Async assertions should be awaited
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2021
+dotnet_diagnostic.xUnit2021.severity = error
+# Title    : Boolean assertions should not be negated
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit2022
+dotnet_diagnostic.xUnit2022.severity = error
+# Title    : Classes which cross AppDomain boundaries must derive directly or indirectly from LongLivedMarshalByRefObject
+# Category : Extensibility
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit3000
+dotnet_diagnostic.xUnit3000.severity = error
+# Title    : Classes that implement Xunit.Abstractions.IXunitSerializable must have a public parameterless constructor
+# Help Link: https://xunit.net/xunit.analyzers/rules/xUnit3001
+dotnet_diagnostic.xUnit3001.severity = error
+
+
+[*{Commands,CommandsModule}.cs]
+# Commands dont follow standard c# rules
+dotnet_diagnostic.VSTHRD200.severity = none
+dotnet_diagnostic.CA1822.severity = none
+
+[*ListType.cs]
+dotnet_diagnostic.S103.severity = none # Lines should not be too long

@@ -190,11 +190,10 @@ internal static class Extensions
 
 		eb.WithColor(color);
 
-		var title = favorite switch
-		{
-			BaseMalListFavorite baseListFavorite => $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear}]",
-			_ => favorite.Name,
-		};
+		var title = favorite is BaseMalListFavorite baseListFavorite
+			? $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear}]"
+			: favorite.Name;
+
 		eb.WithTitle(title);
 
 		if (favorite is MalFavoriteCharacter favoriteCharacter)
@@ -242,17 +241,17 @@ internal static class Extensions
 			case AnimeListEntry ale:
 				{
 					var progress = ale.Status.Status.Humanize(LetterCasing.Sentence);
-					var episodeProgress = SubEntriesProgress(ale.Status.EpisodesWatched, ale.Node.Episodes, ale.Status.Status == AnimeListStatus.plan_to_watch, "ep.");
-					userProgressText = episodeProgress is not [] ? $"{progress} - {episodeProgress}" : progress;
+					var episodeProgress = SubEntriesProgress(ale.Status.EpisodesWatched, ale.Node.Episodes, ale.Status.Status == AnimeListStatus.PlanToWatch, "ep.");
+					userProgressText = episodeProgress is [] ? progress : $"{progress} - {episodeProgress}";
 					break;
 				}
 
 			case MangaListEntry mle:
 				{
 					var progress = mle.Status.Status.Humanize(LetterCasing.Sentence)!;
-					var chapterProgress = SubEntriesProgress(mle.Status.ChaptersRead, mle.Node.TotalChapters, mle.Status.Status == MangaListStatus.plan_to_read, "ch. ");
+					var chapterProgress = SubEntriesProgress(mle.Status.ChaptersRead, mle.Node.TotalChapters, mle.Status.Status == MangaListStatus.PlanToRead, "ch. ");
 					var volumeProgress =
-						SubEntriesProgress(mle.Status.VolumesRead, mle.Node.TotalVolumes, mle.Status.Status == MangaListStatus.plan_to_read, "v.");
+						SubEntriesProgress(mle.Status.VolumesRead, mle.Node.TotalVolumes, mle.Status.Status == MangaListStatus.PlanToRead, "v.");
 					userProgressText = string.IsNullOrEmpty(volumeProgress) || !string.IsNullOrEmpty(chapterProgress)
 						? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
 					break;
@@ -288,14 +287,16 @@ internal static class Extensions
 			title = shortTitle;
 		}
 
-		if (title.Length <= 256)
+		const int discordTitleLimit = 256;
+
+		if (title.Length <= discordTitleLimit)
 		{
 			eb.Url = listEntry.Node.Url;
 			eb.Title = title;
 		}
 		else
 		{
-			eb.Description = Formatter.MaskedUrl(title, new Uri(listEntry.Node.Url));
+			eb.Description = Formatter.MaskedUrl(title, new(listEntry.Node.Url));
 		}
 
 		var mediaInfo = features.HasFlag(MalUserFeatures.Demographic) || features.HasFlag(MalUserFeatures.Themes) ? listEntry switch
@@ -307,7 +308,7 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Tags) && listEntry.Status.Tags is not null and not [])
 		{
-			var joinedTags = string.Join(", ", listEntry.Status.Tags);
+			var joinedTags = listEntry.Status.Tags.JoinToString();
 			if (!string.IsNullOrWhiteSpace(joinedTags))
 			{
 				AddAsFieldOrTruncateToDescription(eb, "Tags", joinedTags);
@@ -321,7 +322,7 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Genres) && listEntry.Node.Genres is not null and not [])
 		{
-			var genres = string.Join(", ", listEntry.Node.Genres.Take(7).Select(x => x.Name.ToFirstCharUpperCase()));
+			var genres = listEntry.Node.Genres.Take(7).Select(x => x.Name.ToFirstCharUpperCase()).JoinToString();
 			if (!string.IsNullOrWhiteSpace(genres))
 			{
 				AddAsFieldOrTruncateToDescription(eb, "Genres", genres);
@@ -330,7 +331,7 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Themes) && mediaInfo.Themes is not [])
 		{
-			var themes = string.Join(", ", mediaInfo.Themes.Take(7));
+			var themes = mediaInfo.Themes.Take(7).JoinToString();
 			if (!string.IsNullOrWhiteSpace(themes))
 			{
 				AddAsFieldOrTruncateToDescription(eb, "Themes", themes);
@@ -339,7 +340,7 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Demographic) && mediaInfo.Demographic is not [])
 		{
-			var demographic = string.Join(", ", mediaInfo.Demographic.Take(3));
+			var demographic = mediaInfo.Demographic.Take(3).JoinToString();
 			if (!string.IsNullOrWhiteSpace(demographic))
 			{
 				AddAsFieldOrTruncateToDescription(eb, "Demographic", demographic);
@@ -375,7 +376,10 @@ internal static class Extensions
 			const string format = "dd/MM/yyyy";
 			var value = (isStartNull, isFinishNull) switch
 			{
+#pragma warning disable S103
+				// Split this 202 characters long line
 				(false, false) => $"{listEntry.Status.StartDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo)} - {listEntry.Status.FinishDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo)}",
+#pragma warning restore
 				(false, true) => listEntry.Status.StartDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
 				(true, false) => listEntry.Status.FinishDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
 				_ => throw new UnreachableException(),
@@ -385,7 +389,7 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Studio) && listEntry is AnimeListEntry { Node.Studios: not null and not [] } aListEntry)
 		{
-			var studios = string.Join(", ", aListEntry.Node.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
+			var studios = aListEntry.Node.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))).JoinToString();
 			if (!string.IsNullOrWhiteSpace(studios))
 			{
 				AddAsFieldOrTruncateToDescription(eb, "Studios", studios);
@@ -395,7 +399,7 @@ internal static class Extensions
 		if (features.HasFlag(MalUserFeatures.Seiyu) && listEntry is AnimeListEntry)
 		{
 			var seiyu = await client.GetAnimeSeiyuAsync(listEntry.Node.Id, cancellationToken);
-			var text = string.Join(", ", seiyu.Take(7).Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
+			var text = seiyu.Take(7).Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))).JoinToString();
 			if (!string.IsNullOrWhiteSpace(text))
 			{
 				AddAsFieldOrTruncateToDescription(eb, "Seiyu", text);
@@ -404,12 +408,12 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Mangakas) && listEntry is MangaListEntry { Node.Authors: not null and not [] } mListEntry)
 		{
-			var authors = string.Join(", ", mListEntry.Node.Authors.Take(7).Select(x =>
+			var authors = mListEntry.Node.Authors.Take(7).Select(x =>
 			{
 				var name =
 					$"{(!string.IsNullOrEmpty(x.Person.LastName) ? $"{x.Person.LastName}, {x.Person.FirstName}" : x.Person.FirstName)} ({x.Role})";
-				return Formatter.MaskedUrl(name, new Uri(x.Person.Url));
-			}));
+				return Formatter.MaskedUrl(name, new(x.Person.Url));
+			}).JoinToString();
 
 			if (!string.IsNullOrWhiteSpace(authors))
 			{
@@ -422,22 +426,22 @@ internal static class Extensions
 			MangaListEntry m => m.Status.Status switch
 			{
 				_ when m.Status.IsRereading => MalUpdateType.RereadingManga,
-				MangaListStatus.on_hold => MalUpdateType.OnHoldManga,
-				MangaListStatus.reading => MalUpdateType.Reading,
-				MangaListStatus.dropped => MalUpdateType.DroppedManga,
-				MangaListStatus.plan_to_read => MalUpdateType.PlanToRead,
-				MangaListStatus.completed => MalUpdateType.CompletedManga,
+				MangaListStatus.OnHold => MalUpdateType.OnHoldManga,
+				MangaListStatus.Reading => MalUpdateType.Reading,
+				MangaListStatus.Dropped => MalUpdateType.DroppedManga,
+				MangaListStatus.PlanToRead => MalUpdateType.PlanToRead,
+				MangaListStatus.Completed => MalUpdateType.CompletedManga,
 				_ => throw new ArgumentOutOfRangeException(nameof(listEntry), "Invalid status"),
 			},
 
 			AnimeListEntry a => a.Status.Status switch
 			{
 				_ when a.Status.IsRewatching => MalUpdateType.RewatchingAnime,
-				AnimeListStatus.on_hold => MalUpdateType.OnHoldManga,
-				AnimeListStatus.watching => MalUpdateType.Watching,
-				AnimeListStatus.dropped => MalUpdateType.DroppedAnime,
-				AnimeListStatus.plan_to_watch => MalUpdateType.PlanToWatch,
-				AnimeListStatus.completed => MalUpdateType.CompletedAnime,
+				AnimeListStatus.OnHold => MalUpdateType.OnHoldManga,
+				AnimeListStatus.Watching => MalUpdateType.Watching,
+				AnimeListStatus.Dropped => MalUpdateType.DroppedAnime,
+				AnimeListStatus.PlanToWatch => MalUpdateType.PlanToWatch,
+				AnimeListStatus.Completed => MalUpdateType.CompletedAnime,
 				_ => throw new ArgumentOutOfRangeException(nameof(listEntry), "Invalid status"),
 			},
 
@@ -459,7 +463,8 @@ internal static class Extensions
 
 	private static void AddAsFieldOrTruncateToDescription(DiscordEmbedBuilder eb, string fieldName, string fieldValue, bool inline = true)
 	{
-		if (fieldValue.Length <= 1024)
+		const int nonTruncatableFieldLimit = 1024;
+		if (fieldValue.Length <= nonTruncatableFieldLimit)
 		{
 			eb.AddField(fieldName, fieldValue, inline);
 		}

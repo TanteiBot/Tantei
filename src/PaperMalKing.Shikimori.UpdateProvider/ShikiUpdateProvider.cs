@@ -27,7 +27,9 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
-internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptionsMonitor<ShikiOptions> _options, IShikiClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory, ShikiAchievementsService _achievementsService)
+internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, IOptionsMonitor<ShikiOptions> _options,
+										  IShikiClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory,
+										  ShikiAchievementsService _achievementsService)
 	: BaseUpdateProvider(logger)
 {
 	protected override TimeSpan DelayBetweenTimerFires => TimeSpan.FromMilliseconds(_options.CurrentValue.DelayBetweenChecksInMilliseconds);
@@ -56,6 +58,9 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 				break;
 			}
 
+			using var scope = logger.CheckingForUsersUpdatesScope(dbUser.Id);
+			logger.StartingToCheckUpdatesFor(dbUser.Id);
+
 			var historyUpdates = await _client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken);
 
 			var favs = await _client.GetUserFavouritesAsync(dbUser.Id, cancellationToken);
@@ -72,7 +77,8 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
 				var user = await _client.GetUserInfoAsync(dbUser.Id, cancellationToken);
 
-				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(user, dbUser, db, favs, isFavouritesMismatch, groupedHistoryEntriesWithMediaAndRoles, achievementUpdates, cancellationToken)), dbUser.DiscordUser));
+				await this.UpdateFoundEvent.InvokeAsync(this,
+					new(new BaseUpdate(this.GetUpdatesAsync(user, dbUser, db, favs, isFavouritesMismatch, groupedHistoryEntriesWithMediaAndRoles, achievementUpdates, cancellationToken)), dbUser.DiscordUser));
 			}
 			else
 			{
@@ -105,7 +111,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 			return deb;
 		}
 
-		int updatesCount = 0;
+		var updatesCount = 0;
 
 		if (achievementUpdates is not [])
 		{
@@ -119,7 +125,8 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
 		}
 
-		var (addedFavourites, removedFavourites) = dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) && isFavouritesMismatch ? await this.GetFavouritesUpdateAsync(favs, dbUser, db, cancellationToken) : ([], []);
+		var (addedFavourites, removedFavourites) = dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) && isFavouritesMismatch ?
+			await this.GetFavouritesUpdateAsync(favs, dbUser, db, cancellationToken) : ([], []);
 
 		if (addedFavourites is not [] || removedFavourites is not [])
 		{
@@ -198,8 +205,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 
 			if ((dbUser.Features.HasFlag(ShikiUserFeatures.Mangaka) && isManga) || (dbUser.Features.HasFlag(ShikiUserFeatures.Director) && isAnime))
 			{
-				favouriteMediaRoles.Roles = await _client.GetMediaStaffAsync(
-					favouriteMediaRoles.FavouriteEntry.Id,
+				favouriteMediaRoles.Roles = await _client.GetMediaStaffAsync(favouriteMediaRoles.FavouriteEntry.Id,
 					isAnime ? ListEntryType.Anime : ListEntryType.Manga,
 					cancellationToken);
 			}
@@ -227,7 +233,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 
 		static Func<FavouriteEntry, ShikiFavourite> Selector(ShikiUser shikiUser)
 		{
-			return fe => new ShikiFavourite
+			return fe => new()
 			{
 				Id = fe.Id,
 				Name = fe.Name,
@@ -289,8 +295,8 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 			var acs = dbUser.Achievements.Find(x => x.NekoId.Equals(id, StringComparison.Ordinal));
 			if (acs is not null && acs.Level < level)
 			{
-					acs.Level = level;
-					result.Add(achievementInfo);
+				acs.Level = level;
+				result.Add(achievementInfo);
 			}
 			else if (acs is null)
 			{
@@ -300,6 +306,10 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 					NekoId = id,
 				});
 				result.Add(achievementInfo);
+			}
+			else
+			{
+				// Users achievement is of same or higher level, no action needs to be done
 			}
 		}
 

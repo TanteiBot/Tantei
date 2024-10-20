@@ -15,7 +15,7 @@ public sealed class RateLimiterHttpMessageHandler(RateLimiter _rateLimiter) : De
 	{
 		while (!cancellationToken.IsCancellationRequested)
 		{
-			using var rateLimitLease = await _rateLimiter.AcquireAsync(1, cancellationToken);
+			using var rateLimitLease = await _rateLimiter.AcquireAsync(cancellationToken: cancellationToken);
 			if (rateLimitLease.IsAcquired)
 			{
 				return await base.SendAsync(request, cancellationToken);

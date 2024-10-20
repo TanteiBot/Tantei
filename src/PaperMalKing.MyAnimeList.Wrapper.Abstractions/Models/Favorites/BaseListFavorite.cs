@@ -3,18 +3,11 @@
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
 
-public class BaseListFavorite : BaseFavorite
+public class BaseListFavorite(string type, ushort startYear, MalUrl url, string name, string? imageUrl) : BaseFavorite(url, name, imageUrl)
 {
-	public string Type { get; init; }
+	public string Type { get; init; } = type;
 
-	public ushort StartYear { get; init; }
-
-	public BaseListFavorite(string type, ushort startYear, MalUrl url, string name, string? imageUrl)
-		: base(url, name, imageUrl)
-	{
-		this.Type = type;
-		this.StartYear = startYear;
-	}
+	public ushort StartYear { get; init; } = startYear;
 
 	public BaseListFavorite(string type, ushort startYear, BaseFavorite baseFav)
 		: this(type, startYear, baseFav.Url, baseFav.Name, baseFav.ImageUrl)

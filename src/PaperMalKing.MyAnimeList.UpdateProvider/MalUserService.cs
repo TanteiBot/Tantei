@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
+using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
-using DiscordGuild = PaperMalKing.Database.Models.DiscordGuild;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
@@ -43,8 +43,7 @@ internal sealed class MalUserService(IMyAnimeListClient _client, ILogger<MalUser
 			guild = db.DiscordGuilds.TagWith("Query guild to add existing user to it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 			if (guild is null)
 			{
-				throw new UserProcessingException(
-					BaseUser.FromUsername(username),
+				throw new UserProcessingException(BaseUser.FromUsername(username),
 					"Current server is not in database, ask server administrator to add this server to bot");
 			}
 
@@ -56,8 +55,7 @@ internal sealed class MalUserService(IMyAnimeListClient _client, ILogger<MalUser
 		guild = db.DiscordGuilds.TagWith("Query guild to add new user to it").TagWithCallSite().FirstOrDefault(g => g.DiscordGuildId == guildId);
 		if (guild is null)
 		{
-			throw new UserProcessingException(
-				BaseUser.FromUsername(username),
+			throw new UserProcessingException(BaseUser.FromUsername(username),
 				"Current server is not in database, ask server administrator to add this server to bot");
 		}
 
@@ -81,6 +79,10 @@ internal sealed class MalUserService(IMyAnimeListClient _client, ILogger<MalUser
 		else if (duser.Guilds.All(x => x.DiscordGuildId != guildId))
 		{
 			duser.Guilds.Add(guild);
+		}
+		else
+		{
+			// User is already in guild, this case is handled above
 		}
 
 		dbUser = new()
@@ -107,6 +109,6 @@ internal sealed class MalUserService(IMyAnimeListClient _client, ILogger<MalUser
 
 	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		return this.ListUsersCore(guildId, u => u.LastUpdatedAnimeListTimestamp, mu => new BaseUser(mu.Username, mu.DiscordUser));
+		return this.ListUsersCore(guildId, static u => u.LastUpdatedAnimeListTimestamp, static mu => new(mu.Username, mu.DiscordUser));
 	}
 }

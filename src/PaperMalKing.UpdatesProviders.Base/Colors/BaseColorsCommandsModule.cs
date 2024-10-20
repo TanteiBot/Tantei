@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
@@ -13,18 +12,17 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base.Colors;
 
-[SuppressMessage("Style", """VSTHRD200:Use "Async" suffix for async methods""", Justification = "This rule does not apply to commands")]
-public abstract class BaseColorsCommandModule<TUser, TUpdateType> : BotCommandsModule
+public abstract class BaseColorsCommandsModule<TUser, TUpdateType> : BotCommandsModule
 	where TUser : class, IUpdateProviderUser
 	where TUpdateType : unmanaged, Enum
 {
-	protected ILogger<BaseColorsCommandModule<TUser, TUpdateType>> Logger { get; }
+	protected ILogger<BaseColorsCommandsModule<TUser, TUpdateType>> Logger { get; }
 
 	protected CustomColorService<TUser, TUpdateType> ColorService { get; }
 
 	protected override bool IsResponseVisibleOnlyForRequester => true;
 
-	protected BaseColorsCommandModule(ILogger<BaseColorsCommandModule<TUser, TUpdateType>> logger, CustomColorService<TUser, TUpdateType> colorService)
+	protected BaseColorsCommandsModule(ILogger<BaseColorsCommandsModule<TUser, TUpdateType>> logger, CustomColorService<TUser, TUpdateType> colorService)
 	{
 		this.Logger = logger;
 		this.ColorService = colorService;

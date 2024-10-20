@@ -61,10 +61,10 @@ public sealed class DiscordOptions : IValidatableObject
 
 		foreach (var activity in this.Activities)
 		{
-			Validator.TryValidateProperty(activity.ActivityType,  new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.ActivityType), }, res);
-			Validator.TryValidateProperty(activity.PresenceText,  new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.PresenceText), }, res);
-			Validator.TryValidateProperty(activity.TimeToBeDisplayedInMilliseconds,  new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.TimeToBeDisplayedInMilliseconds), }, res);
-			Validator.TryValidateProperty(activity.Status,  new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.Status), }, res);
+			Validator.TryValidateProperty(activity.ActivityType, new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.ActivityType), }, res);
+			Validator.TryValidateProperty(activity.PresenceText, new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.PresenceText), }, res);
+			Validator.TryValidateProperty(activity.TimeToBeDisplayedInMilliseconds, new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.TimeToBeDisplayedInMilliseconds), }, res);
+			Validator.TryValidateProperty(activity.Status, new(activity, serviceProvider: null, items: null) { MemberName = nameof(activity.Status), }, res);
 		}
 
 		return res;

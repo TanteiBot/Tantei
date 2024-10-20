@@ -28,15 +28,15 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddOptions<MalOptions>().BindConfiguration(Constants.Name).ValidateDataAnnotations().ValidateOnStart();
 		serviceCollection.AddSingleton(RateLimiterExtensions.ConfigurationLambda<MalOptions, IMyAnimeListClient>);
 
-		var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError().OrResult(message => message.StatusCode == HttpStatusCode.TooManyRequests)
-											  .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 5));
+		var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError().OrResult(static message => message.StatusCode == HttpStatusCode.TooManyRequests)
+											  .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(10), 3));
 		serviceCollection.AddHttpClient(Constants.UnOfficialApiHttpClientName).AddPolicyHandler(retryPolicy)
 						 .ConfigurePrimaryHttpMessageHandler(_ => HttpClientHandlerFactory()).AddHttpMessageHandler(GetRateLimiterHandler)
 						 .ConfigureHttpClient(client =>
 						 {
+							 client.Timeout = TimeSpan.FromSeconds(120L);
 							 client.DefaultRequestHeaders.UserAgent.Clear();
-							 client.DefaultRequestHeaders.UserAgent.ParseAdd(
-								 "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36");
+							 client.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.UserAgent);
 						 });
 		serviceCollection.AddHttpClient(Constants.OfficialApiHttpClientName).AddPolicyHandler(retryPolicy)
 						 .ConfigurePrimaryHttpMessageHandler(_ => HttpClientHandlerFactory()).AddHttpMessageHandler(GetRateLimiterHandler)
@@ -48,27 +48,29 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddHttpClient(Constants.JikanHttpClientName).AddPolicyHandler(retryPolicy)
 						 .ConfigurePrimaryHttpMessageHandler(_ => HttpClientHandlerFactory()).AddHttpMessageHandler(_ =>
 						 {
-							 var rl = new RateLimitValue(60, TimeSpan.FromMinutes(1.2d)); // 60rpm with 0.2 as inaccuracy
+							 var rl = new RateLimitValue(60, TimeSpan.FromMinutes(1, 12)); // 60rpm with 0.2 as inaccuracy
 							 return RateLimiterFactory.Create<IJikan>(rl).ToHttpMessageHandler();
 						 }).AddHttpMessageHandler(_ =>
 						 {
-							 var rl = new RateLimitValue(3, TimeSpan.FromSeconds(1.5)); // 3rps with 0.5 as inaccuracy
+							 var rl = new RateLimitValue(3, TimeSpan.FromSeconds(1, 500)); // 3rps with 0.5 as inaccuracy
 							 return RateLimiterFactory.Create<IJikan>(rl).ToHttpMessageHandler();
 						 })
-						 .ConfigureHttpClient(client => client.BaseAddress = new("https://api.jikan.moe/v4/"));
+						 .ConfigureHttpClient(client => client.BaseAddress = new(Constants.JikanApiUrl));
 		serviceCollection.AddSingleton<IJikan>(provider => new Jikan(
 			new()
-		{
-			SuppressException = false,
-			LimiterConfigurations = TaskLimiterConfiguration.None, // We use System.Threading.RateLimiting
-		},
+			{
+				SuppressException = false,
+				LimiterConfigurations = TaskLimiterConfiguration.None, // We use System.Threading.RateLimiting
+			},
 			provider.GetRequiredService<IHttpClientFactory>().CreateClient(Constants.JikanHttpClientName)));
+
 		serviceCollection.AddSingleton<IMyAnimeListClient, MyAnimeListClient>(provider =>
 		{
 			var factory = provider.GetRequiredService<IHttpClientFactory>();
 			var logger = provider.GetRequiredService<ILogger<MyAnimeListClient>>();
 			var jikan = provider.GetRequiredService<IJikan>();
-			return new(logger, _unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName), _officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName), _jikanClient: jikan);
+			return new(logger, _unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName),
+				_officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName), _jikanClient: jikan);
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<MalUser, MalUserFeatures>, MalUserFeaturesService>();
 		serviceCollection.AddSingleton<MalUserService>();

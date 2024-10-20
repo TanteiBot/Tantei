@@ -26,8 +26,8 @@ namespace PaperMalKing.Shikimori.UpdateProvider;
 
 internal static partial class Extensions
 {
-	[GeneratedRegex(@"\[.+?\]", RegexOptions.Compiled | RegexOptions.NonBacktracking, 2000 /*2s*/)]
-	private static partial Regex BracketsRegex();
+	[GeneratedRegex(@"\[.+?\]", RegexOptions.Compiled | RegexOptions.NonBacktracking, matchTimeoutMilliseconds: 1000 /*1s*/)]
+	private static partial Regex BracketsRegex { get; }
 
 	private static readonly DiscordEmbedBuilder.EmbedFooter ShikiUpdateProviderFooter = new()
 	{
@@ -58,12 +58,9 @@ internal static partial class Extensions
 	public static DiscordEmbedBuilder WithShikiAuthor(this DiscordEmbedBuilder builder, UserInfo user) =>
 		builder.WithAuthor(user.Nickname, user.Url, user.ImageUrl);
 
-	public static async Task<IReadOnlyList<History>> GetAllUserHistoryAfterEntryAsync(
-																this IShikiClient client,
-																uint userId,
-																ulong limitHistoryEntryId,
-																ShikiUserFeatures features,
-																CancellationToken cancellationToken = default)
+	public static async Task<IReadOnlyList<History>> GetAllUserHistoryAfterEntryAsync(this IShikiClient client, uint userId,
+																					  ulong limitHistoryEntryId, ShikiUserFeatures features,
+																					  CancellationToken cancellationToken = default)
 	{
 		uint page = 1;
 		byte limit = 10;
@@ -85,7 +82,8 @@ internal static partial class Extensions
 		var acc = new List<History>(50);
 		var hnp = true;
 		var isLimitReached = false;
-		for (page = 1, limit = 100; hnp && !isLimitReached; page++)
+		const int shikiMaxHistoryLimit = 100;
+		for (page = 1, limit = shikiMaxHistoryLimit; hnp && !isLimitReached; page++)
 		{
 			var (paginatedData, paginatedHasNextPage) =
 				await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken);
@@ -145,7 +143,7 @@ internal static partial class Extensions
 
 		var first = history.HistoryEntries[0];
 		var eb = new DiscordEmbedBuilder().WithTimestamp(first.CreatedAt).WithShikiAuthor(user).WithColor(Constants.ShikiBlue);
-		var desc = string.Join("; ", history.HistoryEntries.Select(h => h.Description)).StripHtml().ToSentenceCase(RuCulture)!;
+		var desc = history.HistoryEntries.Select(h => h.Description).JoinToString("; ").StripHtml().ToSentenceCase(RuCulture)!;
 		eb.WithDescription(desc);
 		var target = history.HistoryEntries.Find(x => x.Target is not null)?.Target;
 		if (target is null)
@@ -215,6 +213,10 @@ internal static partial class Extensions
 				eb.AddField("Total", $"{episodes} ep.", inline: true);
 			}
 		}
+		else
+		{
+			// No other type besides episodes or chapters exist
+		}
 
 		eb.FillMediaInfo(history.Media, history.Roles, features, target.Type);
 
@@ -230,13 +232,12 @@ internal static partial class Extensions
 
 		var favouriteName = favouriteEntry.FavouriteEntry.GetNameOrAltName(features);
 		var eb = new DiscordEmbedBuilder
-			{
-				Url = favouriteEntry.FavouriteEntry.Url,
-				Title =
-					$"{favouriteName} [{(favouriteEntry.FavouriteEntry.SpecificType ?? favouriteEntry.FavouriteEntry.GenericType)?.ToFirstCharUpperCase()}]",
-			}.WithThumbnail(favouriteEntry.FavouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favourite")
-			 .WithShikiAuthor(user)
-			 .WithColor(color);
+		{
+			Url = favouriteEntry.FavouriteEntry.Url,
+			Title = $"{favouriteName} [{(favouriteEntry.FavouriteEntry.SpecificType ?? favouriteEntry.FavouriteEntry.GenericType)?.ToFirstCharUpperCase()}]",
+		}.WithThumbnail(favouriteEntry.FavouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favourite")
+		 .WithShikiAuthor(user)
+		 .WithColor(color);
 
 		var isAnime = favouriteEntry.FavouriteEntry.GenericType!.Contains("anime", StringComparison.OrdinalIgnoreCase);
 		var isManga = favouriteEntry.FavouriteEntry.GenericType!.Contains("manga", StringComparison.OrdinalIgnoreCase);
@@ -288,7 +289,7 @@ internal static partial class Extensions
 		{
 			if (features.HasFlag(ShikiUserFeatures.Studio) && media is AnimeMedia anime)
 			{
-				var text = string.Join(", ", anime.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
+				var text = anime.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))).JoinToString();
 				if (!string.IsNullOrEmpty(text))
 				{
 					eb.AddField("Studio", text, inline: true);
@@ -297,8 +298,7 @@ internal static partial class Extensions
 
 			if (features.HasFlag(ShikiUserFeatures.Director) && roles is not null and not [])
 			{
-				var role = roles.FirstOrDefault(
-					x => x.Person is not null && x.Name.Any(y => y.Equals("Director", StringComparison.OrdinalIgnoreCase)));
+				var role = roles.FirstOrDefault(x => x.Person is not null && x.Name.Any(y => y.Equals("Director", StringComparison.OrdinalIgnoreCase)));
 				if (role is not null)
 				{
 					eb.AddField("Director", role.Person!.GetNameOrAltName(features), inline: true);
@@ -309,7 +309,7 @@ internal static partial class Extensions
 		{
 			if (features.HasFlag(ShikiUserFeatures.Publisher) && media is MangaMedia manga)
 			{
-				var text = string.Join(", ", manga.Publishers.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))));
+				var text = manga.Publishers.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))).JoinToString();
 				if (!string.IsNullOrEmpty(text))
 				{
 					eb.AddField("Publisher", text, inline: true);
@@ -318,16 +318,13 @@ internal static partial class Extensions
 
 			if (features.HasFlag(ShikiUserFeatures.Mangaka) && roles is not null and not [])
 			{
-				var mangakas = string.Join(
-					", ",
-					roles.Where(x =>
-						x.Person is not null && MangakaRelatedRoles.Overlaps(x.Name)).Take(5).Select(x =>
-					{
-						var nameOfRole = features.HasFlag(ShikiUserFeatures.Russian)
-							? x.RussianName.FirstOrDefault(y => !string.IsNullOrWhiteSpace(y)) ?? x.Name[0]
-							: x.Name.FirstOrDefault(name => !string.IsNullOrWhiteSpace(name)) ?? x.RussianName[0];
-						return $"{Formatter.MaskedUrl(x.Person!.GetNameOrAltName(features), new(x.Person!.Url))} - {nameOfRole}";
-					}));
+				var mangakas = roles.Where(x => x.Person is not null && MangakaRelatedRoles.Overlaps(x.Name)).Take(5).Select(x =>
+				{
+					var nameOfRole = features.HasFlag(ShikiUserFeatures.Russian)
+						? x.RussianName.FirstOrDefault(y => !string.IsNullOrWhiteSpace(y)) ?? x.Name[0]
+						: x.Name.FirstOrDefault(name => !string.IsNullOrWhiteSpace(name)) ?? x.RussianName[0];
+					return $"{Formatter.MaskedUrl(x.Person!.GetNameOrAltName(features), new(x.Person!.Url))} - {nameOfRole}";
+				}).JoinToString();
 				if (!string.IsNullOrEmpty(mangakas))
 				{
 					eb.AddField("Author", mangakas, inline: true);
@@ -337,7 +334,7 @@ internal static partial class Extensions
 
 		if (features.HasFlag(ShikiUserFeatures.Description) && !string.IsNullOrWhiteSpace(media?.Description))
 		{
-			var text = BracketsRegex().Replace(media.Description, "").Truncate(350);
+			var text = BracketsRegex.Replace(media.Description, "").Truncate(350);
 			if (!string.IsNullOrEmpty(text))
 			{
 				eb.AddField("Description", text);
@@ -346,7 +343,7 @@ internal static partial class Extensions
 
 		if (features.HasFlag(ShikiUserFeatures.Genres))
 		{
-			var text = string.Join(", ", media!.Genres.Take(7).Select(x => x.GetNameOrAltName(features)));
+			var text = media!.Genres.Take(7).Select(x => x.GetNameOrAltName(features)).JoinToString();
 			if (!string.IsNullOrEmpty(text))
 			{
 				eb.AddField("Genres", text);
@@ -357,6 +354,6 @@ internal static partial class Extensions
 	public static FavoriteIdType[] ToFavoriteIdType<T>(this T favorites)
 		where T : IReadOnlyCollection<FavouriteEntry>
 	{
-		return [..favorites.Select(x => new FavoriteIdType(x.Id, (byte)x.GenericType![0])).OrderBy(x => x.Id).ThenBy(x => x.Type)];
+		return [.. favorites.Select(x => new FavoriteIdType(x.Id, (byte)x.GenericType![0])).OrderBy(x => x.Id).ThenBy(x => x.Type)];
 	}
 }

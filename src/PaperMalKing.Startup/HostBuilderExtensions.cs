@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -35,21 +36,47 @@ public static class HostBuilderExtensions
 			// SQLITE_CONFIG_MULTITHREAD
 			// https://github.com/dotnet/efcore/issues/9994
 			// https://sqlite.org/threadsafe.html
-			SQLitePCL.raw.sqlite3_config(2);
+			const int sqliteMultithreadedMode = 2;
+			SQLitePCL.raw.sqlite3_config(sqliteMultithreadedMode);
 		}
 
-		hostBuilder.ConfigureAppConfiguration((context, builder) => builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json", optional: true, reloadOnChange: true)).ConfigureServices(services =>
+		hostBuilder.ConfigureAppConfiguration((context, builder) =>
+					   builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json", optional: true, reloadOnChange: true))
+		.ConfigureServices(services =>
 		{
 			static void ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
 			{
-				builder.UseSqlite(
-					services.GetRequiredService<IConfiguration>().GetConnectionString("Default"),
+				var environment = services.GetRequiredService<IHostEnvironment>();
+
+				builder.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("Default"),
 					o => o.MigrationsAssembly("PaperMalKing.Database.Migrations"))
-					   .UseModel(DatabaseContextModel.Instance);
+					   .UseModel(DatabaseContextModel.Instance)
+					   .ConfigureWarnings(w =>
+					   {
+						   List<EventId> eventIds =
+						   [
+							   RelationalEventId.MultipleCollectionIncludeWarning, RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
+							   RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
+							   RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable,
+							   RelationalEventId.KeyPropertiesNotMappedToTable, RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables,
+							   RelationalEventId.ForeignKeyTpcPrincipalWarning,
+						   ];
+
+						   if (environment.IsDevelopment())
+						   {
+							   w.Throw([.. eventIds])
+								.Log((RelationalEventId.PendingModelChangesWarning, LogLevel.Error));
+						   }
+						   else
+						   {
+							   eventIds.Add(RelationalEventId.PendingModelChangesWarning);
+							   w.Throw([.. eventIds]);
+						   }
+					   });
 			}
 
 			services.AddDbContextFactory<DatabaseContext>(ConfigureDbContext);
-			services.AddDbContext<DatabaseContext>(ConfigureDbContext);
+			services.AddDbContext<DatabaseContext>(ConfigureDbContext, optionsLifetime: ServiceLifetime.Singleton);
 			services.AddSingleton<IExecuteOnStartupService, MigrateOnStartupService>();
 
 			services.AddOptions<DiscordOptions>().BindConfiguration(DiscordOptions.Discord).ValidateDataAnnotations().ValidateOnStart();

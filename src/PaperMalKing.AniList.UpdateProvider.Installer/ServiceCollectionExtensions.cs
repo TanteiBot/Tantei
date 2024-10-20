@@ -22,15 +22,15 @@ public static class ServiceCollectionExtensions
 	{
 		serviceCollection.AddOptions<AniListOptions>().BindConfiguration(AniListOptions.AniList).ValidateDataAnnotations().ValidateOnStart();
 
-		serviceCollection.AddHttpClient(ProviderConstants.Name).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+		serviceCollection.AddHttpClient(ProviderConstants.Name).ConfigurePrimaryHttpMessageHandler(static () => new SocketsHttpHandler
 		{
 			PooledConnectionLifetime = TimeSpan.FromMinutes(30),
-		}).AddHttpMessageHandler(provider =>
+		}).AddHttpMessageHandler(static provider =>
 		{
 			var rlLogger = provider.GetRequiredService<ILogger<HeaderBasedRateLimitMessageHandler>>();
 			return new HeaderBasedRateLimitMessageHandler(rlLogger);
 		});
-		serviceCollection.AddSingleton<IAniListClient, AniListClient>(provider =>
+		serviceCollection.AddSingleton<IAniListClient, AniListClient>(static provider =>
 		{
 			var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
 			var httpClient = httpClientFactory.CreateClient(ProviderConstants.Name);
@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
 			var logger = provider.GetRequiredService<ILogger<AniListClient>>();
 			var options = new GraphQLHttpClientOptions
 			{
-				EndPoint = new Uri(ClientConstants.BaseUrl),
+				EndPoint = new(ClientConstants.BaseUrl),
 			};
 			var gqlc = new GraphQLHttpClient(options, new SystemTextJsonSerializer(new JsonSerializerOptions(JsonSerializerDefaults.Web)), httpClient);
 

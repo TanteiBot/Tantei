@@ -17,6 +17,10 @@ internal static class Constants
 
 	public const string OfficialApiHeaderName = "X-MAL-CLIENT-ID";
 
+	public const string JikanApiUrl = "https://api.jikan.moe/v4/";
+
+	public const string UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36";
+
 	/// <summary>
 	/// Discord doesn't support .ico formats in footer icons.
 	/// </summary>

@@ -9,15 +9,22 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Man
 [JsonConverter(typeof(JsonStringEnumConverter<MangaListStatus>))]
 public enum MangaListStatus : byte
 {
-	unknown = 0,
-	[Description("Reading")]
-	reading = 1,
-	[Description("Completed")]
-	completed = 2,
+	[JsonStringEnumMemberName("unknown")]
+	Unknown = 0,
+
+	[JsonStringEnumMemberName("reading")]
+	Reading = 1,
+
+	[JsonStringEnumMemberName("completed")]
+	Completed = 2,
+
 	[Description("On-hold")]
-	on_hold = 3,
-	[Description("Dropped")]
-	dropped = 4,
-	[Description("Plan to read")]
-	plan_to_read = 5,
+	[JsonStringEnumMemberName("on_hold")]
+	OnHold = 3,
+
+	[JsonStringEnumMemberName("dropped")]
+	Dropped = 4,
+
+	[JsonStringEnumMemberName("plan_to_read")]
+	PlanToRead = 5,
 }

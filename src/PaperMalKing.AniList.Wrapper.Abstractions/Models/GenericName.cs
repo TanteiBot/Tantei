@@ -15,12 +15,6 @@ public sealed class GenericName
 	[JsonPropertyName("native")]
 	public required string Native { get; init; }
 
-	public string GetName(TitleLanguage language)
-	{
-		return (this.Full is not null) switch
-		{
-			true when language is ROMAJI_STYLISED or ENGLISH or ENGLISH_STYLISED or ROMAJI => this.Full,
-			_ => this.Native,
-		};
-	}
+	public string GetName(TitleLanguage language) =>
+		this.Full is not null && language is RomajiStylised or English or EnglishStylised or Romaji ? this.Full : this.Native;
 }

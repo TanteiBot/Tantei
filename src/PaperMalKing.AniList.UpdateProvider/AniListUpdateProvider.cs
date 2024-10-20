@@ -29,7 +29,8 @@ using FavouriteType = PaperMalKing.Database.Models.AniList.FavouriteType;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
-internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logger, IOptionsMonitor<AniListOptions> _options, IAniListClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory)
+internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logger, IOptionsMonitor<AniListOptions> _options,
+											IAniListClient _client, IDbContextFactory<DatabaseContext> _dbContextFactory)
 	: BaseUpdateProvider(logger)
 {
 	protected override TimeSpan DelayBetweenTimerFires => TimeSpan.FromMilliseconds(_options.CurrentValue.DelayBetweenChecksInMilliseconds);
@@ -61,6 +62,7 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 				break;
 			}
 
+			using var scope = logger.CheckingForUsersUpdatesScope(dbUser.Id);
 			using var perUserCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 			perUserCancellationTokenSource.CancelAfter(TimeSpan.FromMinutes(3));
 			var perUserCancellationToken = perUserCancellationTokenSource.Token;
@@ -81,8 +83,8 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 
 			if ((dbUser.Features.HasFlag(AniListUserFeatures.Favourites) && isFavouritesHashMismatch) ||
 				(dbUser.Features.HasFlag(AniListUserFeatures.Reviews) && recentUserUpdates.Reviews.Exists(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)) ||
-				(dbUser.Features.HasFlag(AniListUserFeatures.AnimeList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.ANIME && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)) ||
-				(dbUser.Features.HasFlag(AniListUserFeatures.MangaList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.MANGA && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)))
+				(dbUser.Features.HasFlag(AniListUserFeatures.AnimeList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.Anime && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)) ||
+				(dbUser.Features.HasFlag(AniListUserFeatures.MangaList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.Manga && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)))
 			{
 				db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
 				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
@@ -125,15 +127,12 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 		{
 			foreach (var value in obtainedValues)
 			{
-				bool? added = null;
-				if (addedValues.Any(f => f.Id == value.Id && f.Type == type))
+				bool? added = addedValues switch
 				{
-					added = true;
-				}
-				else if (removedValues.Any(f => f.Id == value.Id && f.Type == type))
-				{
-					added = false;
-				}
+					_ when addedValues.Any(f => f.Id == value.Id && f.Type == type) => true,
+					_ when removedValues.Any(f => f.Id == value.Id && f.Type == type) => false,
+					_ => null,
+				};
 
 				if (added.HasValue)
 				{
@@ -205,7 +204,7 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 			return builder;
 		}
 
-		int updatesCount = 0;
+		var updatesCount = 0;
 
 		if (favorites.Any())
 		{
@@ -259,8 +258,15 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 		{
 			foreach (var grouping in recentUserUpdates.Activities.GroupBy(activity => activity.Media.Id).OrderBy(a => a.Max(aa => aa.CreatedAtTimestamp)))
 			{
+				if (cancellationToken.IsCancellationRequested)
+				{
+					db.Entry(dbUser).State = EntityState.Unchanged;
+					this.Logger.CancellationRequested();
+					yield break;
+				}
+
 				var lastListActivityOnMedia = grouping.MaxBy(activity => activity.CreatedAtTimestamp)!;
-				var mediaListEntry = lastListActivityOnMedia.Media.Type == ListType.ANIME
+				var mediaListEntry = lastListActivityOnMedia.Media.Type == ListType.Anime
 					? recentUserUpdates.AnimeList.Find(mle => mle.Id == lastListActivityOnMedia.Media.Id)
 					: recentUserUpdates.MangaList.Find(mle => mle.Id == lastListActivityOnMedia.Media.Id);
 				if (mediaListEntry is not null)
@@ -273,13 +279,6 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 
 					dbUser.LastActivityTimestamp = lastListActivityOnMedia.CreatedAtTimestamp;
 					await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
-
-					if (cancellationToken.IsCancellationRequested)
-					{
-						db.Entry(dbUser).State = EntityState.Unchanged;
-						this.Logger.CancellationRequested();
-						yield break;
-					}
 				}
 			}
 		}

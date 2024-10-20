@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -26,26 +27,28 @@ internal static partial class Extensions
 {
 	private const int InlineFieldValueMaxLength = 30;
 
-	[GeneratedRegex(@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase, matchTimeoutMilliseconds: 30000/*30s*/)]
-	internal static partial Regex SourceRemovalRegex();
+	[GeneratedRegex(@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase, matchTimeoutMilliseconds: 1000/*1s*/)]
+	internal static partial Regex SourceRemovalRegex { get; }
 
-	[GeneratedRegex(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline, matchTimeoutMilliseconds: 30000/*30s*/)]
-	internal static partial Regex EmptyLinesRemovalRegex();
+	[GeneratedRegex(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline, matchTimeoutMilliseconds: 1000/*1s*/)]
+	internal static partial Regex EmptyLinesRemovalRegex { get; }
 
-	private static readonly string[] IgnoredStartWithRoles =
-	[
+	private static readonly SearchValues<string> IgnoredRoles = SearchValues.Create([
 		"Touch-Up",
 		"Touch Up",
 		"Illustrat",
 		"Collaborat",
 		"Color",
-		"Digital Coloring",
-		"Cooking Supervisor",
-		"Letter",  // Letterer and Lettering
+		"Cooking",
+		"Letter",   // Letterer and Lettering
 		"Translat", // Translator and Translation
-	];
-
-	private static readonly string[] IgnoredContainsRoles = ["Assist", "Edit", "Insert", "Consultant", "Cooperation"];
+		"Assist",
+		"Edit",
+		"Insert",
+		"Consultant",
+		"Cooperation",
+	],
+	StringComparison.OrdinalIgnoreCase);
 
 	private static readonly DiscordColor[] Colors =
 	[
@@ -59,11 +62,8 @@ internal static partial class Extensions
 		IconUrl = ProviderConstants.IconUrl,
 	};
 
-	public static async Task<CombinedRecentUpdatesResponse> GetAllRecentUserUpdatesAsync(
-		this IAniListClient client,
-		AniListUser user,
-		AniListUserFeatures features,
-		CancellationToken cancellationToken)
+	public static async Task<CombinedRecentUpdatesResponse> GetAllRecentUserUpdatesAsync(this IAniListClient client, AniListUser user,
+																						 AniListUserFeatures features, CancellationToken cancellationToken)
 	{
 		const ushort initialPerChunkValue = 50;
 		const ushort extendedPerChunkValue = 500;
@@ -107,25 +107,24 @@ internal static partial class Extensions
 
 	public static string? GetEmbedFormat(this Media media)
 	{
-		[SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "We pass lower-case value to humanizer")]
-		static string? DefaultFormatting(Media media) => media.Format?.ToInvariantString().ToLowerInvariant().Humanize(LetterCasing.Sentence);
+		static string? DefaultFormatting(Media media) => media.Format?.Humanize(LetterCasing.Sentence);
 
 		return media.CountryOfOrigin switch
 		{
 			"CN" => media.Format switch
 			{
-				MediaFormat.TV or MediaFormat.TV_SHORT or MediaFormat.MOVIE or MediaFormat.SPECIAL or MediaFormat.OVA or MediaFormat.ONA => "Donghua",
-				MediaFormat.MANGA or MediaFormat.ONE_SHOT => "Manhua",
+				MediaFormat.TV or MediaFormat.TvShort or MediaFormat.Movie or MediaFormat.Special or MediaFormat.OVA or MediaFormat.ONA => "Donghua",
+				MediaFormat.Manga or MediaFormat.OneShot => "Manhua",
 				_ => DefaultFormatting(media),
 			},
-			"KR" when media.Format is MediaFormat.MANGA or MediaFormat.ONE_SHOT => "Manhwa",
+			"KR" when media.Format is MediaFormat.Manga or MediaFormat.OneShot => "Manhwa",
 			_ => DefaultFormatting(media),
 		};
 	}
 
-	[SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "We pass lower-case value to humanizer")]
 	public static DiscordEmbedBuilder WithMediaTitle(this DiscordEmbedBuilder eb, Media media, TitleLanguage titleLanguage, AniListUserFeatures features)
 	{
+		const int discordTitleLimit = 256;
 		var strings = new List<string> { media.Title.GetTitle(titleLanguage) };
 		if (features.HasFlag(AniListUserFeatures.MediaFormat))
 		{
@@ -138,13 +137,13 @@ internal static partial class Extensions
 
 		if (features.HasFlag(AniListUserFeatures.MediaStatus))
 		{
-			strings.Add($" [{media.Status.ToInvariantString().ToLowerInvariant().Humanize(LetterCasing.Sentence)}]");
+			strings.Add($" [{media.Status.Humanize(LetterCasing.Sentence)}]");
 		}
 
-		var sb = new StringBuilder(256);
+		var sb = new StringBuilder(discordTitleLimit);
 		foreach (var titlePart in strings)
 		{
-			if (sb.Length + titlePart.Length <= 256)
+			if (sb.Length + titlePart.Length <= discordTitleLimit)
 			{
 				sb.Append(titlePart);
 			}
@@ -172,7 +171,7 @@ internal static partial class Extensions
 
 		if (color is not null)
 		{
-			eb = eb.WithColor(new DiscordColor(color.ColorValue));
+			eb = eb.WithColor(new(color.ColorValue));
 		}
 
 		return eb;
@@ -182,33 +181,34 @@ internal static partial class Extensions
 	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this ListActivity activity, MediaListEntry mediaListEntry, User user, AniListUser dbUser)
 	{
 		var features = dbUser.Features;
-		var isAnime = activity.Media.Type == ListType.ANIME;
-		var isHiddenProgressPresent = !string.IsNullOrEmpty(activity.Progress) && (mediaListEntry.Status == MediaListStatus.PAUSED ||
-																				   mediaListEntry.Status == MediaListStatus.DROPPED ||
-																				   mediaListEntry.Status == MediaListStatus.COMPLETED);
-		var desc = isHiddenProgressPresent ? $"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it" : $"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}";
+		var isAnime = activity.Media.Type == ListType.Anime;
+		var isHiddenProgressPresent = !string.IsNullOrEmpty(activity.Progress) && mediaListEntry.Status is MediaListStatus.Paused or MediaListStatus.Dropped or MediaListStatus.Completed;
+
+		var desc = isHiddenProgressPresent ?
+			$"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it" :
+			$"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}";
 
 		var isAdvancedScoringEnabled =
 			(isAnime
 				? user.MediaListOptions!.AnimeListOptions.IsAdvancedScoringEnabled
 				: user.MediaListOptions!.MangaListOptions.IsAdvancedScoringEnabled) &&
-			mediaListEntry.AdvancedScores?.Values.Any(s => s != 0f) == true;
+			mediaListEntry.AdvancedScores?.Any(s => s.Value != 0f) == true;
 
 		var updateType = (isAnime, mediaListEntry.Status) switch
 		{
-			(true, MediaListStatus.PAUSED) => AniListUpdateType.PausedAnime,
-			(true, MediaListStatus.CURRENT) => AniListUpdateType.Watching,
-			(true, MediaListStatus.DROPPED) => AniListUpdateType.DroppedAnime,
-			(true, MediaListStatus.PLANNING) => AniListUpdateType.PlanToWatch,
-			(true, MediaListStatus.COMPLETED) => AniListUpdateType.CompletedAnime,
-			(true, MediaListStatus.REPEATING) => AniListUpdateType.RewatchingAnime,
+			(true, MediaListStatus.Paused) => AniListUpdateType.PausedAnime,
+			(true, MediaListStatus.Current) => AniListUpdateType.Watching,
+			(true, MediaListStatus.Dropped) => AniListUpdateType.DroppedAnime,
+			(true, MediaListStatus.Planning) => AniListUpdateType.PlanToWatch,
+			(true, MediaListStatus.Completed) => AniListUpdateType.CompletedAnime,
+			(true, MediaListStatus.Repeating) => AniListUpdateType.RewatchingAnime,
 
-			(false, MediaListStatus.PAUSED) => AniListUpdateType.PausedManga,
-			(false, MediaListStatus.CURRENT) => AniListUpdateType.Reading,
-			(false, MediaListStatus.DROPPED) => AniListUpdateType.DroppedManga,
-			(false, MediaListStatus.PLANNING) => AniListUpdateType.PlanToRead,
-			(false, MediaListStatus.COMPLETED) => AniListUpdateType.CompletedManga,
-			(false, MediaListStatus.REPEATING) => AniListUpdateType.RereadingManga,
+			(false, MediaListStatus.Paused) => AniListUpdateType.PausedManga,
+			(false, MediaListStatus.Current) => AniListUpdateType.Reading,
+			(false, MediaListStatus.Dropped) => AniListUpdateType.DroppedManga,
+			(false, MediaListStatus.Planning) => AniListUpdateType.PlanToRead,
+			(false, MediaListStatus.Completed) => AniListUpdateType.CompletedManga,
+			(false, MediaListStatus.Repeating) => AniListUpdateType.RereadingManga,
 			_ => throw new ArgumentOutOfRangeException(nameof(mediaListEntry), "Invalid status"),
 		};
 
@@ -254,12 +254,13 @@ internal static partial class Extensions
 
 		if (!string.IsNullOrEmpty(mediaListEntry.Notes))
 		{
-			eb.AddField("Notes", mediaListEntry.Notes.Truncate(1023), inline: true);
+			const int notesLimit = 1023;
+			eb.AddField("Notes", mediaListEntry.Notes.Truncate(notesLimit), inline: true);
 		}
 
 		if (features.HasFlag(AniListUserFeatures.CustomLists) && mediaListEntry.CustomLists?.Any(x => x.Enabled) == true)
 		{
-			eb.AddField("Custom lists", string.Join(", ", mediaListEntry.CustomLists.Where(x => x.Enabled).Select(x => x.Name)), inline: true);
+			eb.AddField("Custom lists", mediaListEntry.CustomLists.Where(x => x.Enabled).Select(x => x.Name).JoinToString(), inline: true);
 		}
 
 		return eb.EnrichWithMediaInfo(activity.Media, user, features);
@@ -267,14 +268,15 @@ internal static partial class Extensions
 
 	public static DiscordEmbedBuilder EnrichWithMediaInfo(this DiscordEmbedBuilder eb, Media media, User user, AniListUserFeatures features)
 	{
-		var isAnime = media.Type == ListType.ANIME;
+		var isAnime = media.Type == ListType.Anime;
 
 		if (isAnime)
 		{
 			if (features.HasFlag(AniListUserFeatures.Studio))
 			{
-				var text = string.Join(", ", media.Studios.Nodes.Where(s => s.IsAnimationStudio)
-												  .Select(studio => Formatter.MaskedUrl(studio.Name, new Uri(studio.Url))));
+				var text = media.Studios.Nodes.Where(s => s.IsAnimationStudio)
+								.Select(studio => Formatter.MaskedUrl(studio.Name, new(studio.Url))).JoinToString();
+
 				if (!string.IsNullOrEmpty(text))
 				{
 					eb.AddField("Made by", text, inline: true);
@@ -292,11 +294,11 @@ internal static partial class Extensions
 
 			if (features.HasFlag(AniListUserFeatures.Seyu))
 			{
-				var seyus = string.Join(", ", media.Characters.Nodes.Where(x => x.VoiceActors is not []).Select(x =>
+				var seyus = media.Characters.Nodes.Where(x => x.VoiceActors is not []).Select(x =>
 				{
 					var seyu = x.VoiceActors[0];
 					return Formatter.MaskedUrl(seyu.Name.GetName(user.Options.TitleLanguage), new(seyu.Url));
-				}));
+				}).JoinToString();
 				if (!string.IsNullOrEmpty(seyus))
 				{
 					eb.AddField("Seyu", seyus);
@@ -308,15 +310,10 @@ internal static partial class Extensions
 			// If not anime then its manga
 			if (features.HasFlag(AniListUserFeatures.Mangaka))
 			{
-				var text = string.Join(
-					", ",
-					media.Staff.Nodes
-						 .Where(edge =>
-							 IgnoredStartWithRoles.TrueForAll(r =>
-								 !edge.Role.StartsWith(r, StringComparison.OrdinalIgnoreCase) &&
-								 IgnoredContainsRoles.TrueForAll(cr => !edge.Role.Contains(cr, StringComparison.OrdinalIgnoreCase)))).Take(7)
-						 .Select(edge =>
-							 $"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}"));
+				var text = media.Staff.Nodes
+								.Where(edge => !edge.Role.AsSpan().ContainsAny(IgnoredRoles)).Take(7)
+								.Select(edge =>
+									$"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}").JoinToString();
 				if (!string.IsNullOrEmpty(text))
 				{
 					eb.AddField("Made by", text, inline: true);
@@ -326,24 +323,23 @@ internal static partial class Extensions
 
 		if (features.HasFlag(AniListUserFeatures.Genres) && media.Genres is not [])
 		{
-			var fieldVal = string.Join(", ", media.Genres);
+			var fieldVal = media.Genres.JoinToString();
 			eb.AddField("Genres", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 		}
 
 		if (features.HasFlag(AniListUserFeatures.Tags) && media.Tags is not [])
 		{
-			var fieldVal = string.Join(
-				", ",
-				media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? $"||{t.Name}||" : t.Name));
+			var fieldVal = media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? Formatter.Spoiler(t.Name) : t.Name).JoinToString();
 			eb.AddField("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 		}
 
 		if (features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrEmpty(media.Description))
 		{
+			const int mediaDescriptionLimit = 350;
 			var mediaDescription = media.Description.StripHtml();
-			mediaDescription = SourceRemovalRegex().Replace(mediaDescription, string.Empty);
-			mediaDescription = EmptyLinesRemovalRegex().Replace(mediaDescription, string.Empty);
-			mediaDescription = Formatter.Strip(mediaDescription).Trim().Truncate(350);
+			mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
+			mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
+			mediaDescription = Formatter.Strip(mediaDescription).Trim().Truncate(mediaDescriptionLimit);
 			if (!string.IsNullOrEmpty(mediaDescription))
 			{
 				eb.AddField("Description", mediaDescription, mediaDescription.Length <= InlineFieldValueMaxLength);
@@ -379,9 +375,9 @@ internal static partial class Extensions
 			fieldVal.Add($"{volumes} v.");
 		}
 
-		if (fieldVal is not [])
+		if (fieldVal is not [] and not null)
 		{
-			eb.AddField("Total", string.Join(", ", fieldVal), inline: true);
+			eb.AddField("Total", fieldVal.JoinToString(), inline: true);
 		}
 
 		return eb;
@@ -396,6 +392,6 @@ internal static partial class Extensions
 	public static FavoriteIdType[] ToFavoriteIdType<T>(this T favorites)
 		where T : ICollection<IdentifiableFavourite>
 	{
-		return [..favorites.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).OrderBy(x => x.Id).ThenBy(x => x.Type)];
+		return [.. favorites.Select(x => new FavoriteIdType(x.Id, (byte)x.Type)).OrderBy(x => x.Id).ThenBy(x => x.Type)];
 	}
 }

@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.SlashCommands;
@@ -14,7 +13,6 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features;
 
-[SuppressMessage("Style", """VSTHRD200:Use "Async" suffix for async methods""", Justification = "This rule does not apply to commands")]
 public abstract class BaseUserFeaturesCommandsModule<TUser, TFeature> : BotCommandsModule
 	where TUser : class, IUpdateProviderUser<TFeature>
 	where TFeature : unmanaged, Enum, IComparable, IConvertible, IFormattable
@@ -77,7 +75,7 @@ public abstract class BaseUserFeaturesCommandsModule<TUser, TFeature> : BotComma
 	}
 
 	public virtual Task ListFeaturesCommand(InteractionContext context) => context.EditResponseAsync(embed: EmbedTemplate.SuccessEmbed("All features")
-		.WithDescription(string.Join(";\n", FeaturesHelper<TFeature>.Features.Select(x => $"[{x.Description}] - {x.Summary}"))));
+		.WithDescription(FeaturesHelper<TFeature>.Features.Select(x => $"[{x.Description}] - {x.Summary}").JoinToString(";\n")));
 
 	public virtual Task EnabledFeaturesCommand(InteractionContext context)
 	{

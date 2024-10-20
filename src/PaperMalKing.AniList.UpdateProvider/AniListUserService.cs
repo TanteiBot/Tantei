@@ -11,10 +11,10 @@ using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper.Abstractions;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
+using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
-using DiscordGuild = PaperMalKing.Database.Models.DiscordGuild;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
@@ -78,6 +78,10 @@ internal sealed class AniListUserService(ILogger<AniListUserService> logger, IAn
 		{
 			dUser.Guilds.Add(guild);
 		}
+		else
+		{
+			// Case is handled above
+		}
 
 		dbUser = new()
 		{
@@ -106,6 +110,6 @@ internal sealed class AniListUserService(ILogger<AniListUserService> logger, IAn
 
 	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
-		return this.ListUsersCore(guildId, u => u.LastActivityTimestamp, u => new("", u.DiscordUser));
+		return this.ListUsersCore(guildId, static u => u.LastActivityTimestamp, static u => new("", u.DiscordUser));
 	}
 }
