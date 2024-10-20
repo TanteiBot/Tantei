@@ -144,6 +144,7 @@
                     S1172; <!--Remove this unused method parameter-->
 
                     RCS1163; <!--Unused parameter-->
+                    RCS1188; <!--Remove redundant auto-property initialization-->
                     RCS1213; <!--Remove unused method declaration-->
 
                     SA1027; <!--Tabs and spaces should be used correctly-->

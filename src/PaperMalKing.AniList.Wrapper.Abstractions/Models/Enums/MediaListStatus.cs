@@ -8,10 +8,21 @@ namespace PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 [JsonConverter(typeof(JsonStringEnumConverter<MediaListStatus>))]
 public enum MediaListStatus : byte
 {
-	CURRENT = 0,
-	PLANNING = 1,
-	COMPLETED = 2,
-	DROPPED = 3,
-	PAUSED = 4,
-	REPEATING = 5,
+	[JsonStringEnumMemberName("CURRENT")]
+	Current = 0,
+
+	[JsonStringEnumMemberName("PLANNING")]
+	Planning = 1,
+
+	[JsonStringEnumMemberName("COMPLETED")]
+	Completed = 2,
+
+	[JsonStringEnumMemberName("DROPPED")]
+	Dropped = 3,
+
+	[JsonStringEnumMemberName("PAUSED")]
+	Paused = 4,
+
+	[JsonStringEnumMemberName("REPEATING")]
+	Repeating = 5,
 }

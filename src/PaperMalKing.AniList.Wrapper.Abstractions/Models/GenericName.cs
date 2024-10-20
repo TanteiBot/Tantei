@@ -16,5 +16,5 @@ public sealed class GenericName
 	public required string Native { get; init; }
 
 	public string GetName(TitleLanguage language) =>
-		this.Full is not null && language is ROMAJI_STYLISED or ENGLISH or ENGLISH_STYLISED or ROMAJI ? this.Full : this.Native;
+		this.Full is not null && language is RomajiStylised or English or EnglishStylised or Romaji ? this.Full : this.Native;
 }

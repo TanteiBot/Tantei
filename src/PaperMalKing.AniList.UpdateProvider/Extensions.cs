@@ -113,11 +113,11 @@ internal static partial class Extensions
 		{
 			"CN" => media.Format switch
 			{
-				MediaFormat.TV or MediaFormat.TV_SHORT or MediaFormat.MOVIE or MediaFormat.SPECIAL or MediaFormat.OVA or MediaFormat.ONA => "Donghua",
-				MediaFormat.MANGA or MediaFormat.ONE_SHOT => "Manhua",
+				MediaFormat.TV or MediaFormat.TvShort or MediaFormat.Movie or MediaFormat.Special or MediaFormat.OVA or MediaFormat.ONA => "Donghua",
+				MediaFormat.Manga or MediaFormat.OneShot => "Manhua",
 				_ => DefaultFormatting(media),
 			},
-			"KR" when media.Format is MediaFormat.MANGA or MediaFormat.ONE_SHOT => "Manhwa",
+			"KR" when media.Format is MediaFormat.Manga or MediaFormat.OneShot => "Manhwa",
 			_ => DefaultFormatting(media),
 		};
 	}
@@ -181,8 +181,8 @@ internal static partial class Extensions
 	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this ListActivity activity, MediaListEntry mediaListEntry, User user, AniListUser dbUser)
 	{
 		var features = dbUser.Features;
-		var isAnime = activity.Media.Type == ListType.ANIME;
-		var isHiddenProgressPresent = !string.IsNullOrEmpty(activity.Progress) && mediaListEntry.Status is MediaListStatus.PAUSED or MediaListStatus.DROPPED or MediaListStatus.COMPLETED;
+		var isAnime = activity.Media.Type == ListType.Anime;
+		var isHiddenProgressPresent = !string.IsNullOrEmpty(activity.Progress) && mediaListEntry.Status is MediaListStatus.Paused or MediaListStatus.Dropped or MediaListStatus.Completed;
 
 		var desc = isHiddenProgressPresent ?
 			$"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it" :
@@ -196,19 +196,19 @@ internal static partial class Extensions
 
 		var updateType = (isAnime, mediaListEntry.Status) switch
 		{
-			(true, MediaListStatus.PAUSED) => AniListUpdateType.PausedAnime,
-			(true, MediaListStatus.CURRENT) => AniListUpdateType.Watching,
-			(true, MediaListStatus.DROPPED) => AniListUpdateType.DroppedAnime,
-			(true, MediaListStatus.PLANNING) => AniListUpdateType.PlanToWatch,
-			(true, MediaListStatus.COMPLETED) => AniListUpdateType.CompletedAnime,
-			(true, MediaListStatus.REPEATING) => AniListUpdateType.RewatchingAnime,
+			(true, MediaListStatus.Paused) => AniListUpdateType.PausedAnime,
+			(true, MediaListStatus.Current) => AniListUpdateType.Watching,
+			(true, MediaListStatus.Dropped) => AniListUpdateType.DroppedAnime,
+			(true, MediaListStatus.Planning) => AniListUpdateType.PlanToWatch,
+			(true, MediaListStatus.Completed) => AniListUpdateType.CompletedAnime,
+			(true, MediaListStatus.Repeating) => AniListUpdateType.RewatchingAnime,
 
-			(false, MediaListStatus.PAUSED) => AniListUpdateType.PausedManga,
-			(false, MediaListStatus.CURRENT) => AniListUpdateType.Reading,
-			(false, MediaListStatus.DROPPED) => AniListUpdateType.DroppedManga,
-			(false, MediaListStatus.PLANNING) => AniListUpdateType.PlanToRead,
-			(false, MediaListStatus.COMPLETED) => AniListUpdateType.CompletedManga,
-			(false, MediaListStatus.REPEATING) => AniListUpdateType.RereadingManga,
+			(false, MediaListStatus.Paused) => AniListUpdateType.PausedManga,
+			(false, MediaListStatus.Current) => AniListUpdateType.Reading,
+			(false, MediaListStatus.Dropped) => AniListUpdateType.DroppedManga,
+			(false, MediaListStatus.Planning) => AniListUpdateType.PlanToRead,
+			(false, MediaListStatus.Completed) => AniListUpdateType.CompletedManga,
+			(false, MediaListStatus.Repeating) => AniListUpdateType.RereadingManga,
 			_ => throw new ArgumentOutOfRangeException(nameof(mediaListEntry), "Invalid status"),
 		};
 
@@ -268,7 +268,7 @@ internal static partial class Extensions
 
 	public static DiscordEmbedBuilder EnrichWithMediaInfo(this DiscordEmbedBuilder eb, Media media, User user, AniListUserFeatures features)
 	{
-		var isAnime = media.Type == ListType.ANIME;
+		var isAnime = media.Type == ListType.Anime;
 
 		if (isAnime)
 		{

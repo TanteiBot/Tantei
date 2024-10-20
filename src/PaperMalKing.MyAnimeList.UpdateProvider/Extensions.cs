@@ -241,7 +241,7 @@ internal static class Extensions
 			case AnimeListEntry ale:
 				{
 					var progress = ale.Status.Status.Humanize(LetterCasing.Sentence);
-					var episodeProgress = SubEntriesProgress(ale.Status.EpisodesWatched, ale.Node.Episodes, ale.Status.Status == AnimeListStatus.plan_to_watch, "ep.");
+					var episodeProgress = SubEntriesProgress(ale.Status.EpisodesWatched, ale.Node.Episodes, ale.Status.Status == AnimeListStatus.PlanToWatch, "ep.");
 					userProgressText = episodeProgress is [] ? progress : $"{progress} - {episodeProgress}";
 					break;
 				}
@@ -249,9 +249,9 @@ internal static class Extensions
 			case MangaListEntry mle:
 				{
 					var progress = mle.Status.Status.Humanize(LetterCasing.Sentence)!;
-					var chapterProgress = SubEntriesProgress(mle.Status.ChaptersRead, mle.Node.TotalChapters, mle.Status.Status == MangaListStatus.plan_to_read, "ch. ");
+					var chapterProgress = SubEntriesProgress(mle.Status.ChaptersRead, mle.Node.TotalChapters, mle.Status.Status == MangaListStatus.PlanToRead, "ch. ");
 					var volumeProgress =
-						SubEntriesProgress(mle.Status.VolumesRead, mle.Node.TotalVolumes, mle.Status.Status == MangaListStatus.plan_to_read, "v.");
+						SubEntriesProgress(mle.Status.VolumesRead, mle.Node.TotalVolumes, mle.Status.Status == MangaListStatus.PlanToRead, "v.");
 					userProgressText = string.IsNullOrEmpty(volumeProgress) || !string.IsNullOrEmpty(chapterProgress)
 						? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
 					break;
@@ -426,22 +426,22 @@ internal static class Extensions
 			MangaListEntry m => m.Status.Status switch
 			{
 				_ when m.Status.IsRereading => MalUpdateType.RereadingManga,
-				MangaListStatus.on_hold => MalUpdateType.OnHoldManga,
-				MangaListStatus.reading => MalUpdateType.Reading,
-				MangaListStatus.dropped => MalUpdateType.DroppedManga,
-				MangaListStatus.plan_to_read => MalUpdateType.PlanToRead,
-				MangaListStatus.completed => MalUpdateType.CompletedManga,
+				MangaListStatus.OnHold => MalUpdateType.OnHoldManga,
+				MangaListStatus.Reading => MalUpdateType.Reading,
+				MangaListStatus.Dropped => MalUpdateType.DroppedManga,
+				MangaListStatus.PlanToRead => MalUpdateType.PlanToRead,
+				MangaListStatus.Completed => MalUpdateType.CompletedManga,
 				_ => throw new ArgumentOutOfRangeException(nameof(listEntry), "Invalid status"),
 			},
 
 			AnimeListEntry a => a.Status.Status switch
 			{
 				_ when a.Status.IsRewatching => MalUpdateType.RewatchingAnime,
-				AnimeListStatus.on_hold => MalUpdateType.OnHoldManga,
-				AnimeListStatus.watching => MalUpdateType.Watching,
-				AnimeListStatus.dropped => MalUpdateType.DroppedAnime,
-				AnimeListStatus.plan_to_watch => MalUpdateType.PlanToWatch,
-				AnimeListStatus.completed => MalUpdateType.CompletedAnime,
+				AnimeListStatus.OnHold => MalUpdateType.OnHoldManga,
+				AnimeListStatus.Watching => MalUpdateType.Watching,
+				AnimeListStatus.Dropped => MalUpdateType.DroppedAnime,
+				AnimeListStatus.PlanToWatch => MalUpdateType.PlanToWatch,
+				AnimeListStatus.Completed => MalUpdateType.CompletedAnime,
 				_ => throw new ArgumentOutOfRangeException(nameof(listEntry), "Invalid status"),
 			},
 

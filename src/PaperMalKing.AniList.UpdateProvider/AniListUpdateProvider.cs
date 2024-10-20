@@ -83,8 +83,8 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 
 			if ((dbUser.Features.HasFlag(AniListUserFeatures.Favourites) && isFavouritesHashMismatch) ||
 				(dbUser.Features.HasFlag(AniListUserFeatures.Reviews) && recentUserUpdates.Reviews.Exists(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)) ||
-				(dbUser.Features.HasFlag(AniListUserFeatures.AnimeList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.ANIME && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)) ||
-				(dbUser.Features.HasFlag(AniListUserFeatures.MangaList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.MANGA && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)))
+				(dbUser.Features.HasFlag(AniListUserFeatures.AnimeList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.Anime && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)) ||
+				(dbUser.Features.HasFlag(AniListUserFeatures.MangaList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.Manga && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)))
 			{
 				db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
 				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
@@ -266,7 +266,7 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 				}
 
 				var lastListActivityOnMedia = grouping.MaxBy(activity => activity.CreatedAtTimestamp)!;
-				var mediaListEntry = lastListActivityOnMedia.Media.Type == ListType.ANIME
+				var mediaListEntry = lastListActivityOnMedia.Media.Type == ListType.Anime
 					? recentUserUpdates.AnimeList.Find(mle => mle.Id == lastListActivityOnMedia.Media.Id)
 					: recentUserUpdates.MangaList.Find(mle => mle.Id == lastListActivityOnMedia.Media.Id);
 				if (mediaListEntry is not null)

@@ -8,10 +8,21 @@ namespace PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 [JsonConverter(typeof(JsonStringEnumConverter<TitleLanguage>))]
 public enum TitleLanguage : byte
 {
-	NATIVE = 1,
-	NATIVE_STYLISED = 2,
-	ROMAJI = 3,
-	ROMAJI_STYLISED = 4,
-	ENGLISH = 5,
-	ENGLISH_STYLISED = 6,
+	[JsonStringEnumMemberName("NATIVE")]
+	Native = 1,
+
+	[JsonStringEnumMemberName("NATIVE_STYLISED")]
+	NativeStylised = 2,
+
+	[JsonStringEnumMemberName("ROMAJI")]
+	Romaji = 3,
+
+	[JsonStringEnumMemberName("ROMAJI_STYLISED")]
+	RomajiStylised = 4,
+
+	[JsonStringEnumMemberName("ENGLISH")]
+	English = 5,
+
+	[JsonStringEnumMemberName("ENGLISH_STYLISED")]
+	EnglishStylised = 6,
 }
