@@ -89,6 +89,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.Benchmarks", "benchm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tantei.Tests", "tests\Tantei.Tests\Tantei.Tests.csproj", "{D3FABEB7-8923-4BC2-8FF0-79B7834DDEAC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{79766801-53A5-48F4-8756-5FAC4D1B2FE3}"
+	ProjectSection(SolutionItems) = preProject
+		.config/dotnet-tools.json = .config/dotnet-tools.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
