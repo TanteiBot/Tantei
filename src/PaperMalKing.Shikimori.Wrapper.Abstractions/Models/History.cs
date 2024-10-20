@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
@@ -19,5 +18,5 @@ public sealed class History
 	public required string Description { get; init; }
 
 	[JsonPropertyName("target")]
-	public HistoryTarget? Target { get; init; } = null;
+	public HistoryTarget? Target { get; init; }
 }
