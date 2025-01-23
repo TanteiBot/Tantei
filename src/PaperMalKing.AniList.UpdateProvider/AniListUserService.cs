@@ -90,7 +90,7 @@ internal sealed class AniListUserService(ILogger<AniListUserService> logger, IAn
 			LastActivityTimestamp = now,
 			LastReviewTimestamp = now,
 			FavouritesIdHash = HashHelpers.FavoritesHash(response.Favourites.ToFavoriteIdType()),
-			Features = AniListUserFeatures.None.GetDefault(),
+			Features = AniListUserFeatures.Default,
 			Colors = [],
 		};
 		dbUser.Favourites.ForEach(f =>

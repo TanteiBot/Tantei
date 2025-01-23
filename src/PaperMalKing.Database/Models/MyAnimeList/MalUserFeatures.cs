@@ -61,3 +61,14 @@ public enum MalUserFeatures : ulong
 	[EnumDescription("seiyu", "Show seiyu of anime in update")]
 	Seiyu = 1 << 16,
 }
+
+public static class MalUserFeaturesExtensions
+{
+	extension(MalUserFeatures)
+	{
+		public static MalUserFeatures Default => MalUserFeatures.AnimeList | MalUserFeatures.MangaList |
+												 MalUserFeatures.Favorites | MalUserFeatures.Mention |
+												 MalUserFeatures.Website | MalUserFeatures.MediaFormat |
+												 MalUserFeatures.MediaStatus;
+	}
+}

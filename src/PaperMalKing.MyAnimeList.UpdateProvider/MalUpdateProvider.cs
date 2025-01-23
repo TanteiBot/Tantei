@@ -183,7 +183,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 
 		var favoritesUpdates = dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch
 			? this.CheckFavoritesUpdates(dbUser, user, db)
-			: ReadOnlyCollection<DiscordEmbedBuilder>.Empty;
+			: [];
 
 		if (favoritesUpdates is not [])
 		{

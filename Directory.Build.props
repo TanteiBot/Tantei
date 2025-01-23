@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <LangVersion>preview</LangVersion>
         <OutputType>Library</OutputType>
         
@@ -60,6 +60,7 @@
             CA2234; <!--Pass System.Uri objects instead of strings-->
 
             EA0002; <!--Use 'System.TimeProvider' to make the code easier to test-->
+            EA0004; <!--Make type 'Program' internal since it is declared in an executable-->
             EA0014; <!--Add CancellationToken as the parameter of asynchronous method-->
 
             MA0004; <!--Use Task.ConfigureAwait(false) as the current SynchronizationContext is not needed-->
@@ -129,6 +130,8 @@
             VSTHRD111; <!--Add .ConfigureAwait(bool) to your await expression-->
             
             AsyncFixer02; <!--ToArrayAsync should be used instead of -->
+            
+            EPC29; <!-- 'ExcludeFromCodeCoverageAttribute' should provide a message explaining the exclusion -->
         </NoWarn>
         <WarningsNotAsErrors>
             MA0048; <!--File name must match type name-->
