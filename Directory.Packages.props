@@ -10,7 +10,7 @@
     <DSharpPlusVersion>4.5.0</DSharpPlusVersion>
     <CommunityTookitVersion>8.4.0</CommunityTookitVersion>
 
-    <VerifyVersion>28.9.0</VerifyVersion>
+    <VerifyVersion>28.10.1</VerifyVersion>
       
     <GrpcVersion>2.67.0</GrpcVersion>
   </PropertyGroup>
@@ -124,7 +124,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </GlobalPackageReference>
-    <PackageVersion Include="xunit.analyzers" Version="1.19.0" />
+    <PackageVersion Include="xunit.analyzers" Version="1.20.0" />
       
     <!-- Testing -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
