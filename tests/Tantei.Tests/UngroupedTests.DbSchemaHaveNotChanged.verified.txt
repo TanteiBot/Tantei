@@ -1,0 +1,151 @@
+﻿CREATE TABLE "BotUsers" (
+    "UserId" INTEGER NOT NULL CONSTRAINT "PK_BotUsers" PRIMARY KEY AUTOINCREMENT
+);
+
+
+CREATE TABLE "DiscordGuilds" (
+    "DiscordGuildId" INTEGER NOT NULL CONSTRAINT "PK_DiscordGuilds" PRIMARY KEY,
+    "PostingChannelId" INTEGER NOT NULL
+);
+
+
+CREATE TABLE "DiscordUsers" (
+    "DiscordUserId" INTEGER NOT NULL CONSTRAINT "PK_DiscordUsers" PRIMARY KEY,
+    "BotUserId" INTEGER NOT NULL,
+    CONSTRAINT "FK_DiscordUsers_BotUsers_BotUserId" FOREIGN KEY ("BotUserId") REFERENCES "BotUsers" ("UserId") ON DELETE CASCADE
+);
+
+
+CREATE TABLE "AniListUsers" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_AniListUsers" PRIMARY KEY,
+    "LastActivityTimestamp" INTEGER NOT NULL,
+    "LastReviewTimestamp" INTEGER NOT NULL,
+    "DiscordUserId" INTEGER NOT NULL,
+    "FavouritesIdHash" TEXT NOT NULL DEFAULT '',
+    "Features" INTEGER NOT NULL DEFAULT 127,
+    "Colors" TEXT NULL,
+    CONSTRAINT "FK_AniListUsers_DiscordUsers_DiscordUserId" FOREIGN KEY ("DiscordUserId") REFERENCES "DiscordUsers" ("DiscordUserId") ON DELETE CASCADE
+);
+
+
+CREATE TABLE "DiscordGuildDiscordUser" (
+    "GuildsDiscordGuildId" INTEGER NOT NULL,
+    "UsersDiscordUserId" INTEGER NOT NULL,
+    CONSTRAINT "PK_DiscordGuildDiscordUser" PRIMARY KEY ("GuildsDiscordGuildId", "UsersDiscordUserId"),
+    CONSTRAINT "FK_DiscordGuildDiscordUser_DiscordGuilds_GuildsDiscordGuildId" FOREIGN KEY ("GuildsDiscordGuildId") REFERENCES "DiscordGuilds" ("DiscordGuildId") ON DELETE CASCADE,
+    CONSTRAINT "FK_DiscordGuildDiscordUser_DiscordUsers_UsersDiscordUserId" FOREIGN KEY ("UsersDiscordUserId") REFERENCES "DiscordUsers" ("DiscordUserId") ON DELETE CASCADE
+);
+
+
+CREATE TABLE "MalUsers" (
+    "UserId" INTEGER NOT NULL CONSTRAINT "PK_MalUsers" PRIMARY KEY,
+    "DiscordUserId" INTEGER NOT NULL,
+    "Username" TEXT NOT NULL,
+    "LastUpdatedAnimeListTimestamp" INTEGER NOT NULL,
+    "LastUpdatedMangaListTimestamp" INTEGER NOT NULL,
+    "LastAnimeUpdateHash" TEXT NOT NULL,
+    "LastMangaUpdateHash" TEXT NOT NULL,
+    "Features" INTEGER NOT NULL DEFAULT 127,
+    "FavoritesIdHash" TEXT NOT NULL DEFAULT '',
+    "Colors" TEXT NULL,
+    CONSTRAINT "FK_MalUsers_DiscordUsers_DiscordUserId" FOREIGN KEY ("DiscordUserId") REFERENCES "DiscordUsers" ("DiscordUserId") ON DELETE CASCADE
+);
+
+
+CREATE TABLE "ShikiUsers" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_ShikiUsers" PRIMARY KEY,
+    "LastHistoryEntryId" INTEGER NOT NULL,
+    "DiscordUserId" INTEGER NOT NULL,
+    "Features" INTEGER NOT NULL DEFAULT 127,
+    "FavouritesIdHash" TEXT NOT NULL DEFAULT '',
+    "Achievements" TEXT NULL,
+    "Colors" TEXT NULL,
+    CONSTRAINT "FK_ShikiUsers_DiscordUsers_DiscordUserId" FOREIGN KEY ("DiscordUserId") REFERENCES "DiscordUsers" ("DiscordUserId") ON DELETE CASCADE
+);
+
+
+CREATE TABLE "AniListFavourites" (
+    "Id" INTEGER NOT NULL,
+    "FavouriteType" INTEGER NOT NULL,
+    "UserId" INTEGER NOT NULL,
+    CONSTRAINT "PK_AniListFavourites" PRIMARY KEY ("Id", "FavouriteType", "UserId"),
+    CONSTRAINT "FK_AniListFavourites_AniListUsers_UserId" FOREIGN KEY ("UserId") REFERENCES "AniListUsers" ("Id") ON DELETE CASCADE
+);
+
+
+CREATE TABLE "MalFavorites" (
+    "UserId" INTEGER NOT NULL,
+    "Id" INTEGER NOT NULL,
+    "FavoriteType" INTEGER NOT NULL,
+    "ImageUrl" TEXT NULL,
+    "Name" TEXT NOT NULL,
+    "NameUrl" TEXT NOT NULL,
+    "Type" TEXT NULL,
+    "StartYear" INTEGER NULL,
+    "FromTitleName" TEXT NULL,
+    CONSTRAINT "PK_MalFavorites" PRIMARY KEY ("Id", "UserId", "FavoriteType"),
+    CONSTRAINT "FK_MalFavorites_MalUsers_UserId" FOREIGN KEY ("UserId") REFERENCES "MalUsers" ("UserId") ON DELETE CASCADE
+);
+
+
+CREATE TABLE "ShikiFavourites" (
+    "Id" INTEGER NOT NULL,
+    "FavType" TEXT NOT NULL,
+    "UserId" INTEGER NOT NULL,
+    "Name" TEXT NOT NULL,
+    CONSTRAINT "PK_ShikiFavourites" PRIMARY KEY ("Id", "FavType", "UserId"),
+    CONSTRAINT "FK_ShikiFavourites_ShikiUsers_UserId" FOREIGN KEY ("UserId") REFERENCES "ShikiUsers" ("Id") ON DELETE CASCADE
+);
+
+
+CREATE INDEX "IX_AniListFavourites_Id" ON "AniListFavourites" ("Id");
+
+
+CREATE INDEX "IX_AniListFavourites_UserId" ON "AniListFavourites" ("UserId");
+
+
+CREATE UNIQUE INDEX "IX_AniListUsers_DiscordUserId" ON "AniListUsers" ("DiscordUserId");
+
+
+CREATE INDEX "IX_AniListUsers_Features" ON "AniListUsers" ("Features");
+
+
+CREATE INDEX "IX_DiscordGuildDiscordUser_UsersDiscordUserId" ON "DiscordGuildDiscordUser" ("UsersDiscordUserId");
+
+
+CREATE INDEX "IX_DiscordGuilds_DiscordGuildId" ON "DiscordGuilds" ("DiscordGuildId");
+
+
+CREATE UNIQUE INDEX "IX_DiscordUsers_BotUserId" ON "DiscordUsers" ("BotUserId");
+
+
+CREATE INDEX "IX_DiscordUsers_DiscordUserId" ON "DiscordUsers" ("DiscordUserId");
+
+
+CREATE INDEX "IX_MalFavorites_FavoriteType" ON "MalFavorites" ("FavoriteType");
+
+
+CREATE INDEX "IX_MalFavorites_Id" ON "MalFavorites" ("Id");
+
+
+CREATE INDEX "IX_MalFavorites_UserId" ON "MalFavorites" ("UserId");
+
+
+CREATE UNIQUE INDEX "IX_MalUsers_DiscordUserId" ON "MalUsers" ("DiscordUserId");
+
+
+CREATE INDEX "IX_MalUsers_Features" ON "MalUsers" ("Features");
+
+
+CREATE INDEX "IX_ShikiFavourites_Id" ON "ShikiFavourites" ("Id");
+
+
+CREATE INDEX "IX_ShikiFavourites_UserId" ON "ShikiFavourites" ("UserId");
+
+
+CREATE UNIQUE INDEX "IX_ShikiUsers_DiscordUserId" ON "ShikiUsers" ("DiscordUserId");
+
+
+CREATE INDEX "IX_ShikiUsers_Features" ON "ShikiUsers" ("Features");
+
+
