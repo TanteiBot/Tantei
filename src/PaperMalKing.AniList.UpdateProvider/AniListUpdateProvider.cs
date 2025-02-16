@@ -111,7 +111,7 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 
 		static uint[] GetIds(IReadOnlyList<IdentifiableFavourite> collection, Func<IdentifiableFavourite, bool> predicate)
 		{
-			return collection.Any(predicate) ? collection.Where(predicate).Select(f => f.Id).ToArray() : [];
+			return collection.Any(predicate) ? [.. collection.Where(predicate).Select(f => f.Id)] : [];
 		}
 
 		static void GetFavouritesEmbed<T>(List<DiscordEmbedBuilder> aggregator,

@@ -97,11 +97,11 @@ internal sealed class MalUserService(IMyAnimeListClient _client, ILogger<MalUser
 			FavoritesIdHash = HashHelpers.FavoritesHash(mUser.Favorites.GetFavoriteIdTypesFromFavorites()),
 			Colors = [],
 		};
-		dbUser.FavoriteAnimes = mUser.Favorites.FavoriteAnime.Select(anime => anime.ToMalFavoriteAnime(dbUser)).ToList();
-		dbUser.FavoriteMangas = mUser.Favorites.FavoriteManga.Select(manga => manga.ToMalFavoriteManga(dbUser)).ToList();
-		dbUser.FavoriteCharacters = mUser.Favorites.FavoriteCharacters.Select(character => character.ToMalFavoriteCharacter(dbUser)).ToList();
-		dbUser.FavoritePeople = mUser.Favorites.FavoritePeople.Select(person => person.ToMalFavoritePerson(dbUser)).ToList();
-		dbUser.FavoriteCompanies = mUser.Favorites.FavoriteCompanies.Select(company => company.ToMalFavoriteCompany(dbUser)).ToList();
+		dbUser.FavoriteAnimes = [.. mUser.Favorites.FavoriteAnime.Select(anime => anime.ToMalFavoriteAnime(dbUser))];
+		dbUser.FavoriteMangas = [.. mUser.Favorites.FavoriteManga.Select(manga => manga.ToMalFavoriteManga(dbUser))];
+		dbUser.FavoriteCharacters = [.. mUser.Favorites.FavoriteCharacters.Select(character => character.ToMalFavoriteCharacter(dbUser))];
+		dbUser.FavoritePeople = [.. mUser.Favorites.FavoritePeople.Select(person => person.ToMalFavoritePerson(dbUser))];
+		dbUser.FavoriteCompanies = [.. mUser.Favorites.FavoriteCompanies.Select(company => company.ToMalFavoriteCompany(dbUser))];
 		db.MalUsers.Add(dbUser);
 		await db.SaveChangesAndThrowOnNoneAsync();
 		return BaseUser.FromUsername(dbUser.Username);

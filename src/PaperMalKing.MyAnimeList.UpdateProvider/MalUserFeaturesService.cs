@@ -57,11 +57,11 @@ internal sealed class MalUserFeaturesService(IMyAnimeListClient _client, ILogger
 			case MalUserFeatures.Favorites:
 				{
 					user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), CancellationToken.None);
-					dbUser.FavoriteAnimes = user.Favorites.FavoriteAnime.Select(x => x.ToMalFavoriteAnime(dbUser)).ToList();
-					dbUser.FavoriteMangas = user.Favorites.FavoriteManga.Select(x => x.ToMalFavoriteManga(dbUser)).ToList();
-					dbUser.FavoriteCharacters = user.Favorites.FavoriteCharacters.Select(x => x.ToMalFavoriteCharacter(dbUser)).ToList();
-					dbUser.FavoritePeople = user.Favorites.FavoritePeople.Select(x => x.ToMalFavoritePerson(dbUser)).ToList();
-					dbUser.FavoriteCompanies = user.Favorites.FavoriteCompanies.Select(x => x.ToMalFavoriteCompany(dbUser)).ToList();
+					dbUser.FavoriteAnimes = [.. user.Favorites.FavoriteAnime.Select(x => x.ToMalFavoriteAnime(dbUser))];
+					dbUser.FavoriteMangas = [.. user.Favorites.FavoriteManga.Select(x => x.ToMalFavoriteManga(dbUser))];
+					dbUser.FavoriteCharacters = [.. user.Favorites.FavoriteCharacters.Select(x => x.ToMalFavoriteCharacter(dbUser))];
+					dbUser.FavoritePeople = [.. user.Favorites.FavoritePeople.Select(x => x.ToMalFavoritePerson(dbUser))];
+					dbUser.FavoriteCompanies = [.. user.Favorites.FavoriteCompanies.Select(x => x.ToMalFavoriteCompany(dbUser))];
 					break;
 				}
 

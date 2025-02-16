@@ -33,7 +33,7 @@ public static class UpdateTypesHelper<T>
 	{
 		var ti = typeof(T).GetTypeInfo();
 		Debug.Assert(Enum.GetUnderlyingType(typeof(T)) == typeof(byte), $"All update types must have {nameof(Byte)} as underlying type");
-		return Enum.GetValues<T>().Where(v => ti.DeclaredMembers.First(xm => xm.Name.Equals(v.ToString(), StringComparison.Ordinal))
+		return [.. Enum.GetValues<T>().Where(v => ti.DeclaredMembers.First(xm => xm.Name.Equals(v.ToString(), StringComparison.Ordinal))
 												.GetCustomAttribute<EnumDescriptionAttribute>() is not null).Select(value =>
 		{
 			var name = value.ToString();
@@ -41,6 +41,6 @@ public static class UpdateTypesHelper<T>
 							  .GetCustomAttribute<EnumDescriptionAttribute>()!;
 
 			return new EnumInfo<T>(name, attribute.Description, attribute.Summary, value);
-		}).ToArray();
+		}),];
 	}
 }
