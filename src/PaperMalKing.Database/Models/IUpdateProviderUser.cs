@@ -9,14 +9,14 @@ namespace PaperMalKing.Database.Models;
 public interface IUpdateProviderUser<TFeature> : IUpdateProviderUser
 	where TFeature : unmanaged, Enum
 {
-	public TFeature Features { get; set; }
+	TFeature Features { get; set; }
 }
 
 public interface IUpdateProviderUser
 {
-	public ulong DiscordUserId { get; init; }
+	ulong DiscordUserId { get; init; }
 
-	public DiscordUser DiscordUser { get; set; }
+	DiscordUser DiscordUser { get; set; }
 
-	public List<CustomUpdateColor> Colors { get; set; }
+	List<CustomUpdateColor> Colors { get; set; }
 }

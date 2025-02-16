@@ -34,7 +34,7 @@ public static class FeaturesHelper<T>
 	{
 		var ti = typeof(T).GetTypeInfo();
 		Debug.Assert(Enum.GetUnderlyingType(typeof(T)) == typeof(ulong), $"All features must have {nameof(UInt64)} as underlying type");
-		return Enum.GetValues<T>().Where(v =>
+		return [.. Enum.GetValues<T>().Where(v =>
 			ti.DeclaredMembers.First(xm => xm.Name.Equals(v.ToString(), StringComparison.Ordinal))
 			  .GetCustomAttribute<EnumDescriptionAttribute>() is not null).Select(value =>
 		{
@@ -45,6 +45,6 @@ public static class FeaturesHelper<T>
 							  .GetCustomAttribute<EnumDescriptionAttribute>()!;
 
 			return new EnumInfo<T>(name, attribute.Description, attribute.Summary, value);
-		}).ToArray();
+		}),];
 	}
 }

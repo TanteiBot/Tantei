@@ -102,8 +102,8 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 			var anime = await _jikanClient.GetAnimeAsync(id, cancellationToken);
 			return new()
 			{
-				Demographic = anime.Data.Demographics.Select(static x => x.Name).ToArray(),
-				Themes = anime.Data.Themes.Select(static x => x.Name).ToArray(),
+				Demographic = [.. anime.Data.Demographics.Select(static x => x.Name)],
+				Themes = [.. anime.Data.Themes.Select(static x => x.Name)],
 			};
 		}
 		catch (Exception ex)
@@ -122,8 +122,8 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 			var manga = await _jikanClient.GetMangaAsync(id, cancellationToken);
 			return new()
 			{
-				Demographic = manga.Data.Demographics.Select(static x => x.Name).ToArray(),
-				Themes = manga.Data.Themes.Select(static x => x.Name).ToArray(),
+				Demographic = [.. manga.Data.Demographics.Select(static x => x.Name)],
+				Themes = [.. manga.Data.Themes.Select(static x => x.Name)],
 			};
 		}
 		catch (Exception ex)
@@ -140,12 +140,12 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 		try
 		{
 			var animeCharacters = await _jikanClient.GetAnimeCharactersAsync(id, cancellationToken);
-			return animeCharacters.Data.SelectMany(x => x.VoiceActors).Where(x => x.Language.Equals("Japanese", StringComparison.Ordinal))
+			return [.. animeCharacters.Data.SelectMany(x => x.VoiceActors).Where(x => x.Language.Equals("Japanese", StringComparison.Ordinal))
 								  .Select(x => new SeyuInfo
 								  {
 									  Name = x.Person.Name,
 									  Url = x.Person.Url,
-								  }).ToArray();
+								  }),];
 		}
 		catch (Exception ex)
 		{

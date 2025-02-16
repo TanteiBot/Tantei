@@ -87,25 +87,25 @@ internal sealed class ShikiUserService(IShikiClient _client, ILogger<ShikiUserSe
 
 		dbUser = new()
 		{
-			Favourites = favourites.AllFavourites.Select(f => new ShikiFavourite
+			Favourites = [.. favourites.AllFavourites.Select(f => new ShikiFavourite
 			{
 				Id = f.Id,
 				Name = f.Name,
 				FavType = f.GenericType!,
 
 				// User = dbUser
-			}).ToList(),
+			}),],
 			Id = shikiUser.Id,
 			Features = ShikiUserFeatures.None.GetDefault(),
 			DiscordUser = dUser,
 			DiscordUserId = userId,
 			LastHistoryEntryId = history.Data.Max(he => he.Id),
 			FavouritesIdHash = HashHelpers.FavoritesHash(favourites.AllFavourites.ToFavoriteIdType()),
-			Achievements = achievements.Select(x => new ShikiDbAchievement
+			Achievements = [.. achievements.Select(x => new ShikiDbAchievement
 			{
 				NekoId = x.Id,
 				Level = x.Level,
-			}).ToList(),
+			}),],
 			Colors = [],
 		};
 		dbUser.Favourites.ForEach(f => f.User = dbUser);

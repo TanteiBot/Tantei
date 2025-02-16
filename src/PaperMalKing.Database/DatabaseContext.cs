@@ -208,11 +208,11 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 		db.DiscordUsers.TagWith("Get discord user by id").Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId));
 
 #pragma warning disable S2365
-	public IReadOnlyList<MalUser> MalUsersForChecking => GetMalUsersQuery(this).ToArray();
+	public IReadOnlyList<MalUser> MalUsersForChecking => [.. GetMalUsersQuery(this)];
 
-	public IReadOnlyList<ShikiUser> ShikiUsersForChecking => GetShikiUsersQuery(this).ToArray();
+	public IReadOnlyList<ShikiUser> ShikiUsersForChecking => [.. GetShikiUsersQuery(this)];
 
-	public IReadOnlyList<AniListUser> AniListUsersForChecking => GetAniListUsersQuery(this).ToArray();
+	public IReadOnlyList<AniListUser> AniListUsersForChecking => [.. GetAniListUsersQuery(this)];
 
 	public DiscordGuild? GetGuildById(ulong guildId) => GuildByIdQuery(this, guildId);
 
