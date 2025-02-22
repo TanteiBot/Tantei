@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\..\src\PaperMalKing.Database\PaperMalKing.Database.csproj" />
+    <ProjectReference Include="..\..\src\PaperMalKing.Database.Migrations\PaperMalKing.Database.Migrations.csproj" />
+
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
