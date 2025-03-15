@@ -64,7 +64,7 @@
     <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.3" />
 
     <!-- Web -->
-    <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="9.0.0" />
+    <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="9.1.0" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.3" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="9.0.3" />
 
