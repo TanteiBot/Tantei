@@ -40,11 +40,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            ${{ github.event_name == 'release' && github.ref_name || env.BRANCH_NAME }}
+            ${{ github.event_name == 'release' && github.ref_name || '' }}
             ${{ github.event_name == 'release' && 'latest' || 'dev' }}
             ${{ github.event_name == 'push' && github.sha  || '' }}
-            ${{ github.event_name == 'pull_request' && format('pr_sha+', github.sha )  || '' }}
-            
+            ${{ github.event_name == 'pull_request' && format('{0}+{1}', 'pr_', github.event.number )  || '' }}
+
       - uses: docker/build-push-action@v5
         with:
           context: .
