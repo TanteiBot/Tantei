@@ -8,7 +8,13 @@ on:
       - master
       - release/*
       - main
-  
+  pull_request:
+    branches:
+      - master
+      - release/*
+      - main
+
+
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   REGISTRY: ghcr.io
@@ -37,6 +43,7 @@ jobs:
             ${{ github.event_name == 'release' && github.ref_name || env.BRANCH_NAME }}
             ${{ github.event_name == 'release' && 'latest' || 'dev' }}
             ${{ github.event_name == 'push' && github.sha  || '' }}
+            ${{ github.event_name == 'pull_request' && format('pr_sha+', github.sha )  || '' }}
             
       - uses: docker/build-push-action@v5
         with:
