@@ -9,6 +9,7 @@ using PaperMalKing.Startup;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables(prefix: "Tantei_");
 
 #if IsInContainer
 Span<string> appsettingsFiles = ["appsettings.json", "appsettings.Development.json", "appsettings.Staging.json", "appsettings.Production.json"];

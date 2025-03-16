@@ -29,6 +29,8 @@ internal sealed class ShikiAchievementsService : IDisposable
 			return FrozenDictionary<AchievementKey, ShikiAchievement>.Empty;
 		}
 
+		this._logger.FoundAchievements(neko.Achievements.Count);
+
 		return neko.Achievements.ToDictionary(
 			item => new AchievementKey(item.neko_id, item.level),
 			item => new ShikiAchievement(
