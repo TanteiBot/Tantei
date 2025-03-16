@@ -11,6 +11,6 @@ internal static partial class Log
 	[LoggerMessage(LogLevel.Warning, "No achievements found")]
 	public static partial void DidntFindAnyAchievements(this ILogger<ShikiAchievementsService> logger);
 
-	[LoggerMessage(LogLevel.Information, "Fount {amount} achievements")]
+	[LoggerMessage(LogLevel.Information, "Found {amount} achievements")]
 	public static partial void FoundAchievements(this ILogger<ShikiAchievementsService> logger, int amount);
 }

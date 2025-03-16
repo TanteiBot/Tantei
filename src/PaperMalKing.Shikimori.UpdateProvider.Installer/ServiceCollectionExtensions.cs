@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.SystemTextJson;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,7 @@ namespace PaperMalKing.Shikimori.UpdateProvider.Installer;
 public static class ServiceCollectionExtensions
 {
 	[SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "We only dispose when application closes")]
-	public static IServiceCollection AddShikimori(this IServiceCollection serviceCollection)
+	public static IServiceCollection AddShikimori(this IServiceCollection serviceCollection, IConfiguration configuration)
 	{
 		serviceCollection.AddOptions<ShikiOptions>().BindConfiguration(Constants.Name).ValidateDataAnnotations().ValidateOnStart();
 
@@ -67,8 +68,16 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton<BaseUserFeaturesService<ShikiUser, ShikiUserFeatures>, ShikiUserFeaturesService>();
 		serviceCollection.AddSingleton<ShikiUserService>();
 
-		serviceCollection.AddOptions<NekoFileJson>().BindConfiguration("ShikimoriNeko").ValidateDataAnnotations().ValidateOnStart();
-		serviceCollection.AddSingleton<ShikiAchievementsService>();
+		var achievementsPath = configuration.GetValue<string?>("Shikimori:PathToAchievementsJson") ?? "neko.json";
+		var nekoFileJson = new NekoFileJson();
+		if (File.Exists(achievementsPath))
+		{
+			using var stream = File.OpenRead(achievementsPath);
+
+			nekoFileJson = JsonSerializer.Deserialize<NekoFileJson>(stream) ?? new NekoFileJson();
+		}
+
+		serviceCollection.AddSingleton<ShikiAchievementsService>((services) => new(nekoFileJson, services.GetRequiredService<ILogger<ShikiAchievementsService>>()));
 
 		serviceCollection.AddSingleton<ShikiUpdateProvider>();
 		serviceCollection.AddSingleton<BaseUpdateProvider>(static f => f.GetRequiredService<ShikiUpdateProvider>());

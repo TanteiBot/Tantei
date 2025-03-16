@@ -4,26 +4,23 @@
 using System.Collections.Frozen;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace PaperMalKing.Shikimori.UpdateProvider.Achievements;
 
-internal sealed class ShikiAchievementsService : IDisposable
+internal sealed class ShikiAchievementsService
 {
 	private readonly ILogger<ShikiAchievementsService> _logger;
-	private readonly IDisposable? _monitor;
-	private FrozenDictionary<AchievementKey, ShikiAchievement> _achievements;
+	private readonly FrozenDictionary<AchievementKey, ShikiAchievement> _achievements;
 
-	public ShikiAchievementsService(IOptionsMonitor<NekoFileJson> options, ILogger<ShikiAchievementsService> logger)
+	public ShikiAchievementsService(NekoFileJson options, ILogger<ShikiAchievementsService> logger)
 	{
 		this._logger = logger;
-		this._achievements = this.CreateFromOptionsValue(options.CurrentValue);
-		this._monitor = options.OnChange(neko => Volatile.Write(ref this._achievements, this.CreateFromOptionsValue(neko)));
+		this._achievements = this.CreateFromOptionsValue(options);
 	}
 
 	private FrozenDictionary<AchievementKey, ShikiAchievement> CreateFromOptionsValue(NekoFileJson neko)
 	{
-		if (neko.HumanNames is null || neko.Achievements is null)
+		if (neko.HumanNames.Count is 0 || neko.Achievements.Count is 0)
 		{
 			this._logger.DidntFindAnyAchievements();
 			return FrozenDictionary<AchievementKey, ShikiAchievement>.Empty;
@@ -50,9 +47,4 @@ internal sealed class ShikiAchievementsService : IDisposable
 	public bool IsAnyAchievementInfoAvailable => this._achievements.Count > 0;
 
 	private readonly record struct AchievementKey(string Id, byte Level);
-
-	public void Dispose()
-	{
-		this._monitor?.Dispose();
-	}
 }

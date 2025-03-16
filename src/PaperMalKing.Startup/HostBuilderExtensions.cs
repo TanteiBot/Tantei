@@ -44,11 +44,7 @@ public static class HostBuilderExtensions
 
 		hostBuilder
 		.ConfigureAppConfiguration((_, builder) => builder.AddEnvironmentVariables(prefix: "Tantei_"))
-		.ConfigureAppConfiguration((context, builder) =>
-			builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ??
-								Environment.GetEnvironmentVariable("Tantei_Shikimori__PathToAchievementsJson") ??
-								"neko.json", optional: true, reloadOnChange: true))
-		.ConfigureServices((_, services) =>
+		.ConfigureServices((context, services) =>
 		{
 			static void ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
 			{
@@ -107,7 +103,7 @@ public static class HostBuilderExtensions
 			services.AddSingleton<ICommandsService, CommandsService>();
 			services.AddSingleton<UpdateProvidersConfigurationService>();
 			services.AddSingleton<GuildManagementService>();
-			UpdateProvidersConfigurationService.ConfigureProviders(services);
+			UpdateProvidersConfigurationService.ConfigureProviders(services, context.Configuration);
 
 			services.AddHostedService<DiscordBackgroundService>();
 			services.AddHostedService<OnStartupActionsExecutingService>();
