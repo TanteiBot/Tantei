@@ -6,25 +6,29 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace PaperMalKing.Shikimori.UpdateProvider.Achievements;
 
 internal sealed class ShikiAchievementsService : IDisposable
 {
+	private readonly ILogger<ShikiAchievementsService> _logger;
 	private readonly IDisposable? _monitor;
 	private FrozenDictionary<AchievementKey, ShikiAchievement> _achievements;
 
-	public ShikiAchievementsService(IOptionsMonitor<NekoFileJson> options)
+	public ShikiAchievementsService(IOptionsMonitor<NekoFileJson> options, ILogger<ShikiAchievementsService> logger)
 	{
-		this._achievements = CreateFromOptionsValue(options.CurrentValue);
-		this._monitor = options.OnChange(neko => this._achievements = CreateFromOptionsValue(neko));
+		this._logger = logger;
+		this._achievements = this.CreateFromOptionsValue(options.CurrentValue);
+		this._monitor = options.OnChange(neko => this._achievements = this.CreateFromOptionsValue(neko));
 	}
 
-	private static FrozenDictionary<AchievementKey, ShikiAchievement> CreateFromOptionsValue(NekoFileJson neko)
+	private FrozenDictionary<AchievementKey, ShikiAchievement> CreateFromOptionsValue(NekoFileJson neko)
 	{
 		if (neko.HumanNames is null || neko.Achievements is null)
 		{
+			this._logger.DidntFindAnyAchievements();
 			return FrozenDictionary<AchievementKey, ShikiAchievement>.Empty;
 		}
 
