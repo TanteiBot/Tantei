@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -18,18 +17,18 @@ using Microsoft.Extensions.Hosting;
 using PaperMalKing.Startup;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
-Span<string> appsettingsFiles = ["appsettings.Production.json", "appsettings.Development.json", "appsettings.Staging.json", "appsettings.json"];
-Span<string> directories = ["/config"];
-
 var builder = WebApplication.CreateBuilder(args);
 
-foreach (var dir in directories)
+#if IsInContainer
+Span<string> appsettingsFiles = ["appsettings.Production.json", "appsettings.Development.json", "appsettings.Staging.json", "appsettings.json"];
+foreach (var dir in (Span<string>)["/config"])
 {
 	foreach (var file in appsettingsFiles)
 	{
-		builder.Configuration.AddJsonFile(Path.Combine(dir, file), optional: true);
+		builder.Configuration.AddJsonFile(System.IO.Path.Combine(dir, file), optional: true);
 	}
 }
+#endif
 
 // Add services to the container.
 builder.Services.AddSpaStaticFiles(options => options.RootPath = "wwwroot");

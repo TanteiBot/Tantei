@@ -46,7 +46,7 @@
 
     <!-- Hosting -->
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Systemd" Version="9.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Systemd" Version="9.0.3" Condition="'$(IsInContainer)' != 'true'"/>
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.3" />
 
     <!-- DI -->
@@ -55,6 +55,7 @@
 
     <!-- Configuration -->
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />  
     <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.3" />
