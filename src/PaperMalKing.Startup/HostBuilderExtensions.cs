@@ -42,8 +42,10 @@ public static class HostBuilderExtensions
 			SQLitePCL.raw.sqlite3_config(sqliteMultithreadedMode);
 		}
 
-		hostBuilder.ConfigureAppConfiguration((context, builder) =>
-					   builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json", optional: true, reloadOnChange: true))
+		hostBuilder
+		.ConfigureAppConfiguration(builder => builder.AddEnvironmentVariables(prefix: "Tantei_"))
+		.ConfigureAppConfiguration((context, builder) =>
+			builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json", optional: true, reloadOnChange: true))
 		.ConfigureServices((_, services) =>
 		{
 			static void ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
