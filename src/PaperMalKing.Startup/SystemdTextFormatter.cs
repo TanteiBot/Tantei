@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2024 N0D4N
 
+#if !IsInContainer
 using System;
 using System.IO;
 using Serilog.Events;
@@ -26,3 +27,4 @@ internal sealed class SystemdTextFormatter(MessageTemplateTextFormatter _message
 		_messageTemplateTextFormatter.Format(logEvent, output);
 	}
 }
+#endif

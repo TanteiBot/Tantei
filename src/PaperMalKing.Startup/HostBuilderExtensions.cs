@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Systemd;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
@@ -22,6 +21,11 @@ using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Colors;
 using Serilog;
 using Serilog.Sinks.OpenTelemetry;
+#if IsInContainer
+using System.Diagnostics.CodeAnalysis;
+#else
+using Microsoft.Extensions.Hosting.Systemd;
+#endif
 
 namespace PaperMalKing.Startup;
 
@@ -42,7 +46,7 @@ public static class HostBuilderExtensions
 
 		hostBuilder.ConfigureAppConfiguration((context, builder) =>
 					   builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json", optional: true, reloadOnChange: true))
-		.ConfigureServices(services =>
+		.ConfigureServices((_, services) =>
 		{
 			static void ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
 			{
@@ -113,15 +117,37 @@ public static class HostBuilderExtensions
 		return hostBuilder;
 	}
 
+#if IsInContainer
+	[SuppressMessage("Roslynator", "RCS1118:Mark local variable as const", Justification = "Variables are considered consts in container builds")]
+	[SuppressMessage("ReSharper", "ConvertToConstant.Local", Justification = "Variables are considered consts in container builds")]
+	[SuppressMessage("Critical Code Smell", "S3353:Unchanged variables should be marked as \"const\"", Justification = "Variables are considered consts in container builds")]
+#endif
 	public static IHostBuilder ConfigureBotHost(this IHostBuilder hostBuilder)
 	{
-		hostBuilder.UseSystemd().UseSerilog((context, _, configuration) =>
+#if !IsInContainer
+		if (SystemdHelpers.IsSystemdService())
 		{
+			hostBuilder = hostBuilder.UseSystemd();
+		}
+#endif
+
+		hostBuilder.UseSerilog((context, _, configuration) =>
+		{
+			var level =
+#if !IsInContainer
+				SystemdHelpers.IsSystemdService() ? "" :
+#endif
+				"{Level:u3}";
+
 			var template =
-				$$"""[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {{(SystemdHelpers.IsSystemdService() ? "" : "{Level:u3}")}}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}""";
+				$$"""[{Timestamp:dd.MM.yy HH\\:mm\\:ss.fff} {{level}}] [{SourceContext}]{NewLine}{Message:lj}{NewLine}{Exception}""";
 			var loggerSinkConfiguration = configuration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext().WriteTo;
-			configuration = SystemdHelpers.IsSystemdService() ?
+
+			configuration =
+#if !IsInContainer
+				SystemdHelpers.IsSystemdService() ?
 				loggerSinkConfiguration.Console(formatter: new SystemdTextFormatter(new(template))) :
+#endif
 				loggerSinkConfiguration.Console(outputTemplate: template, formatProvider: CultureInfo.InvariantCulture);
 
 			var seqSection = context.Configuration.GetSection("Seq");
@@ -147,6 +173,7 @@ public static class HostBuilderExtensions
 				});
 			}
 		});
+
 		return hostBuilder;
 	}
 }

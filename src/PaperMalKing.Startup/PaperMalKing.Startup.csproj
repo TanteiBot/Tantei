@@ -2,7 +2,8 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Condition="'$(IsInContainer)' != 'true'" />
         <PackageReference Include="Serilog" />
         <PackageReference Include="Serilog.Extensions.Hosting" />
         <PackageReference Include="Serilog.Settings.Configuration" />
