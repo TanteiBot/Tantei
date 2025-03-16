@@ -20,8 +20,8 @@ using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 var builder = WebApplication.CreateBuilder(args);
 
 #if IsInContainer
-Span<string> appsettingsFiles = ["appsettings.Production.json", "appsettings.Development.json", "appsettings.Staging.json", "appsettings.json"];
-foreach (var dir in (Span<string>)["/config"])
+Span<string> appsettingsFiles = ["appsettings.json", "appsettings.Development.json", "appsettings.Staging.json", "appsettings.Production.json"];
+foreach (var dir in (Span<string>)[Environment.GetEnvironmentVariable("TANTEI_CONFIG_DIR") ?? "/config"])
 {
 	foreach (var file in appsettingsFiles)
 	{
