@@ -270,6 +270,11 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 
 	private async Task<IReadOnlyList<ShikiAchievement>> GetAchievementsUpdatesAsync(ShikiUser dbUser, CancellationToken cancellationToken)
 	{
+		if (!_achievementsService.IsAnyAchievementInfoAvailable)
+		{
+			return [];
+		}
+
 		var achievements = await _client.GetUserAchievementsAsync(dbUser.Id, cancellationToken);
 		var result = new List<ShikiAchievement>();
 		foreach (var (id, level) in achievements)

@@ -45,7 +45,9 @@ public static class HostBuilderExtensions
 		hostBuilder
 		.ConfigureAppConfiguration((_, builder) => builder.AddEnvironmentVariables(prefix: "Tantei_"))
 		.ConfigureAppConfiguration((context, builder) =>
-			builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json", optional: true, reloadOnChange: true))
+			builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ??
+								Environment.GetEnvironmentVariable("Tantei_Shikimori__PathToAchievementsJson") ??
+								"neko.json", optional: true, reloadOnChange: true))
 		.ConfigureServices((_, services) =>
 		{
 			static void ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)

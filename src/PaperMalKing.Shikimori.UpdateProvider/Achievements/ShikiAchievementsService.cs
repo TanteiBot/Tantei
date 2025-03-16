@@ -18,7 +18,7 @@ internal sealed class ShikiAchievementsService : IDisposable
 	{
 		this._logger = logger;
 		this._achievements = this.CreateFromOptionsValue(options.CurrentValue);
-		this._monitor = options.OnChange(neko => this._achievements = this.CreateFromOptionsValue(neko));
+		this._monitor = options.OnChange(neko => Volatile.Write(ref this._achievements, this.CreateFromOptionsValue(neko)));
 	}
 
 	private FrozenDictionary<AchievementKey, ShikiAchievement> CreateFromOptionsValue(NekoFileJson neko)
@@ -46,6 +46,8 @@ internal sealed class ShikiAchievementsService : IDisposable
 	}
 
 	public ShikiAchievement? GetAchievementOrNull(string id, byte level) => this._achievements.GetValueOrDefault(new(id, level));
+
+	public bool IsAnyAchievementInfoAvailable => this._achievements.Count > 0;
 
 	private readonly record struct AchievementKey(string Id, byte Level);
 
