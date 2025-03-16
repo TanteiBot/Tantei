@@ -43,7 +43,7 @@ public static class HostBuilderExtensions
 		}
 
 		hostBuilder
-		.ConfigureAppConfiguration(builder => builder.AddEnvironmentVariables(prefix: "Tantei_"))
+		.ConfigureAppConfiguration((_, builder) => builder.AddEnvironmentVariables(prefix: "Tantei_"))
 		.ConfigureAppConfiguration((context, builder) =>
 			builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json", optional: true, reloadOnChange: true))
 		.ConfigureServices((_, services) =>
