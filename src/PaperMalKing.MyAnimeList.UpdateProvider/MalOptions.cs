@@ -16,11 +16,11 @@ internal sealed class MalOptions : IRateLimitOptions<IMyAnimeListClient>, ITimer
 	public int AmountOfRequests { get; init; }
 
 	[Required]
-	[Range(0, int.MaxValue)]
+	[Range(1, int.MaxValue)]
 	public int PeriodInMilliseconds { get; init; }
 
 	[Required]
-	[Range(0, int.MaxValue)]
+	[Range(1, int.MaxValue)]
 	public int DelayBetweenChecksInMilliseconds { get; init; }
 
 	[Required]

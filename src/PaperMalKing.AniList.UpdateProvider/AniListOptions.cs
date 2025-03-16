@@ -9,7 +9,7 @@ namespace PaperMalKing.AniList.UpdateProvider;
 public sealed class AniListOptions : ITimerOptions<AniListUpdateProvider>
 {
 	[Required]
-	[Range(0, int.MaxValue)]
+	[Range(1, int.MaxValue)]
 	public int DelayBetweenChecksInMilliseconds { get; init; }
 
 	public const string AniList = ProviderConstants.Name;
