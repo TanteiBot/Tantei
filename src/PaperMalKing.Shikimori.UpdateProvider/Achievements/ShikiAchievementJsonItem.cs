@@ -14,7 +14,7 @@ public sealed class ShikiAchievementJsonItem
 
 	public required string image { get; init; }
 
-	public int? border_color { get; init; }
+	public string? border_color { get; init; }
 
 	public required string title_en { get; init; }
 

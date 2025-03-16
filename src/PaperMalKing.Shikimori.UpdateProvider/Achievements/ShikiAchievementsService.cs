@@ -34,7 +34,7 @@ internal sealed class ShikiAchievementsService
 				item.neko_id,
 				item.level,
 				new(Wrapper.Abstractions.Constants.BaseUrl + item.image, UriKind.Absolute),
-				item.border_color.HasValue ? new(item.border_color.Value) : DiscordColor.None,
+				!string.IsNullOrWhiteSpace(item.border_color) ? new(item.border_color) : DiscordColor.None,
 				item.title_ru,
 				item.text_ru,
 				item.title_en,
