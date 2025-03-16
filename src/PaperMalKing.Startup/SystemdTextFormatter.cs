@@ -2,8 +2,6 @@
 // Copyright (C) 2021-2024 N0D4N
 
 #if !IsInContainer
-using System;
-using System.IO;
 using Serilog.Events;
 using Serilog.Formatting;
 using Serilog.Formatting.Display;

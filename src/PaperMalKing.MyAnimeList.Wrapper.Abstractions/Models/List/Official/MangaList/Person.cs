@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2024 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using PaperMalKing.Common.Json;
 
@@ -8,8 +9,6 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Man
 
 public sealed class Person
 {
-	private string? _url;
-
 	[JsonPropertyName("id")]
 	public required uint Id { get; init; }
 
@@ -21,5 +20,7 @@ public sealed class Person
 	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
 	public string? LastName { get; init; }
 
-	public string Url => this._url ??= $"{Constants.BaseUrl}/people/{this.Id}";
+	[field: MaybeNull]
+	[field: AllowNull]
+	public string Url => field ??= $"{Constants.BaseUrl}/people/{this.Id}";
 }
