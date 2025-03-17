@@ -1,13 +1,9 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2024 N0D4N
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Common;
@@ -15,10 +11,10 @@ namespace PaperMalKing.Common;
 public static class UpdateTypesHelper<T>
 	where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
-	private static EnumInfo<T>[]? _updateTypeInfo;
-
+	[field: MaybeNull]
+	[field: AllowNull]
 	private static EnumInfo<T>[] UpdateTypesInfo =>
-		Volatile.Read(ref _updateTypeInfo) ?? Interlocked.CompareExchange(ref _updateTypeInfo, CreateFeaturesInfo(), comparand: null) ?? _updateTypeInfo;
+		Volatile.Read(ref field) ?? Interlocked.CompareExchange(ref field, CreateFeaturesInfo(), comparand: null) ?? field;
 
 	public static IReadOnlyList<EnumInfo<T>> UpdateTypes => UpdateTypesInfo;
 

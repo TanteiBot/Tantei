@@ -1,32 +1,32 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2024 N0D4N
 
-using System;
 using System.Collections.Frozen;
-using System.Collections.Generic;
-using System.Linq;
 using DSharpPlus.Entities;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.Shikimori.UpdateProvider.Achievements;
 
-internal sealed class ShikiAchievementsService : IDisposable
+internal sealed class ShikiAchievementsService
 {
-	private readonly IDisposable? _monitor;
-	private FrozenDictionary<AchievementKey, ShikiAchievement> _achievements;
+	private readonly ILogger<ShikiAchievementsService> _logger;
+	private readonly FrozenDictionary<AchievementKey, ShikiAchievement> _achievements;
 
-	public ShikiAchievementsService(IOptionsMonitor<NekoFileJson> options)
+	public ShikiAchievementsService(NekoFileJson options, ILogger<ShikiAchievementsService> logger)
 	{
-		this._achievements = CreateFromOptionsValue(options.CurrentValue);
-		this._monitor = options.OnChange(neko => this._achievements = CreateFromOptionsValue(neko));
+		this._logger = logger;
+		this._achievements = this.CreateFromOptionsValue(options);
 	}
 
-	private static FrozenDictionary<AchievementKey, ShikiAchievement> CreateFromOptionsValue(NekoFileJson neko)
+	private FrozenDictionary<AchievementKey, ShikiAchievement> CreateFromOptionsValue(NekoFileJson neko)
 	{
-		if (neko.HumanNames is null || neko.Achievements is null)
+		if (neko.HumanNames.Count is 0 || neko.Achievements.Count is 0)
 		{
+			this._logger.DidntFindAnyAchievements();
 			return FrozenDictionary<AchievementKey, ShikiAchievement>.Empty;
 		}
+
+		this._logger.FoundAchievements(neko.Achievements.Count);
 
 		return neko.Achievements.ToDictionary(
 			item => new AchievementKey(item.neko_id, item.level),
@@ -34,7 +34,7 @@ internal sealed class ShikiAchievementsService : IDisposable
 				item.neko_id,
 				item.level,
 				new(Wrapper.Abstractions.Constants.BaseUrl + item.image, UriKind.Absolute),
-				item.border_color.HasValue ? new(item.border_color.Value) : DiscordColor.None,
+				!string.IsNullOrWhiteSpace(item.border_color) ? new(item.border_color) : DiscordColor.None,
 				item.title_ru,
 				item.text_ru,
 				item.title_en,
@@ -44,10 +44,7 @@ internal sealed class ShikiAchievementsService : IDisposable
 
 	public ShikiAchievement? GetAchievementOrNull(string id, byte level) => this._achievements.GetValueOrDefault(new(id, level));
 
-	private readonly record struct AchievementKey(string Id, byte Level);
+	public bool IsAnyAchievementInfoAvailable => this._achievements.Count > 0;
 
-	public void Dispose()
-	{
-		this._monitor?.Dispose();
-	}
+	private readonly record struct AchievementKey(string Id, byte Level);
 }

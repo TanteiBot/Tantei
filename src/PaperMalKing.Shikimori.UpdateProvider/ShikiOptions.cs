@@ -15,6 +15,6 @@ public sealed class ShikiOptions : ITimerOptions<ShikiUpdateProvider>
 	public string ShikimoriAppName { get; init; } = null!;
 
 	[Required]
-	[Range(0, int.MaxValue)]
+	[Range(1, int.MaxValue)]
 	public int DelayBetweenChecksInMilliseconds { get; init; }
 }

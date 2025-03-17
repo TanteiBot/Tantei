@@ -55,7 +55,8 @@
 
     <!-- Configuration -->
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />  
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.3" />

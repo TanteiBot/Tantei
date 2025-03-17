@@ -2,10 +2,7 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System.Diagnostics;
-using System.Net.Http;
-using System.Threading;
 using System.Threading.RateLimiting;
-using System.Threading.Tasks;
 
 namespace PaperMalKing.Common.RateLimiters;
 

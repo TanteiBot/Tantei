@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2024 N0D4N
 
 using System.Diagnostics;
-using System.Linq;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;

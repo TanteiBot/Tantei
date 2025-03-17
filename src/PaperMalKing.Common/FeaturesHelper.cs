@@ -1,14 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2024 N0D4N
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Common;
@@ -16,10 +12,10 @@ namespace PaperMalKing.Common;
 public static class FeaturesHelper<T>
 	where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
-	private static EnumInfo<T>[]? _featuresInfo;
-
+	[field: MaybeNull]
+	[field: AllowNull]
 	private static EnumInfo<T>[] FeaturesInfo =>
-		Volatile.Read(ref _featuresInfo) ?? Interlocked.CompareExchange(ref _featuresInfo, CreateFeaturesInfo(), comparand: null) ?? _featuresInfo;
+		Volatile.Read(ref field) ?? Interlocked.CompareExchange(ref field, CreateFeaturesInfo(), comparand: null) ?? field;
 
 	public static IReadOnlyList<EnumInfo<T>> Features => FeaturesInfo;
 

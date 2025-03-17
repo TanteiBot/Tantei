@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2024 N0D4N
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
@@ -44,9 +42,9 @@ public static class HostBuilderExtensions
 			SQLitePCL.raw.sqlite3_config(sqliteMultithreadedMode);
 		}
 
-		hostBuilder.ConfigureAppConfiguration((context, builder) =>
-					   builder.AddJsonFile(context.Configuration.GetValue<string>("Shikimori:PathToAchievementsJson") ?? "neko.json", optional: true, reloadOnChange: true))
-		.ConfigureServices((_, services) =>
+		hostBuilder
+		.ConfigureAppConfiguration((_, builder) => builder.AddEnvironmentVariables(prefix: "Tantei_"))
+		.ConfigureServices((context, services) =>
 		{
 			static void ConfigureDbContext(IServiceProvider services, DbContextOptionsBuilder builder)
 			{
@@ -105,7 +103,7 @@ public static class HostBuilderExtensions
 			services.AddSingleton<ICommandsService, CommandsService>();
 			services.AddSingleton<UpdateProvidersConfigurationService>();
 			services.AddSingleton<GuildManagementService>();
-			UpdateProvidersConfigurationService.ConfigureProviders(services);
+			UpdateProvidersConfigurationService.ConfigureProviders(services, context.Configuration);
 
 			services.AddHostedService<DiscordBackgroundService>();
 			services.AddHostedService<OnStartupActionsExecutingService>();

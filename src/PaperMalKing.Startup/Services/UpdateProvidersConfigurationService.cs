@@ -1,9 +1,8 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2024 N0D4N
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.UpdateProvider.Installer;
@@ -36,10 +35,10 @@ internal sealed class UpdateProvidersConfigurationService
 		logger.BuiltUpdateProvidersConfigurationService(typeof(UpdateProvidersConfigurationService));
 	}
 
-	public static void ConfigureProviders(IServiceCollection services)
+	public static void ConfigureProviders(IServiceCollection services, IConfiguration configuration)
 	{
 		services.AddAniList();
 		services.AddMyAnimeList();
-		services.AddShikimori();
+		services.AddShikimori(configuration);
 	}
 }

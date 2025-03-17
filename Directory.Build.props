@@ -25,7 +25,8 @@
         <EnablePackageValidation>true</EnablePackageValidation>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
-        
+        <ImplicitUsings>enable</ImplicitUsings>
+
         <!-- Lint -->
         <Nullable>enable</Nullable>
         <WarningsAsErrors>nullable</WarningsAsErrors>
@@ -132,8 +133,6 @@
             MA0048; <!--File name must match type name-->
             S125;  <!--Remove this commented out code.-->
             S1135; <!--Complete the task associated to this 'TODO' comment.-->
-
-            IDE0032; <!-- Use auto property-->
         </WarningsNotAsErrors>
     </PropertyGroup>
     
