@@ -77,7 +77,7 @@
     <PackageVersion Include="JikanDotNet" Version="2.9.1" />
     <PackageVersion Include="System.Threading.RateLimiting" Version="9.0.3" />
     <PackageVersion Include="Microsoft.Extensions.EnumStrings" Version="8.0.0-rc.2.23510.2" />
-    <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="17.13.2" />
+    <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="17.13.61" />
     <GlobalPackageReference Include="GitVersion.MsBuild" Version="6.1.0">
         <PrivateAssets>All</PrivateAssets>
     </GlobalPackageReference>
@@ -86,7 +86,7 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.188">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.189">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -106,7 +106,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.2">
+    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.61">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
