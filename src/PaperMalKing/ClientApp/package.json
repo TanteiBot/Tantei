@@ -12,31 +12,31 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@fontsource/roboto": "^5.1.1",
-    "@mui/icons-material": "^6.4.6",
-    "@mui/material": "^6.4.6",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router": "^7.2.0",
-    "react-router-dom": "^7.2.0"
+    "@fontsource/roboto": "^5.2.5",
+    "@mui/icons-material": "^7.0.1",
+    "@mui/material": "^7.0.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router": "^7.5.0",
+    "react-router-dom": "^7.5.0"
   },
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.5",
-    "@types/node": "^22.13.7",
-    "@types/react": "^19.0.10",
-    "@types/react-dom": "^19.0.4",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.1",
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
-    "@typescript-eslint/eslint-plugin": "^8.25.0",
-    "@typescript-eslint/parser": "^8.25.0",
-    "@vitejs/plugin-react-swc": "^3.8.0",
-    "eslint": "^9.21.0",
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
+    "@typescript-eslint/parser": "^8.29.0",
+    "@vitejs/plugin-react-swc": "^3.8.1",
+    "eslint": "^9.24.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "path": "^0.12.7",
-    "sass": "^1.85.1",
+    "sass": "^1.86.3",
     "typescript": "^5.8.2",
     "vite": "^6.2.5",
-    "vite-plugin-mkcert": "^1.17.7"
+    "vite-plugin-mkcert": "^1.17.8"
   }
 }
