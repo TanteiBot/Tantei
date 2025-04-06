@@ -3,6 +3,7 @@
 
 using System.Globalization;
 using DSharpPlus;
+using EntityFramework.Exceptions.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -53,6 +54,7 @@ public static class HostBuilderExtensions
 				builder.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("Default"),
 					o => o.MigrationsAssembly("PaperMalKing.Database.Migrations"))
 					   .UseModel(DatabaseContextModel.Instance)
+					   .UseExceptionProcessor()
 					   .ConfigureWarnings(w =>
 					   {
 						   List<EventId> eventIds =
