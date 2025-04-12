@@ -142,5 +142,6 @@
     <!-- Implicit -->
     <PackageVersion Include="System.Net.Security" Version="4.3.2" />
     <PackageVersion Include="System.Formats.Asn1" Version="9.0.3" />
+    <PackageVersion Include="System.Private.Uri" Version="4.3.2" />  
   </ItemGroup>
 </Project>
