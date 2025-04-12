@@ -19,21 +19,6 @@ updates:
       nuget:
         patterns:
           - "*"
-        exclude-patterns:
-          - "*xunit*"
-          - "*verify*"
-          - "BenchmarkDotNet"
-          - "*coverlet*"
-          - "*GitHubActionsTestLogger*"
-          - "*Test.Sdk*"
-      nuget-testing:
-        patterns:
-          - "*xunit*"
-          - "*verify*"
-          - "BenchmarkDotNet"
-          - "*coverlet*"
-          - "*GitHubActionsTestLogger*"
-          - "*Test.Sdk*"
 
   - package-ecosystem: "npm"
     directory: "/src/PaperMalKing/ClientApp"
