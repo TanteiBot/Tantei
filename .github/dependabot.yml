@@ -13,8 +13,9 @@ updates:
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "saturday"
+      interval: "daily"
+      time: "20:00"
+      timezone: "Etc/UTC"
     groups:
       nuget:
         patterns:
