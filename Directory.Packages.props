@@ -7,7 +7,7 @@
   <PropertyGroup>
     <EntityFrameworkCoreVersion>9.0.4</EntityFrameworkCoreVersion>
     <GraphQLClientVersion>6.1.0</GraphQLClientVersion>
-    <DSharpPlusVersion>4.5.0</DSharpPlusVersion>
+    <DSharpPlusVersion>4.5.1</DSharpPlusVersion>
     <CommunityTookitVersion>8.4.0</CommunityTookitVersion>
 
     <VerifyVersion>29.2.0</VerifyVersion>
@@ -85,7 +85,7 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.196">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.197">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
