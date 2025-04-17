@@ -3,7 +3,7 @@ Tantei
 
 
 [![.NET build](https://github.com/TanteiBot/Tantei/actions/workflows/build.yml/badge.svg)](https://github.com/TanteiBot/Tantei/actions/workflows/build.yml) ![GitHub](https://img.shields.io/github/license/TanteiBot/Tantei?label=License&style=flat-square)  
-Tantei is Discord bot that tracks user's updates from various anime/manga list websites such as [MyAnimeList](https://myanimelist.net), [Shikimori](https://shikimori.me), [AniList](https://anilist.co) and posts them to Discord server/s.
+Tantei is Discord bot that tracks user's updates from various anime/manga list websites such as [MyAnimeList](https://myanimelist.net), [Shikimori](https://shikimori.one), [AniList](https://anilist.co) and posts them to Discord server/s.
 
 Installation
 ---------------------
@@ -19,7 +19,7 @@ Run with `dotnet PaperMalKing.dll`
 
 Notice
 ---------------------
-Project is unofficial and is not affiliated with MyAnimeList.net, Shikimori.me, AniList.co or any other website/application from which project can get users updates.
+Project is unofficial and is not affiliated with MyAnimeList.net, Shikimori.one, AniList.co or any other website/application from which project can get users updates.
 
 License
 ---------------------
