@@ -10,9 +10,11 @@
         <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" />
         <PackageReference Include="Microsoft.Extensions.Http" />
         <PackageReference Include="Microsoft.Extensions.Telemetry.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     </ItemGroup>
     
     <ItemGroup>
+      <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
       <ProjectReference Include="..\PaperMalKing.AniList.UpdateProvider\PaperMalKing.AniList.UpdateProvider.csproj" />
       <ProjectReference Include="..\PaperMalKing.AniList.Wrapper.Abstractions\PaperMalKing.AniList.Wrapper.Abstractions.csproj" />
       <ProjectReference Include="..\PaperMalKing.AniList.Wrapper\PaperMalKing.AniList.Wrapper.csproj" />
