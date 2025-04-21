@@ -8,9 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper;
 using PaperMalKing.AniList.Wrapper.Abstractions;
+using PaperMalKing.Common.RateLimiters;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base.Features;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
+using Polly;
 
 namespace PaperMalKing.AniList.UpdateProvider.Installer;
 
@@ -19,15 +21,14 @@ public static class ServiceCollectionExtensions
 	public static void AddAniList(this IServiceCollection serviceCollection)
 	{
 		serviceCollection.AddOptions<AniListOptions>().BindConfiguration(AniListOptions.AniList).ValidateDataAnnotations().ValidateOnStart();
+		const int rpm = 29;
 
 		serviceCollection.AddHttpClient(ProviderConstants.Name).ConfigurePrimaryHttpMessageHandler(static () => new SocketsHttpHandler
 		{
 			PooledConnectionLifetime = TimeSpan.FromMinutes(30),
-		}).AddHttpMessageHandler(static provider =>
-		{
-			var rlLogger = provider.GetRequiredService<ILogger<HeaderBasedRateLimitMessageHandler>>();
-			return new HeaderBasedRateLimitMessageHandler(rlLogger);
-		});
+		})
+		// https://github.com/TanteiBot/Tantei/issues/870
+		.AddResilienceHandler("anilist", builder => builder.AddRateLimiter(RateLimiterFactory.Create<AniListClient>(new(rpm, TimeSpan.FromMinutes(1)))));
 		serviceCollection.AddSingleton<IAniListClient, AniListClient>(static provider =>
 		{
 			var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
