@@ -16,6 +16,7 @@ using PaperMalKing.Database.CompiledModels;
 using PaperMalKing.Startup.Options;
 using PaperMalKing.Startup.Services;
 using PaperMalKing.Startup.Services.Background;
+using PaperMalKing.Startup.Services.ExecuteOnStartup;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Colors;
 using Serilog;
@@ -82,8 +83,11 @@ public static class HostBuilderExtensions
 			services.AddPooledDbContextFactory<DatabaseContext>(ConfigureDbContext);
 			services.AddDbContext<DatabaseContext>(ConfigureDbContext, optionsLifetime: ServiceLifetime.Singleton);
 			services.AddSingleton<IExecuteOnStartupService, MigrateOnStartupService>();
+			services.AddSingleton<IExecuteOnStartupService, WarnOnSeqOnStartupService>();
 
 			services.AddOptions<DiscordOptions>().BindConfiguration(DiscordOptions.Discord).ValidateDataAnnotations().ValidateOnStart();
+			services.AddOptions<SeqOptions>().BindConfiguration(SeqOptions.Seq);
+			services.AddOptions<OtlpOptions>().BindConfiguration(OtlpOptions.Otlp);
 			services.AddResilienceEnricher();
 			services.AddSingleton<DiscordClient>(provider =>
 			{
@@ -98,9 +102,11 @@ public static class HostBuilderExtensions
 					ReconnectIndefinitely = true,
 					MessageCacheSize = 256,
 					MinimumLogLevel = LogLevel.Trace,
+					LogUnknownEvents = false,
 				};
 				return new(cfg);
 			});
+
 			services.AddSingleton<UpdatePublishingService>();
 			services.AddSingleton<ICommandsService, CommandsService>();
 			services.AddSingleton<UpdateProvidersConfigurationService>();
@@ -131,7 +137,7 @@ public static class HostBuilderExtensions
 		}
 #endif
 
-		hostBuilder.UseSerilog((context, _, configuration) =>
+		hostBuilder.UseSerilog((context, services, configuration) =>
 		{
 			var level =
 #if !IsInContainer
@@ -150,19 +156,41 @@ public static class HostBuilderExtensions
 #endif
 				loggerSinkConfiguration.Console(outputTemplate: template, formatProvider: CultureInfo.InvariantCulture);
 
-			var seqSection = context.Configuration.GetSection("Seq");
+			var seqOptions = services.GetRequiredService<IOptions<SeqOptions>>();
 
-			var isSeqEnabled = seqSection.GetValue<bool>("IsEnabled", defaultValue: false);
-			if (isSeqEnabled)
+			if (seqOptions.Value.IsEnabled)
 			{
 				configuration.WriteTo.OpenTelemetry(ot =>
 				{
-					ot.Endpoint = seqSection.GetValue<string>("LogIngestionUrl");
+					ot.Endpoint = seqOptions.Value.IngestionUrl;
 					ot.Protocol = OtlpProtocol.HttpProtobuf;
 					ot.Headers = new Dictionary<string, string>(1, StringComparer.Ordinal)
 					{
-						["X-Seq-ApiKey"] = seqSection.GetValue<string>("ApiKey")!,
+						["X-Seq-ApiKey"] = seqOptions.Value.ApiKey,
 					};
+
+					const string tanteiName = "Tantei";
+					const string tanteiDevName = $"{tanteiName}-dev";
+					ot.ResourceAttributes = new Dictionary<string, object>(1, StringComparer.Ordinal)
+					{
+						["service.name"] = context.HostingEnvironment.IsDevelopment() ? tanteiDevName : tanteiName,
+					};
+				});
+			}
+
+			var otlpOptions = services.GetRequiredService<IOptions<OtlpOptions>>();
+
+			if (otlpOptions.Value.IsEnabled)
+			{
+				configuration.WriteTo.OpenTelemetry(ot =>
+				{
+					ot.Endpoint = otlpOptions.Value.IngestionUrl;
+					ot.Protocol = OtlpProtocol.HttpProtobuf;
+
+					if (otlpOptions.Value.AdditionalHeaders is { Count: > 0 })
+					{
+						ot.Headers = otlpOptions.Value.AdditionalHeaders;
+					}
 
 					const string tanteiName = "Tantei";
 					const string tanteiDevName = $"{tanteiName}-dev";
