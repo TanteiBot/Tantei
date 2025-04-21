@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PaperMalKing.Database;
 using PaperMalKing.UpdatesProviders.Base;
 
-namespace PaperMalKing.Startup.Services;
+namespace PaperMalKing.Startup.Services.ExecuteOnStartup;
 
 internal sealed class MigrateOnStartupService(IDbContextFactory<DatabaseContext> _factory) : IExecuteOnStartupService
 {
