@@ -9,8 +9,8 @@
     <GraphQLClientVersion>6.1.0</GraphQLClientVersion>
     <DSharpPlusVersion>4.5.1</DSharpPlusVersion>
     <CommunityTookitVersion>8.4.0</CommunityTookitVersion>
-
-    <VerifyVersion>29.5.0</VerifyVersion>
+      
+    <VerifyVersion>30.0.0</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
@@ -65,7 +65,7 @@
     <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.4" />
 
     <!-- Web -->
-    <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="9.2.0" />
+    <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="9.3.0" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="9.0.4" />
 
@@ -85,11 +85,11 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.199">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.201">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.8.0.113526">
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.9.0.115408">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -129,8 +129,8 @@
       
     <!-- Testing -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-    <PackageVersion Include="xunit.v3" Version="2.0.1" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" />
+    <PackageVersion Include="xunit.v3" Version="2.0.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
