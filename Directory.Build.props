@@ -159,6 +159,7 @@
                     S112; <!--'System.Exception' should not be thrown by user code.-->
                     S125; <!--Remove this commented out code.-->
                     S3235; <!--Remove these redundant parentheses.-->
+                    SA1027; <!--Tabs and spaces should be used correctly-->
                     S1144; <!--Remove the unused private method-->
                     S1172; <!--Remove this unused method parameter-->
                     S1481; <!--Remove the unused local variable.-->

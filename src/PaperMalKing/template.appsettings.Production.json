@@ -1,4 +1,8 @@
 {
+  "Otlp": {
+    "IsEnabled": true,
+    "IngestionUrl": "",
+  },
   "ConnectionStrings": {
     "Default": "Data Source=data.db"
   },

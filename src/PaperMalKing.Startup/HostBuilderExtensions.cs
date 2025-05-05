@@ -186,6 +186,7 @@ public static class HostBuilderExtensions
 				{
 					ot.Endpoint = otlpOptions.Value.IngestionUrl;
 					ot.Protocol = OtlpProtocol.HttpProtobuf;
+					ot.IncludedData |= IncludedData.SourceContextAttribute;
 
 					if (otlpOptions.Value.AdditionalHeaders is { Count: > 0 })
 					{
