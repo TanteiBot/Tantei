@@ -176,7 +176,7 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 		return results;
 	}
 
-	private async IAsyncEnumerable<DiscordEmbedBuilder> GetUpdatesAsync(CombinedRecentUpdatesResponse recentUserUpdates,
+	private async IAsyncEnumerable<UpdateContents> GetUpdatesAsync(CombinedRecentUpdatesResponse recentUserUpdates,
 																		IReadOnlyList<DiscordEmbedBuilder> favorites,
 																		AniListUser dbUser,
 																		DatabaseContext db,
@@ -203,7 +203,8 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 		{
 			foreach (var deb in favorites)
 			{
-				yield return FormatEmbed(deb, dbUser);
+				yield return new() { EmbedBuilder = FormatEmbed(deb, dbUser) };
+
 				updatesCount++;
 			}
 
@@ -231,7 +232,7 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 			{
 				foreach (var deb in recentUserUpdates.Reviews)
 				{
-					yield return FormatEmbed(deb.ToDiscordEmbedBuilder(recentUserUpdates.User, dbUser), dbUser);
+					yield return new() { EmbedBuilder = FormatEmbed(deb.ToDiscordEmbedBuilder(recentUserUpdates.User, dbUser), dbUser) };
 					updatesCount++;
 				}
 
@@ -266,7 +267,7 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 				{
 					var embed = lastListActivityOnMedia.ToDiscordEmbedBuilder(mediaListEntry, recentUserUpdates.User, dbUser);
 
-					yield return FormatEmbed(embed, dbUser);
+					yield return new() { EmbedBuilder = FormatEmbed(embed, dbUser) };
 
 					updatesCount++;
 

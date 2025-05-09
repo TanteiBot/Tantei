@@ -21,4 +21,6 @@ public interface IShikiClient
 		where TMedia : BaseMedia;
 
 	Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken = default);
+
+	Task<byte[]> GetImageContentAsync(string url, CancellationToken cancellationToken = default);
 }

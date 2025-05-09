@@ -15,6 +15,7 @@ using PaperMalKing.Shikimori.UpdateProvider.Achievements;
 using PaperMalKing.Shikimori.Wrapper.Abstractions;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
+using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
@@ -351,5 +352,42 @@ internal static partial class Extensions
 		where T : IReadOnlyCollection<FavouriteEntry>
 	{
 		return [.. favorites.Select(static x => new FavoriteIdType(x.Id, (byte)x.GenericType![0])).Order()];
+	}
+
+	public static async Task<UpdateContents> CreateUpdateFromEmbedAsync(DiscordEmbedBuilder embedBuilder, IShikiClient shikiClient, CancellationToken cancellationToken = default)
+	{
+		List<UpdateFile> updateFiles = [];
+
+		if (!string.IsNullOrWhiteSpace(embedBuilder.Author.IconUrl))
+		{
+			var file = await shikiClient.GetImageContentAsync(embedBuilder.Author.IconUrl, cancellationToken);
+			const string filename = $"author.{UserInfo.ImageFormat}";
+			updateFiles.Add(new()
+			{
+				Filename = filename,
+				Content = file,
+			});
+
+			embedBuilder.Author.IconUrl = Formatter.AttachedImageUrl(filename);
+		}
+
+		if (!string.IsNullOrWhiteSpace(embedBuilder.Thumbnail.Url))
+		{
+			var file = await shikiClient.GetImageContentAsync(embedBuilder.Thumbnail.Url, cancellationToken);
+			const string filename = $"thumbnail.{HistoryTarget.ImageFormat}";
+			updateFiles.Add(new()
+			{
+				Filename = filename,
+				Content = file,
+			});
+
+			embedBuilder.Thumbnail.Url = Formatter.AttachedImageUrl(filename);
+		}
+
+		return new()
+		{
+			EmbedBuilder = embedBuilder,
+			Files = updateFiles is not [] ? [.. updateFiles] : [],
+		};
 	}
 }

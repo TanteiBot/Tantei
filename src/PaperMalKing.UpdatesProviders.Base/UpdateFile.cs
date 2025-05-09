@@ -3,7 +3,9 @@
 
 namespace PaperMalKing.UpdatesProviders.Base;
 
-public interface IUpdate
+public sealed class UpdateFile
 {
-	IAsyncEnumerable<UpdateContents> GetUpdateContentsAsync();
+	public required string Filename { get; init; }
+
+	public required byte[] Content { get; init; }
 }

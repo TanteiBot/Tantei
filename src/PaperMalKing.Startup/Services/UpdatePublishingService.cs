@@ -100,9 +100,9 @@ internal sealed class UpdatePublishingService
 		{
 			await Task.WhenAll(args.DiscordUser.Guilds.Select(g => g.PostingChannelId).Select(i => this._updatePosters[i].PreparePostingUpdatesAsync()));
 
-			await foreach (var embed in args.Update.GetUpdateEmbedsAsync())
+			await foreach (var update in args.Update.GetUpdateContentsAsync())
 			{
-				tasks.AddRange(args.DiscordUser.Guilds.Select(guild => this._updatePosters[guild.PostingChannelId].PostUpdateAsync(embed)));
+				tasks.AddRange(args.DiscordUser.Guilds.Select(guild => this._updatePosters[guild.PostingChannelId].PostUpdateAsync(update)));
 
 				await Task.WhenAll(tasks);
 
