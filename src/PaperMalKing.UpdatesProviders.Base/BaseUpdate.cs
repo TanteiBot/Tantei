@@ -1,44 +1,22 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2025 N0D4N
 
-using DSharpPlus.Entities;
-
 namespace PaperMalKing.UpdatesProviders.Base;
 
 public sealed class BaseUpdate : IUpdate
 {
-	private readonly IReadOnlyList<DiscordEmbedBuilder> _updates = [];
+	private readonly IAsyncEnumerable<UpdateContents> _asyncUpdates;
 
-	private readonly IAsyncEnumerable<DiscordEmbedBuilder> _asyncUpdates = EmptyAsync();
-
-	public BaseUpdate(IReadOnlyList<DiscordEmbedBuilder> updateEmbeds)
-	{
-		this._updates = updateEmbeds;
-	}
-
-	public BaseUpdate(IAsyncEnumerable<DiscordEmbedBuilder> updates)
+	public BaseUpdate(IAsyncEnumerable<UpdateContents> updates)
 	{
 		this._asyncUpdates = updates;
 	}
 
-	public async IAsyncEnumerable<DiscordEmbed> GetUpdateEmbedsAsync()
+	public async IAsyncEnumerable<UpdateContents> GetUpdateContentsAsync()
 	{
-		foreach (var embed in this._updates)
+		await foreach (var update in this._asyncUpdates)
 		{
-			yield return embed.Build();
+			yield return update;
 		}
-
-		await foreach (var embed in this._asyncUpdates)
-		{
-			yield return embed.Build();
-		}
-	}
-
-#pragma warning disable CS1998
-	// Async method lacks 'await' operators and will run synchronously
-	private static async IAsyncEnumerable<DiscordEmbedBuilder> EmptyAsync()
-#pragma warning restore
-	{
-		yield break;
 	}
 }

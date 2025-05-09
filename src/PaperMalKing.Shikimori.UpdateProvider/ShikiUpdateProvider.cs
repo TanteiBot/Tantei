@@ -79,7 +79,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 		}
 	}
 
-	private async IAsyncEnumerable<DiscordEmbedBuilder> GetUpdatesAsync(UserInfo user,
+	private async IAsyncEnumerable<UpdateContents> GetUpdatesAsync(UserInfo user,
 																		ShikiUser dbUser,
 																		DatabaseContext db,
 																		Favourites favs,
@@ -109,7 +109,9 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 		{
 			foreach (var achievementUpdate in achievementUpdates)
 			{
-				yield return FormatEmbed(dbUser, achievementUpdate.ToDiscordEmbed(user, dbUser.Features));
+				var embed = FormatEmbed(dbUser, achievementUpdate.ToDiscordEmbed(user, dbUser.Features));
+
+				yield return await Extensions.CreateUpdateFromEmbedAsync(embed, _client, cancellationToken);
 
 				updatesCount++;
 			}
@@ -124,7 +126,9 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 		{
 			foreach (var deb in addedFavourites.Select(af => af.ToDiscordEmbed(user, added: true, dbUser)).Concat(removedFavourites.Select(rf => rf.ToDiscordEmbed(user, added: false, dbUser))))
 			{
-				yield return FormatEmbed(dbUser, deb);
+				var embed = FormatEmbed(dbUser, deb);
+
+				yield return await Extensions.CreateUpdateFromEmbedAsync(embed, _client, cancellationToken);
 
 				updatesCount++;
 			}
@@ -142,7 +146,9 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 			for (var i = 0; i < groupedHistoryEntriesWithMediaAndRoles.Count; i++)
 			{
 				var groupedHistory = groupedHistoryEntriesWithMediaAndRoles[i];
-				yield return FormatEmbed(dbUser, groupedHistory.ToDiscordEmbed(user, dbUser));
+				var embed = FormatEmbed(dbUser, groupedHistory.ToDiscordEmbed(user, dbUser));
+
+				yield return await Extensions.CreateUpdateFromEmbedAsync(embed, _client, cancellationToken);
 
 				if (i == 0 || dbUser.LastHistoryEntryId < groupedHistory.MinId)
 				{

@@ -157,7 +157,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 		}
 	}
 
-	private async IAsyncEnumerable<DiscordEmbedBuilder> GetUpdatesAsync(IReadOnlyList<DiscordEmbedBuilder> animeListUpdates,
+	private async IAsyncEnumerable<UpdateContents> GetUpdatesAsync(IReadOnlyList<DiscordEmbedBuilder> animeListUpdates,
 																		IReadOnlyList<DiscordEmbedBuilder> mangaListUpdates,
 																		MalUser dbUser, User user, DatabaseContext db,
 																		[EnumeratorCancellation] CancellationToken cancellationToken)
@@ -189,7 +189,8 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 		{
 			foreach (var deb in favoritesUpdates)
 			{
-				yield return FormatEmbed(dbUser, deb);
+				yield return new() { EmbedBuilder = FormatEmbed(dbUser, deb) };
+
 				updatesCount++;
 			}
 
@@ -206,7 +207,8 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 		{
 			foreach (var deb in animeListUpdates.OrderBy(x => x.Timestamp))
 			{
-				yield return FormatEmbed(dbUser, deb);
+				yield return new() { EmbedBuilder = FormatEmbed(dbUser, deb) };
+
 				dbUser.LastUpdatedAnimeListTimestamp = deb.Timestamp!.Value;
 				await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
 
@@ -222,7 +224,8 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 		{
 			foreach (var deb in mangaListUpdates.OrderBy(x => x.Timestamp))
 			{
-				yield return FormatEmbed(dbUser, deb);
+				yield return new() { EmbedBuilder = FormatEmbed(dbUser, deb) };
+
 				dbUser.LastUpdatedMangaListTimestamp = deb.Timestamp!.Value;
 				await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
 

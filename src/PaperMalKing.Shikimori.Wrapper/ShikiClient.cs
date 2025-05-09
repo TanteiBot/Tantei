@@ -108,4 +108,9 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 
 		return r;
 	}
+
+	public Task<byte[]> GetImageContentAsync(string url, CancellationToken cancellationToken = default)
+	{
+		return _httpClient.GetByteArrayAsync(url, cancellationToken);
+	}
 }

@@ -10,6 +10,8 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 
 public sealed class HistoryTarget : IMultiLanguageName
 {
+	public const string ImageFormat = "jpg";
+
 	public ListEntryType Type { get; init; }
 
 	[JsonPropertyName("status")]
@@ -29,7 +31,7 @@ public sealed class HistoryTarget : IMultiLanguageName
 			field = Constants.BaseUrl + value;
 			this.Type = value.Contains("/animes", StringComparison.OrdinalIgnoreCase) ? ListEntryType.Anime : ListEntryType.Manga;
 			var entryType = this.Type == ListEntryType.Anime ? "animes" : "mangas";
-			this.ImageUrl = Utils.GetImageUrl(entryType, this.Id);
+			this.ImageUrl = Utils.GetImageUrl(entryType, this.Id, ImageFormat);
 		}
 	}
 

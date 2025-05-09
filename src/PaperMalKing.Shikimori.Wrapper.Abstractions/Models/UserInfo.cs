@@ -9,6 +9,8 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 
 public class UserInfo
 {
+	public const string ImageFormat = "png";
+
 	[JsonPropertyName("id")]
 	public uint Id { get; init; }
 
@@ -19,5 +21,5 @@ public class UserInfo
 
 	[field: MaybeNull]
 	[field: AllowNull]
-	public string ImageUrl => field ??= Utils.GetImageUrl("users", this.Id, "png", "x80");
+	public string ImageUrl => field ??= Utils.GetImageUrl("users", this.Id, ImageFormat, "x80");
 }
