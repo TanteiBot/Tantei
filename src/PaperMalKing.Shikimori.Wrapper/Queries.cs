@@ -14,7 +14,8 @@ internal static class Queries
 		query {{
 			users (ids: [{0}], limit: 1) {{
 				id,
-				nickname
+				nickname,
+				avatarUrl
 			}}
 		}}
 		""");
@@ -24,7 +25,8 @@ internal static class Queries
 		query ($nickname: String) {
 			users (search: $nickname, limit: 1) {
 				id,
-				nickname
+				nickname,
+				avatarUrl
 			}
 		}
 		""");

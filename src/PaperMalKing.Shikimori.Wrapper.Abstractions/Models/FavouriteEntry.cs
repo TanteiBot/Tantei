@@ -26,7 +26,10 @@ public sealed class FavouriteEntry : IEquatable<FavouriteEntry>, IComparable<Fav
 	[JsonConverter(typeof(ClearableStringPoolingJsonConverter))]
 	public string? RussianName { get; init; }
 
-	public string ImageUrl => Utils.GetImageUrl(this.GenericType!, this.Id);
+	[JsonPropertyName("image")]
+	public string? Image { get; init; }
+
+	public string? ImageUrl => string.IsNullOrWhiteSpace(this.Image) ? null : Constants.BaseUrl + this.Image;
 
 	public string Url => Utils.GetUrl(this.GenericType!, this.Id);
 

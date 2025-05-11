@@ -188,7 +188,12 @@ internal static partial class Extensions
 			titleSb.AppendLine(CultureInfo.InvariantCulture, $" [{target.Status.Humanize(LetterCasing.Sentence)}]");
 		}
 
-		eb.WithTitle(titleSb.ToString()).WithUrl(target.Url).WithThumbnail(target.ImageUrl);
+		eb.WithTitle(titleSb.ToString()).WithUrl(target.Url);
+
+		if (!string.IsNullOrWhiteSpace(target.ImageUrl))
+		{
+			eb.WithThumbnail(target.ImageUrl);
+		}
 
 		if (target.Chapters.HasValue && target.Chapters != 0)
 		{
@@ -229,9 +234,14 @@ internal static partial class Extensions
 		{
 			Url = favouriteEntry.FavouriteEntry.Url,
 			Title = $"{favouriteName} [{(favouriteEntry.FavouriteEntry.SpecificType ?? favouriteEntry.FavouriteEntry.GenericType)?.ToFirstCharUpperCase()}]",
-		}.WithThumbnail(favouriteEntry.FavouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favourite")
+		}.WithDescription($"{(added ? "Added" : "Removed")} favourite")
 		 .WithShikiAuthor(user)
 		 .WithColor(color);
+
+		if (!string.IsNullOrWhiteSpace(favouriteEntry.FavouriteEntry.ImageUrl))
+		{
+			eb.WithThumbnail(favouriteEntry.FavouriteEntry.ImageUrl);
+		}
 
 		var isAnime = favouriteEntry.FavouriteEntry.GenericType!.Contains("anime", StringComparison.OrdinalIgnoreCase);
 		var isManga = favouriteEntry.FavouriteEntry.GenericType!.Contains("manga", StringComparison.OrdinalIgnoreCase);
