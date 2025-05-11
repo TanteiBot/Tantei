@@ -29,4 +29,7 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Debug, "Requesting {UserId} achievements")]
 	public static partial void RequestingUserAchievements(this ILogger<ShikiClient> logger, uint userId);
+
+	[LoggerMessage(LogLevel.Warning, "Image {Url} not found")]
+	public static partial void ImageNotFound(this ILogger<ShikiClient> logger, string url);
 }

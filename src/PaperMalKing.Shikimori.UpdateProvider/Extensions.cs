@@ -361,27 +361,33 @@ internal static partial class Extensions
 		if (!string.IsNullOrWhiteSpace(embedBuilder.Author.IconUrl))
 		{
 			var file = await shikiClient.GetImageContentAsync(embedBuilder.Author.IconUrl, cancellationToken);
-			const string filename = $"author.{UserInfo.ImageFormat}";
-			updateFiles.Add(new()
+			if (file is not null and not [])
 			{
-				Filename = filename,
-				Content = file,
-			});
+				const string filename = $"author.{UserInfo.ImageFormat}";
+				updateFiles.Add(new()
+				{
+					Filename = filename,
+					Content = file,
+				});
 
-			embedBuilder.Author.IconUrl = Formatter.AttachedImageUrl(filename);
+				embedBuilder.Author.IconUrl = Formatter.AttachedImageUrl(filename);
+			}
 		}
 
 		if (!string.IsNullOrWhiteSpace(embedBuilder.Thumbnail.Url))
 		{
 			var file = await shikiClient.GetImageContentAsync(embedBuilder.Thumbnail.Url, cancellationToken);
-			const string filename = $"thumbnail.{HistoryTarget.ImageFormat}";
-			updateFiles.Add(new()
+			if (file is not null and not [])
 			{
-				Filename = filename,
-				Content = file,
-			});
+				const string filename = $"thumbnail.{HistoryTarget.ImageFormat}";
+				updateFiles.Add(new()
+				{
+					Filename = filename,
+					Content = file,
+				});
 
-			embedBuilder.Thumbnail.Url = Formatter.AttachedImageUrl(filename);
+				embedBuilder.Thumbnail.Url = Formatter.AttachedImageUrl(filename);
+			}
 		}
 
 		return new()
