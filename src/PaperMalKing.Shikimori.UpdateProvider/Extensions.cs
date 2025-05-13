@@ -188,7 +188,12 @@ internal static partial class Extensions
 			titleSb.AppendLine(CultureInfo.InvariantCulture, $" [{target.Status.Humanize(LetterCasing.Sentence)}]");
 		}
 
-		eb.WithTitle(titleSb.ToString()).WithUrl(target.Url).WithThumbnail(target.ImageUrl);
+		eb.WithTitle(titleSb.ToString()).WithUrl(target.Url);
+
+		if (!string.IsNullOrWhiteSpace(target.ImageUrl))
+		{
+			eb.WithThumbnail(target.ImageUrl);
+		}
 
 		if (target.Chapters.HasValue && target.Chapters != 0)
 		{
@@ -229,9 +234,14 @@ internal static partial class Extensions
 		{
 			Url = favouriteEntry.FavouriteEntry.Url,
 			Title = $"{favouriteName} [{(favouriteEntry.FavouriteEntry.SpecificType ?? favouriteEntry.FavouriteEntry.GenericType)?.ToFirstCharUpperCase()}]",
-		}.WithThumbnail(favouriteEntry.FavouriteEntry.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favourite")
+		}.WithDescription($"{(added ? "Added" : "Removed")} favourite")
 		 .WithShikiAuthor(user)
 		 .WithColor(color);
+
+		if (!string.IsNullOrWhiteSpace(favouriteEntry.FavouriteEntry.ImageUrl))
+		{
+			eb.WithThumbnail(favouriteEntry.FavouriteEntry.ImageUrl);
+		}
 
 		var isAnime = favouriteEntry.FavouriteEntry.GenericType!.Contains("anime", StringComparison.OrdinalIgnoreCase);
 		var isManga = favouriteEntry.FavouriteEntry.GenericType!.Contains("manga", StringComparison.OrdinalIgnoreCase);
@@ -361,27 +371,33 @@ internal static partial class Extensions
 		if (!string.IsNullOrWhiteSpace(embedBuilder.Author.IconUrl))
 		{
 			var file = await shikiClient.GetImageContentAsync(embedBuilder.Author.IconUrl, cancellationToken);
-			const string filename = $"author.{UserInfo.ImageFormat}";
-			updateFiles.Add(new()
+			if (file is not null and not [])
 			{
-				Filename = filename,
-				Content = file,
-			});
+				const string filename = $"author.{UserInfo.ImageFormat}";
+				updateFiles.Add(new()
+				{
+					Filename = filename,
+					Content = file,
+				});
 
-			embedBuilder.Author.IconUrl = Formatter.AttachedImageUrl(filename);
+				embedBuilder.Author.IconUrl = Formatter.AttachedImageUrl(filename);
+			}
 		}
 
 		if (!string.IsNullOrWhiteSpace(embedBuilder.Thumbnail.Url))
 		{
 			var file = await shikiClient.GetImageContentAsync(embedBuilder.Thumbnail.Url, cancellationToken);
-			const string filename = $"thumbnail.{HistoryTarget.ImageFormat}";
-			updateFiles.Add(new()
+			if (file is not null and not [])
 			{
-				Filename = filename,
-				Content = file,
-			});
+				const string filename = $"thumbnail.{HistoryTarget.ImageFormat}";
+				updateFiles.Add(new()
+				{
+					Filename = filename,
+					Content = file,
+				});
 
-			embedBuilder.Thumbnail.Url = Formatter.AttachedImageUrl(filename);
+				embedBuilder.Thumbnail.Url = Formatter.AttachedImageUrl(filename);
+			}
 		}
 
 		return new()

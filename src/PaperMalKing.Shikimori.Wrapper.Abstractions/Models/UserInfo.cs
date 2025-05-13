@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2025 N0D4N
 
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json.Serialization;
 
@@ -19,7 +18,6 @@ public class UserInfo
 
 	public string Url => $"{Constants.BaseUrl}/{WebUtility.UrlEncode(this.Nickname)}";
 
-	[field: MaybeNull]
-	[field: AllowNull]
-	public string ImageUrl => field ??= Utils.GetImageUrl("users", this.Id, ImageFormat, "x80");
+	[JsonPropertyName("avatarUrl")]
+	public string? ImageUrl { get; init; }
 }

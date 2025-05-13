@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Net;
 using System.Net.Http.Json;
 using GraphQL.Client.Http;
 using Microsoft.Extensions.Logging;
@@ -109,8 +110,17 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		return r;
 	}
 
-	public Task<byte[]> GetImageContentAsync(string url, CancellationToken cancellationToken = default)
+	public async Task<byte[]?> GetImageContentAsync(string url, CancellationToken cancellationToken = default)
 	{
-		return _httpClient.GetByteArrayAsync(url, cancellationToken);
+		try
+		{
+			return await _httpClient.GetByteArrayAsync(url, cancellationToken);
+		}
+		catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+		{
+			_logger.ImageNotFound(url);
+		}
+
+		return null;
 	}
 }

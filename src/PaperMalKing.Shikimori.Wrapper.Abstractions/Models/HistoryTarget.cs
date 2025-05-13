@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Common.Json;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
 namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 
@@ -30,8 +31,6 @@ public sealed class HistoryTarget : IMultiLanguageName
 		{
 			field = Constants.BaseUrl + value;
 			this.Type = value.Contains("/animes", StringComparison.OrdinalIgnoreCase) ? ListEntryType.Anime : ListEntryType.Manga;
-			var entryType = this.Type == ListEntryType.Anime ? "animes" : "mangas";
-			this.ImageUrl = Utils.GetImageUrl(entryType, this.Id, ImageFormat);
 		}
 	}
 
@@ -57,6 +56,9 @@ public sealed class HistoryTarget : IMultiLanguageName
 	[JsonPropertyName("russian")]
 	public string? RussianName { get; init; }
 
+	[JsonPropertyName("image")]
+	public HistoryTargetImage? Image { get; init; }
+
 	[JsonIgnore]
-	public string ImageUrl { get; private init; } = null!;
+	public string? ImageUrl => this.Image?.ImageUrl;
 }

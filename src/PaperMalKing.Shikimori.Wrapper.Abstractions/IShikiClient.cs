@@ -22,5 +22,5 @@ public interface IShikiClient
 
 	Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken = default);
 
-	Task<byte[]> GetImageContentAsync(string url, CancellationToken cancellationToken = default);
+	Task<byte[]?> GetImageContentAsync(string url, CancellationToken cancellationToken = default);
 }
