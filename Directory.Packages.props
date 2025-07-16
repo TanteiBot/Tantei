@@ -28,7 +28,7 @@
 
     <!-- GraphQl -->
     <PackageVersion Include="GraphQL.Client" Version="$(GraphQLClientVersion)" />
-    <PackageVersion Include="GraphQL.Client.Abstractions"  Version="$(GraphQLClientVersion)" />
+    <PackageVersion Include="GraphQL.Client.Abstractions" Version="$(GraphQLClientVersion)" />
     <PackageVersion Include="GraphQL.Primitives" Version="$(GraphQLClientVersion)" />
     <PackageVersion Include="GraphQL.Client.Serializer.SystemTextJson" Version="$(GraphQLClientVersion)" />
 
@@ -45,7 +45,7 @@
 
     <!-- Hosting -->
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Systemd" Version="9.0.7" Condition="'$(IsInContainer)' != 'true'"/>
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Systemd" Version="9.0.7" Condition="'$(IsInContainer)' != 'true'" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.7" />
 
     <!-- DI -->
@@ -90,7 +90,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.13.0.120203">
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.14.0.120626">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
