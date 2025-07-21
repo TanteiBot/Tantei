@@ -368,7 +368,7 @@ internal static partial class Extensions
 	{
 		List<UpdateFile> updateFiles = [];
 
-		if (!string.IsNullOrWhiteSpace(embedBuilder.Author.IconUrl))
+		if (!string.IsNullOrWhiteSpace(embedBuilder.Author?.IconUrl))
 		{
 			var file = await shikiClient.GetImageContentAsync(embedBuilder.Author.IconUrl, cancellationToken);
 			if (file is not null and not [])
@@ -384,7 +384,7 @@ internal static partial class Extensions
 			}
 		}
 
-		if (!string.IsNullOrWhiteSpace(embedBuilder.Thumbnail.Url))
+		if (!string.IsNullOrWhiteSpace(embedBuilder.Thumbnail?.Url))
 		{
 			var file = await shikiClient.GetImageContentAsync(embedBuilder.Thumbnail.Url, cancellationToken);
 			if (file is not null and not [])
