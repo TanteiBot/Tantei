@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2025 N0D4N
 
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using DSharpPlus.Entities;
@@ -212,7 +211,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 				{
 					(true, _) => await _client.GetMediaAsync<MangaMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Manga, requestOptions, cancellationToken),
 					(_, true) => await _client.GetMediaAsync<AnimeMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Anime, requestOptions, cancellationToken),
-					_ => throw new UnreachableException(),
+					_ => null,
 				};
 			}
 		}
