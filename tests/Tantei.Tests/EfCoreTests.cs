@@ -20,7 +20,7 @@ public class EfCoreTests
 	public async Task DbNoPendingMigrationsAreLeft()
 	{
 		await using var dbContext = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>()
-														.UseSqlite(x => x.MigrationsAssembly("PaperMalKing.Database.Migrations")).Options);
+			.UseSqlite(static x => x.MigrationsAssembly("PaperMalKing.Database.Migrations")).Options);
 
 		Assert.False(dbContext.Database.HasPendingModelChanges());
 	}

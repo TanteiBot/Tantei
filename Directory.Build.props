@@ -25,6 +25,7 @@
         <EnablePackageValidation>true</EnablePackageValidation>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+        <RestoreUseStaticGraphEvaluation>true</RestoreUseStaticGraphEvaluation>
         <ImplicitUsings>enable</ImplicitUsings>
 
         <!-- Lint -->

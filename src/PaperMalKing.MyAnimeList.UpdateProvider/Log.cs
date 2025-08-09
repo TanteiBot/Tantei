@@ -11,7 +11,7 @@ internal static partial class Log
 	[LoggerMessage(LogLevel.Trace, "Didn't find any {UpdateType} updates for {Username}")]
 	public static partial void DidntFindAnyFavoritesUpdatesForUser(this ILogger<BaseUpdateProvider> logger, string updateType, string username);
 
-	[LoggerMessage(LogLevel.Trace, "Found {AddedCount} new favorites, {RemovedCount} removed favorites of type {@Type} of {Username}")]
+	[LoggerMessage(LogLevel.Trace, "Found {AddedCount} new favorites, {RemovedCount} removed favorites of type {Type} of {Username}")]
 	public static partial void FoundNewFavoritesRemovedFavorites(this ILogger<BaseUpdateProvider> logger, int addedCount, int removedCount, Type type,
 																 string username);
 

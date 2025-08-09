@@ -28,7 +28,7 @@ public static class ServiceCollectionExtensions
 			PooledConnectionLifetime = TimeSpan.FromMinutes(30),
 		})
 		// https://github.com/TanteiBot/Tantei/issues/870
-		.AddResilienceHandler("anilist", builder => builder.AddRateLimiter(RateLimiterFactory.Create<AniListClient>(new(rpm, TimeSpan.FromMinutes(1)))));
+		.AddResilienceHandler("anilist", static builder => builder.AddRateLimiter(RateLimiterFactory.Create<AniListClient>(new(rpm, TimeSpan.FromMinutes(1)))));
 		serviceCollection.AddSingleton<IAniListClient, AniListClient>(static provider =>
 		{
 			var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
