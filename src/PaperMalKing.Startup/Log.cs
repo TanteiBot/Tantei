@@ -16,7 +16,7 @@ internal static partial class Log
 	public static partial void BuildingUpdateProvidersConfigurationService(this ILogger<UpdateProvidersConfigurationService> logger,
 																		   Type updateProvidersConfigurationService);
 
-	[LoggerMessage(LogLevel.Trace, "Built {@UpdateProvidersConfigurationService}")]
+	[LoggerMessage(LogLevel.Trace, "Built {@updateProvidersConfigurationService}")]
 	public static partial void BuiltUpdateProvidersConfigurationService(this ILogger<UpdateProvidersConfigurationService> logger,
 																		Type updateProvidersConfigurationService);
 
