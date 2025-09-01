@@ -9,12 +9,12 @@ namespace PaperMalKing.UpdateProviders.Base.Tests;
 
 public class UserFeaturesTypesTests
 {
-	[Theory]
-	[InlineData(typeof(MalUserFeatures))]
-	[InlineData(typeof(ShikiUserFeatures))]
-	[InlineData(typeof(AniListUserFeatures))]
-	public void FeaturesHaveUlongAsUnderlyingType(Type featureType)
+	[Test]
+	[Arguments(typeof(MalUserFeatures))]
+	[Arguments(typeof(ShikiUserFeatures))]
+	[Arguments(typeof(AniListUserFeatures))]
+	public async Task FeaturesHaveUlongAsUnderlyingType(Type featureType)
 	{
-		Assert.StrictEqual(typeof(ulong), Enum.GetUnderlyingType(featureType));
+		await Assert.That(Enum.GetUnderlyingType(featureType)).IsEqualTo(typeof(ulong));
 	}
 }

@@ -3,23 +3,16 @@
     <PropertyGroup>
         <IsPackable>false</IsPackable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <NoWarn>$(NoWarn);VSTHRD200;CA1515;</NoWarn>
+        <NoWarn>$(NoWarn);VSTHRD200;CA1515;EA0004;</NoWarn>
         <IsPublishable>false</IsPublishable>
         <OutputType>Exe</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
-        <Using Include="Xunit" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" />
-        <PackageReference Include="xunit.v3" />
-        <PackageReference Include="xunit.runner.visualstudio" />
         <PackageReference Include="coverlet.collector" />
         <PackageReference Include="GitHubActionsTestLogger" />
         <PackageReference Include="Verify" />
-        <PackageReference Include="Verify.XunitV3" />
-        <PackageReference Include="xunit.analyzers" />
+        <PackageReference Include="Verify.TUnit" />
+        <PackageReference Include="TUnit" />
     </ItemGroup>
 </Project>

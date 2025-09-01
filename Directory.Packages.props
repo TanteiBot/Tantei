@@ -126,16 +126,13 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </GlobalPackageReference>
-    <PackageVersion Include="xunit.analyzers" Version="1.24.0" />
       
     <!-- Testing -->
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageVersion Include="xunit.v3" Version="3.0.1" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
-    <PackageVersion Include="Verify.XunitV3" Version="$(VerifyVersion)" />
+    <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
+    <PackageVersion Include="TUnit" Version="0.57.24" />  
 
 
 

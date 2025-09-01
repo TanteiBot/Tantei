@@ -8,7 +8,7 @@ namespace Tantei.Tests;
 
 public class EfCoreTests
 {
-	[Fact]
+	[Test]
 	public async Task DbSchemaHaveNotChanged()
 	{
 		await using var db = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite().Options);
@@ -16,12 +16,10 @@ public class EfCoreTests
 		await Verify(schema);
 	}
 
-	[Fact]
+	[Test]
 	public async Task DbNoPendingMigrationsAreLeft()
 	{
-		await using var dbContext = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>()
-			.UseSqlite(static x => x.MigrationsAssembly("PaperMalKing.Database.Migrations")).Options);
-
-		Assert.False(dbContext.Database.HasPendingModelChanges());
+		await using var dbContext = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite(static x => x.MigrationsAssembly("PaperMalKing.Database.Migrations")).Options);
+		await Assert.That(dbContext.Database.HasPendingModelChanges()).IsFalse();
 	}
 }
