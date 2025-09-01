@@ -7,11 +7,9 @@ namespace Tantei.Tests;
 
 public sealed class UngroupedTests
 {
-	[Fact]
-	public void DTOCorrectlyParsesGitVersionDate()
+	[Test]
+	public async Task DTOCorrectlyParsesGitVersionDate()
 	{
-		_ = DateTimeOffset.ParseExact(GitVersionInformation.CommitDate, "o", CultureInfo.InvariantCulture);
-
-		Assert.True(true);
+		await Assert.That(() => DateTimeOffset.ParseExact(GitVersionInformation.CommitDate, "o", CultureInfo.InvariantCulture)).ThrowsNothing();
 	}
 }

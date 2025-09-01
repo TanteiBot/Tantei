@@ -9,12 +9,13 @@ namespace PaperMalKing.UpdateProviders.Base.Tests;
 
 public sealed class UserFeaturesFlagsTest
 {
-	[Theory]
-	[InlineData(typeof(MalUserFeatures))]
-	[InlineData(typeof(ShikiUserFeatures))]
-	[InlineData(typeof(AniListUserFeatures))]
-	public void UserFeaturesTypeMustHaveFlagsAttribute(Type featuresType)
+	[Test]
+	[Arguments(typeof(MalUserFeatures))]
+	[Arguments(typeof(ShikiUserFeatures))]
+	[Arguments(typeof(AniListUserFeatures))]
+	public async Task UserFeaturesTypeMustHaveFlagsAttribute(Type featuresType)
 	{
-		Assert.Contains(typeof(FlagsAttribute), featuresType.GetCustomAttributes(typeof(FlagsAttribute), inherit: true).Select(static x => x.GetType()));
+		await Assert.That(featuresType.GetCustomAttributes(typeof(FlagsAttribute), inherit: true).Select(static x => x.GetType()))
+					.Contains(typeof(FlagsAttribute));
 	}
 }

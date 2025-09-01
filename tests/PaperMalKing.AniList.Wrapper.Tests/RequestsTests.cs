@@ -8,15 +8,15 @@ namespace PaperMalKing.AniList.Wrapper.Tests;
 
 public class RequestsTests
 {
-	[Theory]
-	[InlineData(RequestOptions.AnimeList | RequestOptions.MangaList)]
-	[InlineData(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.Mangaka)]
-	[InlineData(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.CustomLists)]
-	[InlineData(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.Favourites)]
-	[InlineData(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.Director)]
-	[InlineData(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.MediaFormat)]
-	[InlineData(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.MediaStatus)]
-	[InlineData(RequestOptions.All)]
+	[Test]
+	[Arguments(RequestOptions.AnimeList | RequestOptions.MangaList)]
+	[Arguments(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.Mangaka)]
+	[Arguments(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.CustomLists)]
+	[Arguments(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.Favourites)]
+	[Arguments(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.Director)]
+	[Arguments(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.MediaFormat)]
+	[Arguments(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.MediaStatus)]
+	[Arguments(RequestOptions.All)]
 	internal Task GraphQlRequestBuilderProducesExpectedResult(RequestOptions options)
 	{
 		var verifySettings = new VerifySettings();
@@ -25,13 +25,13 @@ public class RequestsTests
 		return Verify(request.Query, verifySettings);
 	}
 
-	[Fact]
+	[Test]
 	public Task ProfileRequestProducesExpectedResult()
 	{
 		return Verify(Requests.GetUserInitialInfoByUsernameRequest("N0D4N", 1).Query);
 	}
 
-	[Fact]
+	[Test]
 	public Task FavoritesInfoRequestReturnsExpectedResult()
 	{
 		var ids = new[] { 1u };

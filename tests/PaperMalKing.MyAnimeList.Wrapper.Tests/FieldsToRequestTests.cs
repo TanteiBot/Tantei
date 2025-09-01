@@ -7,24 +7,43 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
 
 public sealed class FieldsToRequestTests
 {
-	[Fact]
-	public void MangaFieldsToRequestAndAnimeFieldsToRequestHaveSameStartingValues()
+	[Test]
+	public async Task MangaFieldsToRequestAndAnimeFieldsToRequestHaveSameStartingValues()
 	{
 		const int enumStart = 4;
 		var aftr = Enum.GetNames<AnimeFieldsToRequest>();
 		var mftr = Enum.GetNames<MangaFieldsToRequest>();
-		Assert.True(aftr.AsSpan()[..enumStart].SequenceEqual(mftr.AsSpan()[..enumStart]));
+		await Assert.That(aftr[..enumStart]).IsEqualTo(mftr[..enumStart], new SequenceEqualityComparer());
 	}
 
-	[Fact]
-	public void FieldsToRequestEnumsHaveByteAsUnderlyingType()
+	[Test]
+	public async Task FieldsToRequestEnumsHaveByteAsUnderlyingType()
 	{
-		static void Check(Type t)
+		static async Task Check(Type t)
 		{
-			Assert.Equal(typeof(byte), Enum.GetUnderlyingType(t));
+			await Assert.That(Enum.GetUnderlyingType(t)).IsEqualTo(typeof(byte));
 		}
 
-		Check(typeof(MangaFieldsToRequest));
-		Check(typeof(AnimeFieldsToRequest));
+		await Check(typeof(MangaFieldsToRequest));
+		await Check(typeof(AnimeFieldsToRequest));
+	}
+
+	private sealed class SequenceEqualityComparer : IEqualityComparer<string[]>
+	{
+		public bool Equals(string[]? x, string[]? y)
+		{
+			switch (x)
+			{
+				case null when y is null:
+
+				case [] when y is []:
+					return true;
+
+				default:
+					return x.SequenceEqual(y);
+			}
+		}
+
+		public int GetHashCode(string[] obj) => obj.GetHashCode();
 	}
 }
