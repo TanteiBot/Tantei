@@ -17,24 +17,24 @@ public class RequestsTests
 	[Arguments(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.MediaFormat)]
 	[Arguments(RequestOptions.AnimeList | RequestOptions.MangaList | RequestOptions.MediaStatus)]
 	[Arguments(RequestOptions.All)]
-	internal Task GraphQlRequestBuilderProducesExpectedResult(RequestOptions options)
+	public async Task GraphQlRequestBuilderProducesExpectedResult(RequestOptions options)
 	{
 		var verifySettings = new VerifySettings();
 		verifySettings.UseParameters(options);
 		var request = Requests.CheckForUpdatesRequest(1u, 1, TimeProvider.System.GetUtcNow().ToUnixTimeSeconds(), 1, 1, options);
-		return Verify(request.Query, verifySettings);
+		await Verify(request.Query, verifySettings);
 	}
 
 	[Test]
-	public Task ProfileRequestProducesExpectedResult()
+	public async Task ProfileRequestProducesExpectedResult()
 	{
-		return Verify(Requests.GetUserInitialInfoByUsernameRequest("N0D4N", 1).Query);
+		await Verify(Requests.GetUserInitialInfoByUsernameRequest("N0D4N", 1).Query);
 	}
 
 	[Test]
-	public Task FavoritesInfoRequestReturnsExpectedResult()
+	public async Task FavoritesInfoRequestReturnsExpectedResult()
 	{
 		var ids = new[] { 1u };
-		return Verify(Requests.FavouritesInfoRequest(1, ids, ids, ids, ids, ids, RequestOptions.All).Query);
+		await Verify(Requests.FavouritesInfoRequest(1, ids, ids, ids, ids, ids, RequestOptions.All).Query);
 	}
 }
