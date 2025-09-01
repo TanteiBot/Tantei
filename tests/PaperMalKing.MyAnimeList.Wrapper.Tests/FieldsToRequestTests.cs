@@ -35,9 +35,14 @@ public sealed class FieldsToRequestTests
 			switch (x)
 			{
 				case null when y is null:
-
 				case [] when y is []:
 					return true;
+
+				case null when y is not null:
+				case not null when y is null:
+				case [] when y is not []:
+				case not [] when y is []:
+					return false;
 
 				default:
 					return x.SequenceEqual(y);
