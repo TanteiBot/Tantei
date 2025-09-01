@@ -10,7 +10,7 @@
     <DSharpPlusVersion>4.5.1</DSharpPlusVersion>
     <CommunityTookitVersion>8.4.0</CommunityTookitVersion>
 
-    <VerifyVersion>30.7.3</VerifyVersion>
+    <VerifyVersion>30.10.0</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
