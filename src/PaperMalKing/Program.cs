@@ -39,6 +39,13 @@ builder.Services.AddAuthentication(options => options.DefaultScheme = CookieAuth
 	options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
 	options.ClaimActions.MapJsonKey(ClaimTypes.Name, "username");
 });
+
+builder.Host.UseDefaultServiceProvider(c =>
+{
+	c.ValidateOnBuild = true;
+	c.ValidateScopes = true;
+});
+
 builder.Host.ConfigureBotServices();
 builder.Host.ConfigureBotHost();
 
