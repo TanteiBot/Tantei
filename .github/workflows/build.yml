@@ -38,10 +38,10 @@ jobs:
           fetch-depth: 0
           
       - name: Install .NET SDK if needed
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
           
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.node-version }} 
     
@@ -70,7 +70,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install .NET SDK if needed
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Test
         run: dotnet test --logger GitHubActions "${t}" -c ${{ matrix.configuration }}
@@ -87,10 +87,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install .NET SDK if needed
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
           
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.node-version }}
       
