@@ -58,3 +58,14 @@ public enum AniListUserFeatures : ulong
 	[EnumDescription("seyu", "Show seyu of anime")]
 	Seyu = 1 << 15,
 }
+
+public static class AniListUserFeaturesExtensions
+{
+	extension(AniListUserFeatures)
+	{
+		public static AniListUserFeatures Default => AniListUserFeatures.AnimeList | AniListUserFeatures.MangaList |
+													 AniListUserFeatures.Favourites | AniListUserFeatures.Mention |
+													 AniListUserFeatures.Website | AniListUserFeatures.MediaFormat |
+													 AniListUserFeatures.MediaStatus;
+	}
+}

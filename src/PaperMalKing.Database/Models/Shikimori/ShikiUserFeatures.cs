@@ -55,3 +55,14 @@ public enum ShikiUserFeatures : ulong
 	[EnumDescription("achievements", "Track user achievements")]
 	Achievements = 1 << 14,
 }
+
+public static class ShikiUserFeaturesExtensions
+{
+	extension(ShikiUserFeatures)
+	{
+		public static ShikiUserFeatures Default => ShikiUserFeatures.AnimeList | ShikiUserFeatures.MangaList |
+												ShikiUserFeatures.Favourites | ShikiUserFeatures.Mention |
+												ShikiUserFeatures.Website | ShikiUserFeatures.MediaFormat |
+												ShikiUserFeatures.MediaStatus | ShikiUserFeatures.Achievements;
+	}
+}

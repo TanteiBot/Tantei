@@ -93,7 +93,7 @@ internal sealed class ShikiUserService(IShikiClient _client, ILogger<ShikiUserSe
 				// User = dbUser
 			}),],
 			Id = shikiUser.Id,
-			Features = ShikiUserFeatures.None.GetDefault(),
+			Features = ShikiUserFeatures.Default,
 			DiscordUser = dUser,
 			DiscordUserId = userId,
 			LastHistoryEntryId = history.Data.Max(he => he.Id),

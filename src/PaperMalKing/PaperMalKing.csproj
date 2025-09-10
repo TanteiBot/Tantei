@@ -11,6 +11,10 @@
         <SpaProxyLaunchCommand>pnpm dev</SpaProxyLaunchCommand>
         <ServerGarbageCollection>false</ServerGarbageCollection>
         <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+        <NoWarn>
+            $(NoWarn);
+            MA0036; <!--Make class static-->
+        </NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
