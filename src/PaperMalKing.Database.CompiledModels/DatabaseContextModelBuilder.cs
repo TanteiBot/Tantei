@@ -11,7 +11,7 @@ namespace PaperMalKing.Database.CompiledModels
     public partial class DatabaseContextModel
     {
         private DatabaseContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("f66843e2-82bf-4c5a-ad00-b7e223290643"), entityTypeCount: 19)
+            : base(skipDetectChanges: false, modelId: new Guid("998d8091-c4f4-4c87-a66b-c0da0916d940"), entityTypeCount: 19)
         {
         }
 
@@ -78,7 +78,7 @@ namespace PaperMalKing.Database.CompiledModels
             MalFavoriteMangaEntityType.CreateAnnotations(malFavoriteManga);
             MalFavoritePersonEntityType.CreateAnnotations(malFavoritePerson);
 
-            AddAnnotation("ProductVersion", "9.0.0");
+            AddAnnotation("ProductVersion", "10.0.0-rc.1.25451.107");
         }
     }
 }
