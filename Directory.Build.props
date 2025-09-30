@@ -9,7 +9,7 @@
         <CopyDebugSymbolFilesFromPackages>true</CopyDebugSymbolFilesFromPackages>
         
         <!-- GitVersion -->
-        <GitVersion_NoFetchEnabled>true</GitVersion_NoFetchEnabled>
+        <GitVersion_NoFetchEnabled>false</GitVersion_NoFetchEnabled>
         <GitVersionTargetFramework>net9.0</GitVersionTargetFramework>
 
         <!-- Nuget -->
