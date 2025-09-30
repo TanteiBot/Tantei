@@ -10,6 +10,7 @@
         
         <!-- GitVersion -->
         <GitVersion_NoFetchEnabled>false</GitVersion_NoFetchEnabled>
+        <GitVersion_AllowShallowEnabled>true</GitVersion_AllowShallowEnabled>
         <GitVersionTargetFramework>net9.0</GitVersionTargetFramework>
 
         <!-- Nuget -->
