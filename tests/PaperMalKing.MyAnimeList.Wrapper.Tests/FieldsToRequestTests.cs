@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2025 N0D4N
 
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
+using TUnit.Assertions.Enums;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
 
@@ -13,7 +14,7 @@ public sealed class FieldsToRequestTests
 		const int enumStart = 4;
 		var aftr = Enum.GetNames<AnimeFieldsToRequest>();
 		var mftr = Enum.GetNames<MangaFieldsToRequest>();
-		await Assert.That(aftr[..enumStart]).IsEqualTo(mftr[..enumStart], new SequenceEqualityComparer());
+		await Assert.That(aftr[..enumStart]).IsEquivalentTo(mftr[..enumStart], CollectionOrdering.Matching);
 	}
 
 	[Test]
@@ -26,29 +27,5 @@ public sealed class FieldsToRequestTests
 
 		await Check(typeof(MangaFieldsToRequest));
 		await Check(typeof(AnimeFieldsToRequest));
-	}
-
-	private sealed class SequenceEqualityComparer : IEqualityComparer<string[]>
-	{
-		public bool Equals(string[]? x, string[]? y)
-		{
-			switch (x)
-			{
-				case null when y is null:
-				case [] when y is []:
-					return true;
-
-				case null when y is not null:
-				case not null when y is null:
-				case [] when y is not []:
-				case not [] when y is []:
-					return false;
-
-				default:
-					return x.SequenceEqual(y);
-			}
-		}
-
-		public int GetHashCode(string[] obj) => obj.GetHashCode();
 	}
 }
