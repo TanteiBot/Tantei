@@ -11,7 +11,7 @@
     <CommunityTookitVersion>8.4.0</CommunityTookitVersion>
     <VisualStudioThreadingVersion>17.14.15</VisualStudioThreadingVersion>
 
-    <VerifyVersion>31.0.2</VerifyVersion>
+    <VerifyVersion>31.4.0</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
@@ -84,10 +84,10 @@
     </GlobalPackageReference>
       
     <!-- Benchmarking -->
-    <PackageVersion Include="BenchmarkDotNet" Version="0.15.4" />  
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.5" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.227">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.243">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -133,7 +133,7 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
     <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
-    <PackageVersion Include="TUnit" Version="0.73.14" />  
+    <PackageVersion Include="TUnit" Version="0.88.0" />  
 
 
 
@@ -142,8 +142,8 @@
     <PackageVersion Include="System.Net.Security" Version="4.3.2" />
     <PackageVersion Include="System.Formats.Asn1" Version="10.0.0-rc.2.25502.107" />
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.0.0-2.final" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.14.0" />
     <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="17.14.28" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="5.0.0-2.final" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.14.0" />
   </ItemGroup>
 </Project>
