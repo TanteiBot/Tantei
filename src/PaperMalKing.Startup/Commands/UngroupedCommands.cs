@@ -82,7 +82,7 @@ internal sealed class UngroupedCommands(ILogger<UngroupedCommands> logger) : Bot
 																	Bot version - {botVersion}
 																	Commit - {Formatter.MaskedUrl(commitId, new($"{sourceCodeLink}/tree/{commitId}"))}
 																	Commit date - {Formatter.Timestamp(commitDate, TimestampFormat.ShortDateTime)}
-																	DSharpPlus version - {context.Client.VersionString.AsSpan(0, 14)}
+																	DSharpPlus version - {context.Client.VersionString.AsSpan(0, Math.Min(context.Client.VersionString.Length, 14))}
 																	.NET version - {dotnetVersion}
 																	""");
 
