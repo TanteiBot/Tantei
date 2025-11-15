@@ -18,6 +18,8 @@ using PaperMalKing.Database.Models.AniList;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
+[SuppressMessage("Minor Code Smell", "S2325:Methods and properties that don\'t access instance data should be static", Justification = "False positive")]
+[SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:Prefix local calls with this", Justification = "False positive")]
 internal static partial class Extensions
 {
 	private const int InlineFieldValueMaxLength = 30;
@@ -57,47 +59,211 @@ internal static partial class Extensions
 		IconUrl = ProviderConstants.IconUrl,
 	};
 
-	public static async Task<CombinedRecentUpdatesResponse> GetAllRecentUserUpdatesAsync(this IAniListClient client, AniListUser user,
-																						 AniListUserFeatures features, CancellationToken cancellationToken)
+	extension(IAniListClient client)
 	{
-		const ushort initialPerChunkValue = 50;
-		const ushort extendedPerChunkValue = 500;
-		var hasNextPage = true;
-		var perChunk = initialPerChunkValue;
-		ushort chunk = 1;
-		var result = new CombinedRecentUpdatesResponse();
-		var options = (RequestOptions)features;
-		for (byte page = 1; hasNextPage; page++)
+		public async Task<CombinedRecentUpdatesResponse> GetAllRecentUserUpdatesAsync(AniListUser user, AniListUserFeatures features, CancellationToken cancellationToken)
 		{
-			cancellationToken.ThrowIfCancellationRequested();
-			var response = await client.CheckForUpdatesAsync(user.Id, page, user.LastActivityTimestamp, perChunk, chunk, options, cancellationToken);
-			result.Add(response);
-			hasNextPage = response.HasNextPage;
-			if (perChunk == initialPerChunkValue)
+			const ushort initialPerChunkValue = 50;
+			const ushort extendedPerChunkValue = 500;
+			var hasNextPage = true;
+			var perChunk = initialPerChunkValue;
+			ushort chunk = 1;
+			var result = new CombinedRecentUpdatesResponse();
+			var options = (RequestOptions)features;
+			for (byte page = 1; hasNextPage; page++)
 			{
-				perChunk = extendedPerChunkValue;
+				cancellationToken.ThrowIfCancellationRequested();
+				var response = await client.CheckForUpdatesAsync(user.Id, page, user.LastActivityTimestamp, perChunk, chunk, options, cancellationToken);
+				result.Add(response);
+				hasNextPage = response.HasNextPage;
+				if (perChunk == initialPerChunkValue)
+				{
+					perChunk = extendedPerChunkValue;
+				}
+				else
+				{
+					chunk++;
+				}
+			}
+
+			return result;
+		}
+
+		public async Task<CombinedInitialInfoResponse> GetCompleteUserInitialInfoAsync(string username, CancellationToken cancellationToken = default)
+		{
+			var hasNextPage = true;
+			var result = new CombinedInitialInfoResponse();
+			for (byte page = 1; hasNextPage; page++)
+			{
+				var response = await client.GetInitialUserInfoAsync(username, page, cancellationToken);
+				result.Add(response.User);
+				hasNextPage = response.User.Favourites.HasNextPage;
+			}
+
+			return result;
+		}
+	}
+
+	extension(DiscordEmbedBuilder eb)
+	{
+		public DiscordEmbedBuilder WithMediaTitle(Media media, TitleLanguage titleLanguage, AniListUserFeatures features)
+		{
+			const int discordTitleLimit = 256;
+			var strings = new List<string> { media.Title.GetTitle(titleLanguage) };
+			if (features.HasFlag(AniListUserFeatures.MediaFormat))
+			{
+				var format = media.GetEmbedFormat();
+				if (!string.IsNullOrEmpty(format))
+				{
+					strings.Add($" ({format})");
+				}
+			}
+
+			if (features.HasFlag(AniListUserFeatures.MediaStatus))
+			{
+				strings.Add($" [{media.Status.Humanize(LetterCasing.Sentence)}]");
+			}
+
+			var sb = new StringBuilder(discordTitleLimit);
+			foreach (var titlePart in strings)
+			{
+				if (sb.Length + titlePart.Length <= discordTitleLimit)
+				{
+					sb.Append(titlePart);
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			return eb.WithTitle(sb.ToString());
+		}
+
+		public DiscordEmbedBuilder WithAniListAuthor(User user) => eb.WithAuthor(user.Name, user.Url, user.Image?.ImageUrl);
+
+		public DiscordEmbedBuilder EnrichWithMediaInfo(Media media, User user, AniListUserFeatures features)
+		{
+			var isAnime = media.Type == ListType.Anime;
+
+			if (isAnime)
+			{
+				if (features.HasFlag(AniListUserFeatures.Studio))
+				{
+					var text = media.Studios.Nodes.Where(s => s.IsAnimationStudio)
+									.Select(studio => Formatter.MaskedUrl(studio.Name, new(studio.Url))).JoinToString();
+
+					if (!string.IsNullOrEmpty(text))
+					{
+						eb.AddField("Made by", text, inline: true);
+					}
+				}
+
+				if (features.HasFlag(AniListUserFeatures.Director))
+				{
+					var director = media.Staff.Nodes.Find(x => x.Role.Equals("Director", StringComparison.Ordinal));
+					if (director is not null)
+					{
+						eb.AddField("Director", Formatter.MaskedUrl(director.Staff.Name.GetName(user.Options.TitleLanguage), new(director.Staff.Url)), inline: true);
+					}
+				}
+
+				if (features.HasFlag(AniListUserFeatures.Seyu))
+				{
+					var seyus = media.Characters.Nodes.Where(x => x.VoiceActors is not []).Select(x =>
+					{
+						var seyu = x.VoiceActors[0];
+						return Formatter.MaskedUrl(seyu.Name.GetName(user.Options.TitleLanguage), new(seyu.Url));
+					}).JoinToString();
+					if (!string.IsNullOrEmpty(seyus))
+					{
+						eb.AddField("Seyu", seyus);
+					}
+				}
 			}
 			else
 			{
-				chunk++;
+				// If not anime then its manga
+				if (features.HasFlag(AniListUserFeatures.Mangaka))
+				{
+					var text = media.Staff.Nodes
+									.Where(edge => !edge.Role.AsSpan().ContainsAny(IgnoredRoles)).Take(7)
+									.Select(edge =>
+										$"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}").JoinToString();
+					if (!string.IsNullOrEmpty(text))
+					{
+						eb.AddField("Made by", text, inline: true);
+					}
+				}
 			}
+
+			if (features.HasFlag(AniListUserFeatures.Genres) && media.Genres is not [])
+			{
+				var fieldVal = media.Genres.JoinToString();
+				eb.AddField("Genres", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
+			}
+
+			if (features.HasFlag(AniListUserFeatures.Tags) && media.Tags is not [])
+			{
+				var fieldVal = media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? Formatter.Spoiler(t.Name) : t.Name).JoinToString();
+				eb.AddField("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
+			}
+
+			if (features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrEmpty(media.Description))
+			{
+				const int mediaDescriptionLimit = 350;
+				var mediaDescription = media.Description.StripHtml();
+				mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
+				mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
+				mediaDescription = Formatter.Strip(mediaDescription).Trim().Truncate(mediaDescriptionLimit);
+				if (!string.IsNullOrEmpty(mediaDescription))
+				{
+					eb.AddField("Description", mediaDescription, mediaDescription.Length <= InlineFieldValueMaxLength);
+				}
+			}
+
+			return eb;
 		}
 
-		return result;
-	}
-
-	public static async Task<CombinedInitialInfoResponse> GetCompleteUserInitialInfoAsync(this IAniListClient client, string username, CancellationToken cancellationToken = default)
-	{
-		var hasNextPage = true;
-		var result = new CombinedInitialInfoResponse();
-		for (byte page = 1; hasNextPage; page++)
+		public DiscordEmbedBuilder WithTotalSubEntries(Media media)
 		{
-			var response = await client.GetInitialUserInfoAsync(username, page, cancellationToken);
-			result.Add(response.User);
-			hasNextPage = response.User.Favourites.HasNextPage;
+			var episodes = media.Episodes.GetValueOrDefault();
+			var chapters = media.Chapters.GetValueOrDefault();
+			var volumes = media.Volumes.GetValueOrDefault();
+			if (episodes == 0 && chapters == 0 && volumes == 0)
+			{
+				return eb;
+			}
+
+			var fieldVal = new List<string>(2);
+			if (episodes != 0)
+			{
+				fieldVal.Add($"{episodes} ep.");
+			}
+
+			if (chapters != 0)
+			{
+				fieldVal.Add($"{chapters} ch");
+			}
+
+			if (volumes != 0)
+			{
+				fieldVal.Add($"{volumes} v.");
+			}
+
+			if (fieldVal is not [] and not null)
+			{
+				eb.AddField("Total", fieldVal.JoinToString(), inline: true);
+			}
+
+			return eb;
 		}
 
-		return result;
+		public DiscordEmbedBuilder WithAniListFooter()
+		{
+			eb.Footer = AniListFooter;
+			return eb;
+		}
 	}
 
 	private static string? GetEmbedFormat(this Media media)
@@ -116,43 +282,6 @@ internal static partial class Extensions
 			_ => DefaultFormatting(media),
 		};
 	}
-
-	public static DiscordEmbedBuilder WithMediaTitle(this DiscordEmbedBuilder eb, Media media, TitleLanguage titleLanguage, AniListUserFeatures features)
-	{
-		const int discordTitleLimit = 256;
-		var strings = new List<string> { media.Title.GetTitle(titleLanguage) };
-		if (features.HasFlag(AniListUserFeatures.MediaFormat))
-		{
-			var format = media.GetEmbedFormat();
-			if (!string.IsNullOrEmpty(format))
-			{
-				strings.Add($" ({format})");
-			}
-		}
-
-		if (features.HasFlag(AniListUserFeatures.MediaStatus))
-		{
-			strings.Add($" [{media.Status.Humanize(LetterCasing.Sentence)}]");
-		}
-
-		var sb = new StringBuilder(discordTitleLimit);
-		foreach (var titlePart in strings)
-		{
-			if (sb.Length + titlePart.Length <= discordTitleLimit)
-			{
-				sb.Append(titlePart);
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		return eb.WithTitle(sb.ToString());
-	}
-
-	public static DiscordEmbedBuilder WithAniListAuthor(this DiscordEmbedBuilder embedBuilder, User user) =>
-		embedBuilder.WithAuthor(user.Name, user.Url, user.Image?.ImageUrl);
 
 	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this Review review, User user, AniListUser dbUser)
 	{
@@ -259,129 +388,6 @@ internal static partial class Extensions
 		}
 
 		return eb.EnrichWithMediaInfo(activity.Media, user, features);
-	}
-
-	public static DiscordEmbedBuilder EnrichWithMediaInfo(this DiscordEmbedBuilder eb, Media media, User user, AniListUserFeatures features)
-	{
-		var isAnime = media.Type == ListType.Anime;
-
-		if (isAnime)
-		{
-			if (features.HasFlag(AniListUserFeatures.Studio))
-			{
-				var text = media.Studios.Nodes.Where(s => s.IsAnimationStudio)
-								.Select(studio => Formatter.MaskedUrl(studio.Name, new(studio.Url))).JoinToString();
-
-				if (!string.IsNullOrEmpty(text))
-				{
-					eb.AddField("Made by", text, inline: true);
-				}
-			}
-
-			if (features.HasFlag(AniListUserFeatures.Director))
-			{
-				var director = media.Staff.Nodes.Find(x => x.Role.Equals("Director", StringComparison.Ordinal));
-				if (director is not null)
-				{
-					eb.AddField("Director", Formatter.MaskedUrl(director.Staff.Name.GetName(user.Options.TitleLanguage), new(director.Staff.Url)), inline: true);
-				}
-			}
-
-			if (features.HasFlag(AniListUserFeatures.Seyu))
-			{
-				var seyus = media.Characters.Nodes.Where(x => x.VoiceActors is not []).Select(x =>
-				{
-					var seyu = x.VoiceActors[0];
-					return Formatter.MaskedUrl(seyu.Name.GetName(user.Options.TitleLanguage), new(seyu.Url));
-				}).JoinToString();
-				if (!string.IsNullOrEmpty(seyus))
-				{
-					eb.AddField("Seyu", seyus);
-				}
-			}
-		}
-		else
-		{
-			// If not anime then its manga
-			if (features.HasFlag(AniListUserFeatures.Mangaka))
-			{
-				var text = media.Staff.Nodes
-								.Where(edge => !edge.Role.AsSpan().ContainsAny(IgnoredRoles)).Take(7)
-								.Select(edge =>
-									$"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}").JoinToString();
-				if (!string.IsNullOrEmpty(text))
-				{
-					eb.AddField("Made by", text, inline: true);
-				}
-			}
-		}
-
-		if (features.HasFlag(AniListUserFeatures.Genres) && media.Genres is not [])
-		{
-			var fieldVal = media.Genres.JoinToString();
-			eb.AddField("Genres", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
-		}
-
-		if (features.HasFlag(AniListUserFeatures.Tags) && media.Tags is not [])
-		{
-			var fieldVal = media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? Formatter.Spoiler(t.Name) : t.Name).JoinToString();
-			eb.AddField("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
-		}
-
-		if (features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrEmpty(media.Description))
-		{
-			const int mediaDescriptionLimit = 350;
-			var mediaDescription = media.Description.StripHtml();
-			mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
-			mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
-			mediaDescription = Formatter.Strip(mediaDescription).Trim().Truncate(mediaDescriptionLimit);
-			if (!string.IsNullOrEmpty(mediaDescription))
-			{
-				eb.AddField("Description", mediaDescription, mediaDescription.Length <= InlineFieldValueMaxLength);
-			}
-		}
-
-		return eb;
-	}
-
-	public static DiscordEmbedBuilder WithTotalSubEntries(this DiscordEmbedBuilder eb, Media media)
-	{
-		var episodes = media.Episodes.GetValueOrDefault();
-		var chapters = media.Chapters.GetValueOrDefault();
-		var volumes = media.Volumes.GetValueOrDefault();
-		if (episodes == 0 && chapters == 0 && volumes == 0)
-		{
-			return eb;
-		}
-
-		var fieldVal = new List<string>(2);
-		if (episodes != 0)
-		{
-			fieldVal.Add($"{episodes} ep.");
-		}
-
-		if (chapters != 0)
-		{
-			fieldVal.Add($"{chapters} ch");
-		}
-
-		if (volumes != 0)
-		{
-			fieldVal.Add($"{volumes} v.");
-		}
-
-		if (fieldVal is not [] and not null)
-		{
-			eb.AddField("Total", fieldVal.JoinToString(), inline: true);
-		}
-
-		return eb;
-	}
-
-	public static DiscordEmbedBuilder WithAniListFooter(this DiscordEmbedBuilder eb)
-	{
-		eb.Footer = AniListFooter;
-		return eb;
 	}
 
 	public static FavoriteIdType[] ToFavoriteIdType<T>(this T favorites)
