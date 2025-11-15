@@ -7,82 +7,89 @@ using System.Text.RegularExpressions;
 
 namespace PaperMalKing.Common;
 
+[SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:Prefix local calls with this", Justification = "False positive")]
+[SuppressMessage("Minor Code Smell", "S2325:Methods and properties that don\'t access instance data should be static", Justification = "False positive")]
 public static partial class TypeExtensions
 {
 	[GeneratedRegex("<.*?>", RegexOptions.Compiled, matchTimeoutMilliseconds: 1000/*1s*/)]
 	private static partial Regex HtmlRegex { get; }
 
-	public static string? ToSentenceCase(this string? value, CultureInfo cultureInfo)
+	extension(string? value)
 	{
-		if (string.IsNullOrEmpty(value) || value.Length <= 1)
+		public string StripHtml() => value is null ? "" : HtmlRegex.Replace(value, string.Empty);
+
+		public string? ToSentenceCase(CultureInfo cultureInfo)
 		{
+			if (string.IsNullOrEmpty(value) || value.Length <= 1)
+			{
+				return value;
+			}
+
+			value = value.ToLower(cultureInfo);
+			for (var i = 0; i < value.Length; i++)
+			{
+				var ch = value[i];
+				if (char.IsLetter(ch))
+				{
+					return $"{char.ToUpper(ch, cultureInfo)}{value[(i + 1)..]}";
+				}
+			}
+
 			return value;
 		}
 
-		value = value.ToLower(cultureInfo);
-		for (var i = 0; i < value.Length; i++)
+		public string ToFirstCharUpperCase()
 		{
-			var ch = value[i];
-			if (char.IsLetter(ch))
+			if (value is null)
 			{
-				return $"{char.ToUpper(ch, cultureInfo)}{value[(i + 1)..]}";
+				return "";
 			}
-		}
 
-		return value;
+			if (char.IsUpper(value, 0))
+			{
+				return value;
+			}
+
+			return string.Create(value.Length, value, static (span, s) =>
+			{
+				span[0] = char.ToUpperInvariant(s[0]);
+				s.AsSpan(1).CopyTo(span[1..]);
+			});
+		}
 	}
 
-	public static string StripHtml(this string value) => HtmlRegex.Replace(value, string.Empty);
-
-	public static string ToFirstCharUpperCase(this string? str)
-	{
-		if (str is null)
-		{
-			return "";
-		}
-
-		if (char.IsUpper(str, 0))
-		{
-			return str;
-		}
-
-		return string.Create(str.Length, str, static (span, s) =>
-		{
-			span[0] = char.ToUpperInvariant(s[0]);
-			s.AsSpan(1).CopyTo(span[1..]);
-		});
-	}
-
-	[SuppressMessage("Major Code Smell", "S2589:Boolean expressions should not be gratuitous", Justification = "False positive")]
-	public static bool HasAnyFlag<TEnum>(this TEnum @enum, params ReadOnlySpan<TEnum> flags)
+	extension<TEnum>(TEnum @enum)
 		where TEnum : unmanaged, Enum
 	{
-		var result = false;
-
-		foreach (var flag in flags)
+		[SuppressMessage("Major Code Smell", "S2589:Boolean expressions should not be gratuitous", Justification = "False positive")]
+		public bool HasAnyFlag(params ReadOnlySpan<TEnum> flags)
 		{
-			result = result || @enum.HasFlag(flag);
+			var result = false;
 
-			if (result)
+			foreach (var flag in flags)
 			{
-				return result;
+				result = result || @enum.HasFlag(flag);
+
+				if (result)
+				{
+					return result;
+				}
 			}
+
+			return result;
 		}
 
-		return result;
-	}
-
-	public static bool HasAllFlags<TEnum>(this TEnum @enum, params ReadOnlySpan<TEnum> flags)
-		where TEnum : unmanaged, Enum
-	{
-		var result = true;
-
-		foreach (var flag in flags)
+		public bool HasAllFlags(params ReadOnlySpan<TEnum> flags)
 		{
-			result = result && @enum.HasFlag(flag);
-		}
+			var result = true;
 
-		return result;
+			foreach (var flag in flags)
+			{
+				result = result && @enum.HasFlag(flag);
+			}
+
+			return result;
+		}
 	}
 
 	public static string GetFullMessage(this Exception ex)

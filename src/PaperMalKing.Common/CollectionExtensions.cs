@@ -1,8 +1,11 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2025 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace PaperMalKing.Common;
 
+[SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:Prefix local calls with this", Justification = "False positive")]
 public static class CollectionExtensions
 {
 	public static (IReadOnlyList<T> AddedValues, IReadOnlyList<T> RemovedValues) GetDifference<T>(this IReadOnlyList<T> original, IReadOnlyList<T> resulting)
@@ -22,30 +25,61 @@ public static class CollectionExtensions
 		return (added, removed);
 	}
 
-	public static List<TEntity> SortBy<TEntity, TProperty>(this List<TEntity> source, Func<TEntity, TProperty> selector)
-		where TProperty : IComparable<TProperty>
+	extension<TEntity>(List<TEntity> source)
 	{
-		source.Sort((f, s) => selector(f).CompareTo(selector(s)));
-		return source;
-	}
-
-	public static List<TEntity> SortByDescending<TEntity, TProperty>(this List<TEntity> source, Func<TEntity, TProperty> selector)
-		where TProperty : IComparable<TProperty>
-	{
-		source.Sort((f, s) => -selector(f).CompareTo(selector(s)));
-		return source;
-	}
-
-	public static List<TEntity> SortByThenBy<TEntity, TProperty, TOtherProperty>(this List<TEntity> source, Func<TEntity, TProperty> firstSelector, Func<TEntity, TOtherProperty> secondSelector)
-		where TProperty : IComparable<TProperty>
-		where TOtherProperty : IComparable<TOtherProperty>
-	{
-		source.Sort((f, s) =>
+		public List<TEntity> SortBy<TProperty>(Func<TEntity, TProperty> selector)
+			where TProperty : IComparable<TProperty>
 		{
-			var r = firstSelector(f).CompareTo(firstSelector(s));
-			return r == 0 ? secondSelector(f).CompareTo(secondSelector(s)) : r;
-		});
-		return source;
+			source.Sort((f, s) => selector(f).CompareTo(selector(s)));
+			return source;
+		}
+
+		public List<TEntity> SortByDescending<TProperty>(Func<TEntity, TProperty> selector)
+			where TProperty : IComparable<TProperty>
+		{
+			source.Sort((f, s) => -selector(f).CompareTo(selector(s)));
+			return source;
+		}
+
+		public List<TEntity> SortByThenBy<TProperty, TOtherProperty>(Func<TEntity, TProperty> firstSelector, Func<TEntity, TOtherProperty> secondSelector)
+			where TProperty : IComparable<TProperty>
+			where TOtherProperty : IComparable<TOtherProperty>
+		{
+			source.Sort((f, s) =>
+			{
+				var r = firstSelector(f).CompareTo(firstSelector(s));
+				return r == 0 ? secondSelector(f).CompareTo(secondSelector(s)) : r;
+			});
+			return source;
+		}
+	}
+
+	extension<T>(T[] array)
+	{
+		public bool Exists(Predicate<T> predicate)
+		{
+			return Array.Exists(array, predicate);
+		}
+
+		public T? Find(Predicate<T> predicate)
+		{
+			return Array.Find(array, predicate);
+		}
+
+		public bool TrueForAll(Predicate<T> predicate)
+		{
+			return Array.TrueForAll(array, predicate);
+		}
+	}
+
+	extension<T>(IEnumerable<T> values)
+	{
+		public string JoinToString() => values.JoinToString(", ");
+
+		public string JoinToString(string separator) => string.Join(separator, values);
+
+		public string JoinToString(char separator) => string.Join(separator, values);
+
 	}
 
 	public static void ForEach<T>(this IList<T> list, Action<T> action)
@@ -56,29 +90,8 @@ public static class CollectionExtensions
 		}
 	}
 
-	public static bool Exists<T>(this T[] array, Predicate<T> predicate)
-	{
-		return Array.Exists(array, predicate);
-	}
-
-	public static T? Find<T>(this T[] array, Predicate<T> predicate)
-	{
-		return Array.Find(array, predicate);
-	}
-
-	public static bool TrueForAll<T>(this T[] array, Predicate<T> predicate)
-	{
-		return Array.TrueForAll(array, predicate);
-	}
-
 	public static bool AddRange<T>(this HashSet<T> hs, IEnumerable<T> values)
 	{
 		return values.Aggregate(seed: true, (current, value) => hs.Add(value) && current);
 	}
-
-	public static string JoinToString(this IEnumerable<string> values) => values.JoinToString(", ");
-
-	public static string JoinToString(this IEnumerable<string> values, string separator) => string.Join(separator, values);
-
-	public static string JoinToString(this IEnumerable<string> values, char separator) => string.Join(separator, values);
 }

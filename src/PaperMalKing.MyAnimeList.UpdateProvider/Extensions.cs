@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2025 N0D4N
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -20,6 +21,8 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaLi
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
+[SuppressMessage("Minor Code Smell", "S2325:Methods and properties that don\'t access instance data should be static", Justification = "False positive")]
+[SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:Prefix local calls with this", Justification = "False positive")]
 internal static class Extensions
 {
 	private static readonly DiscordEmbedBuilder.EmbedFooter MalUpdateFooter = new()
@@ -33,66 +36,69 @@ internal static class Extensions
 		DiscordColor.NotQuiteBlack, Constants.MalGreen, Constants.MalBlue, Constants.MalYellow, Constants.MalRed, Constants.MalGrey,
 	];
 
-	public static ParserOptions ToParserOptions(this MalUserFeatures features)
+	extension(MalUserFeatures features)
 	{
-		var options = ParserOptions.None;
-		if (features.HasFlag(MalUserFeatures.AnimeList))
+		public ParserOptions ToParserOptions()
 		{
-			options |= ParserOptions.AnimeList;
+			var options = ParserOptions.None;
+			if (features.HasFlag(MalUserFeatures.AnimeList))
+			{
+				options |= ParserOptions.AnimeList;
+			}
+
+			if (features.HasFlag(MalUserFeatures.MangaList))
+			{
+				options |= ParserOptions.MangaList;
+			}
+
+			if (features.HasFlag(MalUserFeatures.Favorites))
+			{
+				options |= ParserOptions.Favorites;
+			}
+
+			return options;
 		}
 
-		if (features.HasFlag(MalUserFeatures.MangaList))
+		public TRequestOptions ToRequestOptions<TRequestOptions>()
+			where TRequestOptions : unmanaged, Enum, allows ref struct
 		{
-			options |= ParserOptions.MangaList;
+			Debug.Assert(typeof(TRequestOptions) == typeof(AnimeFieldsToRequest) || typeof(TRequestOptions) == typeof(MangaFieldsToRequest),
+				$"Only {nameof(AnimeFieldsToRequest)} and {nameof(MangaFieldsToRequest)} are supported");
+			AnimeFieldsToRequest fields = default;
+			if (features.HasFlag(MalUserFeatures.Synopsis))
+			{
+				fields |= AnimeFieldsToRequest.Synopsis;
+			}
+
+			if (features.HasFlag(MalUserFeatures.Genres))
+			{
+				fields |= AnimeFieldsToRequest.Genres;
+			}
+
+			if (features.HasFlag(MalUserFeatures.Tags))
+			{
+				fields |= AnimeFieldsToRequest.Tags;
+			}
+
+			if (features.HasFlag(MalUserFeatures.Comments))
+			{
+				fields |= AnimeFieldsToRequest.Comments;
+			}
+
+			if (typeof(TRequestOptions) == typeof(MangaFieldsToRequest) && features.HasFlag(MalUserFeatures.Mangakas))
+			{
+				var mangaFields = Unsafe.BitCast<AnimeFieldsToRequest, MangaFieldsToRequest>(fields);
+				mangaFields |= MangaFieldsToRequest.Authors;
+				return Unsafe.BitCast<MangaFieldsToRequest, TRequestOptions>(mangaFields);
+			}
+
+			if (features.HasFlag(MalUserFeatures.Studio))
+			{
+				fields |= AnimeFieldsToRequest.Studio;
+			}
+
+			return Unsafe.BitCast<AnimeFieldsToRequest, TRequestOptions>(fields);
 		}
-
-		if (features.HasFlag(MalUserFeatures.Favorites))
-		{
-			options |= ParserOptions.Favorites;
-		}
-
-		return options;
-	}
-
-	public static TRequestOptions ToRequestOptions<TRequestOptions>(this MalUserFeatures features)
-		where TRequestOptions : unmanaged, Enum, allows ref struct
-	{
-		Debug.Assert(typeof(TRequestOptions) == typeof(AnimeFieldsToRequest) || typeof(TRequestOptions) == typeof(MangaFieldsToRequest),
-			$"Only {nameof(AnimeFieldsToRequest)} and {nameof(MangaFieldsToRequest)} are supported");
-		AnimeFieldsToRequest fields = default;
-		if (features.HasFlag(MalUserFeatures.Synopsis))
-		{
-			fields |= AnimeFieldsToRequest.Synopsis;
-		}
-
-		if (features.HasFlag(MalUserFeatures.Genres))
-		{
-			fields |= AnimeFieldsToRequest.Genres;
-		}
-
-		if (features.HasFlag(MalUserFeatures.Tags))
-		{
-			fields |= AnimeFieldsToRequest.Tags;
-		}
-
-		if (features.HasFlag(MalUserFeatures.Comments))
-		{
-			fields |= AnimeFieldsToRequest.Comments;
-		}
-
-		if (typeof(TRequestOptions) == typeof(MangaFieldsToRequest) && features.HasFlag(MalUserFeatures.Mangakas))
-		{
-			var mangaFields = Unsafe.BitCast<AnimeFieldsToRequest, MangaFieldsToRequest>(fields);
-			mangaFields |= MangaFieldsToRequest.Authors;
-			return Unsafe.BitCast<MangaFieldsToRequest, TRequestOptions>(mangaFields);
-		}
-
-		if (features.HasFlag(MalUserFeatures.Studio))
-		{
-			fields |= AnimeFieldsToRequest.Studio;
-		}
-
-		return Unsafe.BitCast<AnimeFieldsToRequest, TRequestOptions>(fields);
 	}
 
 	public static T ToDbFavorite<T>(this BaseFavorite baseFavorite, MalUser user)
