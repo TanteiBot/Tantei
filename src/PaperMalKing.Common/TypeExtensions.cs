@@ -58,38 +58,37 @@ public static partial class TypeExtensions
 		}
 	}
 
-	extension<TEnum>(TEnum @enum)
+	// This was not moved to extension because of
+	// https://github.com/dotnet/roslyn/issues/80024
+	public static bool HasAllFlags<TEnum>(this TEnum @enum, params TEnum[] flags)
 		where TEnum : unmanaged, Enum
 	{
-		[SuppressMessage("Major Code Smell", "S2589:Boolean expressions should not be gratuitous", Justification = "False positive")]
-		public bool HasAnyFlag(params ReadOnlySpan<TEnum> flags)
+		var result = true;
+
+		foreach (var flag in flags)
 		{
-			var result = false;
-
-			foreach (var flag in flags)
-			{
-				result = result || @enum.HasFlag(flag);
-
-				if (result)
-				{
-					return result;
-				}
-			}
-
-			return result;
+			result = result && @enum.HasFlag(flag);
 		}
 
-		public bool HasAllFlags(params ReadOnlySpan<TEnum> flags)
+		return result;
+	}
+
+	public static bool HasAnyFlag<TEnum>(this TEnum @enum, params TEnum[] flags)
+		where TEnum : unmanaged, Enum
+	{
+		var result = false;
+
+		foreach (var flag in flags)
 		{
-			var result = true;
+			result = result || @enum.HasFlag(flag);
 
-			foreach (var flag in flags)
+			if (result)
 			{
-				result = result && @enum.HasFlag(flag);
+				return result;
 			}
-
-			return result;
 		}
+
+		return result;
 	}
 
 	public static string GetFullMessage(this Exception ex)
