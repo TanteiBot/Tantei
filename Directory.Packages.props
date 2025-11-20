@@ -72,7 +72,7 @@
 
     <!-- Misc -->
     <PackageVersion Include="CommunityToolkit.Diagnostics" Version="$(CommunityTookitVersion)" />
-    <PackageVersion Include="Humanizer.Core" Version="2.14.1" />
+    <PackageVersion Include="Humanizer.Core" Version="3.0.1" />
     <PackageVersion Include="AngleSharp" Version="1.4.0" />
     <PackageVersion Include="JikanDotNet" Version="2.9.1" />
     <PackageVersion Include="System.Threading.RateLimiting" Version="10.0.0" />
@@ -87,7 +87,7 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.6" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.253">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="2.0.254">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -133,7 +133,7 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
     <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
-    <PackageVersion Include="TUnit" Version="1.2.0" />  
+    <PackageVersion Include="TUnit" Version="1.2.11" />  
 
 
 
