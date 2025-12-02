@@ -11,7 +11,7 @@
     <CommunityTookitVersion>8.4.0</CommunityTookitVersion>
     <VisualStudioThreadingVersion>17.14.15</VisualStudioThreadingVersion>
 
-    <VerifyVersion>31.7.3</VerifyVersion>
+    <VerifyVersion>31.8.0</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
