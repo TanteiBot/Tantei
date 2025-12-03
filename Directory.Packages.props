@@ -74,7 +74,7 @@
     <PackageVersion Include="CommunityToolkit.Diagnostics" Version="$(CommunityTookitVersion)" />
     <PackageVersion Include="Humanizer.Core" Version="3.0.1" />
     <PackageVersion Include="AngleSharp" Version="1.4.0" />
-    <PackageVersion Include="JikanDotNet" Version="2.9.1" />
+    <PackageVersion Include="JikanDotNet" Version="2.10.1" />
     <PackageVersion Include="System.Threading.RateLimiting" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.EnumStrings" Version="8.0.0-rc.2.23510.2" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="$(VisualStudioThreadingVersion)" />
@@ -91,7 +91,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.16.0.128591">
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.16.1.129956">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -133,7 +133,7 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.1" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
     <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
-    <PackageVersion Include="TUnit" Version="1.3.15" />  
+    <PackageVersion Include="TUnit" Version="1.3.25" />  
 
 
 
