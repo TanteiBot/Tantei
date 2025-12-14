@@ -35,6 +35,7 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
+	[SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Used for logging only")]
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
 		if (this.UpdateFoundEvent is null)
@@ -51,44 +52,61 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 			}
 
 			using var scope = logger.CheckingForUsersUpdatesScope(dbUser.Id);
-			using var perUserCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-			perUserCancellationTokenSource.CancelAfter(TimeSpan.FromMinutes(3));
-			var perUserCancellationToken = perUserCancellationTokenSource.Token;
-			this.Logger.StartingToCheckUpdatesFor(dbUser.Id);
-			CombinedRecentUpdatesResponse recentUserUpdates;
 			try
 			{
-				recentUserUpdates = await _client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, perUserCancellationToken);
+				if (!await this.CheckForUserUpdatesAsync(dbUser, db, cancellationToken))
+				{
+					return;
+				}
 			}
-			catch (GraphQLHttpRequestException ex) when (ex.Message.Contains("NotFound", StringComparison.Ordinal))
+			catch (Exception ex)
 			{
-				continue;
-			}
-			catch (TimeoutException)
-			{
-				this.Logger.UpdateProviderApiTimedOut();
-				return;
-			}
-
-			var isFavouritesHashMismatch = !dbUser.FavouritesIdHash.Equals(HashHelpers.FavoritesHash(recentUserUpdates.Favourites.ToFavoriteIdType()), StringComparison.Ordinal);
-
-			var favorites = (isFavouritesHashMismatch && dbUser.Features.HasFlag(AniListUserFeatures.Favourites)) ? await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, db, cancellationToken) : [];
-
-			if ((dbUser.Features.HasFlag(AniListUserFeatures.Favourites) && isFavouritesHashMismatch) ||
-				(dbUser.Features.HasFlag(AniListUserFeatures.Reviews) && recentUserUpdates.Reviews.Exists(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)) ||
-				(dbUser.Features.HasFlag(AniListUserFeatures.AnimeList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.Anime && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)) ||
-				(dbUser.Features.HasFlag(AniListUserFeatures.MangaList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.Manga && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)))
-			{
-				db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
-				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
-				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(recentUserUpdates, favorites, dbUser, db, perUserCancellationToken)), dbUser.DiscordUser));
-			}
-			else
-			{
-				this.Logger.NoUpdatesFound(recentUserUpdates.User.Name);
-				db.Entry(dbUser).State = EntityState.Unchanged;
+				logger.ErrorWhileCheckingUpdatesForUser(ex, dbUser.Id);
 			}
 		}
+	}
+
+	private async Task<bool> CheckForUserUpdatesAsync(AniListUser dbUser, DatabaseContext db, CancellationToken cancellationToken)
+	{
+		using var perUserCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+		perUserCancellationTokenSource.CancelAfter(TimeSpan.FromMinutes(3));
+		var perUserCancellationToken = perUserCancellationTokenSource.Token;
+		this.Logger.StartingToCheckUpdatesFor(dbUser.Id);
+		CombinedRecentUpdatesResponse recentUserUpdates;
+		try
+		{
+			recentUserUpdates = await _client.GetAllRecentUserUpdatesAsync(dbUser, dbUser.Features, perUserCancellationToken);
+		}
+		catch (GraphQLHttpRequestException ex) when (ex.Message.Contains("NotFound", StringComparison.Ordinal))
+		{
+			return true;
+		}
+		catch (TimeoutException)
+		{
+			this.Logger.UpdateProviderApiTimedOut();
+			return false;
+		}
+
+		var isFavouritesHashMismatch = !dbUser.FavouritesIdHash.Equals(HashHelpers.FavoritesHash(recentUserUpdates.Favourites.ToFavoriteIdType()), StringComparison.Ordinal);
+
+		var favorites = (isFavouritesHashMismatch && dbUser.Features.HasFlag(AniListUserFeatures.Favourites)) ? await this.GetFavouritesUpdatesAsync(recentUserUpdates, dbUser, db, cancellationToken) : [];
+
+		if ((dbUser.Features.HasFlag(AniListUserFeatures.Favourites) && isFavouritesHashMismatch) ||
+			(dbUser.Features.HasFlag(AniListUserFeatures.Reviews) && recentUserUpdates.Reviews.Exists(r => r.CreatedAtTimeStamp > dbUser.LastReviewTimestamp)) ||
+			(dbUser.Features.HasFlag(AniListUserFeatures.AnimeList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.Anime && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)) ||
+			(dbUser.Features.HasFlag(AniListUserFeatures.MangaList) && recentUserUpdates.Activities.Exists(a => a.Media.Type == ListType.Manga && a.CreatedAtTimestamp > dbUser.LastActivityTimestamp)))
+		{
+			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
+			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
+			await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(recentUserUpdates, favorites, dbUser, db, perUserCancellationToken)), dbUser.DiscordUser));
+		}
+		else
+		{
+			this.Logger.NoUpdatesFound(recentUserUpdates.User.Name);
+			db.Entry(dbUser).State = EntityState.Unchanged;
+		}
+
+		return true;
 	}
 
 	private async Task<IReadOnlyList<DiscordEmbedBuilder>> GetFavouritesUpdatesAsync(CombinedRecentUpdatesResponse response, AniListUser user, DatabaseContext db, CancellationToken cancellationToken)
