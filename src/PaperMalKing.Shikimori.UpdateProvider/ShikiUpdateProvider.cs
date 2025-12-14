@@ -33,6 +33,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
+	[SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Used for logging only")]
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
 		if (this.UpdateFoundEvent is null)
@@ -50,42 +51,55 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 			}
 
 			using var scope = logger.CheckingForUsersUpdatesScope(dbUser.Id);
-			logger.StartingToCheckUpdatesFor(dbUser.Id);
 
-			var historyUpdates = await _client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken);
-
-			var favs = await _client.GetUserFavouritesAsync(dbUser.Id, cancellationToken);
-			var isFavouritesMismatch = !dbUser.FavouritesIdHash.Equals(HashHelpers.FavoritesHash(favs.AllFavourites.ToFavoriteIdType()), StringComparison.Ordinal);
-
-			var achievementUpdates = dbUser.Features.HasFlag(ShikiUserFeatures.Achievements) ? await this.GetAchievementsUpdatesAsync(dbUser, cancellationToken) : [];
-
-			var groupedHistoryEntriesWithMediaAndRoles =
-				historyUpdates is not [] ? await this.GroupHistoryEntriesAsync(historyUpdates, dbUser, cancellationToken) : [];
-
-			if (historyUpdates is not [] || isFavouritesMismatch || achievementUpdates is not [])
+			try
 			{
-				db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
-				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
-				var user = await _client.GetUserByIdAsync(dbUser.Id, cancellationToken);
-
-				await this.UpdateFoundEvent.InvokeAsync(this,
-					new(new BaseUpdate(this.GetUpdatesAsync(user, dbUser, db, favs, isFavouritesMismatch, groupedHistoryEntriesWithMediaAndRoles, achievementUpdates, cancellationToken)), dbUser.DiscordUser));
+				await this.CheckUpdatesForUserAsync(dbUser, db, cancellationToken);
 			}
-			else
+			catch (Exception ex)
 			{
-				this.Logger.NoUpdatesFound(dbUser.Id);
+				logger.ErrorWhileCheckingUpdatesForUser(ex, dbUser.Id);
 			}
 		}
 	}
 
+	private async Task CheckUpdatesForUserAsync(ShikiUser dbUser, DatabaseContext db, CancellationToken cancellationToken)
+	{
+		logger.StartingToCheckUpdatesFor(dbUser.Id);
+
+		var historyUpdates = await _client.GetAllUserHistoryAfterEntryAsync(dbUser.Id, dbUser.LastHistoryEntryId, dbUser.Features, cancellationToken);
+
+		var favs = await _client.GetUserFavouritesAsync(dbUser.Id, cancellationToken);
+		var isFavouritesMismatch = !dbUser.FavouritesIdHash.Equals(HashHelpers.FavoritesHash(favs.AllFavourites.ToFavoriteIdType()), StringComparison.Ordinal);
+
+		var achievementUpdates = dbUser.Features.HasFlag(ShikiUserFeatures.Achievements) ? await this.GetAchievementsUpdatesAsync(dbUser, cancellationToken) : [];
+
+		var groupedHistoryEntriesWithMediaAndRoles =
+			historyUpdates is not [] ? await this.GroupHistoryEntriesAsync(historyUpdates, dbUser, cancellationToken) : [];
+
+		if (historyUpdates is not [] || isFavouritesMismatch || achievementUpdates is not [])
+		{
+			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
+			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
+			var user = await _client.GetUserByIdAsync(dbUser.Id, cancellationToken);
+
+			await this.UpdateFoundEvent.InvokeAsync(this,
+				new(new BaseUpdate(this.GetUpdatesAsync(user, dbUser, db, favs, isFavouritesMismatch, groupedHistoryEntriesWithMediaAndRoles, achievementUpdates, cancellationToken)), dbUser.DiscordUser));
+		}
+		else
+		{
+			this.Logger.NoUpdatesFound(dbUser.Id);
+		}
+	}
+
 	private async IAsyncEnumerable<UpdateContents> GetUpdatesAsync(UserInfo user,
-																		ShikiUser dbUser,
-																		DatabaseContext db,
-																		Favourites favs,
-																		bool isFavouritesMismatch,
-																		IReadOnlyList<HistoryMedia> groupedHistoryEntriesWithMediaAndRoles,
-																		IReadOnlyList<ShikiAchievement> achievementUpdates,
-																		[EnumeratorCancellation] CancellationToken cancellationToken)
+																   ShikiUser dbUser,
+																   DatabaseContext db,
+																   Favourites favs,
+																   bool isFavouritesMismatch,
+																   IReadOnlyList<HistoryMedia> groupedHistoryEntriesWithMediaAndRoles,
+																   IReadOnlyList<ShikiAchievement> achievementUpdates,
+																   [EnumeratorCancellation] CancellationToken cancellationToken)
 	{
 		static DiscordEmbedBuilder FormatEmbed(ShikiUser dbUser, DiscordEmbedBuilder deb)
 		{

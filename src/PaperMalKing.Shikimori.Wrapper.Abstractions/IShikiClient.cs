@@ -15,7 +15,7 @@ public interface IShikiClient
 
 	Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default);
 
-	Task<Paginatable<History[]>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options, CancellationToken cancellationToken = default);
+	Task<Paginatable<History>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options, CancellationToken cancellationToken = default);
 
 	Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, RequestOptions options, CancellationToken cancellationToken = default)
 		where TMedia : BaseMedia;

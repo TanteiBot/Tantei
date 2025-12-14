@@ -62,6 +62,13 @@ internal sealed class ShikiUserService(IShikiClient _client, ILogger<ShikiUserSe
 		var dUser = db.GetDiscordUserById(userId);
 		var shikiUser = await _client.GetUserByNicknameAsync(username);
 		var history = await _client.GetUserHistoryAsync(shikiUser.Id, 1, 1, HistoryRequestOptions.Any);
+
+		if (history.Data is [])
+		{
+			throw new UserProcessingException(BaseUser.Empty,
+				$"Your history is unaccessible, make sure `{Wrapper.Abstractions.Constants.BaseUrl}/{username}/history` can be accessed from incognito/private window in your browser");
+		}
+
 		var favourites = await _client.GetUserFavouritesAsync(shikiUser.Id);
 		var achievements = await _client.GetUserAchievementsAsync(shikiUser.Id);
 		if (dUser is null)

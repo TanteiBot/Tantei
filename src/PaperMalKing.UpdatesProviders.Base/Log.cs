@@ -100,4 +100,10 @@ public static partial class Log
 	public static IDisposable? CheckingForUsersUpdatesScope(this ILogger<BaseUpdateProvider> logger, string username) => CheckingForUsersUpdatesUsernameCallback(logger, username);
 
 	public static IDisposable? CheckingForUsersUpdatesScope(this ILogger<BaseUpdateProvider> logger, uint id) => CheckingForUsersUpdatesIdCallback(logger, id);
+
+	[LoggerMessage(LogLevel.Error, "Error while checking updates for user {Id}")]
+	public static partial void ErrorWhileCheckingUpdatesForUser(this ILogger<BaseUpdateProvider> logger, Exception ex, uint id);
+
+	[LoggerMessage(LogLevel.Error, "Error while checking updates for username {username}")]
+	public static partial void ErrorWhileCheckingUpdatesForUser(this ILogger<BaseUpdateProvider> logger, Exception ex, string username);
 }

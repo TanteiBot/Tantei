@@ -45,7 +45,7 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		return favs!;
 	}
 
-	public async Task<Paginatable<History[]>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options, CancellationToken cancellationToken = default)
+	public async Task<Paginatable<History>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options, CancellationToken cancellationToken = default)
 	{
 		var url = $"{Constants.BaseUsersApiUrl}/{userId}/history";
 		limit = limit > Constants.HistoryLimit ? Constants.HistoryLimit : limit;
@@ -66,6 +66,11 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 			Content = content,
 		};
 		using var response = await _httpClient.SendAsync(rm, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+
+		if (!response.IsSuccessStatusCode)
+		{
+			return Paginatable<History>.Empty;
+		}
 
 		var data = (await response.Content.ReadFromJsonAsync(JsonContext.Default.HistoryArray, cancellationToken))!;
 		var hasNextPage = data.Length == limit + 1;

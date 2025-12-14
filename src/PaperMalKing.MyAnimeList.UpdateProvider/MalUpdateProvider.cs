@@ -35,6 +35,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
+	[SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Used for logging only")]
 	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
 	{
 		static bool HasUserBeenInactiveRecently(MalUser x)
@@ -72,95 +73,112 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 			}
 
 			using var scope = logger.CheckingForUsersUpdatesScope(dbUser.Username);
-			this.Logger.StartingToCheckUpdatesFor(dbUser.Username);
-			User? user;
-			using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-			cts.CancelAfter(TimeSpan.FromMinutes(5));
-			var perUserCancellationToken = cts.Token;
-			const int serverSideErrorHttpCode = 500;
 			try
 			{
-				user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), perUserCancellationToken);
-				this.Logger.LoadedProfile(user.Username);
-			}
-			catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
-			{
-				this.Logger.UserNotFound(exception, dbUser.Username);
-				var username = await _client.GetUsernameAsync(dbUser.UserId, perUserCancellationToken);
-				this.Logger.NewUsernameForUser(dbUser.Username, username);
-				dbUser.Username = username;
-				await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
-				continue;
-			}
-			catch (HttpRequestException exception) when ((int?)exception.StatusCode >= serverSideErrorHttpCode)
-			{
-				this.Logger.MalServerError(exception);
-				return;
-			}
-			catch (TimeoutException)
-			{
-				this.Logger.UpdateProviderApiTimedOut();
-				return;
-			}
-			catch (OperationCanceledException) when (perUserCancellationToken.IsCancellationRequested)
-			{
-				// Ignore we were canceled
-				return;
-			}
-#pragma warning disable CA1031
-			// Modify 'CheckForUpdatesAsync' to catch a more specific allowed exception type, or rethrow the exception
-			catch (Exception exception)
-#pragma warning restore
-			{
-				this.Logger.EncounteredUnknownError(exception);
-				return;
-			}
-
-			var isFavoritesHashMismatch = !dbUser.FavoritesIdHash.Equals(HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()), StringComparison.Ordinal);
-
-			var animeListUpdates =
-				(dbUser.Features.HasFlag(MalUserFeatures.AnimeList) && user.HasPublicAnimeUpdates &&
-				 !dbUser.LastAnimeUpdateHash.Equals(user.LatestAnimeUpdateHash, StringComparison.Ordinal))
-					? await this
-						.CheckLatestListUpdatesAsync<AnimeListEntry, AnimeListType, AnimeFieldsToRequest, AnimeListEntryNode, AnimeListEntryStatus,
-							AnimeMediaType, AnimeAiringStatus, AnimeListStatus>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp, cancellationToken)
-					: [];
-
-			var mangaListUpdates =
-				(dbUser.Features.HasFlag(MalUserFeatures.MangaList) && user.HasPublicMangaUpdates && !dbUser.LastMangaUpdateHash.Equals(user.LatestMangaUpdateHash, StringComparison.Ordinal))
-					? await this
-						.CheckLatestListUpdatesAsync<MangaListEntry, MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus,
-							MangaMediaType, MangaPublishingStatus, MangaListStatus>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp,
-							cancellationToken)
-					: [];
-
-			if ((dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch) ||
-				animeListUpdates is not [] || mangaListUpdates is not [])
-			{
-				db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
-				db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
-				try
+				if (!await this.TryCheckForUserUpdatesAsync(dbUser, db, cancellationToken))
 				{
-					await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(animeListUpdates, mangaListUpdates, dbUser, user, db, cancellationToken)), dbUser.DiscordUser));
-				}
-				catch (Exception ex)
-				{
-					this.Logger.ErrorHappenedWhileSendingUpdateOrSavingToDb(ex);
-					throw;
+					return;
 				}
 			}
-			else
+			catch (Exception e)
 			{
-				db.Entry(dbUser).State = EntityState.Unchanged;
-				this.Logger.NoUpdatesFound(dbUser.Username);
+				logger.ErrorWhileCheckingUpdatesForUser(e, dbUser.Username);
 			}
 		}
 	}
 
+	private async Task<bool> TryCheckForUserUpdatesAsync(MalUser dbUser, DatabaseContext db, CancellationToken cancellationToken)
+	{
+		this.Logger.StartingToCheckUpdatesFor(dbUser.Username);
+		User? user;
+		using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+		cts.CancelAfter(TimeSpan.FromMinutes(5));
+		var perUserCancellationToken = cts.Token;
+		const int serverSideErrorHttpCode = 500;
+		try
+		{
+			user = await _client.GetUserAsync(dbUser.Username, dbUser.Features.ToParserOptions(), perUserCancellationToken);
+			this.Logger.LoadedProfile(user.Username);
+		}
+		catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
+		{
+			this.Logger.UserNotFound(exception, dbUser.Username);
+			var username = await _client.GetUsernameAsync(dbUser.UserId, perUserCancellationToken);
+			this.Logger.NewUsernameForUser(dbUser.Username, username);
+			dbUser.Username = username;
+			await db.SaveChangesAndThrowOnNoneAsync(CancellationToken.None);
+			return true;
+		}
+		catch (HttpRequestException exception) when ((int?)exception.StatusCode >= serverSideErrorHttpCode)
+		{
+			this.Logger.MalServerError(exception);
+			return false;
+		}
+		catch (TimeoutException)
+		{
+			this.Logger.UpdateProviderApiTimedOut();
+			return false;
+		}
+		catch (OperationCanceledException) when (perUserCancellationToken.IsCancellationRequested)
+		{
+			// Ignore we were canceled
+			return false;
+		}
+#pragma warning disable CA1031
+		// Modify 'CheckForUpdatesAsync' to catch a more specific allowed exception type, or rethrow the exception
+		catch (Exception exception)
+#pragma warning restore
+		{
+			this.Logger.EncounteredUnknownError(exception);
+			return false;
+		}
+
+		var isFavoritesHashMismatch = !dbUser.FavoritesIdHash.Equals(HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()), StringComparison.Ordinal);
+
+		var animeListUpdates =
+			(dbUser.Features.HasFlag(MalUserFeatures.AnimeList) && user.HasPublicAnimeUpdates &&
+			 !dbUser.LastAnimeUpdateHash.Equals(user.LatestAnimeUpdateHash, StringComparison.Ordinal))
+				? await this
+					.CheckLatestListUpdatesAsync<AnimeListEntry, AnimeListType, AnimeFieldsToRequest, AnimeListEntryNode, AnimeListEntryStatus,
+						AnimeMediaType, AnimeAiringStatus, AnimeListStatus>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp, cancellationToken)
+				: [];
+
+		var mangaListUpdates =
+			(dbUser.Features.HasFlag(MalUserFeatures.MangaList) && user.HasPublicMangaUpdates && !dbUser.LastMangaUpdateHash.Equals(user.LatestMangaUpdateHash, StringComparison.Ordinal))
+				? await this
+					.CheckLatestListUpdatesAsync<MangaListEntry, MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus,
+						MangaMediaType, MangaPublishingStatus, MangaListStatus>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp,
+						cancellationToken)
+				: [];
+
+		if ((dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch) ||
+			animeListUpdates is not [] || mangaListUpdates is not [])
+		{
+			db.Entry(dbUser).Reference(u => u.DiscordUser).Load();
+			db.Entry(dbUser.DiscordUser).Collection(du => du.Guilds).Load();
+			try
+			{
+				await this.UpdateFoundEvent.InvokeAsync(this, new(new BaseUpdate(this.GetUpdatesAsync(animeListUpdates, mangaListUpdates, dbUser, user, db, cancellationToken)), dbUser.DiscordUser));
+			}
+			catch (Exception ex)
+			{
+				this.Logger.ErrorHappenedWhileSendingUpdateOrSavingToDb(ex);
+				throw;
+			}
+		}
+		else
+		{
+			db.Entry(dbUser).State = EntityState.Unchanged;
+			this.Logger.NoUpdatesFound(dbUser.Username);
+		}
+
+		return true;
+	}
+
 	private async IAsyncEnumerable<UpdateContents> GetUpdatesAsync(IReadOnlyList<DiscordEmbedBuilder> animeListUpdates,
-																		IReadOnlyList<DiscordEmbedBuilder> mangaListUpdates,
-																		MalUser dbUser, User user, DatabaseContext db,
-																		[EnumeratorCancellation] CancellationToken cancellationToken)
+																   IReadOnlyList<DiscordEmbedBuilder> mangaListUpdates,
+																   MalUser dbUser, User user, DatabaseContext db,
+																   [EnumeratorCancellation] CancellationToken cancellationToken)
 	{
 		static DiscordEmbedBuilder FormatEmbed(MalUser dbUser, DiscordEmbedBuilder deb)
 		{
