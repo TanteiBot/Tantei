@@ -11,7 +11,7 @@
     <CommunityTookitVersion>8.4.0</CommunityTookitVersion>
     <VisualStudioThreadingVersion>17.14.15</VisualStudioThreadingVersion>
 
-    <VerifyVersion>31.8.0</VerifyVersion>
+    <VerifyVersion>31.9.0</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
@@ -91,7 +91,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.16.1.129956">
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.17.0.131074">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
