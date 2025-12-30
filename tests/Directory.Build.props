@@ -3,7 +3,7 @@
     <PropertyGroup>
         <IsPackable>false</IsPackable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <NoWarn>$(NoWarn);VSTHRD200;CA1515;EA0004;</NoWarn>
+        <NoWarn>$(NoWarn);VSTHRD200;CA1515;EA0004;AsyncFixer01;</NoWarn>
         <IsPublishable>false</IsPublishable>
         <OutputType>Exe</OutputType>
     </PropertyGroup>
