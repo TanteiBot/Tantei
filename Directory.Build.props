@@ -75,6 +75,7 @@
             MA0051; <!--Method is too long-->
             MA0099; <!-- Use Explicit enum value instead of 0 -->
             MA0136; <!-- Raw String contains an implicit end of line character-->
+            MA0182; <!--Internal type 'MalCommands' is apparently never used. If so, remove it from the assembly.-->
 
             IDE0010; <!--Add missing cases to switch statement-->
             IDE0022; <!--Use expression body for methods-->
