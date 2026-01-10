@@ -1,4 +1,4 @@
-﻿name: Release
+name: Release
 
 on:
   release:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -23,10 +23,10 @@ jobs:
           fallback: none      
       
       - name: Install .NET SDK if needed
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Set Node.js 21.x
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.node-version }}
           
