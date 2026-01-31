@@ -11,7 +11,7 @@ namespace PaperMalKing.Startup.Services.ExecuteOnStartup;
 internal sealed class MigrateOnStartupService(IDbContextFactory<DatabaseContext> _factory) : IExecuteOnStartupService
 {
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
-	public Task ExecuteAsync(CancellationToken cancellationToken = default)
+	public Task ExecuteAsync(CancellationToken cancellationToken)
 	{
 		using (var db = _factory.CreateDbContext())
 		{

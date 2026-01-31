@@ -89,7 +89,7 @@ internal static partial class Extensions
 			return result;
 		}
 
-		public async Task<CombinedInitialInfoResponse> GetCompleteUserInitialInfoAsync(string username, CancellationToken cancellationToken = default)
+		public async Task<CombinedInitialInfoResponse> GetCompleteUserInitialInfoAsync(string username, CancellationToken cancellationToken)
 		{
 			var hasNextPage = true;
 			var result = new CombinedInitialInfoResponse();
@@ -142,7 +142,7 @@ internal static partial class Extensions
 
 		public DiscordEmbedBuilder WithAniListAuthor(User user) => eb.WithAuthor(user.Name, user.Url, user.Image?.ImageUrl);
 
-		public DiscordEmbedBuilder EnrichWithMediaInfo(Media media, User user, AniListUserFeatures features)
+		public DiscordEmbedBuilder EnrichWithMediaInfo(Media media, User? user, AniListUserFeatures features)
 		{
 			var isAnime = media.Type == ListType.Anime;
 
@@ -164,7 +164,7 @@ internal static partial class Extensions
 					var director = media.Staff.Nodes.Find(x => x.Role.Equals("Director", StringComparison.Ordinal));
 					if (director is not null)
 					{
-						eb.AddField("Director", Formatter.MaskedUrl(director.Staff.Name.GetName(user.Options.TitleLanguage), new(director.Staff.Url)), inline: true);
+						eb.AddField("Director", Formatter.MaskedUrl(director.Staff.Name.GetName(user?.Options.TitleLanguage ?? TitleLanguage.Default), new(director.Staff.Url)), inline: true);
 					}
 				}
 
@@ -173,7 +173,7 @@ internal static partial class Extensions
 					var seyus = media.Characters.Nodes.Where(x => x.VoiceActors is not []).Select(x =>
 					{
 						var seyu = x.VoiceActors[0];
-						return Formatter.MaskedUrl(seyu.Name.GetName(user.Options.TitleLanguage), new(seyu.Url));
+						return Formatter.MaskedUrl(seyu.Name.GetName(user?.Options.TitleLanguage ?? TitleLanguage.Default), new(seyu.Url));
 					}).JoinToString();
 					if (!string.IsNullOrEmpty(seyus))
 					{
@@ -189,7 +189,7 @@ internal static partial class Extensions
 					var text = media.Staff.Nodes
 									.Where(edge => !edge.Role.AsSpan().ContainsAny(IgnoredRoles)).Take(7)
 									.Select(edge =>
-										$"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user.Options.TitleLanguage), new(edge.Staff.Url))} - {edge.Role}").JoinToString();
+										$"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user?.Options.TitleLanguage ?? TitleLanguage.Default), new(edge.Staff.Url))} - {edge.Role}").JoinToString();
 					if (!string.IsNullOrEmpty(text))
 					{
 						eb.AddField("Made by", text, inline: true);
@@ -345,14 +345,11 @@ internal static partial class Extensions
 			color = new(storedColor.ColorValue);
 		}
 
-		var eb = new DiscordEmbedBuilder()
+		var eb = CreateMediaBasedThumbnail(activity.Media, user.Options.TitleLanguage, features)
 				 .WithAniListAuthor(user)
 				 .WithTimestamp(DateTimeOffset.FromUnixTimeSeconds(activity.CreatedAtTimestamp))
-				 .WithUrl(activity.Media.Url)
-				 .WithMediaTitle(activity.Media, user.Options.TitleLanguage, features)
 				 .WithDescription(desc)
-				 .WithColor(color)
-				 .WithThumbnail(activity.Media.Image?.ImageUrl);
+				 .WithColor(color);
 		var score = mediaListEntry.GetScore(user.MediaListOptions.ScoreFormat);
 		if (!string.IsNullOrEmpty(score))
 		{
@@ -394,5 +391,13 @@ internal static partial class Extensions
 		where T : ICollection<IdentifiableFavourite>
 	{
 		return [.. favorites.Select(static x => new FavoriteIdType(x.Id, (byte)x.Type)).Order()];
+	}
+
+	public static DiscordEmbedBuilder CreateMediaBasedThumbnail(Media media, TitleLanguage titleLanguage, AniListUserFeatures features)
+	{
+		return new DiscordEmbedBuilder()
+				 .WithUrl(media.Url)
+				 .WithMediaTitle(media, titleLanguage, features)
+				 .WithThumbnail(media.Image?.ImageUrl);
 	}
 }

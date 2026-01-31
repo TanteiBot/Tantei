@@ -9,18 +9,18 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions;
 
 public interface IShikiClient
 {
-	Task<UserInfo> GetUserByNicknameAsync(string nickname, CancellationToken cancellationToken = default);
+	Task<UserInfo> GetUserByNicknameAsync(string nickname, CancellationToken cancellationToken);
 
-	Task<UserInfo> GetUserByIdAsync(uint userId, CancellationToken cancellationToken = default);
+	Task<UserInfo> GetUserByIdAsync(uint userId, CancellationToken cancellationToken);
 
-	Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default);
+	Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken);
 
-	Task<Paginatable<History>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options, CancellationToken cancellationToken = default);
+	Task<Paginatable<History>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options, CancellationToken cancellationToken);
 
-	Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, RequestOptions options, CancellationToken cancellationToken = default)
+	Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, RequestOptions options, CancellationToken cancellationToken)
 		where TMedia : BaseMedia;
 
-	Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken = default);
+	Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken);
 
-	Task<byte[]?> GetImageContentAsync(string url, CancellationToken cancellationToken = default);
+	Task<byte[]?> GetImageContentAsync(string url, CancellationToken cancellationToken);
 }

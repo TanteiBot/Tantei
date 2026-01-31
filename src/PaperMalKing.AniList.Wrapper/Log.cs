@@ -12,4 +12,7 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Debug, "Requesting updates check for {UserId}, {Page}")]
 	public static partial void RequestingUpdatesCheck(this ILogger<AniListClient> logger, uint userId, byte page);
+
+	[LoggerMessage(LogLevel.Debug, "Requesting media {Query}")]
+	public static partial void RequestingMediaSearch(this ILogger<AniListClient> logger, string query);
 }

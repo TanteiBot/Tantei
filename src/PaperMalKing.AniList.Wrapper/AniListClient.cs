@@ -1,10 +1,12 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2025 N0D4N
 
+using System.Net;
 using GraphQL.Client.Http;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper.Abstractions;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Responses;
 using PaperMalKing.AniList.Wrapper.GraphQL;
 
@@ -31,7 +33,7 @@ internal sealed class AniListClient(GraphQLHttpClient _client, ILogger<AniListCl
 	}
 
 	public async Task<FavouritesResponse> FavouritesInfoAsync(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds, uint[] studioIds,
-															  RequestOptions options, CancellationToken cancellationToken = default)
+															  RequestOptions options, CancellationToken cancellationToken)
 	{
 		if (animeIds is [] && mangaIds is [] && charIds is [] && staffIds is [] && studioIds is [])
 		{
@@ -41,5 +43,22 @@ internal sealed class AniListClient(GraphQLHttpClient _client, ILogger<AniListCl
 		var request = Requests.FavouritesInfoRequest(page, animeIds, mangaIds, charIds, staffIds, studioIds, options);
 		var response = await _client.SendQueryAsync<FavouritesResponse>(request, cancellationToken);
 		return response.Data;
+	}
+
+	public async Task<MediaSearchResponse> SearchMediaAsync(string query, ListType mediaType, RequestOptions requestOptions, uint? userId, CancellationToken cancellationToken)
+	{
+		cancellationToken.ThrowIfCancellationRequested();
+
+		var request = Requests.SearchMediaRequest(query, requestOptions, mediaType, userId);
+		try
+		{
+			var response = await _client.SendQueryAsync<MediaSearchResponse>(request, cancellationToken);
+
+			return response.Data;
+		}
+		catch (GraphQLHttpRequestException ex) when (ex.StatusCode is HttpStatusCode.NotFound)
+		{
+			return MediaSearchResponse.Empty;
+		}
 	}
 }

@@ -14,7 +14,7 @@ internal sealed class WarnOnSeqOnStartupService(IServiceProvider serviceProvider
 {
 	[SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "It's supposed to log once only")]
 	[SuppressMessage("Performance", "EA0000:Use source generated logging methods for improved performance", Justification = "It's supposed to log once only")]
-	public Task ExecuteAsync(CancellationToken cancellationToken = default)
+	public Task ExecuteAsync(CancellationToken cancellationToken)
 	{
 		var options = serviceProvider.GetRequiredService<IOptions<SeqOptions>>();
 
