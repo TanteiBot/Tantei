@@ -9,13 +9,13 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 
 public interface IMyAnimeListClient
 {
-	Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default);
+	Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken);
 
-	Task<string> GetUsernameAsync(uint id, CancellationToken cancellationToken = default);
+	Task<string> GetUsernameAsync(uint id, CancellationToken cancellationToken);
 
 	Task<IReadOnlyList<TE>>
 		GetLatestListUpdatesAsync<TE, TListType, TRequestOptions, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
-			string username, TRequestOptions requestOptions, CancellationToken cancellationToken = default)
+			string username, TRequestOptions requestOptions, CancellationToken cancellationToken)
 		where TE : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 		where TListType : IListType
 		where TRequestOptions : unmanaged, Enum
@@ -25,9 +25,9 @@ public interface IMyAnimeListClient
 		where TNodeStatus : unmanaged, Enum
 		where TListStatus : unmanaged, Enum;
 
-	Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken = default);
+	Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken);
 
-	Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken = default);
+	Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken);
 
-	Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken = default);
+	Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken);
 }

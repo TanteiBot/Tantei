@@ -61,7 +61,7 @@ internal sealed class MalUserService(IMyAnimeListClient _client, ILogger<MalUser
 		}
 
 		var duser = db.GetDiscordUserById(userId);
-		var mUser = await _client.GetUserAsync(username, MalUserFeatures.Default.ToParserOptions());
+		var mUser = await _client.GetUserAsync(username, MalUserFeatures.Default.ToParserOptions(), CancellationToken.None);
 		var now = TimeProvider.System.GetUtcNow();
 		if (duser is null)
 		{

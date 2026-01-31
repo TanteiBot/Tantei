@@ -5,5 +5,5 @@ namespace PaperMalKing.UpdatesProviders.Base;
 
 public interface IExecuteOnStartupService
 {
-	Task ExecuteAsync(CancellationToken cancellationToken = default);
+	Task ExecuteAsync(CancellationToken cancellationToken);
 }

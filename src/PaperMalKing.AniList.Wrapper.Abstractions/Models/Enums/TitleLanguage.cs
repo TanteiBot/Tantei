@@ -26,3 +26,11 @@ public enum TitleLanguage : byte
 	[JsonStringEnumMemberName("ENGLISH_STYLISED")]
 	EnglishStylised = 6,
 }
+
+public static class TitleLanguageExtensions
+{
+	extension(TitleLanguage)
+	{
+		public static TitleLanguage Default => TitleLanguage.Romaji;
+	}
+}

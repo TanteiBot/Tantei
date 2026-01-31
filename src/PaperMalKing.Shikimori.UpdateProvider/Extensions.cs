@@ -149,7 +149,7 @@ internal static partial class Extensions
 
 	public static async Task<IReadOnlyList<History>> GetAllUserHistoryAfterEntryAsync(this IShikiClient client, uint userId,
 																					  ulong limitHistoryEntryId, ShikiUserFeatures features,
-																					  CancellationToken cancellationToken = default)
+																					  CancellationToken cancellationToken)
 	{
 		uint page = 1;
 		byte limit = 10;
@@ -372,7 +372,7 @@ internal static partial class Extensions
 		return [.. favorites.Select(static x => new FavoriteIdType(x.Id, (byte)x.GenericType![0])).Order()];
 	}
 
-	public static async Task<UpdateContents> CreateUpdateFromEmbedAsync(DiscordEmbedBuilder embedBuilder, IShikiClient shikiClient, CancellationToken cancellationToken = default)
+	public static async Task<UpdateContents> CreateUpdateFromEmbedAsync(DiscordEmbedBuilder embedBuilder, IShikiClient shikiClient, CancellationToken cancellationToken)
 	{
 		List<UpdateFile> updateFiles = [];
 

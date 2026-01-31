@@ -54,7 +54,7 @@ internal sealed class ShikiUserFeaturesService(IShikiClient _client, ILogger<Shi
 
 			case ShikiUserFeatures.Achievements:
 				{
-					var achievements = await _client.GetUserAchievementsAsync(dbUser.Id);
+					var achievements = await _client.GetUserAchievementsAsync(dbUser.Id, CancellationToken.None);
 					dbUser.Achievements = [.. achievements.Select(x => new ShikiDbAchievement
 					{
 						NekoId = x.Id,

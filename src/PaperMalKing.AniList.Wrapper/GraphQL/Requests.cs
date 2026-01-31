@@ -3,6 +3,7 @@
 
 using GraphQL;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 
 namespace PaperMalKing.AniList.Wrapper.GraphQL;
 
@@ -39,4 +40,23 @@ internal static class Requests
 				staffIds,
 				studioIds,
 			});
+
+	public static GraphQLRequest SearchMediaRequest(string query, RequestOptions options, ListType type, uint? userId)
+	{
+		if (userId is not null)
+		{
+			return new(MediaSearchQueryBuilder.BuildWithUser(options), new
+			{
+				query,
+				type,
+				userId,
+			});
+		}
+
+		return new(MediaSearchQueryBuilder.Build(options), new
+		{
+			query,
+			type,
+		});
+	}
 }

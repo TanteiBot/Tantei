@@ -2,15 +2,19 @@
 // Copyright (C) 2021-2025 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
+using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper.Abstractions;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 using PaperMalKing.Common;
 using PaperMalKing.Database;
-using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
+using DiscordGuild = PaperMalKing.Database.Models.DiscordGuild;
+using FavouriteType = PaperMalKing.Database.Models.AniList.FavouriteType;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
@@ -58,7 +62,7 @@ internal sealed class AniListUserService(ILogger<AniListUserService> logger, IAn
 		}
 
 		var dUser = db.GetDiscordUserById(userId);
-		var response = await _client.GetCompleteUserInitialInfoAsync(username);
+		var response = await _client.GetCompleteUserInitialInfoAsync(username, CancellationToken.None);
 		var now = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
 		if (dUser is null)
 		{
@@ -106,5 +110,31 @@ internal sealed class AniListUserService(ILogger<AniListUserService> logger, IAn
 	public override IReadOnlyList<BaseUser> ListUsers(ulong guildId)
 	{
 		return this.ListUsersCore(guildId, static u => u.LastActivityTimestamp, static u => new("", u.DiscordUser));
+	}
+
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
+	public async Task<DiscordEmbed?> SearchMediaAsync(ulong userId, string query, ListType type)
+	{
+		using var db = this.DbContextFactory.CreateDbContext();
+		var dbUser = db.AniListUsers.TagWith("Query user when searching for media").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == userId);
+
+		var features = dbUser?.Features ?? AniListUserFeatures.Default;
+		features = features & ~AniListUserFeatures.Genres & ~AniListUserFeatures.Mangaka & ~AniListUserFeatures.Studio & ~AniListUserFeatures.MediaFormat;
+		var options = (RequestOptions)features;
+
+		var mediaResponse = await _client.SearchMediaAsync(query, type, options, dbUser?.Id, CancellationToken.None);
+
+		if (mediaResponse is null || mediaResponse.Media is null)
+		{
+			return null;
+		}
+
+		var eb = Extensions.CreateMediaBasedThumbnail(mediaResponse.Media, mediaResponse.User?.Options.TitleLanguage ?? TitleLanguage.Default, features)
+						   .EnrichWithMediaInfo(mediaResponse.Media, mediaResponse.User, features)
+						   .WithImageUrl($"https://img.anili.st/media/{mediaResponse.Media.Id}");
+
+		eb.Thumbnail = null;
+
+		return eb.Build();
 	}
 }

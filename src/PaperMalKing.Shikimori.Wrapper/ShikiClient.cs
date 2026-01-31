@@ -18,7 +18,7 @@ namespace PaperMalKing.Shikimori.Wrapper;
 [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Will be handled by its parent")]
 public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _logger, GraphQLHttpClient _graphQlClient) : IShikiClient
 {
-	public async Task<UserInfo> GetUserByNicknameAsync(string nickname, CancellationToken cancellationToken = default)
+	public async Task<UserInfo> GetUserByNicknameAsync(string nickname, CancellationToken cancellationToken)
 	{
 		_logger.RequestingUserInfo(nickname);
 
@@ -27,7 +27,7 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		return result.Data.Users[0];
 	}
 
-	public async Task<UserInfo> GetUserByIdAsync(uint userId, CancellationToken cancellationToken = default)
+	public async Task<UserInfo> GetUserByIdAsync(uint userId, CancellationToken cancellationToken)
 	{
 		_logger.RequestingUserInfo(userId);
 
@@ -37,7 +37,7 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		return result.Data.Users[0];
 	}
 
-	public async Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken = default)
+	public async Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken)
 	{
 		_logger.RequestingFavorites(userId);
 		var url = $"{Constants.BaseUsersApiUrl}/{userId}/favourites";
@@ -45,7 +45,7 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		return favs!;
 	}
 
-	public async Task<Paginatable<History>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options, CancellationToken cancellationToken = default)
+	public async Task<Paginatable<History>> GetUserHistoryAsync(uint userId, uint page, byte limit, HistoryRequestOptions options, CancellationToken cancellationToken)
 	{
 		var url = $"{Constants.BaseUsersApiUrl}/{userId}/history";
 		limit = limit > Constants.HistoryLimit ? Constants.HistoryLimit : limit;
@@ -77,7 +77,7 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		return new(data, hasNextPage);
 	}
 
-	public async Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, RequestOptions options, CancellationToken cancellationToken = default)
+	public async Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, RequestOptions options, CancellationToken cancellationToken)
 		where TMedia : BaseMedia
 	{
 		var request = GetRequestForMedia(id, type, options);
@@ -95,7 +95,7 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		return new(query, new { ids = id.ToString(CultureInfo.InvariantCulture) });
 	}
 
-	public async Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken = default)
+	public async Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken)
 	{
 		const string url = $"{Constants.BaseApiUrl}/achievements";
 		_logger.RequestingUserAchievements(userId);
@@ -115,7 +115,7 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		return r;
 	}
 
-	public async Task<byte[]?> GetImageContentAsync(string url, CancellationToken cancellationToken = default)
+	public async Task<byte[]?> GetImageContentAsync(string url, CancellationToken cancellationToken)
 	{
 		try
 		{

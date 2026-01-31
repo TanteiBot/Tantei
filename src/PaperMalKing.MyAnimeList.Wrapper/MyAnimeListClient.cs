@@ -21,13 +21,13 @@ namespace PaperMalKing.MyAnimeList.Wrapper;
 public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpClient _unofficialApiHttpClient, HttpClient _officialApiHttpClient, IJikan _jikanClient)
 	: IMyAnimeListClient
 {
-	private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken = default)
+	private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
 	{
 		var response = await _unofficialApiHttpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 		return response.EnsureSuccessStatusCode();
 	}
 
-	private async Task<IDocument> GetAsHtmlAsync(string url, CancellationToken cancellationToken = default)
+	private async Task<IDocument> GetAsHtmlAsync(string url, CancellationToken cancellationToken)
 	{
 		using var response = await this.GetAsync(url, cancellationToken);
 		await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
@@ -37,7 +37,7 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 		return await browsingContext.OpenAsync(htmlResponse => htmlResponse.Content(stream), cancellationToken);
 	}
 
-	public async Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken = default)
+	public async Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken)
 	{
 		if (options == ParserOptions.None)
 		{
@@ -55,7 +55,7 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 		return user;
 	}
 
-	public async Task<string> GetUsernameAsync(uint id, CancellationToken cancellationToken = default)
+	public async Task<string> GetUsernameAsync(uint id, CancellationToken cancellationToken)
 	{
 		var url = $"{Constants.CommentsUrl}{id}";
 		_logger.RequestingUsername(id);
@@ -65,7 +65,7 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 
 	public async Task<IReadOnlyList<TE>>
 		GetLatestListUpdatesAsync<TE, TListType, TRequestOptions, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
-			string username, TRequestOptions requestOptions, CancellationToken cancellationToken = default)
+			string username, TRequestOptions requestOptions, CancellationToken cancellationToken)
 		where TE : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 		where TListType : IListType
 		where TRequestOptions : unmanaged, Enum
@@ -88,7 +88,7 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 		return response.Data;
 	}
 
-	public async Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken = default)
+	public async Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken)
 	{
 		_logger.RequestingAnimeDetails(id);
 		try
@@ -108,7 +108,7 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 		return MediaInfo.Empty;
 	}
 
-	public async Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken = default)
+	public async Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken)
 	{
 		_logger.RequestingMangaDetails(id);
 		try
@@ -128,7 +128,7 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 		return MediaInfo.Empty;
 	}
 
-	public async Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken = default)
+	public async Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken)
 	{
 		_logger.RequestingSeyuDetails(id);
 		try
