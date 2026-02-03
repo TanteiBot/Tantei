@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2025 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +60,6 @@ public sealed class CustomColorService<TUser, TUpdateType>(IDbContextFactory<Dat
 		}
 
 		return $"Your colors: {colors.Select(c =>
-			$"{(TUpdateType)(object)c.UpdateType}: #{string.Create(CultureInfo.InvariantCulture, $"{c.ColorValue:X6}")}").JoinToString('\n')}";
+			$"{(TUpdateType)(object)c.UpdateType}: #{c.ColorValue:X6}").JoinToString('\n')}";
 	}
 }
