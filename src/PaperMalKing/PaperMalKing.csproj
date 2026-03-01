@@ -38,6 +38,11 @@
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         </Content>
+        <Content Include="$(SolutionDir)\LICENSE.md">
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        </Content>
         <Content Include="ClientApp\tsconfig.json" />
         <Content Update="template.appsettings.Production.json" CopyToPublishDirectory="Always">
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>

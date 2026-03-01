@@ -4,7 +4,7 @@
     "IngestionUrl": "",
   },
   "ConnectionStrings": {
-    "Default": "Data Source=data.db"
+    "Default": "Data Source=/data/data.db"
   },
   "Discord": {
     "Token": "",

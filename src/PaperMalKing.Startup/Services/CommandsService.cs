@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2025 N0D4N
+// Copyright (C) 2021-2026 N0D4N
 
 using System.Reflection;
 using DSharpPlus;
@@ -38,28 +38,40 @@ internal sealed class CommandsService : ICommandsService
 			this._logger.FoundAssemblyWhichMayContainCommands(assembly);
 			foreach (var type in assembly.DefinedTypes.Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase) && !nestedTypesNotToRegister.Contains(t)))
 			{
-				this._logger.TryingToRegisterTypeAsCommandModule(type);
-				try
-				{
-					var nestedTypes = type.GetNestedTypes(BindingFlags.Public)
-										  .Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase));
-					nestedTypesNotToRegister.AddRange(nestedTypes);
-
-					this.SlashCommandsExtension.RegisterCommands(type);
-				}
-#pragma warning disable CA1031
-				// Modify '.ctor' to catch a more specific allowed exception type, or rethrow the exception
-				catch (Exception ex)
-#pragma warning restore
-				{
-					this._logger.ErrorOccuredWhileTryingToRegisterCommandModule(ex, type);
-				}
-
-				this._logger.SuccessfullyRegisteredType(type);
+				this.TryRegisterTypeAsCommands(provider, type, nestedTypesNotToRegister);
 			}
 		}
 
 		this._logger.BuildingCommandsServiceFinished();
+	}
+
+	private void TryRegisterTypeAsCommands(IServiceProvider provider, TypeInfo type, HashSet<Type> nestedTypesNotToRegister)
+	{
+		this._logger.TryingToRegisterTypeAsCommandModule(type);
+		try
+		{
+			var nestedTypes = type.GetNestedTypes(BindingFlags.Public)
+								  .Where(t => t.FullName!.EndsWith("Commands", StringComparison.OrdinalIgnoreCase));
+			nestedTypesNotToRegister.AddRange(nestedTypes);
+
+			if (provider.GetService(type) is not null)
+			{
+				this.SlashCommandsExtension.RegisterCommands(type);
+			}
+			else
+			{
+				this._logger.SkippedRegisteringTypeAsCommandModule(type);
+			}
+		}
+#pragma warning disable CA1031
+		// Modify '.ctor' to catch a more specific allowed exception type, or rethrow the exception
+		catch (Exception ex)
+#pragma warning restore
+		{
+			this._logger.ErrorOccuredWhileTryingToRegisterCommandModule(ex, type);
+		}
+
+		this._logger.SuccessfullyRegisteredType(type);
 	}
 
 	private Task SlashCommandsExtensionOnSlashCommandExecutedAsync(SlashCommandsExtension sender, SlashCommandExecutedEventArgs e)

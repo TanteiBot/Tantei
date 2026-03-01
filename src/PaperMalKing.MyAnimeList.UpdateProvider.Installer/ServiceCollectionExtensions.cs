@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2025 N0D4N
+// Copyright (C) 2021-2026 N0D4N
 
 using JikanDotNet;
 using JikanDotNet.Config;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
@@ -19,8 +20,13 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Installer;
 
 public static class ServiceCollectionExtensions
 {
-	public static IServiceCollection AddMyAnimeList(this IServiceCollection serviceCollection)
+	public static void AddMyAnimeList(this IServiceCollection serviceCollection, IConfiguration configuration)
 	{
+		if (configuration.GetSection(Constants.Name).GetValue<int>(nameof(MalOptions.DelayBetweenChecksInMilliseconds)) < 0)
+		{
+			return;
+		}
+
 		const int malHttpRetries = 3;
 
 		serviceCollection.AddOptions<MalOptions>().BindConfiguration(Constants.Name).ValidateDataAnnotations().ValidateOnStart();
@@ -90,8 +96,6 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton<MalUpdateProvider>();
 		serviceCollection.AddSingleton<BaseUpdateProvider>(static f => f.GetRequiredService<MalUpdateProvider>());
 		serviceCollection.AddHostedService(static f => f.GetRequiredService<MalUpdateProvider>());
-
-		return serviceCollection;
 	}
 
 	private static SocketsHttpHandler HttpClientHandlerFactory() => new()

@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2025 N0D4N
+// Copyright (C) 2021-2026 N0D4N
 
 using System.Reflection;
 using DSharpPlus.Entities;
@@ -106,6 +106,9 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Trace, "Trying to register {@Type} command module")]
 	public static partial void TryingToRegisterTypeAsCommandModule(this ILogger<CommandsService> logger, Type type);
+
+	[LoggerMessage(LogLevel.Information, "Skipped registering {@Type} command module")]
+	public static partial void SkippedRegisteringTypeAsCommandModule(this ILogger<CommandsService> logger, Type type);
 
 	[LoggerMessage(LogLevel.Error, "Error occured while trying to register {@Type}")]
 	public static partial void ErrorOccuredWhileTryingToRegisterCommandModule(this ILogger<CommandsService> logger, Exception ex, Type type);
