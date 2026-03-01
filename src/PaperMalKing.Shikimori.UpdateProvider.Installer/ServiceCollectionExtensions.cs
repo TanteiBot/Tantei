@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2025 N0D4N
+// Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
@@ -24,8 +24,13 @@ namespace PaperMalKing.Shikimori.UpdateProvider.Installer;
 public static class ServiceCollectionExtensions
 {
 	[SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "We only dispose when application closes")]
-	public static IServiceCollection AddShikimori(this IServiceCollection serviceCollection, IConfiguration configuration)
+	public static void AddShikimori(this IServiceCollection serviceCollection, IConfiguration configuration)
 	{
+		if (configuration.GetSection(Constants.Name).GetValue<int>(nameof(ShikiOptions.DelayBetweenChecksInMilliseconds)) < 0)
+		{
+			return;
+		}
+
 		serviceCollection.AddOptions<ShikiOptions>().BindConfiguration(Constants.Name).ValidateDataAnnotations().ValidateOnStart();
 
 		// https://shikimori.one/api/doc/1.0
@@ -82,7 +87,5 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton<ShikiUpdateProvider>();
 		serviceCollection.AddSingleton<BaseUpdateProvider>(static f => f.GetRequiredService<ShikiUpdateProvider>());
 		serviceCollection.AddHostedService(static f => f.GetRequiredService<ShikiUpdateProvider>());
-
-		return serviceCollection;
 	}
 }

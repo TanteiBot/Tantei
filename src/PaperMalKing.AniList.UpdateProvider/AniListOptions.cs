@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2025 N0D4N
+// Copyright (C) 2021-2026 N0D4N
 
 using System.ComponentModel.DataAnnotations;
 using PaperMalKing.Common.Options;
@@ -9,7 +9,7 @@ namespace PaperMalKing.AniList.UpdateProvider;
 public sealed class AniListOptions : ITimerOptions<AniListUpdateProvider>
 {
 	[Required]
-	[Range(1, int.MaxValue)]
+	[Range(-1, int.MaxValue)]
 	public int DelayBetweenChecksInMilliseconds { get; init; }
 
 	public const string AniList = ProviderConstants.Name;

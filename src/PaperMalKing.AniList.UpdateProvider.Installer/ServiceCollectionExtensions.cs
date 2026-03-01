@@ -1,9 +1,10 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
-// Copyright (C) 2021-2025 N0D4N
+// Copyright (C) 2021-2026 N0D4N
 
 using System.Text.Json;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.SystemTextJson;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.Wrapper;
@@ -18,8 +19,13 @@ namespace PaperMalKing.AniList.UpdateProvider.Installer;
 
 public static class ServiceCollectionExtensions
 {
-	public static void AddAniList(this IServiceCollection serviceCollection)
+	public static void AddAniList(this IServiceCollection serviceCollection, IConfiguration configuration)
 	{
+		if (configuration.GetSection(AniListOptions.AniList).GetValue<int>(nameof(AniListOptions.DelayBetweenChecksInMilliseconds)) < 0)
+		{
+			return;
+		}
+
 		serviceCollection.AddOptions<AniListOptions>().BindConfiguration(AniListOptions.AniList).ValidateDataAnnotations().ValidateOnStart();
 		const int rpm = 29;
 
