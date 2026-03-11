@@ -16,7 +16,10 @@ public static partial class TypeExtensions
 
 	extension(string? value)
 	{
-		public string StripHtml() => value is null ? "" : HtmlRegex.Replace(value, string.Empty);
+		public string StripHtml()
+		{
+			return value is null ? "" : HtmlRegex.Replace(value, string.Empty);
+		}
 
 		public string? ToSentenceCase(CultureInfo cultureInfo)
 		{

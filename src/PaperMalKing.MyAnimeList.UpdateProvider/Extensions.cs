@@ -183,7 +183,7 @@ internal static class Extensions
 		var eb = new DiscordEmbedBuilder
 		{
 			Url = favorite.NameUrl,
-		}.WithThumbnail(favorite.ImageUrl!).WithDescription($"{(added ? "Added" : "Removed")} favorite");
+		}.WithThumbnail(favorite.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favorite");
 
 		var color = dbUser.Colors.Find(added
 			? static c => c.UpdateType == (byte)MalUpdateType.FavoriteAdded
