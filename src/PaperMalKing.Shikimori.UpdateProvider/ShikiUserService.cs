@@ -35,24 +35,16 @@ internal sealed class ShikiUserService(IShikiClient _client, ILogger<ShikiUserSe
 					"You already have your account connected. If you want to switch to another account, remove current one, then add the new one.");
 			}
 
-			guild = db.GetGuildById(guildId);
-			if (guild is null)
-			{
-				throw new UserProcessingException(BaseUser.FromUsername(username),
-					"Current server is not in database, ask server administrator to add this server to bot");
-			}
+			guild = db.GetGuildById(guildId) ?? throw new UserProcessingException(BaseUser.FromUsername(username),
+				"Current server is not in database, ask server administrator to add this server to bot");
 
 			dbUser.DiscordUser.Guilds.Add(guild);
 			await db.SaveChangesAndThrowOnNoneAsync();
 			return BaseUser.FromUsername(username);
 		}
 
-		guild = db.GetGuildById(guildId);
-		if (guild is null)
-		{
-			throw new UserProcessingException(BaseUser.FromUsername(username),
-				"Current server is not in database, ask server administrator to add this server to bot");
-		}
+		guild = db.GetGuildById(guildId) ?? throw new UserProcessingException(BaseUser.FromUsername(username),
+			"Current server is not in database, ask server administrator to add this server to bot");
 
 		if (string.IsNullOrWhiteSpace(username))
 		{

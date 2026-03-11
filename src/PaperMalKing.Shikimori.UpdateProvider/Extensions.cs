@@ -232,7 +232,7 @@ internal static partial class Extensions
 
 		var first = history.HistoryEntries[0];
 		var eb = new DiscordEmbedBuilder().WithTimestamp(first.CreatedAt).WithShikiAuthor(user).WithColor(Constants.ShikiBlue);
-		var desc = history.HistoryEntries.Select(h => h.Description).JoinToString("; ").StripHtml().ToSentenceCase(RuCulture)!;
+		var desc = history.HistoryEntries.Select(h => h.Description).JoinToString("; ").StripHtml().ToSentenceCase(RuCulture);
 		eb.WithDescription(desc);
 		var target = history.HistoryEntries.Find(x => x.Target is not null)?.Target;
 		if (target is null)
