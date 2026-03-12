@@ -47,7 +47,7 @@
     <!-- Hosting -->
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.4" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.5" />
 
     <!-- DI -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.4" />
