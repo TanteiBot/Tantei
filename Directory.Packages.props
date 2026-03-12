@@ -20,7 +20,7 @@
     <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Telemetry.Abstractions" Version="10.4.0" />
 
     <!-- Discord -->
@@ -51,15 +51,15 @@
 
     <!-- DI -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5" />
 
     <!-- Configuration -->
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.4" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.4" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.5" />
 
     <!-- Resilience -->
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.4.0" />
@@ -68,14 +68,14 @@
     <!-- Web -->
     <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="10.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.4" />
-    <PackageVersion Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="10.0.4" />
+    <PackageVersion Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="10.0.5" />
 
     <!-- Misc -->
     <PackageVersion Include="CommunityToolkit.Diagnostics" Version="$(CommunityTookitVersion)" />
     <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
     <PackageVersion Include="AngleSharp" Version="1.4.0" />
     <PackageVersion Include="JikanDotNet" Version="2.10.2" />
-    <PackageVersion Include="System.Threading.RateLimiting" Version="10.0.4" />
+    <PackageVersion Include="System.Threading.RateLimiting" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.EnumStrings" Version="8.0.0-rc.2.23510.2" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="$(VisualStudioThreadingVersion)" />
     <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
