@@ -87,5 +87,6 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton<ShikiUpdateProvider>();
 		serviceCollection.AddSingleton<BaseUpdateProvider>(static f => f.GetRequiredService<ShikiUpdateProvider>());
 		serviceCollection.AddHostedService(static f => f.GetRequiredService<ShikiUpdateProvider>());
+		serviceCollection.AddTransient<ShikiCommands>();
 	}
 }

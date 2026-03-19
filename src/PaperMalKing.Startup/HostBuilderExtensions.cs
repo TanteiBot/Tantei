@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
 using PaperMalKing.Database.CompiledModels;
+using PaperMalKing.Startup.Commands;
 using PaperMalKing.Startup.Options;
 using PaperMalKing.Startup.Services;
 using PaperMalKing.Startup.Services.Background;
@@ -111,6 +112,10 @@ public static class HostBuilderExtensions
 			services.AddSingleton<ICommandsService, CommandsService>();
 			services.AddSingleton<UpdateProvidersConfigurationService>();
 			services.AddSingleton<GuildManagementService>();
+
+			services.AddTransient<AdminCommands>();
+			services.AddTransient<GuildManagementCommands>();
+			services.AddTransient<UngroupedCommands>();
 			UpdateProvidersConfigurationService.ConfigureProviders(services, context.Configuration);
 
 			services.AddHostedService<DiscordBackgroundService>();

@@ -55,5 +55,6 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton<AniListUpdateProvider>();
 		serviceCollection.AddSingleton<BaseUpdateProvider>(static f => f.GetRequiredService<AniListUpdateProvider>());
 		serviceCollection.AddHostedService(static f => f.GetRequiredService<AniListUpdateProvider>());
+		serviceCollection.AddTransient<AniListCommands>();
 	}
 }
