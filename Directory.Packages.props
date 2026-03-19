@@ -8,7 +8,7 @@
     <EntityFrameworkCoreVersion>10.0.4</EntityFrameworkCoreVersion>
     <GraphQLClientVersion>6.1.0</GraphQLClientVersion>
     <DSharpPlusVersion>4.5.1</DSharpPlusVersion>
-    <CommunityTookitVersion>8.4.0</CommunityTookitVersion>
+    <CommunityTookitVersion>8.4.1</CommunityTookitVersion>
     <VisualStudioThreadingVersion>17.14.15</VisualStudioThreadingVersion>
 
     <VerifyVersion>31.13.5</VerifyVersion>
