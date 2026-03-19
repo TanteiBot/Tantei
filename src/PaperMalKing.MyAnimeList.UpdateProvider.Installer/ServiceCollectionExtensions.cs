@@ -96,6 +96,7 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton<MalUpdateProvider>();
 		serviceCollection.AddSingleton<BaseUpdateProvider>(static f => f.GetRequiredService<MalUpdateProvider>());
 		serviceCollection.AddHostedService(static f => f.GetRequiredService<MalUpdateProvider>());
+		serviceCollection.AddTransient<MalCommands>();
 	}
 
 	private static SocketsHttpHandler HttpClientHandlerFactory() => new()
