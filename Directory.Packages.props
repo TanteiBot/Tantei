@@ -8,7 +8,7 @@
     <EntityFrameworkCoreVersion>10.0.4</EntityFrameworkCoreVersion>
     <GraphQLClientVersion>6.1.0</GraphQLClientVersion>
     <DSharpPlusVersion>4.5.1</DSharpPlusVersion>
-    <CommunityTookitVersion>8.4.1</CommunityTookitVersion>
+    <CommunityTookitVersion>8.4.2</CommunityTookitVersion>
     <VisualStudioThreadingVersion>17.14.15</VisualStudioThreadingVersion>
 
     <VerifyVersion>31.13.5</VerifyVersion>
@@ -87,11 +87,11 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.27">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.28">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.21.0.135717">
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.22.0.136894">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -133,7 +133,7 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.2" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
     <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
-    <PackageVersion Include="TUnit" Version="1.21.24" />
+    <PackageVersion Include="TUnit" Version="1.21.30" />
 
 
 
