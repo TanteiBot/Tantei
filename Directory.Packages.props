@@ -11,7 +11,7 @@
     <CommunityTookitVersion>8.4.2</CommunityTookitVersion>
     <VisualStudioThreadingVersion>17.14.15</VisualStudioThreadingVersion>
 
-    <VerifyVersion>31.13.5</VerifyVersion>
+    <VerifyVersion>31.14.0</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
@@ -87,7 +87,7 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.35">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.41">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
