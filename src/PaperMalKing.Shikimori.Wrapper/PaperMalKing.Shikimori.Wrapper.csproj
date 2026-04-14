@@ -2,7 +2,6 @@
     
     <ItemGroup>
         <PackageReference Include="GraphQL.Client" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Telemetry.Abstractions" />
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
         <ProjectReference Include="..\PaperMalKing.Shikimori.Wrapper.Abstractions\PaperMalKing.Shikimori.Wrapper.Abstractions.csproj" />

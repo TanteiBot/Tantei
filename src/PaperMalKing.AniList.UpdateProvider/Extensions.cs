@@ -111,37 +111,34 @@ internal static partial class Extensions
 		public DiscordEmbedBuilder WithMediaTitle(Media media, TitleLanguage titleLanguage, AniListUserFeatures features)
 		{
 			const int discordTitleLimit = 256;
-			var strings = new List<string> { media.Title.GetTitle(titleLanguage) };
+
+			var sb = new StringBuilder(media.Title.GetTitle(titleLanguage), discordTitleLimit);
+
 			if (features.HasFlag(AniListUserFeatures.MediaFormat))
 			{
 				var format = media.GetEmbedFormat();
 				if (!string.IsNullOrWhiteSpace(format))
 				{
-					strings.Add($" ({format})");
+					AppendIfWithinLimit(sb, $" ({format})");
 				}
 			}
 
 			if (features.HasFlag(AniListUserFeatures.MediaStatus))
 			{
-				strings.Add($" [{media.Status.Humanize(LetterCasing.Sentence)}]");
-			}
-
-			var sb = new StringBuilder(discordTitleLimit);
-			foreach (var titlePart in strings)
-			{
-				if (sb.Length + titlePart.Length <= discordTitleLimit)
-				{
-					sb.Append(titlePart);
-				}
-				else
-				{
-					break;
-				}
+				AppendIfWithinLimit(sb, $" [{media.Status.Humanize(LetterCasing.Sentence)}]");
 			}
 
 			var result = sb.ToString();
 
 			return string.IsNullOrWhiteSpace(result) ? eb : eb.WithTitle(result);
+
+			static void AppendIfWithinLimit(StringBuilder sb, string part)
+			{
+				if (sb.Length + part.Length <= discordTitleLimit)
+				{
+					sb.Append(part);
+				}
+			}
 		}
 
 		public DiscordEmbedBuilder WithAniListAuthor(User user) => eb.WithAuthor(user.Name, user.Url, user.Image?.ImageUrl);
@@ -305,12 +302,6 @@ internal static partial class Extensions
 			$"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it" :
 			$"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}";
 
-		var isAdvancedScoringEnabled =
-			(isAnime
-				? user.MediaListOptions!.AnimeListOptions.IsAdvancedScoringEnabled
-				: user.MediaListOptions!.MangaListOptions.IsAdvancedScoringEnabled) &&
-			mediaListEntry.AdvancedScores?.Any(s => s.Value != 0f) == true;
-
 		var updateType = (isAnime, mediaListEntry.Status) switch
 		{
 			(true, MediaListStatus.Paused) => AniListUpdateType.PausedAnime,
@@ -338,6 +329,12 @@ internal static partial class Extensions
 			color = new(storedColor.ColorValue);
 		}
 
+		var isAdvancedScoringEnabled =
+			(isAnime
+				? user.MediaListOptions!.AnimeListOptions.IsAdvancedScoringEnabled
+				: user.MediaListOptions!.MangaListOptions.IsAdvancedScoringEnabled) &&
+			(mediaListEntry.AdvancedScores?.Any(s => s.Value != 0f) ?? false);
+
 		var eb = CreateMediaBasedThumbnail(activity.Media, user.Options.TitleLanguage, features)
 				 .WithAniListAuthor(user)
 				 .WithTimestamp(DateTimeOffset.FromUnixTimeSeconds(activity.CreatedAtTimestamp))
@@ -350,7 +347,7 @@ internal static partial class Extensions
 		if (isAdvancedScoringEnabled)
 		{
 			var sb = new StringBuilder();
-			foreach (var (key, value) in mediaListEntry.AdvancedScores?.Where(e => e.Value != 0f) ?? [])
+			foreach (var (key, value) in mediaListEntry.AdvancedScores!.Where(e => e.Value != 0f))
 			{
 				sb.AppendLine(CultureInfo.InvariantCulture, $"{key}: {value:0.#}");
 			}

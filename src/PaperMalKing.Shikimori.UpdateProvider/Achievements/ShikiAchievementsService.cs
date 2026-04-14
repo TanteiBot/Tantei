@@ -23,7 +23,7 @@ internal sealed class ShikiAchievementsService
 		if (neko.HumanNames.Count is 0 || neko.Achievements.Count is 0)
 		{
 			this._logger.DidntFindAnyAchievements();
-			return FrozenDictionary<AchievementKey, ShikiAchievement>.Empty;
+			return [];
 		}
 
 		this._logger.FoundAchievements(neko.Achievements.Count);

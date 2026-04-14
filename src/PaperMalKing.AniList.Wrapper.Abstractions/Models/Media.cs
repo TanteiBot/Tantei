@@ -51,7 +51,7 @@ public sealed class Media : IImageble, ISiteUrlable, IIdentifiable
 	public string? Description { get; init; }
 
 	/// <remarks>
-	/// Apply <see cref="StringPoolingJsonConverter"/> when https://github.com/dotnet/runtime/issues/54189 gets closed
+	/// TODO Apply <see cref="StringPoolingJsonConverter"/> when https://github.com/dotnet/runtime/issues/54189 gets closed
 	/// Currently we cant apply custom converter for collection item.
 	/// </remarks>
 	[JsonPropertyName("genres")]

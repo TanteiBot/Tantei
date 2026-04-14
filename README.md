@@ -54,7 +54,7 @@ In this scenario you will need to worry about setting up the bot to work in back
 
 #### Building from source and running on bare metal
 
-Prerequisites: git, [.NET SDK 10.0](https://get.dot.net/10)
+Prerequisites: git, [.NET SDK 11.0](https://get.dot.net/11)
 - `git clone --branch v2 https://github.com/TanteiBot/Tantei.git`
 - `cd Tantei/`
 - `dotnet publish -c Release -o publish/ src/PaperMalKing/PaperMalKing.csproj`
