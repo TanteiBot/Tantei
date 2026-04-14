@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace PaperMalKing.Common.Exceptions;
 
-[SuppressMessage("Naming", "CA1708:Identifiers should differ by more than case", Justification = "Compiler error https://github.com/dotnet/sdk/issues/51716")]
+[SuppressMessage("Naming", "CA1708:Identifiers should differ by more than case", Justification = "Compiler error https://github.com/dotnet/sdk/issues/51716")] // TODO
 [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:Prefix local calls with this", Justification = "There is no this")]
 public static class ExceptionExtensions
 {

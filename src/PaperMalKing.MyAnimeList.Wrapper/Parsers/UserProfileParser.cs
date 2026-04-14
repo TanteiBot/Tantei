@@ -14,11 +14,11 @@ internal static class UserProfileParser
 	public static User Parse(IDocument document, ParserOptions options)
 	{
 		var reportUrl = document.QuerySelector("#contentWrapper a.header-right")!.GetAttribute("href");
-		var li = reportUrl!.LastIndexOf('=');
+		var li = reportUrl!.LastIndexOf('=', StringComparison.Ordinal);
 
 		var id = uint.Parse(reportUrl.AsSpan(li + 1), NumberFormatInfo.InvariantInfo);
 		var url = document.QuerySelector("""meta[property="og:url"]""")!.GetAttribute("content")!;
-		var username = url[(url.LastIndexOf('/') + 1)..];
+		var username = url[(url.LastIndexOf('/', StringComparison.Ordinal) + 1)..];
 		var favorites = options.HasFlag(ParserOptions.Favorites) ? FavoritesParser.ParseFavorites(document) : UserFavorites.Empty;
 
 		return new()

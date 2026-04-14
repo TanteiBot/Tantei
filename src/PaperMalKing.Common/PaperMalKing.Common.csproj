@@ -8,8 +8,6 @@
     <ItemGroup>
         <PackageReference Include="DSharpPlus" />
         <PackageReference Include="DSharpPlus.SlashCommands" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-        <PackageReference Include="Microsoft.Extensions.Options" />
         <PackageReference Include="System.Threading.RateLimiting" />
     </ItemGroup>
 
