@@ -10,8 +10,7 @@ internal static class FavouritesInfoQueryBuilder
 {
 	public static string Build(RequestOptions options)
 	{
-		var sb = new StringBuilder();
-		sb.AppendLine(
+		var sb = new StringBuilder(
 			"""
 			query ($page: Int, $animeIds: [Int], $mangaIds: [Int], $charIds: [Int], $staffIds: [Int], $studioIds: [Int]) {
 				Animes: Page(page: $page, perPage: 50) {
@@ -22,6 +21,7 @@ internal static class FavouritesInfoQueryBuilder
 			episodes
 			averageScore
 			""");
+		sb.AppendLine();
 		Helpers.AppendMediaFields(sb, options);
 		sb.AppendLine(
 			"""
