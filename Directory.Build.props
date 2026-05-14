@@ -80,6 +80,7 @@
             IDE0010; <!--Add missing cases to switch statement-->
             IDE0022; <!--Use expression body for methods-->
             IDE0024; <!--Use expression body for operators-->
+            IDE0028; <!-- Collection initialization can be simplified -->
             IDE0051; <!-- TODO REMOVE, same as below. Name of rule: Remove unused private member -->
             IDE0052; <!-- TODO REMOVE, seems to have false positives as of .NET 10.0.4. Name of rule: Remove unread private member -->
             IDE0058; <!--Remove unnecessary expression value-->
