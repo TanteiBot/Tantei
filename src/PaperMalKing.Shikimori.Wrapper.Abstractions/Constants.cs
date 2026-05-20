@@ -5,7 +5,7 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions;
 
 public static class Constants
 {
-	public const string BaseUrl = "https://shikimori.one";
+	public const string BaseUrl = "https://shikimori.io";
 
-	public const string GraphQlBaseUrl = "https://shikimori.one/api/graphql";
+	public const string GraphQlBaseUrl = "https://shikimori.io/api/graphql";
 }

@@ -9,7 +9,7 @@ internal static class Constants
 {
 	public const string Name = "Shikimori";
 
-	public const string IconUrl = "https://shikimori.one/favicons/opera-icon-228x228.png";
+	public const string IconUrl = "https://shikimori.io/favicons/opera-icon-228x228.png";
 
 	public static readonly DiscordColor ShikiGreen = new("#419541");
 

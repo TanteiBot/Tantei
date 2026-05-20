@@ -33,7 +33,7 @@ public static class ServiceCollectionExtensions
 
 		serviceCollection.AddOptions<ShikiOptions>().BindConfiguration(Constants.Name).ValidateDataAnnotations().ValidateOnStart();
 
-		// https://shikimori.one/api/doc/1.0
+		// https://shikimori.io/api/doc/1.0
 		var rpmRl = RateLimiterFactory.Create<ShikiClient>(new(30, TimeSpan.FromMinutes(1, 25))); // 90rpm with .05 as inaccuracy
 		var rpsRl = RateLimiterFactory.Create<ShikiClient>(new(2, TimeSpan.FromSeconds(1, 700))); // 5rps with .05 as inaccuracy
 
