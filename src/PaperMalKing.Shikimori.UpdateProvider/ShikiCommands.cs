@@ -11,13 +11,13 @@ using PaperMalKing.UpdatesProviders.Base.Features;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
-[SlashCommandGroup("shiki", "Commands for interacting with Shikimori.one")]
+[SlashCommandGroup("shiki", "Commands for interacting with Shikimori")]
 [SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 [GuildOnly]
 [SlashRequireGuild]
 internal sealed class ShikiCommands : ApplicationCommandModule
 {
-	[SlashCommandGroup("user", "Commands for managing user updates from Shikimori.one")]
+	[SlashCommandGroup("user", "Commands for managing user updates from Shikimori")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 	public sealed class ShikiUserCommands(ShikiUserService userService, ILogger<ShikiUserCommands> logger) : BaseUpdateProviderUserCommandsModule<ShikiUserService, ShikiUser>(userService, logger)
 	{
@@ -35,7 +35,7 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 		public override Task RemoveUserHereCommand(InteractionContext context) => base.RemoveUserHereCommand(context);
 	}
 
-	[SlashCommandGroup("features", "Manage your features for updates send from Shikimori.one")]
+	[SlashCommandGroup("features", "Manage your features for updates send from Shikimori")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
 	public sealed class ShikiUserFeaturesCommands(BaseUserFeaturesService<ShikiUser, ShikiUserFeatures> userFeaturesService, ILogger<ShikiUserFeaturesCommands> logger)
 		: BaseUserFeaturesCommandsModule<ShikiUser, ShikiUserFeatures>(userFeaturesService, logger)
@@ -55,7 +55,7 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 		[SlashCommand("enabled", "Show features that are enabled for yourself")]
 		public override Task EnabledFeaturesCommand(InteractionContext context) => base.EnabledFeaturesCommand(context);
 
-		[SlashCommand("list", "Show all features that are available for updates from Shikimori.one")]
+		[SlashCommand("list", "Show all features that are available for updates from Shikimori")]
 		public override Task ListFeaturesCommand(InteractionContext context) => base.ListFeaturesCommand(context);
 	}
 
