@@ -40,10 +40,10 @@ internal static class Queries
 		return $$"""
 				query ($ids: String) {
 					media: mangas (ids: $ids) {
-						{{((options & RequestOptions.Publisher) != 0 ? " publishers { name, id } " : "")}}
-						{{((options & RequestOptions.Mangaka) != 0 ? " personRoles { roles_russian: rolesRu, roles: rolesEn, person { name, russian, id, isMangaka } } " : "")}}
-						{{((options & RequestOptions.Genres) != 0 ? GenresSubquery : "")}}
-						{{((options & RequestOptions.Description) != 0 ? DescriptionSubquery : "")}}
+						{{(options.HasFlag(RequestOptions.Publisher) ? " publishers { name, id } " : "")}}
+						{{(options.HasFlag(RequestOptions.Mangaka) ? " personRoles { roles_russian: rolesRu, roles: rolesEn, person { name, russian, id, isMangaka } } " : "")}}
+						{{(options.HasFlag(RequestOptions.Genres) ? GenresSubquery : "")}}
+						{{(options.HasFlag(RequestOptions.Description) ? DescriptionSubquery : "")}}
 					} 
 				}
 				""";
@@ -54,10 +54,10 @@ internal static class Queries
 		return $$"""
 				query ($ids: String) {
 					media: animes (ids: $ids) {
-						{{((options & RequestOptions.Studio) != 0 ? "studios { name, id }" : "")}}
-						{{((options & RequestOptions.Director) != 0 ? "personRoles { roles_russian: rolesRu, roles: rolesEn, person { name, russian, id } }" : "")}}
-						{{((options & RequestOptions.Genres) != 0 ? GenresSubquery : "")}}
-						{{((options & RequestOptions.Description) != 0 ? DescriptionSubquery : "")}}
+						{{(options.HasFlag(RequestOptions.Studio) ? "studios { name, id }" : "")}}
+						{{(options.HasFlag(RequestOptions.Director) ? "personRoles { roles_russian: rolesRu, roles: rolesEn, person { name, russian, id } }" : "")}}
+						{{(options.HasFlag(RequestOptions.Genres) ? GenresSubquery : "")}}
+						{{(options.HasFlag(RequestOptions.Description) ? DescriptionSubquery : "")}}
 					}
 				}
 				""";
