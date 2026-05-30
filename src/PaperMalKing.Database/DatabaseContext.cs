@@ -12,6 +12,7 @@ using PaperMalKing.Database.Models.Shikimori;
 
 namespace PaperMalKing.Database;
 
+[SuppressMessage("Usage", "MA0192:Use HasFlag instead of bitwise checks", Justification = "EF Core is unlikely to support HasFlag")]
 public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
 	public DbSet<BotUser> BotUsers => this.Set<BotUser>();
