@@ -92,9 +92,11 @@ internal sealed class UngroupedCommands(ILogger<UngroupedCommands> logger) : Bot
 			Url = sourceCodeLink,
 			Description = desc,
 			Color = DiscordColor.DarkBlue,
-		}.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
-		 .AddField("Links", Formatter.MaskedUrl("Source code", new(sourceCodeLink, UriKind.Absolute)), inline: true)
-		 .AddField(owners.Length > 1 ? "Contacts" : "Contact", owners.JoinToString('\n'), inline: true).AddField("Versions", versions);
+		}
+		.WithThumbnail(context.Client.CurrentUser.AvatarUrl)
+		.AddField("Links", Formatter.MaskedUrl("Source code", new(sourceCodeLink, UriKind.Absolute)), inline: true)
+		.AddField(owners.Length > 1 ? "Contacts" : "Contact", owners.JoinToString('\n'), inline: true)
+		.AddField("Versions", versions);
 
 		Interlocked.Exchange(ref _aboutEmbed, embedBuilder.Build());
 

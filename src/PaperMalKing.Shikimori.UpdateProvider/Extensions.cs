@@ -69,10 +69,8 @@ internal static partial class Extensions
 				if (features.HasFlag(ShikiUserFeatures.Studio) && media is AnimeMedia anime)
 				{
 					var text = anime.Studios.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))).JoinToString();
-					if (!string.IsNullOrEmpty(text))
-					{
-						builder.AddField("Studio", text, inline: true);
-					}
+
+					builder.AddFieldIfPresent("Studio", text, inline: true);
 				}
 
 				if (features.HasFlag(ShikiUserFeatures.Director) && media?.PersonRoles is not null and not [])
@@ -90,10 +88,7 @@ internal static partial class Extensions
 				if (features.HasFlag(ShikiUserFeatures.Publisher) && media is MangaMedia manga)
 				{
 					var text = manga.Publishers.Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))).JoinToString();
-					if (!string.IsNullOrEmpty(text))
-					{
-						builder.AddField("Publisher", text, inline: true);
-					}
+					builder.AddFieldIfPresent("Publisher", text, inline: true);
 				}
 
 				if (features.HasFlag(ShikiUserFeatures.Mangaka) && media?.PersonRoles is not null and not [])
@@ -107,29 +102,20 @@ internal static partial class Extensions
 						return $"{Formatter.MaskedUrl(x.Person!.GetNameOrAltName(features), new(x.Person!.Url))} - {nameOfRole}";
 					}).JoinToString();
 
-					if (!string.IsNullOrEmpty(mangakas))
-					{
-						builder.AddField("Author", mangakas, inline: true);
-					}
+					builder.AddFieldIfPresent("Author", mangakas, inline: true);
 				}
 			}
 
 			if (features.HasFlag(ShikiUserFeatures.Description) && !string.IsNullOrWhiteSpace(media?.Description))
 			{
 				var text = BracketsRegex.Replace(media.Description, "").Truncate(350);
-				if (!string.IsNullOrEmpty(text))
-				{
-					builder.AddField("Description", text);
-				}
+				builder.AddFieldIfPresent("Description", text);
 			}
 
 			if (features.HasFlag(ShikiUserFeatures.Genres))
 			{
 				var text = media!.Genres.Take(7).Select(x => x.GetNameOrAltName(features)).JoinToString();
-				if (!string.IsNullOrEmpty(text))
-				{
-					builder.AddField("Genres", text);
-				}
+				builder.AddFieldIfPresent("Genres", text);
 			}
 		}
 	}

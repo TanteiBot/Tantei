@@ -199,7 +199,7 @@ internal static class Extensions
 
 		if (favorite is MalFavoriteCharacter favoriteCharacter)
 		{
-			eb.AddField("From", favoriteCharacter.FromTitleName, inline: true);
+			eb.AddFieldIfPresent("From", favoriteCharacter.FromTitleName, inline: true);
 		}
 
 		return eb;
@@ -233,7 +233,7 @@ internal static class Extensions
 										  .WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl).WithTimestamp(listEntry.Status.UpdatedAt);
 		if (listEntry.Status.Score != 0)
 		{
-			eb.AddField("Score", listEntry.Status.Score.ToString(NumberFormatInfo.InvariantInfo), inline: true);
+			eb.AddFieldIfPresent("Score", listEntry.Status.Score.ToString(NumberFormatInfo.InvariantInfo), inline: true);
 		}
 
 		string userProgressText;
@@ -253,7 +253,8 @@ internal static class Extensions
 					var chapterProgress = SubEntriesProgress(mle.Status.ChaptersRead, mle.Node.TotalChapters, mle.Status.Status == MangaListStatus.PlanToRead, "ch. ");
 					var volumeProgress =
 						SubEntriesProgress(mle.Status.VolumesRead, mle.Node.TotalVolumes, mle.Status.Status == MangaListStatus.PlanToRead, "v.");
-					userProgressText = string.IsNullOrEmpty(volumeProgress) || !string.IsNullOrEmpty(chapterProgress)
+
+					userProgressText = string.IsNullOrWhiteSpace(volumeProgress) || !string.IsNullOrWhiteSpace(chapterProgress)
 						? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
 					break;
 				}
@@ -264,7 +265,7 @@ internal static class Extensions
 				}
 		}
 
-		eb.AddField("Progress", userProgressText, inline: true);
+		eb.AddFieldIfPresent("Progress", userProgressText, inline: true);
 
 		if (listEntry.Status.ReprogressTimes > 0)
 		{
@@ -385,7 +386,8 @@ internal static class Extensions
 				(true, false) => listEntry.Status.FinishDate!.Value.ToString(format, DateTimeFormatInfo.InvariantInfo),
 				_ => throw new UnreachableException(),
 			};
-			eb.AddField(fieldTitle, value);
+
+			eb.AddFieldIfPresent(fieldTitle, value);
 		}
 
 		if (features.HasFlag(MalUserFeatures.Studio) && listEntry is AnimeListEntry { Node.Studios: not null and not [] } aListEntry)
@@ -411,8 +413,8 @@ internal static class Extensions
 		{
 			var authors = mListEntry.Node.Authors.Take(7).Select(x =>
 			{
-				var name =
-					$"{(!string.IsNullOrEmpty(x.Person.LastName) ? $"{x.Person.LastName}, {x.Person.FirstName}" : x.Person.FirstName)} ({x.Role})";
+				var name = $"{(!string.IsNullOrWhiteSpace(x.Person.LastName) ? $"{x.Person.LastName}, {x.Person.FirstName}" : x.Person.FirstName)} ({x.Role})";
+
 				return Formatter.MaskedUrl(name, new(x.Person.Url));
 			}).JoinToString();
 
@@ -473,7 +475,8 @@ internal static class Extensions
 		{
 			var l = eb.Description?.Length ?? 0;
 			var descToAdd = $"{fieldName}\n{fieldValue}".Truncate(2048 - l - 1, Truncator.FixedNumberOfCharacters);
-			if (string.IsNullOrEmpty(eb.Description))
+
+			if (string.IsNullOrWhiteSpace(eb.Description))
 			{
 				eb.WithDescription(descToAdd);
 			}
