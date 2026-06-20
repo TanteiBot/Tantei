@@ -70,17 +70,16 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 	{
 		var eb = InitialFavouriteEmbedBuilder(staff, user, added, dbUser)
 			.WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [{staff.PrimaryOccupations.FirstOrDefault() ?? "Staff"}]");
-		if (dbUser.Features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrEmpty(staff.Description))
+
+		if (dbUser.Features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrWhiteSpace(staff.Description))
 		{
 			const int mediaDescriptionLimit = 350;
 			var mediaDescription = staff.Description.StripHtml();
 			mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
 			mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
 			mediaDescription = mediaDescription.Trim().Truncate(mediaDescriptionLimit);
-			if (!string.IsNullOrEmpty(mediaDescription))
-			{
-				eb.AddField("Description", mediaDescription);
-			}
+
+			eb.AddFieldIfPresent("Description", mediaDescription);
 		}
 
 		var mostPopularWork = staff.StaffMedia.Nodes.FirstOrDefault();

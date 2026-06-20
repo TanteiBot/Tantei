@@ -4,11 +4,13 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using DSharpPlus.Entities;
 
 namespace PaperMalKing.Common;
 
 [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:Prefix local calls with this", Justification = "False positive")]
 [SuppressMessage("Minor Code Smell", "S2325:Methods and properties that don\'t access instance data should be static", Justification = "False positive")]
+[SuppressMessage("Naming", "CA1708:Identifiers should differ by more than case", Justification = "Compiler error https://github.com/dotnet/sdk/issues/51716")]
 public static partial class TypeExtensions
 {
 	[GeneratedRegex("<.*?>", RegexOptions.Compiled, matchTimeoutMilliseconds: 1000/*1s*/)]
@@ -23,7 +25,7 @@ public static partial class TypeExtensions
 
 		public string? ToSentenceCase(CultureInfo cultureInfo)
 		{
-			if (string.IsNullOrEmpty(value) || value.Length <= 1)
+			if (string.IsNullOrWhiteSpace(value) || value.Length <= 1)
 			{
 				return value;
 			}
@@ -61,37 +63,52 @@ public static partial class TypeExtensions
 		}
 	}
 
-	// This was not moved to extension because of
-	// https://github.com/dotnet/roslyn/issues/80024
-	public static bool HasAllFlags<TEnum>(this TEnum @enum, params TEnum[] flags)
+	extension<TEnum>(TEnum @enum)
 		where TEnum : unmanaged, Enum
 	{
-		var result = true;
-
-		foreach (var flag in flags)
+		public bool HasAllFlags(params TEnum[] flags)
 		{
-			result = result && @enum.HasFlag(flag);
+			var result = true;
+
+			foreach (var flag in flags)
+			{
+				result = result && @enum.HasFlag(flag);
+			}
+
+			return result;
 		}
 
-		return result;
+		public bool HasAnyFlag(params TEnum[] flags)
+		{
+			var result = false;
+
+			foreach (var flag in flags)
+			{
+				result = result || @enum.HasFlag(flag);
+
+				if (result)
+				{
+					return result;
+				}
+			}
+
+			return result;
+		}
 	}
 
-	public static bool HasAnyFlag<TEnum>(this TEnum @enum, params TEnum[] flags)
-		where TEnum : unmanaged, Enum
+	extension(DiscordEmbedBuilder eb)
 	{
-		var result = false;
-
-		foreach (var flag in flags)
+		public DiscordEmbedBuilder AddFieldIfPresent(string name, string? value, bool inline = false)
 		{
-			result = result || @enum.HasFlag(flag);
+			ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-			if (result)
+			if (string.IsNullOrWhiteSpace(value))
 			{
-				return result;
+				return eb;
 			}
-		}
 
-		return result;
+			return eb.AddField(name, value, inline);
+		}
 	}
 
 	public static string GetFullMessage(this Exception ex)

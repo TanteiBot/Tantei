@@ -24,6 +24,8 @@ internal static partial class Extensions
 {
 	private const int InlineFieldValueMaxLength = 30;
 
+	private const int NotesLimit = 1023;
+
 	[GeneratedRegex(@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase, matchTimeoutMilliseconds: 1000/*1s*/)]
 	internal static partial Regex SourceRemovalRegex { get; }
 
@@ -113,7 +115,7 @@ internal static partial class Extensions
 			if (features.HasFlag(AniListUserFeatures.MediaFormat))
 			{
 				var format = media.GetEmbedFormat();
-				if (!string.IsNullOrEmpty(format))
+				if (!string.IsNullOrWhiteSpace(format))
 				{
 					strings.Add($" ({format})");
 				}
@@ -137,7 +139,9 @@ internal static partial class Extensions
 				}
 			}
 
-			return eb.WithTitle(sb.ToString());
+			var result = sb.ToString();
+
+			return string.IsNullOrWhiteSpace(result) ? eb : eb.WithTitle(result);
 		}
 
 		public DiscordEmbedBuilder WithAniListAuthor(User user) => eb.WithAuthor(user.Name, user.Url, user.Image?.ImageUrl);
@@ -153,15 +157,13 @@ internal static partial class Extensions
 					var text = media.Studios.Nodes.Where(s => s.IsAnimationStudio)
 									.Select(studio => Formatter.MaskedUrl(studio.Name, new(studio.Url))).JoinToString();
 
-					if (!string.IsNullOrEmpty(text))
-					{
-						eb.AddField("Made by", text, inline: true);
-					}
+					eb.AddFieldIfPresent("Made by", text, inline: true);
 				}
 
 				if (features.HasFlag(AniListUserFeatures.Director))
 				{
 					var director = media.Staff.Nodes.Find(x => x.Role.Equals("Director", StringComparison.Ordinal));
+
 					if (director is not null)
 					{
 						eb.AddField("Director", Formatter.MaskedUrl(director.Staff.Name.GetName(user?.Options.TitleLanguage ?? TitleLanguage.Default), new(director.Staff.Url)), inline: true);
@@ -175,10 +177,8 @@ internal static partial class Extensions
 						var seyu = x.VoiceActors[0];
 						return Formatter.MaskedUrl(seyu.Name.GetName(user?.Options.TitleLanguage ?? TitleLanguage.Default), new(seyu.Url));
 					}).JoinToString();
-					if (!string.IsNullOrEmpty(seyus))
-					{
-						eb.AddField("Seyu", seyus);
-					}
+
+					eb.AddFieldIfPresent("Seyu", seyus);
 				}
 			}
 			else
@@ -190,36 +190,32 @@ internal static partial class Extensions
 									.Where(edge => !edge.Role.AsSpan().ContainsAny(IgnoredRoles)).Take(7)
 									.Select(edge =>
 										$"{Formatter.MaskedUrl(edge.Staff.Name.GetName(user?.Options.TitleLanguage ?? TitleLanguage.Default), new(edge.Staff.Url))} - {edge.Role}").JoinToString();
-					if (!string.IsNullOrEmpty(text))
-					{
-						eb.AddField("Made by", text, inline: true);
-					}
+
+					eb.AddFieldIfPresent("Made by", text, inline: true);
 				}
 			}
 
 			if (features.HasFlag(AniListUserFeatures.Genres) && media.Genres is not [])
 			{
 				var fieldVal = media.Genres.JoinToString();
-				eb.AddField("Genres", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
+				eb.AddFieldIfPresent("Genres", fieldVal, inline: fieldVal.Length <= InlineFieldValueMaxLength);
 			}
 
 			if (features.HasFlag(AniListUserFeatures.Tags) && media.Tags is not [])
 			{
 				var fieldVal = media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? Formatter.Spoiler(t.Name) : t.Name).JoinToString();
-				eb.AddField("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
+				eb.AddFieldIfPresent("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 			}
 
-			if (features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrEmpty(media.Description))
+			if (features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrWhiteSpace(media.Description))
 			{
 				const int mediaDescriptionLimit = 350;
 				var mediaDescription = media.Description.StripHtml();
 				mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
 				mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
 				mediaDescription = Formatter.Strip(mediaDescription).Trim().Truncate(mediaDescriptionLimit);
-				if (!string.IsNullOrEmpty(mediaDescription))
-				{
-					eb.AddField("Description", mediaDescription, mediaDescription.Length <= InlineFieldValueMaxLength);
-				}
+
+				eb.AddFieldIfPresent("Description", mediaDescription, mediaDescription.Length <= InlineFieldValueMaxLength);
 			}
 
 			return eb;
@@ -251,10 +247,7 @@ internal static partial class Extensions
 				fieldVal.Add($"{volumes} v.");
 			}
 
-			if (fieldVal is not [] and not null)
-			{
-				eb.AddField("Total", fieldVal.JoinToString(), inline: true);
-			}
+			eb.AddFieldIfPresent("Total", fieldVal.JoinToString(), inline: true);
 
 			return eb;
 		}
@@ -306,7 +299,7 @@ internal static partial class Extensions
 	{
 		var features = dbUser.Features;
 		var isAnime = activity.Media.Type == ListType.Anime;
-		var isHiddenProgressPresent = !string.IsNullOrEmpty(activity.Progress) && mediaListEntry.Status is MediaListStatus.Paused or MediaListStatus.Dropped or MediaListStatus.Completed;
+		var isHiddenProgressPresent = !string.IsNullOrWhiteSpace(activity.Progress) && mediaListEntry.Status is MediaListStatus.Paused or MediaListStatus.Dropped or MediaListStatus.Completed;
 
 		var desc = isHiddenProgressPresent ?
 			$"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it" :
@@ -351,10 +344,8 @@ internal static partial class Extensions
 				 .WithDescription(desc)
 				 .WithColor(color);
 		var score = mediaListEntry.GetScore(user.MediaListOptions.ScoreFormat);
-		if (!string.IsNullOrEmpty(score))
-		{
-			eb.AddField("Score", score, inline: true);
-		}
+
+		eb.AddFieldIfPresent("Score", score, inline: true);
 
 		if (isAdvancedScoringEnabled)
 		{
@@ -364,24 +355,21 @@ internal static partial class Extensions
 				sb.AppendLine(CultureInfo.InvariantCulture, $"{key}: {value:0.#}");
 			}
 
-			eb.AddField("Advanced scoring", sb.ToString(), inline: true);
+			eb.AddFieldIfPresent("Advanced scoring", sb.ToString(), inline: true);
 		}
 
 		eb.WithTotalSubEntries(activity.Media);
+
 		if (mediaListEntry.Repeat != 0)
 		{
-			eb.AddField($"{(isAnime ? "Rewatched" : "Reread")} times", mediaListEntry.Repeat.ToString(DateTimeFormatInfo.InvariantInfo), inline: true);
+			eb.AddFieldIfPresent($"{(isAnime ? "Rewatched" : "Reread")} times", mediaListEntry.Repeat.ToString(DateTimeFormatInfo.InvariantInfo), inline: true);
 		}
 
-		if (!string.IsNullOrEmpty(mediaListEntry.Notes))
-		{
-			const int notesLimit = 1023;
-			eb.AddField("Notes", mediaListEntry.Notes.Truncate(notesLimit), inline: true);
-		}
+		eb.AddFieldIfPresent("Notes", mediaListEntry.Notes.Truncate(NotesLimit), inline: true);
 
 		if (features.HasFlag(AniListUserFeatures.CustomLists) && mediaListEntry.CustomLists?.Any(x => x.Enabled) == true)
 		{
-			eb.AddField("Custom lists", mediaListEntry.CustomLists.Where(x => x.Enabled).Select(x => x.Name).JoinToString(), inline: true);
+			eb.AddFieldIfPresent("Custom lists", mediaListEntry.CustomLists.Where(x => x.Enabled).Select(x => x.Name).JoinToString(), inline: true);
 		}
 
 		return eb.EnrichWithMediaInfo(activity.Media, user, features);
