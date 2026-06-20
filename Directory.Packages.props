@@ -11,13 +11,13 @@
     <CommunityTookitVersion>8.4.2</CommunityTookitVersion>
     <VisualStudioThreadingVersion>17.14.15</VisualStudioThreadingVersion>
 
-    <VerifyVersion>31.19.1</VerifyVersion>
+    <VerifyVersion>31.20.0</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
     <PackageVersion Include="Serilog" Version="4.3.1" />
     <PackageVersion Include="Serilog.Extensions.Hosting" Version="10.0.0" />
-    <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.0" />
+    <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.1" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
@@ -87,7 +87,7 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.103">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.105">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -133,7 +133,7 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.4" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
     <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
-    <PackageVersion Include="TUnit" Version="1.54.0" />
+    <PackageVersion Include="TUnit" Version="1.56.18" />
 
 
 
