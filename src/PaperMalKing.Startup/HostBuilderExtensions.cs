@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http.Diagnostics;
+using Microsoft.Extensions.Http.Logging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
@@ -108,6 +110,22 @@ public static class HostBuilderExtensions
 				return new(cfg);
 			});
 
+			services.AddRedaction();
+
+			services.AddExtendedHttpClientLogging(options =>
+			{
+				options.LogBody = true;
+				options.RequestPathLoggingMode = OutgoingPathLoggingMode.Structured;
+				options.RequestPathParameterRedactionMode = HttpRouteParameterRedactionMode.None;
+				options.BodyReadTimeout = TimeSpan.FromSeconds(59);
+
+				foreach (var contentType in (ReadOnlySpan<string>)["application/json"])
+				{
+					options.RequestBodyContentTypes.Add(contentType);
+					options.ResponseBodyContentTypes.Add(contentType);
+				}
+			});
+
 			services.AddSingleton<UpdatePublishingService>();
 			services.AddSingleton<ICommandsService, CommandsService>();
 			services.AddSingleton<UpdateProvidersConfigurationService>();
@@ -204,7 +222,7 @@ public static class HostBuilderExtensions
 					{
 						["service.name"] = context.HostingEnvironment.IsDevelopment() ? tanteiDevName : tanteiName,
 					};
-				});
+				}, ignoreEnvironment: true);
 			}
 		});
 
