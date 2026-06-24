@@ -5,7 +5,6 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="AngleSharp" />
         <PackageReference Include="JikanDotNet"/>
-        <PackageReference Include="CommunityToolkit.Diagnostics" />
         <PackageReference Include="Microsoft.Extensions.Telemetry.Abstractions" />
     </ItemGroup>
     <ItemGroup>
@@ -14,6 +13,7 @@
     
     <PropertyGroup>
         <NoWarn>$(NoWarn);S3242;</NoWarn>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
 </Project>

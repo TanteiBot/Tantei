@@ -4,6 +4,10 @@
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
     </PropertyGroup>
+    
+    <PropertyGroup>
+        <IsAotCompatible>true</IsAotCompatible>
+    </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />

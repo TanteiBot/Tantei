@@ -6,9 +6,9 @@ using System.Net;
 using System.Net.Http.Json;
 using AngleSharp;
 using AngleSharp.Dom;
-using CommunityToolkit.Diagnostics;
 using JikanDotNet;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.Common.Exceptions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
@@ -41,8 +41,7 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 	{
 		if (options == ParserOptions.None)
 		{
-			ThrowHelper.ThrowArgumentException("No reason to parse profile without anime/manga lists and favorites",
-				nameof(options));
+			ArgumentException.Throw<ParserOptions>("No reason to parse profile without anime/manga lists and favorites", nameof(options));
 		}
 
 		_logger.RequestingProfile(username);

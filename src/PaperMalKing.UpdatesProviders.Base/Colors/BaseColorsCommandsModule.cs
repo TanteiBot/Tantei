@@ -1,16 +1,19 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
+using PaperMalKing.Common.Exceptions;
 using PaperMalKing.Database.Models;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base.Colors;
 
-public abstract class BaseColorsCommandsModule<TUser, TUpdateType>
+public abstract class BaseColorsCommandsModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TUser,
+											   [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] TUpdateType>
 	(ILogger<BaseColorsCommandsModule<TUser, TUpdateType>> logger, CustomColorService<TUser, TUpdateType> colorService) : BotCommandsModule
 	where TUser : class, IUpdateProviderUser
 	where TUpdateType : unmanaged, Enum
@@ -29,7 +32,7 @@ public abstract class BaseColorsCommandsModule<TUser, TUpdateType>
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is ArgumentException or UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is ArgumentException or UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.FullMessage) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			logger.FailedToSetColor(ex, unparsedUpdateType, colorValue);
 			throw;
@@ -47,7 +50,7 @@ public abstract class BaseColorsCommandsModule<TUser, TUpdateType>
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is ArgumentException or UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is ArgumentException or UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.FullMessage) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			logger.FailedToRemoveColor(ex, unparsedUpdateType);
 			throw;

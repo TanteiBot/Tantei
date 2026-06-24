@@ -1,4 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    
+    <PropertyGroup>
+        <IsAotCompatible>true</IsAotCompatible>
+        <VerifyReferenceAotCompatibility>true</VerifyReferenceAotCompatibility>
+    </PropertyGroup>
+    
     <ItemGroup>
         <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Installer" />
         <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.Wrapper" />

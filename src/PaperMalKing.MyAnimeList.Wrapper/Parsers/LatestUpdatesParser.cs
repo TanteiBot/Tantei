@@ -3,9 +3,9 @@
 
 using System.Text;
 using AngleSharp.Dom;
-using CommunityToolkit.Diagnostics;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Enums;
+using PaperMalKing.Common.Exceptions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Parsers;
@@ -23,8 +23,9 @@ internal static class LatestUpdatesParser
 		{
 			ListEntryType.Anime => AnimeSelector,
 			ListEntryType.Manga => MangaSelector,
-			_ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(listEntryType), listEntryType, message: null),
+			_ => ArgumentOutOfRangeException.Throw<string>(nameof(listEntryType), listEntryType, message: null),
 		};
+
 		var nodes = document.QuerySelectorAll(selector);
 		if (nodes is null or [])
 		{

@@ -12,7 +12,8 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features;
 
-public abstract class BaseUserFeaturesService<TUser, TFeature>
+public abstract class BaseUserFeaturesService<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TUser,
+											  [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] TFeature>
 	where TUser : class, IUpdateProviderUser<TFeature>
 	where TFeature : unmanaged, Enum
 {

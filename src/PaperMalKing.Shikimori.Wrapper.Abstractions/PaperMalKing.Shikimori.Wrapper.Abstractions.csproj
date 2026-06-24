@@ -1,13 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-   
+
+    <PropertyGroup>
+        <IsAotCompatible>true</IsAotCompatible>
+        <VerifyReferenceAotCompatibility>true</VerifyReferenceAotCompatibility>
+    </PropertyGroup>
+
     <ItemGroup>
         <InternalsVisibleTo Include="PaperMalKing.Shikimori.UpdateProvider.Installer" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
-        
-        <PackageReference Include="CommunityToolkit.Diagnostics" />
-        <PackageReference Include="Microsoft.Extensions.EnumStrings" />
     </ItemGroup>
 </Project>

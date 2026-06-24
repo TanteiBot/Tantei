@@ -5,12 +5,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
-using CommunityToolkit.Diagnostics;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Enums;
+using PaperMalKing.Common.Exceptions;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.Shikimori.UpdateProvider.Achievements;
 using PaperMalKing.Shikimori.Wrapper.Abstractions;
@@ -144,7 +144,7 @@ internal static partial class Extensions
 			(true, true) => HistoryRequestOptions.Any,
 			(true, false) => HistoryRequestOptions.Anime,
 			(false, true) => HistoryRequestOptions.Manga,
-			_ => ThrowHelper.ThrowArgumentOutOfRangeException<HistoryRequestOptions>(nameof(features), features, message: null),
+			_ => ArgumentOutOfRangeException.Throw<HistoryRequestOptions>(nameof(features), features, message: null),
 		};
 
 		var (data, hasNextPage) = await client.GetUserHistoryAsync(userId, page, limit, options, cancellationToken);

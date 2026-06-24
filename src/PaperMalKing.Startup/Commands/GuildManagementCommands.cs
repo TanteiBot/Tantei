@@ -9,6 +9,7 @@ using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Attributes;
+using PaperMalKing.Common.Exceptions;
 using PaperMalKing.Startup.Exceptions;
 using PaperMalKing.Startup.Services;
 using PaperMalKing.UpdatesProviders.Base;
@@ -50,7 +51,7 @@ internal sealed class GuildManagementCommands(GuildManagementService managementS
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.FullMessage) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			throw;
 		}
@@ -82,7 +83,7 @@ internal sealed class GuildManagementCommands(GuildManagementService managementS
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.FullMessage) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			throw;
 		}
@@ -99,7 +100,7 @@ internal sealed class GuildManagementCommands(GuildManagementService managementS
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.FullMessage) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			throw;
 		}
@@ -118,7 +119,7 @@ internal sealed class GuildManagementCommands(GuildManagementService managementS
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is GuildManagementException ? EmbedTemplate.ErrorEmbed(ex.FullMessage) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			throw;
 		}

@@ -8,7 +8,7 @@ using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Common;
 
-public static class UpdateTypesHelper<T>
+public static class UpdateTypesHelper<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>
 	where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
 	[field: MaybeNull]
@@ -30,10 +30,10 @@ public static class UpdateTypesHelper<T>
 		var ti = typeof(T).GetTypeInfo();
 		Debug.Assert(Enum.GetUnderlyingType(typeof(T)) == typeof(byte), $"All update types must have {nameof(Byte)} as underlying type");
 		return [.. Enum.GetValues<T>()
-			.Where(v => Attribute.IsDefined(ti.DeclaredMembers.First(xm => xm.Name.Equals(v.ToString(), StringComparison.Ordinal)), typeof(EnumDescriptionAttribute))).Select(value =>
+			.Where(v => Attribute.IsDefined(ti.DeclaredFields.First(xm => xm.Name.Equals(v.ToString(), StringComparison.Ordinal)), typeof(EnumDescriptionAttribute))).Select(value =>
 		{
 			var name = value.ToString();
-			var attribute = ti.DeclaredMembers.First(xm => xm.Name.Equals(name, StringComparison.Ordinal))
+			var attribute = ti.DeclaredFields.First(xm => xm.Name.Equals(name, StringComparison.Ordinal))
 							  .GetCustomAttribute<EnumDescriptionAttribute>()!;
 
 			return new EnumInfo<T>(name, attribute.Description, attribute.Summary, value);
