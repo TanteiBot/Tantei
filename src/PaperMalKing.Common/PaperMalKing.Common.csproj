@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    
+    <PropertyGroup>
+        <IsAotCompatible>true</IsAotCompatible>
+<!--        <VerifyReferenceAotCompatibility>true</VerifyReferenceAotCompatibility>-->
+    </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="DSharpPlus" />
@@ -6,7 +11,6 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Options" />
         <PackageReference Include="System.Threading.RateLimiting" />
-        <PackageReference Include="Microsoft.Extensions.EnumStrings"/>
     </ItemGroup>
 
 </Project>

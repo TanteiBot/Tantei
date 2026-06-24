@@ -58,7 +58,7 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		};
 		if (options != HistoryRequestOptions.Any)
 		{
-			content.Add(new StringContent(options.ToInvariantString()), "target_type");
+			content.Add(new StringContent(options.ToString()), "target_type");
 		}
 
 		using var rm = new HttpRequestMessage(HttpMethod.Get, url)

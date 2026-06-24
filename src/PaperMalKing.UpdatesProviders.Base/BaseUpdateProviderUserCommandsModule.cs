@@ -6,6 +6,7 @@ using System.Text;
 using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
+using PaperMalKing.Common.Exceptions;
 using PaperMalKing.Database.Models;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
@@ -32,7 +33,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.FullMessage) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			logger.FailAddingUser(ex, username, context.Member, userService.Name);
 			throw;
@@ -56,7 +57,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.FullMessage) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			logger.FailRemovingUser(ex, context.Member, userService.Name);
 
@@ -78,7 +79,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.FullMessage) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			throw;
 		}
@@ -113,7 +114,7 @@ public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserSe
 		}
 		catch (Exception ex)
 		{
-			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
+			var embed = ex is UserProcessingException ? EmbedTemplate.ErrorEmbed(ex.FullMessage) : EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			throw;
 		}

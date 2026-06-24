@@ -6,11 +6,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using CommunityToolkit.Diagnostics;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
 using PaperMalKing.Common;
+using PaperMalKing.Common.Exceptions;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
@@ -111,10 +111,10 @@ internal static class Extensions
 			FavoriteManga favoriteManga => favoriteManga.ToMalFavoriteManga(user) as T,
 			FavoritePerson favoritePerson => favoritePerson.ToMalFavoritePerson(user) as T,
 			FavoriteCompany favoriteCompany => favoriteCompany.ToMalFavoriteCompany(user) as T,
-			_ => ThrowHelper.ThrowInvalidOperationException<T>(),
+			_ => InvalidOperationException.Throw<T>(),
 		}
 
-		?? ThrowHelper.ThrowInvalidOperationException<T>();
+		?? InvalidOperationException.Throw<T>();
 	}
 
 	public static MalFavoriteAnime ToMalFavoriteAnime(this FavoriteAnime anime, MalUser user) => new()

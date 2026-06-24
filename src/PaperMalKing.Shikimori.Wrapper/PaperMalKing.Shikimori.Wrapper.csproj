@@ -7,5 +7,9 @@
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
         <ProjectReference Include="..\PaperMalKing.Shikimori.Wrapper.Abstractions\PaperMalKing.Shikimori.Wrapper.Abstractions.csproj" />
     </ItemGroup>
+
+    <PropertyGroup>
+        <IsAotCompatible>true</IsAotCompatible>
+    </PropertyGroup>
     
 </Project>

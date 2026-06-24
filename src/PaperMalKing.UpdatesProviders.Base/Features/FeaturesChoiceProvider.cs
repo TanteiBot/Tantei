@@ -7,7 +7,7 @@ using PaperMalKing.Common;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features;
 
-public sealed class FeaturesChoiceProvider<T> : IEnumChoiceProvider<T>
+public sealed class FeaturesChoiceProvider<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T> : IEnumChoiceProvider<T>
 	where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
 	private FeaturesChoiceProvider()

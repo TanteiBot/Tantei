@@ -1,16 +1,19 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using DSharpPlus.SlashCommands;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
+using PaperMalKing.Common.Exceptions;
 using PaperMalKing.Database.Models;
 using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base.Features;
 
-public abstract class BaseUserFeaturesCommandsModule<TUser, TFeature>
+public abstract class BaseUserFeaturesCommandsModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TUser,
+													 [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] TFeature>
 	(BaseUserFeaturesService<TUser, TFeature> userFeaturesService, ILogger<BaseUserFeaturesCommandsModule<TUser, TFeature>> logger) : BotCommandsModule
 	where TUser : class, IUpdateProviderUser<TFeature>
 	where TFeature : unmanaged, Enum, IComparable, IConvertible, IFormattable
@@ -30,7 +33,7 @@ public abstract class BaseUserFeaturesCommandsModule<TUser, TFeature>
 		catch (Exception ex)
 		{
 			var embed = ex is UserFeaturesException ufe
-				? EmbedTemplate.ErrorEmbed(ufe.GetFullMessage(), $"Failed enabling {feature.Humanize()}").Build()
+				? EmbedTemplate.ErrorEmbed(ufe.FullMessage, $"Failed enabling {feature.Humanize()}").Build()
 				: EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			logger.FailedToEnableFeature(ex, feature, context.Member.DisplayName);
@@ -54,7 +57,7 @@ public abstract class BaseUserFeaturesCommandsModule<TUser, TFeature>
 		catch (Exception ex)
 		{
 			var embed = ex is UserFeaturesException ufe
-				? EmbedTemplate.ErrorEmbed(ufe.GetFullMessage(), $"Failed disabling {feature.Humanize()}").Build()
+				? EmbedTemplate.ErrorEmbed(ufe.FullMessage, $"Failed disabling {feature.Humanize()}").Build()
 				: EmbedTemplate.UnknownErrorEmbed;
 			await context.EditResponseAsync(embed: embed);
 			logger.FailedToDisableFeature(ex, feature, context.Member.DisplayName);

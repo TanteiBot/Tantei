@@ -29,6 +29,7 @@
         <RestoreUseStaticGraphEvaluation>true</RestoreUseStaticGraphEvaluation>
         <ImplicitUsings>enable</ImplicitUsings>
 
+
         <!-- Lint -->
         <Nullable>enable</Nullable>
         <WarningsAsErrors>nullable</WarningsAsErrors>
@@ -70,6 +71,7 @@
             MA0023; <!--Add RegexOptions.ExplicitCapture-->
             MA0026; <!--Fix TODO comment-->
             MA0038; <!--Make method static (deprecated, use CA1822 instead)-->
+            MA0041; <!-- Doesn't matter, analyzer is deprecated -->
             MA0042; <!--Do not use blocking calls in an async method-->
             MA0046; <!--Use EventHandler<T> to declare events-->
             MA0051; <!--Method is too long-->

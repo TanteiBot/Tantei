@@ -17,7 +17,7 @@ public static class RateLimiterExtensions
 		RateLimiterFactory.Create<T>(rateLimitValue);
 
 	public static RateLimiter<T> ConfigurationLambda<TO, T>(IServiceProvider servicesProvider)
-		where TO : class, IRateLimitOptions<T>
+		where TO : class, IRateLimitOptions<T>, new()
 	{
 		var options = servicesProvider.GetRequiredService<IOptions<TO>>();
 		return RateLimiterFactory.Create<T>(new(options.Value.AmountOfRequests, options.Value.PeriodInMilliseconds));

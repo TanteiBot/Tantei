@@ -121,7 +121,7 @@ internal sealed class AniListCommands : ApplicationCommandModule
 			}
 			catch (Exception ex)
 			{
-				var embed = ex is ArgumentException or UserFacingException ? EmbedTemplate.ErrorEmbed(ex.GetFullMessage()) : EmbedTemplate.UnknownErrorEmbed;
+				var embed = ex is ArgumentException or UserFacingException ? EmbedTemplate.ErrorEmbed(ex.FullMessage) : EmbedTemplate.UnknownErrorEmbed;
 				await context.EditResponseAsync(embed: embed);
 				throw;
 			}

@@ -13,7 +13,8 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 namespace PaperMalKing.UpdatesProviders.Base.Colors;
 
 [SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
-public sealed class CustomColorService<TUser, TUpdateType>(IDbContextFactory<DatabaseContext> dbContextFactory)
+public sealed class CustomColorService<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TUser,
+									   [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] TUpdateType>(IDbContextFactory<DatabaseContext> dbContextFactory)
 	where TUser : class, IUpdateProviderUser
 	where TUpdateType : unmanaged, Enum
 {
@@ -48,7 +49,6 @@ public sealed class CustomColorService<TUser, TUpdateType>(IDbContextFactory<Dat
 		await db.SaveChangesAndThrowOnNoneAsync();
 	}
 
-	[SuppressMessage("Performance", "EA0006:Replace uses of \'Enum.GetName\' and \'Enum.ToString\' for improved performance", Justification = "We don't know type here")]
 	public string? OverridenColors(ulong userId)
 	{
 		using var db = dbContextFactory.CreateDbContext();

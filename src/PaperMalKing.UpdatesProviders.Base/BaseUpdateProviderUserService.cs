@@ -11,7 +11,7 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base;
 
-public abstract class BaseUpdateProviderUserService<TUser>
+public abstract class BaseUpdateProviderUserService<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TUser>
 	where TUser : class, IUpdateProviderUser
 {
 	private readonly GeneralUserService _generalUserService;

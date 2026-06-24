@@ -110,33 +110,4 @@ public static partial class TypeExtensions
 			return eb.AddField(name, value, inline);
 		}
 	}
-
-	public static string GetFullMessage(this Exception ex)
-	{
-		if (ex.InnerException is null)
-		{
-			return ex.Message;
-		}
-
-		return GetMessage(ex).JoinToString(";\n");
-
-		static IEnumerable<string> GetMessage(Exception exception)
-		{
-			while (true)
-			{
-				if (!string.IsNullOrWhiteSpace(exception.Message))
-				{
-					yield return exception.Message;
-				}
-
-				if (exception.InnerException is not null)
-				{
-					exception = exception.InnerException;
-					continue;
-				}
-
-				break;
-			}
-		}
-	}
 }

@@ -9,7 +9,7 @@ using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Common;
 
-public static class FeaturesHelper<T>
+public static class FeaturesHelper<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>
 	where T : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {
 	[field: MaybeNull]
@@ -31,12 +31,12 @@ public static class FeaturesHelper<T>
 		var ti = typeof(T).GetTypeInfo();
 		Debug.Assert(Enum.GetUnderlyingType(typeof(T)) == typeof(ulong), $"All features must have {nameof(UInt64)} as underlying type");
 		return [.. Enum.GetValues<T>()
-			.Where(v => Attribute.IsDefined(ti.DeclaredMembers.First(xm => xm.Name.Equals(v.ToString(), StringComparison.Ordinal)), typeof(EnumDescriptionAttribute))).Select(value =>
+			.Where(v => Attribute.IsDefined(ti.DeclaredFields.First(xm => xm.Name.Equals(v.ToString(), StringComparison.Ordinal)), typeof(EnumDescriptionAttribute))).Select(value =>
 		{
 			Debug.Assert((value.ToUInt64(NumberFormatInfo.InvariantInfo) & (value.ToUInt64(CultureInfo.InvariantCulture) - 1UL)) == 0UL,
 				$"All features of {nameof(T)} must be a power of 2");
 			var name = value.ToString();
-			var attribute = ti.DeclaredMembers.First(xm => xm.Name.Equals(name, StringComparison.Ordinal))
+			var attribute = ti.DeclaredFields.First(xm => xm.Name.Equals(name, StringComparison.Ordinal))
 							  .GetCustomAttribute<EnumDescriptionAttribute>()!;
 
 			return new EnumInfo<T>(name, attribute.Description, attribute.Summary, value);
