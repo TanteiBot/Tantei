@@ -19,7 +19,6 @@ internal sealed class UpdatePoster(ILogger<UpdatePoster> _logger, DiscordChannel
 
 	public int FinishPostingUpdates() => this._semaphore.Release();
 
-	[SuppressMessage("Usage", "VSTHRD103:Call async methods when in an async method", Justification = "Memory stream is not async")]
 	public async Task<DiscordMessage> PostUpdateAsync(UpdateContents update)
 	{
 		var embed = update.EmbedBuilder.Build();

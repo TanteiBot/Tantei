@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
@@ -28,7 +29,7 @@ public abstract class BaseColorsCommandsModule<[DynamicallyAccessedMembers(Dynam
 			var color = new DiscordColor(colorValue);
 			var updateType = UpdateTypesHelper<TUpdateType>.Parse(unparsedUpdateType);
 			await colorService.SetColorAsync(context.User.Id, updateType, color);
-			await context.EditResponseAsync(EmbedTemplate.SuccessEmbed($"Successfully set color of {updateType}"));
+			await context.EditResponseAsync(EmbedTemplate.SuccessEmbed(string.Create(CultureInfo.InvariantCulture, $"Successfully set color of {updateType}")));
 		}
 		catch (Exception ex)
 		{
@@ -46,7 +47,7 @@ public abstract class BaseColorsCommandsModule<[DynamicallyAccessedMembers(Dynam
 		{
 			var updateType = UpdateTypesHelper<TUpdateType>.Parse(unparsedUpdateType);
 			await colorService.RemoveColorAsync(context.User.Id, updateType);
-			await context.EditResponseAsync(EmbedTemplate.SuccessEmbed($"Successfully removed color of {updateType}"));
+			await context.EditResponseAsync(EmbedTemplate.SuccessEmbed(string.Create(CultureInfo.InvariantCulture, $"Successfully removed color of {updateType}")));
 		}
 		catch (Exception ex)
 		{
