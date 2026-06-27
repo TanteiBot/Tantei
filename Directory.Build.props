@@ -134,7 +134,8 @@
             RCS1181; <!--Convert comment to documentation comment.-->
             RCS1194; <!--Implement exception constructors.-->
 
-            VSTHRD111; <!--Add .ConfigureAwait(bool) to your await expression-->
+            VSTHRD103; <!-- Call async methods when in an async method -->
+            VSTHRD111; <!-- Add .ConfigureAwait(bool) to your await expression -->
             
             AsyncFixer02; <!--ToArrayAsync should be used instead of -->
             

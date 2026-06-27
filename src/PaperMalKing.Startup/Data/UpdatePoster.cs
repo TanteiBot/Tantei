@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using System.Diagnostics.CodeAnalysis;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
@@ -19,7 +18,6 @@ internal sealed class UpdatePoster(ILogger<UpdatePoster> _logger, DiscordChannel
 
 	public int FinishPostingUpdates() => this._semaphore.Release();
 
-	[SuppressMessage("Usage", "VSTHRD103:Call async methods when in an async method", Justification = "Memory stream is not async")]
 	public async Task<DiscordMessage> PostUpdateAsync(UpdateContents update)
 	{
 		var embed = update.EmbedBuilder.Build();
