@@ -59,6 +59,11 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 					return;
 				}
 			}
+			catch (Exception ex) when ((ex is GraphQLHttpRequestException gqhre && gqhre.StatusCode.IsServerSideError()) || ex is HttpRequestException)
+			{
+				logger.ServerErrorWhileCheckingUpdatesForUser(ex, dbUser.Id);
+				break;
+			}
 			catch (Exception ex)
 			{
 				logger.ErrorWhileCheckingUpdatesForUser(ex, dbUser.Id);
