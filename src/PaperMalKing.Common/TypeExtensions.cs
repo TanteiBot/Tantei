@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Net;
 using System.Text.RegularExpressions;
 using DSharpPlus.Entities;
 
@@ -93,6 +94,15 @@ public static partial class TypeExtensions
 			}
 
 			return result;
+		}
+	}
+
+	extension(HttpStatusCode hsc)
+	{
+		public bool IsServerSideError()
+		{
+			return hsc is HttpStatusCode.InternalServerError or HttpStatusCode.BadGateway or HttpStatusCode.ServiceUnavailable
+				or HttpStatusCode.GatewayTimeout;
 		}
 	}
 
