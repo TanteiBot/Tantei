@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Net;
 using System.Runtime.CompilerServices;
 using DSharpPlus.Entities;
 using GraphQL.Client.Http;
@@ -61,6 +62,12 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 			}
 			catch (Exception ex)
 			{
+				if (ex is GraphQLHttpRequestException { StatusCode: HttpStatusCode.InternalServerError or HttpStatusCode.GatewayTimeout or HttpStatusCode.BadGateway, } or HttpRequestException)
+				{
+					logger.ServerErrorWhileCheckingUpdatesForUser(ex, dbUser.Id);
+					break;
+				}
+
 				logger.ErrorWhileCheckingUpdatesForUser(ex, dbUser.Id);
 			}
 		}

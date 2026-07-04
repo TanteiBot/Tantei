@@ -106,4 +106,7 @@ public static partial class Log
 
 	[LoggerMessage(LogLevel.Error, "Error while checking updates for username {username}")]
 	public static partial void ErrorWhileCheckingUpdatesForUser(this ILogger<BaseUpdateProvider> logger, Exception ex, string username);
+
+	[LoggerMessage(LogLevel.Warning, "Server Error while checking updates for user {Id}")]
+	public static partial void ServerErrorWhileCheckingUpdatesForUser(this ILogger<BaseUpdateProvider> logger, Exception ex, uint id);
 }
