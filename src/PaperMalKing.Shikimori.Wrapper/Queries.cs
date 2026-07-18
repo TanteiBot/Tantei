@@ -31,9 +31,28 @@ internal static class Queries
 		}
 		""");
 
-	private const string GenresSubquery = "genres { name russian }";
+	private const string GenresSubQuery = "genres { name russian }";
 
-	private const string DescriptionSubquery = "description";
+	private const string DescriptionSubQuery = "description";
+
+	private const string PosterSubQuery =
+		"""
+		poster {
+			main2xUrl,
+			mainAlt2xUrl,
+			mainAltUrl,
+			mainUrl,
+			mini2xUrl,
+			miniAlt2xUrl,
+			miniAltUrl,
+			miniUrl,
+			originalUrl,
+			preview2xUrl,
+			previewAlt2xUrl,
+			previewAltUrl,
+			previewUrl
+		}
+		""";
 
 	public static string GetMangaQuery(RequestOptions options)
 	{
@@ -42,8 +61,9 @@ internal static class Queries
 					media: mangas (ids: $ids) {
 						{{(options.HasFlag(RequestOptions.Publisher) ? " publishers { name, id } " : "")}}
 						{{(options.HasFlag(RequestOptions.Mangaka) ? " personRoles { roles_russian: rolesRu, roles: rolesEn, person { name, russian, id, isMangaka } } " : "")}}
-						{{(options.HasFlag(RequestOptions.Genres) ? GenresSubquery : "")}}
-						{{(options.HasFlag(RequestOptions.Description) ? DescriptionSubquery : "")}}
+						{{(options.HasFlag(RequestOptions.Genres) ? GenresSubQuery : "")}}
+						{{(options.HasFlag(RequestOptions.Description) ? DescriptionSubQuery : "")}}
+						{{PosterSubQuery}}
 					} 
 				}
 				""";
@@ -56,8 +76,9 @@ internal static class Queries
 					media: animes (ids: $ids) {
 						{{(options.HasFlag(RequestOptions.Studio) ? "studios { name, id }" : "")}}
 						{{(options.HasFlag(RequestOptions.Director) ? "personRoles { roles_russian: rolesRu, roles: rolesEn, person { name, russian, id } }" : "")}}
-						{{(options.HasFlag(RequestOptions.Genres) ? GenresSubquery : "")}}
-						{{(options.HasFlag(RequestOptions.Description) ? DescriptionSubquery : "")}}
+						{{(options.HasFlag(RequestOptions.Genres) ? GenresSubQuery : "")}}
+						{{(options.HasFlag(RequestOptions.Description) ? DescriptionSubQuery : "")}}
+						{{PosterSubQuery}}
 					}
 				}
 				""";
