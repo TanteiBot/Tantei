@@ -64,6 +64,11 @@ internal static partial class Extensions
 
 		public void FillMediaInfo(BaseMedia? media, ShikiUserFeatures features, ListEntryType type)
 		{
+			if (media is null)
+			{
+				return;
+			}
+
 			if (type == ListEntryType.Anime)
 			{
 				if (features.HasFlag(ShikiUserFeatures.Studio) && media is AnimeMedia anime)
@@ -73,7 +78,7 @@ internal static partial class Extensions
 					builder.AddFieldIfPresent("Studio", text, inline: true);
 				}
 
-				if (features.HasFlag(ShikiUserFeatures.Director) && media?.PersonRoles is not null and not [])
+				if (features.HasFlag(ShikiUserFeatures.Director) && media.PersonRoles is not null and not [])
 				{
 					var role = media.PersonRoles.FirstOrDefault(x => x.Person is not null && x.Name.Any(y => y.Trim().Equals("Director", StringComparison.OrdinalIgnoreCase)));
 
@@ -91,7 +96,7 @@ internal static partial class Extensions
 					builder.AddFieldIfPresent("Publisher", text, inline: true);
 				}
 
-				if (features.HasFlag(ShikiUserFeatures.Mangaka) && media?.PersonRoles is not null and not [])
+				if (features.HasFlag(ShikiUserFeatures.Mangaka) && media.PersonRoles is not null and not [])
 				{
 					var mangakas = media.PersonRoles.Where(x => x.Person?.IsMangaka == true).Take(5).Select(x =>
 					{
@@ -106,7 +111,7 @@ internal static partial class Extensions
 				}
 			}
 
-			if (features.HasFlag(ShikiUserFeatures.Description) && !string.IsNullOrWhiteSpace(media?.Description))
+			if (features.HasFlag(ShikiUserFeatures.Description) && !string.IsNullOrWhiteSpace(media.Description))
 			{
 				var text = BracketsRegex.Replace(media.Description, "").Truncate(350);
 				builder.AddFieldIfPresent("Description", text);
@@ -116,6 +121,11 @@ internal static partial class Extensions
 			{
 				var text = media!.Genres.Take(7).Select(x => x.GetNameOrAltName(features)).JoinToString();
 				builder.AddFieldIfPresent("Genres", text);
+			}
+
+			if (builder.Thumbnail is null || string.IsNullOrWhiteSpace(builder.Thumbnail.Url))
+			{
+				builder = builder.WithThumbnail(media.Poster?.BestImageUrl);
 			}
 		}
 	}

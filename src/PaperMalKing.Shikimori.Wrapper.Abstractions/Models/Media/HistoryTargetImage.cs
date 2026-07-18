@@ -24,11 +24,16 @@ public sealed class HistoryTargetImage
 	{
 		get
 		{
-			var url = this.Original ?? this.Preview ?? this.X96 ?? this.X48;
+			ReadOnlySpan<string?> imageUrls = [this.Original, this.Preview, this.X96, this.X48];
 
-			if (!string.IsNullOrWhiteSpace(url))
+			for (var i = 0; i < imageUrls.Length; i++)
 			{
-				return Constants.BaseUrl + url;
+				var url = imageUrls[i];
+
+				if (!string.IsNullOrWhiteSpace(url) && !url.Contains(Constants.MissingImagePattern, StringComparison.Ordinal))
+				{
+					return Constants.BaseUrl + url;
+				}
 			}
 
 			return null;

@@ -16,5 +16,8 @@ public abstract class BaseMedia
 	[JsonPropertyName("personRoles")]
 	public IReadOnlyList<Role> PersonRoles { get; init; } = [];
 
+	[JsonPropertyName("poster")]
+	public MediaPoster? Poster { get; init; }
+
 	protected abstract string Type { get; }
 }

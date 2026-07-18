@@ -192,7 +192,8 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 
 			if (dbUser.Features.HasAnyFlag(ShikiUserFeatures.Description, ShikiUserFeatures.Genres) ||
 				(isAnime && dbUser.Features.HasAnyFlag(ShikiUserFeatures.Studio, ShikiUserFeatures.Director))
-				|| (isManga && dbUser.Features.HasAnyFlag(ShikiUserFeatures.Publisher, ShikiUserFeatures.Mangaka)))
+				|| (isManga && dbUser.Features.HasAnyFlag(ShikiUserFeatures.Publisher, ShikiUserFeatures.Mangaka))
+				|| history.Target.ImageUrl is null)
 			{
 				historyMediaRole.Media = isAnime
 					? await _client.GetMediaAsync<AnimeMedia>(history.Target!.Id, ListEntryType.Anime, options, cancellationToken)
