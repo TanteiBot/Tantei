@@ -10,7 +10,7 @@
     <DSharpPlusVersion>4.5.2</DSharpPlusVersion>
     <VisualStudioThreadingVersion>18.7.23</VisualStudioThreadingVersion>
 
-    <VerifyVersion>31.24.1</VerifyVersion>
+    <VerifyVersion>31.25.0</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
@@ -20,9 +20,9 @@
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.Extensions.Telemetry.Abstractions" Version="10.7.0" />
+    <PackageVersion Include="Microsoft.Extensions.Telemetry.Abstractions" Version="10.8.0" />
     <PackageVersion Include="Microsoft.Extensions.Http.Diagnostics" Version="10.7.0" />
-    <PackageVersion Include="Microsoft.Extensions.Compliance.Redaction" Version="10.7.0" />
+    <PackageVersion Include="Microsoft.Extensions.Compliance.Redaction" Version="10.8.0" />
 
     <!-- Discord -->
     <PackageVersion Include="DSharpPlus" Version="$(DSharpPlusVersion)" />
@@ -128,7 +128,7 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.4" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
     <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
-    <PackageVersion Include="TUnit" Version="1.59.0" />
+    <PackageVersion Include="TUnit" Version="1.61.0" />
 
 
 
