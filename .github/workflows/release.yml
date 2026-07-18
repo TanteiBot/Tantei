@@ -23,10 +23,10 @@ jobs:
           fallback: none      
       
       - name: Install .NET SDK if needed
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
 
       - name: Set Node.js 21.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.node-version }}
           
