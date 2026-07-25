@@ -10,7 +10,7 @@
     <DSharpPlusVersion>4.5.2</DSharpPlusVersion>
     <VisualStudioThreadingVersion>18.7.23</VisualStudioThreadingVersion>
 
-    <VerifyVersion>31.25.0</VerifyVersion>
+    <VerifyVersion>31.27.0</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
@@ -21,7 +21,7 @@
     <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
     <PackageVersion Include="Microsoft.Extensions.Telemetry.Abstractions" Version="10.8.0" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Diagnostics" Version="10.7.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Diagnostics" Version="10.8.0" />
     <PackageVersion Include="Microsoft.Extensions.Compliance.Redaction" Version="10.8.0" />
 
     <!-- Discord -->
@@ -63,7 +63,7 @@
     <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.10" />
 
     <!-- Resilience -->
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.7.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.8.0" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.10" />
 
     <!-- Web -->
@@ -86,11 +86,11 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.123">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.125">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.29.0.143774">
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.30.0.144632">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -128,7 +128,7 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.4" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
     <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
-    <PackageVersion Include="TUnit" Version="1.61.0" />
+    <PackageVersion Include="TUnit" Version="1.61.38" />
 
 
 
