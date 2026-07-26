@@ -119,7 +119,7 @@ internal static partial class Extensions
 
 			if (features.HasFlag(ShikiUserFeatures.Genres))
 			{
-				var text = media!.Genres.Take(7).Select(x => x.GetNameOrAltName(features)).JoinToString();
+				var text = media.Genres.Take(7).Select(x => x.GetNameOrAltName(features)).JoinToString();
 				builder.AddFieldIfPresent("Genres", text);
 			}
 
@@ -335,7 +335,7 @@ internal static partial class Extensions
 		}
 
 		var isAnime = favouriteEntry.FavouriteEntry.GenericType!.Contains("anime", StringComparison.OrdinalIgnoreCase);
-		var isManga = favouriteEntry.FavouriteEntry.GenericType!.Contains("manga", StringComparison.OrdinalIgnoreCase);
+		var isManga = favouriteEntry.FavouriteEntry.GenericType.Contains("manga", StringComparison.OrdinalIgnoreCase);
 		if ((isAnime || isManga) && favouriteEntry.Media is not null)
 		{
 			eb.FillMediaInfo(favouriteEntry.Media, features, isAnime ? ListEntryType.Anime : ListEntryType.Manga);

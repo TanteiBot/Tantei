@@ -196,8 +196,8 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 				|| history.Target.ImageUrl is null)
 			{
 				historyMediaRole.Media = isAnime
-					? await _client.GetMediaAsync<AnimeMedia>(history.Target!.Id, ListEntryType.Anime, options, cancellationToken)
-					: await _client.GetMediaAsync<MangaMedia>(history.Target!.Id, ListEntryType.Manga, options, cancellationToken);
+					? await _client.GetMediaAsync<AnimeMedia>(history.Target.Id, ListEntryType.Anime, options, cancellationToken)
+					: await _client.GetMediaAsync<MangaMedia>(history.Target.Id, ListEntryType.Manga, options, cancellationToken);
 			}
 		}
 
@@ -207,6 +207,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 	private async Task<(IReadOnlyList<FavouriteMediaRoles> AddedValues, IReadOnlyList<FavouriteMediaRoles> RemovedValues)>
 		GetFavouritesUpdateAsync(Favourites favs, ShikiUser dbUser, DatabaseContext db, CancellationToken cancellationToken)
 	{
+		[SuppressMessage("Minor Code Smell", "S8969:Null-forgiving operators should not be redundant", Justification = "False positive")]
 		async Task FillMediaAndRolesAsync(FavouriteMediaRoles favouriteMediaRoles)
 		{
 			var (isManga, isAnime) = favouriteMediaRoles switch
