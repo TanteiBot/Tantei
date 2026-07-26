@@ -249,7 +249,7 @@ internal static class Extensions
 
 			case MangaListEntry mle:
 				{
-					var progress = mle.Status.Status.Humanize(LetterCasing.Sentence)!;
+					var progress = mle.Status.Status.Humanize(LetterCasing.Sentence);
 					var chapterProgress = SubEntriesProgress(mle.Status.ChaptersRead, mle.Node.TotalChapters, mle.Status.Status == MangaListStatus.PlanToRead, "ch. ");
 					var volumeProgress =
 						SubEntriesProgress(mle.Status.VolumesRead, mle.Node.TotalVolumes, mle.Status.Status == MangaListStatus.PlanToRead, "v.");
