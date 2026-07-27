@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
+using System.Net.Mime;
 using GraphQL.Client.Http;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common.Enums;
@@ -107,6 +108,12 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 			},
 		};
 		using var response = await _httpClient.SendAsync(rm, HttpCompletionOption.ResponseContentRead, cancellationToken);
+
+		if (!response.IsSuccessStatusCode || !string.Equals(response.Content.Headers.ContentType?.MediaType, MediaTypeNames.Application.Json, StringComparison.OrdinalIgnoreCase))
+		{
+			return [];
+		}
+
 		var achievements = (await response.Content.ReadFromJsonAsync(JsonContext.Default.UserAchievementArray, cancellationToken))!;
 		var r = new List<UserAchievement>(achievements.Length);
 		r.AddRange(achievements.Where(x => x is { Level: > 0 }).GroupBy(x => x.Id, StringComparer.Ordinal)
