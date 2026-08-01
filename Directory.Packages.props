@@ -10,7 +10,7 @@
     <DSharpPlusVersion>4.5.2</DSharpPlusVersion>
     <VisualStudioThreadingVersion>18.7.23</VisualStudioThreadingVersion>
 
-    <VerifyVersion>31.27.0</VerifyVersion>
+    <VerifyVersion>31.28.0</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
@@ -73,7 +73,7 @@
 
     <!-- Misc -->
     <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
-    <PackageVersion Include="AngleSharp" Version="1.5.2" />
+    <PackageVersion Include="AngleSharp" Version="1.6.0" />
     <PackageVersion Include="JikanDotNet" Version="2.10.4" />
     <PackageVersion Include="System.Threading.RateLimiting" Version="10.0.10" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="$(VisualStudioThreadingVersion)" />
@@ -86,11 +86,11 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.125">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.138">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.30.0.144632">
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.31.0.145097">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -125,10 +125,10 @@
       
     <!-- Testing -->
     <PackageVersion Include="coverlet.collector" Version="10.0.1" />
-    <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.4" />
+    <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.5" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
     <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
-    <PackageVersion Include="TUnit" Version="1.61.38" />
+    <PackageVersion Include="TUnit" Version="1.63.0" />
 
 
 
