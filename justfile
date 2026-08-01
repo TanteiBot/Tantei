@@ -20,5 +20,17 @@ publish dir=publish-dir:
 benchmark Filter:
     cd ./benchmarks/Tantei.Benchmarks && dotnet run -c Release -- --filter *{{Filter}}*
     
-ci:
-    dotnet build -c Debug && dotnet build -c Release && dotnet build -c Debug /p:DefineConstants=IsInContainer /p:IsInContainer=true && dotnet build -c Release /p:DefineConstants=IsInContainer /p:IsInContainer=true
+ci: _ci_release _ci_release_container _ci_debug _ci_debug_container
+    echo Success
+    
+_ci_debug:
+    dotnet build -c Debug
+    
+_ci_release:
+    dotnet build -c Release
+    
+_ci_debug_container:
+    dotnet build -c Debug /p:DefineConstants=IsInContainer /p:IsInContainer=true
+    
+_ci_release_container:
+    dotnet build -c Release /p:DefineConstants=IsInContainer /p:IsInContainer=true
