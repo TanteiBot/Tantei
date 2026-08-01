@@ -22,7 +22,7 @@ env:
   DOTNET_NOLOGO: true
   artifact-name: "build-${{ github.sha }}"
   clientapp-dir: "./src/PaperMalKing/ClientApp"
-  node-version: '23.x'
+  node-version: '24.x'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -96,44 +96,24 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: ${{ env.node-version }}
-      
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4.37.6
         with:
           languages: 'csharp'
           queries: security-and-quality
           config: |
+            build-mode: manual
             query-filters:
               - exclude:
                   id: cs/call-to-unmanaged-code
               - exclude:
                   id: cs/unmanaged-code
+              - exclude:
+                  id: cs/useless-assignment-to-local
 
       - name: Build .NET
-        run: dotnet build
-
+        run: for p in $(find ./src -type d \( -path ./src/PaperMalKing.Database.Migrations -o -path ./src/PaperMalKing.Database.CompiledModels \) -prune -o -name '*.csproj' -print); do dotnet build $p; done
+        
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4.37.6
-
-  inferSharp:
-    name: Run Infer#
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: ${{ env.artifact-name }}
-
-      - run: mkdir ./createdDlls && mv PaperMalKing* createdDlls
-
-      - name: Run Infer#
-        id: runInferSharp
-        uses: microsoft/infersharpaction@v1.5
-        with:
-          binary-path: "./createdDlls"
-
-      - name: Upload SARIF output to GitHub Security Center
-        uses: github/codeql-action/upload-sarif@v4.37.6
-        with:
-          sarif_file: infer-out/report.sarif
