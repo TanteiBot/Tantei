@@ -17,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: taiki-e/install-action@v2.85.4
+      - uses: taiki-e/install-action@v2.85.8
         with:
           tool: just
           fallback: none      
