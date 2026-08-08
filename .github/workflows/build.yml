@@ -98,7 +98,7 @@ jobs:
           node-version: ${{ env.node-version }}
       
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4.37.3
+        uses: github/codeql-action/init@v4.37.6
         with:
           languages: 'csharp'
           queries: security-and-quality
@@ -113,7 +113,7 @@ jobs:
         run: dotnet build
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4.37.3
+        uses: github/codeql-action/analyze@v4.37.6
 
   inferSharp:
     name: Run Infer#
@@ -134,6 +134,6 @@ jobs:
           binary-path: "./createdDlls"
 
       - name: Upload SARIF output to GitHub Security Center
-        uses: github/codeql-action/upload-sarif@v4.37.3
+        uses: github/codeql-action/upload-sarif@v4.37.6
         with:
           sarif_file: infer-out/report.sarif
