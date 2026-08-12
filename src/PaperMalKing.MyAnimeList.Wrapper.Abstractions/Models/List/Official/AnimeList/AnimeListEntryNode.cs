@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
 
@@ -8,8 +9,6 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Ani
 
 public sealed class AnimeListEntryNode : BaseListEntryNode<AnimeMediaType, AnimeAiringStatus>
 {
-	private string? _url;
-
 	public override uint TotalSubEntries => this.Episodes;
 
 	[JsonPropertyName("num_episodes")]
@@ -18,5 +17,7 @@ public sealed class AnimeListEntryNode : BaseListEntryNode<AnimeMediaType, Anime
 	[JsonPropertyName("studios")]
 	public IReadOnlyList<Studio>? Studios { get; init; }
 
-	public override string Url => this._url ??= $"{Constants.BaseUrl}/anime/{this.Id}";
+	[field: MaybeNull]
+	[field: AllowNull]
+	public override string Url => field ??= $"{Constants.BaseUrl}/anime/{this.Id}";
 }

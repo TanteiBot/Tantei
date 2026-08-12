@@ -23,7 +23,7 @@ CREATE TABLE "AniListUsers" (
     "DiscordUserId" INTEGER NOT NULL,
     "FavouritesIdHash" TEXT NOT NULL DEFAULT '',
     "Features" INTEGER NOT NULL DEFAULT 127,
-    "Colors" TEXT NULL,
+    "Colors" TEXT NOT NULL,
     CONSTRAINT "FK_AniListUsers_DiscordUsers_DiscordUserId" FOREIGN KEY ("DiscordUserId") REFERENCES "DiscordUsers" ("DiscordUserId") ON DELETE CASCADE
 );
 
@@ -47,7 +47,7 @@ CREATE TABLE "MalUsers" (
     "LastMangaUpdateHash" TEXT NOT NULL,
     "Features" INTEGER NOT NULL DEFAULT 127,
     "FavoritesIdHash" TEXT NOT NULL DEFAULT '',
-    "Colors" TEXT NULL,
+    "Colors" TEXT NOT NULL,
     CONSTRAINT "FK_MalUsers_DiscordUsers_DiscordUserId" FOREIGN KEY ("DiscordUserId") REFERENCES "DiscordUsers" ("DiscordUserId") ON DELETE CASCADE
 );
 
@@ -58,8 +58,8 @@ CREATE TABLE "ShikiUsers" (
     "DiscordUserId" INTEGER NOT NULL,
     "Features" INTEGER NOT NULL DEFAULT 127,
     "FavouritesIdHash" TEXT NOT NULL DEFAULT '',
-    "Achievements" TEXT NULL,
-    "Colors" TEXT NULL,
+    "Achievements" TEXT NOT NULL,
+    "Colors" TEXT NOT NULL,
     CONSTRAINT "FK_ShikiUsers_DiscordUsers_DiscordUserId" FOREIGN KEY ("DiscordUserId") REFERENCES "DiscordUsers" ("DiscordUserId") ON DELETE CASCADE
 );
 

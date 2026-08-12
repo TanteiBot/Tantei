@@ -88,7 +88,7 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 			mu.Property(p => p.FavoritesIdHash).HasDefaultValue("");
 			mu.HasIndex(x => x.Features);
 			mu.HasIndex(x => x.DiscordUserId);
-			mu.OwnsMany(x => x.Colors, colors => colors.ToJson());
+			mu.ComplexCollection(x => x.Colors, colors => colors.ToJson());
 		});
 
 		modelBuilder.Entity<DiscordGuild>(dg => dg.HasIndex(x => x.DiscordGuildId));
@@ -132,8 +132,8 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 			su.Property(x => x.FavouritesIdHash).HasDefaultValue("");
 			su.HasIndex(x => x.Features);
 			su.HasIndex(x => x.DiscordUserId);
-			su.OwnsMany(x => x.Achievements, achs => achs.ToJson());
-			su.OwnsMany(x => x.Colors, colors => colors.ToJson());
+			su.ComplexCollection(x => x.Achievements, achs => achs.ToJson());
+			su.ComplexCollection(x => x.Colors, colors => colors.ToJson());
 		});
 		modelBuilder.Entity<ShikiFavourite>(sf =>
 		{
@@ -157,7 +157,7 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 			au.Property(x => x.FavouritesIdHash).HasDefaultValue("");
 			au.HasIndex(x => x.Features);
 			au.HasIndex(x => x.DiscordUserId);
-			au.OwnsMany(x => x.Colors, colors => colors.ToJson());
+			au.ComplexCollection(x => x.Colors, colors => colors.ToJson());
 		});
 
 		modelBuilder.Entity<AniListFavourite>(af =>

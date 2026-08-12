@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using System.Net.Http.Json;
 using AngleSharp;
 using AngleSharp.Dom;
 using JikanDotNet;
