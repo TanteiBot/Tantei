@@ -5,7 +5,9 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <PropertyGroup>
-    <EntityFrameworkCoreVersion>10.0.10</EntityFrameworkCoreVersion>
+    <EntityFrameworkCoreVersion>10.0.11</EntityFrameworkCoreVersion>
+    <DotnetExtensionsVersion>10.0.11</DotnetExtensionsVersion>
+    <DotnetSeparateExtensionsVersion>10.9.0</DotnetSeparateExtensionsVersion>  
     <GraphQLClientVersion>6.1.0</GraphQLClientVersion>
     <DSharpPlusVersion>4.5.2</DSharpPlusVersion>
     <VisualStudioThreadingVersion>18.7.23</VisualStudioThreadingVersion>
@@ -19,10 +21,10 @@
     <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.1" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.Extensions.Telemetry.Abstractions" Version="10.8.0" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Diagnostics" Version="10.8.0" />
-    <PackageVersion Include="Microsoft.Extensions.Compliance.Redaction" Version="10.8.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(DotnetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Telemetry.Abstractions" Version="$(DotnetSeparateExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Diagnostics" Version="$(DotnetSeparateExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Compliance.Redaction" Version="$(DotnetSeparateExtensionsVersion)" />
 
     <!-- Discord -->
     <PackageVersion Include="DSharpPlus" Version="$(DSharpPlusVersion)" />
@@ -46,36 +48,36 @@
     <PackageVersion Include="EntityFrameworkCore.Exceptions.Sqlite" Version="10.0.1" />
 
     <!-- Hosting -->
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(DotnetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Systemd" Version="$(DotnetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(DotnetExtensionsVersion)" />
 
     <!-- DI -->
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(DotnetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(DotnetExtensionsVersion)" />
 
     <!-- Configuration -->
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="$(DotnetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="$(DotnetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(DotnetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="$(DotnetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(DotnetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="$(DotnetExtensionsVersion)" />
 
     <!-- Resilience -->
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.8.0" />
-    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="$(DotnetSeparateExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="$(DotnetExtensionsVersion)" />
 
     <!-- Web -->
     <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="$(DotnetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="$(DotnetExtensionsVersion)" />
 
     <!-- Misc -->
     <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
     <PackageVersion Include="AngleSharp" Version="1.7.1" />
     <PackageVersion Include="JikanDotNet" Version="2.10.4" />
-    <PackageVersion Include="System.Threading.RateLimiting" Version="10.0.10" />
+    <PackageVersion Include="System.Threading.RateLimiting" Version="$(DotnetExtensionsVersion)" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="$(VisualStudioThreadingVersion)" />
     <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
     <GlobalPackageReference Include="GitVersion.MsBuild" Version="6.8.2">
@@ -86,11 +88,11 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.140">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.150">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.31.0.145097">
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.32.0.713">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -106,7 +108,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="Roslynator.Analyzers" Version="4.15.0">
+    <GlobalPackageReference Include="Roslynator.Analyzers" Version="4.16.0">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -128,14 +130,14 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.5" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
     <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
-    <PackageVersion Include="TUnit" Version="1.63.25" />
+    <PackageVersion Include="TUnit" Version="1.64.13" />
 
 
 
 
     <!-- Implicit -->
     <PackageVersion Include="System.Net.Security" Version="4.3.2" />
-    <PackageVersion Include="System.Formats.Asn1" Version="10.0.10" />
+    <PackageVersion Include="System.Formats.Asn1" Version="$(DotnetExtensionsVersion)" />
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.0.0" />
     <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="18.0.2" />
