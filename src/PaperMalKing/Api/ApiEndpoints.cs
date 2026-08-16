@@ -1,6 +1,10 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using Microsoft.AspNetCore.Http.HttpResults;
+using PaperMalKing.Api.Responses;
+using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
+
 namespace PaperMalKing.Api;
 
 internal static class ApiEndpoints
@@ -9,6 +13,15 @@ internal static class ApiEndpoints
 	{
 		endpoints.MapAuthEndpoints();
 		endpoints.MapGuildEndpoints();
+
+		endpoints.MapGet("api/getUpdateTimes", Ok<UpdateProviderStatusResponse[]> (IEnumerable<BaseUpdateProvider> updateProviders) => TypedResults.Ok(updateProviders.Select(up =>
+		{
+			var now = TimeProvider.System.GetUtcNow();
+			return new UpdateProviderStatusResponse(up.Name, up.IsUpdateInProgress, up.DateTimeOfNextUpdate > now ? up.DateTimeOfNextUpdate - now : null);
+		}).ToArray())).WithName("GetUpdateTimes");
+
+		endpoints.MapGet("api/ping", Ok<PingResponse> () => TypedResults.Ok(new PingResponse("pong", TimeProvider.System.GetUtcNow()))).WithName("Ping");
+
 		return endpoints;
 	}
 }

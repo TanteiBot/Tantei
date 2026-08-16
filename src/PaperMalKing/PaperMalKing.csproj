@@ -3,7 +3,10 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <IsPackable>false</IsPackable>
+        <SpaRoot>..\Tantei.Client\</SpaRoot>
         <ServerGarbageCollection>false</ServerGarbageCollection>
+        <OpenApiDocumentsDirectory>$(SpaRoot)</OpenApiDocumentsDirectory>
+        <OpenApiGenerateDocumentsOptions>--file-name openapi</OpenApiGenerateDocumentsOptions>
         <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
         <NoWarn>
             $(NoWarn);
@@ -13,6 +16,11 @@
 
     <ItemGroup>
         <PackageReference Include="AspNet.Security.OAuth.Discord" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -59,5 +67,22 @@
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         </Content>
     </ItemGroup>
+
+    <Target Name="BuildSpa" Condition="'$(SkipSpaBuild)' != 'true'">
+        <Message Importance="high" Text="Building Vue SPA in $(SpaRoot)" />
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npm ci" />
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
+    </Target>
+
+    <Target Name="IncludeSpaInPublish" AfterTargets="ComputeFilesToPublish" DependsOnTargets="BuildSpa">
+        <ItemGroup>
+            <_SpaBuildOutput Include="$(MSBuildProjectDirectory)\wwwroot\**" />
+            <ResolvedFileToPublish Include="@(_SpaBuildOutput->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+                <RelativePath>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
+                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+                <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            </ResolvedFileToPublish>
+        </ItemGroup>
+    </Target>
 
 </Project>

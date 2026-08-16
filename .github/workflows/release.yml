@@ -6,7 +6,7 @@ on:
     
 env:
   DOTNET_NOLOGO: true
-  node-version: '23.x'
+  node-version: '24.x'
 
 jobs:
   release:
@@ -25,7 +25,7 @@ jobs:
       - name: Install .NET SDK if needed
         uses: actions/setup-dotnet@v6
 
-      - name: Set Node.js 21.x
+      - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
           node-version: ${{ env.node-version }}

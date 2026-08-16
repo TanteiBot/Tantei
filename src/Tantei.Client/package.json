@@ -1,0 +1,59 @@
+{
+  "name": "tantei-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build",
+    "generate:api": "openapi-typescript openapi.json --output src/api/schema.d.ts",
+    "lint": "run-s lint:oxlint lint:eslint",
+    "lint:oxlint": "oxlint . --fix",
+    "lint:eslint": "eslint . --fix --cache",
+    "lint:check": "run-s lint:check:oxlint lint:check:eslint",
+    "lint:check:oxlint": "oxlint . --deny-warnings",
+    "lint:check:eslint": "eslint . --max-warnings 0 --cache",
+    "format": "oxfmt --write",
+    "format:check": "oxfmt --check"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.123",
+    "@nuxt/ui": "^4.10.0",
+    "openapi-fetch": "^0.17.0",
+    "tailwindcss": "^4.3.3",
+    "vue": "^3.5.41",
+    "vue-router": "^5.2.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node24": "^24.0.5",
+    "@types/node": "^24.13.3",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/eslint-config-typescript": "^14.9.0",
+    "@vue/tsconfig": "^0.9.1",
+    "eslint": "^10.8.1",
+    "eslint-plugin-oxlint": "~1.78.0",
+    "eslint-plugin-vue": "~10.10.0",
+    "jiti": "^2.7.0",
+    "npm-run-all2": "^9.0.3",
+    "openapi-typescript": "^7.13.0",
+    "oxfmt": "0.63.0",
+    "oxlint": "~1.78.0",
+    "typescript": "~6.0.3",
+    "vite": "^8.2.1",
+    "vite-plugin-vue-devtools": "^8.2.1",
+    "vue-eslint-parser": "^10.4.1",
+    "vue-tsc": "^3.3.10"
+  },
+  "overrides": {
+    "openapi-typescript": {
+      "typescript": "$typescript"
+    }
+  },
+  "engines": {
+    "node": "^22.18.0 || >=24.12.0"
+  },
+  "packageManager": "npm@11.17.0"
+}

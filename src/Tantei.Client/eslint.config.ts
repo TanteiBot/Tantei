@@ -1,0 +1,62 @@
+import { globalIgnores } from "eslint/config";
+import { defineConfigWithVueTs, vueTsConfigs } from "@vue/eslint-config-typescript";
+import pluginVue from "eslint-plugin-vue";
+import pluginOxlint from "eslint-plugin-oxlint";
+
+const vueFormattingRulesOff = Object.fromEntries(
+  Object.entries(pluginVue.rules ?? {})
+    .filter(([, rule]) => rule.meta?.type === "layout")
+    .map(([name]) => [`vue/${name}`, "off"] as const),
+);
+
+export default defineConfigWithVueTs(
+  {
+    name: "app/files-to-lint",
+    files: ["**/*.{vue,ts,mts,tsx}"],
+  },
+
+  {
+    name: "app/linter-options",
+    linterOptions: {
+      reportUnusedDisableDirectives: "error",
+    },
+  },
+
+  globalIgnores([
+    "**/dist/**",
+    "**/dist-ssr/**",
+    "**/coverage/**",
+    "src/api/schema.d.ts",
+    "typed-router.d.ts",
+  ]),
+
+  ...pluginVue.configs["flat/recommended"],
+
+  {
+    name: "app/vue-formatting-owned-by-oxfmt",
+    rules: vueFormattingRulesOff,
+  },
+
+  vueTsConfigs.recommendedTypeChecked,
+
+  {
+    name: "app/type-aware-parser",
+    files: ["**/*.{vue,ts,mts,tsx}"],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+
+  {
+    name: "app/pages",
+    files: ["src/pages/**/*.vue"],
+    rules: {
+      "vue/multi-word-component-names": "off",
+    },
+  },
+
+  ...pluginOxlint.buildFromOxlintConfigFile(".oxlintrc.json"),
+);
