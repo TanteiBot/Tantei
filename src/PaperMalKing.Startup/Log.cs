@@ -8,6 +8,7 @@ using PaperMalKing.Startup.Data;
 using PaperMalKing.Startup.Services;
 using PaperMalKing.Startup.Services.Background;
 using PaperMalKing.Startup.Web;
+using PaperMalKing.Startup.Web.Guilds;
 
 namespace PaperMalKing.Startup;
 
@@ -140,4 +141,7 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Warning, "Rejecting authentication cookie without a parsable Discord user id")]
 	public static partial void RejectingPrincipalWithoutDiscordId(this ILogger<TanteiCookieEvents> logger);
+
+	[LoggerMessage(LogLevel.Warning, "Failed to fetch Discord guilds for user {DiscordUserId} at sign-in")]
+	public static partial void FailedToFetchDiscordGuildsAtSignIn(this ILogger<DiscordUserGuildsClient> logger, Exception ex, ulong discordUserId);
 }

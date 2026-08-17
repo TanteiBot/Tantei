@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using PaperMalKing.Startup.Options;
 using PaperMalKing.Startup.Web.Guilds;
 using PaperMalKing.Startup.Web.Tokens;
@@ -97,8 +98,15 @@ public static class WebAuthenticationExtensions
 						await services.GetRequiredService<DiscordOAuthTokenStore>().SaveAsync(discordUserId, accessToken, refreshToken, expiresAt, cancellationToken);
 					}
 
-					var guilds = await services.GetRequiredService<DiscordUserGuildsClient>().GetGuildsAsync(accessToken, cancellationToken);
-					services.GetRequiredService<UserGuildsCache>().Set(discordUserId, guilds);
+					try
+					{
+						var guilds = await services.GetRequiredService<DiscordUserGuildsClient>().GetGuildsAsync(accessToken, cancellationToken);
+						services.GetRequiredService<UserGuildsCache>().Set(discordUserId, guilds);
+					}
+					catch (Exception ex) when ((ex is HttpRequestException or TaskCanceledException) && !cancellationToken.IsCancellationRequested)
+					{
+						services.GetRequiredService<ILogger<DiscordUserGuildsClient>>().FailedToFetchDiscordGuildsAtSignIn(ex, discordUserId);
+					}
 				}
 			};
 		});
