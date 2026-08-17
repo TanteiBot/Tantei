@@ -29,6 +29,15 @@ public sealed class LoginRedirectsTests
 	}
 
 	[Test]
+	[Arguments("/guilds\r\nSet-Cookie: evil=1")]
+	[Arguments("/guilds\nLocation: https://evil.example")]
+	[Arguments("/guilds\0")]
+	public async Task ControlCharactersFallBackToRoot(string input)
+	{
+		await Assert.That(LoginRedirects.SanitizeReturnUrl(input)).IsEqualTo("/");
+	}
+
+	[Test]
 	public async Task AccessDeniedIsClassifiedAsCancelled()
 	{
 		await Assert.That(LoginRedirects.ClassifyRemoteFailure("access_denied", failureMessage: null)).IsEqualTo("cancelled");

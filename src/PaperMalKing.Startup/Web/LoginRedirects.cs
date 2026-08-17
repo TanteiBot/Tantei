@@ -14,7 +14,12 @@ public static class LoginRedirects
 			return DefaultReturnUrl;
 		}
 
-		return returnUrl.Length > 1 && (returnUrl[1] == '/' || returnUrl[1] == '\\') ? DefaultReturnUrl : returnUrl;
+		if (returnUrl.Length > 1 && (returnUrl[1] == '/' || returnUrl[1] == '\\'))
+		{
+			return DefaultReturnUrl;
+		}
+
+		return returnUrl.Any(char.IsControl) ? DefaultReturnUrl : returnUrl;
 	}
 
 	public static string ClassifyRemoteFailure(string? errorQueryValue, string? failureMessage)

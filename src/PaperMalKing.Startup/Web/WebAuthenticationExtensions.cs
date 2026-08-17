@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Security.Claims;
+using System.Text.Json;
 using AspNet.Security.OAuth.Discord;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -104,11 +105,21 @@ public static class WebAuthenticationExtensions
 						var guilds = await services.GetRequiredService<DiscordUserGuildsClient>().GetGuildsAsync(accessToken, cancellationToken);
 						services.GetRequiredService<UserGuildsCache>().Set(discordUserId, guilds);
 					}
-					catch (Exception ex) when ((ex is HttpRequestException or TaskCanceledException) && !cancellationToken.IsCancellationRequested)
+					catch (Exception ex) when ((ex is HttpRequestException or TaskCanceledException or JsonException) &&
+												!cancellationToken.IsCancellationRequested)
 					{
 						services.GetRequiredService<ILogger<DiscordUserGuildsClient>>().FailedToFetchDiscordGuildsAtSignIn(ex, discordUserId);
 					}
 				}
+			};
+
+			options.Events.OnRemoteFailure = context =>
+			{
+				var error = LoginRedirects.ClassifyRemoteFailure(context.Request.Query["error"], context.Failure?.Message);
+				var returnUrl = LoginRedirects.SanitizeReturnUrl(context.Properties?.RedirectUri);
+				context.Response.Redirect($"/login?error={error}&returnUrl={Uri.EscapeDataString(returnUrl)}");
+				context.HandleResponse();
+				return Task.CompletedTask;
 			};
 		});
 
