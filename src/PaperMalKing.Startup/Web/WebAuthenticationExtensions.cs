@@ -34,6 +34,9 @@ public static class WebAuthenticationExtensions
 		services.AddSingleton<IBotGuildPresence, BotGuildPresence>();
 		services.AddSingleton<IAuthorizationHandler, GuildAdminAuthorizationHandler>();
 		services.AddSingleton<GuildQueryService>();
+		services.AddSingleton<UserGuildsCache>();
+		services.AddHttpClient<DiscordUserGuildsClient>(DiscordUserGuildsClient.HttpClientName,
+			client => client.BaseAddress = new("https://discord.com/api/v10/"));
 
 		services.Configure<ForwardedHeadersOptions>(options =>
 		{
@@ -76,6 +79,28 @@ public static class WebAuthenticationExtensions
 			options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
 			options.ClaimActions.MapJsonKey(ClaimTypes.Name, "username");
 			options.ClaimActions.MapJsonKey("urn:discord:avatar", "avatar");
+			options.Events.OnCreatingTicket = async context =>
+			{
+				if (!ulong.TryParse(context.Identity?.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var discordUserId))
+				{
+					return;
+				}
+
+				var services = context.HttpContext.RequestServices;
+				var cancellationToken = context.HttpContext.RequestAborted;
+
+				if (context.AccessToken is { Length: > 0 } accessToken)
+				{
+					if (context.RefreshToken is { Length: > 0 } refreshToken)
+					{
+						var expiresAt = services.GetRequiredService<TimeProvider>().GetUtcNow() + (context.ExpiresIn ?? TimeSpan.FromDays(7));
+						await services.GetRequiredService<DiscordOAuthTokenStore>().SaveAsync(discordUserId, accessToken, refreshToken, expiresAt, cancellationToken);
+					}
+
+					var guilds = await services.GetRequiredService<DiscordUserGuildsClient>().GetGuildsAsync(accessToken, cancellationToken);
+					services.GetRequiredService<UserGuildsCache>().Set(discordUserId, guilds);
+				}
+			};
 		});
 
 		var registeredPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireClaim(TanteiClaimTypes.Registered, "true").Build();

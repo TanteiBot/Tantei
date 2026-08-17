@@ -8,8 +8,12 @@ namespace PaperMalKing.Startup.Web.Guilds;
 
 public sealed record ManageableGuild(ulong GuildId, string Name, string? IconUrl);
 
+public sealed record InvitableGuild(ulong GuildId, string Name, string? IconUrl);
+
 public sealed class GuildQueryService(IDbContextFactory<DatabaseContext> _dbContextFactory, IBotGuildPresence _botGuildPresence, UserGuildsCache _userGuildsCache)
 {
+	private const ulong ManageGuildPermission = 0x0000_0000_0000_0020;
+
 	public async Task<IReadOnlyList<ManageableGuild>> GetManageableGuildsAsync(ulong discordUserId, CancellationToken cancellationToken)
 	{
 		await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
@@ -29,5 +33,16 @@ public sealed class GuildQueryService(IDbContextFactory<DatabaseContext> _dbCont
 		}
 
 		return result;
+	}
+
+	public IReadOnlyList<InvitableGuild> GetInvitableGuilds(ulong discordUserId)
+	{
+		if (!_userGuildsCache.TryGet(discordUserId, out var guilds))
+		{
+			return [];
+		}
+
+		return [.. guilds.Where(guild => (guild.Permissions & ManageGuildPermission) == ManageGuildPermission && _botGuildPresence.GetGuild(guild.Id) is null)
+						 .Select(guild => new InvitableGuild(guild.Id, guild.Name, guild.IconUrl))];
 	}
 }

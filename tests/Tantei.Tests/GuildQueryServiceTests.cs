@@ -21,6 +21,12 @@ public sealed class GuildQueryServiceTests
 
 	private const ulong SecondGuildId = 200UL;
 
+	private const ulong ThirdGuildId = 300UL;
+
+	private const ulong FourthGuildId = 400UL;
+
+	private const ulong ManageGuildPermission = 0x20UL;
+
 	private sealed class FakeBotGuildPresence(params ulong[] presentGuildIds) : IBotGuildPresence
 	{
 		public BotGuildInfo? GetGuild(ulong guildId)
@@ -101,5 +107,37 @@ public sealed class GuildQueryServiceTests
 		var result = await service.GetManageableGuildsAsync(UnknownUserId, cancellationToken);
 
 		await Assert.That(result).IsEmpty();
+	}
+
+	[Test]
+	public async Task InvitableGuildsAreThoseWithManageGuildWhereTheBotIsAbsent()
+	{
+		var (factory, connection) = await CreateDatabaseAsync();
+		await using var ownedConnection = connection;
+		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
+		var cache = new UserGuildsCache(memoryCache);
+		cache.Set(FirstUserId,
+			[
+				new(FirstGuildId, "Bot is here", null, ManageGuildPermission),
+				new(ThirdGuildId, "Can invite", null, ManageGuildPermission),
+				new(FourthGuildId, "No permission", null, 0UL),
+			]);
+		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId), cache);
+
+		var result = service.GetInvitableGuilds(FirstUserId);
+
+		await Assert.That(result.Select(g => g.GuildId)).IsEquivalentTo([ThirdGuildId,]);
+	}
+
+	[Test]
+	public async Task InvitableGuildsAreEmptyWhenNothingIsCached()
+	{
+		var (factory, connection) = await CreateDatabaseAsync();
+		await using var ownedConnection = connection;
+		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
+		var emptyCache = new UserGuildsCache(memoryCache);
+		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId), emptyCache);
+
+		await Assert.That(service.GetInvitableGuilds(FirstUserId)).IsEmpty();
 	}
 }
