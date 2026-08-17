@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PaperMalKing.Startup.Options;
+using PaperMalKing.Startup.Web.Guilds;
 using PaperMalKing.Startup.Web.Tokens;
 
 namespace PaperMalKing.Startup.Web;
@@ -30,6 +31,8 @@ public static class WebAuthenticationExtensions
 		services.AddSingleton<DiscordOAuthTokenStore>();
 		services.AddSingleton<TanteiCookieEvents>();
 		services.AddSingleton<IApplicationOwners, DiscordApplicationOwners>();
+		services.AddSingleton<IBotGuildPresence, BotGuildPresence>();
+		services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, GuildAdminAuthorizationHandler>();
 
 		services.Configure<ForwardedHeadersOptions>(options =>
 		{
@@ -79,7 +82,8 @@ public static class WebAuthenticationExtensions
 		services.AddAuthorizationBuilder().SetDefaultPolicy(registeredPolicy).SetFallbackPolicy(registeredPolicy)
 				.AddPolicy(TanteiPolicies.SignedIn, p => p.RequireAuthenticatedUser())
 				.AddPolicy(TanteiPolicies.Registered, p => p.RequireAuthenticatedUser().RequireClaim(TanteiClaimTypes.Registered, "true"))
-				.AddPolicy(TanteiPolicies.WebAdmin, p => p.RequireAuthenticatedUser().RequireClaim(TanteiClaimTypes.WebAdmin, "true"));
+				.AddPolicy(TanteiPolicies.WebAdmin, p => p.RequireAuthenticatedUser().RequireClaim(TanteiClaimTypes.WebAdmin, "true"))
+				.AddPolicy(TanteiPolicies.GuildAdmin, p => p.RequireAuthenticatedUser().AddRequirements(new GuildAdminRequirement()));
 
 		return services;
 	}
