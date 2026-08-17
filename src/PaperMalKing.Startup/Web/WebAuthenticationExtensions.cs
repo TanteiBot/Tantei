@@ -31,7 +31,8 @@ public static class WebAuthenticationExtensions
 		services.AddMemoryCache();
 		services.AddSingleton<DiscordOAuthTokenStore>();
 		services.AddSingleton<Tokens.DiscordTokenRefreshService>();
-		services.AddHttpClient(Tokens.DiscordTokenRefreshService.HttpClientName, client => client.BaseAddress = new("https://discord.com/api/v10/"));
+		services.AddHttpClient(Tokens.DiscordTokenRefreshService.HttpClientName, client => client.BaseAddress = new("https://discord.com/api/v10/"))
+				.RemoveAllLoggers();
 		services.AddSingleton<TanteiCookieEvents>();
 		services.AddSingleton<IApplicationOwners, DiscordApplicationOwners>();
 		services.AddSingleton<IBotGuildPresence, BotGuildPresence>();
