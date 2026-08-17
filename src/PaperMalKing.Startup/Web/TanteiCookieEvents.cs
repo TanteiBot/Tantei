@@ -4,6 +4,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Database;
@@ -14,6 +15,30 @@ public sealed class TanteiCookieEvents(IDbContextFactory<DatabaseContext> _dbCon
 									   IApplicationOwners _applicationOwners,
 									   ILogger<TanteiCookieEvents> _logger) : CookieAuthenticationEvents
 {
+	private const string ApiPathPrefix = "/api";
+
+	public override Task RedirectToLogin(RedirectContext<CookieAuthenticationOptions> context)
+	{
+		if (context.Request.Path.StartsWithSegments(ApiPathPrefix, StringComparison.OrdinalIgnoreCase))
+		{
+			context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+			return Task.CompletedTask;
+		}
+
+		return base.RedirectToLogin(context);
+	}
+
+	public override Task RedirectToAccessDenied(RedirectContext<CookieAuthenticationOptions> context)
+	{
+		if (context.Request.Path.StartsWithSegments(ApiPathPrefix, StringComparison.OrdinalIgnoreCase))
+		{
+			context.Response.StatusCode = StatusCodes.Status403Forbidden;
+			return Task.CompletedTask;
+		}
+
+		return base.RedirectToAccessDenied(context);
+	}
+
 	public override async Task ValidatePrincipal(CookieValidatePrincipalContext context)
 	{
 		var principal = context.Principal;
