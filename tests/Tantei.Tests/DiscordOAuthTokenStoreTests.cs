@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using EntityFramework.Exceptions.Sqlite;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +32,7 @@ public sealed class DiscordOAuthTokenStoreTests
 		await connection.OpenAsync();
 
 		var services = new ServiceCollection();
-		services.AddDbContextFactory<DatabaseContext>(o => o.UseSqlite(connection));
+		services.AddDbContextFactory<DatabaseContext>(o => o.UseSqlite(connection).UseExceptionProcessor());
 		services.AddDataProtection();
 		var provider = services.BuildServiceProvider();
 

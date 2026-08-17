@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,7 @@ using PaperMalKing.Database;
 namespace PaperMalKing.Startup.Web;
 
 public sealed class TanteiCookieEvents(IDbContextFactory<DatabaseContext> _dbContextFactory,
-									   ApplicationOwnersProvider _applicationOwnersProvider,
+									   IApplicationOwners _applicationOwners,
 									   ILogger<TanteiCookieEvents> _logger) : CookieAuthenticationEvents
 {
 	public override async Task ValidatePrincipal(CookieValidatePrincipalContext context)
@@ -21,16 +22,17 @@ public sealed class TanteiCookieEvents(IDbContextFactory<DatabaseContext> _dbCon
 		{
 			_logger.RejectingPrincipalWithoutDiscordId();
 			context.RejectPrincipal();
+			await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 			return;
 		}
 
 		bool isRegistered;
 		await using (var db = await _dbContextFactory.CreateDbContextAsync(context.HttpContext.RequestAborted))
 		{
-			isRegistered = db.GetDiscordUserById(discordUserId) is not null;
+			isRegistered = db.DiscordUserExists(discordUserId);
 		}
 
-		var isWebAdmin = await _applicationOwnersProvider.IsOwnerAsync(discordUserId, context.HttpContext.RequestAborted);
+		var isWebAdmin = _applicationOwners.IsOwner(discordUserId);
 
 		var identity = new ClaimsIdentity();
 		ReplaceClaim(principal, identity, TanteiClaimTypes.Registered, isRegistered);

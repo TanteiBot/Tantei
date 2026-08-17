@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using EntityFramework.Exceptions.Common;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using PaperMalKing.Database;
@@ -19,29 +20,58 @@ public sealed class DiscordOAuthTokenStore(IDbContextFactory<DatabaseContext> _d
 
 	public async Task SaveAsync(ulong discordUserId, string accessToken, string refreshToken, DateTimeOffset expiresAt, CancellationToken cancellationToken)
 	{
-		await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
-		var existing = db.DiscordOAuthTokens.FirstOrDefault(x => x.DiscordUserId == discordUserId);
-		var now = _timeProvider.GetUtcNow();
-		if (existing is null)
+		var token = new ProtectedToken(this._protector.Protect(accessToken),
+									   this._protector.Protect(refreshToken),
+									   expiresAt,
+									   _timeProvider.GetUtcNow());
+
+		if (await this.TryUpdateAsync(discordUserId, token, cancellationToken) ||
+			await this.TryInsertAsync(discordUserId, token, cancellationToken))
 		{
-			db.DiscordOAuthTokens.Add(new()
-			{
-				DiscordUserId = discordUserId,
-				AccessToken = this._protector.Protect(accessToken),
-				RefreshToken = this._protector.Protect(refreshToken),
-				ExpiresAt = expiresAt,
-				LastUsedAt = now,
-			});
-		}
-		else
-		{
-			existing.AccessToken = this._protector.Protect(accessToken);
-			existing.RefreshToken = this._protector.Protect(refreshToken);
-			existing.ExpiresAt = expiresAt;
-			existing.LastUsedAt = now;
+			return;
 		}
 
+		_ = await this.TryUpdateAsync(discordUserId, token, cancellationToken);
+	}
+
+	private async Task<bool> TryUpdateAsync(ulong discordUserId, ProtectedToken token, CancellationToken cancellationToken)
+	{
+		await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+		var existing = db.DiscordOAuthTokens.FirstOrDefault(x => x.DiscordUserId == discordUserId);
+		if (existing is null)
+		{
+			return false;
+		}
+
+		existing.AccessToken = token.AccessToken;
+		existing.RefreshToken = token.RefreshToken;
+		existing.ExpiresAt = token.ExpiresAt;
+		existing.LastUsedAt = token.LastUsedAt;
 		await db.SaveChangesAsync(cancellationToken);
+		return true;
+	}
+
+	private async Task<bool> TryInsertAsync(ulong discordUserId, ProtectedToken token, CancellationToken cancellationToken)
+	{
+		await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+		db.DiscordOAuthTokens.Add(new()
+		{
+			DiscordUserId = discordUserId,
+			AccessToken = token.AccessToken,
+			RefreshToken = token.RefreshToken,
+			ExpiresAt = token.ExpiresAt,
+			LastUsedAt = token.LastUsedAt,
+		});
+
+		try
+		{
+			await db.SaveChangesAsync(cancellationToken);
+			return true;
+		}
+		catch (UniqueConstraintException)
+		{
+			return false;
+		}
 	}
 
 	public async Task<StoredDiscordToken?> GetAsync(ulong discordUserId, CancellationToken cancellationToken)
@@ -84,4 +114,6 @@ public sealed class DiscordOAuthTokenStore(IDbContextFactory<DatabaseContext> _d
 		await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 		return db.DiscordOAuthTokens.Where(x => x.LastUsedAt < threshold).ExecuteDelete();
 	}
+
+	private readonly record struct ProtectedToken(string AccessToken, string RefreshToken, DateTimeOffset ExpiresAt, DateTimeOffset LastUsedAt);
 }

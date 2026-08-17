@@ -212,6 +212,9 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 	private static readonly Func<DatabaseContext, ulong, DiscordUser?> DiscordUserByIdQuery = EF.CompileQuery((DatabaseContext db, ulong userId) =>
 		db.DiscordUsers.TagWith("Get discord user by id").Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId));
 
+	private static readonly Func<DatabaseContext, ulong, bool> DiscordUserExistsQuery = EF.CompileQuery((DatabaseContext db, ulong userId) =>
+		db.DiscordUsers.TagWith("Check discord user exists").Any(du => du.DiscordUserId == userId));
+
 #pragma warning disable S2365
 	public IReadOnlyList<MalUser> MalUsersForChecking => [.. GetMalUsersQuery(this)];
 
@@ -222,5 +225,7 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 	public DiscordGuild? GetGuildById(ulong guildId) => GuildByIdQuery(this, guildId);
 
 	public DiscordUser? GetDiscordUserById(ulong userId) => DiscordUserByIdQuery(this, userId);
+
+	public bool DiscordUserExists(ulong userId) => DiscordUserExistsQuery(this, userId);
 #pragma warning restore S2365
 }

@@ -9,5 +9,6 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="EntityFrameworkCore.Exceptions.Sqlite" />
   </ItemGroup>
 </Project>

@@ -20,17 +20,16 @@ namespace PaperMalKing.Startup.Web;
 
 public static class WebAuthenticationExtensions
 {
-	private const int DefaultCookieLifetimeInDays = 30;
-
 	public static IServiceCollection AddWebAuthentication(this IServiceCollection services, IConfiguration configuration)
 	{
+		var webOptions = configuration.GetSection(WebOptions.Web).Get<WebOptions>() ?? new WebOptions();
+
 		services.AddOptions<WebOptions>().BindConfiguration(WebOptions.Web).ValidateDataAnnotations().ValidateOnStart();
 		services.TryAddSingleton(TimeProvider.System);
 		services.AddMemoryCache();
 		services.AddSingleton<DiscordOAuthTokenStore>();
 		services.AddSingleton<TanteiCookieEvents>();
-		services.AddSingleton<IApplicationOwnersSource, DiscordApplicationOwnersSource>();
-		services.AddSingleton<ApplicationOwnersProvider>();
+		services.AddSingleton<IApplicationOwners, DiscordApplicationOwners>();
 
 		services.Configure<ForwardedHeadersOptions>(options =>
 		{
@@ -41,12 +40,11 @@ public static class WebAuthenticationExtensions
 
 		services.AddDataProtection().SetApplicationName("Tantei")
 #if IsInContainer
-				.PersistKeysToFileSystem(new(CreateDataProtectionKeysDirectory(configuration)))
+				.PersistKeysToFileSystem(new(CreateDataProtectionKeysDirectory(webOptions)))
 #endif
 			;
 
-		var cookieLifetime =
-			TimeSpan.FromDays(configuration.GetValue<int?>($"{WebOptions.Web}:{nameof(WebOptions.CookieLifetimeInDays)}") ?? DefaultCookieLifetimeInDays);
+		var cookieLifetime = TimeSpan.FromDays(webOptions.CookieLifetimeInDays);
 
 		services.AddAuthentication(options =>
 		{
@@ -76,8 +74,10 @@ public static class WebAuthenticationExtensions
 			options.ClaimActions.MapJsonKey("urn:discord:avatar", "avatar");
 		});
 
-		services.AddAuthorizationBuilder()
-				.SetDefaultPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireClaim(TanteiClaimTypes.Registered, "true").Build())
+		var registeredPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireClaim(TanteiClaimTypes.Registered, "true").Build();
+
+		services.AddAuthorizationBuilder().SetDefaultPolicy(registeredPolicy).SetFallbackPolicy(registeredPolicy)
+				.AddPolicy(TanteiPolicies.SignedIn, p => p.RequireAuthenticatedUser())
 				.AddPolicy(TanteiPolicies.Registered, p => p.RequireAuthenticatedUser().RequireClaim(TanteiClaimTypes.Registered, "true"))
 				.AddPolicy(TanteiPolicies.WebAdmin, p => p.RequireAuthenticatedUser().RequireClaim(TanteiClaimTypes.WebAdmin, "true"));
 
@@ -85,9 +85,9 @@ public static class WebAuthenticationExtensions
 	}
 
 #if IsInContainer
-	private static string CreateDataProtectionKeysDirectory(IConfiguration configuration)
+	private static string CreateDataProtectionKeysDirectory(WebOptions webOptions)
 	{
-		var keysDirectory = configuration.GetValue<string>($"{WebOptions.Web}:{nameof(WebOptions.DataProtectionKeysDirectory)}") ??
+		var keysDirectory = webOptions.DataProtectionKeysDirectory ??
 							Path.Combine(Environment.GetEnvironmentVariable("TANTEI_CONFIG_DIR") ?? "/config", "dataprotection-keys");
 		Directory.CreateDirectory(keysDirectory);
 		return keysDirectory;
