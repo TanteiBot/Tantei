@@ -32,7 +32,8 @@ public static class WebAuthenticationExtensions
 		services.AddSingleton<TanteiCookieEvents>();
 		services.AddSingleton<IApplicationOwners, DiscordApplicationOwners>();
 		services.AddSingleton<IBotGuildPresence, BotGuildPresence>();
-		services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, GuildAdminAuthorizationHandler>();
+		services.AddSingleton<IAuthorizationHandler, GuildAdminAuthorizationHandler>();
+		services.AddSingleton<GuildQueryService>();
 
 		services.Configure<ForwardedHeadersOptions>(options =>
 		{
