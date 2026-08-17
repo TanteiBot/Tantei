@@ -38,6 +38,7 @@ public sealed class GeneralUserService(IDbContextFactory<DatabaseContext> _dbCon
 		db.MalUsers.Where(mu => mu.DiscordUserId == user.DiscordUserId).ExecuteDelete();
 		db.ShikiUsers.Where(mu => mu.DiscordUserId == user.DiscordUserId).ExecuteDelete();
 		db.AniListUsers.Where(mu => mu.DiscordUserId == user.DiscordUserId).ExecuteDelete();
+		db.DiscordOAuthTokens.Where(t => t.DiscordUserId == user.DiscordUserId).ExecuteDelete();
 		db.DiscordUsers.Where(x => x.DiscordUserId == userId).ExecuteDelete();
 		db.BotUsers.Where(bu => bu.UserId == user.BotUser.UserId).ExecuteDelete();
 		_logger.RemovingUserWithNoGuilds(userId);

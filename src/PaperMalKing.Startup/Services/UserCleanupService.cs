@@ -6,12 +6,16 @@ using DSharpPlus;
 using DSharpPlus.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
+using PaperMalKing.Startup.Web;
+using PaperMalKing.Startup.Web.Tokens;
 using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Startup.Services;
 
-internal sealed class UserCleanupService(ILogger<UserCleanupService> _logger, DiscordClient _discordClient, IDbContextFactory<DatabaseContext> _dbContextFactory, GeneralUserService _userService)
+internal sealed class UserCleanupService(ILogger<UserCleanupService> _logger, DiscordClient _discordClient, IDbContextFactory<DatabaseContext> _dbContextFactory, GeneralUserService _userService,
+										  DiscordOAuthTokenStore _tokenStore, IOptions<WebOptions> _webOptions, TimeProvider _timeProvider)
 {
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	public async Task ExecuteCleanupAsync()
@@ -45,6 +49,8 @@ internal sealed class UserCleanupService(ILogger<UserCleanupService> _logger, Di
 			}
 		}
 
+		var threshold = _timeProvider.GetUtcNow().AddDays(-_webOptions.Value.CookieLifetimeInDays);
+		await _tokenStore.PruneUnusedSinceAsync(threshold, CancellationToken.None);
 		_logger.FinishingUserCleanup();
 	}
 }
