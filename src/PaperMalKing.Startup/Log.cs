@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using PaperMalKing.Startup.Data;
 using PaperMalKing.Startup.Services;
 using PaperMalKing.Startup.Services.Background;
+using PaperMalKing.Startup.Web;
 
 namespace PaperMalKing.Startup;
 
@@ -136,4 +137,7 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Error, "Task on loading channels to post to failed")]
 	public static partial void LoadingChannelsToPostFailed(this ILogger<UpdatePublishingService> logger, Exception? ex);
+
+	[LoggerMessage(LogLevel.Warning, "Rejecting authentication cookie without a parsable Discord user id")]
+	public static partial void RejectingPrincipalWithoutDiscordId(this ILogger<TanteiCookieEvents> logger);
 }

@@ -11,6 +11,9 @@
     "ClientId": "",
     "ClientSecret": ""
   },
+  "Web": {
+    "CookieLifetimeInDays": 30
+  },
   "MyAnimeList": {
     "ClientId": ""
   },
