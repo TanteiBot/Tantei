@@ -15,24 +15,23 @@ namespace PaperMalKing.Database.CompiledModels
     [EntityFrameworkInternal]
     public partial class MalFavoriteMangaEntityType
     {
-        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
-        {
-            var runtimeEntityType = model.AddEntityType(
-                "PaperMalKing.Database.Models.MyAnimeList.MalFavoriteManga",
-                typeof(MalFavoriteManga),
-                baseEntityType,
-                discriminatorProperty: "FavoriteType",
-                discriminatorValue: MalFavoriteType.Manga,
-                propertyCount: 2,
-                navigationCount: 1,
-                foreignKeyCount: 1);
+        var runtimeEntityType = model.AddEntityType(
+            "PaperMalKing.Database.Models.MyAnimeList.MalFavoriteManga",
+            typeof(MalFavoriteManga),
+            baseEntityType,
+            discriminatorProperty: "FavoriteType",
+            propertyCount: 2,
+            navigationCount: 1,
+            foreignKeyCount: 1);
 
-            var startYear = runtimeEntityType.AddProperty(
-                "StartYear",
-                typeof(ushort),
-                propertyInfo: typeof(BaseMalListFavorite).GetProperty("StartYear", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(BaseMalListFavorite).GetField("<StartYear>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                sentinel: (ushort)0);
+        runtimeEntityType.SetDiscriminatorValueFromProviderValue((byte)2);
+
+        var startYear = runtimeEntityType.AddProperty(
+            "StartYear",
+            typeof(ushort),
+            propertyInfo: typeof(BaseMalListFavorite).GetProperty("StartYear", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(BaseMalListFavorite).GetField("<StartYear>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            sentinel: (ushort)0);
 
             var type = runtimeEntityType.AddProperty(
                 "Type",

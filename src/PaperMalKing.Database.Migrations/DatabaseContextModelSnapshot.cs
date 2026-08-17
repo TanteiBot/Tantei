@@ -8,13 +8,17 @@ using PaperMalKing.Database;
 
 namespace PaperMalKing.Database.Migrations
 {
-    [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    // If you encounter a merge conflict in the line below, it means you need to
+    // discard one of the migration branches and recreate its migrations on top of
+    // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
+    public override string LastMigrationId => "20260817155314_AddDiscordOAuthToken";
+
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.0");
+        modelBuilder.HasAnnotation("ProductVersion", "11.0.0-preview.7.26381.103");
 
             modelBuilder.Entity("DiscordGuildDiscordUser", b =>
                 {
@@ -125,7 +129,387 @@ namespace PaperMalKing.Database.Migrations
                     b.HasIndex("BotUserId")
                         .IsUnique();
 
-                    b.HasIndex("DiscordUserId");
+        modelBuilder.Entity("PaperMalKing.Database.Models.DiscordOAuthToken", b =>
+            {
+                b.Property<ulong>("DiscordUserId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("AccessToken")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.Property<long>("ExpiresAt")
+                    .HasColumnType("INTEGER");
+
+                b.Property<long>("LastUsedAt")
+                    .HasColumnType("INTEGER");
+
+                b.ComplexCollection(typeof(List<Dictionary<string, object>>), "Colors", "PaperMalKing.Database.Models.AniList.AniListUser.Colors#CustomUpdateColor", b1 =>
+                    {
+                        b1.IsRequired();
+
+                        b1.Property<int>("ColorValue");
+
+                        b1.Property<byte>("UpdateType");
+
+                        b1
+                            .ToJson("Colors")
+                            .HasColumnType("TEXT");
+                    });
+
+                b.HasKey("Id");
+
+                b.HasIndex("DiscordUserId")
+                    .IsUnique();
+
+                b.HasIndex("Features");
+
+                b.ToTable("AniListUsers");
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.BotUser", b =>
+            {
+                b.Property<uint>("UserId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("INTEGER");
+
+                b.HasKey("UserId");
+
+                b.ToTable("BotUsers");
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.DiscordGuild", b =>
+            {
+                b.Property<ulong>("DiscordGuildId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<ulong>("PostingChannelId")
+                    .HasColumnType("INTEGER");
+
+                b.HasKey("DiscordGuildId");
+
+                b.HasIndex("DiscordGuildId");
+
+                b.ToTable("DiscordGuilds");
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.DiscordOAuthToken", b =>
+            {
+                b.Property<ulong>("DiscordUserId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("AccessToken")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.Property<long>("ExpiresAt")
+                    .HasColumnType("INTEGER");
+
+                b.Property<long>("LastUsedAt")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("RefreshToken")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.HasKey("DiscordUserId");
+
+                b.HasIndex("LastUsedAt");
+
+                b.ToTable("DiscordOAuthTokens");
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.DiscordUser", b =>
+            {
+                b.Property<ulong>("DiscordUserId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<uint>("BotUserId")
+                    .HasColumnType("INTEGER");
+
+                b.HasKey("DiscordUserId");
+
+                b.HasIndex("LastUsedAt");
+
+                b.HasIndex("DiscordUserId");
+
+                b.ToTable("DiscordUsers");
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.BaseMalFavorite", b =>
+            {
+                b.Property<uint>("Id")
+                    .HasColumnType("INTEGER");
+
+                b.Property<uint>("UserId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<byte>("FavoriteType")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("ImageUrl")
+                    .HasColumnType("TEXT");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.Property<string>("NameUrl")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.HasKey("Id", "UserId", "FavoriteType");
+
+                b.HasIndex("FavoriteType");
+
+                b.HasIndex("Id");
+
+                b.HasIndex("UserId");
+
+                b.ToTable("MalFavorites");
+
+                b.HasDiscriminator<byte>("FavoriteType");
+
+                b.UseTphMappingStrategy();
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalUser", b =>
+            {
+                b.Property<uint>("UserId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<ulong>("DiscordUserId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("FavoritesIdHash")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("TEXT")
+                    .HasDefaultValue("");
+
+                b.Property<ulong>("Features")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("INTEGER")
+                    .HasDefaultValue(127ul);
+
+                b.Property<string>("LastAnimeUpdateHash")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.Property<string>("LastMangaUpdateHash")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.Property<long>("LastUpdatedAnimeListTimestamp")
+                    .HasColumnType("INTEGER");
+
+                b.Property<long>("LastUpdatedMangaListTimestamp")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("Username")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.ComplexCollection(typeof(List<Dictionary<string, object>>), "Colors", "PaperMalKing.Database.Models.MyAnimeList.MalUser.Colors#CustomUpdateColor", b1 =>
+                    {
+                        b1.IsRequired();
+
+                        b1.Property<int>("ColorValue");
+
+                        b1.Property<byte>("UpdateType");
+
+                        b1
+                            .ToJson("Colors")
+                            .HasColumnType("TEXT");
+                    });
+
+                b.HasKey("UserId");
+
+                b.HasIndex("DiscordUserId")
+                    .IsUnique();
+
+                b.HasIndex("Features");
+
+                b.ToTable("MalUsers");
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.Shikimori.ShikiFavourite", b =>
+            {
+                b.Property<uint>("Id")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("FavType")
+                    .HasColumnType("TEXT");
+
+                b.Property<uint>("UserId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.HasKey("Id", "FavType", "UserId");
+
+                b.HasIndex("Id");
+
+                b.HasIndex("UserId");
+
+                b.ToTable("ShikiFavourites");
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.Shikimori.ShikiUser", b =>
+            {
+                b.Property<uint>("Id")
+                    .HasColumnType("INTEGER");
+
+                b.Property<ulong>("DiscordUserId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("FavouritesIdHash")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("TEXT")
+                    .HasDefaultValue("");
+
+                b.Property<ulong>("Features")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("INTEGER")
+                    .HasDefaultValue(127ul);
+
+                b.Property<uint>("LastHistoryEntryId")
+                    .HasColumnType("INTEGER");
+
+                b.ComplexCollection(typeof(List<Dictionary<string, object>>), "Achievements", "PaperMalKing.Database.Models.Shikimori.ShikiUser.Achievements#ShikiDbAchievement", b1 =>
+                    {
+                        b1.IsRequired();
+
+                        b1.Property<byte>("Level");
+
+                        b1.Property<string>("NekoId")
+                            .IsRequired();
+
+                        b1
+                            .ToJson("Achievements")
+                            .HasColumnType("TEXT");
+                    });
+
+                b.ComplexCollection(typeof(List<Dictionary<string, object>>), "Colors", "PaperMalKing.Database.Models.Shikimori.ShikiUser.Colors#CustomUpdateColor", b1 =>
+                    {
+                        b1.IsRequired();
+
+                        b1.Property<int>("ColorValue");
+
+                        b1.Property<byte>("UpdateType");
+
+                        b1
+                            .ToJson("Colors")
+                            .HasColumnType("TEXT");
+                    });
+
+                b.HasKey("Id");
+
+                b.HasIndex("DiscordUserId")
+                    .IsUnique();
+
+                b.HasIndex("Features");
+
+                b.ToTable("ShikiUsers");
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalFavoriteAnime", b =>
+            {
+                b.HasBaseType("PaperMalKing.Database.Models.MyAnimeList.BaseMalFavorite");
+
+                b.Property<ushort>("StartYear")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("Type")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.HasDiscriminator().HasValue((byte)1);
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalFavoriteCharacter", b =>
+            {
+                b.HasBaseType("PaperMalKing.Database.Models.MyAnimeList.BaseMalFavorite");
+
+                b.Property<string>("FromTitleName")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.HasDiscriminator().HasValue((byte)3);
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalFavoriteCompany", b =>
+            {
+                b.HasBaseType("PaperMalKing.Database.Models.MyAnimeList.BaseMalFavorite");
+
+                b.HasDiscriminator().HasValue((byte)5);
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalFavoriteManga", b =>
+            {
+                b.HasBaseType("PaperMalKing.Database.Models.MyAnimeList.BaseMalFavorite");
+
+                b.Property<ushort>("StartYear")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("Type")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.HasDiscriminator().HasValue((byte)2);
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.MyAnimeList.MalFavoritePerson", b =>
+            {
+                b.HasBaseType("PaperMalKing.Database.Models.MyAnimeList.BaseMalFavorite");
+
+                b.HasDiscriminator().HasValue((byte)4);
+            });
+
+        modelBuilder.Entity("DiscordGuildDiscordUser", b =>
+            {
+                b.HasOne("PaperMalKing.Database.Models.DiscordGuild", null)
+                    .WithMany()
+                    .HasForeignKey("GuildsDiscordGuildId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.HasOne("PaperMalKing.Database.Models.DiscordUser", null)
+                    .WithMany()
+                    .HasForeignKey("UsersDiscordUserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.AniList.AniListFavourite", b =>
+            {
+                b.HasOne("PaperMalKing.Database.Models.AniList.AniListUser", "User")
+                    .WithMany("Favourites")
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("User");
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.AniList.AniListUser", b =>
+            {
+                b.HasOne("PaperMalKing.Database.Models.DiscordUser", "DiscordUser")
+                    .WithOne()
+                    .HasForeignKey("PaperMalKing.Database.Models.AniList.AniListUser", "DiscordUserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("DiscordUser");
+            });
+
+        modelBuilder.Entity("PaperMalKing.Database.Models.DiscordUser", b =>
+            {
+                b.Property<ulong>("DiscordUserId")
+                    .HasColumnType("INTEGER");
 
                     b.ToTable("DiscordUsers");
                 });
@@ -172,8 +556,7 @@ namespace PaperMalKing.Database.Migrations
                     b.Property<uint>("UserId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<ulong>("DiscordUserId")
-                        .HasColumnType("INTEGER");
+                b.ToTable("MalFavorites");
 
                     b.Property<string>("FavoritesIdHash")
                         .IsRequired()

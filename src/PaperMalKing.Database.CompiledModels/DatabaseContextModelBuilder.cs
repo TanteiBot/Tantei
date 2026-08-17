@@ -8,34 +8,32 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace PaperMalKing.Database.CompiledModels
 {
-    public partial class DatabaseContextModel
+    private DatabaseContextModel()
+        : base(skipDetectChanges: false, modelId: new Guid("0201798c-f239-47f5-a165-c15dbaf7198d"), entityTypeCount: 16)
     {
         private DatabaseContextModel()
             : base(skipDetectChanges: false, modelId: new Guid("33b18429-8816-4a9f-b1a7-e4a638b0a168"), entityTypeCount: 19)
         {
         }
 
-        partial void Initialize()
-        {
-            var discordGuildDiscordUser = DiscordGuildDiscordUserEntityType.Create(this);
-            var aniListFavourite = AniListFavouriteEntityType.Create(this);
-            var aniListUser = AniListUserEntityType.Create(this);
-            var customUpdateColor = CustomUpdateColorEntityType.Create(this);
-            var botUser = BotUserEntityType.Create(this);
-            var discordGuild = DiscordGuildEntityType.Create(this);
-            var discordUser = DiscordUserEntityType.Create(this);
-            var baseMalFavorite = BaseMalFavoriteEntityType.Create(this);
-            var malUser = MalUserEntityType.Create(this);
-            var customUpdateColor0 = CustomUpdateColor0EntityType.Create(this);
-            var shikiDbAchievement = ShikiDbAchievementEntityType.Create(this);
-            var shikiFavourite = ShikiFavouriteEntityType.Create(this);
-            var shikiUser = ShikiUserEntityType.Create(this);
-            var customUpdateColor1 = CustomUpdateColor1EntityType.Create(this);
-            var malFavoriteAnime = MalFavoriteAnimeEntityType.Create(this, baseMalFavorite);
-            var malFavoriteCharacter = MalFavoriteCharacterEntityType.Create(this, baseMalFavorite);
-            var malFavoriteCompany = MalFavoriteCompanyEntityType.Create(this, baseMalFavorite);
-            var malFavoriteManga = MalFavoriteMangaEntityType.Create(this, baseMalFavorite);
-            var malFavoritePerson = MalFavoritePersonEntityType.Create(this, baseMalFavorite);
+    partial void Initialize()
+    {
+        var discordGuildDiscordUser = DiscordGuildDiscordUserEntityType.Create(this);
+        var aniListFavourite = AniListFavouriteEntityType.Create(this);
+        var aniListUser = AniListUserEntityType.Create(this);
+        var botUser = BotUserEntityType.Create(this);
+        var discordGuild = DiscordGuildEntityType.Create(this);
+        var discordOAuthToken = DiscordOAuthTokenEntityType.Create(this);
+        var discordUser = DiscordUserEntityType.Create(this);
+        var baseMalFavorite = BaseMalFavoriteEntityType.Create(this);
+        var malUser = MalUserEntityType.Create(this);
+        var shikiFavourite = ShikiFavouriteEntityType.Create(this);
+        var shikiUser = ShikiUserEntityType.Create(this);
+        var malFavoriteAnime = MalFavoriteAnimeEntityType.Create(this, baseMalFavorite);
+        var malFavoriteCharacter = MalFavoriteCharacterEntityType.Create(this, baseMalFavorite);
+        var malFavoriteCompany = MalFavoriteCompanyEntityType.Create(this, baseMalFavorite);
+        var malFavoriteManga = MalFavoriteMangaEntityType.Create(this, baseMalFavorite);
+        var malFavoritePerson = MalFavoritePersonEntityType.Create(this, baseMalFavorite);
 
             DiscordGuildDiscordUserEntityType.CreateForeignKey1(discordGuildDiscordUser, discordGuild);
             DiscordGuildDiscordUserEntityType.CreateForeignKey2(discordGuildDiscordUser, discordUser);
@@ -58,27 +56,23 @@ namespace PaperMalKing.Database.CompiledModels
             DiscordGuildEntityType.CreateSkipNavigation1(discordGuild, discordUser, discordGuildDiscordUser);
             DiscordUserEntityType.CreateSkipNavigation1(discordUser, discordGuild, discordGuildDiscordUser);
 
-            DiscordGuildDiscordUserEntityType.CreateAnnotations(discordGuildDiscordUser);
-            AniListFavouriteEntityType.CreateAnnotations(aniListFavourite);
-            AniListUserEntityType.CreateAnnotations(aniListUser);
-            CustomUpdateColorEntityType.CreateAnnotations(customUpdateColor);
-            BotUserEntityType.CreateAnnotations(botUser);
-            DiscordGuildEntityType.CreateAnnotations(discordGuild);
-            DiscordUserEntityType.CreateAnnotations(discordUser);
-            BaseMalFavoriteEntityType.CreateAnnotations(baseMalFavorite);
-            MalUserEntityType.CreateAnnotations(malUser);
-            CustomUpdateColor0EntityType.CreateAnnotations(customUpdateColor0);
-            ShikiDbAchievementEntityType.CreateAnnotations(shikiDbAchievement);
-            ShikiFavouriteEntityType.CreateAnnotations(shikiFavourite);
-            ShikiUserEntityType.CreateAnnotations(shikiUser);
-            CustomUpdateColor1EntityType.CreateAnnotations(customUpdateColor1);
-            MalFavoriteAnimeEntityType.CreateAnnotations(malFavoriteAnime);
-            MalFavoriteCharacterEntityType.CreateAnnotations(malFavoriteCharacter);
-            MalFavoriteCompanyEntityType.CreateAnnotations(malFavoriteCompany);
-            MalFavoriteMangaEntityType.CreateAnnotations(malFavoriteManga);
-            MalFavoritePersonEntityType.CreateAnnotations(malFavoritePerson);
+        DiscordGuildDiscordUserEntityType.CreateAnnotations(discordGuildDiscordUser);
+        AniListFavouriteEntityType.CreateAnnotations(aniListFavourite);
+        AniListUserEntityType.CreateAnnotations(aniListUser);
+        BotUserEntityType.CreateAnnotations(botUser);
+        DiscordGuildEntityType.CreateAnnotations(discordGuild);
+        DiscordOAuthTokenEntityType.CreateAnnotations(discordOAuthToken);
+        DiscordUserEntityType.CreateAnnotations(discordUser);
+        BaseMalFavoriteEntityType.CreateAnnotations(baseMalFavorite);
+        MalUserEntityType.CreateAnnotations(malUser);
+        ShikiFavouriteEntityType.CreateAnnotations(shikiFavourite);
+        ShikiUserEntityType.CreateAnnotations(shikiUser);
+        MalFavoriteAnimeEntityType.CreateAnnotations(malFavoriteAnime);
+        MalFavoriteCharacterEntityType.CreateAnnotations(malFavoriteCharacter);
+        MalFavoriteCompanyEntityType.CreateAnnotations(malFavoriteCompany);
+        MalFavoriteMangaEntityType.CreateAnnotations(malFavoriteManga);
+        MalFavoritePersonEntityType.CreateAnnotations(malFavoritePerson);
 
-            AddAnnotation("ProductVersion", "10.0.0");
-        }
+        AddAnnotation("ProductVersion", "11.0.0-preview.7.26381.103");
     }
 }

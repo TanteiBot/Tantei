@@ -9,6 +9,15 @@ CREATE TABLE "DiscordGuilds" (
 );
 
 
+CREATE TABLE "DiscordOAuthTokens" (
+    "DiscordUserId" INTEGER NOT NULL CONSTRAINT "PK_DiscordOAuthTokens" PRIMARY KEY,
+    "AccessToken" TEXT NOT NULL,
+    "RefreshToken" TEXT NOT NULL,
+    "ExpiresAt" INTEGER NOT NULL,
+    "LastUsedAt" INTEGER NOT NULL
+);
+
+
 CREATE TABLE "DiscordUsers" (
     "DiscordUserId" INTEGER NOT NULL CONSTRAINT "PK_DiscordUsers" PRIMARY KEY,
     "BotUserId" INTEGER NOT NULL,
@@ -114,6 +123,9 @@ CREATE INDEX "IX_DiscordGuildDiscordUser_UsersDiscordUserId" ON "DiscordGuildDis
 
 
 CREATE INDEX "IX_DiscordGuilds_DiscordGuildId" ON "DiscordGuilds" ("DiscordGuildId");
+
+
+CREATE INDEX "IX_DiscordOAuthTokens_LastUsedAt" ON "DiscordOAuthTokens" ("LastUsedAt");
 
 
 CREATE UNIQUE INDEX "IX_DiscordUsers_BotUserId" ON "DiscordUsers" ("BotUserId");

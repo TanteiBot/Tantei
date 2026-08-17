@@ -21,6 +21,8 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 
 	public DbSet<DiscordUser> DiscordUsers => this.Set<DiscordUser>();
 
+	public DbSet<DiscordOAuthToken> DiscordOAuthTokens => this.Set<DiscordOAuthToken>();
+
 	public DbSet<MalUser> MalUsers => this.Set<MalUser>();
 
 	public DbSet<BaseMalFavorite> BaseMalFavorites => this.Set<BaseMalFavorite>();
@@ -94,6 +96,13 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 		modelBuilder.Entity<DiscordGuild>(dg => dg.HasIndex(x => x.DiscordGuildId));
 
 		modelBuilder.Entity<DiscordUser>(dg => dg.HasIndex(x => x.DiscordUserId));
+
+		modelBuilder.Entity<DiscordOAuthToken>(dt =>
+		{
+			dt.Property(x => x.ExpiresAt).HasConversion<DateTimeOffsetToBinaryConverter>();
+			dt.Property(x => x.LastUsedAt).HasConversion<DateTimeOffsetToBinaryConverter>();
+			dt.HasIndex(x => x.LastUsedAt);
+		});
 
 		modelBuilder.Entity<BaseMalFavorite>(bmf =>
 		{
