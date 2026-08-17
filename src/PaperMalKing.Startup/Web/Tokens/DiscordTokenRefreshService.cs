@@ -10,7 +10,6 @@ using PaperMalKing.Startup.Options;
 namespace PaperMalKing.Startup.Web.Tokens;
 
 public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStore,
-											   HttpClient _httpClient,
 											   IOptions<DiscordOptions> _discordOptions,
 											   TimeProvider _timeProvider,
 											   ILogger<DiscordTokenRefreshService> _logger) : IDisposable
@@ -18,6 +17,11 @@ public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStor
 	private static readonly TimeSpan RefreshMargin = TimeSpan.FromMinutes(5);
 
 	private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _locks = new();
+
+	private readonly HttpClient _httpClient = new(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) })
+	{
+		BaseAddress = new("https://discord.com/api/v10/"),
+	};
 
 	public async Task<string?> GetValidAccessTokenAsync(ulong discordUserId, CancellationToken cancellationToken)
 	{
@@ -65,7 +69,7 @@ public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStor
 			["refresh_token"] = refreshToken,
 		});
 
-		using var response = await _httpClient.PostAsync(new Uri("oauth2/token", UriKind.Relative), content, cancellationToken);
+		using var response = await this._httpClient.PostAsync(new Uri("oauth2/token", UriKind.Relative), content, cancellationToken);
 		if (!response.IsSuccessStatusCode)
 		{
 			_logger.DiscardingUnusableDiscordToken(discordUserId);
@@ -87,6 +91,7 @@ public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStor
 
 	public void Dispose()
 	{
+		this._httpClient.Dispose();
 		foreach (var semaphore in this._locks.Values)
 		{
 			semaphore.Dispose();
