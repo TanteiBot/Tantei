@@ -2,6 +2,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PaperMalKing.Database\PaperMalKing.Database.csproj" />
     <ProjectReference Include="..\..\src\PaperMalKing.Database.Migrations\PaperMalKing.Database.Migrations.csproj" />
+    <ProjectReference Include="..\..\src\PaperMalKing.Startup\PaperMalKing.Startup.csproj" />
 
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
         <PrivateAssets>all</PrivateAssets>
