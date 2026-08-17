@@ -9,6 +9,7 @@ using PaperMalKing.Startup.Services;
 using PaperMalKing.Startup.Services.Background;
 using PaperMalKing.Startup.Web;
 using PaperMalKing.Startup.Web.Guilds;
+using PaperMalKing.Startup.Web.Tokens;
 
 namespace PaperMalKing.Startup;
 
@@ -144,4 +145,7 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Warning, "Failed to fetch Discord guilds for user {DiscordUserId} at sign-in")]
 	public static partial void FailedToFetchDiscordGuildsAtSignIn(this ILogger<DiscordUserGuildsClient> logger, Exception ex, ulong discordUserId);
+
+	[LoggerMessage(LogLevel.Information, "Discarding unusable Discord OAuth token for {DiscordUserId}")]
+	public static partial void DiscardingUnusableDiscordToken(this ILogger<DiscordTokenRefreshService> logger, ulong discordUserId);
 }
