@@ -10,13 +10,11 @@ using PaperMalKing.Startup.Options;
 namespace PaperMalKing.Startup.Web.Tokens;
 
 public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStore,
-											   IHttpClientFactory _httpClientFactory,
+											   HttpClient _httpClient,
 											   IOptions<DiscordOptions> _discordOptions,
 											   TimeProvider _timeProvider,
 											   ILogger<DiscordTokenRefreshService> _logger) : IDisposable
 {
-	public const string HttpClientName = "DiscordTokenRefresh";
-
 	private static readonly TimeSpan RefreshMargin = TimeSpan.FromMinutes(5);
 
 	private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _locks = new();
@@ -59,7 +57,6 @@ public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStor
 
 	private async Task<string?> RefreshAsync(ulong discordUserId, string refreshToken, CancellationToken cancellationToken)
 	{
-		using var client = _httpClientFactory.CreateClient(HttpClientName);
 		using var content = new FormUrlEncodedContent(new Dictionary<string, string>(StringComparer.Ordinal)
 		{
 			["client_id"] = _discordOptions.Value.ClientId,
@@ -68,7 +65,7 @@ public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStor
 			["refresh_token"] = refreshToken,
 		});
 
-		using var response = await client.PostAsync(new Uri("oauth2/token", UriKind.Relative), content, cancellationToken);
+		using var response = await _httpClient.PostAsync(new Uri("oauth2/token", UriKind.Relative), content, cancellationToken);
 		if (!response.IsSuccessStatusCode)
 		{
 			_logger.DiscardingUnusableDiscordToken(discordUserId);
