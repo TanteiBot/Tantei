@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Startup.Options;
 using PaperMalKing.Startup.Web.Guilds;
@@ -23,7 +24,7 @@ namespace PaperMalKing.Startup.Web;
 
 public static class WebAuthenticationExtensions
 {
-	public static IServiceCollection AddWebAuthentication(this IServiceCollection services, IConfiguration configuration)
+	public static IServiceCollection AddWebAuthentication(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
 	{
 		var webOptions = configuration.GetSection(WebOptions.Web).Get<WebOptions>() ?? new WebOptions();
 
@@ -48,7 +49,7 @@ public static class WebAuthenticationExtensions
 			options.KnownProxies.Clear();
 		});
 
-		services.AddDataProtection().SetApplicationName("Tantei")
+		services.AddDataProtection().SetApplicationName($"Tantei-{environment.EnvironmentName}")
 #if IsInContainer
 				.PersistKeysToFileSystem(new(CreateDataProtectionKeysDirectory(webOptions)))
 #endif

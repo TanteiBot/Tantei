@@ -40,7 +40,7 @@ public sealed class HostBuilderSmokeTests
 			}))
 			.ConfigureServices((context, services) =>
 			{
-				services.AddWebAuthentication(context.Configuration);
+				services.AddWebAuthentication(context.Configuration, context.HostingEnvironment);
 				services.TryAddSingleton<EndpointDataSource>(new CompositeEndpointDataSource([]));
 			})
 			.UseDefaultServiceProvider(o =>

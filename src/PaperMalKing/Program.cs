@@ -18,7 +18,7 @@ foreach (var dir in (Span<string>)[Environment.GetEnvironmentVariable("TANTEI_CO
 }
 #endif
 
-builder.Services.AddWebAuthentication(builder.Configuration);
+builder.Services.AddWebAuthentication(builder.Configuration, builder.Environment);
 
 builder.Host.UseDefaultServiceProvider(c =>
 {
