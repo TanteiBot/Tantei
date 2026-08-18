@@ -4,6 +4,7 @@
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json.Serialization;
+using DSharpPlus;
 
 namespace PaperMalKing.Startup.Web.Guilds;
 
@@ -24,7 +25,7 @@ public sealed class DiscordUserGuildsClient(HttpClient _httpClient)
 	private static DiscordPartialGuild Map(PartialGuildPayload payload)
 	{
 		var id = ulong.Parse(payload.Id, CultureInfo.InvariantCulture);
-		var permissions = ulong.Parse(payload.Permissions, CultureInfo.InvariantCulture);
+		var permissions = (Permissions)ulong.Parse(payload.Permissions, CultureInfo.InvariantCulture);
 		var iconUrl = payload.Icon is null ? null : $"https://cdn.discordapp.com/icons/{payload.Id}/{payload.Icon}.png";
 		return new(id, payload.Name, iconUrl, permissions);
 	}

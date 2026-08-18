@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
+using DSharpPlus;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -25,8 +26,6 @@ public sealed class GuildQueryServiceTests
 	private const ulong ThirdGuildId = 300UL;
 
 	private const ulong FourthGuildId = 400UL;
-
-	private const ulong ManageGuildPermission = 0x20UL;
 
 	private sealed class FakeBotGuildPresence(params ulong[] presentGuildIds) : IBotGuildPresence
 	{
@@ -118,9 +117,9 @@ public sealed class GuildQueryServiceTests
 		var cache = new UserGuildsCache(memoryCache);
 		cache.Set(FirstUserId,
 			[
-				new(FirstGuildId, "Bot is here", null, ManageGuildPermission),
-				new(ThirdGuildId, "Can invite", null, ManageGuildPermission),
-				new(FourthGuildId, "No permission", null, 0UL),
+				new(FirstGuildId, "Bot is here", null, Permissions.ManageGuild),
+				new(ThirdGuildId, "Can invite", null, Permissions.ManageGuild),
+				new(FourthGuildId, "No permission", null, Permissions.None),
 			]);
 		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId), cache);
 

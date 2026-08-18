@@ -3,8 +3,6 @@
 
 namespace PaperMalKing.Startup.Web.Guilds;
 
-public sealed record BotGuildInfo(ulong GuildId, string Name, string? IconUrl);
-
 public interface IBotGuildPresence
 {
 	BotGuildInfo? GetGuild(ulong guildId);

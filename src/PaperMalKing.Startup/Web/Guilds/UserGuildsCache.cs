@@ -7,8 +7,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace PaperMalKing.Startup.Web.Guilds;
 
-public sealed record DiscordPartialGuild(ulong Id, string Name, string? IconUrl, ulong Permissions);
-
 public sealed class UserGuildsCache(IMemoryCache _memoryCache)
 {
 	private const int MaxCachedGuilds = 200;
