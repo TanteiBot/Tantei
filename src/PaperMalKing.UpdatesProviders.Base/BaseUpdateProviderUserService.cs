@@ -41,11 +41,7 @@ public abstract class BaseUpdateProviderUserService<[DynamicallyAccessedMembers(
 		}
 	}
 
-	public async Task RemoveUserHereAsync(ulong userId, ulong guildId)
-	{
-		await this._generalUserService.RemoveUserInGuildAsync(guildId, userId);
-		this._generalUserService.RemoveUserIfInNoGuilds(userId);
-	}
+	public Task RemoveUserHereAsync(ulong userId, ulong guildId) => this._generalUserService.RemoveUserInGuildAsync(guildId, userId);
 
 	public abstract IReadOnlyList<BaseUser> ListUsers(ulong guildId);
 

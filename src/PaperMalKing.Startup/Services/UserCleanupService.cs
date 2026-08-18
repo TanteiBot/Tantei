@@ -25,12 +25,6 @@ internal sealed class UserCleanupService(ILogger<UserCleanupService> _logger, Di
 		foreach (var discordUser in db.DiscordUsers.TagWith("Query users for cleanup").TagWithCallSite().Include(x => x.Guilds).AsNoTracking().ToArray())
 		{
 			var userId = discordUser.DiscordUserId;
-			if (discordUser.Guilds is [])
-			{
-				_userService.RemoveUserIfInNoGuilds(userId);
-				continue;
-			}
-
 			foreach (var guildId in discordUser.Guilds.Select(x => x.DiscordGuildId))
 			{
 				if (!_discordClient.Guilds.TryGetValue(guildId, out var guild))
