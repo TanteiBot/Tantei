@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -35,6 +36,7 @@ public sealed class GuildQueryServiceTests
 		public Task<bool> IsGuildAdminAsync(ulong guildId, ulong discordUserId) => Task.FromResult(false);
 	}
 
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	private static async Task<(IDbContextFactory<DatabaseContext> Factory, SqliteConnection Connection)> CreateDatabaseAsync()
 	{
 		var connection = new SqliteConnection("Filename=:memory:");
@@ -43,7 +45,7 @@ public sealed class GuildQueryServiceTests
 		services.AddDbContextFactory<DatabaseContext>(o => o.UseSqlite(connection));
 		var provider = services.BuildServiceProvider();
 		var factory = provider.GetRequiredService<IDbContextFactory<DatabaseContext>>();
-		await using (var db = await factory.CreateDbContextAsync())
+		using (var db = factory.CreateDbContext())
 		{
 			await db.Database.EnsureCreatedAsync();
 		}
@@ -51,9 +53,10 @@ public sealed class GuildQueryServiceTests
 		return (factory, connection);
 	}
 
-	private static async Task SeedUserInGuildsAsync(IDbContextFactory<DatabaseContext> factory, ulong discordUserId, params ulong[] guildIds)
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
+	private static void SeedUserInGuilds(IDbContextFactory<DatabaseContext> factory, ulong discordUserId, params ulong[] guildIds)
 	{
-		await using var db = await factory.CreateDbContextAsync();
+		using var db = factory.CreateDbContext();
 		var guilds = guildIds.Select(id => new DiscordGuild { DiscordGuildId = id, PostingChannelId = id, Users = [], }).ToList();
 		db.DiscordGuilds.AddRange(guilds);
 		db.DiscordUsers.Add(new()
@@ -62,7 +65,7 @@ public sealed class GuildQueryServiceTests
 			BotUser = new(),
 			Guilds = guilds,
 		});
-		await db.SaveChangesAsync();
+		db.SaveChanges();
 	}
 
 	[Test]
@@ -71,11 +74,10 @@ public sealed class GuildQueryServiceTests
 		var (factory, connection) = await CreateDatabaseAsync();
 		await using var ownedConnection = connection;
 		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
-		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
-		await SeedUserInGuildsAsync(factory, FirstUserId, FirstGuildId, SecondGuildId);
+		SeedUserInGuilds(factory, FirstUserId, FirstGuildId, SecondGuildId);
 		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId, SecondGuildId), new(memoryCache));
 
-		var result = await service.GetManageableGuildsAsync(FirstUserId, cancellationToken);
+		var result = service.GetManageableGuilds(FirstUserId);
 
 		await Assert.That(result.Select(g => g.GuildId).Order()).IsEquivalentTo([FirstGuildId, SecondGuildId,]);
 	}
@@ -86,11 +88,10 @@ public sealed class GuildQueryServiceTests
 		var (factory, connection) = await CreateDatabaseAsync();
 		await using var ownedConnection = connection;
 		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
-		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
-		await SeedUserInGuildsAsync(factory, FirstUserId, FirstGuildId, SecondGuildId);
+		SeedUserInGuilds(factory, FirstUserId, FirstGuildId, SecondGuildId);
 		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId), new(memoryCache));
 
-		var result = await service.GetManageableGuildsAsync(FirstUserId, cancellationToken);
+		var result = service.GetManageableGuilds(FirstUserId);
 
 		await Assert.That(result.Select(g => g.GuildId)).IsEquivalentTo([FirstGuildId,]);
 	}
@@ -101,10 +102,9 @@ public sealed class GuildQueryServiceTests
 		var (factory, connection) = await CreateDatabaseAsync();
 		await using var ownedConnection = connection;
 		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
-		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
 		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId), new(memoryCache));
 
-		var result = await service.GetManageableGuildsAsync(UnknownUserId, cancellationToken);
+		var result = service.GetManageableGuilds(UnknownUserId);
 
 		await Assert.That(result).IsEmpty();
 	}

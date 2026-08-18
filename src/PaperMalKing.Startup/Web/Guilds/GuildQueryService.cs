@@ -14,9 +14,11 @@ public sealed class GuildQueryService(IDbContextFactory<DatabaseContext> _dbCont
 {
 	private const ulong ManageGuildPermission = 0x0000_0000_0000_0020;
 
-	public async Task<IReadOnlyList<ManageableGuild>> GetManageableGuildsAsync(ulong discordUserId, CancellationToken cancellationToken)
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
+	public IReadOnlyList<ManageableGuild> GetManageableGuilds(ulong discordUserId)
+#pragma warning restore CA1859
 	{
-		await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+		using var db = _dbContextFactory.CreateDbContext();
 		var user = db.GetDiscordUserById(discordUserId);
 		if (user is null)
 		{

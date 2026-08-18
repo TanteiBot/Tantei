@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using EntityFramework.Exceptions.Sqlite;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;
@@ -26,6 +27,7 @@ public sealed class DiscordOAuthTokenStoreTests
 
 	private const int LaterInDays = 40;
 
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	private static async Task<(DiscordOAuthTokenStore Store, IDbContextFactory<DatabaseContext> Factory, SqliteConnection Connection)> CreateStoreAsync(
 		TimeProvider timeProvider)
 	{
@@ -38,7 +40,7 @@ public sealed class DiscordOAuthTokenStoreTests
 		var provider = services.BuildServiceProvider();
 
 		var factory = provider.GetRequiredService<IDbContextFactory<DatabaseContext>>();
-		await using (var db = await factory.CreateDbContextAsync())
+		using (var db = factory.CreateDbContext())
 		{
 			await db.Database.EnsureCreatedAsync();
 		}
@@ -53,10 +55,9 @@ public sealed class DiscordOAuthTokenStoreTests
 		var expiresAt = new DateTimeOffset(2026, 8, 16, 12, 0, 0, TimeSpan.Zero);
 		var (store, _, connection) = await CreateStoreAsync(TimeProvider.System);
 		await using var ownedConnection = connection;
-		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
 
-		await store.SaveAsync(UserId, AccessToken, RefreshToken, expiresAt, cancellationToken);
-		var stored = await store.GetAsync(UserId, cancellationToken);
+		store.Save(UserId, AccessToken, RefreshToken, expiresAt);
+		var stored = store.Get(UserId);
 
 		await Assert.That(stored).IsNotNull();
 		await Assert.That(stored!.AccessToken).IsEqualTo(AccessToken);
@@ -65,33 +66,33 @@ public sealed class DiscordOAuthTokenStoreTests
 	}
 
 	[Test]
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	public async Task TokensAreNotStoredInPlaintext()
 	{
 		var (store, factory, connection) = await CreateStoreAsync(TimeProvider.System);
 		await using var ownedConnection = connection;
-		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
 
-		await store.SaveAsync(UserId, AccessToken, RefreshToken, DateTimeOffset.UnixEpoch, cancellationToken);
+		store.Save(UserId, AccessToken, RefreshToken, DateTimeOffset.UnixEpoch);
 
-		await using var db = await factory.CreateDbContextAsync(cancellationToken);
+		using var db = factory.CreateDbContext();
 		var row = db.DiscordOAuthTokens.Single();
 		await Assert.That(row.AccessToken).IsNotEqualTo(AccessToken);
 		await Assert.That(row.RefreshToken).IsNotEqualTo(RefreshToken);
 	}
 
 	[Test]
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	public async Task SavingTwiceOverwritesTheExistingRow()
 	{
 		var (store, factory, connection) = await CreateStoreAsync(TimeProvider.System);
 		await using var ownedConnection = connection;
-		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
 
-		await store.SaveAsync(UserId, "first", "firstRefresh", DateTimeOffset.UnixEpoch, cancellationToken);
-		await store.SaveAsync(UserId, "second", "secondRefresh", DateTimeOffset.UnixEpoch, cancellationToken);
+		store.Save(UserId, "first", "firstRefresh", DateTimeOffset.UnixEpoch);
+		store.Save(UserId, "second", "secondRefresh", DateTimeOffset.UnixEpoch);
 
-		await using var db = await factory.CreateDbContextAsync(cancellationToken);
+		using var db = factory.CreateDbContext();
 		await Assert.That(db.DiscordOAuthTokens.Count()).IsEqualTo(1);
-		var stored = await store.GetAsync(UserId, cancellationToken);
+		var stored = store.Get(UserId);
 		await Assert.That(stored!.AccessToken).IsEqualTo("second");
 	}
 
@@ -100,12 +101,11 @@ public sealed class DiscordOAuthTokenStoreTests
 	{
 		var (store, _, connection) = await CreateStoreAsync(TimeProvider.System);
 		await using var ownedConnection = connection;
-		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
 
-		await store.SaveAsync(UserId, AccessToken, RefreshToken, DateTimeOffset.UnixEpoch, cancellationToken);
-		await store.DeleteAsync(UserId, cancellationToken);
+		store.Save(UserId, AccessToken, RefreshToken, DateTimeOffset.UnixEpoch);
+		store.Delete(UserId);
 
-		await Assert.That(await store.GetAsync(UserId, cancellationToken)).IsNull();
+		await Assert.That(store.Get(UserId)).IsNull();
 	}
 
 	[Test]
@@ -115,17 +115,16 @@ public sealed class DiscordOAuthTokenStoreTests
 		var timeProvider = new FakeTimeProvider(start);
 		var (store, _, connection) = await CreateStoreAsync(timeProvider);
 		await using var ownedConnection = connection;
-		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
 
-		await store.SaveAsync(UserId, AccessToken, RefreshToken, DateTimeOffset.UnixEpoch, cancellationToken);
+		store.Save(UserId, AccessToken, RefreshToken, DateTimeOffset.UnixEpoch);
 		timeProvider.Now = start.AddDays(LaterInDays);
-		await store.SaveAsync(OtherUserId, AccessToken, RefreshToken, DateTimeOffset.UnixEpoch, cancellationToken);
+		store.Save(OtherUserId, AccessToken, RefreshToken, DateTimeOffset.UnixEpoch);
 
-		var removed = await store.PruneUnusedSinceAsync(start.AddDays(StaleAfterDays), cancellationToken);
+		var removed = store.PruneUnusedSince(start.AddDays(StaleAfterDays));
 
 		await Assert.That(removed).IsEqualTo(1);
-		await Assert.That(await store.GetAsync(UserId, cancellationToken)).IsNull();
-		await Assert.That(await store.GetAsync(OtherUserId, cancellationToken)).IsNotNull();
+		await Assert.That(store.Get(UserId)).IsNull();
+		await Assert.That(store.Get(OtherUserId)).IsNotNull();
 	}
 
 	private sealed class FakeTimeProvider(DateTimeOffset now) : TimeProvider

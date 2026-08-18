@@ -97,7 +97,7 @@ public static class WebAuthenticationExtensions
 					if (context.RefreshToken is { Length: > 0 } refreshToken)
 					{
 						var expiresAt = services.GetRequiredService<TimeProvider>().GetUtcNow() + (context.ExpiresIn ?? TimeSpan.FromDays(7));
-						await services.GetRequiredService<DiscordOAuthTokenStore>().SaveAsync(discordUserId, accessToken, refreshToken, expiresAt, cancellationToken);
+						services.GetRequiredService<DiscordOAuthTokenStore>().Save(discordUserId, accessToken, refreshToken, expiresAt);
 					}
 
 					try

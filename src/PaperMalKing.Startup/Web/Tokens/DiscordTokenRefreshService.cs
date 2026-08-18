@@ -44,7 +44,7 @@ public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStor
 
 	public async Task<string?> GetValidAccessTokenAsync(ulong discordUserId, CancellationToken cancellationToken)
 	{
-		var stored = await _tokenStore.GetAsync(discordUserId, cancellationToken);
+		var stored = _tokenStore.Get(discordUserId);
 		if (stored is null)
 		{
 			return null;
@@ -59,7 +59,7 @@ public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStor
 		await semaphore.WaitAsync(cancellationToken);
 		try
 		{
-			var current = await _tokenStore.GetAsync(discordUserId, cancellationToken);
+			var current = _tokenStore.Get(discordUserId);
 			if (current is null)
 			{
 				return null;
@@ -97,7 +97,7 @@ public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStor
 				if (string.Equals(error, InvalidGrantError, StringComparison.Ordinal))
 				{
 					_logger.DiscardingUnusableDiscordToken(discordUserId, error);
-					await _tokenStore.DeleteAsync(discordUserId, cancellationToken);
+					_tokenStore.Delete(discordUserId);
 					return null;
 				}
 			}
@@ -114,7 +114,7 @@ public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStor
 		}
 
 		var expiresAt = _timeProvider.GetUtcNow().AddSeconds(payload.ExpiresIn);
-		await _tokenStore.SaveAsync(discordUserId, payload.AccessToken, payload.RefreshToken, expiresAt, cancellationToken);
+		_tokenStore.Save(discordUserId, payload.AccessToken, payload.RefreshToken, expiresAt);
 		return payload.AccessToken;
 	}
 

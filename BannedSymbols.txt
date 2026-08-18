@@ -61,3 +61,5 @@ M:Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryA
 M:Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync``1(System.Linq.IQueryable{``0},System.Threading.CancellationToken)
 M:Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToArrayAsync``1(System.Linq.IQueryable{``0},System.Threading.CancellationToken)
 M:Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.AsAsyncEnumerable``1(System.Linq.IQueryable{``0})
+M:Microsoft.EntityFrameworkCore.IDbContextFactory``1.CreateDbContextAsync(System.Threading.CancellationToken)
+M:Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(System.Threading.CancellationToken)

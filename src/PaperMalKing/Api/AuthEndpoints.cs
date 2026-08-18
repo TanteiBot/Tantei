@@ -28,7 +28,7 @@ internal static class AuthEndpoints
 			 {
 				 if (ulong.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var discordUserId))
 				 {
-					 await tokenStore.DeleteAsync(discordUserId, context.RequestAborted);
+					 tokenStore.Delete(discordUserId);
 					 guildsCache.Evict(discordUserId);
 				 }
 

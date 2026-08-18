@@ -20,28 +20,28 @@ public sealed class DiscordOAuthTokenStore(IDbContextFactory<DatabaseContext> _d
 
 	private readonly IDataProtector _protector = dataProtectionProvider.CreateProtector(ProtectorPurpose);
 
-	public async Task SaveAsync(ulong discordUserId, string accessToken, string refreshToken, DateTimeOffset expiresAt, CancellationToken cancellationToken)
+	public void Save(ulong discordUserId, string accessToken, string refreshToken, DateTimeOffset expiresAt)
 	{
 		var token = new ProtectedToken(this._protector.Protect(accessToken),
 									   this._protector.Protect(refreshToken),
 									   expiresAt,
 									   _timeProvider.GetUtcNow());
 
-		if (await this.TryUpdateAsync(discordUserId, token, cancellationToken) ||
-			await this.TryInsertAsync(discordUserId, token, cancellationToken))
+		if (this.TryUpdate(discordUserId, token) ||
+			this.TryInsert(discordUserId, token))
 		{
 			return;
 		}
 
-		if (!await this.TryUpdateAsync(discordUserId, token, cancellationToken))
+		if (!this.TryUpdate(discordUserId, token))
 		{
 			_logger.FailedToPersistRotatedDiscordToken(discordUserId);
 		}
 	}
 
-	private async Task<bool> TryUpdateAsync(ulong discordUserId, ProtectedToken token, CancellationToken cancellationToken)
+	private bool TryUpdate(ulong discordUserId, ProtectedToken token)
 	{
-		await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+		using var db = _dbContextFactory.CreateDbContext();
 		var existing = db.DiscordOAuthTokens.FirstOrDefault(x => x.DiscordUserId == discordUserId);
 		if (existing is null)
 		{
@@ -52,13 +52,13 @@ public sealed class DiscordOAuthTokenStore(IDbContextFactory<DatabaseContext> _d
 		existing.RefreshToken = token.RefreshToken;
 		existing.ExpiresAt = token.ExpiresAt;
 		existing.LastUsedAt = token.LastUsedAt;
-		await db.SaveChangesAsync(cancellationToken);
+		db.SaveChanges();
 		return true;
 	}
 
-	private async Task<bool> TryInsertAsync(ulong discordUserId, ProtectedToken token, CancellationToken cancellationToken)
+	private bool TryInsert(ulong discordUserId, ProtectedToken token)
 	{
-		await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+		using var db = _dbContextFactory.CreateDbContext();
 		db.DiscordOAuthTokens.Add(new()
 		{
 			DiscordUserId = discordUserId,
@@ -70,7 +70,7 @@ public sealed class DiscordOAuthTokenStore(IDbContextFactory<DatabaseContext> _d
 
 		try
 		{
-			await db.SaveChangesAsync(cancellationToken);
+			db.SaveChanges();
 			return true;
 		}
 		catch (UniqueConstraintException)
@@ -79,10 +79,10 @@ public sealed class DiscordOAuthTokenStore(IDbContextFactory<DatabaseContext> _d
 		}
 	}
 
-	public async Task<StoredDiscordToken?> GetAsync(ulong discordUserId, CancellationToken cancellationToken)
+	public StoredDiscordToken? Get(ulong discordUserId)
 	{
 		StoredDiscordToken? result;
-		await using (var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken))
+		using (var db = _dbContextFactory.CreateDbContext())
 		{
 			var row = db.DiscordOAuthTokens.AsNoTracking().FirstOrDefault(x => x.DiscordUserId == discordUserId);
 			if (row is null)
@@ -102,21 +102,21 @@ public sealed class DiscordOAuthTokenStore(IDbContextFactory<DatabaseContext> _d
 
 		if (result is null)
 		{
-			await this.DeleteAsync(discordUserId, cancellationToken);
+			this.Delete(discordUserId);
 		}
 
 		return result;
 	}
 
-	public async Task DeleteAsync(ulong discordUserId, CancellationToken cancellationToken)
+	public void Delete(ulong discordUserId)
 	{
-		await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+		using var db = _dbContextFactory.CreateDbContext();
 		db.DiscordOAuthTokens.Where(x => x.DiscordUserId == discordUserId).ExecuteDelete();
 	}
 
-	public async Task<int> PruneUnusedSinceAsync(DateTimeOffset threshold, CancellationToken cancellationToken)
+	public int PruneUnusedSince(DateTimeOffset threshold)
 	{
-		await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+		using var db = _dbContextFactory.CreateDbContext();
 		return db.DiscordOAuthTokens.Where(x => x.LastUsedAt < threshold).ExecuteDelete();
 	}
 

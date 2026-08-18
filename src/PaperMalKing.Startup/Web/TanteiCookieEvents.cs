@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -39,6 +40,7 @@ public sealed class TanteiCookieEvents(IDbContextFactory<DatabaseContext> _dbCon
 		return base.RedirectToAccessDenied(context);
 	}
 
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	public override async Task ValidatePrincipal(CookieValidatePrincipalContext context)
 	{
 		var principal = context.Principal;
@@ -52,7 +54,7 @@ public sealed class TanteiCookieEvents(IDbContextFactory<DatabaseContext> _dbCon
 		}
 
 		bool isRegistered;
-		await using (var db = await _dbContextFactory.CreateDbContextAsync(context.HttpContext.RequestAborted))
+		using (var db = _dbContextFactory.CreateDbContext())
 		{
 			isRegistered = db.DiscordUserExists(discordUserId);
 		}

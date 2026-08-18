@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using EntityFramework.Exceptions.Sqlite;
 using Microsoft.AspNetCore.DataProtection;
@@ -29,6 +30,7 @@ public sealed class DiscordTokenRefreshServiceTests
 
 	private const int ExpiresInSeconds = 604800;
 
+	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	private static async Task<(DiscordOAuthTokenStore Store, IDbContextFactory<DatabaseContext> Factory, SqliteConnection Connection)> CreateStoreAsync(
 		TimeProvider timeProvider)
 	{
@@ -41,7 +43,7 @@ public sealed class DiscordTokenRefreshServiceTests
 		var provider = services.BuildServiceProvider();
 
 		var factory = provider.GetRequiredService<IDbContextFactory<DatabaseContext>>();
-		await using (var db = await factory.CreateDbContextAsync())
+		using (var db = factory.CreateDbContext())
 		{
 			await db.Database.EnsureCreatedAsync();
 		}
@@ -71,7 +73,7 @@ public sealed class DiscordTokenRefreshServiceTests
 		await using var ownedConnection = connection;
 		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
 
-		await store.SaveAsync(UserId, AccessToken, RefreshToken, start.AddSeconds(1), cancellationToken);
+		store.Save(UserId, AccessToken, RefreshToken, start.AddSeconds(1));
 
 		using var handler = new FakeHttpMessageHandler(_ => new(HttpStatusCode.TooManyRequests));
 		using var service = CreateService(store, timeProvider, handler);
@@ -80,7 +82,7 @@ public sealed class DiscordTokenRefreshServiceTests
 
 		await Assert.That(result).IsNull();
 		await Assert.That(handler.CallCount).IsEqualTo(1);
-		var stored = await store.GetAsync(UserId, cancellationToken);
+		var stored = store.Get(UserId);
 		await Assert.That(stored).IsNotNull();
 		await Assert.That(stored!.AccessToken).IsEqualTo(AccessToken);
 	}
@@ -94,7 +96,7 @@ public sealed class DiscordTokenRefreshServiceTests
 		await using var ownedConnection = connection;
 		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
 
-		await store.SaveAsync(UserId, AccessToken, RefreshToken, start.AddSeconds(1), cancellationToken);
+		store.Save(UserId, AccessToken, RefreshToken, start.AddSeconds(1));
 
 		using var handler = new FakeHttpMessageHandler(_ => new(HttpStatusCode.BadRequest)
 		{
@@ -105,7 +107,7 @@ public sealed class DiscordTokenRefreshServiceTests
 		var result = await service.GetValidAccessTokenAsync(UserId, cancellationToken);
 
 		await Assert.That(result).IsNull();
-		await Assert.That(await store.GetAsync(UserId, cancellationToken)).IsNull();
+		await Assert.That(store.Get(UserId)).IsNull();
 	}
 
 	[Test]
@@ -117,7 +119,7 @@ public sealed class DiscordTokenRefreshServiceTests
 		await using var ownedConnection = connection;
 		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
 
-		await store.SaveAsync(UserId, AccessToken, RefreshToken, start.AddSeconds(1), cancellationToken);
+		store.Save(UserId, AccessToken, RefreshToken, start.AddSeconds(1));
 
 		using var handler = new FakeHttpMessageHandler(_ => new(HttpStatusCode.OK)
 		{
@@ -133,7 +135,7 @@ public sealed class DiscordTokenRefreshServiceTests
 		var result = await service.GetValidAccessTokenAsync(UserId, cancellationToken);
 
 		await Assert.That(result).IsEqualTo(RotatedAccessToken);
-		var stored = await store.GetAsync(UserId, cancellationToken);
+		var stored = store.Get(UserId);
 		await Assert.That(stored!.AccessToken).IsEqualTo(RotatedAccessToken);
 		await Assert.That(stored.RefreshToken).IsEqualTo(RotatedRefreshToken);
 	}
@@ -147,7 +149,7 @@ public sealed class DiscordTokenRefreshServiceTests
 		await using var ownedConnection = connection;
 		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
 
-		await store.SaveAsync(UserId, AccessToken, RefreshToken, start.AddSeconds(1), cancellationToken);
+		store.Save(UserId, AccessToken, RefreshToken, start.AddSeconds(1));
 
 		using var handler = new FakeHttpMessageHandler(_ => new(HttpStatusCode.OK)
 		{
@@ -178,7 +180,7 @@ public sealed class DiscordTokenRefreshServiceTests
 		await using var ownedConnection = connection;
 		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
 
-		await store.SaveAsync(UserId, AccessToken, RefreshToken, start.AddHours(1), cancellationToken);
+		store.Save(UserId, AccessToken, RefreshToken, start.AddHours(1));
 
 		using var handler = new FakeHttpMessageHandler(_ => throw new InvalidOperationException("HTTP should not have been called"));
 		using var service = CreateService(store, timeProvider, handler);

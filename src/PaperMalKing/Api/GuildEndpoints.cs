@@ -19,10 +19,10 @@ internal static class GuildEndpoints
 	{
 		var group = endpoints.MapGroup("/api/guilds");
 
-		group.MapGet("/manageable", async Task<Ok<IReadOnlyList<ManageableGuildResponse>>> (HttpContext context, GuildQueryService guildQueryService) =>
+		group.MapGet("/manageable", Ok<IReadOnlyList<ManageableGuildResponse>> (HttpContext context, GuildQueryService guildQueryService) =>
 		{
 			var discordUserId = ParseUserId(context);
-			var guilds = await guildQueryService.GetManageableGuildsAsync(discordUserId, context.RequestAborted);
+			var guilds = guildQueryService.GetManageableGuilds(discordUserId);
 			return TypedResults.Ok<IReadOnlyList<ManageableGuildResponse>>(
 				[.. guilds.Select(g => new ManageableGuildResponse(g.GuildId.ToString(CultureInfo.InvariantCulture), g.Name, g.IconUrl))]);
 		}).RequireAuthorization();
