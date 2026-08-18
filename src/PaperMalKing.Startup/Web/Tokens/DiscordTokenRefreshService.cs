@@ -26,7 +26,7 @@ public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStor
 	private readonly HttpClient _httpClient =
 		new(httpMessageHandler ?? new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) })
 		{
-			BaseAddress = new("https://discord.com/api/v10/"),
+			BaseAddress = new(DiscordApiConstants.BaseUrl),
 		};
 
 	private static async Task<string?> TryReadErrorAsync(HttpResponseMessage response, CancellationToken cancellationToken)

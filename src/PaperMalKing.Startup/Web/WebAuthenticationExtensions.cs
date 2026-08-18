@@ -39,7 +39,7 @@ public static class WebAuthenticationExtensions
 		services.AddSingleton<GuildQueryService>();
 		services.AddSingleton<UserGuildsCache>();
 		services.AddHttpClient<DiscordUserGuildsClient>(DiscordUserGuildsClient.HttpClientName,
-			client => client.BaseAddress = new("https://discord.com/api/v10/"));
+			client => client.BaseAddress = new(DiscordApiConstants.BaseUrl));
 
 		services.Configure<ForwardedHeadersOptions>(options =>
 		{
