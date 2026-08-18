@@ -131,9 +131,12 @@ public static class WebAuthenticationExtensions
 		services.AddAuthorizationBuilder().SetDefaultPolicy(registeredPolicy).SetFallbackPolicy(registeredPolicy)
 				.AddPolicy(TanteiPolicies.SignedIn,
 					p => p.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme).RequireAuthenticatedUser())
-				.AddPolicy(TanteiPolicies.Registered, p => p.RequireAuthenticatedUser().RequireClaim(TanteiClaimTypes.Registered, "true"))
-				.AddPolicy(TanteiPolicies.WebAdmin, p => p.RequireAuthenticatedUser().RequireClaim(TanteiClaimTypes.WebAdmin, "true"))
-				.AddPolicy(TanteiPolicies.GuildAdmin, p => p.RequireAuthenticatedUser().AddRequirements(new GuildAdminRequirement()));
+				.AddPolicy(TanteiPolicies.Registered,
+					p => p.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme).RequireAuthenticatedUser()
+						   .RequireClaim(TanteiClaimTypes.Registered, "true"))
+				.AddPolicy(TanteiPolicies.WebAdmin,
+					p => p.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme).RequireAuthenticatedUser()
+						   .RequireClaim(TanteiClaimTypes.WebAdmin, "true"));
 
 		return services;
 	}

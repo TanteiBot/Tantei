@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.HttpResults;
 using PaperMalKing.Api.Contracts;
 using PaperMalKing.Startup.Web;
+using PaperMalKing.Startup.Web.Guilds;
 using PaperMalKing.Startup.Web.Tokens;
 
 namespace PaperMalKing.Api;
@@ -23,11 +24,12 @@ internal static class AuthEndpoints
 				 [DiscordAuthenticationDefaults.AuthenticationScheme]))
 			 .AllowAnonymous();
 
-		group.MapPost("/logout", async Task<NoContent> (HttpContext context, DiscordOAuthTokenStore tokenStore) =>
+		group.MapPost("/logout", async Task<NoContent> (HttpContext context, DiscordOAuthTokenStore tokenStore, UserGuildsCache guildsCache) =>
 			 {
 				 if (ulong.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var discordUserId))
 				 {
 					 await tokenStore.DeleteAsync(discordUserId, context.RequestAborted);
+					 guildsCache.Evict(discordUserId);
 				 }
 
 				 await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

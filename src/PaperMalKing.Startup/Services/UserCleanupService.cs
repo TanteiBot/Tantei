@@ -50,7 +50,8 @@ internal sealed class UserCleanupService(ILogger<UserCleanupService> _logger, Di
 		}
 
 		var threshold = _timeProvider.GetUtcNow().AddDays(-_webOptions.Value.CookieLifetimeInDays);
-		await _tokenStore.PruneUnusedSinceAsync(threshold, CancellationToken.None);
+		var prunedTokens = await _tokenStore.PruneUnusedSinceAsync(threshold, CancellationToken.None);
+		_logger.PrunedUnusedDiscordTokens(prunedTokens);
 		_logger.FinishingUserCleanup();
 	}
 }

@@ -2,7 +2,9 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Globalization;
+using System.Net;
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http.HttpResults;
 using PaperMalKing.Api.Contracts;
 using PaperMalKing.Startup.Web;
@@ -33,7 +35,7 @@ internal static class GuildEndpoints
 				[.. guilds.Select(g => new InvitableGuildResponse(g.GuildId.ToString(CultureInfo.InvariantCulture), g.Name, g.IconUrl))]);
 		}).RequireAuthorization(TanteiPolicies.SignedIn);
 
-		group.MapPost("/refresh", async Task<Results<NoContent, UnauthorizedHttpResult>> (HttpContext context,
+		group.MapPost("/refresh", async Task<Results<NoContent, UnauthorizedHttpResult, StatusCodeHttpResult>> (HttpContext context,
 																						 DiscordTokenRefreshService tokenRefreshService,
 																						 DiscordUserGuildsClient guildsClient,
 																						 UserGuildsCache cache) =>
@@ -45,7 +47,18 @@ internal static class GuildEndpoints
 				return TypedResults.Unauthorized();
 			}
 
-			cache.Set(discordUserId, await guildsClient.GetGuildsAsync(accessToken, context.RequestAborted));
+			IReadOnlyList<DiscordPartialGuild> guilds;
+			try
+			{
+				guilds = await guildsClient.GetGuildsAsync(accessToken, context.RequestAborted);
+			}
+			catch (Exception ex) when ((ex is HttpRequestException or TaskCanceledException or JsonException) &&
+										!context.RequestAborted.IsCancellationRequested)
+			{
+				return TypedResults.StatusCode((int)HttpStatusCode.BadGateway);
+			}
+
+			cache.Set(discordUserId, guilds);
 			return TypedResults.NoContent();
 		}).RequireAuthorization(TanteiPolicies.SignedIn);
 

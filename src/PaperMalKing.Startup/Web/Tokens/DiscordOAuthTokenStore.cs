@@ -4,6 +4,7 @@
 using EntityFramework.Exceptions.Common;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using PaperMalKing.Database;
 
 namespace PaperMalKing.Startup.Web.Tokens;
@@ -12,7 +13,8 @@ public sealed record StoredDiscordToken(string AccessToken, string RefreshToken,
 
 public sealed class DiscordOAuthTokenStore(IDbContextFactory<DatabaseContext> _dbContextFactory,
 										   IDataProtectionProvider dataProtectionProvider,
-										   TimeProvider _timeProvider)
+										   TimeProvider _timeProvider,
+										   ILogger<DiscordOAuthTokenStore> _logger)
 {
 	private const string ProtectorPurpose = "Tantei.DiscordOAuthToken.v1";
 
@@ -31,7 +33,10 @@ public sealed class DiscordOAuthTokenStore(IDbContextFactory<DatabaseContext> _d
 			return;
 		}
 
-		_ = await this.TryUpdateAsync(discordUserId, token, cancellationToken);
+		if (!await this.TryUpdateAsync(discordUserId, token, cancellationToken))
+		{
+			_logger.FailedToPersistRotatedDiscordToken(discordUserId);
+		}
 	}
 
 	private async Task<bool> TryUpdateAsync(ulong discordUserId, ProtectedToken token, CancellationToken cancellationToken)

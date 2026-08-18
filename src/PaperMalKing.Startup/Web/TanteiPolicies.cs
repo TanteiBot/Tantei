@@ -10,6 +10,4 @@ public static class TanteiPolicies
 	public const string Registered = nameof(Registered);
 
 	public const string WebAdmin = nameof(WebAdmin);
-
-	public const string GuildAdmin = nameof(GuildAdmin);
 }

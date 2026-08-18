@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.Database;
 using PaperMalKing.Startup.Web.Tokens;
 
@@ -42,7 +43,8 @@ public sealed class DiscordOAuthTokenStoreTests
 			await db.Database.EnsureCreatedAsync();
 		}
 
-		return (new(factory, provider.GetRequiredService<IDataProtectionProvider>(), timeProvider), factory, connection);
+		return (new(factory, provider.GetRequiredService<IDataProtectionProvider>(), timeProvider, NullLogger<DiscordOAuthTokenStore>.Instance), factory,
+			connection);
 	}
 
 	[Test]

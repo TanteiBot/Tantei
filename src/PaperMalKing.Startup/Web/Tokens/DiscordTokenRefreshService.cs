@@ -2,6 +2,8 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Collections.Concurrent;
+using System.Net;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,16 +14,33 @@ namespace PaperMalKing.Startup.Web.Tokens;
 public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStore,
 											   IOptions<DiscordOptions> _discordOptions,
 											   TimeProvider _timeProvider,
-											   ILogger<DiscordTokenRefreshService> _logger) : IDisposable
+											   ILogger<DiscordTokenRefreshService> _logger,
+											   HttpMessageHandler? httpMessageHandler = null) : IDisposable
 {
+	private const string InvalidGrantError = "invalid_grant";
+
 	private static readonly TimeSpan RefreshMargin = TimeSpan.FromMinutes(5);
 
 	private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _locks = new();
 
-	private readonly HttpClient _httpClient = new(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) })
+	private readonly HttpClient _httpClient =
+		new(httpMessageHandler ?? new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) })
+		{
+			BaseAddress = new("https://discord.com/api/v10/"),
+		};
+
+	private static async Task<string?> TryReadErrorAsync(HttpResponseMessage response, CancellationToken cancellationToken)
 	{
-		BaseAddress = new("https://discord.com/api/v10/"),
-	};
+		try
+		{
+			var payload = await response.Content.ReadFromJsonAsync<ErrorPayload>(cancellationToken);
+			return payload?.Error;
+		}
+		catch (JsonException)
+		{
+			return null;
+		}
+	}
 
 	public async Task<string?> GetValidAccessTokenAsync(ulong discordUserId, CancellationToken cancellationToken)
 	{
@@ -72,15 +91,25 @@ public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStor
 		using var response = await this._httpClient.PostAsync(new Uri("oauth2/token", UriKind.Relative), content, cancellationToken);
 		if (!response.IsSuccessStatusCode)
 		{
-			_logger.DiscardingUnusableDiscordToken(discordUserId);
-			await _tokenStore.DeleteAsync(discordUserId, cancellationToken);
+			if (response.StatusCode == HttpStatusCode.BadRequest)
+			{
+				var error = await TryReadErrorAsync(response, cancellationToken);
+				if (string.Equals(error, InvalidGrantError, StringComparison.Ordinal))
+				{
+					_logger.DiscardingUnusableDiscordToken(discordUserId, error);
+					await _tokenStore.DeleteAsync(discordUserId, cancellationToken);
+					return null;
+				}
+			}
+
+			_logger.TransientDiscordTokenRefreshFailure(discordUserId, response.StatusCode);
 			return null;
 		}
 
 		var payload = await response.Content.ReadFromJsonAsync<TokenPayload>(cancellationToken);
 		if (payload is null)
 		{
-			await _tokenStore.DeleteAsync(discordUserId, cancellationToken);
+			_logger.TransientDiscordTokenRefreshFailure(discordUserId, response.StatusCode);
 			return null;
 		}
 
@@ -102,4 +131,6 @@ public sealed class DiscordTokenRefreshService(DiscordOAuthTokenStore _tokenStor
 		[property: JsonPropertyName("access_token")] string AccessToken,
 		[property: JsonPropertyName("refresh_token")] string RefreshToken,
 		[property: JsonPropertyName("expires_in")] int ExpiresIn);
+
+	private sealed record ErrorPayload([property: JsonPropertyName("error")] string? Error);
 }
