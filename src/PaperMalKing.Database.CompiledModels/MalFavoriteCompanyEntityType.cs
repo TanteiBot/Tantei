@@ -15,17 +15,58 @@ namespace PaperMalKing.Database.CompiledModels
     [EntityFrameworkInternal]
     public partial class MalFavoriteCompanyEntityType
     {
-        var runtimeEntityType = model.AddEntityType(
-            "PaperMalKing.Database.Models.MyAnimeList.MalFavoriteCompany",
-            typeof(MalFavoriteCompany),
-            baseEntityType,
-            discriminatorProperty: "FavoriteType",
-            propertyCount: 0,
-            navigationCount: 1,
-            foreignKeyCount: 1);
+        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
+        {
+            var runtimeEntityType = model.AddEntityType(
+                "PaperMalKing.Database.Models.MyAnimeList.MalFavoriteCompany",
+                typeof(MalFavoriteCompany),
+                baseEntityType,
+                discriminatorProperty: "FavoriteType",
+                discriminatorValue: MalFavoriteType.Company,
+                propertyCount: 0,
+                navigationCount: 1,
+                foreignKeyCount: 1);
 
-        runtimeEntityType.SetDiscriminatorValueFromProviderValue((byte)5);
+            return runtimeEntityType;
+        }
 
-        return runtimeEntityType;
+        public static RuntimeForeignKey CreateForeignKey1(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
+        {
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("UserId") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("UserId") }),
+                principalEntityType,
+                deleteBehavior: DeleteBehavior.Cascade,
+                required: true);
+
+            var user = declaringEntityType.AddNavigation("User",
+                runtimeForeignKey,
+                onDependent: true,
+                typeof(MalUser),
+                propertyInfo: typeof(BaseMalFavorite).GetProperty("User", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(BaseMalFavorite).GetField("<User>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
+            var favoriteCompanies = principalEntityType.AddNavigation("FavoriteCompanies",
+                runtimeForeignKey,
+                onDependent: false,
+                typeof(IList<MalFavoriteCompany>),
+                propertyInfo: typeof(MalUser).GetProperty("FavoriteCompanies", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MalUser).GetField("<FavoriteCompanies>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
+            return runtimeForeignKey;
+        }
+
+        public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
+        {
+            runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
+            runtimeEntityType.AddAnnotation("Relational:Schema", null);
+            runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
+            runtimeEntityType.AddAnnotation("Relational:TableName", "MalFavorites");
+            runtimeEntityType.AddAnnotation("Relational:ViewName", null);
+            runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
+
+            Customize(runtimeEntityType);
+        }
+
+        static partial void Customize(RuntimeEntityType runtimeEntityType);
     }
 }

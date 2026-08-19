@@ -15,22 +15,23 @@ namespace PaperMalKing.Database.CompiledModels
     [EntityFrameworkInternal]
     public partial class MalFavoriteCharacterEntityType
     {
-        var runtimeEntityType = model.AddEntityType(
-            "PaperMalKing.Database.Models.MyAnimeList.MalFavoriteCharacter",
-            typeof(MalFavoriteCharacter),
-            baseEntityType,
-            discriminatorProperty: "FavoriteType",
-            propertyCount: 1,
-            navigationCount: 1,
-            foreignKeyCount: 1);
+        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
+        {
+            var runtimeEntityType = model.AddEntityType(
+                "PaperMalKing.Database.Models.MyAnimeList.MalFavoriteCharacter",
+                typeof(MalFavoriteCharacter),
+                baseEntityType,
+                discriminatorProperty: "FavoriteType",
+                discriminatorValue: MalFavoriteType.Character,
+                propertyCount: 1,
+                navigationCount: 1,
+                foreignKeyCount: 1);
 
-        runtimeEntityType.SetDiscriminatorValueFromProviderValue((byte)3);
-
-        var fromTitleName = runtimeEntityType.AddProperty(
-            "FromTitleName",
-            typeof(string),
-            propertyInfo: typeof(MalFavoriteCharacter).GetProperty("FromTitleName", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-            fieldInfo: typeof(MalFavoriteCharacter).GetField("<FromTitleName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var fromTitleName = runtimeEntityType.AddProperty(
+                "FromTitleName",
+                typeof(string),
+                propertyInfo: typeof(MalFavoriteCharacter).GetProperty("FromTitleName", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(MalFavoriteCharacter).GetField("<FromTitleName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             return runtimeEntityType;
         }

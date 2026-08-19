@@ -3,7 +3,7 @@
 
 namespace PaperMalKing.Api;
 
-public static class ApiEndpoints
+internal static class ApiEndpoints
 {
 	public static IEndpointRouteBuilder MapApiEndpoints(this IEndpointRouteBuilder endpoints)
 	{

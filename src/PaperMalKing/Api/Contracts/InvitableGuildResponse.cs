@@ -3,4 +3,4 @@
 
 namespace PaperMalKing.Api.Contracts;
 
-public sealed record InvitableGuildResponse(string GuildId, string Name, string? IconUrl);
+internal sealed record InvitableGuildResponse(string GuildId, string Name, string? IconUrl);

@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Net.Http.Json;
 using EntityFramework.Exceptions.Sqlite;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;

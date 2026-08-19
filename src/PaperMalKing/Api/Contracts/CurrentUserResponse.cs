@@ -3,4 +3,4 @@
 
 namespace PaperMalKing.Api.Contracts;
 
-public sealed record CurrentUserResponse(string DiscordUserId, string Username, string? AvatarUrl, bool IsRegistered, bool IsWebAdmin);
+internal sealed record CurrentUserResponse(string DiscordUserId, string Username, string? AvatarUrl, bool IsRegistered, bool IsWebAdmin);
