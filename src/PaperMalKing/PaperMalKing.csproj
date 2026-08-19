@@ -2,13 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
-        <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
         <IsPackable>false</IsPackable>
-        <SpaRoot>ClientApp\</SpaRoot>
-        <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
-        <SpaProxyServerUrl>https://localhost:44428</SpaProxyServerUrl>
-        <SpaProxyLaunchCommand>pnpm dev</SpaProxyLaunchCommand>
         <ServerGarbageCollection>false</ServerGarbageCollection>
         <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
         <NoWarn>
@@ -19,8 +13,6 @@
 
     <ItemGroup>
         <PackageReference Include="AspNet.Security.OAuth.Discord" />
-        <!--<PackageReference Include="Microsoft.AspNetCore.SpaProxy" />-->
-        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -29,7 +21,6 @@
         <ProjectReference Include="..\PaperMalKing.Database.Migrations\PaperMalKing.Database.Migrations.csproj" />
         <ProjectReference Include="..\PaperMalKing.Startup\PaperMalKing.Startup.csproj" />
         <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
-        <ProjectReference Include="..\PaperMalKing.Startup\PaperMalKing.Startup.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -43,7 +34,6 @@
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         </Content>
-        <Content Include="ClientApp\tsconfig.json" />
         <Content Update="template.appsettings.Production.json" CopyToPublishDirectory="Always">
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -70,11 +60,4 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup>
-        <!-- Don't publish the SPA source files, but do show them in the project files list -->
-        <Content Remove="$(SpaRoot)**" />
-        <None Remove="$(SpaRoot)**" />
-        <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
-    </ItemGroup>
-    
 </Project>

@@ -1,0 +1,154 @@
+﻿// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2021-2026 N0D4N
+
+using System.Security.Claims;
+using System.Text.Json;
+using AspNet.Security.OAuth.Discord;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using PaperMalKing.Startup.Options;
+using PaperMalKing.Startup.Web.Guilds;
+using PaperMalKing.Startup.Web.Tokens;
+
+namespace PaperMalKing.Startup.Web;
+
+public static class WebAuthenticationExtensions
+{
+	public static IServiceCollection AddWebAuthentication(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
+	{
+		var webOptions = configuration.GetSection(WebOptions.Web).Get<WebOptions>() ?? new WebOptions();
+
+		services.AddOptions<WebOptions>().BindConfiguration(WebOptions.Web).ValidateDataAnnotations().ValidateOnStart();
+		services.TryAddSingleton(TimeProvider.System);
+		services.AddMemoryCache();
+		services.AddSingleton<DiscordOAuthTokenStore>();
+		services.AddSingleton<Tokens.DiscordTokenRefreshService>();
+		services.AddSingleton<TanteiCookieEvents>();
+		services.AddSingleton<IApplicationOwners, DiscordApplicationOwners>();
+		services.AddSingleton<IBotGuildPresence, BotGuildPresence>();
+		services.AddSingleton<IAuthorizationHandler, GuildAdminAuthorizationHandler>();
+		services.AddSingleton<GuildQueryService>();
+		services.AddSingleton<UserGuildsCache>();
+		services.AddHttpClient<DiscordUserGuildsClient>(DiscordUserGuildsClient.HttpClientName,
+			client => client.BaseAddress = new(DiscordApiConstants.BaseUrl));
+
+		services.Configure<ForwardedHeadersOptions>(options =>
+		{
+			options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+			options.KnownIPNetworks.Clear();
+			options.KnownProxies.Clear();
+		});
+
+		services.AddDataProtection().SetApplicationName($"Tantei-{environment.EnvironmentName}")
+#if IsInContainer
+				.PersistKeysToFileSystem(new(CreateDataProtectionKeysDirectory(webOptions)))
+#endif
+			;
+
+		var cookieLifetime = TimeSpan.FromDays(webOptions.CookieLifetimeInDays);
+
+		services.AddAuthentication(options =>
+		{
+			options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+			options.DefaultChallengeScheme = DiscordAuthenticationDefaults.AuthenticationScheme;
+		}).AddCookie(options =>
+		{
+			options.Cookie.Name = "tantei.session";
+			options.Cookie.HttpOnly = true;
+			options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+			options.Cookie.SameSite = SameSiteMode.Lax;
+			options.ExpireTimeSpan = cookieLifetime;
+			options.SlidingExpiration = true;
+			options.EventsType = typeof(TanteiCookieEvents);
+		}).AddDiscord(options =>
+		{
+			var discord = configuration.GetSection(DiscordOptions.Discord);
+			options.ClientId = discord.GetValue<string>(nameof(DiscordOptions.ClientId))!;
+			options.ClientSecret = discord.GetValue<string>(nameof(DiscordOptions.ClientSecret))!;
+			options.CallbackPath = new("/signin-discord");
+			options.SaveTokens = false;
+			options.Scope.Clear();
+			options.Scope.Add("identify");
+			options.Scope.Add("guilds");
+			options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+			options.ClaimActions.MapJsonKey(ClaimTypes.Name, "username");
+			options.ClaimActions.MapJsonKey("urn:discord:avatar", "avatar");
+			options.Events.OnCreatingTicket = async context =>
+			{
+				if (!ulong.TryParse(context.Identity?.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var discordUserId))
+				{
+					return;
+				}
+
+				var services = context.HttpContext.RequestServices;
+				var cancellationToken = context.HttpContext.RequestAborted;
+
+				if (context.AccessToken is { Length: > 0 } accessToken)
+				{
+					if (context.RefreshToken is { Length: > 0 } refreshToken)
+					{
+						var expiresAt = services.GetRequiredService<TimeProvider>().GetUtcNow() + (context.ExpiresIn ?? TimeSpan.FromDays(7));
+						services.GetRequiredService<DiscordOAuthTokenStore>().Save(discordUserId, accessToken, refreshToken, expiresAt);
+					}
+
+					try
+					{
+						var guilds = await services.GetRequiredService<DiscordUserGuildsClient>().GetGuildsAsync(accessToken, cancellationToken);
+						services.GetRequiredService<UserGuildsCache>().Set(discordUserId, guilds);
+					}
+					catch (Exception ex) when ((ex is HttpRequestException or TaskCanceledException or JsonException) &&
+												!cancellationToken.IsCancellationRequested)
+					{
+						services.GetRequiredService<ILogger<DiscordUserGuildsClient>>().FailedToFetchDiscordGuildsAtSignIn(ex, discordUserId);
+					}
+				}
+			};
+
+			options.Events.OnRemoteFailure = context =>
+			{
+				var error = LoginRedirects.ClassifyRemoteFailure(context.Request.Query["error"], context.Failure?.Message);
+				var returnUrl = LoginRedirects.SanitizeReturnUrl(context.Properties?.RedirectUri);
+				context.Response.Redirect($"/login?error={error}&returnUrl={Uri.EscapeDataString(returnUrl)}");
+				context.HandleResponse();
+				return Task.CompletedTask;
+			};
+		});
+
+		var registeredPolicy = new AuthorizationPolicyBuilder().AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
+																.RequireAuthenticatedUser()
+																.RequireClaim(TanteiClaimTypes.Registered, "true")
+																.Build();
+
+		services.AddAuthorizationBuilder().SetDefaultPolicy(registeredPolicy).SetFallbackPolicy(registeredPolicy)
+				.AddPolicy(TanteiPolicies.SignedIn,
+					p => p.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme).RequireAuthenticatedUser())
+				.AddPolicy(TanteiPolicies.Registered,
+					p => p.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme).RequireAuthenticatedUser()
+						   .RequireClaim(TanteiClaimTypes.Registered, "true"))
+				.AddPolicy(TanteiPolicies.WebAdmin,
+					p => p.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme).RequireAuthenticatedUser()
+						   .RequireClaim(TanteiClaimTypes.WebAdmin, "true"));
+
+		return services;
+	}
+
+#if IsInContainer
+	private static string CreateDataProtectionKeysDirectory(WebOptions webOptions)
+	{
+		var keysDirectory = webOptions.DataProtectionKeysDirectory ??
+							Path.Combine(Environment.GetEnvironmentVariable("TANTEI_CONFIG_DIR") ?? "/config", "dataprotection-keys");
+		Directory.CreateDirectory(keysDirectory);
+		return keysDirectory;
+	}
+#endif
+}

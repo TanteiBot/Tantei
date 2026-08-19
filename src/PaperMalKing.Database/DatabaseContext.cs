@@ -21,6 +21,8 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 
 	public DbSet<DiscordUser> DiscordUsers => this.Set<DiscordUser>();
 
+	public DbSet<DiscordOAuthToken> DiscordOAuthTokens => this.Set<DiscordOAuthToken>();
+
 	public DbSet<MalUser> MalUsers => this.Set<MalUser>();
 
 	public DbSet<BaseMalFavorite> BaseMalFavorites => this.Set<BaseMalFavorite>();
@@ -94,6 +96,13 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 		modelBuilder.Entity<DiscordGuild>(dg => dg.HasIndex(x => x.DiscordGuildId));
 
 		modelBuilder.Entity<DiscordUser>(dg => dg.HasIndex(x => x.DiscordUserId));
+
+		modelBuilder.Entity<DiscordOAuthToken>(dt =>
+		{
+			dt.Property(x => x.ExpiresAt).HasConversion<DateTimeOffsetToBinaryConverter>();
+			dt.Property(x => x.LastUsedAt).HasConversion<DateTimeOffsetToBinaryConverter>();
+			dt.HasIndex(x => x.LastUsedAt);
+		});
 
 		modelBuilder.Entity<BaseMalFavorite>(bmf =>
 		{
@@ -203,6 +212,9 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 	private static readonly Func<DatabaseContext, ulong, DiscordUser?> DiscordUserByIdQuery = EF.CompileQuery((DatabaseContext db, ulong userId) =>
 		db.DiscordUsers.TagWith("Get discord user by id").Include(x => x.Guilds).FirstOrDefault(du => du.DiscordUserId == userId));
 
+	private static readonly Func<DatabaseContext, ulong, bool> DiscordUserExistsQuery = EF.CompileQuery((DatabaseContext db, ulong userId) =>
+		db.DiscordUsers.TagWith("Check discord user exists").Any(du => du.DiscordUserId == userId));
+
 #pragma warning disable S2365
 	public IReadOnlyList<MalUser> MalUsersForChecking => [.. GetMalUsersQuery(this)];
 
@@ -213,5 +225,7 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 	public DiscordGuild? GetGuildById(ulong guildId) => GuildByIdQuery(this, guildId);
 
 	public DiscordUser? GetDiscordUserById(ulong userId) => DiscordUserByIdQuery(this, userId);
+
+	public bool DiscordUserExists(ulong userId) => DiscordUserExistsQuery(this, userId);
 #pragma warning restore S2365
 }

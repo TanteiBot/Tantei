@@ -7,6 +7,9 @@ using Microsoft.Extensions.Logging;
 using PaperMalKing.Startup.Data;
 using PaperMalKing.Startup.Services;
 using PaperMalKing.Startup.Services.Background;
+using PaperMalKing.Startup.Web;
+using PaperMalKing.Startup.Web.Guilds;
+using PaperMalKing.Startup.Web.Tokens;
 
 namespace PaperMalKing.Startup;
 
@@ -136,4 +139,26 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Error, "Task on loading channels to post to failed")]
 	public static partial void LoadingChannelsToPostFailed(this ILogger<UpdatePublishingService> logger, Exception? ex);
+
+	[LoggerMessage(LogLevel.Warning, "Rejecting authentication cookie without a parsable Discord user id")]
+	public static partial void RejectingPrincipalWithoutDiscordId(this ILogger<TanteiCookieEvents> logger);
+
+	[LoggerMessage(LogLevel.Warning, "Failed to fetch Discord guilds for user {DiscordUserId} at sign-in")]
+	public static partial void FailedToFetchDiscordGuildsAtSignIn(this ILogger<DiscordUserGuildsClient> logger, Exception ex, ulong discordUserId);
+
+	[LoggerMessage(LogLevel.Information, "Discarding unusable Discord OAuth token for {DiscordUserId} because Discord reported {Error}")]
+	public static partial void DiscardingUnusableDiscordToken(this ILogger<DiscordTokenRefreshService> logger, ulong discordUserId, string? error);
+
+	[LoggerMessage(LogLevel.Warning, "Failed to refresh Discord OAuth token for {DiscordUserId} due to a transient error, {StatusCode}")]
+	public static partial void TransientDiscordTokenRefreshFailure(this ILogger<DiscordTokenRefreshService> logger, ulong discordUserId,
+																	 System.Net.HttpStatusCode statusCode);
+
+	[LoggerMessage(LogLevel.Warning, "Failed to check guild admin status for {DiscordUserId} in guild {GuildId}")]
+	public static partial void FailedToCheckGuildAdminStatus(this ILogger<BotGuildPresence> logger, Exception ex, ulong guildId, ulong discordUserId);
+
+	[LoggerMessage(LogLevel.Information, "Pruned {Count} unused Discord OAuth tokens")]
+	public static partial void PrunedUnusedDiscordTokens(this ILogger<UserCleanupService> logger, int count);
+
+	[LoggerMessage(LogLevel.Error, "Lost a freshly rotated Discord OAuth token for {DiscordUserId} because the row could not be updated or inserted")]
+	public static partial void FailedToPersistRotatedDiscordToken(this ILogger<DiscordOAuthTokenStore> logger, ulong discordUserId);
 }

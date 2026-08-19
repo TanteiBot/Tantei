@@ -66,15 +66,6 @@ public static partial class Log
 	[LoggerMessage(LogLevel.Information, "Removing {User}")]
 	internal static partial void RemovingUser(this ILogger<GeneralUserService> logger, PaperMalKing.Database.Models.DiscordUser user);
 
-	[LoggerMessage(LogLevel.Information, "Trying to remove user with {UserId} if he has no guilds linked")]
-	internal static partial void TryToRemoveUserWithNoGuilds(this ILogger<GeneralUserService> logger, ulong userId);
-
-	[LoggerMessage(LogLevel.Information, "{User} is tracked in some guilds. Skip deleting it")]
-	internal static partial void SkipRemovingUserWithGuilds(this ILogger<GeneralUserService> logger, PaperMalKing.Database.Models.DiscordUser user);
-
-	[LoggerMessage(LogLevel.Information, "Removing user with {Id} because he has no guilds linked")]
-	internal static partial void RemovingUserWithNoGuilds(this ILogger<GeneralUserService> logger, ulong id);
-
 	[LoggerMessage(LogLevel.Error, "Failed to set color of {UnparsedUpdateType} to {ColorValue}")]
 	internal static partial void FailedToSetColor(this ILogger<BotCommandsModule> logger, Exception ex, string unparsedUpdateType, string colorValue);
 

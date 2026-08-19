@@ -6,12 +6,16 @@ using DSharpPlus;
 using DSharpPlus.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
+using PaperMalKing.Startup.Web;
+using PaperMalKing.Startup.Web.Tokens;
 using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Startup.Services;
 
-internal sealed class UserCleanupService(ILogger<UserCleanupService> _logger, DiscordClient _discordClient, IDbContextFactory<DatabaseContext> _dbContextFactory, GeneralUserService _userService)
+internal sealed class UserCleanupService(ILogger<UserCleanupService> _logger, DiscordClient _discordClient, IDbContextFactory<DatabaseContext> _dbContextFactory, GeneralUserService _userService,
+										  DiscordOAuthTokenStore _tokenStore, IOptions<WebOptions> _webOptions, TimeProvider _timeProvider)
 {
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	public async Task ExecuteCleanupAsync()
@@ -21,12 +25,6 @@ internal sealed class UserCleanupService(ILogger<UserCleanupService> _logger, Di
 		foreach (var discordUser in db.DiscordUsers.TagWith("Query users for cleanup").TagWithCallSite().Include(x => x.Guilds).AsNoTracking().ToArray())
 		{
 			var userId = discordUser.DiscordUserId;
-			if (discordUser.Guilds is [])
-			{
-				_userService.RemoveUserIfInNoGuilds(userId);
-				continue;
-			}
-
 			foreach (var guildId in discordUser.Guilds.Select(x => x.DiscordGuildId))
 			{
 				if (!_discordClient.Guilds.TryGetValue(guildId, out var guild))
@@ -45,6 +43,9 @@ internal sealed class UserCleanupService(ILogger<UserCleanupService> _logger, Di
 			}
 		}
 
+		var threshold = _timeProvider.GetUtcNow().AddDays(-_webOptions.Value.CookieLifetimeInDays);
+		var prunedTokens = _tokenStore.PruneUnusedSince(threshold);
+		_logger.PrunedUnusedDiscordTokens(prunedTokens);
 		_logger.FinishingUserCleanup();
 	}
 }

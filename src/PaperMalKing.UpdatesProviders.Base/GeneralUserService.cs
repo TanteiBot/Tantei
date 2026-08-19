@@ -22,24 +22,4 @@ public sealed class GeneralUserService(IDbContextFactory<DatabaseContext> _dbCon
 		guild.Users.Remove(user);
 		await db.SaveChangesAndThrowOnNoneAsync();
 	}
-
-	public void RemoveUserIfInNoGuilds(ulong userId)
-	{
-		using var db = _dbContextFactory.CreateDbContext();
-		_logger.TryToRemoveUserWithNoGuilds(userId);
-		var user = db.DiscordUsers.TagWith("Query user to remove him from guild").TagWithCallSite().Include(x => x.Guilds).Include(x => x.BotUser)
-					 .FirstOrDefault(x => x.DiscordUserId == userId) ?? throw new UserProcessingException($"User with id {userId} wasn't found");
-		if (user.Guilds is not [])
-		{
-			_logger.SkipRemovingUserWithGuilds(user);
-			return;
-		}
-
-		db.MalUsers.Where(mu => mu.DiscordUserId == user.DiscordUserId).ExecuteDelete();
-		db.ShikiUsers.Where(mu => mu.DiscordUserId == user.DiscordUserId).ExecuteDelete();
-		db.AniListUsers.Where(mu => mu.DiscordUserId == user.DiscordUserId).ExecuteDelete();
-		db.DiscordUsers.Where(x => x.DiscordUserId == userId).ExecuteDelete();
-		db.BotUsers.Where(bu => bu.UserId == user.BotUser.UserId).ExecuteDelete();
-		_logger.RemovingUserWithNoGuilds(userId);
-	}
 }

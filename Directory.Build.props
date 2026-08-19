@@ -142,7 +142,6 @@
             EPC29; <!-- 'ExcludeFromCodeCoverageAttribute' should provide a message explaining the exclusion -->
         </NoWarn>
         <WarningsNotAsErrors>
-            MA0048; <!--File name must match type name-->
             S125;  <!--Remove this commented out code.-->
             S1135; <!--Complete the task associated to this 'TODO' comment.-->
         </WarningsNotAsErrors>

@@ -2,11 +2,14 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PaperMalKing.Database\PaperMalKing.Database.csproj" />
     <ProjectReference Include="..\..\src\PaperMalKing.Database.Migrations\PaperMalKing.Database.Migrations.csproj" />
+    <ProjectReference Include="..\..\src\PaperMalKing.Startup\PaperMalKing.Startup.csproj" />
 
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="DSharpPlus" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="EntityFrameworkCore.Exceptions.Sqlite" />
   </ItemGroup>
 </Project>
