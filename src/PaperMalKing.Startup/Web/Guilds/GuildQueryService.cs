@@ -20,16 +20,8 @@ public sealed class GuildQueryService(IDbContextFactory<DatabaseContext> _dbCont
 			return [];
 		}
 
-		var result = new List<ManageableGuild>(user.Guilds.Count);
-		foreach (var guild in user.Guilds)
-		{
-			if (_botGuildPresence.GetGuild(guild.DiscordGuildId) is { } info)
-			{
-				result.Add(new(info.GuildId, info.Name, info.IconUrl));
-			}
-		}
-
-		return result;
+		return [..user.Guilds.Select(x => _botGuildPresence.GetGuild(x.DiscordGuildId))
+				   .Where(x => x is not null).Select(x => new ManageableGuild(x!.GuildId, x.Name, x.IconUrl))];
 	}
 
 	public IReadOnlyList<InvitableGuild> GetInvitableGuilds(ulong discordUserId)
