@@ -9,8 +9,6 @@ using PaperMalKing.Database;
 
 namespace PaperMalKing.Startup.Web.Tokens;
 
-public sealed record StoredDiscordToken(string AccessToken, string RefreshToken, DateTimeOffset ExpiresAt);
-
 public sealed class DiscordOAuthTokenStore(IDbContextFactory<DatabaseContext> _dbContextFactory,
 										   IDataProtectionProvider dataProtectionProvider,
 										   TimeProvider _timeProvider,

@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using PaperMalKing.Common.Attributes;
 
 namespace PaperMalKing.Database.Models.AniList;
@@ -59,6 +60,7 @@ public enum AniListUserFeatures : ulong
 	Seyu = 1 << 15,
 }
 
+[SuppressMessage("Design", "MA0048:File name must match type name", Justification = "Extensions on enums may live in same file as enum")]
 public static class AniListUserFeaturesExtensions
 {
 	extension(AniListUserFeatures)

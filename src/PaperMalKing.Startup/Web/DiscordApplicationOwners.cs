@@ -5,11 +5,6 @@ using DSharpPlus;
 
 namespace PaperMalKing.Startup.Web;
 
-public interface IApplicationOwners
-{
-	bool IsOwner(ulong discordUserId);
-}
-
 public sealed class DiscordApplicationOwners(DiscordClient _discordClient) : IApplicationOwners
 {
 	public bool IsOwner(ulong discordUserId) => _discordClient.CurrentApplication?.Owners?.Any(o => o.Id == discordUserId) == true;
