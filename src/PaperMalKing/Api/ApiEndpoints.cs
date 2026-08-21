@@ -2,7 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using Microsoft.AspNetCore.Http.HttpResults;
-using PaperMalKing.Api.Responses;
+using PaperMalKing.Api.Contracts.Responses;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.Api;

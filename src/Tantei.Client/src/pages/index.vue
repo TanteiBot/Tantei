@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import ApiPing from "../components/ApiPing.vue";
+import ApiPing from "@/components/ApiPing.vue";
 
 const count = ref(0);
 </script>

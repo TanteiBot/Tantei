@@ -1,0 +1,64 @@
+<Solution>
+  <Folder Name="/.config/">
+    <File Path=".config/dotnet-tools.json" />
+  </Folder>
+  <Folder Name="/.github/">
+    <File Path=".github/dependabot.yml" />
+    <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/commentOnDatabase.yml" />
+    <File Path=".github/workflows/docker.yml" />
+    <File Path=".github/workflows/release.yml" />
+  </Folder>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/Tantei.Benchmarks/Tantei.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="BannedSymbols.txt" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="Dockerfile" />
+    <File Path="GitVersion.yml" />
+    <File Path="global.json" />
+    <File Path="justfile" />
+    <File Path="LICENSE.md" />
+    <File Path="makefile" />
+    <File Path="makefile.p" />
+    <File Path="README.md" />
+    <File Path="tantei.service" />
+  </Folder>
+  <Folder Name="/src/">
+    <File Path="src/Directory.Build.props" />
+    <Project Path="src/PaperMalKing.AniList.UpdateProvider.Installer/PaperMalKing.AniList.UpdateProvider.Installer.csproj" />
+    <Project Path="src/PaperMalKing.AniList.UpdateProvider/PaperMalKing.AniList.UpdateProvider.csproj" />
+    <Project Path="src/PaperMalKing.AniList.Wrapper.Abstractions/PaperMalKing.AniList.Wrapper.Abstractions.csproj" />
+    <Project Path="src/PaperMalKing.AniList.Wrapper/PaperMalKing.AniList.Wrapper.csproj" />
+    <Project Path="src/PaperMalKing.Common/PaperMalKing.Common.csproj" />
+    <Project Path="src/PaperMalKing.Database.CompiledModels/PaperMalKing.Database.CompiledModels.csproj" />
+    <Project Path="src/PaperMalKing.Database.Migrations/PaperMalKing.Database.Migrations.csproj" />
+    <Project Path="src/PaperMalKing.Database/PaperMalKing.Database.csproj" />
+    <Project Path="src/PaperMalKing.MyAnimeList.UpdateProvider.Installer/PaperMalKing.MyAnimeList.UpdateProvider.Installer.csproj" />
+    <Project Path="src/PaperMalKing.MyAnimeList.UpdateProvider/PaperMalKing.MyAnimeList.UpdateProvider.csproj" />
+    <Project Path="src/PaperMalKing.MyAnimeList.Wrapper.Abstractions/PaperMalKing.MyAnimeList.Wrapper.Abstractions.csproj" />
+    <Project Path="src/PaperMalKing.MyAnimeList.Wrapper/PaperMalKing.MyAnimeList.Wrapper.csproj" />
+    <Project Path="src/PaperMalKing.Shikimori.UpdateProvider.Installer/PaperMalKing.Shikimori.UpdateProvider.Installer.csproj" />
+    <Project Path="src/PaperMalKing.Shikimori.UpdateProvider/PaperMalKing.Shikimori.UpdateProvider.csproj" />
+    <Project Path="src/PaperMalKing.Shikimori.Wrapper.Abstractions/PaperMalKing.Shikimori.Wrapper.Abstractions.csproj" />
+    <Project Path="src/PaperMalKing.Shikimori.Wrapper/PaperMalKing.Shikimori.Wrapper.csproj" />
+    <Project Path="src/PaperMalKing.Startup/PaperMalKing.Startup.csproj" />
+    <Project Path="src/PaperMalKing.UpdatesProviders.Base/PaperMalKing.UpdatesProviders.Base.csproj" />
+    <Project Path="src/PaperMalKing/PaperMalKing.csproj" />
+  </Folder>
+  <Folder Name="/src/Tantei.Client/">
+    <Project Path="src/Tantei.Client/Tantei.Client.esproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <File Path="tests/.gitignore" />
+    <File Path="tests/Directory.Build.props" />
+    <Project Path="tests/PaperMalKing.AniList.Wrapper.Tests/PaperMalKing.AniList.Wrapper.Tests.csproj" />
+    <Project Path="tests/PaperMalKing.MyAnimeList.Wrapper.Tests/PaperMalKing.MyAnimeList.Wrapper.Tests.csproj" />
+    <Project Path="tests/PaperMalKing.UpdateProviders.Base.Tests/PaperMalKing.UpdateProviders.Base.Tests.csproj" />
+    <Project Path="tests/Tantei.Tests/Tantei.Tests.csproj" />
+  </Folder>
+</Solution>
