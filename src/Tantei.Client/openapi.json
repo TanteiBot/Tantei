@@ -52,17 +52,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CurrentUserResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/AuthStateResponse"
                 }
               }
             }
@@ -265,6 +255,24 @@
   },
   "components": {
     "schemas": {
+      "AuthStateResponse": {
+        "required": [
+          "user"
+        ],
+        "type": "object",
+        "properties": {
+          "user": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CurrentUserResponse"
+              }
+            ]
+          }
+        }
+      },
       "CurrentUserResponse": {
         "required": [
           "discordUserId",

@@ -136,6 +136,9 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AuthStateResponse: {
+            user: null | components["schemas"]["CurrentUserResponse"];
+        };
         CurrentUserResponse: {
             discordUserId: string;
             username: string;
@@ -233,16 +236,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CurrentUserResponse"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                    "application/json": components["schemas"]["AuthStateResponse"];
                 };
             };
         };

@@ -41,30 +41,27 @@ internal static class AuthEndpoints
 
 		group.MapGet("/me", GetCurrentUser)
 			 .AllowAnonymous()
-			 .ProducesProblem(StatusCodes.Status401Unauthorized)
 			 .WithName("GetCurrentUser");
 
 		return endpoints;
 	}
 
-	private static Results<Ok<CurrentUserResponse>, ProblemHttpResult> GetCurrentUser(HttpContext context)
+	private static Ok<AuthStateResponse> GetCurrentUser(HttpContext context)
 	{
 		var user = context.User;
 		var discordUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
 		if (user.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(discordUserId))
 		{
-			return TypedResults.Problem(detail: "Authentication is required to access this resource.",
-										statusCode: StatusCodes.Status401Unauthorized,
-										title: "Unauthorized");
+			return TypedResults.Ok(new AuthStateResponse(User: null));
 		}
 
 		var avatarHash = user.FindFirstValue("urn:discord:avatar");
 		var avatarUrl = avatarHash is null ? null : $"https://cdn.discordapp.com/avatars/{discordUserId}/{avatarHash}.png";
 
-		return TypedResults.Ok(new CurrentUserResponse(discordUserId,
-													   user.FindFirstValue(ClaimTypes.Name) ?? "",
-													   avatarUrl,
-													   string.Equals(user.FindFirstValue(TanteiClaimTypes.Registered), "true", StringComparison.Ordinal),
-													   string.Equals(user.FindFirstValue(TanteiClaimTypes.WebAdmin), "true", StringComparison.Ordinal)));
+		return TypedResults.Ok(new AuthStateResponse(new CurrentUserResponse(discordUserId,
+																			 user.FindFirstValue(ClaimTypes.Name) ?? "",
+																			 avatarUrl,
+																			 string.Equals(user.FindFirstValue(TanteiClaimTypes.Registered), "true", StringComparison.Ordinal),
+																			 string.Equals(user.FindFirstValue(TanteiClaimTypes.WebAdmin), "true", StringComparison.Ordinal))));
 	}
 }
