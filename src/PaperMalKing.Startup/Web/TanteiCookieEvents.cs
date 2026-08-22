@@ -14,6 +14,7 @@ namespace PaperMalKing.Startup.Web;
 
 public sealed class TanteiCookieEvents(IDbContextFactory<DatabaseContext> _dbContextFactory,
 									   IApplicationOwners _applicationOwners,
+									   IProblemDetailsService _problemDetailsService,
 									   ILogger<TanteiCookieEvents> _logger) : CookieAuthenticationEvents
 {
 	private const string ApiPathPrefix = "/api";
@@ -22,8 +23,8 @@ public sealed class TanteiCookieEvents(IDbContextFactory<DatabaseContext> _dbCon
 	{
 		if (context.Request.Path.StartsWithSegments(ApiPathPrefix, StringComparison.OrdinalIgnoreCase))
 		{
-			context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-			return Task.CompletedTask;
+			return this.WriteProblemAsync(context.HttpContext, StatusCodes.Status401Unauthorized, "Unauthorized",
+										  "Authentication is required to access this resource.");
 		}
 
 		return base.RedirectToLogin(context);
@@ -33,11 +34,26 @@ public sealed class TanteiCookieEvents(IDbContextFactory<DatabaseContext> _dbCon
 	{
 		if (context.Request.Path.StartsWithSegments(ApiPathPrefix, StringComparison.OrdinalIgnoreCase))
 		{
-			context.Response.StatusCode = StatusCodes.Status403Forbidden;
-			return Task.CompletedTask;
+			return this.WriteProblemAsync(context.HttpContext, StatusCodes.Status403Forbidden, "Forbidden",
+										  "The authenticated user is not allowed to access this resource.");
 		}
 
 		return base.RedirectToAccessDenied(context);
+	}
+
+	private Task WriteProblemAsync(HttpContext httpContext, int statusCode, string title, string detail)
+	{
+		httpContext.Response.StatusCode = statusCode;
+		return _problemDetailsService.WriteAsync(new()
+		{
+			HttpContext = httpContext,
+			ProblemDetails =
+			{
+				Status = statusCode,
+				Title = title,
+				Detail = detail,
+			},
+		}).AsTask();
 	}
 
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]

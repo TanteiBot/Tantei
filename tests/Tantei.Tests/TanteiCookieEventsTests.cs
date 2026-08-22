@@ -7,6 +7,7 @@ using EntityFramework.Exceptions.Sqlite;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,8 +23,10 @@ public sealed class TanteiCookieEventsTests
 
 	private const ulong UnregisteredUserId = 222UL;
 
-	private static TanteiCookieEvents CreateEvents(IDbContextFactory<DatabaseContext> dbContextFactory, IApplicationOwners applicationOwners) =>
-		new(dbContextFactory, applicationOwners, NullLogger<TanteiCookieEvents>.Instance);
+	private static TanteiCookieEvents CreateEvents(IDbContextFactory<DatabaseContext> dbContextFactory,
+												   IApplicationOwners applicationOwners,
+												   IProblemDetailsService? problemDetailsService = null) =>
+		new(dbContextFactory, applicationOwners, problemDetailsService ?? new FakeProblemDetailsService(), NullLogger<TanteiCookieEvents>.Instance);
 
 	private static RedirectContext<CookieAuthenticationOptions> CreateRedirectContext(string path, string redirectUri)
 	{
@@ -97,14 +100,18 @@ public sealed class TanteiCookieEventsTests
 	}
 
 	[Test]
-	public async Task RedirectToLoginReturnsUnauthorizedForApiRequests()
+	public async Task RedirectToLoginReturnsUnauthorizedProblemForApiRequests()
 	{
 		var context = CreateRedirectContext("/api/guilds/manageable", "https://example.com/signin-discord");
+		var problemDetailsService = new FakeProblemDetailsService();
 
-		await CreateEvents(null!, null!).RedirectToLogin(context);
+		await CreateEvents(null!, null!, problemDetailsService).RedirectToLogin(context);
 
 		await Assert.That(context.Response.StatusCode).IsEqualTo(StatusCodes.Status401Unauthorized);
 		await Assert.That(context.Response.Headers.ContainsKey("Location")).IsFalse();
+		await Assert.That(problemDetailsService.Written?.Status).IsEqualTo(StatusCodes.Status401Unauthorized);
+		await Assert.That(problemDetailsService.Written?.Title).IsEqualTo("Unauthorized");
+		await Assert.That(problemDetailsService.Written?.Detail).IsNotNull();
 	}
 
 	[Test]
@@ -119,14 +126,18 @@ public sealed class TanteiCookieEventsTests
 	}
 
 	[Test]
-	public async Task RedirectToAccessDeniedReturnsForbiddenForApiRequests()
+	public async Task RedirectToAccessDeniedReturnsForbiddenProblemForApiRequests()
 	{
 		var context = CreateRedirectContext("/api/guilds/manageable", "https://example.com/access-denied");
+		var problemDetailsService = new FakeProblemDetailsService();
 
-		await CreateEvents(null!, null!).RedirectToAccessDenied(context);
+		await CreateEvents(null!, null!, problemDetailsService).RedirectToAccessDenied(context);
 
 		await Assert.That(context.Response.StatusCode).IsEqualTo(StatusCodes.Status403Forbidden);
 		await Assert.That(context.Response.Headers.ContainsKey("Location")).IsFalse();
+		await Assert.That(problemDetailsService.Written?.Status).IsEqualTo(StatusCodes.Status403Forbidden);
+		await Assert.That(problemDetailsService.Written?.Title).IsEqualTo("Forbidden");
+		await Assert.That(problemDetailsService.Written?.Detail).IsNotNull();
 	}
 
 	[Test]
@@ -220,6 +231,17 @@ public sealed class TanteiCookieEventsTests
 
 		await Assert.That(context.Principal).IsNull();
 		await Assert.That(authenticationService.SignOutCallCount).IsEqualTo(1);
+	}
+
+	private sealed class FakeProblemDetailsService : IProblemDetailsService
+	{
+		public ProblemDetails? Written { get; private set; }
+
+		public ValueTask WriteAsync(ProblemDetailsContext context)
+		{
+			this.Written = context.ProblemDetails;
+			return ValueTask.CompletedTask;
+		}
 	}
 
 	private sealed class FakeApplicationOwners(bool isOwner) : IApplicationOwners

@@ -11,16 +11,20 @@ internal static class ApiEndpoints
 {
 	public static IEndpointRouteBuilder MapApiEndpoints(this IEndpointRouteBuilder endpoints)
 	{
-		endpoints.MapAuthEndpoints();
-		endpoints.MapGuildEndpoints();
+		var api = endpoints.MapGroup("/api");
 
-		endpoints.MapGet("api/getUpdateTimes", Ok<UpdateProviderStatusResponse[]> (IEnumerable<BaseUpdateProvider> updateProviders) => TypedResults.Ok(updateProviders.Select(up =>
+		api.MapAuthEndpoints();
+		api.MapGuildEndpoints();
+
+		api.MapGet("/getUpdateTimes", Ok<UpdateProviderStatusResponse[]> (IEnumerable<BaseUpdateProvider> updateProviders) => TypedResults.Ok(updateProviders.Select(up =>
 		{
 			var now = TimeProvider.System.GetUtcNow();
 			return new UpdateProviderStatusResponse(up.Name, up.IsUpdateInProgress, up.DateTimeOfNextUpdate > now ? up.DateTimeOfNextUpdate - now : null);
 		}).ToArray())).WithName("GetUpdateTimes");
 
-		endpoints.MapGet("api/ping", Ok<PingResponse> () => TypedResults.Ok(new PingResponse("pong", TimeProvider.System.GetUtcNow()))).WithName("Ping");
+		api.MapGet("/ping", Ok<PingResponse> () => TypedResults.Ok(new PingResponse("pong", TimeProvider.System.GetUtcNow()))).WithName("Ping");
+
+		((IEndpointConventionBuilder)api).Finally(AuthorizationProblemResponses.Add);
 
 		return endpoints;
 	}

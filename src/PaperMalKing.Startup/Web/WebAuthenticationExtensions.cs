@@ -30,6 +30,7 @@ public static class WebAuthenticationExtensions
 
 		services.AddOptions<WebOptions>().BindConfiguration(WebOptions.Web).ValidateDataAnnotations().ValidateOnStart();
 		services.TryAddSingleton(TimeProvider.System);
+		services.AddProblemDetails();
 		services.AddMemoryCache();
 		services.AddSingleton<DiscordOAuthTokenStore>();
 		services.AddSingleton<Tokens.DiscordTokenRefreshService>();

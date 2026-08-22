@@ -44,6 +44,8 @@ var app = builder.Build();
 
 app.UseForwardedHeaders();
 
+app.UseExceptionHandler();
+
 if (!app.Environment.IsDevelopment())
 {
 	app.UseHsts();

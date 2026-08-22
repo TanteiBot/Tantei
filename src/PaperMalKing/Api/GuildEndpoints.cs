@@ -17,7 +17,7 @@ internal static class GuildEndpoints
 {
 	public static IEndpointRouteBuilder MapGuildEndpoints(this IEndpointRouteBuilder endpoints)
 	{
-		var group = endpoints.MapGroup("/api/guilds");
+		var group = endpoints.MapGroup("/guilds");
 
 		group.MapGet("/manageable", Ok<IReadOnlyList<ManageableGuildResponse>> (HttpContext context, GuildQueryService guildQueryService) =>
 		{
@@ -35,7 +35,7 @@ internal static class GuildEndpoints
 				[.. guilds.Select(g => new InvitableGuildResponse(g.GuildId.ToString(CultureInfo.InvariantCulture), g.Name, g.IconUrl))]);
 		}).RequireAuthorization(TanteiPolicies.SignedIn);
 
-		group.MapPost("/refresh", async Task<Results<NoContent, UnauthorizedHttpResult, StatusCodeHttpResult>> (HttpContext context,
+		group.MapPost("/refresh", async Task<Results<NoContent, ProblemHttpResult>> (HttpContext context,
 																						 DiscordTokenRefreshService tokenRefreshService,
 																						 DiscordUserGuildsClient guildsClient,
 																						 UserGuildsCache cache) =>
@@ -44,7 +44,9 @@ internal static class GuildEndpoints
 			var accessToken = await tokenRefreshService.GetValidAccessTokenAsync(discordUserId, context.RequestAborted);
 			if (accessToken is null)
 			{
-				return TypedResults.Unauthorized();
+				return TypedResults.Problem(detail: "The stored Discord authorization is no longer valid, sign in again.",
+											statusCode: StatusCodes.Status401Unauthorized,
+											title: "Unauthorized");
 			}
 
 			IReadOnlyList<DiscordPartialGuild> guilds;
@@ -55,12 +57,15 @@ internal static class GuildEndpoints
 			catch (Exception ex) when ((ex is HttpRequestException or TaskCanceledException or JsonException) &&
 										!context.RequestAborted.IsCancellationRequested)
 			{
-				return TypedResults.StatusCode((int)HttpStatusCode.BadGateway);
+				return TypedResults.Problem(detail: "Discord could not be reached while refreshing the guild list.",
+											statusCode: (int)HttpStatusCode.BadGateway,
+											title: "Bad Gateway");
 			}
 
 			cache.Set(discordUserId, guilds);
 			return TypedResults.NoContent();
-		}).RequireAuthorization(TanteiPolicies.SignedIn);
+		}).RequireAuthorization(TanteiPolicies.SignedIn)
+		  .ProducesProblem(StatusCodes.Status502BadGateway);
 
 		return endpoints;
 	}

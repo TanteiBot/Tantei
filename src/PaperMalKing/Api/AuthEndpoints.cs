@@ -17,7 +17,7 @@ internal static class AuthEndpoints
 {
 	public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
 	{
-		var group = endpoints.MapGroup("/api/auth");
+		var group = endpoints.MapGroup("/auth");
 
 		group.MapGet("/login", ChallengeHttpResult (string? returnUrl) => TypedResults.Challenge(
 				 new AuthenticationProperties { RedirectUri = LoginRedirects.SanitizeReturnUrl(returnUrl), },
@@ -38,18 +38,21 @@ internal static class AuthEndpoints
 			 .AllowAnonymous();
 
 		group.MapGet("/me", GetCurrentUser)
-			 .AllowAnonymous();
+			 .AllowAnonymous()
+			 .ProducesProblem(StatusCodes.Status401Unauthorized);
 
 		return endpoints;
 	}
 
-	private static Results<Ok<CurrentUserResponse>, UnauthorizedHttpResult> GetCurrentUser(HttpContext context)
+	private static Results<Ok<CurrentUserResponse>, ProblemHttpResult> GetCurrentUser(HttpContext context)
 	{
 		var user = context.User;
 		var discordUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
 		if (user.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(discordUserId))
 		{
-			return TypedResults.Unauthorized();
+			return TypedResults.Problem(detail: "Authentication is required to access this resource.",
+										statusCode: StatusCodes.Status401Unauthorized,
+										title: "Unauthorized");
 		}
 
 		var avatarHash = user.FindFirstValue("urn:discord:avatar");
