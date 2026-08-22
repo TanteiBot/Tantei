@@ -3,7 +3,7 @@
 
 namespace PaperMalKing.Startup.Web;
 
-public static class LoginRedirects
+public static class SignInRedirects
 {
 	public const string DefaultReturnUrl = "/";
 

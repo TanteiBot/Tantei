@@ -7,7 +7,7 @@ import { pluginVueQuery } from "@kubb/plugin-vue-query";
 
 const group = { type: "tag", name: ({ group }: { group: string }) => group.toLowerCase() } as const;
 
-const exclude = [{ type: "path", pattern: "/api/auth/login" }] as const;
+const exclude = [{ type: "path", pattern: "/api/auth/sign-in" }] as const;
 
 export default defineConfig({
   root: ".",

@@ -18,16 +18,44 @@
     "en": "English",
     "uk": "Ukrainian"
   },
+  "auth": {
+    "signIn": "Sign in with Discord",
+    "signOut": "Sign out",
+    "myDetails": "My details",
+    "menu": "Account menu"
+  },
   "home": {
-    "card": {
-      "title": "Nuxt UI is wired up",
-      "description": "This card, badge, and button are all Nuxt UI components, auto-imported by the {plugin} plugin — no explicit imports needed.",
-      "clicked": "Clicked {count} times",
-      "version": "v4"
+    "hero": {
+      "title": "Track your anime and manga in Discord",
+      "description": "Tantei watches your MyAnimeList, AniList and Shikimori activity and posts every episode you watch, chapter you read and rating you leave into the Discord servers you share with it.",
+      "ctaSignIn": "Sign in with Discord",
+      "ctaDetails": "View my details"
+    },
+    "error": {
+      "cancelled": "Sign-in was cancelled before Discord could confirm it.",
+      "expired": "The sign-in attempt took too long and expired. Please try again.",
+      "failed": "Sign-in failed. Please try again."
     }
   },
   "about": {
     "title": "This is an about page"
+  },
+  "me": {
+    "title": "My details",
+    "signInPrompt": {
+      "title": "Sign in to see your details",
+      "description": "Sign in with Discord to see how Tantei tracks you and which servers it posts your updates in."
+    },
+    "registered": {
+      "yes": "Tracked by the bot",
+      "no": "Not tracked yet",
+      "explanation": "Tantei only tracks people who have signed up through the bot's commands in Discord. Run the bot's sign-up command in a server it is in, and your list activity will show up here."
+    },
+    "webAdmin": "Web admin",
+    "guilds": {
+      "title": "Servers the bot posts your updates in",
+      "empty": "The bot is not posting your updates in any server yet."
+    }
   },
   "apiPing": {
     "title": "API wiring check",

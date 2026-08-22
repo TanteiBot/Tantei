@@ -3,20 +3,20 @@
  * Do not edit manually.
  */
 
-export type LogoutStatus204 = unknown;
+export type SignOutStatus204 = unknown;
 
-export type LogoutOptions = {
+export type SignOutOptions = {
   body?: never;
   path?: never;
   query?: never;
   headers?: never;
 };
 
-export type LogoutResponses = {
-  "204": LogoutStatus204;
+export type SignOutResponses = {
+  "204": SignOutStatus204;
 };
 
 /**
  * @description Union of all possible responses
  */
-export type LogoutResponse = LogoutStatus204;
+export type SignOutResponse = SignOutStatus204;

@@ -8,7 +8,7 @@ export {
   getCurrentUserQueryOptions,
   useGetCurrentUser,
 } from "./auth/useGetCurrentUser";
-export { logoutMutationKey, useLogout } from "./auth/useLogout";
+export { signOutMutationKey, useSignOut } from "./auth/useSignOut";
 export {
   getInvitableGuildsQueryKey,
   getInvitableGuildsQueryOptions,

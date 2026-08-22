@@ -19,13 +19,13 @@ internal static class AuthEndpoints
 	{
 		var group = endpoints.MapGroup("/auth").WithTags("Auth");
 
-		group.MapGet("/login", ChallengeHttpResult (string? returnUrl) => TypedResults.Challenge(
-				 new AuthenticationProperties { RedirectUri = LoginRedirects.SanitizeReturnUrl(returnUrl), },
+		group.MapGet("/sign-in", ChallengeHttpResult (string? returnUrl) => TypedResults.Challenge(
+				 new AuthenticationProperties { RedirectUri = SignInRedirects.SanitizeReturnUrl(returnUrl), },
 				 [DiscordAuthenticationDefaults.AuthenticationScheme]))
 			 .AllowAnonymous()
-			 .WithName("Login");
+			 .WithName("SignIn");
 
-		group.MapPost("/logout", async Task<NoContent> (HttpContext context, DiscordOAuthTokenStore tokenStore, UserGuildsCache guildsCache) =>
+		group.MapPost("/sign-out", async Task<NoContent> (HttpContext context, DiscordOAuthTokenStore tokenStore, UserGuildsCache guildsCache) =>
 			 {
 				 if (ulong.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var discordUserId))
 				 {
@@ -37,7 +37,7 @@ internal static class AuthEndpoints
 				 return TypedResults.NoContent();
 			 })
 			 .AllowAnonymous()
-			 .WithName("Logout");
+			 .WithName("SignOut");
 
 		group.MapGet("/me", GetCurrentUser)
 			 .AllowAnonymous()

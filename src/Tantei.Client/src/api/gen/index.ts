@@ -20,18 +20,18 @@ export type {
   GetCurrentUserStatus200,
 } from "./types/auth/GetCurrentUser";
 export type {
-  LoginOptions,
-  LoginQuery,
-  LoginResponse,
-  LoginResponses,
-  LoginStatus200,
-} from "./types/auth/Login";
+  SignInOptions,
+  SignInQuery,
+  SignInResponse,
+  SignInResponses,
+  SignInStatus200,
+} from "./types/auth/SignIn";
 export type {
-  LogoutOptions,
-  LogoutResponse,
-  LogoutResponses,
-  LogoutStatus204,
-} from "./types/auth/Logout";
+  SignOutOptions,
+  SignOutResponse,
+  SignOutResponses,
+  SignOutStatus204,
+} from "./types/auth/SignOut";
 export type {
   GetInvitableGuildsOptions,
   GetInvitableGuildsResponse,
@@ -71,7 +71,7 @@ export type {
   PingStatus403,
 } from "./types/status/Ping";
 export { getCurrentUser } from "./clients/auth/getCurrentUser";
-export { logout } from "./clients/auth/logout";
+export { signOut } from "./clients/auth/signOut";
 export { getInvitableGuilds } from "./clients/guilds/getInvitableGuilds";
 export { getManageableGuilds } from "./clients/guilds/getManageableGuilds";
 export { refreshGuilds } from "./clients/guilds/refreshGuilds";
@@ -82,7 +82,7 @@ export {
   getCurrentUserQueryOptions,
   useGetCurrentUser,
 } from "./hooks/auth/useGetCurrentUser";
-export { logoutMutationKey, useLogout } from "./hooks/auth/useLogout";
+export { signOutMutationKey, useSignOut } from "./hooks/auth/useSignOut";
 export {
   getInvitableGuildsQueryKey,
   getInvitableGuildsQueryOptions,

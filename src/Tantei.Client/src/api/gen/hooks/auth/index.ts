@@ -4,4 +4,4 @@ export {
   getCurrentUserQueryOptions,
   useGetCurrentUser,
 } from "./useGetCurrentUser";
-export { logoutMutationKey, useLogout } from "./useLogout";
+export { signOutMutationKey, useSignOut } from "./useSignOut";

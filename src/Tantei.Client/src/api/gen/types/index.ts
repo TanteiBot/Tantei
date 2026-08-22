@@ -12,18 +12,18 @@ export type {
   GetCurrentUserStatus200,
 } from "./auth/GetCurrentUser";
 export type {
-  LoginOptions,
-  LoginQuery,
-  LoginResponse,
-  LoginResponses,
-  LoginStatus200,
-} from "./auth/Login";
+  SignInOptions,
+  SignInQuery,
+  SignInResponse,
+  SignInResponses,
+  SignInStatus200,
+} from "./auth/SignIn";
 export type {
-  LogoutOptions,
-  LogoutResponse,
-  LogoutResponses,
-  LogoutStatus204,
-} from "./auth/Logout";
+  SignOutOptions,
+  SignOutResponse,
+  SignOutResponses,
+  SignOutStatus204,
+} from "./auth/SignOut";
 export type {
   GetInvitableGuildsOptions,
   GetInvitableGuildsResponse,

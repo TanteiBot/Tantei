@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import type { RouteLocationRaw } from "vue-router";
 import { computed, defineAsyncComponent } from "vue";
-import { RouterView } from "vue-router";
+import { RouterView, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { en, uk } from "@nuxt/ui/locale";
 import type { TranslationKey } from "@/i18n/strict";
 import LangSwitcher from "@/components/LangSwitcher.vue";
+import AuthMenu from "@/components/AuthMenu.vue";
+import { useAuth, useSignOut, signIn } from "@/api/auth";
 
 const { locale } = useI18n();
+const route = useRoute();
+const { user, isLoading } = useAuth();
+const { signOut } = useSignOut();
 
 const links: { labelKey: TranslationKey; to: RouteLocationRaw; icon: string }[] = [
   { labelKey: "nav.home", to: { name: "/" }, icon: "i-lucide-house" },
@@ -40,6 +45,12 @@ const devtools = import.meta.env.DEV
             {{ $tStrict(link.labelKey) }}
           </UButton>
           <LangSwitcher />
+          <AuthMenu
+            :user="user"
+            :is-loading="isLoading"
+            @sign-in="signIn(route.fullPath)"
+            @sign-out="signOut"
+          />
         </nav>
       </header>
 

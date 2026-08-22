@@ -5,12 +5,12 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/auth/login": {
+    "/api/auth/sign-in": {
       "get": {
         "tags": [
           "Auth"
         ],
-        "operationId": "Login",
+        "operationId": "SignIn",
         "parameters": [
           {
             "name": "returnUrl",
@@ -27,12 +27,12 @@
         }
       }
     },
-    "/api/auth/logout": {
+    "/api/auth/sign-out": {
       "post": {
         "tags": [
           "Auth"
         ],
-        "operationId": "Logout",
+        "operationId": "SignOut",
         "responses": {
           "204": {
             "description": "No Content"

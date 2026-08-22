@@ -5,10 +5,15 @@ export type {
   GetCurrentUserStatus200,
 } from "./GetCurrentUser";
 export type {
-  LoginOptions,
-  LoginQuery,
-  LoginResponse,
-  LoginResponses,
-  LoginStatus200,
-} from "./Login";
-export type { LogoutOptions, LogoutResponse, LogoutResponses, LogoutStatus204 } from "./Logout";
+  SignInOptions,
+  SignInQuery,
+  SignInResponse,
+  SignInResponses,
+  SignInStatus200,
+} from "./SignIn";
+export type {
+  SignOutOptions,
+  SignOutResponse,
+  SignOutResponses,
+  SignOutStatus204,
+} from "./SignOut";

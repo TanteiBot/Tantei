@@ -1,29 +1,59 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import ApiPing from "@/components/ApiPing.vue";
+import { computed } from "vue";
+import { useRoute } from "vue-router";
+import { useAuth, signIn } from "@/api/auth";
+import type { TranslationKey } from "@/i18n/strict";
 
-const count = ref(0);
+const route = useRoute();
+const { isSignedIn } = useAuth();
+
+const signInErrorKey = computed<TranslationKey | null>(() => {
+  switch (route.query["error"]) {
+    case "cancelled":
+      return "home.error.cancelled";
+    case "expired":
+      return "home.error.expired";
+    case "failed":
+      return "home.error.failed";
+    default:
+      return null;
+  }
+});
+
+const returnUrl = computed(() => {
+  const value = route.query["returnUrl"];
+  return typeof value === "string" ? value : undefined;
+});
 </script>
 
 <template>
   <div class="flex flex-col gap-6">
-    <UCard>
-      <template #header>
-        <h2 class="text-highlighted text-lg font-semibold">{{ $tStrict("home.card.title") }}</h2>
-      </template>
+    <UAlert
+      v-if="signInErrorKey"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :title="$tStrict('common.error.title')"
+      :description="$tStrict(signInErrorKey)"
+    />
 
-      <i18n-t keypath="home.card.description" tag="p" class="text-muted mb-4" scope="global">
-        <template #plugin><code>@nuxt/ui/vite</code></template>
-      </i18n-t>
+    <div class="flex flex-col items-start gap-4 py-8">
+      <h1 class="text-highlighted text-3xl font-bold">{{ $tStrict("home.hero.title") }}</h1>
+      <p class="text-muted max-w-2xl text-lg">{{ $tStrict("home.hero.description") }}</p>
 
-      <div class="flex items-center gap-3">
-        <UButton icon="i-lucide-plus" @click="count++">
-          {{ $tStrict("home.card.clicked", { count }) }}
-        </UButton>
-        <UBadge color="primary" variant="subtle">{{ $tStrict("home.card.version") }}</UBadge>
-      </div>
-    </UCard>
+      <UButton
+        v-if="isSignedIn"
+        :to="{ name: '/me' }"
+        icon="i-lucide-user"
+        color="primary"
+        size="lg"
+      >
+        {{ $tStrict("home.hero.ctaDetails") }}
+      </UButton>
 
-    <ApiPing />
+      <UButton v-else icon="i-lucide-log-in" color="primary" size="lg" @click="signIn(returnUrl)">
+        {{ $tStrict("home.hero.ctaSignIn") }}
+      </UButton>
+    </div>
   </div>
 </template>

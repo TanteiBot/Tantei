@@ -5,7 +5,7 @@ using PaperMalKing.Startup.Web;
 
 namespace Tantei.Tests;
 
-public sealed class LoginRedirectsTests
+public sealed class SignInRedirectsTests
 {
 	[Test]
 	[Arguments("/guilds", "/guilds")]
@@ -13,7 +13,7 @@ public sealed class LoginRedirectsTests
 	[Arguments("/", "/")]
 	public async Task LocalPathsArePreserved(string input, string expected)
 	{
-		await Assert.That(LoginRedirects.SanitizeReturnUrl(input)).IsEqualTo(expected);
+		await Assert.That(SignInRedirects.SanitizeReturnUrl(input)).IsEqualTo(expected);
 	}
 
 	[Test]
@@ -25,7 +25,7 @@ public sealed class LoginRedirectsTests
 	[Arguments(null)]
 	public async Task NonLocalUrlsFallBackToRoot(string? input)
 	{
-		await Assert.That(LoginRedirects.SanitizeReturnUrl(input)).IsEqualTo("/");
+		await Assert.That(SignInRedirects.SanitizeReturnUrl(input)).IsEqualTo("/");
 	}
 
 	[Test]
@@ -34,31 +34,31 @@ public sealed class LoginRedirectsTests
 	[Arguments("/guilds\0")]
 	public async Task ControlCharactersFallBackToRoot(string input)
 	{
-		await Assert.That(LoginRedirects.SanitizeReturnUrl(input)).IsEqualTo("/");
+		await Assert.That(SignInRedirects.SanitizeReturnUrl(input)).IsEqualTo("/");
 	}
 
 	[Test]
 	public async Task AccessDeniedIsClassifiedAsCancelled()
 	{
-		await Assert.That(LoginRedirects.ClassifyRemoteFailure("access_denied", failureMessage: null)).IsEqualTo("cancelled");
+		await Assert.That(SignInRedirects.ClassifyRemoteFailure("access_denied", failureMessage: null)).IsEqualTo("cancelled");
 	}
 
 	[Test]
 	public async Task CorrelationFailureIsClassifiedAsExpired()
 	{
-		await Assert.That(LoginRedirects.ClassifyRemoteFailure(errorQueryValue: null, "Correlation failed.")).IsEqualTo("expired");
+		await Assert.That(SignInRedirects.ClassifyRemoteFailure(errorQueryValue: null, "Correlation failed.")).IsEqualTo("expired");
 	}
 
 	[Test]
 	public async Task UnknownFailureIsClassifiedAsFailed()
 	{
-		await Assert.That(LoginRedirects.ClassifyRemoteFailure(errorQueryValue: null, "Something exploded")).IsEqualTo("failed");
+		await Assert.That(SignInRedirects.ClassifyRemoteFailure(errorQueryValue: null, "Something exploded")).IsEqualTo("failed");
 	}
 
 	[Test]
 	public async Task ClassificationNeverEchoesTheFailureMessage()
 	{
-		var classification = LoginRedirects.ClassifyRemoteFailure(errorQueryValue: null, "<script>alert(1)</script>");
+		var classification = SignInRedirects.ClassifyRemoteFailure(errorQueryValue: null, "<script>alert(1)</script>");
 		await Assert.That(classification).IsEqualTo("failed");
 	}
 }

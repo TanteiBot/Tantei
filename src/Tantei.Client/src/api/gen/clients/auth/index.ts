@@ -1,2 +1,2 @@
 export { getCurrentUser } from "./getCurrentUser";
-export { logout } from "./logout";
+export { signOut } from "./signOut";
