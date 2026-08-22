@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { RouteLocationRaw } from "vue-router";
-import { computed } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import { RouterView } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { en, uk } from "@nuxt/ui/locale";
@@ -15,6 +15,12 @@ const links: { labelKey: TranslationKey; to: RouteLocationRaw; icon: string }[] 
 ];
 
 const uiLocale = computed(() => (locale.value === "uk" ? uk : en));
+
+const devtools = import.meta.env.DEV
+  ? defineAsyncComponent(() =>
+      import("@tanstack/vue-query-devtools").then((m) => m.VueQueryDevtools),
+    )
+  : null;
 </script>
 
 <template>
@@ -39,5 +45,7 @@ const uiLocale = computed(() => (locale.value === "uk" ? uk : en));
 
       <RouterView />
     </UContainer>
+
+    <component :is="devtools" v-if="devtools" />
   </UApp>
 </template>

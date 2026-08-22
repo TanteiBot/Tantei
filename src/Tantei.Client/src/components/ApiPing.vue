@@ -1,34 +1,23 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { api, type PingResponse } from "@/api/client";
+import { usePing } from "@/api/gen/hooks/status";
+import { ResponseError } from "@/api/gen/.kubb/client";
 import { tStrict } from "@/i18n/strict";
 
 const { locale } = useI18n();
 
-const data = ref<PingResponse | null>(null);
-const error = ref<string | null>(null);
-const loading = ref(false);
+const { data, error, isFetching, refetch } = usePing({ query: { enabled: false } });
 
-async function ping(): Promise<void> {
-  loading.value = true;
-  error.value = null;
-
-  try {
-    const { data: pong, response } = await api.GET("/api/ping");
-
-    if (pong === undefined) {
-      throw new Error(tStrict("common.error.requestFailed", { status: response.status }));
-    }
-
-    data.value = pong;
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : tStrict("common.error.unknown");
-    data.value = null;
-  } finally {
-    loading.value = false;
+const errorMessage = computed(() => {
+  if (!error.value) {
+    return null;
   }
-}
+
+  return error.value instanceof ResponseError
+    ? tStrict("common.error.requestFailed", { status: error.value.status })
+    : tStrict("common.error.unknown");
+});
 </script>
 
 <template>
@@ -42,7 +31,7 @@ async function ping(): Promise<void> {
     </i18n-t>
 
     <div class="flex items-center gap-3">
-      <UButton icon="i-lucide-radio" :loading="loading" @click="ping">
+      <UButton icon="i-lucide-radio" :loading="isFetching" @click="refetch()">
         {{ $tStrict("apiPing.button") }}
       </UButton>
       <UBadge v-if="data" color="success" variant="subtle" icon="i-lucide-check">
@@ -55,13 +44,13 @@ async function ping(): Promise<void> {
     </p>
 
     <UAlert
-      v-if="error"
+      v-if="errorMessage"
       class="mt-3"
       color="error"
       variant="subtle"
       icon="i-lucide-triangle-alert"
       :title="$tStrict('common.error.title')"
-      :description="error"
+      :description="errorMessage"
     />
   </UCard>
 </template>

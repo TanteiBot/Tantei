@@ -28,7 +28,7 @@ export default defineConfigWithVueTs(
     "**/dist-ssr/**",
     "**/coverage/**",
     "**/storybook-static/**",
-    "src/api/schema.d.ts",
+    "src/api/gen/**",
     "typed-router.d.ts",
   ]),
 

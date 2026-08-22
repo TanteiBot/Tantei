@@ -84,6 +84,12 @@ jobs:
         working-directory: ${{ env.clientapp-dir }}
         run: npm ci
 
+      - name: Check generated API client is up to date
+        working-directory: ${{ env.clientapp-dir }}
+        run: |
+          npm run generate:api
+          git diff --exit-code -- src/api/gen
+
       - name: Check formatting
         working-directory: ${{ env.clientapp-dir }}
         run: npm run format:check
