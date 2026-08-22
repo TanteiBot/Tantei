@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -60,7 +59,6 @@ public sealed class CustomColorService<[DynamicallyAccessedMembers(DynamicallyAc
 			return null;
 		}
 
-		return $"Your colors: {colors.Select(c =>
-			string.Create(CultureInfo.InvariantCulture, $"{(TUpdateType)(object)c.UpdateType}: #{c.ColorValue:X6}")).JoinToString('\n')}";
+		return $"Your colors: {colors.Select(c => $"{(TUpdateType)(object)c.UpdateType}: #{c.ColorValue:X6}").JoinToString('\n')}";
 	}
 }
