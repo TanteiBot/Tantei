@@ -5,6 +5,7 @@ using System.Reflection;
 using PaperMalKing.Api;
 using PaperMalKing.Startup;
 using PaperMalKing.Startup.Web;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,7 +61,8 @@ app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
-	app.MapOpenApi();
+	app.MapOpenApi().AllowAnonymous();
+	app.MapScalarApiReference(x => x.DisableAgent()).AllowAnonymous();
 }
 
 app.MapApiEndpoints();
