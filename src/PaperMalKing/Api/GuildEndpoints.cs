@@ -17,7 +17,7 @@ internal static class GuildEndpoints
 {
 	public static IEndpointRouteBuilder MapGuildEndpoints(this IEndpointRouteBuilder endpoints)
 	{
-		var group = endpoints.MapGroup("/guilds");
+		var group = endpoints.MapGroup("/guilds").WithTags("Guilds");
 
 		group.MapGet("/manageable", Ok<IReadOnlyList<ManageableGuildResponse>> (HttpContext context, GuildQueryService guildQueryService) =>
 		{
@@ -25,7 +25,8 @@ internal static class GuildEndpoints
 			var guilds = guildQueryService.GetManageableGuilds(discordUserId);
 			return TypedResults.Ok<IReadOnlyList<ManageableGuildResponse>>(
 				[.. guilds.Select(g => new ManageableGuildResponse(g.GuildId.ToString(CultureInfo.InvariantCulture), g.Name, g.IconUrl))]);
-		}).RequireAuthorization();
+		}).RequireAuthorization()
+		  .WithName("GetManageableGuilds");
 
 		group.MapGet("/invitable", Ok<IReadOnlyList<InvitableGuildResponse>> (HttpContext context, GuildQueryService guildQueryService) =>
 		{
@@ -33,7 +34,8 @@ internal static class GuildEndpoints
 			var guilds = guildQueryService.GetInvitableGuilds(discordUserId);
 			return TypedResults.Ok<IReadOnlyList<InvitableGuildResponse>>(
 				[.. guilds.Select(g => new InvitableGuildResponse(g.GuildId.ToString(CultureInfo.InvariantCulture), g.Name, g.IconUrl))]);
-		}).RequireAuthorization(TanteiPolicies.SignedIn);
+		}).RequireAuthorization(TanteiPolicies.SignedIn)
+		  .WithName("GetInvitableGuilds");
 
 		group.MapPost("/refresh", async Task<Results<NoContent, ProblemHttpResult>> (HttpContext context,
 																						 DiscordTokenRefreshService tokenRefreshService,
@@ -65,7 +67,8 @@ internal static class GuildEndpoints
 			cache.Set(discordUserId, guilds);
 			return TypedResults.NoContent();
 		}).RequireAuthorization(TanteiPolicies.SignedIn)
-		  .ProducesProblem(StatusCodes.Status502BadGateway);
+		  .ProducesProblem(StatusCodes.Status502BadGateway)
+		  .WithName("RefreshGuilds");
 
 		return endpoints;
 	}

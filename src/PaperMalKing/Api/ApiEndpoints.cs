@@ -20,9 +20,11 @@ internal static class ApiEndpoints
 		{
 			var now = TimeProvider.System.GetUtcNow();
 			return new UpdateProviderStatusResponse(up.Name, up.IsUpdateInProgress, up.DateTimeOfNextUpdate > now ? up.DateTimeOfNextUpdate - now : null);
-		}).ToArray())).WithName("GetUpdateTimes");
+		}).ToArray())).WithName("GetUpdateTimes").WithTags("Status");
 
-		api.MapGet("/ping", Ok<PingResponse> () => TypedResults.Ok(new PingResponse("pong", TimeProvider.System.GetUtcNow()))).WithName("Ping");
+		api.MapGet("/ping", Ok<PingResponse> () => TypedResults.Ok(new PingResponse("pong", TimeProvider.System.GetUtcNow())))
+		   .WithName("Ping")
+		   .WithTags("Status");
 
 		((IEndpointConventionBuilder)api).Finally(AuthorizationProblemResponses.Add);
 

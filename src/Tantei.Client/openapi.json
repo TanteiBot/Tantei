@@ -8,8 +8,9 @@
     "/api/auth/login": {
       "get": {
         "tags": [
-          "PaperMalKing"
+          "Auth"
         ],
+        "operationId": "Login",
         "parameters": [
           {
             "name": "returnUrl",
@@ -29,8 +30,9 @@
     "/api/auth/logout": {
       "post": {
         "tags": [
-          "PaperMalKing"
+          "Auth"
         ],
+        "operationId": "Logout",
         "responses": {
           "204": {
             "description": "No Content"
@@ -41,8 +43,9 @@
     "/api/auth/me": {
       "get": {
         "tags": [
-          "AuthEndpoints"
+          "Auth"
         ],
+        "operationId": "GetCurrentUser",
         "responses": {
           "200": {
             "description": "OK",
@@ -70,8 +73,9 @@
     "/api/guilds/manageable": {
       "get": {
         "tags": [
-          "PaperMalKing"
+          "Guilds"
         ],
+        "operationId": "GetManageableGuilds",
         "responses": {
           "200": {
             "description": "OK",
@@ -112,8 +116,9 @@
     "/api/guilds/invitable": {
       "get": {
         "tags": [
-          "PaperMalKing"
+          "Guilds"
         ],
+        "operationId": "GetInvitableGuilds",
         "responses": {
           "200": {
             "description": "OK",
@@ -144,8 +149,9 @@
     "/api/guilds/refresh": {
       "post": {
         "tags": [
-          "PaperMalKing"
+          "Guilds"
         ],
+        "operationId": "RefreshGuilds",
         "responses": {
           "204": {
             "description": "No Content"
@@ -176,7 +182,7 @@
     "/api/getUpdateTimes": {
       "get": {
         "tags": [
-          "PaperMalKing"
+          "Status"
         ],
         "operationId": "GetUpdateTimes",
         "responses": {
@@ -219,7 +225,7 @@
     "/api/ping": {
       "get": {
         "tags": [
-          "PaperMalKing"
+          "Status"
         ],
         "operationId": "Ping",
         "responses": {
@@ -414,10 +420,13 @@
   },
   "tags": [
     {
-      "name": "PaperMalKing"
+      "name": "Auth"
     },
     {
-      "name": "AuthEndpoints"
+      "name": "Guilds"
+    },
+    {
+      "name": "Status"
     }
   ]
 }

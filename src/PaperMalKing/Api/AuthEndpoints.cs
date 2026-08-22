@@ -17,12 +17,13 @@ internal static class AuthEndpoints
 {
 	public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
 	{
-		var group = endpoints.MapGroup("/auth");
+		var group = endpoints.MapGroup("/auth").WithTags("Auth");
 
 		group.MapGet("/login", ChallengeHttpResult (string? returnUrl) => TypedResults.Challenge(
 				 new AuthenticationProperties { RedirectUri = LoginRedirects.SanitizeReturnUrl(returnUrl), },
 				 [DiscordAuthenticationDefaults.AuthenticationScheme]))
-			 .AllowAnonymous();
+			 .AllowAnonymous()
+			 .WithName("Login");
 
 		group.MapPost("/logout", async Task<NoContent> (HttpContext context, DiscordOAuthTokenStore tokenStore, UserGuildsCache guildsCache) =>
 			 {
@@ -35,11 +36,13 @@ internal static class AuthEndpoints
 				 await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 				 return TypedResults.NoContent();
 			 })
-			 .AllowAnonymous();
+			 .AllowAnonymous()
+			 .WithName("Logout");
 
 		group.MapGet("/me", GetCurrentUser)
 			 .AllowAnonymous()
-			 .ProducesProblem(StatusCodes.Status401Unauthorized);
+			 .ProducesProblem(StatusCodes.Status401Unauthorized)
+			 .WithName("GetCurrentUser");
 
 		return endpoints;
 	}
