@@ -4,11 +4,20 @@ import { defineConfig } from "vite";
 import VueRouter from "vue-router/vite";
 import vue from "@vitejs/plugin-vue";
 import ui from "@nuxt/ui/vite";
+import vueI18n from "@intlify/unplugin-vue-i18n/vite";
 import vueDevTools from "vite-plugin-vue-devtools";
 
 export default defineConfig({
   base: "/",
-  plugins: [VueRouter(), vue(), ui(), vueDevTools()],
+  plugins: [
+    VueRouter(),
+    vue(),
+    ui(),
+    vueI18n({
+      include: [fileURLToPath(new URL("./src/i18n/locales/**", import.meta.url))],
+    }),
+    vueDevTools(),
+  ],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

@@ -1,0 +1,41 @@
+import "../src/assets/main.css";
+import type { Preview } from "@storybook/vue3-vite";
+import { setup } from "@storybook/vue3-vite";
+import ui from "@nuxt/ui/vue-plugin";
+import router from "../src/router";
+import { type Locale, i18n, SUPPORTED_LOCALES } from "../src/i18n";
+import { strictTranslate } from "../src/i18n/strict";
+
+setup((app) => {
+  app.use(router);
+  app.use(i18n);
+  app.use(strictTranslate);
+  app.use(ui);
+});
+
+const preview: Preview = {
+  initialGlobals: {
+    locale: "en",
+  },
+  globalTypes: {
+    locale: {
+      description: "Locale",
+      toolbar: {
+        icon: "globe",
+        items: SUPPORTED_LOCALES.map((code) => ({ value: code, title: code.toUpperCase() })),
+        dynamicTitle: true,
+      },
+    },
+  },
+  decorators: [
+    (story, context) => {
+      i18n.global.locale.value = context.globals.locale as Locale;
+      return {
+        components: { story },
+        template: "<UApp><story /></UApp>",
+      };
+    },
+  ],
+};
+
+export default preview;

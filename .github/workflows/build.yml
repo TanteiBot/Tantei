@@ -96,6 +96,10 @@ jobs:
         working-directory: ${{ env.clientapp-dir }}
         run: npm run build
 
+      - name: Build Storybook
+        working-directory: ${{ env.clientapp-dir }}
+        run: npm run build-storybook
+
   test:
     strategy:
       matrix:

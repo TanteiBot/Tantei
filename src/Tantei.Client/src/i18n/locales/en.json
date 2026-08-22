@@ -1,0 +1,38 @@
+{
+  "app": {
+    "title": "Tantei"
+  },
+  "common": {
+    "error": {
+      "title": "Request failed",
+      "requestFailed": "Request failed with status {status}",
+      "unknown": "Unknown error"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "uk": "Ukrainian"
+  },
+  "home": {
+    "card": {
+      "title": "Nuxt UI is wired up",
+      "description": "This card, badge, and button are all Nuxt UI components, auto-imported by the {plugin} plugin — no explicit imports needed.",
+      "clicked": "Clicked {count} times",
+      "version": "v4"
+    }
+  },
+  "about": {
+    "title": "This is an about page"
+  },
+  "apiPing": {
+    "title": "API wiring check",
+    "description": "Calls {endpoint} on the backend through Vite's dev proxy.",
+    "button": "Ping API",
+    "serverTime": "Server time: {time}"
+  }
+}

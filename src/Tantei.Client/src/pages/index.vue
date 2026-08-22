@@ -9,17 +9,18 @@ const count = ref(0);
   <div class="flex flex-col gap-6">
     <UCard>
       <template #header>
-        <h2 class="text-highlighted text-lg font-semibold">Nuxt UI is wired up</h2>
+        <h2 class="text-highlighted text-lg font-semibold">{{ $tStrict("home.card.title") }}</h2>
       </template>
 
-      <p class="text-muted mb-4">
-        This card, badge, and button are all Nuxt UI components, auto-imported by the
-        <code>@nuxt/ui/vite</code> plugin &mdash; no explicit imports needed.
-      </p>
+      <i18n-t keypath="home.card.description" tag="p" class="text-muted mb-4" scope="global">
+        <template #plugin><code>@nuxt/ui/vite</code></template>
+      </i18n-t>
 
       <div class="flex items-center gap-3">
-        <UButton icon="i-lucide-plus" @click="count++"> Clicked {{ count }} times </UButton>
-        <UBadge color="primary" variant="subtle">v4</UBadge>
+        <UButton icon="i-lucide-plus" @click="count++">
+          {{ $tStrict("home.card.clicked", { count }) }}
+        </UButton>
+        <UBadge color="primary" variant="subtle">{{ $tStrict("home.card.version") }}</UBadge>
       </div>
     </UCard>
 

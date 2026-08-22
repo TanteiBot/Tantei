@@ -17,7 +17,9 @@
     "lint:check:oxlint": "oxlint . --deny-warnings",
     "lint:check:eslint": "eslint . --max-warnings 0 --cache",
     "format": "oxfmt --write",
-    "format:check": "oxfmt --check"
+    "format:check": "oxfmt --check",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.123",
@@ -25,9 +27,13 @@
     "openapi-fetch": "^0.17.0",
     "tailwindcss": "^4.3.3",
     "vue": "^3.5.41",
+    "vue-i18n": "^11.4.8",
     "vue-router": "^5.2.0"
   },
   "devDependencies": {
+    "@intlify/unplugin-vue-i18n": "^11.2.5",
+    "@storybook/addon-docs": "^10.5.10",
+    "@storybook/vue3-vite": "^10.5.10",
     "@tsconfig/node24": "^24.0.5",
     "@types/node": "^24.13.3",
     "@vitejs/plugin-vue": "^6.0.8",
@@ -35,12 +41,14 @@
     "@vue/tsconfig": "^0.9.1",
     "eslint": "^10.8.1",
     "eslint-plugin-oxlint": "~1.78.0",
+    "eslint-plugin-storybook": "^10.5.10",
     "eslint-plugin-vue": "~10.10.0",
     "jiti": "^2.7.0",
     "npm-run-all2": "^9.0.3",
     "openapi-typescript": "^7.13.0",
     "oxfmt": "0.63.0",
     "oxlint": "~1.78.0",
+    "storybook": "^10.5.10",
     "typescript": "~6.0.3",
     "vite": "^8.2.1",
     "vite-plugin-vue-devtools": "^8.2.1",

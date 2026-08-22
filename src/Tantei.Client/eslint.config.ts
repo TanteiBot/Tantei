@@ -2,6 +2,7 @@ import { globalIgnores } from "eslint/config";
 import { defineConfigWithVueTs, vueTsConfigs } from "@vue/eslint-config-typescript";
 import pluginVue from "eslint-plugin-vue";
 import pluginOxlint from "eslint-plugin-oxlint";
+import pluginStorybook from "eslint-plugin-storybook";
 
 const vueFormattingRulesOff = Object.fromEntries(
   Object.entries(pluginVue.rules ?? {})
@@ -26,6 +27,7 @@ export default defineConfigWithVueTs(
     "**/dist/**",
     "**/dist-ssr/**",
     "**/coverage/**",
+    "**/storybook-static/**",
     "src/api/schema.d.ts",
     "typed-router.d.ts",
   ]),
@@ -57,6 +59,8 @@ export default defineConfigWithVueTs(
       "vue/multi-word-component-names": "off",
     },
   },
+
+  ...pluginStorybook.configs["flat/recommended"],
 
   ...pluginOxlint.buildFromOxlintConfigFile(".oxlintrc.json"),
 );

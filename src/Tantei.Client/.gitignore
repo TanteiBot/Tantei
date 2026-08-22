@@ -38,6 +38,9 @@ __screenshots__/
 # Vite
 *.timestamp-*-*.mjs
 
+# Storybook
+storybook-static
+
 # Nuxt UI generated type declarations
 auto-imports.d.ts
 components.d.ts
