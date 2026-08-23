@@ -21,8 +21,8 @@ on:
 env:
   DOTNET_NOLOGO: true
   artifact-name: "build-${{ github.sha }}"
-  clientapp-dir: "./src/PaperMalKing/ClientApp"
-  node-version: '23.x'
+  clientapp-dir: "./src/Tantei.Client"
+  node-version: '24.x'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -53,6 +53,13 @@ jobs:
       - name: Build projects
         run: dotnet build ./src/PaperMalKing/PaperMalKing.csproj --configuration Release --no-restore --output ${{ env.output-dir }}
 
+      - name: Check committed OpenAPI document is current
+        run: |
+          if ! git diff --exit-code -- src/Tantei.Client/openapi.json; then
+            echo "::error::openapi.json is out of date. Run 'dotnet build ./src/PaperMalKing/PaperMalKing.csproj' and 'npm run generate:api' in src/Tantei.Client, then commit both files."
+            exit 1
+          fi
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
         with:
@@ -60,6 +67,43 @@ jobs:
           path: ${{ env.output-dir }}
           if-no-files-found: error
           retention-days: 1
+
+  client:
+    name: Build client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.node-version }}
+
+      - name: Install client deps
+        working-directory: ${{ env.clientapp-dir }}
+        run: npm ci
+
+      - name: Check generated API client is up to date
+        working-directory: ${{ env.clientapp-dir }}
+        run: |
+          npm run generate:api
+          git diff --exit-code -- src/api/gen
+
+      - name: Check formatting
+        working-directory: ${{ env.clientapp-dir }}
+        run: npm run format:check
+
+      - name: Lint client
+        working-directory: ${{ env.clientapp-dir }}
+        run: npm run lint:check
+
+      - name: Type-check and build client
+        working-directory: ${{ env.clientapp-dir }}
+        run: npm run build
+
+      - name: Build Storybook
+        working-directory: ${{ env.clientapp-dir }}
+        run: npm run build-storybook
 
   test:
     strategy:
@@ -98,7 +142,7 @@ jobs:
           node-version: ${{ env.node-version }}
       
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4.37.7
+        uses: github/codeql-action/init@v4.37.6
         with:
           languages: 'csharp'
           queries: security-and-quality
@@ -113,7 +157,7 @@ jobs:
         run: dotnet build
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4.37.7
+        uses: github/codeql-action/analyze@v4.37.6
 
   inferSharp:
     name: Run Infer#
@@ -134,6 +178,6 @@ jobs:
           binary-path: "./createdDlls"
 
       - name: Upload SARIF output to GitHub Security Center
-        uses: github/codeql-action/upload-sarif@v4.37.7
+        uses: github/codeql-action/upload-sarif@v4.37.6
         with:
           sarif_file: infer-out/report.sarif

@@ -6,7 +6,7 @@ using AspNet.Security.OAuth.Discord;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.HttpResults;
-using PaperMalKing.Api.Contracts;
+using PaperMalKing.Api.Contracts.Responses;
 using PaperMalKing.Startup.Web;
 using PaperMalKing.Startup.Web.Guilds;
 using PaperMalKing.Startup.Web.Tokens;
@@ -17,14 +17,15 @@ internal static class AuthEndpoints
 {
 	public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
 	{
-		var group = endpoints.MapGroup("/api/auth");
+		var group = endpoints.MapGroup("/auth").WithTags("Auth");
 
-		group.MapGet("/login", ChallengeHttpResult (string? returnUrl) => TypedResults.Challenge(
-				 new AuthenticationProperties { RedirectUri = LoginRedirects.SanitizeReturnUrl(returnUrl), },
+		group.MapGet("/sign-in", ChallengeHttpResult (string? returnUrl) => TypedResults.Challenge(
+				 new AuthenticationProperties { RedirectUri = SignInRedirects.SanitizeReturnUrl(returnUrl), },
 				 [DiscordAuthenticationDefaults.AuthenticationScheme]))
-			 .AllowAnonymous();
+			 .AllowAnonymous()
+			 .WithName("SignIn");
 
-		group.MapPost("/logout", async Task<NoContent> (HttpContext context, DiscordOAuthTokenStore tokenStore, UserGuildsCache guildsCache) =>
+		group.MapPost("/sign-out", async Task<NoContent> (HttpContext context, DiscordOAuthTokenStore tokenStore, UserGuildsCache guildsCache) =>
 			 {
 				 if (ulong.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var discordUserId))
 				 {
@@ -35,30 +36,32 @@ internal static class AuthEndpoints
 				 await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 				 return TypedResults.NoContent();
 			 })
-			 .AllowAnonymous();
+			 .AllowAnonymous()
+			 .WithName("SignOut");
 
 		group.MapGet("/me", GetCurrentUser)
-			 .AllowAnonymous();
+			 .AllowAnonymous()
+			 .WithName("GetCurrentUser");
 
 		return endpoints;
 	}
 
-	private static Results<Ok<CurrentUserResponse>, UnauthorizedHttpResult> GetCurrentUser(HttpContext context)
+	private static Ok<AuthStateResponse> GetCurrentUser(HttpContext context)
 	{
 		var user = context.User;
 		var discordUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
 		if (user.Identity?.IsAuthenticated != true || string.IsNullOrEmpty(discordUserId))
 		{
-			return TypedResults.Unauthorized();
+			return TypedResults.Ok(new AuthStateResponse(User: null));
 		}
 
 		var avatarHash = user.FindFirstValue("urn:discord:avatar");
 		var avatarUrl = avatarHash is null ? null : $"https://cdn.discordapp.com/avatars/{discordUserId}/{avatarHash}.png";
 
-		return TypedResults.Ok(new CurrentUserResponse(discordUserId,
-													   user.FindFirstValue(ClaimTypes.Name) ?? "",
-													   avatarUrl,
-													   string.Equals(user.FindFirstValue(TanteiClaimTypes.Registered), "true", StringComparison.Ordinal),
-													   string.Equals(user.FindFirstValue(TanteiClaimTypes.WebAdmin), "true", StringComparison.Ordinal)));
+		return TypedResults.Ok(new AuthStateResponse(new CurrentUserResponse(discordUserId,
+																			 user.FindFirstValue(ClaimTypes.Name) ?? "",
+																			 avatarUrl,
+																			 string.Equals(user.FindFirstValue(TanteiClaimTypes.Registered), "true", StringComparison.Ordinal),
+																			 string.Equals(user.FindFirstValue(TanteiClaimTypes.WebAdmin), "true", StringComparison.Ordinal))));
 	}
 }

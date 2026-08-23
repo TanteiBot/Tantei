@@ -7,8 +7,14 @@ internal static class ApiEndpoints
 {
 	public static IEndpointRouteBuilder MapApiEndpoints(this IEndpointRouteBuilder endpoints)
 	{
-		endpoints.MapAuthEndpoints();
-		endpoints.MapGuildEndpoints();
+		var api = endpoints.MapGroup("/api");
+
+		api.MapAuthEndpoints();
+		api.MapGuildEndpoints();
+		api.MapStatusEndpoints();
+
+		((IEndpointConventionBuilder)api).Finally(AuthorizationProblemResponses.Add);
+
 		return endpoints;
 	}
 }

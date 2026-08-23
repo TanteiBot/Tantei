@@ -22,7 +22,7 @@ updates:
           - "*"
 
   - package-ecosystem: "npm"
-    directory: "/src/PaperMalKing/ClientApp"
+    directory: "/src/Tantei.Client"
     schedule:
       interval: "monthly"
     groups:

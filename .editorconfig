@@ -3,6 +3,7 @@
 indent_style = tab
 indent_size = tab
 tab_width = 4
+end_of_line = lf
 
 [*.{appxmanifest,asax,ascx,aspx,axaml,build,cg,cginc,compute,cshtml,dtd,fs,fsi,fsscript,fsx,hlsl,hlsli,hlslinc,master,ml,mli,nuspec,paml,razor,resw,resx,skin,usf,ush,vb,xaml,xamlx,xoml,xsd}]
 indent_style = space

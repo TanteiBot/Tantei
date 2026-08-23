@@ -19,8 +19,38 @@ publish dir=publish-dir:
 
 benchmark Filter:
     cd ./benchmarks/Tantei.Benchmarks && dotnet run -c Release -- --filter *{{Filter}}*
-    
-ci: _ci_release _ci_release_container _ci_debug _ci_debug_container
+
+run-server:
+    dotnet run --project ./src/PaperMalKing/PaperMalKing.csproj
+
+run-client:
+    cd ./src/Tantei.Client && npm run dev
+
+run:
+    #!pwsh -NoLogo
+    $ErrorActionPreference = 'Stop'
+    $backend = Start-Process dotnet -ArgumentList 'run','--project','./src/PaperMalKing/PaperMalKing.csproj' -NoNewWindow -PassThru
+    try {
+        npm --prefix ./src/Tantei.Client run dev
+    } finally {
+        if ($backend -and -not $backend.HasExited) {
+            taskkill /PID $backend.Id /T /F | Out-Null
+        }
+    }
+
+format-client:
+    npm --prefix ./src/Tantei.Client run format
+
+generate-api:
+    dotnet build ./src/PaperMalKing/PaperMalKing.csproj
+    npm --prefix ./src/Tantei.Client run generate:api
+
+check-client:
+    npm --prefix ./src/Tantei.Client run format:check
+    npm --prefix ./src/Tantei.Client run lint:check
+    npm --prefix ./src/Tantei.Client run type-check
+
+ci: _ci_release _ci_release_container _ci_debug _ci_debug_container check-client
     echo Success
     
 _ci_debug:

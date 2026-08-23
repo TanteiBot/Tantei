@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Reflection;
 using PaperMalKing.Api;
 using PaperMalKing.Startup;
 using PaperMalKing.Startup.Web;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var isGeneratingOpenApiDocument = string.Equals(
+	Assembly.GetEntryAssembly()?.GetName().Name,
+	"GetDocument.Insider",
+	StringComparison.Ordinal);
 
 #if IsInContainer
 Span<string> appsettingsFiles = ["appsettings.json", "appsettings.Development.json", "appsettings.Staging.json", "appsettings.Production.json"];
@@ -20,29 +27,43 @@ foreach (var dir in (Span<string>)[Environment.GetEnvironmentVariable("TANTEI_CO
 
 builder.Services.AddWebAuthentication(builder.Configuration, builder.Environment);
 
+builder.Services.AddOpenApi();
+
 builder.Host.UseDefaultServiceProvider(c =>
 {
-	c.ValidateOnBuild = true;
+	c.ValidateOnBuild = !isGeneratingOpenApiDocument;
 	c.ValidateScopes = true;
 });
 
-builder.Host.ConfigureBotServices();
-builder.Host.ConfigureBotHost();
+if (!isGeneratingOpenApiDocument)
+{
+	builder.Host.ConfigureBotServices();
+	builder.Host.ConfigureBotHost();
+}
 
 var app = builder.Build();
 
 app.UseForwardedHeaders();
 
+app.UseExceptionHandler();
+
 if (!app.Environment.IsDevelopment())
 {
 	app.UseHsts();
+
+	app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+if (app.Environment.IsDevelopment())
+{
+	app.MapOpenApi().AllowAnonymous();
+	app.MapScalarApiReference(x => x.DisableAgent()).AllowAnonymous();
+}
 
 app.MapApiEndpoints();
 app.MapFallbackToFile("index.html").AllowAnonymous();

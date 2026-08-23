@@ -1,0 +1,10 @@
+**/bin
+**/obj
+**/node_modules
+**/dist
+src/PaperMalKing/wwwroot
+.github
+.idea
+.vs
+output
+publish

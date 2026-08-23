@@ -30,6 +30,7 @@ public static class WebAuthenticationExtensions
 
 		services.AddOptions<WebOptions>().BindConfiguration(WebOptions.Web).ValidateDataAnnotations().ValidateOnStart();
 		services.TryAddSingleton(TimeProvider.System);
+		services.AddProblemDetails();
 		services.AddMemoryCache();
 		services.AddSingleton<DiscordOAuthTokenStore>();
 		services.AddSingleton<Tokens.DiscordTokenRefreshService>();
@@ -116,9 +117,9 @@ public static class WebAuthenticationExtensions
 
 			options.Events.OnRemoteFailure = context =>
 			{
-				var error = LoginRedirects.ClassifyRemoteFailure(context.Request.Query["error"], context.Failure?.Message);
-				var returnUrl = LoginRedirects.SanitizeReturnUrl(context.Properties?.RedirectUri);
-				context.Response.Redirect($"/login?error={error}&returnUrl={Uri.EscapeDataString(returnUrl)}");
+				var error = SignInRedirects.ClassifyRemoteFailure(context.Request.Query["error"], context.Failure?.Message);
+				var returnUrl = SignInRedirects.SanitizeReturnUrl(context.Properties?.RedirectUri);
+				context.Response.Redirect($"/?error={error}&returnUrl={Uri.EscapeDataString(returnUrl)}");
 				context.HandleResponse();
 				return Task.CompletedTask;
 			};
