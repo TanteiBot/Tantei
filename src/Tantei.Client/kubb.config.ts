@@ -5,6 +5,8 @@ import { pluginFetch } from "@kubb/plugin-fetch";
 import { pluginTs } from "@kubb/plugin-ts";
 import { pluginVueQuery } from "@kubb/plugin-vue-query";
 
+process.env["KUBB_DISABLE_TELEMETRY"] = "1";
+
 const group = { type: "tag", name: ({ group }: { group: string }) => group.toLowerCase() } as const;
 
 const exclude = [{ type: "path", pattern: "/api/auth/sign-in" }] as const;
