@@ -1,5 +1,4 @@
 name: .NET build
-name: .NET build
 
 on:
   workflow_dispatch:

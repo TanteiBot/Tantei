@@ -6,7 +6,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.HttpResults;
-using PaperMalKing.Api.Contracts;
+using PaperMalKing.Api.Contracts.Responses;
 using PaperMalKing.Startup.Web;
 using PaperMalKing.Startup.Web.Guilds;
 using PaperMalKing.Startup.Web.Tokens;

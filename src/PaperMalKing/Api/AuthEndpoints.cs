@@ -6,7 +6,7 @@ using AspNet.Security.OAuth.Discord;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.HttpResults;
-using PaperMalKing.Api.Contracts;
+using PaperMalKing.Api.Contracts.Responses;
 using PaperMalKing.Startup.Web;
 using PaperMalKing.Startup.Web.Guilds;
 using PaperMalKing.Startup.Web.Tokens;
