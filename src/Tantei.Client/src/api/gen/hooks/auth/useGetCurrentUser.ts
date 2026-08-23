@@ -9,11 +9,12 @@ import type {
   UseQueryOptions,
   UseQueryReturnType,
 } from "@tanstack/vue-query";
-import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import type { GetCurrentUserStatus200 } from "../../types/auth/GetCurrentUser";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
-import { getCurrentUser } from "../../clients/auth/getCurrentUser";
 import { toValue } from "vue";
+
+import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
+import { getCurrentUser } from "../../clients/auth/getCurrentUser";
+import type { GetCurrentUserStatus200 } from "../../types/auth/GetCurrentUser";
 
 export const getCurrentUserQueryKey = () => [{ url: "/api/auth/me" }] as const;
 

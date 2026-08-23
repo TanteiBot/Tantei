@@ -1,5 +1,6 @@
 import { computed, type WritableComputedRef } from "vue";
 import { createI18n } from "vue-i18n";
+
 import en from "./locales/en.json";
 import ukMessages from "./locales/uk.json";
 

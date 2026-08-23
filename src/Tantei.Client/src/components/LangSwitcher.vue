@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+
 import { SUPPORTED_LOCALES, currentLocale } from "@/i18n";
 import { tStrict } from "@/i18n/strict";
 

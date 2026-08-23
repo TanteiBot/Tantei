@@ -9,15 +9,16 @@ import type {
   UseQueryOptions,
   UseQueryReturnType,
 } from "@tanstack/vue-query";
+import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { toValue } from "vue";
+
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
+import { getUpdateTimes } from "../../clients/status/getUpdateTimes";
 import type {
   GetUpdateTimesStatus200,
   GetUpdateTimesStatus401,
   GetUpdateTimesStatus403,
 } from "../../types/status/GetUpdateTimes";
-import { queryOptions, useQuery } from "@tanstack/vue-query";
-import { getUpdateTimes } from "../../clients/status/getUpdateTimes";
-import { toValue } from "vue";
 
 export const getUpdateTimesQueryKey = () => [{ url: "/api/getUpdateTimes" }] as const;
 

@@ -9,11 +9,12 @@ import type {
   UseQueryOptions,
   UseQueryReturnType,
 } from "@tanstack/vue-query";
-import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import type { PingStatus200, PingStatus401, PingStatus403 } from "../../types/status/Ping";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
-import { ping } from "../../clients/status/ping";
 import { toValue } from "vue";
+
+import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
+import { ping } from "../../clients/status/ping";
+import type { PingStatus200, PingStatus401, PingStatus403 } from "../../types/status/Ping";
 
 export const pingQueryKey = () => [{ url: "/api/ping" }] as const;
 

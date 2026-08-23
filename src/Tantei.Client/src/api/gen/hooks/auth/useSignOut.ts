@@ -4,10 +4,11 @@
  */
 
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
-import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import type { SignOutStatus204 } from "../../types/auth/SignOut";
 import { useMutation } from "@tanstack/vue-query";
+
+import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
 import { signOut } from "../../clients/auth/signOut";
+import type { SignOutStatus204 } from "../../types/auth/SignOut";
 
 export const signOutMutationKey = () => [{ url: "/api/auth/sign-out" }] as const;
 

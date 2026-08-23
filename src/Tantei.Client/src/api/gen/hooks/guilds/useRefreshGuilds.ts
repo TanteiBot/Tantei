@@ -4,14 +4,15 @@
  */
 
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
+import { useMutation } from "@tanstack/vue-query";
+
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
+import { refreshGuilds } from "../../clients/guilds/refreshGuilds";
 import type {
   RefreshGuildsStatus204,
   RefreshGuildsStatus401,
   RefreshGuildsStatus502,
 } from "../../types/guilds/RefreshGuilds";
-import { useMutation } from "@tanstack/vue-query";
-import { refreshGuilds } from "../../clients/guilds/refreshGuilds";
 
 export const refreshGuildsMutationKey = () => [{ url: "/api/guilds/refresh" }] as const;
 

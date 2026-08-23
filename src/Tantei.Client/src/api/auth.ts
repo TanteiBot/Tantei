@@ -1,10 +1,11 @@
+import { useQueryClient } from "@tanstack/vue-query";
 import type { ComputedRef, Ref } from "vue";
 import { computed } from "vue";
-import { useQueryClient } from "@tanstack/vue-query";
 import { useRouter } from "vue-router";
-import type { CurrentUserResponse } from "./gen/types/CurrentUserResponse";
+
 import { getCurrentUserQueryKey, useGetCurrentUser } from "./gen/hooks/auth/useGetCurrentUser";
 import { useSignOut as useSignOutMutation } from "./gen/hooks/auth/useSignOut";
+import type { CurrentUserResponse } from "./gen/types/CurrentUserResponse";
 import { signInUrl } from "./signInUrl";
 
 export interface AuthState {

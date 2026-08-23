@@ -4,11 +4,11 @@
  */
 
 import type { Options, RequestResult } from "../../.kubb/client";
+import { client } from "../../.kubb/client";
 import type {
   RefreshGuildsOptions,
   RefreshGuildsResponses,
 } from "../../types/guilds/RefreshGuilds";
-import { client } from "../../.kubb/client";
 
 /**
  * {@link /api/guilds/refresh}

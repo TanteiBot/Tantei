@@ -1,9 +1,9 @@
-import { defineConfig } from "kubb";
 import { adapterOas } from "@kubb/adapter-oas";
 import { pluginBarrel } from "@kubb/plugin-barrel";
 import { pluginFetch } from "@kubb/plugin-fetch";
 import { pluginTs } from "@kubb/plugin-ts";
 import { pluginVueQuery } from "@kubb/plugin-vue-query";
+import { defineConfig } from "kubb";
 
 process.env["KUBB_DISABLE_TELEMETRY"] = "1";
 

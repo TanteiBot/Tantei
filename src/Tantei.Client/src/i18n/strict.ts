@@ -1,6 +1,7 @@
 import type { App } from "vue";
-import type en from "./locales/en.json";
+
 import { i18n } from ".";
+import type en from "./locales/en.json";
 
 type Join<Prefix extends string, Key extends string> = Prefix extends "" ? Key : `${Prefix}.${Key}`;
 

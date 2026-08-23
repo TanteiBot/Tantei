@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
-import { computed, defineAsyncComponent } from "vue";
-import { RouterView, useRoute } from "vue-router";
-import { useI18n } from "vue-i18n";
 import { en, uk } from "@nuxt/ui/locale";
-import type { TranslationKey } from "@/i18n/strict";
-import LangSwitcher from "@/components/LangSwitcher.vue";
-import AuthMenu from "@/components/AuthMenu.vue";
+import { computed, defineAsyncComponent } from "vue";
+import { useI18n } from "vue-i18n";
+import type { RouteLocationRaw } from "vue-router";
+import { RouterView, useRoute } from "vue-router";
+
 import { useAuth, useSignOut, signIn } from "@/api/auth";
+import AuthMenu from "@/components/AuthMenu.vue";
+import LangSwitcher from "@/components/LangSwitcher.vue";
+import type { TranslationKey } from "@/i18n/strict";
 
 const { locale } = useI18n();
 const route = useRoute();

@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3-vite";
+
 import type { CurrentUserResponse } from "@/api/gen/types/CurrentUserResponse";
+
 import SignedInUserCard from "./SignedInUserCard.vue";
 
 const registered: CurrentUserResponse = {

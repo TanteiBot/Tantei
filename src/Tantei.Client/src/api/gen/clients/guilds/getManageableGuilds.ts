@@ -4,11 +4,11 @@
  */
 
 import type { Options, RequestResult } from "../../.kubb/client";
+import { client } from "../../.kubb/client";
 import type {
   GetManageableGuildsOptions,
   GetManageableGuildsResponses,
 } from "../../types/guilds/GetManageableGuilds";
-import { client } from "../../.kubb/client";
 
 /**
  * {@link /api/guilds/manageable}

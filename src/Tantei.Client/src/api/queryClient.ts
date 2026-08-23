@@ -1,4 +1,5 @@
 import { QueryClient } from "@tanstack/vue-query";
+
 import { ResponseError } from "./gen/.kubb/client";
 
 function shouldRetry(failureCount: number, error: Error): boolean {

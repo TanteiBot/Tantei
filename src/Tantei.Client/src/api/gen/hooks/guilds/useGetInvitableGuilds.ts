@@ -9,14 +9,15 @@ import type {
   UseQueryOptions,
   UseQueryReturnType,
 } from "@tanstack/vue-query";
+import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { toValue } from "vue";
+
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
+import { getInvitableGuilds } from "../../clients/guilds/getInvitableGuilds";
 import type {
   GetInvitableGuildsStatus200,
   GetInvitableGuildsStatus401,
 } from "../../types/guilds/GetInvitableGuilds";
-import { queryOptions, useQuery } from "@tanstack/vue-query";
-import { getInvitableGuilds } from "../../clients/guilds/getInvitableGuilds";
-import { toValue } from "vue";
 
 export const getInvitableGuildsQueryKey = () => [{ url: "/api/guilds/invitable" }] as const;
 

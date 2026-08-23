@@ -9,15 +9,16 @@ import type {
   UseQueryOptions,
   UseQueryReturnType,
 } from "@tanstack/vue-query";
+import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { toValue } from "vue";
+
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
+import { getManageableGuilds } from "../../clients/guilds/getManageableGuilds";
 import type {
   GetManageableGuildsStatus200,
   GetManageableGuildsStatus401,
   GetManageableGuildsStatus403,
 } from "../../types/guilds/GetManageableGuilds";
-import { queryOptions, useQuery } from "@tanstack/vue-query";
-import { getManageableGuilds } from "../../clients/guilds/getManageableGuilds";
-import { toValue } from "vue";
 
 export const getManageableGuildsQueryKey = () => [{ url: "/api/guilds/manageable" }] as const;
 

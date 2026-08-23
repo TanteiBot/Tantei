@@ -1,8 +1,8 @@
-import { globalIgnores } from "eslint/config";
 import { defineConfigWithVueTs, vueTsConfigs } from "@vue/eslint-config-typescript";
-import pluginVue from "eslint-plugin-vue";
 import pluginOxlint from "eslint-plugin-oxlint";
 import pluginStorybook from "eslint-plugin-storybook";
+import pluginVue from "eslint-plugin-vue";
+import { globalIgnores } from "eslint/config";
 
 const vueFormattingRulesOff = Object.fromEntries(
   Object.entries(pluginVue.rules ?? {})

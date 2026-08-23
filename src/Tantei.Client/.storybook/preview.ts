@@ -1,12 +1,13 @@
 import "../src/assets/main.css";
+import ui from "@nuxt/ui/vue-plugin";
 import type { Preview } from "@storybook/vue3-vite";
 import { setup } from "@storybook/vue3-vite";
-import ui from "@nuxt/ui/vue-plugin";
 import { VueQueryPlugin } from "@tanstack/vue-query";
-import router from "../src/router";
+
+import { createQueryClient } from "../src/api/queryClient";
 import { type Locale, i18n, SUPPORTED_LOCALES } from "../src/i18n";
 import { strictTranslate } from "../src/i18n/strict";
-import { createQueryClient } from "../src/api/queryClient";
+import router from "../src/router";
 
 const queryClient = createQueryClient();
 

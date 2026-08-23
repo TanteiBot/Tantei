@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+
 import { useAuth, signIn } from "@/api/auth";
 import type { TranslationKey } from "@/i18n/strict";
 

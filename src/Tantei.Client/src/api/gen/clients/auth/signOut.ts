@@ -4,8 +4,8 @@
  */
 
 import type { Options, RequestResult } from "../../.kubb/client";
-import type { SignOutOptions, SignOutResponses } from "../../types/auth/SignOut";
 import { client } from "../../.kubb/client";
+import type { SignOutOptions, SignOutResponses } from "../../types/auth/SignOut";
 
 /**
  * {@link /api/auth/sign-out}

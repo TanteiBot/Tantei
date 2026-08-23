@@ -4,8 +4,8 @@
  */
 
 import type { Options, RequestResult } from "../../.kubb/client";
-import type { PingOptions, PingResponses } from "../../types/status/Ping";
 import { client } from "../../.kubb/client";
+import type { PingOptions, PingResponses } from "../../types/status/Ping";
 
 /**
  * {@link /api/ping}

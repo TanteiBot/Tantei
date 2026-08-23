@@ -4,11 +4,11 @@
  */
 
 import type { Options, RequestResult } from "../../.kubb/client";
+import { client } from "../../.kubb/client";
 import type {
   GetCurrentUserOptions,
   GetCurrentUserResponses,
 } from "../../types/auth/GetCurrentUser";
-import { client } from "../../.kubb/client";
 
 /**
  * {@link /api/auth/me}

@@ -4,11 +4,11 @@
  */
 
 import type { Options, RequestResult } from "../../.kubb/client";
+import { client } from "../../.kubb/client";
 import type {
   GetUpdateTimesOptions,
   GetUpdateTimesResponses,
 } from "../../types/status/GetUpdateTimes";
-import { client } from "../../.kubb/client";
 
 /**
  * {@link /api/getUpdateTimes}

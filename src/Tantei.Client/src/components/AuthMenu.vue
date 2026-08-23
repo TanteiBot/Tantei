@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from "@nuxt/ui";
 import { computed } from "vue";
+
 import type { CurrentUserResponse } from "@/api/gen/types/CurrentUserResponse";
 import { tStrict } from "@/i18n/strict";
 

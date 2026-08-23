@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3-vite";
+
 import type { CurrentUserResponse } from "@/api/gen/types/CurrentUserResponse";
+
 import AuthMenu from "./AuthMenu.vue";
 
 const user: CurrentUserResponse = {

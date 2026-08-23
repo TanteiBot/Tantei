@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { usePing } from "@/api/gen/hooks/status";
+
 import { ResponseError } from "@/api/gen/.kubb/client";
+import { usePing } from "@/api/gen/hooks/status";
 import { tStrict } from "@/i18n/strict";
 
 const { locale } = useI18n();

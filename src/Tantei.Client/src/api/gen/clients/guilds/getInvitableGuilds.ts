@@ -4,11 +4,11 @@
  */
 
 import type { Options, RequestResult } from "../../.kubb/client";
+import { client } from "../../.kubb/client";
 import type {
   GetInvitableGuildsOptions,
   GetInvitableGuildsResponses,
 } from "../../types/guilds/GetInvitableGuilds";
-import { client } from "../../.kubb/client";
 
 /**
  * {@link /api/guilds/invitable}
