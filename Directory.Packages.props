@@ -79,7 +79,7 @@
 
     <!-- Misc -->
     <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
-    <PackageVersion Include="AngleSharp" Version="1.7.1" />
+    <PackageVersion Include="AngleSharp" Version="1.7.2" />
     <PackageVersion Include="JikanDotNet" Version="2.10.4" />
     <PackageVersion Include="System.Threading.RateLimiting" Version="$(DotnetExtensionsVersion)" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="$(VisualStudioThreadingVersion)" />
