@@ -16,6 +16,10 @@ updates:
       interval: "weekly"
       day: "saturday"
       timezone: "Etc/UTC"
+    cooldown:
+      exclude:
+        - "Microsoft.*"
+        - "System.*"
     groups:
       nuget:
         patterns:
@@ -24,8 +28,32 @@ updates:
   - package-ecosystem: "npm"
     directory: "/src/Tantei.Client"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
+      day: "saturday"
+      timezone: "Etc/UTC"
+    open-pull-requests-limit: 10
     groups:
-      npm:
+      storybook:
+        patterns:
+          - "storybook"
+          - "@storybook/*"
+          - "eslint-plugin-storybook"
+      oxlint:
+        patterns:
+          - "oxlint"
+          - "eslint-plugin-oxlint"
+      npm-minor:
         patterns:
           - "*"
+        exclude-patterns:
+          - "oxfmt"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
