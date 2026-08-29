@@ -35,7 +35,12 @@ const items = computed<DropdownMenuItem[][]>(() => [
   <USkeleton v-if="isLoading" class="h-8 w-24" />
 
   <UDropdownMenu v-else-if="user" :items="items">
-    <UButton color="neutral" variant="ghost" :aria-label="$tStrict('auth.menu')">
+    <UButton
+      color="neutral"
+      variant="ghost"
+      class="cursor-pointer"
+      :aria-label="$tStrict('auth.menu')"
+    >
       <UAvatar :src="user.avatarUrl ?? undefined" :alt="user.username" size="2xs" />
       <span class="hidden sm:inline">{{ user.username }}</span>
     </UButton>

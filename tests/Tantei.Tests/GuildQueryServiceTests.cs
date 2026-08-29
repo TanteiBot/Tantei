@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using DSharpPlus;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
@@ -72,9 +71,8 @@ public sealed class GuildQueryServiceTests
 	{
 		var (factory, connection) = await CreateDatabaseAsync();
 		await using var ownedConnection = connection;
-		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
 		SeedUserInGuilds(factory, FirstUserId, FirstGuildId, SecondGuildId);
-		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId, SecondGuildId), new(memoryCache));
+		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId, SecondGuildId));
 
 		var result = service.GetManageableGuilds(FirstUserId);
 
@@ -86,9 +84,8 @@ public sealed class GuildQueryServiceTests
 	{
 		var (factory, connection) = await CreateDatabaseAsync();
 		await using var ownedConnection = connection;
-		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
 		SeedUserInGuilds(factory, FirstUserId, FirstGuildId, SecondGuildId);
-		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId), new(memoryCache));
+		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId));
 
 		var result = service.GetManageableGuilds(FirstUserId);
 
@@ -100,8 +97,7 @@ public sealed class GuildQueryServiceTests
 	{
 		var (factory, connection) = await CreateDatabaseAsync();
 		await using var ownedConnection = connection;
-		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
-		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId), new(memoryCache));
+		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId));
 
 		var result = service.GetManageableGuilds(UnknownUserId);
 
@@ -113,30 +109,24 @@ public sealed class GuildQueryServiceTests
 	{
 		var (factory, connection) = await CreateDatabaseAsync();
 		await using var ownedConnection = connection;
-		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
-		var cache = new UserGuildsCache(memoryCache);
-		cache.Set(FirstUserId,
-			[
-				new(FirstGuildId, "Bot is here", null, Permissions.ManageGuild),
-				new(ThirdGuildId, "Can invite", null, Permissions.ManageGuild),
-				new(FourthGuildId, "No permission", null, Permissions.None),
-			]);
-		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId), cache);
+		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId));
 
-		var result = service.GetInvitableGuilds(FirstUserId);
+		var result = service.GetInvitableGuilds([
+			new(FirstGuildId, "Bot is here", null, Permissions.ManageGuild),
+			new(ThirdGuildId, "Can invite", null, Permissions.ManageGuild),
+			new(FourthGuildId, "No permission", null, Permissions.None),
+		]);
 
 		await Assert.That(result.Select(g => g.GuildId)).IsEquivalentTo([ThirdGuildId,]);
 	}
 
 	[Test]
-	public async Task InvitableGuildsAreEmptyWhenNothingIsCached()
+	public async Task InvitableGuildsAreEmptyWhenTheUserAdministersNothingNew()
 	{
 		var (factory, connection) = await CreateDatabaseAsync();
 		await using var ownedConnection = connection;
-		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
-		var emptyCache = new UserGuildsCache(memoryCache);
-		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId), emptyCache);
+		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId));
 
-		await Assert.That(service.GetInvitableGuilds(FirstUserId)).IsEmpty();
+		await Assert.That(service.GetInvitableGuilds([new(FirstGuildId, "Bot is here", null, Permissions.ManageGuild),])).IsEmpty();
 	}
 }

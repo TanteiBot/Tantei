@@ -10,6 +10,7 @@ internal static class ApiEndpoints
 		var api = endpoints.MapGroup("/api");
 
 		api.MapAuthEndpoints();
+		api.MapConfigEndpoints();
 		api.MapGuildEndpoints();
 		api.MapStatusEndpoints();
 

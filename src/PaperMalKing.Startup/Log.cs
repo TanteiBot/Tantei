@@ -146,6 +146,9 @@ internal static partial class Log
 	[LoggerMessage(LogLevel.Warning, "Failed to fetch Discord guilds for user {DiscordUserId} at sign-in")]
 	public static partial void FailedToFetchDiscordGuildsAtSignIn(this ILogger<DiscordUserGuildsClient> logger, Exception ex, ulong discordUserId);
 
+	[LoggerMessage(LogLevel.Warning, "Failed to refetch Discord guilds for user {DiscordUserId} after a cache miss")]
+	public static partial void FailedToRefetchDiscordGuilds(this ILogger<UserGuildsProvider> logger, Exception ex, ulong discordUserId);
+
 	[LoggerMessage(LogLevel.Information, "Discarding unusable Discord OAuth token for {DiscordUserId} because Discord reported {Error}")]
 	public static partial void DiscardingUnusableDiscordToken(this ILogger<DiscordTokenRefreshService> logger, ulong discordUserId, string? error);
 

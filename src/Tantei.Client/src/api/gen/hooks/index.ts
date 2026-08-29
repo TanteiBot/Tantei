@@ -1,4 +1,5 @@
 export type { GetCurrentUserQueryKey } from "./auth/useGetCurrentUser";
+export type { GetSiteConfigQueryKey } from "./config/useGetSiteConfig";
 export type { GetInvitableGuildsQueryKey } from "./guilds/useGetInvitableGuilds";
 export type { GetManageableGuildsQueryKey } from "./guilds/useGetManageableGuilds";
 export type { GetUpdateTimesQueryKey } from "./status/useGetUpdateTimes";
@@ -9,6 +10,11 @@ export {
   useGetCurrentUser,
 } from "./auth/useGetCurrentUser";
 export { signOutMutationKey, useSignOut } from "./auth/useSignOut";
+export {
+  getSiteConfigQueryKey,
+  getSiteConfigQueryOptions,
+  useGetSiteConfig,
+} from "./config/useGetSiteConfig";
 export {
   getInvitableGuildsQueryKey,
   getInvitableGuildsQueryOptions,

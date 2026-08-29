@@ -1,9 +1,13 @@
 export type { AuthStateResponse } from "./AuthStateResponse";
 export type { CurrentUserResponse } from "./CurrentUserResponse";
 export type { InvitableGuildResponse } from "./InvitableGuildResponse";
+export type { InvitableGuildsResponse } from "./InvitableGuildsResponse";
+export type { InviteEligibilityKey } from "./InviteEligibility";
+export type { InviteModeKey } from "./InviteMode";
 export type { ManageableGuildResponse } from "./ManageableGuildResponse";
 export type { PingResponse } from "./PingResponse";
 export type { ProblemDetails } from "./ProblemDetails";
+export type { SiteConfigResponse } from "./SiteConfigResponse";
 export type { UpdateProviderStatusResponse } from "./UpdateProviderStatusResponse";
 export type {
   GetCurrentUserOptions,
@@ -25,6 +29,12 @@ export type {
   SignOutStatus204,
 } from "./auth/SignOut";
 export type {
+  GetSiteConfigOptions,
+  GetSiteConfigResponse,
+  GetSiteConfigResponses,
+  GetSiteConfigStatus200,
+} from "./config/GetSiteConfig";
+export type {
   GetInvitableGuildsOptions,
   GetInvitableGuildsResponse,
   GetInvitableGuildsResponses,
@@ -39,6 +49,16 @@ export type {
   GetManageableGuildsStatus401,
   GetManageableGuildsStatus403,
 } from "./guilds/GetManageableGuilds";
+export type {
+  InviteToGuildOptions,
+  InviteToGuildPath,
+  InviteToGuildResponse,
+  InviteToGuildResponses,
+  InviteToGuildStatus302,
+  InviteToGuildStatus401,
+  InviteToGuildStatus403,
+  InviteToGuildStatus404,
+} from "./guilds/InviteToGuild";
 export type {
   RefreshGuildsOptions,
   RefreshGuildsResponse,
@@ -62,3 +82,5 @@ export type {
   PingStatus401,
   PingStatus403,
 } from "./status/Ping";
+export { inviteEligibility } from "./InviteEligibility";
+export { inviteMode } from "./InviteMode";

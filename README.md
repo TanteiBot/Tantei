@@ -37,6 +37,8 @@ Prerequisites: [Docker](https://docs.docker.com/get-started/get-docker/) (Podman
       } 
     }
     ```
+- The bot's website lets people add the bot to Discord servers they manage. Who may do that is controlled by `InviteMode` in the `Web` section of the config: `Private` (only the bot's owner), `SemiPrivate` (only people already in a server the bot is in) or `Public` (anyone who manages a server). The default is `SemiPrivate`, and the bot's owner may always invite. This gates the website only — it cannot stop someone who crafts a Discord authorize URL by hand.
+- The invite link the website hands out asks Discord for the `bot` and `applications.commands` scopes and for the permissions the bot needs to post updates — *View Channel*, *Send Messages*, *Embed Links*, *Attach Files* and *Use Application Commands*. Nothing needs configuring on [Discord's website](https://discord.com/developers/applications) for the link to work, though the application's install context there should be *Guild Install*.
 - To fetch list updates from MyAnimeList, you need to register your bot on [MAL's website](https://myanimelist.net/apiconfig), and set Client ID and Client Secret in the config.
 - To fetch list updates for Shikimori, you need to create application on [Shikimori's website](https://shikimori.io/oauth) adn set its name in config
 - Switch back to directory `tantei` directory you created in first step and start the app with `docker compose up`

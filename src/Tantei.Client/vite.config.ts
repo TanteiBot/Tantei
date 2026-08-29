@@ -12,7 +12,20 @@ export default defineConfig({
   plugins: [
     VueRouter(),
     vue(),
-    ui(),
+    ui({
+      ui: {
+        icon: {
+          clientBundle: {
+            icons: ["circle-flags:gb", "circle-flags:lang-uk"],
+          },
+        },
+        colors: {
+          primary: "fern-frond",
+          secondary: "stromboli",
+          neutral: "burnt-malt",
+        },
+      },
+    }),
     vueI18n({
       include: [fileURLToPath(new URL("./src/i18n/locales/**", import.meta.url))],
     }),
@@ -26,11 +39,14 @@ export default defineConfig({
   build: {
     outDir: fileURLToPath(new URL("../PaperMalKing/wwwroot", import.meta.url)),
     emptyOutDir: true,
+    license: {
+      fileName: "licenses.json",
+    },
   },
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:5010",
+        target: "https://localhost:7131",
         changeOrigin: true,
       },
     },

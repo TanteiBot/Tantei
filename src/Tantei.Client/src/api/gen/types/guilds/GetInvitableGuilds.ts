@@ -3,10 +3,10 @@
  * Do not edit manually.
  */
 
-import type { InvitableGuildResponse } from "../InvitableGuildResponse";
+import type { InvitableGuildsResponse } from "../InvitableGuildsResponse";
 import type { ProblemDetails } from "../ProblemDetails";
 
-export type GetInvitableGuildsStatus200 = InvitableGuildResponse[];
+export type GetInvitableGuildsStatus200 = InvitableGuildsResponse;
 
 export type GetInvitableGuildsStatus401 = ProblemDetails;
 

@@ -3,10 +3,13 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 
 import { useAuth, signIn } from "@/api/auth";
+import { useGetSiteConfig } from "@/api/gen/hooks/config";
+import InviteNotice from "@/components/InviteNotice.vue";
 import type { TranslationKey } from "@/i18n/strict";
 
 const route = useRoute();
-const { isSignedIn } = useAuth();
+const { isSignedIn, isLoading } = useAuth();
+const { data: siteConfig } = useGetSiteConfig();
 
 const signInErrorKey = computed<TranslationKey | null>(() => {
   switch (route.query["error"]) {
@@ -37,6 +40,8 @@ const returnUrl = computed(() => {
       :title="$tStrict('common.error.title')"
       :description="$tStrict(signInErrorKey)"
     />
+
+    <InviteNotice v-if="!isLoading && !isSignedIn && siteConfig" :mode="siteConfig.inviteMode" />
 
     <div class="flex flex-col items-start gap-4 py-8">
       <h1 class="text-highlighted text-3xl font-bold">{{ $tStrict("home.hero.title") }}</h1>
