@@ -57,6 +57,7 @@
     <File Path="tests/.gitignore" />
     <File Path="tests/Directory.Build.props" />
     <Project Path="tests/PaperMalKing.AniList.Wrapper.Tests/PaperMalKing.AniList.Wrapper.Tests.csproj" />
+    <Project Path="tests/PaperMalKing.MyAnimeList.UpdateProvider.Tests/PaperMalKing.MyAnimeList.UpdateProvider.Tests.csproj" />
     <Project Path="tests/PaperMalKing.MyAnimeList.Wrapper.Tests/PaperMalKing.MyAnimeList.Wrapper.Tests.csproj" />
     <Project Path="tests/PaperMalKing.UpdateProviders.Base.Tests/PaperMalKing.UpdateProviders.Base.Tests.csproj" />
     <Project Path="tests/Tantei.Tests/Tantei.Tests.csproj" />
