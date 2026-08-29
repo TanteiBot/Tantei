@@ -13,7 +13,7 @@ import type {
   Serializers,
   Styles,
 } from "./serializers";
-import { type StandardSchemaValidator, validateStandardSchema } from "./standardSchema.ts";
+import { type StandardSchemaValidator, validateStandardSchema } from "./standardSchema";
 
 /**
  * HTTP status codes treated as a success, everything else is an error.
