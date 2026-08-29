@@ -60,108 +60,19 @@
         }
       }
     },
-    "/api/guilds/manageable": {
+    "/api/config": {
       "get": {
         "tags": [
-          "Guilds"
+          "Config"
         ],
-        "operationId": "GetManageableGuilds",
+        "operationId": "GetSiteConfig",
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ManageableGuildResponse"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/guilds/invitable": {
-      "get": {
-        "tags": [
-          "Guilds"
-        ],
-        "operationId": "GetInvitableGuilds",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/InvitableGuildResponse"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/guilds/refresh": {
-      "post": {
-        "tags": [
-          "Guilds"
-        ],
-        "operationId": "RefreshGuilds",
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "502": {
-            "description": "Bad Gateway",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/SiteConfigResponse"
                 }
               }
             }
@@ -251,6 +162,156 @@
           }
         }
       }
+    },
+    "/api/guilds/manageable": {
+      "get": {
+        "tags": [
+          "Guilds"
+        ],
+        "operationId": "GetManageableGuilds",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ManageableGuildResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guilds/invitable": {
+      "get": {
+        "tags": [
+          "Guilds"
+        ],
+        "operationId": "GetInvitableGuilds",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitableGuildsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guilds/{guildId}/invite": {
+      "get": {
+        "tags": [
+          "Guilds"
+        ],
+        "operationId": "InviteToGuild",
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "uint64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Not Found"
+          },
+          "302": {
+            "description": "Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guilds/refresh": {
+      "post": {
+        "tags": [
+          "Guilds"
+        ],
+        "operationId": "RefreshGuilds",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -324,6 +385,50 @@
             ]
           }
         }
+      },
+      "InvitableGuildsResponse": {
+        "required": [
+          "eligibility",
+          "guilds"
+        ],
+        "type": "object",
+        "properties": {
+          "eligibility": {
+            "$ref": "#/components/schemas/InviteEligibility"
+          },
+          "guilds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvitableGuildResponse"
+            }
+          }
+        }
+      },
+      "InviteEligibility": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "x-enum-varnames": [
+          "Allowed",
+          "NotAllowed",
+          "Unknown"
+        ]
+      },
+      "InviteMode": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "x-enum-varnames": [
+          "Private",
+          "SemiPrivate",
+          "Public"
+        ]
       },
       "ManageableGuildResponse": {
         "required": [
@@ -401,6 +506,17 @@
           }
         }
       },
+      "SiteConfigResponse": {
+        "required": [
+          "inviteMode"
+        ],
+        "type": "object",
+        "properties": {
+          "inviteMode": {
+            "$ref": "#/components/schemas/InviteMode"
+          }
+        }
+      },
       "UpdateProviderStatusResponse": {
         "required": [
           "name",
@@ -431,10 +547,13 @@
       "name": "Auth"
     },
     {
-      "name": "Guilds"
+      "name": "Config"
     },
     {
       "name": "Status"
+    },
+    {
+      "name": "Guilds"
     }
   ]
 }

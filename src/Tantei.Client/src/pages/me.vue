@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { useAuth, signIn } from "@/api/auth";
-import { useGetManageableGuilds } from "@/api/gen/hooks/guilds";
+import { useGetSiteConfig } from "@/api/gen/hooks/config";
+import { useGetInvitableGuilds, useGetManageableGuilds } from "@/api/gen/hooks/guilds";
+import InviteGuilds from "@/components/InviteGuilds.vue";
 import SignedInUserCard from "@/components/SignedInUserCard.vue";
 
 const { user, isSignedIn, isLoading } = useAuth();
 
 const { data: guilds } = useGetManageableGuilds({ query: { enabled: isSignedIn } });
+const { data: invitable } = useGetInvitableGuilds({ query: { enabled: isSignedIn } });
+const { data: siteConfig } = useGetSiteConfig();
 </script>
 
 <template>
@@ -47,6 +51,13 @@ const { data: guilds } = useGetManageableGuilds({ query: { enabled: isSignedIn }
 
         <p v-else class="text-muted text-sm">{{ $tStrict("me.guilds.empty") }}</p>
       </UCard>
+
+      <InviteGuilds
+        v-if="siteConfig && invitable"
+        :mode="siteConfig.inviteMode"
+        :eligibility="invitable.eligibility"
+        :guilds="invitable.guilds"
+      />
     </template>
   </div>
 </template>

@@ -1,2 +1,62 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+@theme static {
+  --color-burnt-malt-50: #f7f8f3;
+  --color-burnt-malt-100: #eceee7;
+  --color-burnt-malt-200: #dfe2d8;
+  --color-burnt-malt-300: #c9cec1;
+  --color-burnt-malt-400: #a9aaa1;
+  --color-burnt-malt-500: #7f8078;
+  --color-burnt-malt-600: #5f605a;
+  --color-burnt-malt-700: #474842;
+  --color-burnt-malt-800: #2f302c;
+  --color-burnt-malt-900: #21221f;
+  --color-burnt-malt-950: #161715;
+
+  --color-fern-frond-50: #f6f9ec;
+  --color-fern-frond-100: #eaf1d6;
+  --color-fern-frond-200: #d6e4b2;
+  --color-fern-frond-300: #bad185;
+  --color-fern-frond-400: #9fbd5e;
+  --color-fern-frond-500: #82a240;
+  --color-fern-frond-600: #5e782d;
+  --color-fern-frond-700: #4d6328;
+  --color-fern-frond-800: #3f4f25;
+  --color-fern-frond-900: #374423;
+  --color-fern-frond-950: #1b240f;
+
+  --color-stromboli-50: #f4f9f7;
+  --color-stromboli-100: #dcebe5;
+  --color-stromboli-200: #b9d6cb;
+  --color-stromboli-300: #8ebaab;
+  --color-stromboli-400: #669b8b;
+  --color-stromboli-500: #4c8071;
+  --color-stromboli-600: #386156;
+  --color-stromboli-700: #32534b;
+  --color-stromboli-800: #2b443e;
+  --color-stromboli-900: #273a35;
+  --color-stromboli-950: #13201d;
+}
+
+:root {
+  --ui-bg: var(--ui-color-neutral-200);
+  --ui-bg-muted: var(--ui-color-neutral-300);
+  --ui-bg-elevated: var(--ui-color-neutral-100);
+  --ui-bg-accented: var(--ui-color-neutral-300);
+}
+
+:root:not(.dark) {
+  --ui-text-dimmed: var(--ui-color-neutral-600);
+  --ui-text-muted: var(--ui-color-neutral-700);
+  --ui-text-toned: var(--ui-color-neutral-800);
+  --ui-text: var(--ui-color-neutral-900);
+  --ui-text-highlighted: var(--ui-color-neutral-950);
+}
+
+.dark {
+  --ui-bg: var(--ui-color-neutral-950);
+  --ui-bg-muted: var(--ui-color-neutral-900);
+  --ui-bg-elevated: var(--ui-color-neutral-900);
+  --ui-bg-accented: var(--ui-color-neutral-800);
+}

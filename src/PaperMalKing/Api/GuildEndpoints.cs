@@ -6,7 +6,9 @@ using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Options;
 using PaperMalKing.Api.Contracts.Responses;
+using PaperMalKing.Startup.Options;
 using PaperMalKing.Startup.Web;
 using PaperMalKing.Startup.Web.Guilds;
 using PaperMalKing.Startup.Web.Tokens;
@@ -28,14 +30,60 @@ internal static class GuildEndpoints
 		}).RequireAuthorization()
 		  .WithName("GetManageableGuilds");
 
-		group.MapGet("/invitable", Ok<IReadOnlyList<InvitableGuildResponse>> (HttpContext context, GuildQueryService guildQueryService) =>
-		{
-			var discordUserId = ParseUserId(context);
-			var guilds = guildQueryService.GetInvitableGuilds(discordUserId);
-			return TypedResults.Ok<IReadOnlyList<InvitableGuildResponse>>(
-				[.. guilds.Select(g => new InvitableGuildResponse(g.GuildId.ToString(CultureInfo.InvariantCulture), g.Name, g.IconUrl))]);
-		}).RequireAuthorization(TanteiPolicies.SignedIn)
-		  .WithName("GetInvitableGuilds");
+		group.MapGet("/invitable",
+			async Task<Ok<InvitableGuildsResponse>> (HttpContext context,
+													GuildQueryService guildQueryService,
+													InviteAuthorization inviteAuthorization,
+													UserGuildsProvider userGuildsProvider) =>
+			{
+				var eligibility = await inviteAuthorization.GetEligibilityAsync(context.User, context.RequestAborted);
+				if (eligibility != InviteEligibility.Allowed)
+				{
+					return TypedResults.Ok(new InvitableGuildsResponse(eligibility, []));
+				}
+
+				var discordUserId = ParseUserId(context);
+				var userGuilds = await userGuildsProvider.GetGuildsAsync(discordUserId, context.RequestAborted);
+				if (userGuilds is null)
+				{
+					return TypedResults.Ok(new InvitableGuildsResponse(InviteEligibility.Unknown, []));
+				}
+
+				var guilds = guildQueryService.GetInvitableGuilds(userGuilds);
+				return TypedResults.Ok(new InvitableGuildsResponse(InviteEligibility.Allowed,
+					[.. guilds.Select(g => new InvitableGuildResponse(g.GuildId.ToString(CultureInfo.InvariantCulture), g.Name, g.IconUrl))]));
+			}).RequireAuthorization(TanteiPolicies.SignedIn)
+			  .WithName("GetInvitableGuilds");
+
+		group.MapGet("/{guildId}/invite",
+			async Task<Results<RedirectHttpResult, ForbidHttpResult, NotFound>> (HttpContext context,
+																				ulong guildId,
+																				GuildQueryService guildQueryService,
+																				InviteAuthorization inviteAuthorization,
+																				UserGuildsProvider userGuildsProvider,
+																				IOptions<DiscordOptions> discordOptions) =>
+			{
+				if (await inviteAuthorization.GetEligibilityAsync(context.User, context.RequestAborted) != InviteEligibility.Allowed)
+				{
+					return TypedResults.Forbid();
+				}
+
+				var discordUserId = ParseUserId(context);
+				var userGuilds = await userGuildsProvider.GetGuildsAsync(discordUserId, context.RequestAborted);
+				if (userGuilds is null || guildQueryService.GetInvitableGuilds(userGuilds).All(g => g.GuildId != guildId))
+				{
+					return TypedResults.NotFound();
+				}
+
+				var clientId = Uri.EscapeDataString(discordOptions.Value.ClientId);
+				return TypedResults.Redirect($"{DiscordApiConstants.AuthorizeUrl}?client_id={clientId}" +
+											 $"&scope={DiscordApiConstants.InviteScopes}&permissions={DiscordApiConstants.InvitePermissions}" +
+											 $"&guild_id={guildId.ToString(CultureInfo.InvariantCulture)}&disable_guild_select=true");
+			}).RequireAuthorization(TanteiPolicies.SignedIn)
+			  .Produces(StatusCodes.Status302Found)
+			  .Produces(StatusCodes.Status403Forbidden)
+			  .Produces(StatusCodes.Status404NotFound)
+			  .WithName("InviteToGuild");
 
 		group.MapPost("/refresh", async Task<Results<NoContent, ProblemHttpResult>> (HttpContext context,
 																						 DiscordTokenRefreshService tokenRefreshService,

@@ -7,7 +7,7 @@ using PaperMalKing.Database;
 
 namespace PaperMalKing.Startup.Web.Guilds;
 
-public sealed class GuildQueryService(IDbContextFactory<DatabaseContext> _dbContextFactory, IBotGuildPresence _botGuildPresence, UserGuildsCache _userGuildsCache)
+public sealed class GuildQueryService(IDbContextFactory<DatabaseContext> _dbContextFactory, IBotGuildPresence _botGuildPresence)
 {
 #pragma warning disable CA1859 // Use concrete types when possible for improved performance
 	public IReadOnlyList<ManageableGuild> GetManageableGuilds(ulong discordUserId)
@@ -24,14 +24,7 @@ public sealed class GuildQueryService(IDbContextFactory<DatabaseContext> _dbCont
 				   .Where(x => x is not null).Select(x => new ManageableGuild(x!.GuildId, x.Name, x.IconUrl))];
 	}
 
-	public IReadOnlyList<InvitableGuild> GetInvitableGuilds(ulong discordUserId)
-	{
-		if (!_userGuildsCache.TryGet(discordUserId, out var guilds))
-		{
-			return [];
-		}
-
-		return [.. guilds.Where(guild => guild.Permissions.HasFlag(Permissions.ManageGuild) && _botGuildPresence.GetGuild(guild.Id) is null)
-						 .Select(guild => new InvitableGuild(guild.Id, guild.Name, guild.IconUrl))];
-	}
+	public IReadOnlyList<InvitableGuild> GetInvitableGuilds(IReadOnlyList<DiscordPartialGuild> guilds)
+		=> [.. guilds.Where(guild => guild.Permissions.HasFlag(Permissions.ManageGuild) && _botGuildPresence.GetGuild(guild.Id) is null)
+					 .Select(guild => new InvitableGuild(guild.Id, guild.Name, guild.IconUrl))];
 }

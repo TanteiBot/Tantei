@@ -14,6 +14,16 @@ export type {
   GetManageableGuildsStatus403,
 } from "./GetManageableGuilds";
 export type {
+  InviteToGuildOptions,
+  InviteToGuildPath,
+  InviteToGuildResponse,
+  InviteToGuildResponses,
+  InviteToGuildStatus302,
+  InviteToGuildStatus401,
+  InviteToGuildStatus403,
+  InviteToGuildStatus404,
+} from "./InviteToGuild";
+export type {
   RefreshGuildsOptions,
   RefreshGuildsResponse,
   RefreshGuildsResponses,

@@ -57,10 +57,32 @@
       "empty": "The bot is not posting your updates in any server yet."
     }
   },
+  "invite": {
+    "title": "Add Tantei to a server",
+    "button": "Add to server",
+    "unavailable": "Tantei could not check your servers with Discord just now. Try again in a moment, or sign in again if this keeps happening.",
+    "empty": "Tantei is already in every server you manage.",
+    "notice": {
+      "private": "Only the bot's owner can add Tantei to a server, so signing in will not let you add it to yours.",
+      "semiPrivate": "You can add Tantei to a server you manage only if you are already in a server it is in."
+    },
+    "blocked": {
+      "private": "Only the bot's owner can add Tantei to a server.",
+      "semiPrivate": "To add Tantei to a server you manage, you need to be in a server Tantei is already in."
+    }
+  },
   "apiPing": {
     "title": "API wiring check",
     "description": "Calls {endpoint} on the backend through Vite's dev proxy.",
     "button": "Ping API",
     "serverTime": "Server time: {time}"
+  },
+  "footer": {
+    "copyright": "© 2021–2026 N0D4N",
+    "source": "GitHub",
+    "license": "Licensed under AGPL-3.0"
+  },
+  "theme": {
+    "toggle": "Toggle theme"
   }
 }

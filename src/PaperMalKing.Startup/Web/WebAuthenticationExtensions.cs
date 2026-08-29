@@ -39,6 +39,9 @@ public static class WebAuthenticationExtensions
 		services.AddSingleton<IBotGuildPresence, BotGuildPresence>();
 		services.AddSingleton<IAuthorizationHandler, GuildAdminAuthorizationHandler>();
 		services.AddSingleton<GuildQueryService>();
+		services.AddSingleton<InviteAuthorization>();
+		services.AddSingleton<UserGuildsProvider>();
+		services.AddSingleton<IUserGuildsProvider>(sp => sp.GetRequiredService<UserGuildsProvider>());
 		services.AddSingleton<UserGuildsCache>();
 		services.AddHttpClient<DiscordUserGuildsClient>(DiscordUserGuildsClient.HttpClientName,
 			client => client.BaseAddress = new(DiscordApiConstants.BaseUrl));

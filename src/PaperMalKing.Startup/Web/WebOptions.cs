@@ -17,4 +17,7 @@ public sealed class WebOptions
 	public int CookieLifetimeInDays { get; init; } = DefaultCookieLifetimeInDays;
 
 	public string? DataProtectionKeysDirectory { get; init; }
+
+	[EnumDataType(typeof(InviteMode))]
+	public InviteMode InviteMode { get; init; } = InviteMode.SemiPrivate;
 }

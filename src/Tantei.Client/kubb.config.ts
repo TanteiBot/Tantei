@@ -9,7 +9,10 @@ process.env["KUBB_DISABLE_TELEMETRY"] = "1";
 
 const group = { type: "tag", name: ({ group }: { group: string }) => group.toLowerCase() } as const;
 
-const exclude = [{ type: "path", pattern: "/api/auth/sign-in" }] as const;
+const exclude = [
+  { type: "path", pattern: "/api/auth/sign-in" },
+  { type: "path", pattern: "/api/guilds/{guildId}/invite" },
+] as const;
 
 export default defineConfig({
   root: ".",

@@ -12,7 +12,13 @@
     "ClientSecret": ""
   },
   "Web": {
-    "CookieLifetimeInDays": 30
+    "CookieLifetimeInDays": 30,
+    // Who may add the bot to a server through the website.
+    //   "Private"     - only the bot's owner.
+    //   "SemiPrivate" - anyone who manages a server and is already in a server the bot is in.
+    //   "Public"      - anyone who manages a server.
+    // The bot's owner may always invite, whichever mode is set.
+    "InviteMode": "SemiPrivate"
   },
   "MyAnimeList": {
     "ClientId": ""

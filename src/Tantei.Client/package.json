@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
@@ -31,6 +31,7 @@
     "vue-router": "^5.2.0"
   },
   "devDependencies": {
+    "@iconify-json/circle-flags": "^1.2.10",
     "@intlify/unplugin-vue-i18n": "^11.2.5",
     "@kubb/plugin-fetch": "^5.0.0",
     "@kubb/plugin-ts": "^5.0.0",

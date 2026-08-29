@@ -1,5 +1,6 @@
 export { getCurrentUser } from "./auth/getCurrentUser";
 export { signOut } from "./auth/signOut";
+export { getSiteConfig } from "./config/getSiteConfig";
 export { getInvitableGuilds } from "./guilds/getInvitableGuilds";
 export { getManageableGuilds } from "./guilds/getManageableGuilds";
 export { refreshGuilds } from "./guilds/refreshGuilds";
