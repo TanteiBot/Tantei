@@ -9,10 +9,10 @@
     <DotnetExtensionsVersion>10.0.11</DotnetExtensionsVersion>
     <DotnetSeparateExtensionsVersion>10.9.0</DotnetSeparateExtensionsVersion>  
     <GraphQLClientVersion>6.1.0</GraphQLClientVersion>
-    <DSharpPlusVersion>4.5.2</DSharpPlusVersion>
+    <DSharpPlusVersion>4.5.3</DSharpPlusVersion>
     <VisualStudioThreadingVersion>18.7.23</VisualStudioThreadingVersion>
 
-    <VerifyVersion>31.28.0</VerifyVersion>
+    <VerifyVersion>32.0.0</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
@@ -71,7 +71,7 @@
     <!-- Web -->
     <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="10.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(DotnetExtensionsVersion)" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.17.1" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.17.2" />
     <PackageVersion Include="Microsoft.Extensions.ApiDescription.Server" Version="$(DotnetExtensionsVersion)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -92,7 +92,7 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.177">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.191">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -134,7 +134,7 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.5" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
     <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
-    <PackageVersion Include="TUnit" Version="1.65.51" />
+    <PackageVersion Include="TUnit" Version="1.65.68" />
 
 
 
