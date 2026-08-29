@@ -75,9 +75,12 @@ check-generated-api:
 # Refuse to build while the bot holds its own Debug output open
 _check-not-running:
     #!pwsh -NoLogo
-    $running = @(Get-Process -Name PaperMalKing -ErrorAction SilentlyContinue)
+    $buildOutputPath = [IO.Path]::GetFullPath((Join-Path $PWD 'src/PaperMalKing/bin')) + [IO.Path]::DirectorySeparatorChar
+    $running = @(Get-Process -Name PaperMalKing -ErrorAction SilentlyContinue | Where-Object {
+        $_.Path -and [IO.Path]::GetFullPath($_.Path).StartsWith($buildOutputPath, [StringComparison]::OrdinalIgnoreCase)
+    })
     if ($running.Count -gt 0) {
-        Write-Host "Tantei is running (PID $($running.Id -join ', ')). It locks src/PaperMalKing/bin/Debug, so builds fail with MSB3021. Stop it and re-run."
+        Write-Host "Tantei is running from src/PaperMalKing/bin (PID $($running.Id -join ', ')), so builds fail with MSB3021. Stop it and re-run."
         exit 1
     }
 
