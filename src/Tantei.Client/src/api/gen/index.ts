@@ -3,16 +3,19 @@ export * from "./.kubb/serializers";
 export * from "./.kubb/standardSchema";
 export type { GetCurrentUserQueryKey } from "./hooks/auth/useGetCurrentUser";
 export type { GetSiteConfigQueryKey } from "./hooks/config/useGetSiteConfig";
+export type { GetCreditsQueryKey } from "./hooks/credits/useGetCredits";
 export type { GetInvitableGuildsQueryKey } from "./hooks/guilds/useGetInvitableGuilds";
 export type { GetManageableGuildsQueryKey } from "./hooks/guilds/useGetManageableGuilds";
 export type { GetUpdateTimesQueryKey } from "./hooks/status/useGetUpdateTimes";
 export type { PingQueryKey } from "./hooks/status/usePing";
 export type { AuthStateResponse } from "./types/AuthStateResponse";
+export type { CreditsResponse } from "./types/CreditsResponse";
 export type { CurrentUserResponse } from "./types/CurrentUserResponse";
 export type { InvitableGuildResponse } from "./types/InvitableGuildResponse";
 export type { InvitableGuildsResponse } from "./types/InvitableGuildsResponse";
 export type { InviteEligibilityKey } from "./types/InviteEligibility";
 export type { InviteModeKey } from "./types/InviteMode";
+export type { LicenseResponse } from "./types/LicenseResponse";
 export type { ManageableGuildResponse } from "./types/ManageableGuildResponse";
 export type { PingResponse } from "./types/PingResponse";
 export type { ProblemDetails } from "./types/ProblemDetails";
@@ -43,6 +46,12 @@ export type {
   GetSiteConfigResponses,
   GetSiteConfigStatus200,
 } from "./types/config/GetSiteConfig";
+export type {
+  GetCreditsOptions,
+  GetCreditsResponse,
+  GetCreditsResponses,
+  GetCreditsStatus200,
+} from "./types/credits/GetCredits";
 export type {
   GetInvitableGuildsOptions,
   GetInvitableGuildsResponse,
@@ -94,6 +103,7 @@ export type {
 export { getCurrentUser } from "./clients/auth/getCurrentUser";
 export { signOut } from "./clients/auth/signOut";
 export { getSiteConfig } from "./clients/config/getSiteConfig";
+export { getCredits } from "./clients/credits/getCredits";
 export { getInvitableGuilds } from "./clients/guilds/getInvitableGuilds";
 export { getManageableGuilds } from "./clients/guilds/getManageableGuilds";
 export { refreshGuilds } from "./clients/guilds/refreshGuilds";
@@ -110,6 +120,11 @@ export {
   getSiteConfigQueryOptions,
   useGetSiteConfig,
 } from "./hooks/config/useGetSiteConfig";
+export {
+  getCreditsQueryKey,
+  getCreditsQueryOptions,
+  useGetCredits,
+} from "./hooks/credits/useGetCredits";
 export {
   getInvitableGuildsQueryKey,
   getInvitableGuildsQueryOptions,

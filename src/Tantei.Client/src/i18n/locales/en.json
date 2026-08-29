@@ -11,7 +11,8 @@
   },
   "nav": {
     "home": "Home",
-    "about": "About"
+    "about": "About",
+    "credits": "Credits"
   },
   "language": {
     "label": "Language",
@@ -39,6 +40,24 @@
   },
   "about": {
     "title": "This is an about page"
+  },
+  "credits": {
+    "title": "Credits",
+    "description": "Tantei is built on open source. Every third-party package it ships is listed here with its licence.",
+    "ownLicense": "Tantei itself is licensed under AGPL-3.0.",
+    "search": "Search packages",
+    "noMatches": "No packages match your search.",
+    "empty": "License information is generated when the site is built and is not available here.",
+    "notDeclared": "License not declared",
+    "viewLicense": "View license",
+    "browser": {
+      "title": "Browser",
+      "description": "Packages that run in your browser as part of this website."
+    },
+    "server": {
+      "title": "Server",
+      "description": "Packages that run on the machine hosting Tantei."
+    }
   },
   "me": {
     "title": "My details",

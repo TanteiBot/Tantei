@@ -1,0 +1,1 @@
+export { getCredits } from "./getCredits";

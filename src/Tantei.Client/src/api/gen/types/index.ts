@@ -1,9 +1,11 @@
 export type { AuthStateResponse } from "./AuthStateResponse";
+export type { CreditsResponse } from "./CreditsResponse";
 export type { CurrentUserResponse } from "./CurrentUserResponse";
 export type { InvitableGuildResponse } from "./InvitableGuildResponse";
 export type { InvitableGuildsResponse } from "./InvitableGuildsResponse";
 export type { InviteEligibilityKey } from "./InviteEligibility";
 export type { InviteModeKey } from "./InviteMode";
+export type { LicenseResponse } from "./LicenseResponse";
 export type { ManageableGuildResponse } from "./ManageableGuildResponse";
 export type { PingResponse } from "./PingResponse";
 export type { ProblemDetails } from "./ProblemDetails";
@@ -34,6 +36,12 @@ export type {
   GetSiteConfigResponses,
   GetSiteConfigStatus200,
 } from "./config/GetSiteConfig";
+export type {
+  GetCreditsOptions,
+  GetCreditsResponse,
+  GetCreditsResponses,
+  GetCreditsStatus200,
+} from "./credits/GetCredits";
 export type {
   GetInvitableGuildsOptions,
   GetInvitableGuildsResponse,

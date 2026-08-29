@@ -1,14 +1,20 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);CS0436</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\PaperMalKing.Database\PaperMalKing.Database.csproj" />
     <ProjectReference Include="..\..\src\PaperMalKing.Database.Migrations\PaperMalKing.Database.Migrations.csproj" />
     <ProjectReference Include="..\..\src\PaperMalKing.Startup\PaperMalKing.Startup.csproj" />
+    <ProjectReference Include="..\..\src\PaperMalKing\PaperMalKing.csproj" ExcludeAssets="analyzers" />
 
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="DSharpPlus" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="EntityFrameworkCore.Exceptions.Sqlite" />
   </ItemGroup>
