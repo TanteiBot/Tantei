@@ -69,6 +69,198 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Tantei.Tests" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <ServerLicensesFile>$(BaseIntermediateOutputPath)$(Configuration)/server-licenses.json</ServerLicensesFile>
+    </PropertyGroup>
+
+    <UsingTask TaskName="CollectServerLicenses" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <Packages ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+            <OutputPath ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Using Namespace="System" />
+            <Using Namespace="System.Collections.Generic" />
+            <Using Namespace="System.Globalization" />
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.Linq" />
+            <Using Namespace="System.Text" />
+            <Using Namespace="System.Xml.Linq" />
+            <Code Type="Fragment" Language="cs"><![CDATA[
+                string FindPackageDirectory(string assetPath)
+                {
+                    var directory = Path.GetDirectoryName(assetPath);
+                    for (var depth = 0; depth < 8 && !string.IsNullOrEmpty(directory); depth++)
+                    {
+                        if (Directory.Exists(directory) && Directory.EnumerateFiles(directory, "*.nuspec").Any())
+                        {
+                            return directory;
+                        }
+
+                        directory = Path.GetDirectoryName(directory);
+                    }
+
+                    return null;
+                }
+
+                string Escape(string value)
+                {
+                    var builder = new StringBuilder(value.Length + 16);
+                    foreach (var character in value)
+                    {
+                        switch (character)
+                        {
+                            case '"': builder.Append("\\\""); break;
+                            case '\\': builder.Append("\\\\"); break;
+                            case '\b': builder.Append("\\b"); break;
+                            case '\f': builder.Append("\\f"); break;
+                            case '\n': builder.Append("\\n"); break;
+                            case '\r': builder.Append("\\r"); break;
+                            case '\t': builder.Append("\\t"); break;
+                            default:
+                                if (character < ' ')
+                                {
+                                    builder.Append("\\u").Append(((int)character).ToString("x4", CultureInfo.InvariantCulture));
+                                }
+                                else
+                                {
+                                    builder.Append(character);
+                                }
+
+                                break;
+                        }
+                    }
+
+                    return builder.ToString();
+                }
+
+                var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var licenses = new List<string[]>();
+
+                foreach (var package in Packages)
+                {
+                    if (string.Equals(package.GetMetadata("CopyToPublishDirectory"), "false", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var id = package.GetMetadata("NuGetPackageId");
+                    var version = package.GetMetadata("NuGetPackageVersion");
+                    if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(version) || !seen.Add(id + "/" + version))
+                    {
+                        continue;
+                    }
+
+                    var packageDirectory = FindPackageDirectory(package.GetMetadata("FullPath"));
+                    if (packageDirectory == null)
+                    {
+                        Log.LogMessage(MessageImportance.Low, "No package directory found for {0} {1}.", id, version);
+                        continue;
+                    }
+
+                    var nuspec = Directory.EnumerateFiles(packageDirectory, "*.nuspec").FirstOrDefault();
+                    var root = XDocument.Load(nuspec).Root;
+                    var metadata = root == null ? null : root.Elements().FirstOrDefault(e => e.Name.LocalName == "metadata");
+                    if (metadata == null)
+                    {
+                        Log.LogMessage(MessageImportance.Low, "No metadata in {0}.", nuspec);
+                        continue;
+                    }
+
+                    string identifier = null;
+                    string text = null;
+                    string url = null;
+
+                    var license = metadata.Elements().FirstOrDefault(e => e.Name.LocalName == "license");
+                    if (license != null)
+                    {
+                        var type = (string)license.Attribute("type");
+                        var value = license.Value.Trim();
+                        if (string.Equals(type, "expression", StringComparison.Ordinal))
+                        {
+                            identifier = value;
+                            url = "https://licenses.nuget.org/" + Uri.EscapeDataString(value);
+                        }
+                        else if (string.Equals(type, "file", StringComparison.Ordinal))
+                        {
+                            var licenseFile = Path.Combine(packageDirectory, value.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar));
+                            if (File.Exists(licenseFile))
+                            {
+                                text = File.ReadAllText(licenseFile).Trim();
+                            }
+                        }
+                    }
+
+                    if (url == null)
+                    {
+                        var licenseUrl = metadata.Elements().FirstOrDefault(e => e.Name.LocalName == "licenseUrl");
+                        if (licenseUrl != null)
+                        {
+                            url = licenseUrl.Value.Trim();
+                        }
+                    }
+
+                    licenses.Add(new[] { id, version, identifier, text, url });
+                }
+
+                var ordered = licenses
+                    .OrderBy(l => l[0], StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(l => l[1], StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                var json = new StringBuilder();
+                json.Append("[\n");
+                for (var index = 0; index < ordered.Count; index++)
+                {
+                    var license = ordered[index];
+                    var fields = new List<string>();
+                    fields.Add("    \"name\": \"" + Escape(license[0]) + "\"");
+                    fields.Add("    \"version\": \"" + Escape(license[1]) + "\"");
+                    if (license[2] != null) { fields.Add("    \"identifier\": \"" + Escape(license[2]) + "\""); }
+                    if (license[3] != null) { fields.Add("    \"text\": \"" + Escape(license[3]) + "\""); }
+                    if (license[4] != null) { fields.Add("    \"url\": \"" + Escape(license[4]) + "\""); }
+
+                    json.Append("  {\n");
+                    json.Append(string.Join(",\n", fields));
+                    json.Append("\n  }");
+                    json.Append(index == ordered.Count - 1 ? "\n" : ",\n");
+                }
+
+                json.Append("]\n");
+
+                var content = json.ToString();
+                var directoryName = Path.GetDirectoryName(OutputPath);
+                if (!string.IsNullOrEmpty(directoryName))
+                {
+                    Directory.CreateDirectory(directoryName);
+                }
+
+                if (!File.Exists(OutputPath) || !string.Equals(File.ReadAllText(OutputPath), content, StringComparison.Ordinal))
+                {
+                    File.WriteAllText(OutputPath, content);
+                }
+
+                Log.LogMessage(MessageImportance.Normal, "Collected licenses for {0} NuGet packages.", ordered.Count);
+            ]]></Code>
+        </Task>
+    </UsingTask>
+
+    <Target Name="CollectServerLicenses" DependsOnTargets="ResolvePackageAssets" Inputs="$(ProjectAssetsFile)" Outputs="$(ServerLicensesFile)">
+        <CollectServerLicenses Packages="@(RuntimeCopyLocalItems);@(NativeCopyLocalItems);@(ResourceCopyLocalItems);@(RuntimeTargetsCopyLocalItems)" OutputPath="$(ServerLicensesFile)" />
+    </Target>
+
+    <Target Name="EmbedServerLicenses" BeforeTargets="AssignTargetPaths" DependsOnTargets="CollectServerLicenses">
+        <ItemGroup>
+            <EmbeddedResource Include="$(ServerLicensesFile)">
+                <LogicalName>Tantei.ServerLicenses.json</LogicalName>
+            </EmbeddedResource>
+        </ItemGroup>
+    </Target>
+
     <Target Name="BuildSpa" Condition="'$(SkipSpaBuild)' != 'true'">
         <Message Importance="high" Text="Building Vue SPA in $(SpaRoot)" />
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm ci" />

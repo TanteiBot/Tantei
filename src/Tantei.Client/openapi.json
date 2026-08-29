@@ -80,6 +80,26 @@
         }
       }
     },
+    "/api/credits": {
+      "get": {
+        "tags": [
+          "Credits"
+        ],
+        "operationId": "GetCredits",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/getUpdateTimes": {
       "get": {
         "tags": [
@@ -334,6 +354,27 @@
           }
         }
       },
+      "CreditsResponse": {
+        "required": [
+          "client",
+          "server"
+        ],
+        "type": "object",
+        "properties": {
+          "client": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LicenseResponse"
+            }
+          },
+          "server": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LicenseResponse"
+            }
+          }
+        }
+      },
       "CurrentUserResponse": {
         "required": [
           "discordUserId",
@@ -429,6 +470,43 @@
           "SemiPrivate",
           "Public"
         ]
+      },
+      "LicenseResponse": {
+        "required": [
+          "name",
+          "version",
+          "identifier",
+          "text",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "text": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "url": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uri"
+          }
+        }
       },
       "ManageableGuildResponse": {
         "required": [
@@ -548,6 +626,9 @@
     },
     {
       "name": "Config"
+    },
+    {
+      "name": "Credits"
     },
     {
       "name": "Status"

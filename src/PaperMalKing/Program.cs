@@ -27,6 +27,8 @@ foreach (var dir in (Span<string>)[Environment.GetEnvironmentVariable("TANTEI_CO
 
 builder.Services.AddWebAuthentication(builder.Configuration, builder.Environment);
 
+builder.Services.AddSingleton<CreditsProvider>();
+
 builder.Services.AddOpenApi(options => options.AddSchemaTransformer<EnumSchemaTransformer>());
 
 builder.Host.UseDefaultServiceProvider(c =>

@@ -11,6 +11,7 @@ internal static class ApiEndpoints
 
 		api.MapAuthEndpoints();
 		api.MapConfigEndpoints();
+		api.MapCreditsEndpoints();
 		api.MapGuildEndpoints();
 		api.MapStatusEndpoints();
 

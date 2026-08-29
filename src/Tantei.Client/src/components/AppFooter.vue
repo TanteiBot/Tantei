@@ -28,6 +28,15 @@ const licenseUrl = "https://www.gnu.org/licenses/agpl-3.0.html";
         {{ $tStrict("nav.about") }}
       </UButton>
       <UButton
+        :to="{ name: '/credits' }"
+        color="neutral"
+        variant="ghost"
+        size="sm"
+        class="whitespace-nowrap"
+      >
+        {{ $tStrict("nav.credits") }}
+      </UButton>
+      <UButton
         :to="sourceUrl"
         target="_blank"
         color="neutral"
