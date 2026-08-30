@@ -19,16 +19,17 @@ public sealed class MalSearchPickerTests
 {
 	private const string SearchId = "0123456789abcdef0123456789abcdef";
 	private const int ResultCountAcrossTwoPages = 26;
-	private const int SessionTimerCount = 2;
 	private const int MinutesBeforeAbsoluteExpiry = 13;
 	private const string PickerEndedEvent = "PickerEnded";
 	private const string PostOperation = "post";
 	private const string DeleteOperation = "delete";
 	private const string EditOperation = "edit";
+	private static readonly TimeSpan InactivityLifetime = TimeSpan.FromSeconds(90);
+	private static readonly TimeSpan AbsoluteLifetime = TimeSpan.FromMinutes(14);
 	private static readonly DateTimeOffset Start = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
 	[Test]
-	public async Task MissingSessionIsARecognizedUnavailableOutcome()
+	public async Task AnUnopenedPickerIsARecognizedUnavailableOutcome()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
@@ -43,10 +44,10 @@ public sealed class MalSearchPickerTests
 	}
 
 	[Test]
-	public async Task OverdueSessionOpensInAControlFreeExpiredState()
+	public async Task AnOverduePickerOpensInAControlFreeExpiredState()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start + PickerSession.AbsoluteLifetime);
+		var time = new ManualTimeProvider(Start + AbsoluteLifetime);
 		var picker = CreatePicker(cache, time);
 
 		var opened = Open(picker, new FakePickerMessageTarget(), resultCount: 1);
@@ -56,12 +57,11 @@ public sealed class MalSearchPickerTests
 	}
 
 	[Test]
-	public async Task InitialDeliveryFailureLeavesNoSessionOrTimers()
+	public async Task InitialDeliveryFailureLeavesThePickerUnavailable()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var time = new ManualTimeProvider(Start);
-		var store = new PickerSessionStore(cache);
-		var picker = new MalSearchPicker(store, time, NullLogger<MalSearchPicker>.Instance);
+		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget { EditException = new InvalidOperationException("delivery failed"), };
 		var failed = false;
 
@@ -79,21 +79,20 @@ public sealed class MalSearchPickerTests
 		}
 
 		await Assert.That(failed).IsTrue();
-		await Assert.That(store.Find(SearchId).Kind).IsEqualTo(PickerLookup.Absent);
-		await Assert.That(time.CreatedTimerCount).IsEqualTo(SessionTimerCount);
-		await Assert.That(time.DisposedTimerCount).IsEqualTo(SessionTimerCount);
-		await Assert.That(time.ActiveTimerCount).IsEqualTo(0);
-		time.Advance(PickerSession.AbsoluteLifetime);
+		await Assert.That(target.LastEditCancellationToken.IsCancellationRequested).IsTrue();
+		var interaction = new FakePickerInteraction(PickerCustomId.Create(SearchId, PickerAction.Next));
+		await picker.HandleAsync(interaction);
+		await Assert.That(interaction.Updates.Single().Content).Contains("no longer available");
+		time.Advance(AbsoluteLifetime);
 		await Assert.That(target.Edits).HasSingleItem();
 	}
 
 	[Test]
-	public async Task ExpiryCancelsAHangingInitialDeliveryWithoutActivatingTheSession()
+	public async Task ExpiryCancelsAHangingInitialDeliveryWithoutOpeningThePicker()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var time = new ManualTimeProvider(Start);
-		var store = new PickerSessionStore(cache);
-		var picker = new MalSearchPicker(store, time, NullLogger<MalSearchPicker>.Instance);
+		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget { PauseEditNumber = 1, };
 		var opening = picker.OpenAsync(
 			SearchId,
@@ -102,22 +101,23 @@ public sealed class MalSearchPickerTests
 			target);
 		await target.EditStarted.Task;
 
-		time.Advance(PickerSession.InactivityLifetime);
+		time.Advance(InactivityLifetime);
 		await opening;
 
-		await Assert.That(store.Find(SearchId).Kind).IsEqualTo(PickerLookup.Terminal);
-		await Assert.That(time.ActiveTimerCount).IsEqualTo(0);
+		var interaction = Pick(SearchId);
+		await picker.HandleAsync(interaction);
+		await Assert.That(interaction.DeferCount).IsEqualTo(1);
+		await Assert.That(target.Operations).DoesNotContain(PostOperation);
 		await Assert.That(target.CompletedEditCount).IsEqualTo(0);
 		target.AllowEdit.SetResult();
 	}
 
 	[Test]
-	public async Task InitialRenderingFailureCreatesNoSessionOrTimers()
+	public async Task InitialRenderingFailureLeavesThePickerUnavailable()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var time = new ManualTimeProvider(Start);
-		var store = new PickerSessionStore(cache);
-		var picker = new MalSearchPicker(store, time, NullLogger<MalSearchPicker>.Instance);
+		var picker = CreatePicker(cache, time);
 		var failed = false;
 
 		try
@@ -134,17 +134,17 @@ public sealed class MalSearchPickerTests
 		}
 
 		await Assert.That(failed).IsTrue();
-		await Assert.That(store.Find(SearchId).Kind).IsEqualTo(PickerLookup.Absent);
-		await Assert.That(time.CreatedTimerCount).IsEqualTo(0);
+		var interaction = new FakePickerInteraction(PickerCustomId.Create(SearchId, PickerAction.Next));
+		await picker.HandleAsync(interaction);
+		await Assert.That(interaction.Updates.Single().Content).Contains("no longer available");
 	}
 
 	[Test]
-	public async Task EvictionDuringActivationCannotReactivateTheSession()
+	public async Task EvictionDuringOpeningCannotReactivateThePicker()
 	{
 		using var cache = new EvictingMemoryCache();
 		var time = new ManualTimeProvider(Start);
-		var store = new PickerSessionStore(cache);
-		var picker = new MalSearchPicker(store, time, NullLogger<MalSearchPicker>.Instance);
+		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget();
 
 		await picker.OpenAsync(
@@ -152,11 +152,10 @@ public sealed class MalSearchPickerTests
 			[PickerSearchResult.ForAnime(new(Result(1), MatchRank.Contains))],
 			Context(),
 			target);
-		await picker.HandleAsync(Pick(SearchId));
+		var interaction = Pick(SearchId);
+		await picker.HandleAsync(interaction);
 
-		await Assert.That(cache.AbsoluteExpirationRelativeToNow.HasValue).IsTrue();
-		await Assert.That(cache.AbsoluteExpirationRelativeToNow.GetValueOrDefault()).IsLessThanOrEqualTo(PickerSession.AbsoluteLifetime);
-		await Assert.That(time.ActiveTimerCount).IsEqualTo(0);
+		await Assert.That(interaction.Updates.Single().Content).Contains("no longer available");
 		await Assert.That(target.Operations).DoesNotContain(PostOperation);
 	}
 
@@ -207,20 +206,21 @@ public sealed class MalSearchPickerTests
 	}
 
 	[Test]
-	public async Task SuccessfulPickReleasesTheSessionBeforeItsDeleteCompletes()
+	public async Task SuccessfulPickEndsBeforeItsDeleteCompletes()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var time = new ManualTimeProvider(Start);
-		var store = new PickerSessionStore(cache);
-		var picker = new MalSearchPicker(store, time, NullLogger<MalSearchPicker>.Instance);
+		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget { PauseDelete = true, };
 		var opened = Open(picker, target);
 		var pick = picker.HandleAsync(Pick(opened.SearchId));
 		await target.DeleteStarted.Task;
 
-		await Assert.That(store.Find(opened.SearchId).Kind).IsEqualTo(PickerLookup.Terminal);
-		await Assert.That(time.ActiveTimerCount).IsEqualTo(0);
-		time.Advance(PickerSession.AbsoluteLifetime);
+		var repeatedPick = Pick(opened.SearchId);
+		await picker.HandleAsync(repeatedPick);
+		await Assert.That(repeatedPick.DeferCount).IsEqualTo(1);
+		time.Advance(AbsoluteLifetime);
+		await Assert.That(target.Edits).IsEmpty();
 		target.AllowDelete.SetResult();
 		await pick;
 		await Assert.That(target.Operations).IsEquivalentTo([PostOperation, DeleteOperation], TUnit.Assertions.Enums.CollectionOrdering.Matching);
@@ -274,7 +274,7 @@ public sealed class MalSearchPickerTests
 		var pick = picker.HandleAsync(Pick(opened.SearchId));
 		await target.PostStarted.Task;
 
-		time.Advance(PickerSession.InactivityLifetime);
+		time.Advance(InactivityLifetime);
 		target.AllowPost.SetResult();
 		await pick;
 
@@ -291,7 +291,7 @@ public sealed class MalSearchPickerTests
 		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
-		time.Advance(PickerSession.InactivityLifetime);
+		time.Advance(InactivityLifetime);
 		var pick = Pick(opened.SearchId);
 
 		await picker.HandleAsync(pick);
@@ -302,39 +302,42 @@ public sealed class MalSearchPickerTests
 	}
 
 	[Test]
-	public async Task InactivityTimeoutRemovesTheSessionWhileItsTerminalEditHangs()
+	public async Task InactivityTimeoutEndsThePickerWhileItsTerminalEditHangs()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var time = new ManualTimeProvider(Start);
-		var store = new PickerSessionStore(cache);
-		var picker = new MalSearchPicker(store, time, NullLogger<MalSearchPicker>.Instance);
+		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget { PauseEditNumber = 2, };
 		var opened = Open(picker, target);
 
-		time.Advance(PickerSession.InactivityLifetime);
+		time.Advance(InactivityLifetime);
 		await target.EditStarted.Task;
 
-		await Assert.That(store.Find(opened.SearchId).Kind).IsEqualTo(PickerLookup.Terminal);
-		await Assert.That(time.ActiveTimerCount).IsEqualTo(0);
+		var interaction = Pick(opened.SearchId);
+		await picker.HandleAsync(interaction);
+		await Assert.That(interaction.DeferCount).IsEqualTo(1);
+		await Assert.That(target.Operations).DoesNotContain(PostOperation);
 		target.AllowEdit.SetResult();
 	}
 
 	[Test]
-	public async Task InactivityTimeoutRemovesTheSessionWhileAPageEditHangs()
+	public async Task InactivityTimeoutEndsThePickerWhileAPageEditHangs()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var time = new ManualTimeProvider(Start);
-		var store = new PickerSessionStore(cache);
-		var picker = new MalSearchPicker(store, time, NullLogger<MalSearchPicker>.Instance);
+		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
 		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Page)) { PauseEdit = true, };
 		var page = picker.HandleAsync(interaction);
 		await interaction.EditStarted.Task;
 
-		time.Advance(PickerSession.InactivityLifetime);
+		time.Advance(InactivityLifetime);
 
-		await Assert.That(store.Find(opened.SearchId).Kind).IsEqualTo(PickerLookup.Terminal);
+		var pick = Pick(opened.SearchId);
+		await picker.HandleAsync(pick);
+		await Assert.That(pick.DeferCount).IsEqualTo(1);
+		await Assert.That(target.Operations).DoesNotContain(PostOperation);
 		interaction.AllowEdit.SetResult();
 		await page;
 	}
@@ -379,13 +382,12 @@ public sealed class MalSearchPickerTests
 	}
 
 	[Test]
-	public async Task AbsoluteTimeoutRemovesTheSessionWhileAPublicPostHangs()
+	public async Task AbsoluteTimeoutEndsThePickerWhileAPublicPostHangs()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var time = new ManualTimeProvider(Start);
-		var store = new PickerSessionStore(cache);
 		var logger = new RecordingLogger<MalSearchPicker>();
-		var picker = new MalSearchPicker(store, time, logger);
+		var picker = CreatePicker(cache, time, logger);
 		var target = new FakePickerMessageTarget { PausePost = true, };
 		var opened = Open(picker, target);
 		for (var minute = 0; minute < MinutesBeforeAbsoluteExpiry; minute++)
@@ -398,8 +400,9 @@ public sealed class MalSearchPickerTests
 		await target.PostStarted.Task;
 		time.Advance(TimeSpan.FromMinutes(1));
 
-		await Assert.That(store.Find(opened.SearchId).Kind).IsEqualTo(PickerLookup.Terminal);
-		await Assert.That(time.ActiveTimerCount).IsEqualTo(0);
+		var repeatedPick = Pick(opened.SearchId);
+		await picker.HandleAsync(repeatedPick);
+		await Assert.That(repeatedPick.DeferCount).IsEqualTo(1);
 		target.AllowPost.SetResult();
 		await pick;
 		await Assert.That(target.Operations).IsEquivalentTo([PostOperation, EditOperation], TUnit.Assertions.Enums.CollectionOrdering.Matching);
@@ -425,7 +428,7 @@ public sealed class MalSearchPickerTests
 	}
 
 	[Test]
-	public async Task AMissingSessionIsRecordedAsAnUnavailablePicker()
+	public async Task AnUnopenedPickerIsRecordedAsUnavailable()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var logger = new RecordingLogger<MalSearchPicker>();
@@ -485,7 +488,7 @@ public sealed class MalSearchPickerTests
 	}
 
 	private static MalSearchPicker CreatePicker(IMemoryCache cache, TimeProvider timeProvider, ILogger<MalSearchPicker>? logger = null) =>
-		new(new(cache), timeProvider, logger ?? NullLogger<MalSearchPicker>.Instance);
+		new(cache, timeProvider, logger ?? NullLogger<MalSearchPicker>.Instance);
 
 	private static IEnumerable<string> EventNames(RecordingLogger<MalSearchPicker> logger) =>
 		logger.Entries.Select(static entry => entry.EventId.Name ?? string.Empty);
@@ -596,9 +599,7 @@ public sealed class MalSearchPickerTests
 
 	private sealed class EvictingMemoryCache : IMemoryCache
 	{
-		public TimeSpan? AbsoluteExpirationRelativeToNow { get; private set; }
-
-		public ICacheEntry CreateEntry(object key) => new Entry(this, key);
+		public ICacheEntry CreateEntry(object key) => new Entry(key);
 
 		public void Dispose()
 		{
@@ -614,7 +615,7 @@ public sealed class MalSearchPickerTests
 			return false;
 		}
 
-		private sealed class Entry(EvictingMemoryCache _owner, object _key) : ICacheEntry
+		private sealed class Entry(object _key) : ICacheEntry
 		{
 			public object Key => _key;
 
@@ -636,7 +637,6 @@ public sealed class MalSearchPickerTests
 
 			public void Dispose()
 			{
-				_owner.AbsoluteExpirationRelativeToNow = this.AbsoluteExpirationRelativeToNow;
 				foreach (var registration in this.PostEvictionCallbacks)
 				{
 					registration.EvictionCallback!(this.Key, this.Value, EvictionReason.Capacity, registration.State);
@@ -670,6 +670,8 @@ public sealed class MalSearchPickerTests
 
 		public int CompletedEditCount { get; private set; }
 
+		public CancellationToken LastEditCancellationToken { get; private set; }
+
 		public TaskCompletionSource PostStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
 		public TaskCompletionSource AllowPost { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -699,6 +701,7 @@ public sealed class MalSearchPickerTests
 
 		public async Task EditOriginalAsync(PickerView view, CancellationToken cancellationToken = default)
 		{
+			this.LastEditCancellationToken = cancellationToken;
 			this.Operations.Add(EditOperation);
 			this.Edits.Add(view);
 			this._editCount++;
