@@ -7,15 +7,15 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
 internal sealed class SearchResultPostService : ISearchResultPostService
 {
-	public Task SendAsync(DiscordChannel channel, DiscordEmbedBuilder embed)
+	public Task SendAsync(DiscordChannel channel, DiscordEmbedBuilder embed, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(channel);
 		ArgumentNullException.ThrowIfNull(embed);
-		return SendCoreAsync(channel, embed);
+		return SendCoreAsync(channel, embed, cancellationToken);
 	}
 
-	private static async Task SendCoreAsync(DiscordChannel channel, DiscordEmbedBuilder embed)
+	private static async Task SendCoreAsync(DiscordChannel channel, DiscordEmbedBuilder embed, CancellationToken cancellationToken)
 	{
-		_ = await channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
+		_ = await channel.SendMessageAsync(embed: embed).WaitAsync(cancellationToken).ConfigureAwait(false);
 	}
 }

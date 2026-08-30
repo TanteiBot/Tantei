@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 using AngleSharp;
 using AngleSharp.Dom;
 using JikanDotNet;
@@ -98,11 +97,6 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 	public async Task<AnimeSearchResponse> SearchAnimeAsync(string query, bool includeNsfw, CancellationToken cancellationToken)
 	{
 		var url = CreateSearchUrl("anime", query, AnimeSearchFields, includeNsfw);
-
-		// var response = await _officialApiHttpClient.GetAsync(url, cancellationToken);
-		// var result = await response.Content.ReadAsStringAsync(cancellationToken);
-		// return JsonSerializer.Deserialize(result, JsonContext.Default.AnimeSearchResponse)!;
-
 		return await _officialApiHttpClient.GetFromJsonAsync(url, JsonContext.Default.AnimeSearchResponse, cancellationToken) ?? AnimeSearchResponse.Empty;
 	}
 

@@ -35,5 +35,6 @@ internal sealed class DiscordPickerInteraction(ComponentInteractionCreateEventAr
 		this.HasAcknowledged = true;
 	}
 
-	public Task EditAsync(PickerView view) => _event.Interaction.EditOriginalResponseAsync(view.ToWebhookBuilder());
+	public Task EditAsync(PickerView view, CancellationToken cancellationToken = default) =>
+		_event.Interaction.EditOriginalResponseAsync(view.ToWebhookBuilder()).WaitAsync(cancellationToken);
 }

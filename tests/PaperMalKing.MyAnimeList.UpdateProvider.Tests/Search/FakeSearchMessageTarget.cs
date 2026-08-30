@@ -22,20 +22,20 @@ internal sealed class FakeSearchMessageTarget : IPickerMessageTarget
 
 	public Exception? DeleteException { get; init; }
 
-	public Task SendPublicAsync(DiscordEmbedBuilder embed)
+	public Task SendPublicAsync(DiscordEmbedBuilder embed, CancellationToken cancellationToken = default)
 	{
 		this.Operations.Add(PostOperation);
 		this.Posts.Add(embed);
 		return this.PostException is null ? Task.CompletedTask : Task.FromException(this.PostException);
 	}
 
-	public Task DeleteOriginalAsync()
+	public Task DeleteOriginalAsync(CancellationToken cancellationToken = default)
 	{
 		this.Operations.Add(DeleteOperation);
 		return this.DeleteException is null ? Task.CompletedTask : Task.FromException(this.DeleteException);
 	}
 
-	public Task EditOriginalAsync(PickerView view)
+	public Task EditOriginalAsync(PickerView view, CancellationToken cancellationToken = default)
 	{
 		this.Operations.Add(EditOperation);
 		this.Edits.Add(view);

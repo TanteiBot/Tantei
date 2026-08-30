@@ -7,9 +7,9 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
 internal interface IPickerMessageTarget
 {
-	Task SendPublicAsync(DiscordEmbedBuilder embed);
+	Task SendPublicAsync(DiscordEmbedBuilder embed, CancellationToken cancellationToken = default);
 
-	Task DeleteOriginalAsync();
+	Task DeleteOriginalAsync(CancellationToken cancellationToken = default);
 
-	Task EditOriginalAsync(PickerView view);
+	Task EditOriginalAsync(PickerView view, CancellationToken cancellationToken = default);
 }

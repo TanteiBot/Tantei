@@ -7,23 +7,16 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
 internal sealed class MalSearchPicker(PickerSessionStore _store, TimeProvider _timeProvider, ILogger<MalSearchPicker> _logger)
 {
-	public PickerOpenResult Open(
+	public Task OpenAsync(
 		string searchId,
 		IEnumerable<PickerSearchResult> results,
 		PickerSearchContext context,
 		IPickerMessageTarget target)
 	{
+		ArgumentNullException.ThrowIfNull(results);
 		ArgumentNullException.ThrowIfNull(context);
 		ArgumentNullException.ThrowIfNull(target);
-		if (context.InvokedAt + PickerSession.AbsoluteLifetime <= _timeProvider.GetUtcNow())
-		{
-			return new(searchId, PickerView.Terminal(SearchMessages.Expired));
-		}
-
-		var session = new PickerSession(searchId, PickerSnapshot.Create(results), context, target, _store, _logger);
-		_store.Add(session);
-		session.Start(_timeProvider);
-		return new(searchId, session.InitialView);
+		return this.OpenCoreAsync(searchId, results, context, target);
 	}
 
 	public Task<bool> HandleAsync(IPickerInteraction interaction)
@@ -39,6 +32,50 @@ internal sealed class MalSearchPicker(PickerSessionStore _store, TimeProvider _t
 			interaction.DiscordDisplayName,
 			interaction.GuildId,
 			interaction.ChannelId);
+
+	private async Task OpenCoreAsync(
+		string searchId,
+		IEnumerable<PickerSearchResult> results,
+		PickerSearchContext context,
+		IPickerMessageTarget target)
+	{
+		if (context.InvokedAt + PickerSession.AbsoluteLifetime <= _timeProvider.GetUtcNow())
+		{
+			await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.Expired)).ConfigureAwait(false);
+			return;
+		}
+
+		var snapshot = PickerSnapshot.Create(results);
+		var view = PickerRenderer.Render(snapshot, searchId, page: 0);
+		var session = new PickerSession(searchId, snapshot, context, target, _store, _logger);
+		try
+		{
+			session.Start(_timeProvider);
+			var delivery = target.EditOriginalAsync(view, session.LifetimeToken);
+			if (await Task.WhenAny(delivery, session.Completion).ConfigureAwait(false) != delivery)
+			{
+				_ = delivery.ContinueWith(
+					static task => _ = task.Exception,
+					CancellationToken.None,
+					TaskContinuationOptions.OnlyOnFaulted,
+					TaskScheduler.Default);
+				return;
+			}
+
+			await delivery.ConfigureAwait(false);
+		}
+		catch (OperationCanceledException) when (session.Completion.IsCompleted)
+		{
+			return;
+		}
+		catch
+		{
+			session.AbortActivation();
+			throw;
+		}
+
+		_ = session.Activate(_timeProvider);
+	}
 
 	private async Task<bool> HandleCoreAsync(IPickerInteraction interaction)
 	{

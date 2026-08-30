@@ -11,11 +11,12 @@ internal sealed class PickerSessionStore(IMemoryCache _cache)
 	private const string TerminalPrefix = "mal-search-terminal:";
 	private static readonly TimeSpan TerminalMarkerLifetime = TimeSpan.FromMinutes(1);
 
-	public void Add(PickerSession session)
+	public void Add(PickerSession session, TimeSpan lifetime)
 	{
 		ArgumentNullException.ThrowIfNull(session);
 		_cache.Set(SessionKey(session.SearchId), session, new MemoryCacheEntryOptions()
-			.RegisterPostEvictionCallback(static (_, value, _, _) => (value as PickerSession)?.Stop()));
+			.SetAbsoluteExpiration(lifetime)
+			.RegisterPostEvictionCallback(static (_, value, _, _) => (value as PickerSession)?.OnEvicted()));
 	}
 
 	public PickerSessionLookup Find(string searchId)

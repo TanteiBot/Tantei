@@ -10,9 +10,12 @@ internal sealed class DiscordPickerMessageTarget(
 	DiscordChannel _channel,
 	ISearchResultPostService _postService) : IPickerMessageTarget
 {
-	public Task SendPublicAsync(DiscordEmbedBuilder embed) => _postService.SendAsync(_channel, embed);
+	public Task SendPublicAsync(DiscordEmbedBuilder embed, CancellationToken cancellationToken = default) =>
+		_postService.SendAsync(_channel, embed, cancellationToken);
 
-	public Task DeleteOriginalAsync() => _originalInteraction.DeleteOriginalResponseAsync();
+	public Task DeleteOriginalAsync(CancellationToken cancellationToken = default) =>
+		_originalInteraction.DeleteOriginalResponseAsync().WaitAsync(cancellationToken);
 
-	public Task EditOriginalAsync(PickerView view) => _originalInteraction.EditOriginalResponseAsync(view.ToWebhookBuilder());
+	public Task EditOriginalAsync(PickerView view, CancellationToken cancellationToken = default) =>
+		_originalInteraction.EditOriginalResponseAsync(view.ToWebhookBuilder()).WaitAsync(cancellationToken);
 }

@@ -7,5 +7,5 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
 internal interface ISearchResultPostService
 {
-	Task SendAsync(DiscordChannel channel, DiscordEmbedBuilder embed);
+	Task SendAsync(DiscordChannel channel, DiscordEmbedBuilder embed, CancellationToken cancellationToken = default);
 }

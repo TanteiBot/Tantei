@@ -77,20 +77,20 @@ internal sealed class MalSearchService(
 		if (!invocation.CanPostEmbed)
 		{
 			_logger.PermissionDenied();
-			await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.MissingPermissions)).ConfigureAwait(false);
+			await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.MissingPermissions), cancellationToken).ConfigureAwait(false);
 			return;
 		}
 
 		if (new StringInfo(query).LengthInTextElements < MinimumQueryTextElements)
 		{
-			await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.QueryTooShort)).ConfigureAwait(false);
+			await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.QueryTooShort), cancellationToken).ConfigureAwait(false);
 			return;
 		}
 
 		var queryKey = MatchKey.Create(query);
 		if (queryKey.IsEmpty)
 		{
-			await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.QueryWithoutLettersOrDigits)).ConfigureAwait(false);
+			await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.QueryWithoutLettersOrDigits), cancellationToken).ConfigureAwait(false);
 			return;
 		}
 
@@ -103,7 +103,7 @@ internal sealed class MalSearchService(
 		catch (Exception exception)
 #pragma warning restore CA1031
 		{
-			await this.ReportSearchFailureAsync(target, exception).ConfigureAwait(false);
+			await this.ReportSearchFailureAsync(target, exception, cancellationToken).ConfigureAwait(false);
 			return;
 		}
 
@@ -111,26 +111,29 @@ internal sealed class MalSearchService(
 		switch (evaluation.Kind)
 		{
 			case SearchOutcomeKind.NoResults:
-				await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.NoResults(query))).ConfigureAwait(false);
+				await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.NoResults(query)), cancellationToken).ConfigureAwait(false);
 				break;
 			case SearchOutcomeKind.TypeFilterEmpty:
-				await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.TypeFilterEmpty(query))).ConfigureAwait(false);
+				await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.TypeFilterEmpty(query)), cancellationToken).ConfigureAwait(false);
 				break;
 			case SearchOutcomeKind.AutoPosted:
-				await this.AutoPostAsync(target, evaluation.AutoPostResult!, context).ConfigureAwait(false);
+				await this.AutoPostAsync(target, evaluation.AutoPostResult!, context, cancellationToken).ConfigureAwait(false);
 				break;
 			default:
-				var opened = _picker.Open(searchId, evaluation.Results, context, target);
-				await target.EditOriginalAsync(opened.View).ConfigureAwait(false);
+				await _picker.OpenAsync(searchId, evaluation.Results, context, target).ConfigureAwait(false);
 				break;
 		}
 	}
 
-	private async Task AutoPostAsync(IPickerMessageTarget target, PickerSearchResult result, PickerSearchContext context)
+	private async Task AutoPostAsync(
+		IPickerMessageTarget target,
+		PickerSearchResult result,
+		PickerSearchContext context,
+		CancellationToken cancellationToken)
 	{
 		try
 		{
-			await target.SendPublicAsync(result.BuildEmbed(context)).ConfigureAwait(false);
+			await target.SendPublicAsync(result.BuildEmbed(context), cancellationToken).ConfigureAwait(false);
 		}
 #pragma warning disable CA1031
 		catch (Exception exception)
@@ -145,14 +148,17 @@ internal sealed class MalSearchService(
 				_logger.PublicPostFailed(exception);
 			}
 
-			await this.TryPushAsync(() => target.EditOriginalAsync(PickerView.Terminal(SearchMessages.PostFailed))).ConfigureAwait(false);
+			await this.TryPushAsync(() => target.EditOriginalAsync(PickerView.Terminal(SearchMessages.PostFailed), cancellationToken)).ConfigureAwait(false);
 			return;
 		}
 
-		await this.TryPushAsync(target.DeleteOriginalAsync).ConfigureAwait(false);
+		await this.TryPushAsync(() => target.DeleteOriginalAsync(cancellationToken)).ConfigureAwait(false);
 	}
 
-	private Task ReportSearchFailureAsync(IPickerMessageTarget target, Exception exception)
+	private Task ReportSearchFailureAsync(
+		IPickerMessageTarget target,
+		Exception exception,
+		CancellationToken cancellationToken)
 	{
 		string message;
 		if (exception is HttpRequestException { StatusCode: HttpStatusCode.Forbidden })
@@ -171,7 +177,7 @@ internal sealed class MalSearchService(
 			message = SearchMessages.Failed;
 		}
 
-		return target.EditOriginalAsync(PickerView.Terminal(message));
+		return target.EditOriginalAsync(PickerView.Terminal(message), cancellationToken);
 	}
 
 	private async Task TryPushAsync(Func<Task> push)

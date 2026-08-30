@@ -23,5 +23,5 @@ internal interface IPickerInteraction
 
 	Task DeferAsync();
 
-	Task EditAsync(PickerView view);
+	Task EditAsync(PickerView view, CancellationToken cancellationToken = default);
 }

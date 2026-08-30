@@ -25,7 +25,7 @@ public sealed class DiscordPickerMessageTargetTests
 	{
 		public List<DiscordEmbedBuilder> Embeds { get; } = [];
 
-		public Task SendAsync(DiscordChannel channel, DiscordEmbedBuilder embed)
+		public Task SendAsync(DiscordChannel channel, DiscordEmbedBuilder embed, CancellationToken cancellationToken = default)
 		{
 			this.Embeds.Add(embed);
 			return Task.CompletedTask;
