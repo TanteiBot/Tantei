@@ -5,6 +5,7 @@ using System.Globalization;
 using DSharpPlus.Entities;
 using PaperMalKing.MyAnimeList.UpdateProvider.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
@@ -73,6 +74,28 @@ public sealed class PickerRendererTests
 		await Assert.That(select.Placeholder.Length).IsLessThanOrEqualTo(PickerRenderer.PlaceholderLimit);
 		await Assert.That(view.Rows.Count).IsLessThanOrEqualTo(PickerRenderer.ActionRowsLimit);
 		await Assert.That(view.Rows.All(static row => row.Count <= PickerRenderer.ComponentsPerRowLimit)).IsTrue();
+	}
+
+	[Test]
+	public async Task MultiWordMediaTypeUsesSentenceCaseHumanization()
+	{
+		var result = new MangaSearchResult
+		{
+			Id = 1U,
+			PrimaryTitle = "A Light Novel",
+			MediaType = MangaMediaType.LightNovel,
+			Status = MangaPublishingStatus.Unknown,
+			Chapters = 0U,
+			Volumes = 0U,
+			ListUserCount = 1U,
+			Genres = [],
+		};
+		var snapshot = PickerSnapshot.Create([PickerSearchResult.ForManga(new(result, MatchRank.Primary))]);
+
+		var view = PickerRenderer.Render(snapshot, SearchId, page: 0);
+		var option = ((DiscordSelectComponent)view.Rows[0][0]).Options.Single();
+
+		await Assert.That(option.Description).IsEqualTo("Light novel · 1 members");
 	}
 
 	[Test]

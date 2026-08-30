@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using DSharpPlus.Entities;
+using Humanizer;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
@@ -27,14 +28,14 @@ internal abstract class PickerSearchResult
 	public static PickerSearchResult<AnimeSearchResult> ForAnime(RankedSearchResult<AnimeSearchResult> result) => new(
 		result,
 		PickerMediaKind.Anime,
-		static anime => anime.MediaType.ToString(),
+		static anime => anime.MediaType.Humanize(LetterCasing.Sentence),
 		static anime => anime.StartSeason is { Year: not 0U } startSeason ? startSeason.Year : null,
 		static (anime, context) => SearchEmbedBuilder.Build(anime, context.RequesterDisplayName, context.RequesterAvatarUrl));
 
 	public static PickerSearchResult<MangaSearchResult> ForManga(RankedSearchResult<MangaSearchResult> result) => new(
 		result,
 		PickerMediaKind.Manga,
-		static manga => manga.MediaType.ToString(),
+		static manga => manga.MediaType.Humanize(LetterCasing.Sentence),
 		static _ => null,
 		static (manga, context) => SearchEmbedBuilder.Build(manga, context.RequesterDisplayName, context.RequesterAvatarUrl));
 
