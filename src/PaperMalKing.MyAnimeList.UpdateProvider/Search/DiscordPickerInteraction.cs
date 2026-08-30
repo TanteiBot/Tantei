@@ -7,34 +7,53 @@ using DSharpPlus.EventArgs;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
-internal sealed class DiscordPickerInteraction(ComponentInteractionCreateEventArgs _event) : IPickerInteraction
+internal sealed class DiscordPickerInteraction(ComponentInteractionCreateEventArgs eventArgs) : IPickerInteraction
 {
-	public string CustomId => _event.Id;
+	private readonly ComponentInteractionCreateEventArgs _eventArgs = eventArgs;
+	private bool _hasAcknowledged;
 
-	public IReadOnlyList<string> Values => _event.Values;
+	public string CustomId => this._eventArgs.Id;
 
-	public ulong DiscordUserId => _event.User.Id;
+	public IReadOnlyList<string> Values => this._eventArgs.Values;
 
-	public string DiscordDisplayName => _event.User is DiscordMember member ? member.DisplayName : _event.User.Username;
+	public ulong DiscordUserId => this._eventArgs.User.Id;
 
-	public ulong? GuildId => _event.Guild?.Id;
+	public string DiscordDisplayName => this._eventArgs.User is DiscordMember member ? member.DisplayName : this._eventArgs.User.Username;
 
-	public ulong? ChannelId => _event.Channel?.Id;
+	public ulong? GuildId => this._eventArgs.Guild?.Id;
 
-	public bool HasAcknowledged { get; private set; }
+	public ulong? ChannelId => this._eventArgs.Channel?.Id;
 
-	public async Task UpdateAsync(PickerView view)
+	public Task ApplyOutcomeAsync(PickerInteractionOutcome outcome, CancellationToken cancellationToken = default)
 	{
-		await _event.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, view.ToInteractionResponseBuilder()).ConfigureAwait(false);
-		this.HasAcknowledged = true;
+		ArgumentNullException.ThrowIfNull(outcome);
+		return this.ApplyOutcomeCoreAsync(outcome, cancellationToken);
 	}
 
-	public async Task DeferAsync()
+	private async Task ApplyOutcomeCoreAsync(PickerInteractionOutcome outcome, CancellationToken cancellationToken)
 	{
-		await _event.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
-		this.HasAcknowledged = true;
-	}
+		if (outcome.Replacement is null)
+		{
+			if (!this._hasAcknowledged)
+			{
+				await this._eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
+				this._hasAcknowledged = true;
+			}
 
-	public Task EditAsync(PickerView view, CancellationToken cancellationToken = default) =>
-		_event.Interaction.EditOriginalResponseAsync(view.ToWebhookBuilder()).WaitAsync(cancellationToken);
+			return;
+		}
+
+		if (!this._hasAcknowledged)
+		{
+			await this._eventArgs.Interaction.CreateResponseAsync(
+				InteractionResponseType.UpdateMessage,
+				outcome.Replacement.ToInteractionResponseBuilder()).ConfigureAwait(false);
+			this._hasAcknowledged = true;
+			return;
+		}
+
+		await this._eventArgs.Interaction.EditOriginalResponseAsync(outcome.Replacement.ToWebhookBuilder())
+			.WaitAsync(cancellationToken)
+			.ConfigureAwait(false);
+	}
 }

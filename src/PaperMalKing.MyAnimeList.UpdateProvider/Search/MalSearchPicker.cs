@@ -102,7 +102,8 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 
 		if (!PickerCustomId.TryParse(interaction.CustomId, out var customId))
 		{
-			await this.TryPushAsync(() => interaction.UpdateAsync(PickerView.Terminal(SearchMessages.Unavailable))).ConfigureAwait(false);
+			var outcome = PickerInteractionOutcome.Replace(PickerView.Terminal(SearchMessages.Unavailable));
+			await this.TryPushAsync(() => interaction.ApplyOutcomeAsync(outcome, CancellationToken.None)).ConfigureAwait(false);
 			return true;
 		}
 
@@ -115,13 +116,14 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 			{
 				using var scope = BeginInteractionScope(_logger, customId.SearchId, interaction);
 				_logger.PickerUnavailable();
-				await interaction.UpdateAsync(PickerView.Terminal(SearchMessages.Unavailable)).ConfigureAwait(false);
+				var outcome = PickerInteractionOutcome.Replace(PickerView.Terminal(SearchMessages.Unavailable));
+				await interaction.ApplyOutcomeAsync(outcome, CancellationToken.None).ConfigureAwait(false);
 				return true;
 			}
 
 			if (lookup.Kind == PickerLookup.Terminal)
 			{
-				await interaction.DeferAsync().ConfigureAwait(false);
+				await interaction.ApplyOutcomeAsync(PickerInteractionOutcome.Recognized, CancellationToken.None).ConfigureAwait(false);
 				return true;
 			}
 
@@ -130,7 +132,7 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 				throw new InvalidOperationException("An active Picker lookup did not return its state.");
 			}
 
-			await interaction.DeferAsync().ConfigureAwait(false);
+			await interaction.ApplyOutcomeAsync(PickerInteractionOutcome.Recognized, CancellationToken.None).ConfigureAwait(false);
 			if (state.RequesterDiscordUserId != interaction.DiscordUserId)
 			{
 				return true;
@@ -150,7 +152,7 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 			{
 				using var scope = BeginInteractionScope(_logger, customId.SearchId, interaction);
 				_logger.PickerInteractionFailed(exception);
-				await this.TryPushUnexpectedFailureAsync(interaction).ConfigureAwait(false);
+				await this.TryPushUnexpectedFailureAsync(interaction, CancellationToken.None).ConfigureAwait(false);
 			}
 		}
 
@@ -304,9 +306,7 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 			}
 
 			this.CompleteEnd(state, transition.Value, PickerTerminalReason.InteractionFailed, selectedMediaId: null);
-			var view = PickerView.Terminal(SearchMessages.Unexpected);
-			await this.TryPushAsync(() => interaction.HasAcknowledged ? interaction.EditAsync(view, CancellationToken.None) : interaction.UpdateAsync(view))
-				.ConfigureAwait(false);
+			await this.TryPushUnexpectedFailureAsync(interaction, CancellationToken.None).ConfigureAwait(false);
 		}
 		finally
 		{
@@ -348,7 +348,7 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 			cancellationToken = state.LifetimeCancellation.Token;
 		}
 
-		await interaction.EditAsync(view, cancellationToken).ConfigureAwait(false);
+		await interaction.ApplyOutcomeAsync(PickerInteractionOutcome.Replace(view), cancellationToken).ConfigureAwait(false);
 	}
 
 	private async Task CancelAsync(PickerState state, IPickerInteraction interaction)
@@ -361,7 +361,8 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 		}
 
 		this.CompleteEnd(state, transition.Value, PickerTerminalReason.Cancelled, selectedMediaId: null);
-		await this.TryPushAsync(() => interaction.EditAsync(PickerView.Terminal(SearchMessages.Cancelled), CancellationToken.None)).ConfigureAwait(false);
+		var outcome = PickerInteractionOutcome.Replace(PickerView.Terminal(SearchMessages.Cancelled));
+		await this.TryPushAsync(() => interaction.ApplyOutcomeAsync(outcome, CancellationToken.None)).ConfigureAwait(false);
 	}
 
 	[SuppressMessage("Maintainability", "CA1508:Avoid dead conditional code", Justification = "Expiry or eviction can change the state between the two locks")]
@@ -522,10 +523,10 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 		return resources;
 	}
 
-	private Task TryPushUnexpectedFailureAsync(IPickerInteraction interaction)
+	private Task TryPushUnexpectedFailureAsync(IPickerInteraction interaction, CancellationToken cancellationToken = default)
 	{
-		var view = PickerView.Terminal(SearchMessages.Unexpected);
-		return this.TryPushAsync(() => interaction.HasAcknowledged ? interaction.EditAsync(view) : interaction.UpdateAsync(view));
+		var outcome = PickerInteractionOutcome.Replace(PickerView.Terminal(SearchMessages.Unexpected));
+		return this.TryPushAsync(() => interaction.ApplyOutcomeAsync(outcome, cancellationToken));
 	}
 
 	private async Task TryPushAsync(Func<Task> push)

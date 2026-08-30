@@ -17,11 +17,5 @@ internal interface IPickerInteraction
 
 	ulong? ChannelId { get; }
 
-	bool HasAcknowledged { get; }
-
-	Task UpdateAsync(PickerView view);
-
-	Task DeferAsync();
-
-	Task EditAsync(PickerView view, CancellationToken cancellationToken = default);
+	Task ApplyOutcomeAsync(PickerInteractionOutcome outcome, CancellationToken cancellationToken = default);
 }

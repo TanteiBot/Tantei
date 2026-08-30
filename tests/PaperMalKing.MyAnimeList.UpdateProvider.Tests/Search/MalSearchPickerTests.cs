@@ -18,6 +18,7 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 public sealed class MalSearchPickerTests
 {
 	private const string SearchId = "0123456789abcdef0123456789abcdef";
+	private const string UnavailablePhrase = "no longer available";
 	private const int ResultCountAcrossTwoPages = 26;
 	private const int MinutesBeforeAbsoluteExpiry = 13;
 	private const string PickerEndedEvent = "PickerEnded";
@@ -29,6 +30,33 @@ public sealed class MalSearchPickerTests
 	private static readonly DateTimeOffset Start = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
 	[Test]
+	public async Task AnUnrecognizedInteractionRemainsUntouched()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var interaction = new FakePickerInteraction("another-feature:next");
+
+		var routed = await picker.HandleAsync(interaction);
+
+		await Assert.That(routed).IsFalse();
+		await Assert.That(interaction.RecognizedCount).IsEqualTo(0);
+		await Assert.That(interaction.Replacements).IsEmpty();
+	}
+
+	[Test]
+	public async Task AMalformedPickerInteractionIsARecognizedUnavailableOutcome()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var interaction = new FakePickerInteraction("mal:search:not-a-picker");
+
+		var routed = await picker.HandleAsync(interaction);
+
+		await Assert.That(routed).IsTrue();
+		await Assert.That(interaction.Replacements.Single().Content).Contains(UnavailablePhrase);
+	}
+
+	[Test]
 	public async Task AnUnopenedPickerIsARecognizedUnavailableOutcome()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
@@ -38,9 +66,9 @@ public sealed class MalSearchPickerTests
 		var routed = await picker.HandleAsync(interaction);
 
 		await Assert.That(routed).IsTrue();
-		await Assert.That(interaction.Updates).HasSingleItem();
-		await Assert.That(interaction.Updates[0].Content).IsEqualTo("This search is no longer available. Run the command again.");
-		await Assert.That(interaction.Updates[0].Rows).IsEmpty();
+		await Assert.That(interaction.Replacements).HasSingleItem();
+		await Assert.That(interaction.Replacements[0].Content).IsEqualTo("This search is no longer available. Run the command again.");
+		await Assert.That(interaction.Replacements[0].Rows).IsEmpty();
 	}
 
 	[Test]
@@ -82,7 +110,7 @@ public sealed class MalSearchPickerTests
 		await Assert.That(target.LastEditCancellationToken.IsCancellationRequested).IsTrue();
 		var interaction = new FakePickerInteraction(PickerCustomId.Create(SearchId, PickerAction.Next));
 		await picker.HandleAsync(interaction);
-		await Assert.That(interaction.Updates.Single().Content).Contains("no longer available");
+		await Assert.That(interaction.Replacements.Single().Content).Contains(UnavailablePhrase);
 		time.Advance(AbsoluteLifetime);
 		await Assert.That(target.Edits).HasSingleItem();
 	}
@@ -106,7 +134,7 @@ public sealed class MalSearchPickerTests
 
 		var interaction = Pick(SearchId);
 		await picker.HandleAsync(interaction);
-		await Assert.That(interaction.DeferCount).IsEqualTo(1);
+		await Assert.That(interaction.RecognizedCount).IsEqualTo(1);
 		await Assert.That(target.Operations).DoesNotContain(PostOperation);
 		await Assert.That(target.CompletedEditCount).IsEqualTo(0);
 		target.AllowEdit.SetResult();
@@ -136,7 +164,7 @@ public sealed class MalSearchPickerTests
 		await Assert.That(failed).IsTrue();
 		var interaction = new FakePickerInteraction(PickerCustomId.Create(SearchId, PickerAction.Next));
 		await picker.HandleAsync(interaction);
-		await Assert.That(interaction.Updates.Single().Content).Contains("no longer available");
+		await Assert.That(interaction.Replacements.Single().Content).Contains(UnavailablePhrase);
 	}
 
 	[Test]
@@ -155,7 +183,7 @@ public sealed class MalSearchPickerTests
 		var interaction = Pick(SearchId);
 		await picker.HandleAsync(interaction);
 
-		await Assert.That(interaction.Updates.Single().Content).Contains("no longer available");
+		await Assert.That(interaction.Replacements.Single().Content).Contains(UnavailablePhrase);
 		await Assert.That(target.Operations).DoesNotContain(PostOperation);
 	}
 
@@ -169,8 +197,8 @@ public sealed class MalSearchPickerTests
 
 		await picker.HandleAsync(interaction);
 
-		var select = (DiscordSelectComponent)interaction.Updates.Single().Rows[0][0];
-		var page = (DiscordButtonComponent)interaction.Updates.Single().Rows[1][1];
+		var select = (DiscordSelectComponent)interaction.Replacements.Single().Rows[0][0];
+		var page = (DiscordButtonComponent)interaction.Replacements.Single().Rows[1][1];
 		await Assert.That(select.Options).HasSingleItem();
 		await Assert.That(page.Label).IsEqualTo("Page 2/2");
 	}
@@ -186,7 +214,7 @@ public sealed class MalSearchPickerTests
 
 		await picker.HandleAsync(interaction);
 
-		await Assert.That(interaction.DeferCount).IsEqualTo(1);
+		await Assert.That(interaction.RecognizedCount).IsEqualTo(1);
 		await Assert.That(target.Operations).IsEmpty();
 	}
 
@@ -202,7 +230,7 @@ public sealed class MalSearchPickerTests
 		await picker.HandleAsync(interaction);
 
 		await Assert.That(target.Operations).IsEquivalentTo([PostOperation, DeleteOperation], TUnit.Assertions.Enums.CollectionOrdering.Matching);
-		await Assert.That(interaction.DeferCount).IsEqualTo(1);
+		await Assert.That(interaction.RecognizedCount).IsEqualTo(1);
 	}
 
 	[Test]
@@ -218,7 +246,7 @@ public sealed class MalSearchPickerTests
 
 		var repeatedPick = Pick(opened.SearchId);
 		await picker.HandleAsync(repeatedPick);
-		await Assert.That(repeatedPick.DeferCount).IsEqualTo(1);
+		await Assert.That(repeatedPick.RecognizedCount).IsEqualTo(1);
 		time.Advance(AbsoluteLifetime);
 		await Assert.That(target.Edits).IsEmpty();
 		target.AllowDelete.SetResult();
@@ -259,8 +287,8 @@ public sealed class MalSearchPickerTests
 		await Task.WhenAll(pick, cancel);
 
 		await Assert.That(target.Operations).IsEquivalentTo([PostOperation, DeleteOperation], TUnit.Assertions.Enums.CollectionOrdering.Matching);
-		await Assert.That(cancelInteraction.Updates).IsEmpty();
-		await Assert.That(cancelInteraction.DeferCount).IsEqualTo(1);
+		await Assert.That(cancelInteraction.Replacements).IsEmpty();
+		await Assert.That(cancelInteraction.RecognizedCount).IsEqualTo(1);
 	}
 
 	[Test]
@@ -298,7 +326,7 @@ public sealed class MalSearchPickerTests
 
 		await Assert.That(target.Operations).DoesNotContain(PostOperation);
 		await Assert.That(target.Edits).HasSingleItem();
-		await Assert.That(pick.DeferCount).IsEqualTo(1);
+		await Assert.That(pick.RecognizedCount).IsEqualTo(1);
 	}
 
 	[Test]
@@ -315,7 +343,7 @@ public sealed class MalSearchPickerTests
 
 		var interaction = Pick(opened.SearchId);
 		await picker.HandleAsync(interaction);
-		await Assert.That(interaction.DeferCount).IsEqualTo(1);
+		await Assert.That(interaction.RecognizedCount).IsEqualTo(1);
 		await Assert.That(target.Operations).DoesNotContain(PostOperation);
 		target.AllowEdit.SetResult();
 	}
@@ -328,17 +356,17 @@ public sealed class MalSearchPickerTests
 		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
-		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Page)) { PauseEdit = true, };
+		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Page)) { PauseReplacement = true, };
 		var page = picker.HandleAsync(interaction);
-		await interaction.EditStarted.Task;
+		await interaction.ReplacementStarted.Task;
 
 		time.Advance(InactivityLifetime);
 
 		var pick = Pick(opened.SearchId);
 		await picker.HandleAsync(pick);
-		await Assert.That(pick.DeferCount).IsEqualTo(1);
+		await Assert.That(pick.RecognizedCount).IsEqualTo(1);
 		await Assert.That(target.Operations).DoesNotContain(PostOperation);
-		interaction.AllowEdit.SetResult();
+		interaction.AllowReplacement.SetResult();
 		await page;
 	}
 
@@ -402,12 +430,32 @@ public sealed class MalSearchPickerTests
 
 		var repeatedPick = Pick(opened.SearchId);
 		await picker.HandleAsync(repeatedPick);
-		await Assert.That(repeatedPick.DeferCount).IsEqualTo(1);
+		await Assert.That(repeatedPick.RecognizedCount).IsEqualTo(1);
 		target.AllowPost.SetResult();
 		await pick;
 		await Assert.That(target.Operations).IsEquivalentTo([PostOperation, EditOperation], TUnit.Assertions.Enums.CollectionOrdering.Matching);
 		await Assert.That(target.CompletedPostCount).IsEqualTo(0);
 		await Assert.That(Events(logger, PickerEndedEvent)).IsEquivalentTo(["AbsoluteTimeout"]);
+	}
+
+	[Test]
+	public async Task AcknowledgementFailureTerminatesAndReportsThroughTheComponent()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var target = new FakePickerMessageTarget();
+		var opened = Open(picker, target);
+		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Next))
+		{
+			OutcomeFailuresRemaining = 1,
+		};
+
+		await picker.HandleAsync(interaction);
+		await picker.HandleAsync(Pick(opened.SearchId));
+
+		await Assert.That(interaction.Replacements).HasSingleItem();
+		await Assert.That(interaction.Replacements[0].Content).Contains("Something went wrong");
+		await Assert.That(target.Operations).IsEmpty();
 	}
 
 	[Test]
@@ -417,13 +465,13 @@ public sealed class MalSearchPickerTests
 		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
-		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Next)) { EditFailuresRemaining = 1, };
+		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Next)) { ReplacementFailuresRemaining = 1, };
 
 		await picker.HandleAsync(interaction);
 		await picker.HandleAsync(Pick(opened.SearchId));
 
-		await Assert.That(interaction.Updates).HasSingleItem();
-		await Assert.That(interaction.Updates[0].Content).Contains("Something went wrong");
+		await Assert.That(interaction.Replacements).HasSingleItem();
+		await Assert.That(interaction.Replacements[0].Content).Contains("Something went wrong");
 		await Assert.That(target.Operations).IsEmpty();
 	}
 
@@ -461,7 +509,7 @@ public sealed class MalSearchPickerTests
 		var logger = new RecordingLogger<MalSearchPicker>();
 		var picker = CreatePicker(cache, new ManualTimeProvider(Start), logger);
 		var opened = Open(picker, new FakePickerMessageTarget());
-		var cancel = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Cancel)) { EditFailuresRemaining = 1, };
+		var cancel = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Cancel)) { ReplacementFailuresRemaining = 1, };
 
 		await picker.HandleAsync(cancel);
 
@@ -552,48 +600,50 @@ public sealed class MalSearchPickerTests
 
 		public ulong? ChannelId { get; init; } = 3UL;
 
-		public bool HasAcknowledged { get; private set; }
+		public int RecognizedCount { get; private set; }
 
-		public int DeferCount { get; private set; }
+		public int OutcomeFailuresRemaining { get; set; }
 
-		public int EditFailuresRemaining { get; set; }
+		public int ReplacementFailuresRemaining { get; set; }
 
-		public bool PauseEdit { get; init; }
+		public bool PauseReplacement { get; init; }
 
-		public TaskCompletionSource EditStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+		public TaskCompletionSource ReplacementStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-		public TaskCompletionSource AllowEdit { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+		public TaskCompletionSource AllowReplacement { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-		public List<PickerView> Updates { get; } = [];
+		public List<PickerInteractionOutcome> Outcomes { get; } = [];
 
-		public Task DeferAsync()
+		public List<PickerView> Replacements { get; } = [];
+
+		public async Task ApplyOutcomeAsync(PickerInteractionOutcome outcome, CancellationToken cancellationToken = default)
 		{
-			this.HasAcknowledged = true;
-			this.DeferCount++;
-			return Task.CompletedTask;
-		}
-
-		public async Task EditAsync(PickerView view, CancellationToken cancellationToken = default)
-		{
-			if (this.EditFailuresRemaining > 0)
+			if (this.OutcomeFailuresRemaining > 0)
 			{
-				this.EditFailuresRemaining--;
-				throw new InvalidOperationException("edit failed");
+				this.OutcomeFailuresRemaining--;
+				throw new InvalidOperationException("outcome failed");
 			}
 
-			this.Updates.Add(view);
-			if (this.PauseEdit)
+			if (outcome.Replacement is null)
 			{
-				this.EditStarted.SetResult();
-				await this.AllowEdit.Task.WaitAsync(cancellationToken);
+				this.Outcomes.Add(outcome);
+				this.RecognizedCount++;
+				return;
 			}
-		}
 
-		public Task UpdateAsync(PickerView view)
-		{
-			this.HasAcknowledged = true;
-			this.Updates.Add(view);
-			return Task.CompletedTask;
+			if (this.ReplacementFailuresRemaining > 0)
+			{
+				this.ReplacementFailuresRemaining--;
+				throw new InvalidOperationException("replacement failed");
+			}
+
+			this.Outcomes.Add(outcome);
+			this.Replacements.Add(outcome.Replacement);
+			if (this.PauseReplacement)
+			{
+				this.ReplacementStarted.SetResult();
+				await this.AllowReplacement.Task.WaitAsync(cancellationToken);
+			}
 		}
 	}
 
