@@ -34,9 +34,11 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 
 	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
+	protected override Task CheckForUpdatesAsync(CancellationToken cancellationToken) => this.CheckForUpdatesOnceAsync(cancellationToken);
+
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	[SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Used for logging only")]
-	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
+	internal async Task CheckForUpdatesOnceAsync(CancellationToken cancellationToken)
 	{
 		static bool HasUserBeenInactiveRecently(MalUser x)
 		{
@@ -135,21 +137,31 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 
 		var isFavoritesHashMismatch = !dbUser.FavoritesIdHash.Equals(HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()), StringComparison.Ordinal);
 
-		var animeListUpdates =
-			(dbUser.Features.HasFlag(MalUserFeatures.AnimeList) && user.HasPublicAnimeUpdates &&
-			 !dbUser.LastAnimeUpdateHash.Equals(user.LatestAnimeUpdateHash, StringComparison.Ordinal))
-				? await this
-					.CheckLatestListUpdatesAsync<AnimeListEntry, AnimeListType, AnimeFieldsToRequest, AnimeListEntryNode, AnimeListEntryStatus,
-						AnimeMediaType, AnimeAiringStatus, AnimeListStatus>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp, cancellationToken)
-				: [];
+		IReadOnlyList<DiscordEmbedBuilder> animeListUpdates;
+		IReadOnlyList<DiscordEmbedBuilder> mangaListUpdates;
+		try
+		{
+			animeListUpdates =
+				(dbUser.Features.HasFlag(MalUserFeatures.AnimeList) && user.HasPublicAnimeUpdates &&
+				 !dbUser.LastAnimeUpdateHash.Equals(user.LatestAnimeUpdateHash, StringComparison.Ordinal))
+					? await this
+						.CheckLatestListUpdatesAsync<AnimeListEntry, AnimeListType, AnimeFieldsToRequest, AnimeListEntryNode, AnimeListEntryStatus,
+							AnimeMediaType, AnimeAiringStatus, AnimeListStatus>(dbUser, user, dbUser.LastUpdatedAnimeListTimestamp, cancellationToken)
+					: [];
 
-		var mangaListUpdates =
-			(dbUser.Features.HasFlag(MalUserFeatures.MangaList) && user.HasPublicMangaUpdates && !dbUser.LastMangaUpdateHash.Equals(user.LatestMangaUpdateHash, StringComparison.Ordinal))
-				? await this
-					.CheckLatestListUpdatesAsync<MangaListEntry, MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus,
-						MangaMediaType, MangaPublishingStatus, MangaListStatus>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp,
-						cancellationToken)
-				: [];
+			mangaListUpdates =
+				(dbUser.Features.HasFlag(MalUserFeatures.MangaList) && user.HasPublicMangaUpdates && !dbUser.LastMangaUpdateHash.Equals(user.LatestMangaUpdateHash, StringComparison.Ordinal))
+					? await this
+						.CheckLatestListUpdatesAsync<MangaListEntry, MangaListType, MangaFieldsToRequest, MangaListEntryNode, MangaListEntryStatus,
+							MangaMediaType, MangaPublishingStatus, MangaListStatus>(dbUser, user, dbUser.LastUpdatedMangaListTimestamp,
+							cancellationToken)
+					: [];
+		}
+		catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.Forbidden)
+		{
+			this.Logger.OfficialApiForbiddenDuringUpdateCheck(exception);
+			return false;
+		}
 
 		if ((dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch) ||
 			animeListUpdates is not [] || mangaListUpdates is not [])

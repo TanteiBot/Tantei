@@ -10,6 +10,9 @@
         <PackageReference Include="Microsoft.Extensions.Configuration" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+        <PackageReference Include="Microsoft.VisualStudio.Threading" />
+        <ProjectReference Include="..\..\src\PaperMalKing.Database\PaperMalKing.Database.csproj" />
         <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.UpdateProvider\PaperMalKing.MyAnimeList.UpdateProvider.csproj" />
         <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.UpdateProvider.Installer\PaperMalKing.MyAnimeList.UpdateProvider.Installer.csproj" />
         <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.Wrapper.Abstractions\PaperMalKing.MyAnimeList.Wrapper.Abstractions.csproj" />
