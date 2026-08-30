@@ -17,6 +17,8 @@ public sealed class SearchEmbedBuilderTests
 	private const int FieldValueLimit = 1024;
 	private const int MalBlueValue = 0x26448F;
 	private const int SynopsisLimit = 500;
+	private const uint MangaChapterCount = 84U;
+	private const uint MangaVolumeCount = 9U;
 	private const string AvatarUrl = "https://cdn.discordapp.com/avatars/1/avatar.png";
 	private const string DisplayName = "nodan";
 	private const string MediumPosterUrl = "https://cdn.myanimelist.net/medium.jpg";
@@ -89,6 +91,29 @@ public sealed class SearchEmbedBuilderTests
 				("Genres", "Action, Adventure", false),
 			],
 			CollectionOrdering.Matching);
+	}
+
+	[Test]
+	[Arguments(MangaChapterCount, 0U, "84 ch")]
+	[Arguments(0U, MangaVolumeCount, "9 v.")]
+	[Arguments(0U, 0U, null)]
+	public async Task MangaTotalOmitsAbsentCounts(uint chapters, uint volumes, string? expected)
+	{
+		var result = Manga(
+			id: 2U,
+			title: "Berserk",
+			picture: null,
+			mean: null,
+			chapters,
+			volumes,
+			listUserCount: 1U,
+			genres: [],
+			synopsis: null);
+
+		var embed = SearchEmbedBuilder.Build(result, DisplayName, AvatarUrl);
+		var total = embed.Fields.SingleOrDefault(static field => string.Equals(field.Name, "Total", StringComparison.Ordinal))?.Value;
+
+		await Assert.That(total).IsEqualTo(expected);
 	}
 
 	[Test]
