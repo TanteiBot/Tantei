@@ -17,11 +17,22 @@ public static partial class TypeExtensions
 	[GeneratedRegex("<.*?>", RegexOptions.Compiled, matchTimeoutMilliseconds: 1000/*1s*/)]
 	private static partial Regex HtmlRegex { get; }
 
+	[GeneratedRegex(
+		@"[ \t\r\n]*(?:\(|\[)?(?:Source\s*:|Written\s+by\s+MAL\s+Rewrite)[\s\S]*\z",
+		RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+		matchTimeoutMilliseconds: 1000)]
+	private static partial Regex SourceTailRegex { get; }
+
 	extension(string? value)
 	{
 		public string StripHtml()
 		{
 			return value is null ? "" : HtmlRegex.Replace(value, string.Empty);
+		}
+
+		public string RemoveSourceTail()
+		{
+			return value is null ? "" : SourceTailRegex.Replace(value, string.Empty);
 		}
 
 		public string? ToSentenceCase(CultureInfo cultureInfo)

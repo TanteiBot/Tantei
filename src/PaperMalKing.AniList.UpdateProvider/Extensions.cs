@@ -26,9 +26,6 @@ internal static partial class Extensions
 
 	private const int NotesLimit = 1023;
 
-	[GeneratedRegex(@"([\s\S][Ss]ource: .*)", RegexOptions.Compiled | RegexOptions.IgnoreCase, matchTimeoutMilliseconds: 1000/*1s*/)]
-	internal static partial Regex SourceRemovalRegex { get; }
-
 	[GeneratedRegex(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline, matchTimeoutMilliseconds: 1000/*1s*/)]
 	internal static partial Regex EmptyLinesRemovalRegex { get; }
 
@@ -211,7 +208,7 @@ internal static partial class Extensions
 			{
 				const int mediaDescriptionLimit = 350;
 				var mediaDescription = media.Description.StripHtml();
-				mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
+				mediaDescription = mediaDescription.RemoveSourceTail();
 				mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
 				mediaDescription = Formatter.Strip(mediaDescription).Trim().Truncate(mediaDescriptionLimit);
 
