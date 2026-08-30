@@ -59,6 +59,7 @@ internal sealed class PickerSession(
 		await this._gate.WaitAsync().ConfigureAwait(false);
 		try
 		{
+			using var scope = this.BeginScope();
 			if (this._terminalReason.HasValue)
 			{
 				return;
@@ -79,8 +80,8 @@ internal sealed class PickerSession(
 					await interaction.EditAsync(PickerRenderer.Render(this._snapshot, this.SearchId, this._page)).ConfigureAwait(false);
 					break;
 				case PickerAction.Cancel:
-					await interaction.EditAsync(PickerView.Terminal("Search cancelled.")).ConfigureAwait(false);
 					this.End(PickerTerminalReason.Cancelled);
+					await this.TryPushAsync(() => interaction.EditAsync(PickerView.Terminal("Search cancelled."))).ConfigureAwait(false);
 					break;
 				case PickerAction.Pick:
 					await this.PickAsync(interaction).ConfigureAwait(false);
@@ -100,31 +101,17 @@ internal sealed class PickerSession(
 		await this._gate.WaitAsync().ConfigureAwait(false);
 		try
 		{
+			using var scope = this.BeginScope();
 			if (this._terminalReason.HasValue)
 			{
 				return;
 			}
 
-			this._logger.UnexpectedInteractionFailure(exception, this.SearchId);
+			this._logger.PickerInteractionFailed(exception);
 			this.End(PickerTerminalReason.InteractionFailed);
 			var view = PickerView.Terminal("Something went wrong with this search. Run the command again.");
-			try
-			{
-				if (interaction.HasAcknowledged)
-				{
-					await interaction.EditAsync(view).ConfigureAwait(false);
-				}
-				else
-				{
-					await interaction.UpdateAsync(view).ConfigureAwait(false);
-				}
-			}
-#pragma warning disable CA1031
-			catch (Exception pushException)
-#pragma warning restore CA1031
-			{
-				this._logger.TerminalStatePushFailed(pushException, this.SearchId);
-			}
+			await this.TryPushAsync(() => interaction.HasAcknowledged ? interaction.EditAsync(view) : interaction.UpdateAsync(view))
+					  .ConfigureAwait(false);
 		}
 		finally
 		{
@@ -162,24 +149,25 @@ internal sealed class PickerSession(
 		catch (Exception exception)
 #pragma warning restore CA1031
 		{
-			this._logger.SelectionPostFailed(exception, this.SearchId);
-			this.End(PickerTerminalReason.PostFailed);
-			try
+			if (SearchPostFailure.IsForbidden(exception))
 			{
-				await this._target.EditOriginalAsync(PickerView.Terminal("I couldn't post that result. Check my channel permissions and try again.")).ConfigureAwait(false);
+				this._logger.PublicPostForbidden();
 			}
-#pragma warning disable CA1031
-			catch (Exception pushException)
-#pragma warning restore CA1031
+			else
 			{
-				this._logger.TerminalStatePushFailed(pushException, this.SearchId);
+				this._logger.PublicPostFailed(exception);
 			}
 
+			this.End(PickerTerminalReason.PostFailed);
+			await this.TryPushAsync(
+						  () => this._target.EditOriginalAsync(
+							  PickerView.Terminal("I couldn't post that result. Check my channel permissions and try again.")))
+					  .ConfigureAwait(false);
 			return;
 		}
 
-		await this._target.DeleteOriginalAsync().ConfigureAwait(false);
-		this.End(PickerTerminalReason.Picked);
+		this.End(PickerTerminalReason.Picked, result.Id);
+		await this.TryPushAsync(this._target.DeleteOriginalAsync).ConfigureAwait(false);
 	}
 
 	private void BeginExpiry(PickerTerminalReason reason)
@@ -192,6 +180,7 @@ internal sealed class PickerSession(
 		await this._gate.WaitAsync().ConfigureAwait(false);
 		try
 		{
+			using var scope = this.BeginScope();
 			if (this._terminalReason.HasValue)
 			{
 				return;
@@ -201,16 +190,7 @@ internal sealed class PickerSession(
 			var content = reason == PickerTerminalReason.InactivityTimeout
 				? "This search idled out. Run the command again."
 				: "This search has expired. Run the command again.";
-			try
-			{
-				await this._target.EditOriginalAsync(PickerView.Terminal(content)).ConfigureAwait(false);
-			}
-#pragma warning disable CA1031
-			catch (Exception exception)
-#pragma warning restore CA1031
-			{
-				this._logger.TerminalStatePushFailed(exception, this.SearchId);
-			}
+			await this.TryPushAsync(() => this._target.EditOriginalAsync(PickerView.Terminal(content))).ConfigureAwait(false);
 		}
 		finally
 		{
@@ -218,9 +198,26 @@ internal sealed class PickerSession(
 		}
 	}
 
-	private void End(PickerTerminalReason reason)
+	private async Task TryPushAsync(Func<Task> push)
+	{
+		try
+		{
+			await push().ConfigureAwait(false);
+		}
+#pragma warning disable CA1031
+		catch (Exception exception)
+#pragma warning restore CA1031
+		{
+			this._logger.TerminalStatePushFailed(exception);
+		}
+	}
+
+	private void End(PickerTerminalReason reason, uint? selectedMediaId = null)
 	{
 		this._terminalReason = reason;
+		this._logger.PickerEnded(reason, selectedMediaId);
 		this._store.End(this);
 	}
+
+	private IDisposable? BeginScope() => this._logger.SearchScope(this.SearchId, this._context);
 }

@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
@@ -13,6 +14,12 @@ internal sealed class DiscordPickerInteraction(ComponentInteractionCreateEventAr
 	public IReadOnlyList<string> Values => _event.Values;
 
 	public ulong DiscordUserId => _event.User.Id;
+
+	public string DiscordDisplayName => _event.User is DiscordMember member ? member.DisplayName : _event.User.Username;
+
+	public ulong? GuildId => _event.Guild?.Id;
+
+	public ulong? ChannelId => _event.Channel?.Id;
 
 	public bool HasAcknowledged { get; private set; }
 

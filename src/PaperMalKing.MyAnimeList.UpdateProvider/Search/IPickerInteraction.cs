@@ -11,6 +11,12 @@ internal interface IPickerInteraction
 
 	ulong DiscordUserId { get; }
 
+	string DiscordDisplayName { get; }
+
+	ulong? GuildId { get; }
+
+	ulong? ChannelId { get; }
+
 	bool HasAcknowledged { get; }
 
 	Task UpdateAsync(PickerView view);

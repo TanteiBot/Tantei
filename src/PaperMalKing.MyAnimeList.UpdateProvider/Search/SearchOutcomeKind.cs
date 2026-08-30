@@ -7,6 +7,6 @@ internal enum SearchOutcomeKind : byte
 {
 	NoResults = 0,
 	TypeFilterEmpty = 1,
-	AutoPost = 2,
-	Picker = 3,
+	AutoPosted = 2,
+	PickerOpened = 3,
 }

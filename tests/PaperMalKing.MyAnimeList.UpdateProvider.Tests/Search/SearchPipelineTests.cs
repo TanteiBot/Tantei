@@ -72,7 +72,7 @@ public sealed class SearchPipelineTests
 
 		var outcome = SearchPipeline.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
 
-		await Assert.That(outcome.Kind).IsEqualTo(SearchOutcomeKind.AutoPost);
+		await Assert.That(outcome.Kind).IsEqualTo(SearchOutcomeKind.AutoPosted);
 		await Assert.That(outcome.AutoPostResult).IsNotNull();
 		await Assert.That(outcome.AutoPostResult!.Result.Id).IsEqualTo(PrimaryResultId);
 	}
@@ -86,7 +86,7 @@ public sealed class SearchPipelineTests
 
 		var outcome = SearchPipeline.Evaluate(MatchKey.Create("Toom"), response, mediaTypeFilter: null);
 
-		await Assert.That(outcome.Kind).IsEqualTo(SearchOutcomeKind.AutoPost);
+		await Assert.That(outcome.Kind).IsEqualTo(SearchOutcomeKind.AutoPosted);
 		await Assert.That(outcome.AutoPostResult).IsNotNull();
 		await Assert.That(outcome.AutoPostResult!.Result.Id).IsEqualTo(1U);
 	}
@@ -100,7 +100,7 @@ public sealed class SearchPipelineTests
 
 		var outcome = SearchPipeline.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
 
-		await Assert.That(outcome.Kind).IsEqualTo(SearchOutcomeKind.Picker);
+		await Assert.That(outcome.Kind).IsEqualTo(SearchOutcomeKind.PickerOpened);
 		await Assert.That(outcome.AutoPostResult).IsNull();
 	}
 
@@ -113,7 +113,7 @@ public sealed class SearchPipelineTests
 
 		var outcome = SearchPipeline.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
 
-		await Assert.That(outcome.Kind).IsEqualTo(SearchOutcomeKind.Picker);
+		await Assert.That(outcome.Kind).IsEqualTo(SearchOutcomeKind.PickerOpened);
 		await Assert.That(outcome.AutoPostResult).IsNull();
 	}
 

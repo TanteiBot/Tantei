@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.MyAnimeList.UpdateProvider.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
@@ -230,8 +231,78 @@ public sealed class MalSearchPickerTests
 		await Assert.That(target.Operations).IsEmpty();
 	}
 
-	private static MalSearchPicker CreatePicker(IMemoryCache cache, TimeProvider timeProvider) =>
-		new(new(cache), timeProvider, NullLogger<MalSearchPicker>.Instance);
+	[Test]
+	public async Task AMissingSessionIsRecordedAsAnUnavailablePicker()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var logger = new RecordingLogger<MalSearchPicker>();
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start), logger);
+
+		await picker.HandleAsync(new FakePickerInteraction(PickerCustomId.Create(SearchId, PickerAction.Next)));
+
+		await Assert.That(EventNames(logger)).IsEquivalentTo(["PickerUnavailable"]);
+	}
+
+	[Test]
+	public async Task APickThatPostedIsRecordedAsPickedEvenWhenTheEphemeralDeleteFails()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var logger = new RecordingLogger<MalSearchPicker>();
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start), logger);
+		var target = new FakePickerMessageTarget { DeleteException = new InvalidOperationException("delete failed"), };
+		var opened = Open(picker, target);
+
+		await picker.HandleAsync(Pick(opened.SearchId));
+
+		await Assert.That(Events(logger, "PickerEnded")).IsEquivalentTo(["Picked"]);
+		await Assert.That(EventNames(logger)).Contains("TerminalStatePushFailed");
+	}
+
+	[Test]
+	public async Task ACancelIsRecordedAsCancelledEvenWhenItsTerminalStateCannotBePushed()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var logger = new RecordingLogger<MalSearchPicker>();
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start), logger);
+		var opened = Open(picker, new FakePickerMessageTarget());
+		var cancel = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Cancel)) { EditFailuresRemaining = 1, };
+
+		await picker.HandleAsync(cancel);
+
+		await Assert.That(Events(logger, "PickerEnded")).IsEquivalentTo(["Cancelled"]);
+		await Assert.That(EventNames(logger)).Contains("TerminalStatePushFailed");
+	}
+
+	[Test]
+	public async Task ARaceBetweenPickAndCancelRecordsOneTerminalEvent()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var logger = new RecordingLogger<MalSearchPicker>();
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start), logger);
+		var target = new FakePickerMessageTarget { PausePost = true, };
+		var opened = Open(picker, target);
+		var pick = picker.HandleAsync(Pick(opened.SearchId));
+		await target.PostStarted.Task;
+		var cancel = picker.HandleAsync(new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Cancel)));
+
+		target.AllowPost.SetResult();
+		await Task.WhenAll(pick, cancel);
+
+		await Assert.That(Events(logger, "PickerEnded")).IsEquivalentTo(["Picked"]);
+	}
+
+	private static MalSearchPicker CreatePicker(IMemoryCache cache, TimeProvider timeProvider, ILogger<MalSearchPicker>? logger = null) =>
+		new(new(cache), timeProvider, logger ?? NullLogger<MalSearchPicker>.Instance);
+
+	private static IEnumerable<string> EventNames(RecordingLogger<MalSearchPicker> logger) =>
+		logger.Entries.Select(static entry => entry.EventId.Name ?? string.Empty);
+
+	private static IEnumerable<string> Events(RecordingLogger<MalSearchPicker> logger, string eventName) =>
+		logger.Entries
+			  .Where(entry => string.Equals(entry.EventId.Name, eventName, StringComparison.Ordinal))
+			  .Select(static entry => entry.State
+										   .SingleOrDefault(static field => string.Equals(field.Key, "Outcome", StringComparison.Ordinal))
+										   .Value?.ToString() ?? string.Empty);
 
 	private static PickerOpenResult Open(MalSearchPicker picker, FakePickerMessageTarget target, int resultCount = 2)
 	{
@@ -269,6 +340,12 @@ public sealed class MalSearchPickerTests
 		public IReadOnlyList<string> Values { get; init; } = [];
 
 		public ulong DiscordUserId { get; init; } = 1UL;
+
+		public string DiscordDisplayName { get; init; } = "Requester";
+
+		public ulong? GuildId { get; init; } = 2UL;
+
+		public ulong? ChannelId { get; init; } = 3UL;
 
 		public bool HasAcknowledged { get; private set; }
 
@@ -314,6 +391,8 @@ public sealed class MalSearchPickerTests
 
 		public Exception? PostException { get; init; }
 
+		public Exception? DeleteException { get; init; }
+
 		public bool PausePost { get; init; }
 
 		public TaskCompletionSource PostStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -323,7 +402,7 @@ public sealed class MalSearchPickerTests
 		public Task DeleteOriginalAsync()
 		{
 			this.Operations.Add(DeleteOperation);
-			return Task.CompletedTask;
+			return this.DeleteException is null ? Task.CompletedTask : Task.FromException(this.DeleteException);
 		}
 
 		public Task EditOriginalAsync(PickerView view)

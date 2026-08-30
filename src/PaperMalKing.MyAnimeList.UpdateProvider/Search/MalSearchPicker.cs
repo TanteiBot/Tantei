@@ -26,6 +26,14 @@ internal sealed class MalSearchPicker(PickerSessionStore _store, TimeProvider _t
 		return this.HandleCoreAsync(interaction);
 	}
 
+	private static IDisposable? BeginInteractionScope(ILogger logger, string searchId, IPickerInteraction interaction) =>
+		logger.PickerInteractionScope(
+			searchId,
+			interaction.DiscordUserId,
+			interaction.DiscordDisplayName,
+			interaction.GuildId,
+			interaction.ChannelId);
+
 	private async Task<bool> HandleCoreAsync(IPickerInteraction interaction)
 	{
 		if (!PickerCustomId.HasPrefix(interaction.CustomId))
@@ -33,19 +41,21 @@ internal sealed class MalSearchPicker(PickerSessionStore _store, TimeProvider _t
 			return false;
 		}
 
+		if (!PickerCustomId.TryParse(interaction.CustomId, out var customId))
+		{
+			await this.TryPushAsync(() => interaction.UpdateAsync(PickerView.Terminal(UnavailableMessage))).ConfigureAwait(false);
+			return true;
+		}
+
 		PickerSession? session = null;
 		try
 		{
-			if (!PickerCustomId.TryParse(interaction.CustomId, out var customId))
-			{
-				await interaction.UpdateAsync(PickerView.Terminal(UnavailableMessage)).ConfigureAwait(false);
-				return true;
-			}
-
 			var lookup = _store.Find(customId.SearchId);
 			session = lookup.Session;
 			if (lookup.Kind == PickerLookup.Absent)
 			{
+				using var scope = BeginInteractionScope(_logger, customId.SearchId, interaction);
+				_logger.PickerUnavailable();
 				await interaction.UpdateAsync(PickerView.Terminal(UnavailableMessage)).ConfigureAwait(false);
 				return true;
 			}
@@ -79,7 +89,8 @@ internal sealed class MalSearchPicker(PickerSessionStore _store, TimeProvider _t
 			}
 			else
 			{
-				_logger.UnexpectedInteractionFailure(exception, "unavailable");
+				using var scope = BeginInteractionScope(_logger, customId.SearchId, interaction);
+				_logger.PickerInteractionFailed(exception);
 				await this.TryPushUnexpectedFailureAsync(interaction).ConfigureAwait(false);
 			}
 		}
@@ -103,25 +114,23 @@ internal sealed class MalSearchPicker(PickerSessionStore _store, TimeProvider _t
 		return new(searchId, session.InitialView);
 	}
 
-	private async Task TryPushUnexpectedFailureAsync(IPickerInteraction interaction)
+	private Task TryPushUnexpectedFailureAsync(IPickerInteraction interaction)
 	{
 		var view = PickerView.Terminal("Something went wrong with this search. Run the command again.");
+		return this.TryPushAsync(() => interaction.HasAcknowledged ? interaction.EditAsync(view) : interaction.UpdateAsync(view));
+	}
+
+	private async Task TryPushAsync(Func<Task> push)
+	{
 		try
 		{
-			if (interaction.HasAcknowledged)
-			{
-				await interaction.EditAsync(view).ConfigureAwait(false);
-			}
-			else
-			{
-				await interaction.UpdateAsync(view).ConfigureAwait(false);
-			}
+			await push().ConfigureAwait(false);
 		}
 #pragma warning disable CA1031
 		catch (Exception exception)
 #pragma warning restore CA1031
 		{
-			_logger.TerminalStatePushFailed(exception, "unavailable");
+			_logger.TerminalStatePushFailed(exception);
 		}
 	}
 }

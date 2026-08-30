@@ -24,7 +24,7 @@ public sealed class SearchPipelineMangaTests
 
 		var outcome = SearchPipeline.Evaluate(MatchKey.Create("Monster"), response, MangaMediaType.Novel);
 
-		await Assert.That(outcome.Kind).IsEqualTo(SearchOutcomeKind.AutoPost);
+		await Assert.That(outcome.Kind).IsEqualTo(SearchOutcomeKind.AutoPosted);
 		await Assert.That(outcome.AutoPostResult).IsNotNull();
 		await Assert.That(outcome.AutoPostResult!.Result.Id).IsEqualTo(expectedId);
 	}

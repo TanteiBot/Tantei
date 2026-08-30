@@ -82,16 +82,16 @@ internal static class SearchPipeline
 		var primaryMatches = rankedResults.Where(static result => result.Rank == MatchRank.Primary).Take(2).ToArray();
 		if (primaryMatches.Length == 1)
 		{
-			return new(SearchOutcomeKind.AutoPost, rankedResults, floorSurvivors.Length, primaryMatches[0]);
+			return new(SearchOutcomeKind.AutoPosted, rankedResults, floorSurvivors.Length, primaryMatches[0]);
 		}
 
 		if (rankedResults.Count == 1)
 		{
-			return new(SearchOutcomeKind.AutoPost, rankedResults, floorSurvivors.Length, rankedResults[0]);
+			return new(SearchOutcomeKind.AutoPosted, rankedResults, floorSurvivors.Length, rankedResults[0]);
 		}
 
 		return new(
-			Kind: SearchOutcomeKind.Picker,
+			Kind: SearchOutcomeKind.PickerOpened,
 			Results: rankedResults,
 			FloorSurvivorCount: floorSurvivors.Length,
 			AutoPostResult: null);
