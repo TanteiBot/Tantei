@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
+        <PackageReference Include="DSharpPlus" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
         <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
@@ -8,6 +10,10 @@
         <PackageReference Include="System.Threading.RateLimiting" />
         <PackageReference Include="JikanDotNet"/>
         <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Tests" />
     </ItemGroup>
 
     <ItemGroup>

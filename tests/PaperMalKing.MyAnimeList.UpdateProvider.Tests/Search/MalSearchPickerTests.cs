@@ -1,0 +1,302 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2021-2026 N0D4N
+
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using DSharpPlus.Entities;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging.Abstractions;
+using PaperMalKing.MyAnimeList.UpdateProvider.Search;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
+
+namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
+
+[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "The task sources are controlled by the test fake")]
+public sealed class MalSearchPickerTests
+{
+	private const string SearchId = "0123456789abcdef0123456789abcdef";
+	private const int ResultCountAcrossTwoPages = 26;
+	private const int MinutesBeforeAbsoluteExpiry = 13;
+	private const string PostOperation = "post";
+	private const string DeleteOperation = "delete";
+	private const string EditOperation = "edit";
+	private static readonly DateTimeOffset Start = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+	[Test]
+	public async Task MissingSessionIsARecognizedUnavailableOutcome()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var interaction = new FakePickerInteraction(PickerCustomId.Create(SearchId, PickerAction.Next));
+
+		var routed = await picker.HandleAsync(interaction);
+
+		await Assert.That(routed).IsTrue();
+		await Assert.That(interaction.Updates).HasSingleItem();
+		await Assert.That(interaction.Updates[0].Content).IsEqualTo("This search is no longer available. Run the command again.");
+		await Assert.That(interaction.Updates[0].Rows).IsEmpty();
+	}
+
+	[Test]
+	public async Task PageInteractionUpdatesThePickerWithinTheSnapshot()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var opened = Open(picker, new FakePickerMessageTarget(), ResultCountAcrossTwoPages);
+		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Next));
+
+		await picker.HandleAsync(interaction);
+
+		var select = (DiscordSelectComponent)interaction.Updates.Single().Rows[0][0];
+		var page = (DiscordButtonComponent)interaction.Updates.Single().Rows[1][1];
+		await Assert.That(select.Options).HasSingleItem();
+		await Assert.That(page.Label).IsEqualTo("Page 2/2");
+	}
+
+	[Test]
+	public async Task PickPostsBeforeDeletingTheOriginal()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var target = new FakePickerMessageTarget();
+		var opened = Open(picker, target);
+		var interaction = Pick(opened.SearchId);
+
+		await picker.HandleAsync(interaction);
+
+		await Assert.That(target.Operations).IsEquivalentTo([PostOperation, DeleteOperation], TUnit.Assertions.Enums.CollectionOrdering.Matching);
+		await Assert.That(interaction.DeferCount).IsEqualTo(1);
+	}
+
+	[Test]
+	public async Task PostFailureLeavesOneControlFreeTerminalError()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var target = new FakePickerMessageTarget { PostException = new InvalidOperationException("denied"), };
+		var opened = Open(picker, target);
+
+		await picker.HandleAsync(Pick(opened.SearchId));
+		await picker.HandleAsync(Pick(opened.SearchId));
+
+		await Assert.That(target.Operations).IsEquivalentTo([PostOperation, EditOperation], TUnit.Assertions.Enums.CollectionOrdering.Matching);
+		await Assert.That(target.Edits).HasSingleItem();
+		await Assert.That(target.Edits[0].Rows).IsEmpty();
+		await Assert.That(target.Edits[0].Content).Contains("couldn't post");
+	}
+
+	[Test]
+	public async Task ConcurrentPickAndCancelHaveOneTerminalWinner()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var target = new FakePickerMessageTarget { PausePost = true, };
+		var opened = Open(picker, target);
+		var pick = picker.HandleAsync(Pick(opened.SearchId));
+		await target.PostStarted.Task;
+		var cancelInteraction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Cancel));
+		var cancel = picker.HandleAsync(cancelInteraction);
+
+		target.AllowPost.SetResult();
+		await Task.WhenAll(pick, cancel);
+
+		await Assert.That(target.Operations).IsEquivalentTo([PostOperation, DeleteOperation], TUnit.Assertions.Enums.CollectionOrdering.Matching);
+		await Assert.That(cancelInteraction.Updates).IsEmpty();
+		await Assert.That(cancelInteraction.DeferCount).IsEqualTo(1);
+	}
+
+	[Test]
+	public async Task PickThatWinsTheTimeoutRaceIsTheOnlyTerminalTransition()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var time = new ManualTimeProvider(Start);
+		var picker = CreatePicker(cache, time);
+		var target = new FakePickerMessageTarget { PausePost = true, };
+		var opened = Open(picker, target);
+		var pick = picker.HandleAsync(Pick(opened.SearchId));
+		await target.PostStarted.Task;
+
+		time.Advance(PickerSession.InactivityLifetime);
+		target.AllowPost.SetResult();
+		await pick;
+
+		await Assert.That(target.Operations).IsEquivalentTo([PostOperation, DeleteOperation], TUnit.Assertions.Enums.CollectionOrdering.Matching);
+		await Assert.That(target.Edits).IsEmpty();
+	}
+
+	[Test]
+	public async Task InactivityClockSlidesOnEveryRecognizedInteraction()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var time = new ManualTimeProvider(Start);
+		var picker = CreatePicker(cache, time);
+		var target = new FakePickerMessageTarget();
+		var opened = Open(picker, target);
+		time.Advance(TimeSpan.FromSeconds(80));
+		await picker.HandleAsync(new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Page)));
+
+		time.Advance(TimeSpan.FromSeconds(80));
+		await Assert.That(target.Edits).IsEmpty();
+		time.Advance(TimeSpan.FromSeconds(11));
+
+		await Assert.That(target.Edits).HasSingleItem();
+		await Assert.That(target.Edits[0].Content).Contains("idled out");
+	}
+
+	[Test]
+	public async Task AbsoluteClockNeverSlides()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var time = new ManualTimeProvider(Start);
+		var picker = CreatePicker(cache, time);
+		var target = new FakePickerMessageTarget();
+		var opened = Open(picker, target);
+		for (var minute = 0; minute < MinutesBeforeAbsoluteExpiry; minute++)
+		{
+			time.Advance(TimeSpan.FromMinutes(1));
+			await picker.HandleAsync(new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Page)));
+		}
+
+		time.Advance(TimeSpan.FromMinutes(1));
+
+		await Assert.That(target.Edits).HasSingleItem();
+		await Assert.That(target.Edits[0].Content).Contains("expired");
+	}
+
+	[Test]
+	public async Task UnexpectedInteractionErrorTerminatesAndReportsThroughTheComponent()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var target = new FakePickerMessageTarget();
+		var opened = Open(picker, target);
+		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Next)) { UpdateFailuresRemaining = 1, };
+
+		await picker.HandleAsync(interaction);
+		await picker.HandleAsync(Pick(opened.SearchId));
+
+		await Assert.That(interaction.Updates).HasSingleItem();
+		await Assert.That(interaction.Updates[0].Content).Contains("Something went wrong");
+		await Assert.That(target.Operations).IsEmpty();
+	}
+
+	private static MalSearchPicker CreatePicker(IMemoryCache cache, TimeProvider timeProvider) =>
+		new(new(cache), timeProvider, NullLogger<MalSearchPicker>.Instance);
+
+	private static PickerOpenResult Open(MalSearchPicker picker, FakePickerMessageTarget target, int resultCount = 2)
+	{
+		var results = Enumerable.Range(1, resultCount)
+			.Select(static id => new RankedSearchResult<AnimeSearchResult>(Result(id), MatchRank.Contains));
+		return picker.OpenAnime(results, Context(), target);
+	}
+
+	private static PickerSearchContext Context() => new(
+		Query: "Monster",
+		MediaKind: PickerMediaKind.Anime,
+		MediaTypeFilter: null,
+		DiscordUserId: 1UL,
+		RequesterDisplayName: "Requester",
+		RequesterAvatarUrl: null,
+		GuildId: 2UL,
+		ChannelId: 3UL,
+		InvokedAt: Start);
+
+	private static FakePickerInteraction Pick(string searchId) => new(PickerCustomId.Create(searchId, PickerAction.Pick)) { Values = ["0"], };
+
+	private static AnimeSearchResult Result(int id) => new()
+	{
+		Id = (uint)id,
+		PrimaryTitle = $"Result {id.ToString(CultureInfo.InvariantCulture)}",
+		MediaType = AnimeMediaType.TV,
+		Status = AnimeAiringStatus.Unknown,
+		Episodes = 0U,
+		ListUserCount = (uint)id,
+		Genres = [],
+	};
+
+	private sealed class FakePickerInteraction(string customId) : IPickerInteraction
+	{
+		public string CustomId { get; } = customId;
+
+		public IReadOnlyList<string> Values { get; init; } = [];
+
+		public bool HasAcknowledged { get; private set; }
+
+		public int DeferCount { get; private set; }
+
+		public int UpdateFailuresRemaining { get; set; }
+
+		public List<PickerView> Updates { get; } = [];
+
+		public Task DeferAsync()
+		{
+			this.HasAcknowledged = true;
+			this.DeferCount++;
+			return Task.CompletedTask;
+		}
+
+		public Task EditAsync(PickerView view)
+		{
+			this.Updates.Add(view);
+			return Task.CompletedTask;
+		}
+
+		public Task UpdateAsync(PickerView view)
+		{
+			this.HasAcknowledged = true;
+			if (this.UpdateFailuresRemaining > 0)
+			{
+				this.UpdateFailuresRemaining--;
+				throw new InvalidOperationException("update failed");
+			}
+
+			this.Updates.Add(view);
+			return Task.CompletedTask;
+		}
+	}
+
+	[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "The task sources are controlled by this test fake")]
+	private sealed class FakePickerMessageTarget : IPickerMessageTarget
+	{
+		public List<string> Operations { get; } = [];
+
+		public List<PickerView> Edits { get; } = [];
+
+		public Exception? PostException { get; init; }
+
+		public bool PausePost { get; init; }
+
+		public TaskCompletionSource PostStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+		public TaskCompletionSource AllowPost { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+		public Task DeleteOriginalAsync()
+		{
+			this.Operations.Add(DeleteOperation);
+			return Task.CompletedTask;
+		}
+
+		public Task EditOriginalAsync(PickerView view)
+		{
+			this.Operations.Add(EditOperation);
+			this.Edits.Add(view);
+			return Task.CompletedTask;
+		}
+
+		public async Task SendPublicAsync(DiscordEmbedBuilder embed)
+		{
+			this.Operations.Add(PostOperation);
+			if (this.PostException is not null)
+			{
+				throw this.PostException;
+			}
+
+			if (this.PausePost)
+			{
+				this.PostStarted.SetResult();
+				await this.AllowPost.Task;
+			}
+		}
+	}
+}

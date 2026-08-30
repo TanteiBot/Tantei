@@ -51,6 +51,7 @@
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(DotnetExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Systemd" Version="$(DotnetExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(DotnetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="$(DotnetExtensionsVersion)" />
 
     <!-- DI -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(DotnetExtensionsVersion)" />

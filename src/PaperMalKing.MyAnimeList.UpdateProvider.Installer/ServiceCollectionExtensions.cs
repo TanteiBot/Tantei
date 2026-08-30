@@ -5,13 +5,16 @@ using JikanDotNet;
 using JikanDotNet.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Common.RateLimiters;
 using PaperMalKing.Database.Models.MyAnimeList;
+using PaperMalKing.MyAnimeList.UpdateProvider.Search;
 using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
+using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Features;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 using Polly;
@@ -28,6 +31,14 @@ public static class ServiceCollectionExtensions
 		}
 
 		const int malHttpRetries = 3;
+
+		serviceCollection.TryAddSingleton(TimeProvider.System);
+		serviceCollection.AddMemoryCache();
+		serviceCollection.AddSingleton<PickerSessionStore>();
+		serviceCollection.AddSingleton<ISearchResultPostService, SearchResultPostService>();
+		serviceCollection.AddSingleton<MalSearchPicker>();
+		serviceCollection.AddSingleton<SearchPickerComponentHandler>();
+		serviceCollection.AddSingleton<IExecuteOnStartupService>(static provider => provider.GetRequiredService<SearchPickerComponentHandler>());
 
 		serviceCollection.AddOptions<MalOptions>().BindConfiguration(Constants.Name).ValidateDataAnnotations().ValidateOnStart();
 		serviceCollection.AddSingleton(RateLimiterExtensions.ConfigurationLambda<MalOptions, IMyAnimeListClient>);
