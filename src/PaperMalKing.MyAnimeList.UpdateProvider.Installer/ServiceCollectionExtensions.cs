@@ -37,6 +37,7 @@ public static class ServiceCollectionExtensions
 		serviceCollection.AddSingleton<PickerSessionStore>();
 		serviceCollection.AddSingleton<ISearchResultPostService, SearchResultPostService>();
 		serviceCollection.AddSingleton<MalSearchPicker>();
+		serviceCollection.AddSingleton<MalSearchService>();
 		serviceCollection.AddSingleton<SearchPickerComponentHandler>();
 		serviceCollection.AddSingleton<IExecuteOnStartupService>(static provider => provider.GetRequiredService<SearchPickerComponentHandler>());
 

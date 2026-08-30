@@ -2,23 +2,29 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using Microsoft.Extensions.Logging;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
 internal sealed class MalSearchPicker(PickerSessionStore _store, TimeProvider _timeProvider, ILogger<MalSearchPicker> _logger)
 {
-	private const string UnavailableMessage = "This search is no longer available. Run the command again.";
-
-	public PickerOpenResult OpenAnime(
-		IEnumerable<RankedSearchResult<AnimeSearchResult>> results,
+	public PickerOpenResult Open(
+		string searchId,
+		IEnumerable<PickerSearchResult> results,
 		PickerSearchContext context,
-		IPickerMessageTarget target) => this.Open(PickerSnapshot.ForAnime(results), context, target);
+		IPickerMessageTarget target)
+	{
+		ArgumentNullException.ThrowIfNull(context);
+		ArgumentNullException.ThrowIfNull(target);
+		if (context.InvokedAt + PickerSession.AbsoluteLifetime <= _timeProvider.GetUtcNow())
+		{
+			return new(searchId, PickerView.Terminal(SearchMessages.Expired));
+		}
 
-	public PickerOpenResult OpenManga(
-		IEnumerable<RankedSearchResult<MangaSearchResult>> results,
-		PickerSearchContext context,
-		IPickerMessageTarget target) => this.Open(PickerSnapshot.ForManga(results), context, target);
+		var session = new PickerSession(searchId, PickerSnapshot.Create(results), context, target, _store, _logger);
+		_store.Add(session);
+		session.Start(_timeProvider);
+		return new(searchId, session.InitialView);
+	}
 
 	public Task<bool> HandleAsync(IPickerInteraction interaction)
 	{
@@ -43,7 +49,7 @@ internal sealed class MalSearchPicker(PickerSessionStore _store, TimeProvider _t
 
 		if (!PickerCustomId.TryParse(interaction.CustomId, out var customId))
 		{
-			await this.TryPushAsync(() => interaction.UpdateAsync(PickerView.Terminal(UnavailableMessage))).ConfigureAwait(false);
+			await this.TryPushAsync(() => interaction.UpdateAsync(PickerView.Terminal(SearchMessages.Unavailable))).ConfigureAwait(false);
 			return true;
 		}
 
@@ -56,7 +62,7 @@ internal sealed class MalSearchPicker(PickerSessionStore _store, TimeProvider _t
 			{
 				using var scope = BeginInteractionScope(_logger, customId.SearchId, interaction);
 				_logger.PickerUnavailable();
-				await interaction.UpdateAsync(PickerView.Terminal(UnavailableMessage)).ConfigureAwait(false);
+				await interaction.UpdateAsync(PickerView.Terminal(SearchMessages.Unavailable)).ConfigureAwait(false);
 				return true;
 			}
 
@@ -98,25 +104,9 @@ internal sealed class MalSearchPicker(PickerSessionStore _store, TimeProvider _t
 		return true;
 	}
 
-	private PickerOpenResult Open(PickerSnapshot snapshot, PickerSearchContext context, IPickerMessageTarget target)
-	{
-		ArgumentNullException.ThrowIfNull(context);
-		ArgumentNullException.ThrowIfNull(target);
-		var searchId = Guid.NewGuid().ToString("N");
-		if (context.InvokedAt + PickerSession.AbsoluteLifetime <= _timeProvider.GetUtcNow())
-		{
-			return new(searchId, PickerView.Terminal("This search has expired. Run the command again."));
-		}
-
-		var session = new PickerSession(searchId, snapshot, context, target, _store, _logger);
-		_store.Add(session);
-		session.Start(_timeProvider);
-		return new(searchId, session.InitialView);
-	}
-
 	private Task TryPushUnexpectedFailureAsync(IPickerInteraction interaction)
 	{
-		var view = PickerView.Terminal("Something went wrong with this search. Run the command again.");
+		var view = PickerView.Terminal(SearchMessages.Unexpected);
 		return this.TryPushAsync(() => interaction.HasAcknowledged ? interaction.EditAsync(view) : interaction.UpdateAsync(view));
 	}
 

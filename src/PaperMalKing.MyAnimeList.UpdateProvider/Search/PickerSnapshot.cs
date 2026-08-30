@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Collections.ObjectModel;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
@@ -25,7 +24,5 @@ internal sealed class PickerSnapshot
 		this.Results = Array.AsReadOnly(snapshot);
 	}
 
-	public static PickerSnapshot ForAnime(IEnumerable<RankedSearchResult<AnimeSearchResult>> results) => new(results.Select(PickerSearchResult.ForAnime));
-
-	public static PickerSnapshot ForManga(IEnumerable<RankedSearchResult<MangaSearchResult>> results) => new(results.Select(PickerSearchResult.ForManga));
+	public static PickerSnapshot Create(IEnumerable<PickerSearchResult> results) => new(results);
 }

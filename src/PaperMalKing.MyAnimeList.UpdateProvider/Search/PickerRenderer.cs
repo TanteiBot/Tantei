@@ -33,7 +33,7 @@ internal static class PickerRenderer
 			.ToArray();
 		var select = new DiscordSelectComponent(
 			CreateCustomId(searchId, PickerAction.Pick),
-			Truncate(Placeholder, PlaceholderLimit),
+			SearchText.Truncate(Placeholder, PlaceholderLimit),
 			options);
 		IReadOnlyList<DiscordComponent> selectRow = [select];
 		IReadOnlyList<DiscordComponent> navigationRow =
@@ -83,9 +83,9 @@ internal static class PickerRenderer
 
 		descriptionParts.Add($"{FormatMemberCount(result.ListUserCount)} members");
 		return new(
-			Truncate(result.PrimaryTitle, OptionLabelLimit),
-			Truncate(index.ToString(CultureInfo.InvariantCulture), OptionValueLimit),
-			Truncate(string.Join(" · ", descriptionParts), OptionDescriptionLimit));
+			SearchText.Truncate(result.PrimaryTitle, OptionLabelLimit),
+			SearchText.Truncate(index.ToString(CultureInfo.InvariantCulture), OptionValueLimit),
+			SearchText.Truncate(string.Join(" · ", descriptionParts), OptionDescriptionLimit));
 	}
 
 	private static string FormatMemberCount(uint memberCount) => memberCount switch
@@ -104,27 +104,6 @@ internal static class PickerRenderer
 		}
 
 		return customId;
-	}
-
-	private static string Truncate(string value, int maximumLength)
-	{
-		if (value.Length <= maximumLength)
-		{
-			return value;
-		}
-
-		var cutoff = maximumLength - 1;
-		if (char.IsHighSurrogate(value[cutoff - 1]))
-		{
-			cutoff--;
-		}
-
-		while (cutoff > 0 && CharUnicodeInfo.GetUnicodeCategory(value, cutoff) == UnicodeCategory.NonSpacingMark)
-		{
-			cutoff--;
-		}
-
-		return $"{value[..cutoff]}…";
 	}
 
 	private static void Validate(PickerView view)

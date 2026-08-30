@@ -18,7 +18,7 @@ public sealed class PickerRendererTests
 	[Test]
 	public async Task RendersTwentyFiveResultsAndCorrectPageBoundaries()
 	{
-		var snapshot = PickerSnapshot.ForAnime([.. Enumerable.Range(1, 26).Select(static id => new RankedSearchResult<AnimeSearchResult>(Result(id), MatchRank.Contains))]);
+		var snapshot = PickerSnapshot.Create([.. Enumerable.Range(1, 26).Select(static id => PickerSearchResult.ForAnime(new(Result(id), MatchRank.Contains)))]);
 
 		var first = PickerRenderer.Render(snapshot, SearchId, page: 0);
 		var last = PickerRenderer.Render(snapshot, SearchId, page: 1);
@@ -42,9 +42,9 @@ public sealed class PickerRendererTests
 	public async Task OptionContentAndEveryComponentValueStayWithinDiscordLimits()
 	{
 		var longTitle = string.Concat(Enumerable.Repeat("e\u0301", 100));
-		var snapshot = PickerSnapshot.ForAnime(
+		var snapshot = PickerSnapshot.Create(
 		[
-			new(
+			PickerSearchResult.ForAnime(new(
 			new()
 			{
 				Id = 42U,
@@ -57,7 +57,7 @@ public sealed class PickerRendererTests
 				ListUserCount = 1_400_000U,
 				Genres = [],
 			},
-			MatchRank.Primary),
+			MatchRank.Primary)),
 		]);
 
 		var view = PickerRenderer.Render(snapshot, SearchId, page: 0);
@@ -74,6 +74,33 @@ public sealed class PickerRendererTests
 		await Assert.That(view.Rows.Count).IsLessThanOrEqualTo(PickerRenderer.ActionRowsLimit);
 		await Assert.That(view.Rows.All(static row => row.Count <= PickerRenderer.ComponentsPerRowLimit)).IsTrue();
 	}
+
+	[Test]
+	public async Task AnAstralBaseFollowedByCombiningMarksAtTheCutoffStaysValidUtf16()
+	{
+		const int paddingLength = 96;
+		const int tailLength = 40;
+		var title = new string('a', paddingLength) + "𝐀́́" + new string('b', tailLength);
+		var snapshot = PickerSnapshot.Create([PickerSearchResult.ForAnime(new(TitledResult(title), MatchRank.Primary))]);
+
+		var view = PickerRenderer.Render(snapshot, SearchId, page: 0);
+		var label = ((DiscordSelectComponent)view.Rows[0][0]).Options.Single().Label;
+
+		await Assert.That(label.Length).IsLessThanOrEqualTo(PickerRenderer.OptionLabelLimit);
+		await Assert.That(label.IsNormalized()).IsTrue();
+		await Assert.That(label.EndsWith('…')).IsTrue();
+	}
+
+	private static AnimeSearchResult TitledResult(string title) => new()
+	{
+		Id = 1U,
+		PrimaryTitle = title,
+		MediaType = AnimeMediaType.TV,
+		Status = AnimeAiringStatus.Unknown,
+		Episodes = 0U,
+		ListUserCount = 1U,
+		Genres = [],
+	};
 
 	private static AnimeSearchResult Result(int id) => new()
 	{

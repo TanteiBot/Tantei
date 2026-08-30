@@ -121,7 +121,9 @@ internal static class SearchEmbedBuilder
 		builder.AddFieldIfPresent("Season", season, inline: true);
 		builder.AddFieldIfPresent("Members", result.ListUserCount.ToString("N0", CultureInfo.InvariantCulture), inline: true);
 
-		var genres = string.Join(", ", result.Genres.Select(static genre => genre.Name).Where(static name => !string.IsNullOrWhiteSpace(name)).Take(7));
+		var genres = string.Join(
+			", ",
+			(result.Genres ?? []).Select(static genre => genre.Name).Where(static name => !string.IsNullOrWhiteSpace(name)).Take(7));
 		builder.AddFieldIfPresent("Genres", genres.Truncate(FieldValueLimit));
 		return builder;
 	}

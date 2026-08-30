@@ -73,6 +73,7 @@ public sealed class MyAnimeListClientSearchTests
 		await Assert.That(result.AlternativeTitles.English).IsEmpty();
 		await Assert.That(result.AlternativeTitles.Japanese).IsNull();
 		await Assert.That(result.ListUserCount).IsEqualTo(expectedMembers);
+		await Assert.That(result.Genres).IsNotNull();
 		await Assert.That(result.Genres.Single().Name).IsEqualTo("Action");
 		await Assert.That(result.Synopsis).IsEqualTo("Two brothers search for a Philosopher's Stone.");
 		await Assert.That(result.Nsfw).IsEqualTo(NsfwCategory.White);
@@ -92,9 +93,9 @@ public sealed class MyAnimeListClientSearchTests
 			return JsonResponse(
 				"{\"data\":[{\"node\":{\"id\":2,\"title\":\"Berserk\",\"alternative_titles\":{}," +
 				"\"media_type\":\"future_manga_type\",\"status\":\"currently_publishing\",\"num_chapters\":380," +
-				"\"num_volumes\":43,\"num_list_users\":700000,\"genres\":[]}},{\"node\":{\"id\":3," +
+				"\"num_volumes\":43,\"num_list_users\":700000}},{\"node\":{\"id\":3," +
 				"\"title\":\"Vagabond\",\"media_type\":\"manga\",\"status\":\"on_hiatus\",\"num_chapters\":327," +
-				"\"num_volumes\":37,\"num_list_users\":400000,\"genres\":[]}}]}");
+				"\"num_volumes\":37,\"num_list_users\":400000,\"genres\":null}}]}");
 		});
 		using var scope = new ClientScope(handler);
 		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
@@ -136,8 +137,10 @@ public sealed class MyAnimeListClientSearchTests
 		await Assert.That(first.AlternativeTitles.Synonyms).IsNull();
 		await Assert.That(first.AlternativeTitles.English).IsNull();
 		await Assert.That(first.AlternativeTitles.Japanese).IsNull();
+		await Assert.That(first.Genres).IsNull();
 		var second = response.Results.Single(envelope => envelope.Result.Id == secondId).Result;
 		await Assert.That(second.AlternativeTitles).IsNull();
+		await Assert.That(second.Genres).IsNull();
 	}
 
 	[Test]

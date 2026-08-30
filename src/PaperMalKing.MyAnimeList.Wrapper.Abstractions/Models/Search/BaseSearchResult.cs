@@ -37,7 +37,7 @@ public abstract class BaseSearchResult<TMediaType, TStatus>
 	public required uint ListUserCount { get; init; }
 
 	[JsonPropertyName("genres")]
-	public required IReadOnlyList<Genre> Genres { get; init; }
+	public IReadOnlyList<Genre>? Genres { get; init; }
 
 	[JsonPropertyName("synopsis")]
 	public string? Synopsis { get; init; }

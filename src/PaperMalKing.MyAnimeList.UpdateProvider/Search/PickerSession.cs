@@ -81,7 +81,7 @@ internal sealed class PickerSession(
 					break;
 				case PickerAction.Cancel:
 					this.End(PickerTerminalReason.Cancelled);
-					await this.TryPushAsync(() => interaction.EditAsync(PickerView.Terminal("Search cancelled."))).ConfigureAwait(false);
+					await this.TryPushAsync(() => interaction.EditAsync(PickerView.Terminal(SearchMessages.Cancelled))).ConfigureAwait(false);
 					break;
 				case PickerAction.Pick:
 					await this.PickAsync(interaction).ConfigureAwait(false);
@@ -109,7 +109,7 @@ internal sealed class PickerSession(
 
 			this._logger.PickerInteractionFailed(exception);
 			this.End(PickerTerminalReason.InteractionFailed);
-			var view = PickerView.Terminal("Something went wrong with this search. Run the command again.");
+			var view = PickerView.Terminal(SearchMessages.Unexpected);
 			await this.TryPushAsync(() => interaction.HasAcknowledged ? interaction.EditAsync(view) : interaction.UpdateAsync(view))
 					  .ConfigureAwait(false);
 		}
@@ -159,10 +159,7 @@ internal sealed class PickerSession(
 			}
 
 			this.End(PickerTerminalReason.PostFailed);
-			await this.TryPushAsync(
-						  () => this._target.EditOriginalAsync(
-							  PickerView.Terminal("I couldn't post that result. Check my channel permissions and try again.")))
-					  .ConfigureAwait(false);
+			await this.TryPushAsync(() => this._target.EditOriginalAsync(PickerView.Terminal(SearchMessages.PostFailed))).ConfigureAwait(false);
 			return;
 		}
 
@@ -188,8 +185,8 @@ internal sealed class PickerSession(
 
 			this.End(reason);
 			var content = reason == PickerTerminalReason.InactivityTimeout
-				? "This search idled out. Run the command again."
-				: "This search has expired. Run the command again.";
+				? SearchMessages.IdledOut
+				: SearchMessages.Expired;
 			await this.TryPushAsync(() => this._target.EditOriginalAsync(PickerView.Terminal(content))).ConfigureAwait(false);
 		}
 		finally

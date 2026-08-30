@@ -46,8 +46,9 @@ public sealed class MalSearchPickerTests
 		var time = new ManualTimeProvider(Start + PickerSession.AbsoluteLifetime);
 		var picker = CreatePicker(cache, time);
 
-		var opened = picker.OpenAnime(
-			[new RankedSearchResult<AnimeSearchResult>(Result(1), MatchRank.Contains)],
+		var opened = picker.Open(
+			SearchId,
+			[PickerSearchResult.ForAnime(new(Result(1), MatchRank.Contains))],
 			Context(),
 			new FakePickerMessageTarget());
 
@@ -307,8 +308,8 @@ public sealed class MalSearchPickerTests
 	private static PickerOpenResult Open(MalSearchPicker picker, FakePickerMessageTarget target, int resultCount = 2)
 	{
 		var results = Enumerable.Range(1, resultCount)
-			.Select(static id => new RankedSearchResult<AnimeSearchResult>(Result(id), MatchRank.Contains));
-		return picker.OpenAnime(results, Context(), target);
+			.Select(static id => PickerSearchResult.ForAnime(new(Result(id), MatchRank.Contains)));
+		return picker.Open(SearchId, results, Context(), target);
 	}
 
 	private static PickerSearchContext Context() => new(

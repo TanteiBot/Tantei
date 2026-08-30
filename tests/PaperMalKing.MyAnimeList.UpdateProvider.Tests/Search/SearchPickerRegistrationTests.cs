@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.MyAnimeList.UpdateProvider.Installer;
+using PaperMalKing.MyAnimeList.UpdateProvider.Search;
 using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
@@ -29,6 +30,8 @@ public sealed class SearchPickerRegistrationTests
 
 		await Assert.That(startupHandler).IsSameReferenceAs(concreteHandler);
 		await Assert.That(concreteHandler.ActivationCount).IsEqualTo(1);
+		await Assert.That(services.Any(static descriptor => descriptor.ServiceType == typeof(MalSearchService))).IsTrue();
+		await Assert.That(services.Any(static descriptor => descriptor.ServiceType == typeof(MalCommands))).IsTrue();
 	}
 
 	[Test]
@@ -40,6 +43,8 @@ public sealed class SearchPickerRegistrationTests
 
 		await Assert.That(services.Any(static descriptor => descriptor.ServiceType == typeof(SearchPickerComponentHandler))).IsFalse();
 		await Assert.That(services.Any(static descriptor => descriptor.ServiceType == typeof(IExecuteOnStartupService))).IsFalse();
+		await Assert.That(services.Any(static descriptor => descriptor.ServiceType == typeof(MalSearchService))).IsFalse();
+		await Assert.That(services.Any(static descriptor => descriptor.ServiceType == typeof(MalCommands))).IsFalse();
 	}
 
 	private static IConfiguration Configuration(int delay) => new ConfigurationBuilder()
