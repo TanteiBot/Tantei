@@ -10,22 +10,22 @@ internal sealed class PickerSnapshot
 {
 	public const int MaximumResults = 100;
 
-	public ReadOnlyCollection<PickerEntry> Entries { get; }
+	public ReadOnlyCollection<PickerSearchResult> Results { get; }
 
-	public int PageCount => (this.Entries.Count + PickerRenderer.PageSize - 1) / PickerRenderer.PageSize;
+	public int PageCount => (this.Results.Count + PickerRenderer.PageSize - 1) / PickerRenderer.PageSize;
 
-	private PickerSnapshot(IEnumerable<PickerEntry> entries)
+	private PickerSnapshot(IEnumerable<PickerSearchResult> results)
 	{
-		var snapshot = entries.Take(MaximumResults).ToArray();
+		var snapshot = results.Take(MaximumResults).ToArray();
 		if (snapshot.Length == 0)
 		{
-			throw new ArgumentException("A Picker requires at least one Search Result.", nameof(entries));
+			throw new ArgumentException("A Picker requires at least one Search Result.", nameof(results));
 		}
 
-		this.Entries = Array.AsReadOnly(snapshot);
+		this.Results = Array.AsReadOnly(snapshot);
 	}
 
-	public static PickerSnapshot ForAnime(IEnumerable<RankedSearchResult<AnimeSearchResult>> results) => new(results.Select(PickerEntry.ForAnime));
+	public static PickerSnapshot ForAnime(IEnumerable<RankedSearchResult<AnimeSearchResult>> results) => new(results.Select(PickerSearchResult.ForAnime));
 
-	public static PickerSnapshot ForManga(IEnumerable<RankedSearchResult<MangaSearchResult>> results) => new(results.Select(PickerEntry.ForManga));
+	public static PickerSnapshot ForManga(IEnumerable<RankedSearchResult<MangaSearchResult>> results) => new(results.Select(PickerSearchResult.ForManga));
 }

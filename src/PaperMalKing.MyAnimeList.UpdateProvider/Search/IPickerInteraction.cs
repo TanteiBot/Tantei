@@ -9,6 +9,8 @@ internal interface IPickerInteraction
 
 	IReadOnlyList<string> Values { get; }
 
+	ulong DiscordUserId { get; }
+
 	bool HasAcknowledged { get; }
 
 	Task UpdateAsync(PickerView view);

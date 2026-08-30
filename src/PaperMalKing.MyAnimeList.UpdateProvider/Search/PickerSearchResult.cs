@@ -7,7 +7,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
-internal sealed record PickerEntry
+internal sealed record PickerSearchResult
 {
 	private readonly object _result;
 
@@ -52,16 +52,16 @@ internal sealed record PickerEntry
 		_ => throw new UnreachableException(),
 	};
 
-	private PickerEntry(object result, MatchRank rank, PickerMediaKind mediaKind)
+	private PickerSearchResult(object result, MatchRank rank, PickerMediaKind mediaKind)
 	{
 		this._result = result;
 		this.Rank = rank;
 		this.MediaKind = mediaKind;
 	}
 
-	public static PickerEntry ForAnime(RankedSearchResult<AnimeSearchResult> result) => new(result.Result, result.Rank, PickerMediaKind.Anime);
+	public static PickerSearchResult ForAnime(RankedSearchResult<AnimeSearchResult> result) => new(result.Result, result.Rank, PickerMediaKind.Anime);
 
-	public static PickerEntry ForManga(RankedSearchResult<MangaSearchResult> result) => new(result.Result, result.Rank, PickerMediaKind.Manga);
+	public static PickerSearchResult ForManga(RankedSearchResult<MangaSearchResult> result) => new(result.Result, result.Rank, PickerMediaKind.Manga);
 
 	public DiscordEmbedBuilder BuildEmbed(PickerSearchContext context) => this._result switch
 	{

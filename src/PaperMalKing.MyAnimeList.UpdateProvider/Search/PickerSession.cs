@@ -37,7 +37,7 @@ internal sealed class PickerSession(
 
 	public PickerView InitialView => PickerRenderer.Render(this._snapshot, this.SearchId, this._page);
 
-	private static Task AcknowledgeLoserAsync(IPickerInteraction interaction) => interaction.HasAcknowledged ? Task.CompletedTask : interaction.DeferAsync();
+	public bool IsRequester(ulong discordUserId) => this._context.DiscordUserId == discordUserId;
 
 	public void Start(TimeProvider timeProvider)
 	{
@@ -61,7 +61,6 @@ internal sealed class PickerSession(
 		{
 			if (this._terminalReason.HasValue)
 			{
-				await PickerSession.AcknowledgeLoserAsync(interaction).ConfigureAwait(false);
 				return;
 			}
 
@@ -70,17 +69,17 @@ internal sealed class PickerSession(
 			{
 				case PickerAction.Previous:
 					this._page = Math.Max(0, this._page - 1);
-					await interaction.UpdateAsync(PickerRenderer.Render(this._snapshot, this.SearchId, this._page)).ConfigureAwait(false);
+					await interaction.EditAsync(PickerRenderer.Render(this._snapshot, this.SearchId, this._page)).ConfigureAwait(false);
 					break;
 				case PickerAction.Page:
-					await interaction.UpdateAsync(PickerRenderer.Render(this._snapshot, this.SearchId, this._page)).ConfigureAwait(false);
+					await interaction.EditAsync(PickerRenderer.Render(this._snapshot, this.SearchId, this._page)).ConfigureAwait(false);
 					break;
 				case PickerAction.Next:
 					this._page = Math.Min(this._snapshot.PageCount - 1, this._page + 1);
-					await interaction.UpdateAsync(PickerRenderer.Render(this._snapshot, this.SearchId, this._page)).ConfigureAwait(false);
+					await interaction.EditAsync(PickerRenderer.Render(this._snapshot, this.SearchId, this._page)).ConfigureAwait(false);
 					break;
 				case PickerAction.Cancel:
-					await interaction.UpdateAsync(PickerView.Terminal("Search cancelled.")).ConfigureAwait(false);
+					await interaction.EditAsync(PickerView.Terminal("Search cancelled.")).ConfigureAwait(false);
 					this.End(PickerTerminalReason.Cancelled);
 					break;
 				case PickerAction.Pick:
@@ -103,7 +102,6 @@ internal sealed class PickerSession(
 		{
 			if (this._terminalReason.HasValue)
 			{
-				await PickerSession.AcknowledgeLoserAsync(interaction).ConfigureAwait(false);
 				return;
 			}
 
@@ -150,16 +148,15 @@ internal sealed class PickerSession(
 	{
 		if (interaction.Values.Count != 1 ||
 			!int.TryParse(interaction.Values[0], NumberStyles.None, CultureInfo.InvariantCulture, out var selectedIndex) ||
-			(uint)selectedIndex >= (uint)this._snapshot.Entries.Count)
+			(uint)selectedIndex >= (uint)this._snapshot.Results.Count)
 		{
 			throw new FormatException("The Picker selection is invalid.");
 		}
 
-		await interaction.DeferAsync().ConfigureAwait(false);
-		var entry = this._snapshot.Entries[selectedIndex];
+		var result = this._snapshot.Results[selectedIndex];
 		try
 		{
-			await this._target.SendPublicAsync(entry.BuildEmbed(this._context)).ConfigureAwait(false);
+			await this._target.SendPublicAsync(result.BuildEmbed(this._context)).ConfigureAwait(false);
 		}
 #pragma warning disable CA1031
 		catch (Exception exception)

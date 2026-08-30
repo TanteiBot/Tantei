@@ -39,6 +39,22 @@ public sealed class MalSearchPickerTests
 	}
 
 	[Test]
+	public async Task OverdueSessionOpensInAControlFreeExpiredState()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var time = new ManualTimeProvider(Start + PickerSession.AbsoluteLifetime);
+		var picker = CreatePicker(cache, time);
+
+		var opened = picker.OpenAnime(
+			[new RankedSearchResult<AnimeSearchResult>(Result(1), MatchRank.Contains)],
+			Context(),
+			new FakePickerMessageTarget());
+
+		await Assert.That(opened.View.Content).Contains("expired");
+		await Assert.That(opened.View.Rows).IsEmpty();
+	}
+
+	[Test]
 	public async Task PageInteractionUpdatesThePickerWithinTheSnapshot()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
@@ -52,6 +68,21 @@ public sealed class MalSearchPickerTests
 		var page = (DiscordButtonComponent)interaction.Updates.Single().Rows[1][1];
 		await Assert.That(select.Options).HasSingleItem();
 		await Assert.That(page.Label).IsEqualTo("Page 2/2");
+	}
+
+	[Test]
+	public async Task InteractionFromAnyoneOtherThanTheRequesterIsIgnored()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var target = new FakePickerMessageTarget();
+		var opened = Open(picker, target);
+		var interaction = Pick(opened.SearchId) with { DiscordUserId = 99UL, };
+
+		await picker.HandleAsync(interaction);
+
+		await Assert.That(interaction.DeferCount).IsEqualTo(1);
+		await Assert.That(target.Operations).IsEmpty();
 	}
 
 	[Test]
@@ -126,6 +157,24 @@ public sealed class MalSearchPickerTests
 	}
 
 	[Test]
+	public async Task TimeoutThatWinsThePickRacePreventsThePost()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var time = new ManualTimeProvider(Start);
+		var picker = CreatePicker(cache, time);
+		var target = new FakePickerMessageTarget();
+		var opened = Open(picker, target);
+		time.Advance(PickerSession.InactivityLifetime);
+		var pick = Pick(opened.SearchId);
+
+		await picker.HandleAsync(pick);
+
+		await Assert.That(target.Operations).DoesNotContain(PostOperation);
+		await Assert.That(target.Edits).HasSingleItem();
+		await Assert.That(pick.DeferCount).IsEqualTo(1);
+	}
+
+	[Test]
 	public async Task InactivityClockSlidesOnEveryRecognizedInteraction()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
@@ -171,7 +220,7 @@ public sealed class MalSearchPickerTests
 		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
-		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Next)) { UpdateFailuresRemaining = 1, };
+		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Next)) { EditFailuresRemaining = 1, };
 
 		await picker.HandleAsync(interaction);
 		await picker.HandleAsync(Pick(opened.SearchId));
@@ -215,17 +264,17 @@ public sealed class MalSearchPickerTests
 		Genres = [],
 	};
 
-	private sealed class FakePickerInteraction(string customId) : IPickerInteraction
+	private sealed record FakePickerInteraction(string CustomId) : IPickerInteraction
 	{
-		public string CustomId { get; } = customId;
-
 		public IReadOnlyList<string> Values { get; init; } = [];
+
+		public ulong DiscordUserId { get; init; } = 1UL;
 
 		public bool HasAcknowledged { get; private set; }
 
 		public int DeferCount { get; private set; }
 
-		public int UpdateFailuresRemaining { get; set; }
+		public int EditFailuresRemaining { get; set; }
 
 		public List<PickerView> Updates { get; } = [];
 
@@ -238,6 +287,12 @@ public sealed class MalSearchPickerTests
 
 		public Task EditAsync(PickerView view)
 		{
+			if (this.EditFailuresRemaining > 0)
+			{
+				this.EditFailuresRemaining--;
+				throw new InvalidOperationException("edit failed");
+			}
+
 			this.Updates.Add(view);
 			return Task.CompletedTask;
 		}
@@ -245,12 +300,6 @@ public sealed class MalSearchPickerTests
 		public Task UpdateAsync(PickerView view)
 		{
 			this.HasAcknowledged = true;
-			if (this.UpdateFailuresRemaining > 0)
-			{
-				this.UpdateFailuresRemaining--;
-				throw new InvalidOperationException("update failed");
-			}
-
 			this.Updates.Add(view);
 			return Task.CompletedTask;
 		}

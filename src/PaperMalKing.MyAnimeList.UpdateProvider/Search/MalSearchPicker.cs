@@ -61,6 +61,12 @@ internal sealed class MalSearchPicker(PickerSessionStore _store, TimeProvider _t
 				throw new InvalidOperationException("An active Picker lookup did not return a session.");
 			}
 
+			await interaction.DeferAsync().ConfigureAwait(false);
+			if (!session.IsRequester(interaction.DiscordUserId))
+			{
+				return true;
+			}
+
 			await session.HandleAsync(customId, interaction).ConfigureAwait(false);
 		}
 #pragma warning disable CA1031
@@ -86,6 +92,11 @@ internal sealed class MalSearchPicker(PickerSessionStore _store, TimeProvider _t
 		ArgumentNullException.ThrowIfNull(context);
 		ArgumentNullException.ThrowIfNull(target);
 		var searchId = Guid.NewGuid().ToString("N");
+		if (context.InvokedAt + PickerSession.AbsoluteLifetime <= _timeProvider.GetUtcNow())
+		{
+			return new(searchId, PickerView.Terminal("This search has expired. Run the command again."));
+		}
+
 		var session = new PickerSession(searchId, snapshot, context, target, _store, _logger);
 		_store.Add(session);
 		session.Start(_timeProvider);

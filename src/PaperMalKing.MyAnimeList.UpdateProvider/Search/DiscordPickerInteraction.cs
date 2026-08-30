@@ -12,6 +12,8 @@ internal sealed class DiscordPickerInteraction(ComponentInteractionCreateEventAr
 
 	public IReadOnlyList<string> Values => _event.Values;
 
+	public ulong DiscordUserId => _event.User.Id;
+
 	public bool HasAcknowledged { get; private set; }
 
 	public async Task UpdateAsync(PickerView view)

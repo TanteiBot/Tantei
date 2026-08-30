@@ -26,10 +26,10 @@ internal static class PickerRenderer
 		ArgumentNullException.ThrowIfNull(snapshot);
 		var boundedPage = Math.Clamp(page, 0, snapshot.PageCount - 1);
 		var offset = boundedPage * PageSize;
-		var options = snapshot.Entries
+		var options = snapshot.Results
 			.Skip(offset)
 			.Take(PageSize)
-			.Select((entry, index) => CreateOption(entry, offset + index))
+			.Select((result, index) => CreateOption(result, offset + index))
 			.ToArray();
 		var select = new DiscordSelectComponent(
 			CreateCustomId(searchId, PickerAction.Pick),
@@ -63,27 +63,27 @@ internal static class PickerRenderer
 		return view;
 	}
 
-	private static DiscordSelectComponentOption CreateOption(PickerEntry entry, int index)
+	private static DiscordSelectComponentOption CreateOption(PickerSearchResult result, int index)
 	{
 		var descriptionParts = new List<string>(4);
-		if (!string.IsNullOrWhiteSpace(entry.MediaType))
+		if (!string.IsNullOrWhiteSpace(result.MediaType))
 		{
-			descriptionParts.Add(entry.MediaType);
+			descriptionParts.Add(result.MediaType);
 		}
 
-		if (entry.Year.HasValue)
+		if (result.Year.HasValue)
 		{
-			descriptionParts.Add(entry.Year.Value.ToString(CultureInfo.InvariantCulture));
+			descriptionParts.Add(result.Year.Value.ToString(CultureInfo.InvariantCulture));
 		}
 
-		if (entry.Mean.HasValue)
+		if (result.Mean.HasValue)
 		{
-			descriptionParts.Add($"★ {entry.Mean.Value.ToString("0.##", CultureInfo.InvariantCulture)}");
+			descriptionParts.Add($"★ {result.Mean.Value.ToString("0.##", CultureInfo.InvariantCulture)}");
 		}
 
-		descriptionParts.Add($"{FormatMemberCount(entry.ListUserCount)} members");
+		descriptionParts.Add($"{FormatMemberCount(result.ListUserCount)} members");
 		return new(
-			Truncate(entry.PrimaryTitle, OptionLabelLimit),
+			Truncate(result.PrimaryTitle, OptionLabelLimit),
 			Truncate(index.ToString(CultureInfo.InvariantCulture), OptionValueLimit),
 			Truncate(string.Join(" · ", descriptionParts), OptionDescriptionLimit));
 	}
