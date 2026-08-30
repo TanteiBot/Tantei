@@ -21,7 +21,7 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 
 	public Task OpenAsync(
 		string searchId,
-		IEnumerable<PickerSearchResult> results,
+		IEnumerable<SearchResult> results,
 		PickerSearchContext context,
 		IPickerMessageTarget target)
 	{
@@ -51,7 +51,7 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 
 	private async Task OpenCoreAsync(
 		string searchId,
-		IEnumerable<PickerSearchResult> results,
+		IEnumerable<SearchResult> results,
 		PickerSearchContext context,
 		IPickerMessageTarget target)
 	{

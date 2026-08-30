@@ -9,8 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Primitives;
 using PaperMalKing.MyAnimeList.UpdateProvider.Search;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 
@@ -97,7 +95,7 @@ public sealed class MalSearchPickerTests
 		{
 			await picker.OpenAsync(
 				SearchId,
-				[PickerSearchResult.ForAnime(new(Result(1), MatchRank.Contains))],
+				[Result(1)],
 				Context(),
 				target);
 		}
@@ -124,7 +122,7 @@ public sealed class MalSearchPickerTests
 		var target = new FakePickerMessageTarget { PauseEditNumber = 1, };
 		var opening = picker.OpenAsync(
 			SearchId,
-			[PickerSearchResult.ForAnime(new(Result(1), MatchRank.Contains))],
+			[Result(1)],
 			Context(),
 			target);
 		await target.EditStarted.Task;
@@ -152,7 +150,7 @@ public sealed class MalSearchPickerTests
 		{
 			await picker.OpenAsync(
 				new string('x', PickerRenderer.CustomIdLimit),
-				[PickerSearchResult.ForAnime(new(Result(1), MatchRank.Contains))],
+				[Result(1)],
 				Context(),
 				new FakePickerMessageTarget());
 		}
@@ -177,7 +175,7 @@ public sealed class MalSearchPickerTests
 
 		await picker.OpenAsync(
 			SearchId,
-			[PickerSearchResult.ForAnime(new(Result(1), MatchRank.Contains))],
+			[Result(1)],
 			Context(),
 			target);
 		var interaction = Pick(SearchId);
@@ -550,8 +548,7 @@ public sealed class MalSearchPickerTests
 
 	private static (string SearchId, PickerView View) Open(MalSearchPicker picker, FakePickerMessageTarget target, int resultCount = 2)
 	{
-		var results = Enumerable.Range(1, resultCount)
-			.Select(static id => PickerSearchResult.ForAnime(new(Result(id), MatchRank.Contains)));
+		var results = Enumerable.Range(1, resultCount).Select(Result);
 		var opening = picker.OpenAsync(SearchId, results, Context(), target);
 		if (!opening.IsCompletedSuccessfully)
 		{
@@ -577,15 +574,15 @@ public sealed class MalSearchPickerTests
 
 	private static FakePickerInteraction Pick(string searchId) => new(PickerCustomId.Create(searchId, PickerAction.Pick)) { Values = ["0"], };
 
-	private static AnimeSearchResult Result(int id) => new()
+	private static SearchResult Result(int id) => new(
+		(uint)id,
+		$"Result {id.ToString(CultureInfo.InvariantCulture)}",
+		MatchRank.Contains,
+		static _ => new())
 	{
-		Id = (uint)id,
-		PrimaryTitle = $"Result {id.ToString(CultureInfo.InvariantCulture)}",
-		MediaType = AnimeMediaType.TV,
-		Status = AnimeAiringStatus.Unknown,
-		Episodes = 0U,
+		MediaKind = PickerMediaKind.Anime,
+		MediaType = "TV",
 		ListUserCount = (uint)id,
-		Genres = [],
 	};
 
 	private sealed record FakePickerInteraction(string CustomId) : IPickerInteraction

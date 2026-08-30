@@ -63,7 +63,7 @@ internal static class PickerRenderer
 		return view;
 	}
 
-	private static DiscordSelectComponentOption CreateOption(PickerSearchResult result, int index)
+	private static DiscordSelectComponentOption CreateOption(SearchResult result, int index)
 	{
 		var descriptionParts = new List<string>(4);
 		if (!string.IsNullOrWhiteSpace(result.MediaType))

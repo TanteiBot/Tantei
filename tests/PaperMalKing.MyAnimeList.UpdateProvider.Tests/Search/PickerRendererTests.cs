@@ -4,9 +4,6 @@
 using System.Globalization;
 using DSharpPlus.Entities;
 using PaperMalKing.MyAnimeList.UpdateProvider.Search;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 
@@ -19,7 +16,7 @@ public sealed class PickerRendererTests
 	[Test]
 	public async Task RendersTwentyFiveResultsAndCorrectPageBoundaries()
 	{
-		var snapshot = PickerSnapshot.Create([.. Enumerable.Range(1, 26).Select(static id => PickerSearchResult.ForAnime(new(Result(id), MatchRank.Contains)))]);
+		var snapshot = PickerSnapshot.Create([.. Enumerable.Range(1, 26).Select(Result)]);
 
 		var first = PickerRenderer.Render(snapshot, SearchId, page: 0);
 		var last = PickerRenderer.Render(snapshot, SearchId, page: 1);
@@ -45,20 +42,14 @@ public sealed class PickerRendererTests
 		var longTitle = string.Concat(Enumerable.Repeat("e\u0301", 100));
 		var snapshot = PickerSnapshot.Create(
 		[
-			PickerSearchResult.ForAnime(new(
-			new()
+			new(42U, longTitle, MatchRank.Primary, static _ => new())
 			{
-				Id = 42U,
-				PrimaryTitle = longTitle,
-				MediaType = AnimeMediaType.TV,
-				Status = AnimeAiringStatus.CurrentlyAiring,
-				Episodes = 12U,
-				StartSeason = new() { Season = AnimeSeason.Spring, Year = 2004U, },
+				MediaKind = PickerMediaKind.Anime,
+				MediaType = "TV",
+				Year = 2004U,
 				Mean = 8.88,
 				ListUserCount = 1_400_000U,
-				Genres = [],
 			},
-			MatchRank.Primary)),
 		]);
 
 		var view = PickerRenderer.Render(snapshot, SearchId, page: 0);
@@ -79,18 +70,13 @@ public sealed class PickerRendererTests
 	[Test]
 	public async Task MultiWordMediaTypeUsesSentenceCaseHumanization()
 	{
-		var result = new MangaSearchResult
+		var result = new SearchResult(1U, "A Light Novel", MatchRank.Primary, static _ => new())
 		{
-			Id = 1U,
-			PrimaryTitle = "A Light Novel",
-			MediaType = MangaMediaType.LightNovel,
-			Status = MangaPublishingStatus.Unknown,
-			Chapters = 0U,
-			Volumes = 0U,
+			MediaKind = PickerMediaKind.Manga,
+			MediaType = "Light novel",
 			ListUserCount = 1U,
-			Genres = [],
 		};
-		var snapshot = PickerSnapshot.Create([PickerSearchResult.ForManga(new(result, MatchRank.Primary))]);
+		var snapshot = PickerSnapshot.Create([result]);
 
 		var view = PickerRenderer.Render(snapshot, SearchId, page: 0);
 		var option = ((DiscordSelectComponent)view.Rows[0][0]).Options.Single();
@@ -104,7 +90,7 @@ public sealed class PickerRendererTests
 		const int paddingLength = 96;
 		const int tailLength = 40;
 		var title = new string('a', paddingLength) + "𝐀́́" + new string('b', tailLength);
-		var snapshot = PickerSnapshot.Create([PickerSearchResult.ForAnime(new(TitledResult(title), MatchRank.Primary))]);
+		var snapshot = PickerSnapshot.Create([new SearchResult(1U, title, MatchRank.Primary, static _ => new())]);
 
 		var view = PickerRenderer.Render(snapshot, SearchId, page: 0);
 		var label = ((DiscordSelectComponent)view.Rows[0][0]).Options.Single().Label;
@@ -114,25 +100,14 @@ public sealed class PickerRendererTests
 		await Assert.That(label.EndsWith('…')).IsTrue();
 	}
 
-	private static AnimeSearchResult TitledResult(string title) => new()
+	private static SearchResult Result(int id) => new(
+		(uint)id,
+		$"Result {id.ToString(CultureInfo.InvariantCulture)}",
+		MatchRank.Contains,
+		static _ => new())
 	{
-		Id = 1U,
-		PrimaryTitle = title,
-		MediaType = AnimeMediaType.TV,
-		Status = AnimeAiringStatus.Unknown,
-		Episodes = 0U,
-		ListUserCount = 1U,
-		Genres = [],
-	};
-
-	private static AnimeSearchResult Result(int id) => new()
-	{
-		Id = (uint)id,
-		PrimaryTitle = $"Result {id.ToString(CultureInfo.InvariantCulture)}",
-		MediaType = AnimeMediaType.TV,
-		Status = AnimeAiringStatus.Unknown,
-		Episodes = 0U,
+		MediaKind = PickerMediaKind.Anime,
+		MediaType = "TV",
 		ListUserCount = (uint)id,
-		Genres = [],
 	};
 }

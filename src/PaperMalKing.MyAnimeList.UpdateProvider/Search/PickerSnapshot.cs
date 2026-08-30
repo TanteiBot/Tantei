@@ -9,11 +9,11 @@ internal sealed class PickerSnapshot
 {
 	public const int MaximumResults = 100;
 
-	public ReadOnlyCollection<PickerSearchResult> Results { get; }
+	public ReadOnlyCollection<SearchResult> Results { get; }
 
 	public int PageCount => (this.Results.Count + PickerRenderer.PageSize - 1) / PickerRenderer.PageSize;
 
-	private PickerSnapshot(IEnumerable<PickerSearchResult> results)
+	private PickerSnapshot(IEnumerable<SearchResult> results)
 	{
 		var snapshot = results.Take(MaximumResults).ToArray();
 		if (snapshot.Length == 0)
@@ -24,5 +24,5 @@ internal sealed class PickerSnapshot
 		this.Results = Array.AsReadOnly(snapshot);
 	}
 
-	public static PickerSnapshot Create(IEnumerable<PickerSearchResult> results) => new(results);
+	public static PickerSnapshot Create(IEnumerable<SearchResult> results) => new(results);
 }

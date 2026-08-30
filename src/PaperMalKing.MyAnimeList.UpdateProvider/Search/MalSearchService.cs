@@ -31,7 +31,7 @@ internal sealed class MalSearchService(
 			async (queryKey, includeNsfw, token) =>
 			{
 				var response = await _client.SearchAnimeAsync(query, includeNsfw, token).ConfigureAwait(false);
-				return SearchEvaluation.From(SearchPipeline.Evaluate(queryKey, response, mediaType), PickerSearchResult.ForAnime);
+				return SearchEvaluation.Evaluate(queryKey, response, mediaType);
 			},
 			cancellationToken);
 	}
@@ -48,7 +48,7 @@ internal sealed class MalSearchService(
 			async (queryKey, includeNsfw, token) =>
 			{
 				var response = await _client.SearchMangaAsync(query, includeNsfw, token).ConfigureAwait(false);
-				return SearchEvaluation.From(SearchPipeline.Evaluate(queryKey, response, mediaType), PickerSearchResult.ForManga);
+				return SearchEvaluation.Evaluate(queryKey, response, mediaType);
 			},
 			cancellationToken);
 	}
@@ -127,7 +127,7 @@ internal sealed class MalSearchService(
 
 	private async Task AutoPostAsync(
 		IPickerMessageTarget target,
-		PickerSearchResult result,
+		SearchResult result,
 		PickerSearchContext context,
 		CancellationToken cancellationToken)
 	{
