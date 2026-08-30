@@ -65,8 +65,8 @@ internal static class SearchEmbedBuilder
 			avatarUrl);
 	}
 
-	private static DiscordEmbedBuilder Build<TMediaType, TStatus>(
-		BaseSearchResult<TMediaType, TStatus> result,
+	private static DiscordEmbedBuilder Build(
+		BaseSearchResult result,
 		Uri mediaUrl,
 		string? mediaType,
 		string? status,
@@ -74,8 +74,6 @@ internal static class SearchEmbedBuilder
 		string? season,
 		string requesterDisplayName,
 		string? avatarUrl)
-		where TMediaType : unmanaged, Enum
-		where TStatus : unmanaged, Enum
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(requesterDisplayName);
 		var builder = new DiscordEmbedBuilder()

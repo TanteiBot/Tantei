@@ -7,9 +7,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
-public abstract class BaseSearchResult<TMediaType, TStatus>
-	where TMediaType : unmanaged, Enum
-	where TStatus : unmanaged, Enum
+public abstract class BaseSearchResult
 {
 	[JsonPropertyName("id")]
 	public required uint Id { get; init; }
@@ -23,12 +21,6 @@ public abstract class BaseSearchResult<TMediaType, TStatus>
 
 	[JsonPropertyName("alternative_titles")]
 	public AlternativeTitles? AlternativeTitles { get; init; }
-
-	[JsonPropertyName("media_type")]
-	public required TMediaType MediaType { get; init; }
-
-	[JsonPropertyName("status")]
-	public required TStatus Status { get; init; }
 
 	[JsonPropertyName("mean")]
 	public double? Mean { get; init; }
@@ -44,4 +36,15 @@ public abstract class BaseSearchResult<TMediaType, TStatus>
 
 	[JsonPropertyName("nsfw")]
 	public NsfwCategory? Nsfw { get; init; }
+}
+
+public abstract class BaseSearchResult<TMediaType, TStatus> : BaseSearchResult
+	where TMediaType : unmanaged, Enum
+	where TStatus : unmanaged, Enum
+{
+	[JsonPropertyName("media_type")]
+	public required TMediaType MediaType { get; init; }
+
+	[JsonPropertyName("status")]
+	public required TStatus Status { get; init; }
 }

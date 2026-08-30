@@ -8,9 +8,7 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
 internal static class SearchResultRanker
 {
-	public static ReadOnlyCollection<TitleMatchCandidate> CreateCandidateKeys<TMediaType, TStatus>(BaseSearchResult<TMediaType, TStatus> result)
-		where TMediaType : unmanaged, Enum
-		where TStatus : unmanaged, Enum
+	public static ReadOnlyCollection<TitleMatchCandidate> CreateCandidateKeys(BaseSearchResult result)
 	{
 		ArgumentNullException.ThrowIfNull(result);
 		var candidates = new List<TitleMatchCandidate>();
@@ -43,9 +41,7 @@ internal static class SearchResultRanker
 		}
 	}
 
-	public static MatchRank GetMatchRank<TMediaType, TStatus>(MatchKey queryKey, BaseSearchResult<TMediaType, TStatus> result)
-		where TMediaType : unmanaged, Enum
-		where TStatus : unmanaged, Enum
+	public static MatchRank GetMatchRank(MatchKey queryKey, BaseSearchResult result)
 	{
 		ArgumentNullException.ThrowIfNull(queryKey);
 		if (queryKey.IsEmpty)

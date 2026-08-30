@@ -1,72 +1,84 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using System.Diagnostics;
 using DSharpPlus.Entities;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
-internal sealed record PickerSearchResult
+internal abstract class PickerSearchResult
 {
-	private readonly object _result;
+	public abstract MatchRank Rank { get; }
 
-	public MatchRank Rank { get; }
+	public abstract PickerMediaKind MediaKind { get; }
 
-	public PickerMediaKind MediaKind { get; }
+	public abstract uint Id { get; }
 
-	public uint Id => this._result switch
+	public abstract string PrimaryTitle { get; }
+
+	public abstract string MediaType { get; }
+
+	public abstract uint? Year { get; }
+
+	public abstract double? Mean { get; }
+
+	public abstract uint ListUserCount { get; }
+
+	public static PickerSearchResult<AnimeSearchResult> ForAnime(RankedSearchResult<AnimeSearchResult> result) => new(
+		result,
+		PickerMediaKind.Anime,
+		static anime => anime.MediaType.ToString(),
+		static anime => anime.StartSeason is { Year: not 0U } startSeason ? startSeason.Year : null,
+		static (anime, context) => SearchEmbedBuilder.Build(anime, context.RequesterDisplayName, context.RequesterAvatarUrl));
+
+	public static PickerSearchResult<MangaSearchResult> ForManga(RankedSearchResult<MangaSearchResult> result) => new(
+		result,
+		PickerMediaKind.Manga,
+		static manga => manga.MediaType.ToString(),
+		static _ => null,
+		static (manga, context) => SearchEmbedBuilder.Build(manga, context.RequesterDisplayName, context.RequesterAvatarUrl));
+
+	public abstract DiscordEmbedBuilder BuildEmbed(PickerSearchContext context);
+}
+
+internal sealed class PickerSearchResult<TResult> : PickerSearchResult
+	where TResult : BaseSearchResult
+{
+	private readonly TResult _result;
+	private readonly Func<TResult, string> _getMediaType;
+	private readonly Func<TResult, uint?> _getYear;
+	private readonly Func<TResult, PickerSearchContext, DiscordEmbedBuilder> _buildEmbed;
+
+	public override MatchRank Rank { get; }
+
+	public override PickerMediaKind MediaKind { get; }
+
+	public override uint Id => this._result.Id;
+
+	public override string PrimaryTitle => this._result.PrimaryTitle;
+
+	public override string MediaType => this._getMediaType(this._result);
+
+	public override uint? Year => this._getYear(this._result);
+
+	public override double? Mean => this._result.Mean;
+
+	public override uint ListUserCount => this._result.ListUserCount;
+
+	internal PickerSearchResult(
+		RankedSearchResult<TResult> result,
+		PickerMediaKind mediaKind,
+		Func<TResult, string> getMediaType,
+		Func<TResult, uint?> getYear,
+		Func<TResult, PickerSearchContext, DiscordEmbedBuilder> buildEmbed)
 	{
-		AnimeSearchResult anime => anime.Id,
-		MangaSearchResult manga => manga.Id,
-		_ => throw new UnreachableException(),
-	};
-
-	public string PrimaryTitle => this._result switch
-	{
-		AnimeSearchResult anime => anime.PrimaryTitle,
-		MangaSearchResult manga => manga.PrimaryTitle,
-		_ => throw new UnreachableException(),
-	};
-
-	public string MediaType => this._result switch
-	{
-		AnimeSearchResult anime => anime.MediaType.ToString(),
-		MangaSearchResult manga => manga.MediaType.ToString(),
-		_ => throw new UnreachableException(),
-	};
-
-	public uint? Year => this._result is AnimeSearchResult { StartSeason.Year: not 0U } anime ? anime.StartSeason.Year : null;
-
-	public double? Mean => this._result switch
-	{
-		AnimeSearchResult anime => anime.Mean,
-		MangaSearchResult manga => manga.Mean,
-		_ => throw new UnreachableException(),
-	};
-
-	public uint ListUserCount => this._result switch
-	{
-		AnimeSearchResult anime => anime.ListUserCount,
-		MangaSearchResult manga => manga.ListUserCount,
-		_ => throw new UnreachableException(),
-	};
-
-	private PickerSearchResult(object result, MatchRank rank, PickerMediaKind mediaKind)
-	{
-		this._result = result;
-		this.Rank = rank;
+		this._result = result.Result;
+		this.Rank = result.Rank;
 		this.MediaKind = mediaKind;
+		this._getMediaType = getMediaType;
+		this._getYear = getYear;
+		this._buildEmbed = buildEmbed;
 	}
 
-	public static PickerSearchResult ForAnime(RankedSearchResult<AnimeSearchResult> result) => new(result.Result, result.Rank, PickerMediaKind.Anime);
-
-	public static PickerSearchResult ForManga(RankedSearchResult<MangaSearchResult> result) => new(result.Result, result.Rank, PickerMediaKind.Manga);
-
-	public DiscordEmbedBuilder BuildEmbed(PickerSearchContext context) => this._result switch
-	{
-		AnimeSearchResult anime => SearchEmbedBuilder.Build(anime, context.RequesterDisplayName, context.RequesterAvatarUrl),
-		MangaSearchResult manga => SearchEmbedBuilder.Build(manga, context.RequesterDisplayName, context.RequesterAvatarUrl),
-		_ => throw new UnreachableException(),
-	};
+	public override DiscordEmbedBuilder BuildEmbed(PickerSearchContext context) => this._buildEmbed(this._result, context);
 }
