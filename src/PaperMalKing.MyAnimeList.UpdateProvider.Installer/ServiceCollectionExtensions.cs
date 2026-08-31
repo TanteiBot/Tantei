@@ -34,7 +34,6 @@ public static class ServiceCollectionExtensions
 
 		serviceCollection.TryAddSingleton(TimeProvider.System);
 		serviceCollection.AddMemoryCache();
-		serviceCollection.AddSingleton<ISearchResultPostService, SearchResultPostService>();
 		serviceCollection.AddSingleton<MalSearchPicker>();
 		serviceCollection.AddSingleton<MalSearchService>();
 		serviceCollection.AddSingleton<SearchPickerComponentHandler>();

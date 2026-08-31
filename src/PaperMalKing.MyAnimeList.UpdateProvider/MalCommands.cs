@@ -66,7 +66,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("search", "Search anime and manga on MyAnimeList.net")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class MalSearchCommands(MalSearchService searchService, ISearchResultPostService postService) : BotCommandsModule
+	public sealed class MalSearchCommands(MalSearchService searchService) : BotCommandsModule
 	{
 		protected override bool IsResponseVisibleOnlyForRequester => true;
 
@@ -76,7 +76,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 									   [ChoiceProvider(typeof(EnumChoiceProvider<MediaTypeChoiceProvider<AnimeMediaType>, AnimeMediaType>)),
 										Option("type", "Media type to keep in the results")] string? unparsedMediaType = null) =>
 			searchService.SearchAnimeAsync(
-				DiscordSearchInvocation.Create(context, postService),
+				DiscordSearchInvocation.Create(context),
 				query,
 				MediaTypeChoiceProvider<AnimeMediaType>.Parse(unparsedMediaType),
 				CancellationToken.None);
@@ -87,7 +87,7 @@ internal sealed class MalCommands : ApplicationCommandModule
 									   [ChoiceProvider(typeof(EnumChoiceProvider<MediaTypeChoiceProvider<MangaMediaType>, MangaMediaType>)),
 										Option("type", "Media type to keep in the results")] string? unparsedMediaType = null) =>
 			searchService.SearchMangaAsync(
-				DiscordSearchInvocation.Create(context, postService),
+				DiscordSearchInvocation.Create(context),
 				query,
 				MediaTypeChoiceProvider<MangaMediaType>.Parse(unparsedMediaType),
 				CancellationToken.None);

@@ -23,7 +23,7 @@ internal sealed record DiscordSearchInvocation : ISearchInvocation
 
 	public required IPickerMessageTarget Target { get; init; }
 
-	public static DiscordSearchInvocation Create(InteractionContext context, ISearchResultPostService postService)
+	public static DiscordSearchInvocation Create(InteractionContext context)
 	{
 		ArgumentNullException.ThrowIfNull(context);
 		var channel = context.Channel;
@@ -38,7 +38,7 @@ internal sealed record DiscordSearchInvocation : ISearchInvocation
 			RequesterAvatarUrl = context.Member.GuildAvatarUrl ?? context.User.AvatarUrl,
 			GuildId = context.Guild.Id,
 			ChannelId = channel.Id,
-			Target = new DiscordPickerMessageTarget(context.Interaction, channel, postService),
+			Target = new DiscordPickerMessageTarget(context.Interaction, channel),
 		};
 	}
 }

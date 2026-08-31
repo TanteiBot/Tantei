@@ -7,11 +7,12 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
 internal sealed class DiscordPickerMessageTarget(
 	DiscordInteraction _originalInteraction,
-	DiscordChannel _channel,
-	ISearchResultPostService _postService) : IPickerMessageTarget
+	DiscordChannel _channel) : IPickerMessageTarget
 {
-	public Task SendPublicAsync(DiscordEmbedBuilder embed, CancellationToken cancellationToken = default) =>
-		_postService.SendAsync(_channel, embed, cancellationToken);
+	public async Task SendPublicAsync(DiscordEmbedBuilder embed, CancellationToken cancellationToken = default)
+	{
+		_ = await _channel.SendMessageAsync(embed: embed).WaitAsync(cancellationToken).ConfigureAwait(false);
+	}
 
 	public Task DeleteOriginalAsync(CancellationToken cancellationToken = default) =>
 		_originalInteraction.DeleteOriginalResponseAsync().WaitAsync(cancellationToken);
