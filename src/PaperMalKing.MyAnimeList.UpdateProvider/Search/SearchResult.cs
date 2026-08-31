@@ -15,15 +15,13 @@ internal sealed class SearchResult(
 
 	public MatchRank Rank { get; } = rank;
 
-	public PickerMediaKind MediaKind { get; init; }
-
 	public uint Id { get; } = id;
 
 	public string PrimaryTitle { get; } = primaryTitle;
 
 	public string MediaType { get; init; } = string.Empty;
 
-	public uint? Year { get; init; }
+	public int? Year { get; init; }
 
 	public double? Mean { get; init; }
 

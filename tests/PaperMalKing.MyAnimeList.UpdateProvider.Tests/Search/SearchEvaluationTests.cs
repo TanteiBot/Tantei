@@ -23,6 +23,9 @@ public sealed class SearchEvaluationTests
 	private const uint MiddleSortedId = 30U;
 	private const uint HighestSortedId = 40U;
 	private const uint ContainsSortedId = 10U;
+	private const int ExpectedAnimeStartYear = 2003;
+	private const int ExpectedMangaStartYear = 1988;
+	private const int ExpectedMangaStartMonth = 9;
 
 	[Test]
 	public async Task FloorRunsBeforeTheMediaTypeFilter()
@@ -41,7 +44,7 @@ public sealed class SearchEvaluationTests
 	[Test]
 	public async Task EmptyMalResponseAndEmptyRelevanceFloorHaveTheSameOutcome()
 	{
-		var malEmpty = SearchEvaluation.Evaluate(MatchKey.Create(Monster), AnimeSearchResponse.Empty, mediaTypeFilter: null);
+		var malEmpty = SearchEvaluation.Evaluate(MatchKey.Create(Monster), Response(), mediaTypeFilter: null);
 		var floorEmpty = SearchEvaluation.Evaluate(
 			MatchKey.Create(Monster),
 			Response(Anime(1U, Kaibutsu, mediaType: AnimeMediaType.Movie)),
@@ -178,6 +181,20 @@ public sealed class SearchEvaluationTests
 	}
 
 	[Test]
+	public async Task PickerYearComesFromTheSharedStartDateRatherThanTheAnimeSeason()
+	{
+		var results = Response(Anime(
+			1U,
+			Monster,
+			startDate: new(ExpectedAnimeStartYear, 4, 7),
+			startSeason: new() { Season = AnimeSeason.Spring, Year = 2004U, }));
+
+		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), results, mediaTypeFilter: null);
+
+		await Assert.That(evaluation.Results.Single().Year).IsEqualTo(ExpectedAnimeStartYear);
+	}
+
+	[Test]
 	public async Task MangaUsesTheSameRulesAndProjectsThePostingAndPickerResult()
 	{
 		var response = new MangaSearchResponse
@@ -189,7 +206,10 @@ public sealed class SearchEvaluationTests
 			],
 		};
 
-		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), response, MangaMediaType.LightNovel);
+		var evaluation = SearchEvaluation.Evaluate<MangaMediaType, MangaPublishingStatus>(
+			MatchKey.Create(Monster),
+			response.Results.Select(static envelope => envelope.Result),
+			MangaMediaType.LightNovel);
 		var result = evaluation.AutoPostResult!;
 		var embed = result.BuildEmbed(new(
 			Monster,
@@ -204,8 +224,8 @@ public sealed class SearchEvaluationTests
 
 		await Assert.That(evaluation.Kind).IsEqualTo(SearchOutcomeKind.AutoPosted);
 		await Assert.That(result.Id).IsEqualTo(PrimaryResultId);
-		await Assert.That(result.MediaKind).IsEqualTo(PickerMediaKind.Manga);
 		await Assert.That(result.MediaType).IsEqualTo("Light novel");
+		await Assert.That(result.Year).IsEqualTo(ExpectedMangaStartYear);
 		await Assert.That(embed.Title).IsEqualTo(Monster);
 	}
 
@@ -216,7 +236,9 @@ public sealed class SearchEvaluationTests
 		AnimeMediaType mediaType = AnimeMediaType.TV,
 		IReadOnlyList<string?>? synonyms = null,
 		string? japanese = null,
-		string? english = null) => new()
+		string? english = null,
+		DateOnly? startDate = null,
+		AnimeStartSeason? startSeason = null) => new()
 		{
 			Id = id,
 			PrimaryTitle = title,
@@ -225,6 +247,8 @@ public sealed class SearchEvaluationTests
 			Episodes = 0U,
 			ListUserCount = listUserCount,
 			Genres = [],
+			StartDate = startDate,
+			StartSeason = startSeason,
 			AlternativeTitles = synonyms is null && japanese is null && english is null
 				? null
 				: new()
@@ -235,10 +259,7 @@ public sealed class SearchEvaluationTests
 				},
 		};
 
-	private static AnimeSearchResponse Response(params AnimeSearchResult[] results) => new()
-	{
-		Results = [.. results.Select(static result => new SearchResultEnvelope<AnimeSearchResult> { Result = result, })],
-	};
+	private static AnimeSearchResult[] Response(params AnimeSearchResult[] results) => results;
 
 	private static SearchResultEnvelope<MangaSearchResult> MangaEnvelope(uint id, MangaMediaType mediaType) => new()
 	{
@@ -252,6 +273,7 @@ public sealed class SearchEvaluationTests
 			Volumes = 0U,
 			ListUserCount = 0U,
 			Genres = [],
+			StartDate = id == PrimaryResultId ? new(ExpectedMangaStartYear, ExpectedMangaStartMonth, 1) : null,
 		},
 	};
 }

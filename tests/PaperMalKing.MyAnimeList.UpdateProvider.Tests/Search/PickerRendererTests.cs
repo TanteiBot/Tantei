@@ -44,9 +44,8 @@ public sealed class PickerRendererTests
 		[
 			new(42U, longTitle, MatchRank.Primary, static _ => new())
 			{
-				MediaKind = PickerMediaKind.Anime,
 				MediaType = "TV",
-				Year = 2004U,
+				Year = 2004,
 				Mean = 8.88,
 				ListUserCount = 1_400_000U,
 			},
@@ -72,7 +71,6 @@ public sealed class PickerRendererTests
 	{
 		var result = new SearchResult(1U, "A Light Novel", MatchRank.Primary, static _ => new())
 		{
-			MediaKind = PickerMediaKind.Manga,
 			MediaType = "Light novel",
 			ListUserCount = 1U,
 		};
@@ -106,7 +104,6 @@ public sealed class PickerRendererTests
 		MatchRank.Contains,
 		static _ => new())
 	{
-		MediaKind = PickerMediaKind.Anime,
 		MediaType = "TV",
 		ListUserCount = (uint)id,
 	};

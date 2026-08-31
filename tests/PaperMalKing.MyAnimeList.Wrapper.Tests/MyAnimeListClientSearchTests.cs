@@ -19,6 +19,7 @@ public sealed class MyAnimeListClientSearchTests
 		const double expectedMean = 9.1;
 		const uint expectedYear = 2009U;
 		const uint expectedMembers = 3_500_000U;
+		var expectedStartDate = new DateOnly(2009, 4, 5);
 		HttpRequestMessage? capturedRequest = null;
 		using var handler = new FakeHttpMessageHandler(request =>
 		{
@@ -27,7 +28,7 @@ public sealed class MyAnimeListClientSearchTests
 				"{\"data\":[{\"node\":{\"id\":5114,\"title\":\"Fullmetal Alchemist: Brotherhood\"," +
 				"\"main_picture\":{\"medium\":\"https://example.test/medium.jpg\",\"large\":\"https://example.test/large.jpg\"}," +
 				"\"alternative_titles\":{\"synonyms\":[],\"en\":\"\",\"ja\":null},\"media_type\":\"future_anime_type\"," +
-				"\"status\":\"finished_airing\",\"num_episodes\":64,\"mean\":9.1," +
+				"\"status\":\"finished_airing\",\"num_episodes\":64,\"mean\":9.1,\"start_date\":\"2009-04-05\"," +
 				"\"start_season\":{\"year\":2009,\"season\":\"spring\"},\"num_list_users\":3500000," +
 				"\"genres\":[{\"name\":\"Action\"}],\"synopsis\":\"Two brothers search for a Philosopher's Stone.\"," +
 				"\"nsfw\":\"white\"}}]}");
@@ -53,6 +54,7 @@ public sealed class MyAnimeListClientSearchTests
 			"status",
 			"num_episodes",
 			"mean",
+			"start_date",
 			"start_season",
 			"num_list_users",
 			"genres{name}",
@@ -65,6 +67,7 @@ public sealed class MyAnimeListClientSearchTests
 		await Assert.That(result.MediaType).IsEqualTo(AnimeMediaType.Unknown);
 		await Assert.That(result.Episodes).IsEqualTo(expectedEpisodes);
 		await Assert.That(result.Mean).IsEqualTo(expectedMean);
+		await Assert.That(result.StartDate).IsEqualTo(expectedStartDate);
 		await Assert.That(result.StartSeason).IsNotNull();
 		await Assert.That(result.StartSeason.Year).IsEqualTo(expectedYear);
 		await Assert.That(result.StartSeason.Season).IsEqualTo(AnimeSeason.Spring);
@@ -86,6 +89,7 @@ public sealed class MyAnimeListClientSearchTests
 		const uint secondId = 3U;
 		const uint expectedChapters = 380U;
 		const uint expectedVolumes = 43U;
+		var expectedStartDate = new DateOnly(1989, 8, 25);
 		HttpRequestMessage? capturedRequest = null;
 		using var handler = new FakeHttpMessageHandler(request =>
 		{
@@ -93,7 +97,7 @@ public sealed class MyAnimeListClientSearchTests
 			return JsonResponse(
 				"{\"data\":[{\"node\":{\"id\":2,\"title\":\"Berserk\",\"alternative_titles\":{}," +
 				"\"media_type\":\"future_manga_type\",\"status\":\"currently_publishing\",\"num_chapters\":380," +
-				"\"num_volumes\":43,\"num_list_users\":700000}},{\"node\":{\"id\":3," +
+				"\"num_volumes\":43,\"start_date\":\"1989-08-25\",\"num_list_users\":700000}},{\"node\":{\"id\":3," +
 				"\"title\":\"Vagabond\",\"media_type\":\"manga\",\"status\":\"on_hiatus\",\"num_chapters\":327," +
 				"\"num_volumes\":37,\"num_list_users\":400000,\"genres\":null}}]}");
 		});
@@ -119,6 +123,7 @@ public sealed class MyAnimeListClientSearchTests
 			"num_chapters",
 			"num_volumes",
 			"mean",
+			"start_date",
 			"num_list_users",
 			"genres{name}",
 			"synopsis",
@@ -129,6 +134,7 @@ public sealed class MyAnimeListClientSearchTests
 		await Assert.That(first.MediaType).IsEqualTo(MangaMediaType.Unknown);
 		await Assert.That(first.Chapters).IsEqualTo(expectedChapters);
 		await Assert.That(first.Volumes).IsEqualTo(expectedVolumes);
+		await Assert.That(first.StartDate).IsEqualTo(expectedStartDate);
 		await Assert.That(first.Picture).IsNull();
 		await Assert.That(first.Mean).IsNull();
 		await Assert.That(first.Synopsis).IsNull();

@@ -23,10 +23,10 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 	: IMyAnimeListClient
 {
 	private const string AnimeSearchFields =
-		"id,title,main_picture,alternative_titles,media_type,status,num_episodes,mean,start_season,num_list_users,genres{name},synopsis,nsfw";
+		"id,title,main_picture,alternative_titles,media_type,status,num_episodes,mean,start_date,start_season,num_list_users,genres{name},synopsis,nsfw";
 
 	private const string MangaSearchFields =
-		"id,title,main_picture,alternative_titles,media_type,status,num_chapters,num_volumes,mean,num_list_users,genres{name},synopsis,nsfw";
+		"id,title,main_picture,alternative_titles,media_type,status,num_chapters,num_volumes,mean,start_date,num_list_users,genres{name},synopsis,nsfw";
 
 	private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
 	{

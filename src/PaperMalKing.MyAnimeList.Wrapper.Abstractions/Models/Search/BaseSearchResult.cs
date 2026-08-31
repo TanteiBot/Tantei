@@ -3,6 +3,7 @@
 
 using System.Text.Json.Serialization;
 using PaperMalKing.Common.Json;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Converters;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
@@ -24,6 +25,10 @@ public abstract class BaseSearchResult
 
 	[JsonPropertyName("mean")]
 	public double? Mean { get; init; }
+
+	[JsonPropertyName("start_date")]
+	[JsonConverter(typeof(DateOnlyFromMalConverter))]
+	public DateOnly? StartDate { get; init; }
 
 	[JsonPropertyName("num_list_users")]
 	public required uint ListUserCount { get; init; }

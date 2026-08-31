@@ -2,8 +2,6 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using Humanizer;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
@@ -14,42 +12,12 @@ internal sealed record SearchEvaluation(
 	int FloorSurvivorCount,
 	SearchResult? AutoPostResult)
 {
-	public static SearchEvaluation Evaluate(
+	public static SearchEvaluation Evaluate<TMediaType, TStatus>(
 		MatchKey queryKey,
-		AnimeSearchResponse response,
-		AnimeMediaType? mediaTypeFilter)
-	{
-		ArgumentNullException.ThrowIfNull(response);
-		return Evaluate(
-			queryKey,
-			response.Results.Select(static envelope => envelope.Result),
-			mediaTypeFilter,
-			static result => result.MediaType,
-			AdaptAnime);
-	}
-
-	public static SearchEvaluation Evaluate(
-		MatchKey queryKey,
-		MangaSearchResponse response,
-		MangaMediaType? mediaTypeFilter)
-	{
-		ArgumentNullException.ThrowIfNull(response);
-		return Evaluate(
-			queryKey,
-			response.Results.Select(static envelope => envelope.Result),
-			mediaTypeFilter,
-			static result => result.MediaType,
-			AdaptManga);
-	}
-
-	private static SearchEvaluation Evaluate<TResult, TMediaType>(
-		MatchKey queryKey,
-		IEnumerable<TResult> results,
-		TMediaType? mediaTypeFilter,
-		Func<TResult, TMediaType> getMediaType,
-		Func<TResult, MatchRank, SearchResult> adapt)
-		where TResult : BaseSearchResult
-		where TMediaType : struct, Enum
+		IEnumerable<BaseSearchResult<TMediaType, TStatus>> results,
+		TMediaType? mediaTypeFilter)
+		where TMediaType : unmanaged, Enum
+		where TStatus : unmanaged, Enum
 	{
 		ArgumentNullException.ThrowIfNull(queryKey);
 		ArgumentNullException.ThrowIfNull(results);
@@ -72,10 +40,10 @@ internal sealed record SearchEvaluation(
 		}
 
 		var filtered = mediaTypeFilter.HasValue
-			? floorSurvivors.Where(result => EqualityComparer<TMediaType>.Default.Equals(getMediaType(result.Result), mediaTypeFilter.Value))
+			? floorSurvivors.Where(result => EqualityComparer<TMediaType>.Default.Equals(result.Result.MediaType, mediaTypeFilter.Value))
 			: floorSurvivors;
 		var sorted = filtered
-			.Select(result => adapt(result.Result, result.Rank))
+			.Select(static result => Adapt(result.Result, result.Rank))
 			.OrderBy(static result => result.Rank)
 			.ThenByDescending(static result => result.ListUserCount)
 			.ThenBy(static result => result.Id)
@@ -152,28 +120,17 @@ internal sealed record SearchEvaluation(
 		}
 	}
 
-	private static SearchResult AdaptAnime(AnimeSearchResult result, MatchRank rank) => new(
-		result.Id,
-		result.PrimaryTitle,
-		rank,
-		context => SearchEmbedBuilder.Build(result, context.RequesterDisplayName, context.RequesterAvatarUrl))
-	{
-		MediaKind = PickerMediaKind.Anime,
-		MediaType = result.MediaType.Humanize(LetterCasing.Sentence),
-		Year = result.StartSeason is { Year: not 0U } startSeason ? startSeason.Year : null,
-		Mean = result.Mean,
-		ListUserCount = result.ListUserCount,
-	};
-
-	private static SearchResult AdaptManga(MangaSearchResult result, MatchRank rank) => new(
-		result.Id,
-		result.PrimaryTitle,
-		rank,
-		context => SearchEmbedBuilder.Build(result, context.RequesterDisplayName, context.RequesterAvatarUrl))
-	{
-		MediaKind = PickerMediaKind.Manga,
-		MediaType = result.MediaType.Humanize(LetterCasing.Sentence),
-		Mean = result.Mean,
-		ListUserCount = result.ListUserCount,
-	};
+	private static SearchResult Adapt<TMediaType, TStatus>(BaseSearchResult<TMediaType, TStatus> result, MatchRank rank)
+		where TMediaType : unmanaged, Enum
+		where TStatus : unmanaged, Enum => new(
+			result.Id,
+			result.PrimaryTitle,
+			rank,
+			context => SearchEmbedBuilder.Build(result, context.RequesterDisplayName, context.RequesterAvatarUrl))
+		{
+			MediaType = result.MediaType.Humanize(LetterCasing.Sentence),
+			Year = result.StartDate?.Year,
+			Mean = result.Mean,
+			ListUserCount = result.ListUserCount,
+		};
 }

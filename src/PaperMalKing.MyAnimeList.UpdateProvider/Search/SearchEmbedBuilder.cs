@@ -7,8 +7,6 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
 using PaperMalKing.Common;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
@@ -22,47 +20,66 @@ internal static class SearchEmbedBuilder
 	private const int TitleLimit = 256;
 	private const int UrlLimit = 2048;
 
-	public static DiscordEmbedBuilder Build(AnimeSearchResult result, string requesterDisplayName, string? avatarUrl)
+	public static DiscordEmbedBuilder Build<TMediaType, TStatus>(
+		BaseSearchResult<TMediaType, TStatus> result,
+		string requesterDisplayName,
+		string? avatarUrl)
+		where TMediaType : unmanaged, Enum
+		where TStatus : unmanaged, Enum
 	{
 		ArgumentNullException.ThrowIfNull(result);
-		var total = result.Episodes == 0U ? null : $"{result.Episodes.ToString(CultureInfo.InvariantCulture)} ep.";
-		var season = result.StartSeason is { Season: not AnimeSeason.Unknown, Year: not 0U } startSeason
-			? $"{startSeason.Season.Humanize(LetterCasing.Sentence)} {startSeason.Year.ToString(CultureInfo.InvariantCulture)}"
-			: null;
+		string mediaPath;
+		string? total;
+		string? season;
+		switch (result)
+		{
+			case AnimeSearchResult anime:
+				mediaPath = "anime";
+				total = anime.Episodes == 0U ? null : $"{anime.Episodes.ToString(CultureInfo.InvariantCulture)} ep.";
+				season = anime.StartSeason is { Season: not AnimeSeason.Unknown, Year: not 0U } startSeason
+					? $"{startSeason.Season.Humanize(LetterCasing.Sentence)} {startSeason.Year.ToString(CultureInfo.InvariantCulture)}"
+					: null;
+				break;
+			case MangaSearchResult manga:
+				mediaPath = "manga";
+				total = FormatMangaTotal(manga);
+				season = null;
+				break;
+			default:
+				throw new ArgumentException("The MAL Search Result type is not supported.", nameof(result));
+		}
+
+		var mediaType = EqualityComparer<TMediaType>.Default.Equals(result.MediaType, default)
+			? null
+			: result.MediaType.Humanize(LetterCasing.Sentence);
+		var status = EqualityComparer<TStatus>.Default.Equals(result.Status, default)
+			? null
+			: result.Status.Humanize(LetterCasing.Sentence);
 		return Build(
 			result,
-			new($"https://myanimelist.net/anime/{result.Id.ToString(CultureInfo.InvariantCulture)}"),
-			result.MediaType == AnimeMediaType.Unknown ? null : result.MediaType.Humanize(LetterCasing.Sentence),
-			result.Status == AnimeAiringStatus.Unknown ? null : result.Status.Humanize(LetterCasing.Sentence),
+			new($"https://myanimelist.net/{mediaPath}/{result.Id.ToString(CultureInfo.InvariantCulture)}"),
+			mediaType,
+			status,
 			total,
 			season,
 			requesterDisplayName,
 			avatarUrl);
 	}
 
-	public static DiscordEmbedBuilder Build(MangaSearchResult result, string requesterDisplayName, string? avatarUrl)
+	private static string? FormatMangaTotal(MangaSearchResult manga)
 	{
-		ArgumentNullException.ThrowIfNull(result);
 		var totals = new List<string>(2);
-		if (result.Chapters != 0U)
+		if (manga.Chapters != 0U)
 		{
-			totals.Add($"{result.Chapters.ToString(CultureInfo.InvariantCulture)} ch");
+			totals.Add($"{manga.Chapters.ToString(CultureInfo.InvariantCulture)} ch");
 		}
 
-		if (result.Volumes != 0U)
+		if (manga.Volumes != 0U)
 		{
-			totals.Add($"{result.Volumes.ToString(CultureInfo.InvariantCulture)} v.");
+			totals.Add($"{manga.Volumes.ToString(CultureInfo.InvariantCulture)} v.");
 		}
 
-		return Build(
-			result,
-			new($"https://myanimelist.net/manga/{result.Id.ToString(CultureInfo.InvariantCulture)}"),
-			result.MediaType == MangaMediaType.Unknown ? null : result.MediaType.Humanize(LetterCasing.Sentence),
-			result.Status == MangaPublishingStatus.Unknown ? null : result.Status.Humanize(LetterCasing.Sentence),
-			totals.Count == 0 ? null : string.Join(", ", totals),
-			season: null,
-			requesterDisplayName,
-			avatarUrl);
+		return totals.Count == 0 ? null : string.Join(", ", totals);
 	}
 
 	private static DiscordEmbedBuilder Build(

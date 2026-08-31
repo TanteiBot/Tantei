@@ -31,7 +31,10 @@ internal sealed class MalSearchService(
 			async (queryKey, includeNsfw, token) =>
 			{
 				var response = await _client.SearchAnimeAsync(query, includeNsfw, token).ConfigureAwait(false);
-				return SearchEvaluation.Evaluate(queryKey, response, mediaType);
+				return SearchEvaluation.Evaluate<AnimeMediaType, AnimeAiringStatus>(
+					queryKey,
+					response.Results.Select(static envelope => envelope.Result),
+					mediaType);
 			},
 			cancellationToken);
 	}
@@ -48,7 +51,10 @@ internal sealed class MalSearchService(
 			async (queryKey, includeNsfw, token) =>
 			{
 				var response = await _client.SearchMangaAsync(query, includeNsfw, token).ConfigureAwait(false);
-				return SearchEvaluation.Evaluate(queryKey, response, mediaType);
+				return SearchEvaluation.Evaluate<MangaMediaType, MangaPublishingStatus>(
+					queryKey,
+					response.Results.Select(static envelope => envelope.Result),
+					mediaType);
 			},
 			cancellationToken);
 	}

@@ -553,7 +553,6 @@ public sealed class MalSearchPickerTests
 		MatchRank.Contains,
 		static _ => new())
 	{
-		MediaKind = PickerMediaKind.Anime,
 		MediaType = "TV",
 		ListUserCount = (uint)id,
 	};
