@@ -23,7 +23,8 @@ public sealed class SearchEvaluationTests
 	private const uint MiddleSortedId = 30U;
 	private const uint HighestSortedId = 40U;
 	private const uint ContainsSortedId = 10U;
-	private const int ExpectedAnimeStartYear = 2003;
+	private const int ExpectedAnimeStartDateYear = 2003;
+	private const int ExpectedAnimeStartSeasonYear = 2004;
 	private const int ExpectedMangaStartYear = 1988;
 	private const int ExpectedMangaStartMonth = 9;
 
@@ -181,17 +182,31 @@ public sealed class SearchEvaluationTests
 	}
 
 	[Test]
-	public async Task PickerYearComesFromTheSharedStartDateRatherThanTheAnimeSeason()
+	public async Task PickerAnimeYearComesFromTheStartSeasonBeforeTheStartDate()
 	{
 		var results = Response(Anime(
 			1U,
 			Monster,
-			startDate: new(ExpectedAnimeStartYear, 4, 7),
-			startSeason: new() { Season = AnimeSeason.Spring, Year = 2004U, }));
+			startDate: new(ExpectedAnimeStartDateYear, 4, 7),
+			startSeason: new() { Season = AnimeSeason.Spring, Year = ExpectedAnimeStartSeasonYear, }));
 
 		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), results, mediaTypeFilter: null);
 
-		await Assert.That(evaluation.Results.Single().Year).IsEqualTo(ExpectedAnimeStartYear);
+		await Assert.That(evaluation.Results.Single().Year).IsEqualTo(ExpectedAnimeStartSeasonYear);
+	}
+
+	[Test]
+	public async Task PickerAnimeYearFallsBackToTheStartDate()
+	{
+		var results = Response(Anime(
+			1U,
+			Monster,
+			startDate: new(ExpectedAnimeStartDateYear, 4, 7),
+			startSeason: new() { Season = AnimeSeason.Unknown, Year = 0U, }));
+
+		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), results, mediaTypeFilter: null);
+
+		await Assert.That(evaluation.Results.Single().Year).IsEqualTo(ExpectedAnimeStartDateYear);
 	}
 
 	[Test]

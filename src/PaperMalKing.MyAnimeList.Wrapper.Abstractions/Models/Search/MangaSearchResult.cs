@@ -8,6 +8,9 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 public sealed class MangaSearchResult : BaseSearchResult<MangaMediaType, MangaPublishingStatus>
 {
+	[JsonIgnore]
+	public override int? Year => this.StartDate?.Year;
+
 	[JsonPropertyName("num_chapters")]
 	public required uint Chapters { get; init; }
 

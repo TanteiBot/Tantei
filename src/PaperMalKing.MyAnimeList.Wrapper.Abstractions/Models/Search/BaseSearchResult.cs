@@ -30,6 +30,9 @@ public abstract class BaseSearchResult
 	[JsonConverter(typeof(DateOnlyFromMalConverter))]
 	public DateOnly? StartDate { get; init; }
 
+	[JsonIgnore]
+	public abstract int? Year { get; }
+
 	[JsonPropertyName("num_list_users")]
 	public required uint ListUserCount { get; init; }
 

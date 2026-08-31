@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Net;
+using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
@@ -147,6 +148,55 @@ public sealed class MyAnimeListClientSearchTests
 		var second = response.Results.Single(envelope => envelope.Result.Id == secondId).Result;
 		await Assert.That(second.AlternativeTitles).IsNull();
 		await Assert.That(second.Genres).IsNull();
+	}
+
+	[Test]
+	public async Task SearchSerializationOmitsTheComputedYear()
+	{
+		var anime = new AnimeSearchResponse
+		{
+			Results =
+			[
+				new()
+				{
+					Result = new()
+					{
+						Id = 1U,
+						PrimaryTitle = "Monster",
+						MediaType = AnimeMediaType.TV,
+						Status = AnimeAiringStatus.FinishedAiring,
+						Episodes = 74U,
+						StartSeason = new() { Season = AnimeSeason.Spring, Year = 2004U, },
+						ListUserCount = 1U,
+					},
+				},
+			],
+		};
+		var manga = new MangaSearchResponse
+		{
+			Results =
+			[
+				new()
+				{
+					Result = new()
+					{
+						Id = 2U,
+						PrimaryTitle = "Berserk",
+						MediaType = MangaMediaType.Manga,
+						Status = MangaPublishingStatus.CurrentlyPublishing,
+						Chapters = 0U,
+						Volumes = 0U,
+						ListUserCount = 1U,
+					},
+				},
+			],
+		};
+
+		var animeJson = JsonSerializer.Serialize(anime, JsonContext.Default.AnimeSearchResponse);
+		var mangaJson = JsonSerializer.Serialize(manga, JsonContext.Default.MangaSearchResponse);
+
+		await Assert.That(animeJson).DoesNotContain("\"Year\"");
+		await Assert.That(mangaJson).DoesNotContain("\"Year\"");
 	}
 
 	[Test]
