@@ -61,7 +61,7 @@ internal sealed class MalSearchService(
 		Func<MatchKey, bool, CancellationToken, Task<SearchEvaluation>> search,
 		CancellationToken cancellationToken)
 	{
-		var searchId = Guid.NewGuid().ToString("N");
+		var searchId = Guid.NewGuid();
 		var context = new PickerSearchContext(
 			query,
 			mediaKind,

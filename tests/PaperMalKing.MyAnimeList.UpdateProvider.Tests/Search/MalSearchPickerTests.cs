@@ -15,7 +15,6 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 [SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "The task sources are controlled by the test fake")]
 public sealed class MalSearchPickerTests
 {
-	private const string SearchId = "0123456789abcdef0123456789abcdef";
 	private const string UnavailablePhrase = "no longer available";
 	private const int ResultCountAcrossTwoPages = 26;
 	private const int MinutesBeforeAbsoluteExpiry = 13;
@@ -23,6 +22,7 @@ public sealed class MalSearchPickerTests
 	private const string PostOperation = "post";
 	private const string DeleteOperation = "delete";
 	private const string EditOperation = "edit";
+	private static readonly Guid SearchId = SearchTestIdentity.Value;
 	private static readonly TimeSpan InactivityLifetime = TimeSpan.FromSeconds(90);
 	private static readonly TimeSpan AbsoluteLifetime = TimeSpan.FromMinutes(14);
 	private static readonly DateTimeOffset Start = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
@@ -136,33 +136,6 @@ public sealed class MalSearchPickerTests
 		await Assert.That(target.Operations).DoesNotContain(PostOperation);
 		await Assert.That(target.CompletedEditCount).IsEqualTo(0);
 		target.AllowEdit.SetResult();
-	}
-
-	[Test]
-	public async Task InitialRenderingFailureLeavesThePickerUnavailable()
-	{
-		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start);
-		var picker = CreatePicker(cache, time);
-		var failed = false;
-
-		try
-		{
-			await picker.OpenAsync(
-				new string('x', PickerRenderer.CustomIdLimit),
-				[Result(1)],
-				Context(),
-				new FakePickerMessageTarget());
-		}
-		catch (ArgumentException)
-		{
-			failed = true;
-		}
-
-		await Assert.That(failed).IsTrue();
-		var interaction = new FakePickerInteraction(PickerCustomId.Create(SearchId, PickerAction.Next));
-		await picker.HandleAsync(interaction);
-		await Assert.That(interaction.Replacements.Single().Content).Contains(UnavailablePhrase);
 	}
 
 	[Test]
@@ -546,7 +519,7 @@ public sealed class MalSearchPickerTests
 										   .SingleOrDefault(static field => string.Equals(field.Key, "Outcome", StringComparison.Ordinal))
 										   .Value?.ToString() ?? string.Empty);
 
-	private static (string SearchId, PickerView View) Open(MalSearchPicker picker, FakePickerMessageTarget target, int resultCount = 2)
+	private static (Guid SearchId, PickerView View) Open(MalSearchPicker picker, FakePickerMessageTarget target, int resultCount = 2)
 	{
 		var results = Enumerable.Range(1, resultCount).Select(Result);
 		var opening = picker.OpenAsync(SearchId, results, Context(), target);
@@ -572,7 +545,7 @@ public sealed class MalSearchPickerTests
 		ChannelId: 3UL,
 		InvokedAt: Start);
 
-	private static FakePickerInteraction Pick(string searchId) => new(PickerCustomId.Create(searchId, PickerAction.Pick)) { Values = ["0"], };
+	private static FakePickerInteraction Pick(Guid searchId) => new(PickerCustomId.Create(searchId, PickerAction.Pick)) { Values = ["0"], };
 
 	private static SearchResult Result(int id) => new(
 		(uint)id,

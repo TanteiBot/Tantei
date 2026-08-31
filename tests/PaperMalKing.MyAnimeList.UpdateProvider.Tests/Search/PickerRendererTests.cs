@@ -9,9 +9,9 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 
 public sealed class PickerRendererTests
 {
-	private const string SearchId = "0123456789abcdef0123456789abcdef";
 	private const int ExpectedRowCount = 2;
 	private const int NextButtonIndex = 2;
+	private static readonly Guid SearchId = SearchTestIdentity.Value;
 
 	[Test]
 	public async Task RendersTwentyFiveResultsAndCorrectPageBoundaries()

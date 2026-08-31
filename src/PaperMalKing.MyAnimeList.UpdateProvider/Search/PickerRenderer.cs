@@ -21,7 +21,7 @@ internal static class PickerRenderer
 	private const uint Thousand = 1_000U;
 	private const uint Million = 1_000_000U;
 
-	public static PickerView Render(PickerSnapshot snapshot, string searchId, int page)
+	public static PickerView Render(PickerSnapshot snapshot, Guid searchId, int page)
 	{
 		ArgumentNullException.ThrowIfNull(snapshot);
 		var boundedPage = Math.Clamp(page, 0, snapshot.PageCount - 1);
@@ -95,7 +95,7 @@ internal static class PickerRenderer
 		_ => memberCount.ToString(CultureInfo.InvariantCulture),
 	};
 
-	private static string CreateCustomId(string searchId, PickerAction action)
+	private static string CreateCustomId(Guid searchId, PickerAction action)
 	{
 		var customId = PickerCustomId.Create(searchId, action);
 		if (customId.Length > CustomIdLimit)

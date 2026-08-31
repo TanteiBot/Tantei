@@ -9,8 +9,8 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 
 public sealed class SearchLogTests
 {
-	private const string SearchId = "0123456789abcdef0123456789abcdef";
 	private const string AvatarUrl = "https://cdn.discordapp.com/avatars/1/secret.png";
+	private static readonly Guid SearchId = SearchTestIdentity.Value;
 
 	[Test]
 	public async Task PermissionDenialIsAnInformationEventBecauseNothingFailed()
@@ -158,6 +158,7 @@ public sealed class SearchLogTests
 
 		using var scope = logger.SearchScope(SearchId, context);
 
+		await Assert.That(ScopeField(logger, "SearchId")).IsEqualTo(SearchId);
 		await Assert.That(Fields(logger)).IsEquivalentTo(
 			[
 				"SearchId=" + SearchId,
@@ -209,6 +210,11 @@ public sealed class SearchLogTests
 			],
 			TUnit.Assertions.Enums.CollectionOrdering.Matching);
 	}
+
+	private static object? ScopeField(RecordingLogger<SearchLogTests> logger, string name) =>
+		((IReadOnlyList<KeyValuePair<string, object?>>)logger.Scopes.Single()!)
+		.Single(field => string.Equals(field.Key, name, StringComparison.Ordinal))
+		.Value;
 
 	private static IEnumerable<string> Fields(RecordingLogger<SearchLogTests> logger) =>
 		((IReadOnlyList<KeyValuePair<string, object?>>)logger.Scopes.Single()!).Select(static field =>

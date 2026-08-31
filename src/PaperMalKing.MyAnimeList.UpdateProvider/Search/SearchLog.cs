@@ -43,12 +43,12 @@ internal static partial class SearchLog
 	[LoggerMessage(EventId = 11, Level = LogLevel.Information, Message = "MyAnimeList Picker session is no longer available")]
 	public static partial void PickerUnavailable(this ILogger logger);
 
-	public static IDisposable? SearchScope(this ILogger logger, string searchId, PickerSearchContext context) =>
+	public static IDisposable? SearchScope(this ILogger logger, Guid searchId, PickerSearchContext context) =>
 		logger.BeginScope(SearchLogScope.ForSearch(searchId, context));
 
 	public static IDisposable? PickerInteractionScope(
 		this ILogger logger,
-		string searchId,
+		Guid searchId,
 		ulong discordUserId,
 		string discordDisplayName,
 		ulong? guildId,

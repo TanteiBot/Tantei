@@ -13,14 +13,12 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 [SuppressMessage("Minor Code Smell", "S2325:Methods and properties that don't access instance data should be static", Justification = "The Picker owns every lifecycle transition")]
 internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timeProvider, ILogger<MalSearchPicker> _logger)
 {
-	private const string SessionPrefix = "mal-search-session:";
-	private const string TerminalPrefix = "mal-search-terminal:";
 	private static readonly TimeSpan InactivityLifetime = TimeSpan.FromSeconds(90);
 	private static readonly TimeSpan AbsoluteLifetime = TimeSpan.FromMinutes(14);
 	private static readonly TimeSpan TerminalMarkerLifetime = TimeSpan.FromMinutes(1);
 
 	public Task OpenAsync(
-		string searchId,
+		Guid searchId,
 		IEnumerable<SearchResult> results,
 		PickerSearchContext context,
 		IPickerMessageTarget target)
@@ -37,7 +35,7 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 		return this.HandleCoreAsync(interaction);
 	}
 
-	private static IDisposable? BeginInteractionScope(ILogger logger, string searchId, IPickerInteraction interaction) =>
+	private static IDisposable? BeginInteractionScope(ILogger logger, Guid searchId, IPickerInteraction interaction) =>
 		logger.PickerInteractionScope(
 			searchId,
 			interaction.DiscordUserId,
@@ -45,12 +43,12 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 			interaction.GuildId,
 			interaction.ChannelId);
 
-	private static string SessionKey(string searchId) => SessionPrefix + searchId;
+	private static SessionCacheKey SessionKey(Guid searchId) => new(searchId);
 
-	private static string TerminalKey(string searchId) => TerminalPrefix + searchId;
+	private static TerminalCacheKey TerminalKey(Guid searchId) => new(searchId);
 
 	private async Task OpenCoreAsync(
-		string searchId,
+		Guid searchId,
 		IEnumerable<SearchResult> results,
 		PickerSearchContext context,
 		IPickerMessageTarget target)
@@ -487,7 +485,7 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 		_logger.PickerEnded(reason, selectedMediaId);
 	}
 
-	private PickerStateLookup Find(string searchId)
+	private PickerStateLookup Find(Guid searchId)
 	{
 		if (_cache.TryGetValue(SessionKey(searchId), out PickerState? state))
 		{
@@ -543,19 +541,19 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 		}
 	}
 
-	private IDisposable? BeginScope(string searchId, PickerSearchContext searchContext) => _logger.SearchScope(searchId, searchContext);
+	private IDisposable? BeginScope(Guid searchId, PickerSearchContext searchContext) => _logger.SearchScope(searchId, searchContext);
 
 	[SuppressMessage(
 		"Design",
 		"CA1001:Types that own disposable fields should be disposable",
 		Justification = "Picker termination and cache eviction dispose the owned resources")]
 	private sealed class PickerState(
-		string searchId,
+		Guid searchId,
 		PickerSnapshot snapshot,
 		PickerSearchContext context,
 		IPickerMessageTarget target)
 	{
-		public string SearchId { get; } = searchId;
+		public Guid SearchId { get; } = searchId;
 
 		public ulong RequesterDiscordUserId { get; } = context.DiscordUserId;
 
@@ -589,6 +587,10 @@ internal sealed class MalSearchPicker(IMemoryCache _cache, TimeProvider _timePro
 	}
 
 	private sealed record ExpiryTimerState(MalSearchPicker Picker, PickerState State);
+
+	private readonly record struct SessionCacheKey(Guid SearchId);
+
+	private readonly record struct TerminalCacheKey(Guid SearchId);
 
 	private readonly record struct PickerStateLookup(PickerLookup Kind, PickerState? State);
 

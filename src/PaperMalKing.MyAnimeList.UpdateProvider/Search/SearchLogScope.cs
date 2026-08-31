@@ -19,7 +19,7 @@ internal sealed class SearchLogScope : IReadOnlyList<KeyValuePair<string, object
 		this._fields = fields;
 	}
 
-	public static SearchLogScope ForSearch(string searchId, PickerSearchContext context)
+	public static SearchLogScope ForSearch(Guid searchId, PickerSearchContext context)
 	{
 		ArgumentNullException.ThrowIfNull(context);
 		return new(
@@ -35,7 +35,7 @@ internal sealed class SearchLogScope : IReadOnlyList<KeyValuePair<string, object
 		]);
 	}
 
-	public static SearchLogScope ForInteraction(string searchId, ulong discordUserId, string discordDisplayName, ulong? guildId, ulong? channelId) =>
+	public static SearchLogScope ForInteraction(Guid searchId, ulong discordUserId, string discordDisplayName, ulong? guildId, ulong? channelId) =>
 		new(
 		[
 			new("SearchId", searchId),

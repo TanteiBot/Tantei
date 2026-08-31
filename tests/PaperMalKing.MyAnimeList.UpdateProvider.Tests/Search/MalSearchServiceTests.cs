@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Net;
+using DSharpPlus.Entities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.MyAnimeList.UpdateProvider.Search;
@@ -176,6 +177,13 @@ public sealed class MalSearchServiceTests
 		await Assert.That(target.Operations).IsEquivalentTo([FakeSearchMessageTarget.EditOperation], TUnit.Assertions.Enums.CollectionOrdering.Matching);
 		await Assert.That(target.Edits.Single().Rows.Count).IsEqualTo(PickerRowCount);
 		await Assert.That(Outcomes(scope)).IsEquivalentTo([nameof(SearchOutcomeKind.PickerOpened)]);
+		var select = (DiscordSelectComponent)target.Edits.Single().Rows[0][0];
+		var parsed = PickerCustomId.TryParse(select.CustomId, out var customId);
+		var loggedSearchId = ((IReadOnlyList<KeyValuePair<string, object?>>)scope.Logger.Scopes.Single()!)
+			.Single(static field => string.Equals(field.Key, "SearchId", StringComparison.Ordinal))
+			.Value;
+		await Assert.That(parsed).IsTrue();
+		await Assert.That(loggedSearchId).IsEqualTo(customId.SearchId);
 	}
 
 	[Test]

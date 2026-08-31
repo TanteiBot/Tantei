@@ -1,21 +1,20 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using System.Buffers;
+using System.Runtime.InteropServices;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
-internal readonly record struct PickerCustomId(string SearchId, PickerAction Action)
+[StructLayout(LayoutKind.Auto)]
+internal readonly record struct PickerCustomId(Guid SearchId, PickerAction Action)
 {
 	public const string Prefix = "mal:search:";
 	private const int SearchIdLength = 32;
-	private static readonly SearchValues<char> SearchIdCharacters = SearchValues.Create("0123456789abcdef");
 
 	public static bool HasPrefix(string value) => value.StartsWith(Prefix, StringComparison.Ordinal);
 
-	public static string Create(string searchId, PickerAction action)
+	public static string Create(Guid searchId, PickerAction action)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(searchId);
 		var actionValue = action switch
 		{
 			PickerAction.Pick => "pick",
@@ -25,7 +24,7 @@ internal readonly record struct PickerCustomId(string SearchId, PickerAction Act
 			PickerAction.Cancel => "cancel",
 			_ => throw new ArgumentOutOfRangeException(nameof(action)),
 		};
-		return $"{Prefix}{searchId}:{actionValue}";
+		return $"{Prefix}{searchId:N}:{actionValue}";
 	}
 
 	public static bool TryParse(string value, out PickerCustomId customId)
@@ -43,25 +42,26 @@ internal readonly record struct PickerCustomId(string SearchId, PickerAction Act
 			return false;
 		}
 
-		var searchId = remainder[..separatorIndex];
-		if (!searchId.ContainsAnyExcept(SearchIdCharacters))
+		if (!Guid.TryParseExact(remainder[..separatorIndex], "N", out var searchId))
 		{
-			var action = remainder[(separatorIndex + 1)..] switch
-			{
-				"pick" => PickerAction.Pick,
-				"previous" => PickerAction.Previous,
-				"page" => PickerAction.Page,
-				"next" => PickerAction.Next,
-				"cancel" => PickerAction.Cancel,
-				_ => (PickerAction?)null,
-			};
-			if (action.HasValue)
-			{
-				customId = new(searchId.ToString(), action.Value);
-				return true;
-			}
+			return false;
 		}
 
-		return false;
+		var action = remainder[(separatorIndex + 1)..] switch
+		{
+			"pick" => PickerAction.Pick,
+			"previous" => PickerAction.Previous,
+			"page" => PickerAction.Page,
+			"next" => PickerAction.Next,
+			"cancel" => PickerAction.Cancel,
+			_ => (PickerAction?)null,
+		};
+		if (!action.HasValue)
+		{
+			return false;
+		}
+
+		customId = new(searchId, action.Value);
+		return true;
 	}
 }
