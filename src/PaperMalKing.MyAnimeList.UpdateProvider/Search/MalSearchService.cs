@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 using Polly.RateLimiting;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
@@ -23,19 +24,12 @@ internal sealed class MalSearchService(
 	{
 		ArgumentNullException.ThrowIfNull(invocation);
 		ArgumentNullException.ThrowIfNull(query);
-		return this.SearchAsync(
+		return this.SearchAsync<AnimeSearchResult, AnimeMediaType, AnimeAiringStatus>(
 			invocation,
 			query,
 			PickerMediaKind.Anime,
-			mediaType?.ToString(),
-			async (queryKey, includeNsfw, token) =>
-			{
-				var response = await _client.SearchAnimeAsync(query, includeNsfw, token).ConfigureAwait(false);
-				return SearchEvaluation.Evaluate<AnimeMediaType, AnimeAiringStatus>(
-					queryKey,
-					response.Results.Select(static envelope => envelope.Result),
-					mediaType);
-			},
+			mediaType,
+			_client.SearchAnimeAsync,
 			cancellationToken);
 	}
 
@@ -43,35 +37,31 @@ internal sealed class MalSearchService(
 	{
 		ArgumentNullException.ThrowIfNull(invocation);
 		ArgumentNullException.ThrowIfNull(query);
-		return this.SearchAsync(
+		return this.SearchAsync<MangaSearchResult, MangaMediaType, MangaPublishingStatus>(
 			invocation,
 			query,
 			PickerMediaKind.Manga,
-			mediaType?.ToString(),
-			async (queryKey, includeNsfw, token) =>
-			{
-				var response = await _client.SearchMangaAsync(query, includeNsfw, token).ConfigureAwait(false);
-				return SearchEvaluation.Evaluate<MangaMediaType, MangaPublishingStatus>(
-					queryKey,
-					response.Results.Select(static envelope => envelope.Result),
-					mediaType);
-			},
+			mediaType,
+			_client.SearchMangaAsync,
 			cancellationToken);
 	}
 
-	private async Task SearchAsync(
+	private async Task SearchAsync<TResult, TMediaType, TStatus>(
 		ISearchInvocation invocation,
 		string query,
 		PickerMediaKind mediaKind,
-		string? mediaTypeFilter,
-		Func<MatchKey, bool, CancellationToken, Task<SearchEvaluation>> search,
+		TMediaType? mediaTypeFilter,
+		Func<string, bool, CancellationToken, Task<IReadOnlyList<TResult>>> search,
 		CancellationToken cancellationToken)
+		where TResult : BaseSearchResult<TMediaType, TStatus>
+		where TMediaType : unmanaged, Enum
+		where TStatus : unmanaged, Enum
 	{
 		var searchId = Guid.NewGuid();
 		var context = new PickerSearchContext(
 			query,
 			mediaKind,
-			mediaTypeFilter,
+			mediaTypeFilter?.ToString(),
 			invocation.DiscordUserId,
 			invocation.RequesterDisplayName,
 			invocation.RequesterAvatarUrl,
@@ -103,7 +93,8 @@ internal sealed class MalSearchService(
 		SearchEvaluation evaluation;
 		try
 		{
-			evaluation = await search(queryKey, invocation.IncludeNsfw, cancellationToken).ConfigureAwait(false);
+			var results = await search(query, invocation.IncludeNsfw, cancellationToken).ConfigureAwait(false);
+			evaluation = SearchEvaluation.Evaluate<TMediaType, TStatus>(queryKey, results, mediaTypeFilter);
 		}
 #pragma warning disable CA1031
 		catch (Exception exception)

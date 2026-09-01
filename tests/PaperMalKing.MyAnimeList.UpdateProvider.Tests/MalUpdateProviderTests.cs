@@ -155,9 +155,11 @@ public sealed class MalUpdateProviderTests
 
 		public Task<string> GetUsernameAsync(uint id, CancellationToken cancellationToken) => throw new NotSupportedException();
 
-		public Task<AnimeSearchResponse> SearchAnimeAsync(string query, bool includeNsfw, CancellationToken cancellationToken) => throw new NotSupportedException();
+		public Task<IReadOnlyList<AnimeSearchResult>> SearchAnimeAsync(string query, bool includeNsfw, CancellationToken cancellationToken) =>
+			throw new NotSupportedException();
 
-		public Task<MangaSearchResponse> SearchMangaAsync(string query, bool includeNsfw, CancellationToken cancellationToken) => throw new NotSupportedException();
+		public Task<IReadOnlyList<MangaSearchResult>> SearchMangaAsync(string query, bool includeNsfw, CancellationToken cancellationToken) =>
+			throw new NotSupportedException();
 
 		public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken) => throw new NotSupportedException();
 

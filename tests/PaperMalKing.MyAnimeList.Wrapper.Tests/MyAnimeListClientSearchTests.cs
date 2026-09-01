@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Net;
-using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
@@ -63,7 +62,7 @@ public sealed class MyAnimeListClientSearchTests
 			"nsfw",
 		]);
 
-		var result = response.Results.Single().Result;
+		var result = response.Single();
 		await Assert.That(result.Id).IsEqualTo(expectedId);
 		await Assert.That(result.MediaType).IsEqualTo(AnimeMediaType.Unknown);
 		await Assert.That(result.Episodes).IsEqualTo(expectedEpisodes);
@@ -131,7 +130,7 @@ public sealed class MyAnimeListClientSearchTests
 			"nsfw",
 		]);
 
-		var first = response.Results.Single(envelope => envelope.Result.Id == firstId).Result;
+		var first = response.Single(result => result.Id == firstId);
 		await Assert.That(first.MediaType).IsEqualTo(MangaMediaType.Unknown);
 		await Assert.That(first.Chapters).IsEqualTo(expectedChapters);
 		await Assert.That(first.Volumes).IsEqualTo(expectedVolumes);
@@ -145,58 +144,9 @@ public sealed class MyAnimeListClientSearchTests
 		await Assert.That(first.AlternativeTitles.English).IsNull();
 		await Assert.That(first.AlternativeTitles.Japanese).IsNull();
 		await Assert.That(first.Genres).IsNull();
-		var second = response.Results.Single(envelope => envelope.Result.Id == secondId).Result;
+		var second = response.Single(result => result.Id == secondId);
 		await Assert.That(second.AlternativeTitles).IsNull();
 		await Assert.That(second.Genres).IsNull();
-	}
-
-	[Test]
-	public async Task SearchSerializationOmitsTheComputedYear()
-	{
-		var anime = new AnimeSearchResponse
-		{
-			Results =
-			[
-				new()
-				{
-					Result = new()
-					{
-						Id = 1U,
-						PrimaryTitle = "Monster",
-						MediaType = AnimeMediaType.TV,
-						Status = AnimeAiringStatus.FinishedAiring,
-						Episodes = 74U,
-						StartSeason = new() { Season = AnimeSeason.Spring, Year = 2004U, },
-						ListUserCount = 1U,
-					},
-				},
-			],
-		};
-		var manga = new MangaSearchResponse
-		{
-			Results =
-			[
-				new()
-				{
-					Result = new()
-					{
-						Id = 2U,
-						PrimaryTitle = "Berserk",
-						MediaType = MangaMediaType.Manga,
-						Status = MangaPublishingStatus.CurrentlyPublishing,
-						Chapters = 0U,
-						Volumes = 0U,
-						ListUserCount = 1U,
-					},
-				},
-			],
-		};
-
-		var animeJson = JsonSerializer.Serialize(anime, JsonContext.Default.AnimeSearchResponse);
-		var mangaJson = JsonSerializer.Serialize(manga, JsonContext.Default.MangaSearchResponse);
-
-		await Assert.That(animeJson).DoesNotContain("\"Year\"");
-		await Assert.That(mangaJson).DoesNotContain("\"Year\"");
 	}
 
 	[Test]

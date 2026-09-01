@@ -11,9 +11,9 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 
 internal sealed class FakeMyAnimeListSearchClient : IMyAnimeListClient
 {
-	public AnimeSearchResponse AnimeResponse { get; init; } = AnimeSearchResponse.Empty;
+	public IReadOnlyList<AnimeSearchResult> AnimeResults { get; init; } = [];
 
-	public MangaSearchResponse MangaResponse { get; init; } = MangaSearchResponse.Empty;
+	public IReadOnlyList<MangaSearchResult> MangaResults { get; init; } = [];
 
 	public Exception? SearchException { get; init; }
 
@@ -23,16 +23,20 @@ internal sealed class FakeMyAnimeListSearchClient : IMyAnimeListClient
 
 	public List<bool> NsfwFlags { get; } = [];
 
-	public Task<AnimeSearchResponse> SearchAnimeAsync(string query, bool includeNsfw, CancellationToken cancellationToken)
+	public Task<IReadOnlyList<AnimeSearchResult>> SearchAnimeAsync(string query, bool includeNsfw, CancellationToken cancellationToken)
 	{
 		this.Record(query, includeNsfw);
-		return this.SearchException is null ? Task.FromResult(this.AnimeResponse) : Task.FromException<AnimeSearchResponse>(this.SearchException);
+		return this.SearchException is null
+			? Task.FromResult(this.AnimeResults)
+			: Task.FromException<IReadOnlyList<AnimeSearchResult>>(this.SearchException);
 	}
 
-	public Task<MangaSearchResponse> SearchMangaAsync(string query, bool includeNsfw, CancellationToken cancellationToken)
+	public Task<IReadOnlyList<MangaSearchResult>> SearchMangaAsync(string query, bool includeNsfw, CancellationToken cancellationToken)
 	{
 		this.Record(query, includeNsfw);
-		return this.SearchException is null ? Task.FromResult(this.MangaResponse) : Task.FromException<MangaSearchResponse>(this.SearchException);
+		return this.SearchException is null
+			? Task.FromResult(this.MangaResults)
+			: Task.FromException<IReadOnlyList<MangaSearchResult>>(this.SearchException);
 	}
 
 	public Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken) => throw new NotSupportedException();

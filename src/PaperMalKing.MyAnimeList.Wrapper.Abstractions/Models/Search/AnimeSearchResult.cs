@@ -8,11 +8,6 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 public sealed class AnimeSearchResult : BaseSearchResult<AnimeMediaType, AnimeAiringStatus>
 {
-	[JsonIgnore]
-	public override int? Year => this.StartSeason is { Year: not 0U } startSeason
-		? checked((int)startSeason.Year)
-		: this.StartDate?.Year;
-
 	[JsonPropertyName("num_episodes")]
 	public required uint Episodes { get; init; }
 

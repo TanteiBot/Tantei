@@ -64,7 +64,7 @@ public sealed class MalSearchServiceTests
 	[Arguments(true)]
 	public async Task TheChannelDecidesWhetherMyAnimeListIsAskedForNsfwResults(bool includeNsfw)
 	{
-		var client = new FakeMyAnimeListSearchClient { AnimeResponse = AnimeResponse(Anime(1, Query)), };
+		var client = new FakeMyAnimeListSearchClient { AnimeResults = AnimeResults(Anime(1, Query)), };
 		var target = new FakeSearchMessageTarget();
 		using var scope = new ServiceScope(client);
 
@@ -91,7 +91,7 @@ public sealed class MalSearchServiceTests
 	[Test]
 	public async Task ARelevanceFloorThatRemovesEveryRowReportsNoResults()
 	{
-		var client = new FakeMyAnimeListSearchClient { AnimeResponse = AnimeResponse(Anime(1, "Something else")), };
+		var client = new FakeMyAnimeListSearchClient { AnimeResults = AnimeResults(Anime(1, "Something else")), };
 		var target = new FakeSearchMessageTarget();
 		using var scope = new ServiceScope(client);
 
@@ -104,7 +104,7 @@ public sealed class MalSearchServiceTests
 	[Test]
 	public async Task ATypeFilterThatRemovesEveryFloorSurvivorSaysSo()
 	{
-		var client = new FakeMyAnimeListSearchClient { AnimeResponse = AnimeResponse(Anime(1, Query)), };
+		var client = new FakeMyAnimeListSearchClient { AnimeResults = AnimeResults(Anime(1, Query)), };
 		var target = new FakeSearchMessageTarget();
 		using var scope = new ServiceScope(client);
 
@@ -117,7 +117,7 @@ public sealed class MalSearchServiceTests
 	[Test]
 	public async Task ASoleSurvivingResultIsPostedPubliclyBeforeTheEphemeralIsDeleted()
 	{
-		var client = new FakeMyAnimeListSearchClient { AnimeResponse = AnimeResponse(Anime(1, Query)), };
+		var client = new FakeMyAnimeListSearchClient { AnimeResults = AnimeResults(Anime(1, Query)), };
 		var target = new FakeSearchMessageTarget();
 		using var scope = new ServiceScope(client);
 
@@ -136,7 +136,7 @@ public sealed class MalSearchServiceTests
 	{
 		var client = new FakeMyAnimeListSearchClient
 		{
-			AnimeResponse = AnimeResponse(Anime(1, $"{Query} Rage"), Anime(2, Query), Anime(3, $"{Query} 2")),
+			AnimeResults = AnimeResults(Anime(1, $"{Query} Rage"), Anime(2, Query), Anime(3, $"{Query} 2")),
 		};
 		var target = new FakeSearchMessageTarget();
 		using var scope = new ServiceScope(client);
@@ -150,7 +150,7 @@ public sealed class MalSearchServiceTests
 	[Test]
 	public async Task AFailingPublicPostLeavesOneTerminalEphemeralErrorAndNoDelete()
 	{
-		var client = new FakeMyAnimeListSearchClient { AnimeResponse = AnimeResponse(Anime(1, Query)), };
+		var client = new FakeMyAnimeListSearchClient { AnimeResults = AnimeResults(Anime(1, Query)), };
 		var target = new FakeSearchMessageTarget { PostException = new InvalidOperationException("denied"), };
 		using var scope = new ServiceScope(client);
 
@@ -167,7 +167,7 @@ public sealed class MalSearchServiceTests
 	[Test]
 	public async Task SeveralSurvivingResultsEditTheEphemeralIntoAPickerAfterOneApiCall()
 	{
-		var client = new FakeMyAnimeListSearchClient { AnimeResponse = AnimeResponse(Anime(1, $"{Query} Rage"), Anime(2, $"{Query} 2")), };
+		var client = new FakeMyAnimeListSearchClient { AnimeResults = AnimeResults(Anime(1, $"{Query} Rage"), Anime(2, $"{Query} 2")), };
 		var target = new FakeSearchMessageTarget();
 		using var scope = new ServiceScope(client);
 
@@ -189,7 +189,7 @@ public sealed class MalSearchServiceTests
 	[Test]
 	public async Task AMangaSearchRunsTheSameFlowThroughTheMangaEndpoint()
 	{
-		var client = new FakeMyAnimeListSearchClient { MangaResponse = MangaResponse(Manga(1, Query)), };
+		var client = new FakeMyAnimeListSearchClient { MangaResults = MangaResults(Manga(1, Query)), };
 		var target = new FakeSearchMessageTarget();
 		using var scope = new ServiceScope(client);
 
@@ -247,15 +247,9 @@ public sealed class MalSearchServiceTests
 										  .SingleOrDefault(static field => string.Equals(field.Key, "Outcome", StringComparison.Ordinal))
 										  .Value?.ToString() ?? string.Empty);
 
-	private static AnimeSearchResponse AnimeResponse(params AnimeSearchResult[] results) => new()
-	{
-		Results = [.. results.Select(static result => new SearchResultEnvelope<AnimeSearchResult> { Result = result, })],
-	};
+	private static AnimeSearchResult[] AnimeResults(params AnimeSearchResult[] results) => results;
 
-	private static MangaSearchResponse MangaResponse(params MangaSearchResult[] results) => new()
-	{
-		Results = [.. results.Select(static result => new SearchResultEnvelope<MangaSearchResult> { Result = result, })],
-	};
+	private static MangaSearchResult[] MangaResults(params MangaSearchResult[] results) => results;
 
 	private static AnimeSearchResult Anime(int id, string title) => new()
 	{

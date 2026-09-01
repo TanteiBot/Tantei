@@ -129,7 +129,7 @@ internal sealed record SearchEvaluation(
 			context => SearchEmbedBuilder.Build(result, context.RequesterDisplayName, context.RequesterAvatarUrl))
 		{
 			MediaType = result.MediaType.Humanize(LetterCasing.Sentence),
-			Year = result.Year,
+			Year = result.StartDate?.Year,
 			Mean = result.Mean,
 			ListUserCount = result.ListUserCount,
 		};

@@ -26,9 +26,9 @@ public interface IMyAnimeListClient
 		where TNodeStatus : unmanaged, Enum
 		where TListStatus : unmanaged, Enum;
 
-	Task<AnimeSearchResponse> SearchAnimeAsync(string query, bool includeNsfw, CancellationToken cancellationToken);
+	Task<IReadOnlyList<AnimeSearchResult>> SearchAnimeAsync(string query, bool includeNsfw, CancellationToken cancellationToken);
 
-	Task<MangaSearchResponse> SearchMangaAsync(string query, bool includeNsfw, CancellationToken cancellationToken);
+	Task<IReadOnlyList<MangaSearchResult>> SearchMangaAsync(string query, bool includeNsfw, CancellationToken cancellationToken);
 
 	Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken);
 

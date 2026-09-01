@@ -182,7 +182,7 @@ public sealed class SearchEvaluationTests
 	}
 
 	[Test]
-	public async Task PickerAnimeYearComesFromTheStartSeasonBeforeTheStartDate()
+	public async Task PickerAnimeYearComesFromTheStartDate()
 	{
 		var results = Response(Anime(
 			1U,
@@ -192,7 +192,7 @@ public sealed class SearchEvaluationTests
 
 		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), results, mediaTypeFilter: null);
 
-		await Assert.That(evaluation.Results.Single().Year).IsEqualTo(ExpectedAnimeStartSeasonYear);
+		await Assert.That(evaluation.Results.Single().Year).IsEqualTo(ExpectedAnimeStartDateYear);
 	}
 
 	[Test]
@@ -212,18 +212,15 @@ public sealed class SearchEvaluationTests
 	[Test]
 	public async Task MangaUsesTheSameRulesAndProjectsThePostingAndPickerResult()
 	{
-		var response = new MangaSearchResponse
+		var results = new[]
 		{
-			Results =
-			[
-				MangaEnvelope(1U, MangaMediaType.Manga),
-				MangaEnvelope(PrimaryResultId, MangaMediaType.LightNovel),
-			],
+			Manga(1U, MangaMediaType.Manga),
+			Manga(PrimaryResultId, MangaMediaType.LightNovel),
 		};
 
 		var evaluation = SearchEvaluation.Evaluate<MangaMediaType, MangaPublishingStatus>(
 			MatchKey.Create(Monster),
-			response.Results.Select(static envelope => envelope.Result),
+			results,
 			MangaMediaType.LightNovel);
 		var result = evaluation.AutoPostResult!;
 		var embed = result.BuildEmbed(new(
@@ -276,19 +273,16 @@ public sealed class SearchEvaluationTests
 
 	private static AnimeSearchResult[] Response(params AnimeSearchResult[] results) => results;
 
-	private static SearchResultEnvelope<MangaSearchResult> MangaEnvelope(uint id, MangaMediaType mediaType) => new()
+	private static MangaSearchResult Manga(uint id, MangaMediaType mediaType) => new()
 	{
-		Result = new()
-		{
-			Id = id,
-			PrimaryTitle = Monster,
-			MediaType = mediaType,
-			Status = MangaPublishingStatus.Unknown,
-			Chapters = 0U,
-			Volumes = 0U,
-			ListUserCount = 0U,
-			Genres = [],
-			StartDate = id == PrimaryResultId ? new(ExpectedMangaStartYear, ExpectedMangaStartMonth, 1) : null,
-		},
+		Id = id,
+		PrimaryTitle = Monster,
+		MediaType = mediaType,
+		Status = MangaPublishingStatus.Unknown,
+		Chapters = 0U,
+		Volumes = 0U,
+		ListUserCount = 0U,
+		Genres = [],
+		StartDate = id == PrimaryResultId ? new(ExpectedMangaStartYear, ExpectedMangaStartMonth, 1) : null,
 	};
 }
