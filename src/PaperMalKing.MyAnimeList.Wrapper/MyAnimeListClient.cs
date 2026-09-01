@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json.Serialization.Metadata;
 using AngleSharp;
 using AngleSharp.Dom;
 using JikanDotNet;
@@ -13,6 +14,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Parsers;
 
 namespace PaperMalKing.MyAnimeList.Wrapper;
@@ -21,6 +23,15 @@ namespace PaperMalKing.MyAnimeList.Wrapper;
 public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpClient _unofficialApiHttpClient, HttpClient _officialApiHttpClient, IJikan _jikanClient)
 	: IMyAnimeListClient
 {
+	private const string AnimeSearchFields =
+		"id,title,main_picture,alternative_titles,media_type,status,num_episodes,mean,start_date,start_season,num_list_users,genres{name},synopsis,nsfw";
+
+	private const string MangaSearchFields =
+		"id,title,main_picture,alternative_titles,media_type,status,num_chapters,num_volumes,mean,start_date,num_list_users,genres{name},synopsis,nsfw";
+
+	private static string CreateSearchUrl(string mediaPath, string query, string fields, bool includeNsfw) =>
+		$"{Constants.BaseOfficialApiUrl}/{mediaPath}?q={Uri.EscapeDataString(query)}&limit=100&offset=0&fields={fields}{(includeNsfw ? "&nsfw=true" : string.Empty)}";
+
 	private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
 	{
 		var response = await _unofficialApiHttpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
@@ -85,6 +96,25 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 				cancellationToken) ?? ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>.Empty);
 
 		return response.Data;
+	}
+
+	public Task<IReadOnlyList<AnimeSearchResult>> SearchAnimeAsync(string query, bool includeNsfw, CancellationToken cancellationToken) =>
+		this.SearchAsync("anime", query, AnimeSearchFields, includeNsfw, JsonContext.Default.SearchResponseAnimeSearchResult, cancellationToken);
+
+	public Task<IReadOnlyList<MangaSearchResult>> SearchMangaAsync(string query, bool includeNsfw, CancellationToken cancellationToken) =>
+		this.SearchAsync("manga", query, MangaSearchFields, includeNsfw, JsonContext.Default.SearchResponseMangaSearchResult, cancellationToken);
+
+	private async Task<IReadOnlyList<TResult>> SearchAsync<TResult>(
+		string mediaPath,
+		string query,
+		string fields,
+		bool includeNsfw,
+		JsonTypeInfo<SearchResponse<TResult>> jsonTypeInfo,
+		CancellationToken cancellationToken)
+	{
+		var url = CreateSearchUrl(mediaPath, query, fields, includeNsfw);
+		var response = await _officialApiHttpClient.GetFromJsonAsync(url, jsonTypeInfo, cancellationToken);
+		return response?.Results.Select(static envelope => envelope.Result).ToArray() ?? [];
 	}
 
 	public async Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken)

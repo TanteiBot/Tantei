@@ -3,10 +3,11 @@
 
 using System.ComponentModel;
 using System.Text.Json.Serialization;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Converters;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 
-[JsonConverter(typeof(JsonStringEnumConverter<MangaMediaType>))]
+[JsonConverter(typeof(UnknownJsonStringEnumConverter<MangaMediaType>))]
 public enum MangaMediaType : byte
 {
 	[JsonStringEnumMemberName("unknown")]

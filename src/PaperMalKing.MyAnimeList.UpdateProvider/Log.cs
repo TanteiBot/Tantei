@@ -24,6 +24,9 @@ internal static partial class Log
 	[LoggerMessage(LogLevel.Error, "Mal server encounters some error, skipping current update check")]
 	public static partial void MalServerError(this ILogger<BaseUpdateProvider> logger, Exception exception);
 
+	[LoggerMessage(LogLevel.Error, "MyAnimeList official API rejected a list update request with 403, skipping current update check")]
+	public static partial void OfficialApiForbiddenDuringUpdateCheck(this ILogger<BaseUpdateProvider> logger, Exception exception);
+
 	[LoggerMessage(LogLevel.Warning, "User with username {Username} not found")]
 	public static partial void UserNotFound(this ILogger<BaseUpdateProvider> logger, Exception ex, string username);
 

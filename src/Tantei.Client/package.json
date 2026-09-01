@@ -7,9 +7,9 @@
     "dev": "vite --host",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
-    "build-only": "vite build",
+    "build-only": "vite build --log-level warn",
     "type-check": "vue-tsc --build",
-    "generate:api": "kubb generate && oxfmt --write src/api/gen",
+    "generate:api": "kubb generate --silent && oxfmt --write src/api/gen",
     "lint": "run-s lint:oxlint lint:eslint",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
@@ -19,7 +19,7 @@
     "format": "oxfmt --write",
     "format:check": "oxfmt --check",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build --loglevel error"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.126",

@@ -4,6 +4,7 @@
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 
@@ -24,6 +25,10 @@ public interface IMyAnimeListClient
 		where TMediaType : unmanaged, Enum
 		where TNodeStatus : unmanaged, Enum
 		where TListStatus : unmanaged, Enum;
+
+	Task<IReadOnlyList<AnimeSearchResult>> SearchAnimeAsync(string query, bool includeNsfw, CancellationToken cancellationToken);
+
+	Task<IReadOnlyList<MangaSearchResult>> SearchMangaAsync(string query, bool includeNsfw, CancellationToken cancellationToken);
 
 	Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken);
 

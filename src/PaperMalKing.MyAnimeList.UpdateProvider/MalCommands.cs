@@ -4,7 +4,11 @@
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.Common;
 using PaperMalKing.Database.Models.MyAnimeList;
+using PaperMalKing.MyAnimeList.UpdateProvider.Search;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Colors;
 using PaperMalKing.UpdatesProviders.Base.Features;
@@ -58,6 +62,35 @@ internal sealed class MalCommands : ApplicationCommandModule
 
 		[SlashCommand("list", "Show all features that are available for updates from MyAnimeList.net")]
 		public override Task ListFeaturesCommand(InteractionContext context) => base.ListFeaturesCommand(context);
+	}
+
+	[SlashCommandGroup("search", "Search anime and manga on MyAnimeList.net")]
+	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
+	public sealed class MalSearchCommands(MalSearchService searchService) : BotCommandsModule
+	{
+		protected override bool IsResponseVisibleOnlyForRequester => true;
+
+		[SlashCommand("anime", "Search anime on MyAnimeList.net")]
+		public Task SearchAnimeCommand(InteractionContext context,
+									   [Option("query", "Title of the anime to search for")] string query,
+									   [ChoiceProvider(typeof(EnumChoiceProvider<MediaTypeChoiceProvider<AnimeMediaType>, AnimeMediaType>)),
+										Option("type", "Media type to keep in the results")] string? unparsedMediaType = null) =>
+			searchService.SearchAnimeAsync(
+				DiscordSearchInvocation.Create(context),
+				query,
+				MediaTypeChoiceProvider<AnimeMediaType>.Parse(unparsedMediaType),
+				CancellationToken.None);
+
+		[SlashCommand("manga", "Search manga on MyAnimeList.net")]
+		public Task SearchMangaCommand(InteractionContext context,
+									   [Option("query", "Title of the manga to search for")] string query,
+									   [ChoiceProvider(typeof(EnumChoiceProvider<MediaTypeChoiceProvider<MangaMediaType>, MangaMediaType>)),
+										Option("type", "Media type to keep in the results")] string? unparsedMediaType = null) =>
+			searchService.SearchMangaAsync(
+				DiscordSearchInvocation.Create(context),
+				query,
+				MediaTypeChoiceProvider<MangaMediaType>.Parse(unparsedMediaType),
+				CancellationToken.None);
 	}
 
 	[SlashCommandGroup("colors", "Manage colors of your updates")]

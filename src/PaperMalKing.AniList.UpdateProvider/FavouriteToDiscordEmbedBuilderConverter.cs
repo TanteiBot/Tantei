@@ -75,7 +75,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 		{
 			const int mediaDescriptionLimit = 350;
 			var mediaDescription = staff.Description.StripHtml();
-			mediaDescription = SourceRemovalRegex.Replace(mediaDescription, string.Empty);
+			mediaDescription = mediaDescription.RemoveSourceTail();
 			mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
 			mediaDescription = mediaDescription.Trim().Truncate(mediaDescriptionLimit);
 

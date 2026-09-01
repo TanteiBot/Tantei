@@ -6,6 +6,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Installer" />
+        <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Tests" />
     </ItemGroup>
 
     <ItemGroup>
@@ -15,8 +16,10 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
         <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
         <PackageReference Include="Microsoft.VisualStudio.Threading" />
         <PackageReference Include="Microsoft.Extensions.Telemetry.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
 
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
         <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
