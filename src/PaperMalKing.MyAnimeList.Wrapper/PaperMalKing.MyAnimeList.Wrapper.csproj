@@ -9,11 +9,11 @@
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\PaperMalKing.MyAnimeList.Wrapper.Abstractions\PaperMalKing.MyAnimeList.Wrapper.Abstractions.csproj" />
+      <Compile Remove="Tenrai\ProjectOpenApi.cs" />
     </ItemGroup>
     
     <PropertyGroup>
         <NoWarn>$(NoWarn);S3242;</NoWarn>
-        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
 </Project>

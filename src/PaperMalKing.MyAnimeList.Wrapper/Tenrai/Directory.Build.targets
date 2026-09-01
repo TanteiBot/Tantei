@@ -1,0 +1,6 @@
+<Project>
+  <ItemGroup>
+    <AdditionalFiles Remove="$(ProjectDir)../../BannedSymbols.txt" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../../BannedSymbols.txt" />
+  </ItemGroup>
+</Project>
