@@ -206,7 +206,7 @@ internal static class Extensions
 	}
 
 	public static async Task<DiscordEmbedBuilder> ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
-		this TLe listEntry, User user, IMyAnimeListClient client, MalUser dbUser, CancellationToken cancellationToken)
+		this TLe listEntry, User user, IMyAnimeListEnrichment enrichment, MalUser dbUser, CancellationToken cancellationToken)
 		where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 		where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
 		where TStatus : BaseListEntryStatus<TListStatus>
@@ -303,8 +303,8 @@ internal static class Extensions
 
 		var mediaInfo = features.HasAnyFlag(MalUserFeatures.Demographic, MalUserFeatures.Themes) ? listEntry switch
 		{
-			MangaListEntry => await client.GetMangaDetailsAsync(listEntry.Node.Id, cancellationToken),
-			AnimeListEntry => await client.GetAnimeDetailsAsync(listEntry.Node.Id, cancellationToken),
+			MangaListEntry => await enrichment.GetMangaDetailsAsync(listEntry.Node.Id, cancellationToken),
+			AnimeListEntry => await enrichment.GetAnimeDetailsAsync(listEntry.Node.Id, cancellationToken),
 			_ => throw new UnreachableException(),
 		} : MediaInfo.Empty;
 
@@ -401,7 +401,7 @@ internal static class Extensions
 
 		if (features.HasFlag(MalUserFeatures.Seiyu) && listEntry is AnimeListEntry)
 		{
-			var seiyu = await client.GetAnimeSeiyuAsync(listEntry.Node.Id, cancellationToken);
+			var seiyu = await enrichment.GetAnimeSeiyuAsync(listEntry.Node.Id, cancellationToken);
 			var text = seiyu.Take(7).Select(x => Formatter.MaskedUrl(x.Name, new(x.Url))).JoinToString();
 			if (!string.IsNullOrWhiteSpace(text))
 			{

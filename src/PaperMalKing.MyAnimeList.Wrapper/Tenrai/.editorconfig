@@ -1,0 +1,4 @@
+root = false
+
+[TenraiClient.g.cs]
+dotnet_diagnostic.EPS01.severity = none

@@ -7,7 +7,6 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization.Metadata;
 using AngleSharp;
 using AngleSharp.Dom;
-using JikanDotNet;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common.Exceptions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
@@ -20,8 +19,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Parsers;
 namespace PaperMalKing.MyAnimeList.Wrapper;
 
 [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "We want to ignore exceptions")]
-public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpClient _unofficialApiHttpClient, HttpClient _officialApiHttpClient, IJikan _jikanClient)
-	: IMyAnimeListClient
+public sealed class MyAnimeListClient : IMyAnimeListClient
 {
 	private const string AnimeSearchFields =
 		"id,title,main_picture,alternative_titles,media_type,status,num_episodes,mean,start_date,start_season,num_list_users,genres{name},synopsis,nsfw";
@@ -29,12 +27,29 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 	private const string MangaSearchFields =
 		"id,title,main_picture,alternative_titles,media_type,status,num_chapters,num_volumes,mean,start_date,num_list_users,genres{name},synopsis,nsfw";
 
+	private readonly IMyAnimeListEnrichment _enrichment;
+	private readonly ILogger<MyAnimeListClient> _logger;
+	private readonly HttpClient _officialApiHttpClient;
+	private readonly HttpClient _unofficialApiHttpClient;
+
+	internal MyAnimeListClient(
+		ILogger<MyAnimeListClient> logger,
+		HttpClient unofficialApiHttpClient,
+		HttpClient officialApiHttpClient,
+		IMyAnimeListEnrichment enrichment)
+	{
+		this._logger = logger;
+		this._unofficialApiHttpClient = unofficialApiHttpClient;
+		this._officialApiHttpClient = officialApiHttpClient;
+		this._enrichment = enrichment;
+	}
+
 	private static string CreateSearchUrl(string mediaPath, string query, string fields, bool includeNsfw) =>
 		$"{Constants.BaseOfficialApiUrl}/{mediaPath}?q={Uri.EscapeDataString(query)}&limit=100&offset=0&fields={fields}{(includeNsfw ? "&nsfw=true" : string.Empty)}";
 
 	private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
 	{
-		var response = await _unofficialApiHttpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+		var response = await this._unofficialApiHttpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 		return response.EnsureSuccessStatusCode();
 	}
 
@@ -55,20 +70,20 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 			ArgumentException.Throw<ParserOptions>("No reason to parse profile without anime/manga lists and favorites", nameof(options));
 		}
 
-		_logger.RequestingProfile(username);
+		this._logger.RequestingProfile(username);
 		username = WebUtility.UrlEncode(username);
 		var requestUrl = Constants.ProfileUrl + username;
 		using var document = await this.GetAsHtmlAsync(requestUrl, cancellationToken);
-		_logger.StartingParsingProfile(username);
+		this._logger.StartingParsingProfile(username);
 		var user = UserProfileParser.Parse(document, options);
-		_logger.EndingParsingProfile(username);
+		this._logger.EndingParsingProfile(username);
 		return user;
 	}
 
 	public async Task<string> GetUsernameAsync(uint id, CancellationToken cancellationToken)
 	{
 		var url = $"{Constants.CommentsUrl}{id}";
-		_logger.RequestingUsername(id);
+		this._logger.RequestingUsername(id);
 		using var document = await this.GetAsHtmlAsync(url, cancellationToken);
 		return CommentsParser.Parse(document);
 	}
@@ -85,11 +100,11 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 		where TNodeStatus : unmanaged, Enum
 		where TListStatus : unmanaged, Enum
 	{
-		_logger.RequestingList(username, TListType.ListEntryType);
+		this._logger.RequestingList(username, TListType.ListEntryType);
 
 		username = WebUtility.UrlEncode(username);
 		var url = Constants.BaseOfficialApiUrl + TListType.LatestUpdatesUrl(username, requestOptions);
-		var response = (ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>)(await _officialApiHttpClient
+		var response = (ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>)(await this._officialApiHttpClient
 			.GetFromJsonAsync(url,
 				typeof(ListQueryResult<TE, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>),
 				JsonContext.Default,
@@ -113,68 +128,16 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 		CancellationToken cancellationToken)
 	{
 		var url = CreateSearchUrl(mediaPath, query, fields, includeNsfw);
-		var response = await _officialApiHttpClient.GetFromJsonAsync(url, jsonTypeInfo, cancellationToken);
+		var response = await this._officialApiHttpClient.GetFromJsonAsync(url, jsonTypeInfo, cancellationToken);
 		return response?.Results.Select(static envelope => envelope.Result).ToArray() ?? [];
 	}
 
-	public async Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken)
-	{
-		_logger.RequestingAnimeDetails(id);
-		try
-		{
-			var anime = await _jikanClient.GetAnimeAsync(id, cancellationToken);
-			return new()
-			{
-				Demographic = [.. anime.Data.Demographics.Select(static x => x.Name),],
-				Themes = [.. anime.Data.Themes.Select(static x => x.Name),],
-			};
-		}
-		catch (Exception ex)
-		{
-			_logger.ErrorHappenedInJikanWhenRequestingAnime(ex, id);
-		}
+	public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken) =>
+		this._enrichment.GetAnimeDetailsAsync(id, cancellationToken);
 
-		return MediaInfo.Empty;
-	}
+	public Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken) =>
+		this._enrichment.GetMangaDetailsAsync(id, cancellationToken);
 
-	public async Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken)
-	{
-		_logger.RequestingMangaDetails(id);
-		try
-		{
-			var manga = await _jikanClient.GetMangaAsync(id, cancellationToken);
-			return new()
-			{
-				Demographic = [.. manga.Data.Demographics.Select(static x => x.Name),],
-				Themes = [.. manga.Data.Themes.Select(static x => x.Name),],
-			};
-		}
-		catch (Exception ex)
-		{
-			_logger.ErrorHappenedInJikanWhenRequestingManga(ex, id);
-		}
-
-		return MediaInfo.Empty;
-	}
-
-	public async Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken)
-	{
-		_logger.RequestingSeyuDetails(id);
-		try
-		{
-			var animeCharacters = await _jikanClient.GetAnimeCharactersAsync(id, cancellationToken);
-			return [.. animeCharacters.Data.SelectMany(x => x.VoiceActors).Where(x => x.Language.Equals("Japanese", StringComparison.Ordinal))
-								  .Select(x => new SeyuInfo
-								  {
-									  Name = x.Person.Name,
-									  Url = x.Person.Url,
-								  }),];
-		}
-		catch (Exception ex)
-		{
-			_logger.ErrorHappenedInJikanWhenRequestingSeyu(ex, id);
-		}
-
-		return [];
-	}
+	public Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken) =>
+		this._enrichment.GetAnimeSeiyuAsync(id, cancellationToken);
 }

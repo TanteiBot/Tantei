@@ -22,22 +22,4 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Debug, "Requesting {Username} {Type} list")]
 	public static partial void RequestingList(this ILogger<MyAnimeListClient> logger, string username, ListEntryType type);
-
-	[LoggerMessage(LogLevel.Debug, "Requesting {Id} anime details")]
-	public static partial void RequestingAnimeDetails(this ILogger<MyAnimeListClient> logger, long id);
-
-	[LoggerMessage(LogLevel.Warning, "Error happened in Jikan when requesting anime {Id}")]
-	public static partial void ErrorHappenedInJikanWhenRequestingAnime(this ILogger<MyAnimeListClient> logger, Exception ex, long id);
-
-	[LoggerMessage(LogLevel.Debug, "Requesting {Id} manga details")]
-	public static partial void RequestingMangaDetails(this ILogger<MyAnimeListClient> logger, long id);
-
-	[LoggerMessage(LogLevel.Warning, "Error happened in Jikan when requesting manga {Id}")]
-	public static partial void ErrorHappenedInJikanWhenRequestingManga(this ILogger<MyAnimeListClient> logger, Exception ex, long id);
-
-	[LoggerMessage(LogLevel.Debug, "Requesting {Id} anime seiyu")]
-	public static partial void RequestingSeyuDetails(this ILogger<MyAnimeListClient> logger, long id);
-
-	[LoggerMessage(LogLevel.Warning, "Error happened in Jikan when requesting seyu {Id}")]
-	public static partial void ErrorHappenedInJikanWhenRequestingSeyu(this ILogger<MyAnimeListClient> logger, Exception ex, long id);
 }

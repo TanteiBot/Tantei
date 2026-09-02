@@ -71,6 +71,20 @@ build-client:
     npm --prefix ./src/Tantei.Client run build
     npm --prefix ./src/Tantei.Client run build-storybook
 
+generate-tenrai:
+    pwsh -NoLogo -NoProfile -File ./src/PaperMalKing.MyAnimeList.Wrapper/Tenrai/Generate.ps1
+
+update-tenrai-openapi:
+    pwsh -NoLogo -NoProfile -File ./src/PaperMalKing.MyAnimeList.Wrapper/Tenrai/UpdateOpenApi.ps1
+
+check-generated-tenrai: generate-tenrai
+    #!pwsh -NoLogo
+    git diff --exit-code -- src/PaperMalKing.MyAnimeList.Wrapper/Tenrai .config/dotnet-tools.json
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "The checked-in Tenrai contract or client is stale. Run 'just generate-tenrai' and commit the regenerated assets."
+        exit 1
+    }
+
 # Fail if the committed OpenAPI document or generated API client is stale
 check-generated-api:
     #!pwsh -NoLogo
@@ -99,7 +113,7 @@ _check-not-running:
     }
 
 # Everything CI runs: builds, tests, generated-code drift, client checks
-verify: _check-not-running _ci_release _ci_release_container _ci_debug _ci_debug_container check-generated-api check-client build-client test
+verify: _check-not-running _ci_release _ci_release_container _ci_debug _ci_debug_container check-generated-api check-generated-tenrai check-client build-client test
     echo Success
 
 ci: _ci_release _ci_release_container _ci_debug _ci_debug_container check-client

@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using JikanDotNet;
-using JikanDotNet.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,6 +11,7 @@ using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.UpdateProvider.Search;
 using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
+using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Features;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
@@ -32,7 +30,7 @@ public static class ServiceCollectionExtensions
 
 		const int malHttpRetries = 3;
 
-		serviceCollection.TryAddSingleton(TimeProvider.System);
+		serviceCollection.AddTenraiEnrichment();
 		serviceCollection.AddMemoryCache();
 		serviceCollection.AddSingleton<MalSearchPicker>();
 		serviceCollection.AddSingleton<MalSearchService>();
@@ -72,33 +70,13 @@ public static class ServiceCollectionExtensions
 							 var rateLimiter = rbc.ServiceProvider.GetRequiredService<RateLimiter<IMyAnimeListClient>>();
 							 builder.AddRateLimiter(rateLimiter);
 						 });
-		serviceCollection.AddHttpClient(Constants.JikanHttpClientName, static client => client.BaseAddress = new(Constants.JikanApiUrl))
-						 .ConfigurePrimaryHttpMessageHandler(static _ => HttpClientHandlerFactory())
-						 .AddResilienceHandler("jikan", static builder =>
-						 {
-							 // https://docs.api.jikan.moe/#section/Information/Rate-Limiting
-							 var rpmRl = new RateLimitValue(50, TimeSpan.FromMinutes(1, 25)); // 60rpm with 0.2 as inaccuracy
-							 builder.AddRateLimiter(RateLimiterFactory.Create<IJikan>(rpmRl));
-
-							 var rpsRl = new RateLimitValue(2, TimeSpan.FromSeconds(1, 500)); // 3rps with 0.5 as inaccuracy
-							 builder.AddRateLimiter(RateLimiterFactory.Create<IJikan>(rpsRl));
-						 });
-
-		serviceCollection.AddSingleton<IJikan>(static provider => new Jikan(
-			new()
-			{
-				SuppressException = false,
-				LimiterConfigurations = TaskLimiterConfiguration.None, // We use System.Threading.RateLimiting
-			},
-			provider.GetRequiredService<IHttpClientFactory>().CreateClient(Constants.JikanHttpClientName)));
-
 		serviceCollection.AddSingleton<IMyAnimeListClient, MyAnimeListClient>(static provider =>
 		{
 			var factory = provider.GetRequiredService<IHttpClientFactory>();
 			var logger = provider.GetRequiredService<ILogger<MyAnimeListClient>>();
-			var jikan = provider.GetRequiredService<IJikan>();
-			return new(logger, _unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName),
-				_officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName), _jikanClient: jikan);
+			return new(logger, unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName),
+				officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName),
+				enrichment: provider.GetRequiredService<IMyAnimeListEnrichment>());
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<MalUser, MalUserFeatures>, MalUserFeaturesService>();
 		serviceCollection.AddSingleton<MalUserService>();

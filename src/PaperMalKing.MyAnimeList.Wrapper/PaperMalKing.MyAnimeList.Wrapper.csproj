@@ -4,16 +4,23 @@
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="AngleSharp" />
-        <PackageReference Include="JikanDotNet"/>
         <PackageReference Include="Microsoft.Extensions.Telemetry.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+        <PackageReference Include="System.Threading.RateLimiting" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\PaperMalKing.MyAnimeList.Wrapper.Abstractions\PaperMalKing.MyAnimeList.Wrapper.Abstractions.csproj" />
+      <Compile Remove="Tenrai\ProjectOpenApi.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Installer" />
+      <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.Wrapper.Tests" />
     </ItemGroup>
     
     <PropertyGroup>
         <NoWarn>$(NoWarn);S3242;</NoWarn>
-        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
 </Project>

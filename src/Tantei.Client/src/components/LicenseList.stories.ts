@@ -37,11 +37,11 @@ const withIdentifierAndUrl: LicenseResponse = {
 };
 
 const withUrlOnly: LicenseResponse = {
-  name: "JikanDotNet",
-  version: "2.10.4",
+  name: "AngleSharp",
+  version: "1.7.2",
   identifier: null,
   text: null,
-  url: "https://github.com/Ervie/jikan.net/blob/master/LICENSE",
+  url: "https://github.com/AngleSharp/AngleSharp/blob/main/LICENSE",
 };
 
 const withNothing: LicenseResponse = {
