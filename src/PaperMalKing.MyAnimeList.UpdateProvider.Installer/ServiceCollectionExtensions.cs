@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using JikanDotNet;
-using JikanDotNet.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -93,26 +91,6 @@ public static class ServiceCollectionExtensions
 							 var cooldown = context.ServiceProvider.GetRequiredService<TenraiCooldown>();
 							 TenraiResiliencePipeline.Configure(builder, timeProvider, rateLimiter, cooldown);
 						 });
-		serviceCollection.AddHttpClient(Constants.JikanHttpClientName, static client => client.BaseAddress = new(Constants.JikanApiUrl))
-						 .ConfigurePrimaryHttpMessageHandler(static _ => HttpClientHandlerFactory())
-						 .AddResilienceHandler("jikan", static builder =>
-						 {
-							 // https://docs.api.jikan.moe/#section/Information/Rate-Limiting
-							 var rpmRl = new RateLimitValue(50, TimeSpan.FromMinutes(1, 25)); // 60rpm with 0.2 as inaccuracy
-							 builder.AddRateLimiter(RateLimiterFactory.Create<IJikan>(rpmRl));
-
-							 var rpsRl = new RateLimitValue(2, TimeSpan.FromSeconds(1, 500)); // 3rps with 0.5 as inaccuracy
-							 builder.AddRateLimiter(RateLimiterFactory.Create<IJikan>(rpsRl));
-						 });
-
-		serviceCollection.AddSingleton<IJikan>(static provider => new Jikan(
-			new()
-			{
-				SuppressException = false,
-				LimiterConfigurations = TaskLimiterConfiguration.None, // We use System.Threading.RateLimiting
-			},
-			provider.GetRequiredService<IHttpClientFactory>().CreateClient(Constants.JikanHttpClientName)));
-
 		serviceCollection.AddSingleton<IMyAnimeListClient, MyAnimeListClient>(static provider =>
 		{
 			var factory = provider.GetRequiredService<IHttpClientFactory>();

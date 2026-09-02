@@ -13,13 +13,9 @@ internal static class Constants
 
 	public const string UnOfficialApiHttpClientName = $"Un{OfficialApiHttpClientName}";
 
-	public const string JikanHttpClientName = "Jikan";
-
 	public const string TenraiHttpClientName = "Tenrai";
 
 	public const string OfficialApiHeaderName = "X-MAL-CLIENT-ID";
-
-	public const string JikanApiUrl = "https://api.jikan.moe/v4/";
 
 	public const string TenraiApiUrl = "https://api.tenrai.org/v1/";
 
