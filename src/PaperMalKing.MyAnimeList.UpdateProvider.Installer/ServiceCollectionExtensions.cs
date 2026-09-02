@@ -33,6 +33,7 @@ public static class ServiceCollectionExtensions
 		const int malHttpRetries = 3;
 
 		serviceCollection.TryAddSingleton(TimeProvider.System);
+		serviceCollection.AddSingleton<TenraiCooldown>();
 		serviceCollection.AddSingleton<TenraiRateLimiter>();
 		serviceCollection.AddMemoryCache();
 		serviceCollection.AddSingleton<MalSearchPicker>();
@@ -79,11 +80,14 @@ public static class ServiceCollectionExtensions
 							 client.Timeout = Timeout.InfiniteTimeSpan;
 						 })
 						 .ConfigurePrimaryHttpMessageHandler(static _ => new TenraiResponseBufferingHandler(HttpClientHandlerFactory()))
+						 .AddHttpMessageHandler(static provider =>
+							 new TenraiCooldownHandler(provider.GetRequiredService<TenraiCooldown>()))
 						 .AddResilienceHandler("tenrai", static (builder, context) =>
 						 {
 							 var timeProvider = context.ServiceProvider.GetRequiredService<TimeProvider>();
 							 var rateLimiter = context.ServiceProvider.GetRequiredService<TenraiRateLimiter>();
-							 TenraiResiliencePipeline.Configure(builder, timeProvider, rateLimiter);
+							 var cooldown = context.ServiceProvider.GetRequiredService<TenraiCooldown>();
+							 TenraiResiliencePipeline.Configure(builder, timeProvider, rateLimiter, cooldown);
 						 });
 		serviceCollection.AddHttpClient(Constants.JikanHttpClientName, static client => client.BaseAddress = new(Constants.JikanApiUrl))
 						 .ConfigurePrimaryHttpMessageHandler(static _ => HttpClientHandlerFactory())

@@ -5,11 +5,13 @@ using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
+using System.Net.Http.Headers;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.MyAnimeList.UpdateProvider.Installer;
 using PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 using PaperMalKing.MyAnimeList.Wrapper;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using Polly.RateLimiting;
 using Polly.Timeout;
 
@@ -132,6 +134,113 @@ public sealed class TenraiResiliencePolicyTests
 
 		using var response = await responseTask;
 		await Assert.That(attempts).IsEqualTo(expectedAttempts);
+	}
+
+	[Test]
+	[Arguments(HttpStatusCode.TooManyRequests, false)]
+	[Arguments(HttpStatusCode.TooManyRequests, true)]
+	[Arguments(HttpStatusCode.ServiceUnavailable, false)]
+	[Arguments(HttpStatusCode.ServiceUnavailable, true)]
+	public async Task ValidShortRetryAfterRetriesCurrentOperationOnce(HttpStatusCode statusCode, bool useDate)
+	{
+		var attempts = 0;
+		using var scope = new PolicyScope((_, _) =>
+		{
+			if (Interlocked.Increment(ref attempts) is RetryAttemptCount)
+			{
+				return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+			}
+
+			var retryAfter = useDate
+				? new RetryConditionHeaderValue(Start + TimeSpan.FromSeconds(5))
+				: new RetryConditionHeaderValue(TimeSpan.FromSeconds(5));
+			return Task.FromResult(CreateResponse(statusCode, retryAfter));
+		});
+
+		var responseTask = scope.Client.GetAsync(AnimePath, TestContext.Current!.Execution.CancellationToken);
+		await Assert.That(responseTask.IsCompleted).IsFalse();
+		scope.Time.Advance(TimeSpan.FromSeconds(5));
+
+		using var response = await responseTask;
+		await Assert.That(attempts).IsEqualTo(RetryAttemptCount);
+	}
+
+	[Test]
+	[Arguments(HttpStatusCode.TooManyRequests)]
+	[Arguments(HttpStatusCode.ServiceUnavailable)]
+	public async Task ZeroRetryAfterRetriesCurrentOperationOnce(HttpStatusCode statusCode)
+	{
+		var attempts = 0;
+		using var scope = new PolicyScope((_, _) => Task.FromResult(
+			Interlocked.Increment(ref attempts) is NoRetryAttemptCount
+				? CreateResponse(statusCode, new RetryConditionHeaderValue(TimeSpan.Zero))
+				: new HttpResponseMessage(HttpStatusCode.OK)));
+
+		var responseTask = scope.Client.GetAsync(AnimePath, TestContext.Current!.Execution.CancellationToken);
+		await DrainContinuationsAsync();
+		scope.Time.Advance(TimeSpan.FromSeconds(2));
+
+		using var response = await responseTask;
+		await Assert.That(attempts).IsEqualTo(RetryAttemptCount);
+	}
+
+	[Test]
+	[Arguments(HttpStatusCode.TooManyRequests, null, NoRetryAttemptCount)]
+	[Arguments(HttpStatusCode.TooManyRequests, "invalid", NoRetryAttemptCount)]
+	[Arguments(HttpStatusCode.ServiceUnavailable, null, RetryAttemptCount)]
+	[Arguments(HttpStatusCode.ServiceUnavailable, "invalid", RetryAttemptCount)]
+	public async Task UnusableRetryAfterNeverCausesImmediateRetry(
+		HttpStatusCode statusCode,
+		string? retryAfter,
+		int expectedAttempts)
+	{
+		var attempts = 0;
+		using var scope = new PolicyScope((_, _) =>
+		{
+			var attemptStatus = Interlocked.Increment(ref attempts) is NoRetryAttemptCount ? statusCode : HttpStatusCode.OK;
+			return Task.FromResult(CreateResponse(attemptStatus, retryAfter));
+		});
+
+		var responseTask = scope.Client.GetAsync(AnimePath, TestContext.Current!.Execution.CancellationToken);
+		await Assert.That(attempts).IsEqualTo(NoRetryAttemptCount);
+		if (expectedAttempts is RetryAttemptCount)
+		{
+			await Assert.That(responseTask.IsCompleted).IsFalse();
+			scope.Time.Advance(TimeSpan.FromSeconds(2));
+		}
+
+		using var response = await responseTask;
+		await Assert.That(attempts).IsEqualTo(expectedAttempts);
+	}
+
+	[Test]
+	[Arguments(HttpStatusCode.TooManyRequests)]
+	[Arguments(HttpStatusCode.ServiceUnavailable)]
+	public async Task LongRetryAfterSuppressesAllEnrichmentOperations(HttpStatusCode statusCode)
+	{
+		var attempts = 0;
+		using var scope = new PolicyScope((_, _) =>
+		{
+			Interlocked.Increment(ref attempts);
+			return Task.FromResult(CreateResponse(statusCode, new RetryConditionHeaderValue(TimeSpan.FromSeconds(6))));
+		});
+		var client = CreateClient(scope.Client);
+		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
+
+		var initial = await client.GetAnimeDetailsAsync(1L, cancellationToken);
+		var anime = await client.GetAnimeDetailsAsync(2L, cancellationToken);
+		var manga = await client.GetMangaDetailsAsync(3L, cancellationToken);
+		var seiyu = await client.GetAnimeSeiyuAsync(4L, cancellationToken);
+
+		await Assert.That(initial).IsEqualTo(MediaInfo.Empty);
+		await Assert.That(anime).IsEqualTo(MediaInfo.Empty);
+		await Assert.That(manga).IsEqualTo(MediaInfo.Empty);
+		await Assert.That(seiyu).IsEmpty();
+		await Assert.That(attempts).IsEqualTo(NoRetryAttemptCount);
+
+		scope.Time.Advance(TimeSpan.FromSeconds(6));
+		_ = await client.GetMangaDetailsAsync(1L, cancellationToken);
+		await Assert.That(attempts).IsEqualTo(RetryAttemptCount);
 	}
 
 	[Test]
@@ -275,6 +384,24 @@ public sealed class TenraiResiliencePolicyTests
 	private static MyAnimeListClient CreateClient(HttpClient tenraiClient) =>
 		new(NullLogger<MyAnimeListClient>.Instance, null!, null!, tenraiClient);
 
+	private static HttpResponseMessage CreateResponse(HttpStatusCode statusCode, RetryConditionHeaderValue retryAfter)
+	{
+		var response = new HttpResponseMessage(statusCode);
+		response.Headers.RetryAfter = retryAfter;
+		return response;
+	}
+
+	private static HttpResponseMessage CreateResponse(HttpStatusCode statusCode, string? retryAfter)
+	{
+		var response = new HttpResponseMessage(statusCode);
+		if (retryAfter is not null)
+		{
+			_ = response.Headers.TryAddWithoutValidation("Retry-After", retryAfter);
+		}
+
+		return response;
+	}
+
 	private static async Task DrainContinuationsAsync()
 	{
 		const int continuationPasses = 10;
@@ -286,6 +413,7 @@ public sealed class TenraiResiliencePolicyTests
 
 	private sealed class PolicyScope : IDisposable
 	{
+		private readonly TenraiCooldownHandler _cooldownHandler;
 		private readonly TenraiRateLimiter _limiter;
 		private readonly FakeHttpMessageHandler _primaryHandler;
 		private readonly ResilienceHandler _resilienceHandler;
@@ -293,13 +421,15 @@ public sealed class TenraiResiliencePolicyTests
 		public PolicyScope(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> respond)
 		{
 			this.Time = new(Start);
+			var cooldown = new TenraiCooldown(this.Time);
 			this._limiter = new(this.Time);
 			this._primaryHandler = new(respond);
-			this._resilienceHandler = new(TenraiResiliencePipeline.Create(this.Time, this._limiter))
+			this._resilienceHandler = new(TenraiResiliencePipeline.Create(this.Time, this._limiter, cooldown))
 			{
 				InnerHandler = new TenraiResponseBufferingHandler(this._primaryHandler),
 			};
-			this.Client = new(this._resilienceHandler, disposeHandler: false)
+			this._cooldownHandler = new(cooldown) { InnerHandler = this._resilienceHandler, };
+			this.Client = new(this._cooldownHandler, disposeHandler: false)
 			{
 				BaseAddress = new("https://example.test/v1/"),
 				Timeout = Timeout.InfiniteTimeSpan,
@@ -313,6 +443,7 @@ public sealed class TenraiResiliencePolicyTests
 		public void Dispose()
 		{
 			this.Client.Dispose();
+			this._cooldownHandler.Dispose();
 			this._resilienceHandler.Dispose();
 			this._primaryHandler.Dispose();
 			this._limiter.Dispose();
