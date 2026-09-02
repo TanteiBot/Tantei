@@ -3,7 +3,6 @@
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -31,10 +30,7 @@ public static class ServiceCollectionExtensions
 
 		const int malHttpRetries = 3;
 
-		serviceCollection.TryAddSingleton(TimeProvider.System);
-		serviceCollection.AddSingleton<TenraiCooldown>();
-		serviceCollection.AddSingleton<TenraiCircuit>();
-		serviceCollection.AddSingleton(static _ => TenraiResiliencePipeline.CreateRateLimiter());
+		serviceCollection.AddTenraiEnrichment();
 		serviceCollection.AddMemoryCache();
 		serviceCollection.AddSingleton<MalSearchPicker>();
 		serviceCollection.AddSingleton<MalSearchService>();
@@ -74,31 +70,13 @@ public static class ServiceCollectionExtensions
 							 var rateLimiter = rbc.ServiceProvider.GetRequiredService<RateLimiter<IMyAnimeListClient>>();
 							 builder.AddRateLimiter(rateLimiter);
 						 });
-		serviceCollection.AddHttpClient(Constants.TenraiHttpClientName, static client =>
-						 {
-							 client.BaseAddress = new(Constants.TenraiApiUrl);
-							 client.Timeout = Timeout.InfiniteTimeSpan;
-						 })
-						 .ConfigurePrimaryHttpMessageHandler(static _ => new TenraiResponseBufferingHandler(HttpClientHandlerFactory()))
-						 .AddHttpMessageHandler(static _ => new TenraiAttemptHandler())
-						 .AddHttpMessageHandler(static provider =>
-							 new TenraiCircuitHandler(provider.GetRequiredService<TenraiCircuit>()))
-						 .AddHttpMessageHandler(static provider => new TenraiCooldownHandler(provider.GetRequiredService<TenraiCooldown>()))
-						 .AddResilienceHandler("tenrai", static (builder, context) =>
-						 {
-							 var timeProvider = context.ServiceProvider.GetRequiredService<TimeProvider>();
-							 var rateLimiter = context.ServiceProvider.GetRequiredService<RateLimiter<TenraiClient>>();
-							 var cooldown = context.ServiceProvider.GetRequiredService<TenraiCooldown>();
-							 TenraiResiliencePipeline.Configure(builder, timeProvider, rateLimiter, cooldown);
-						 });
 		serviceCollection.AddSingleton<IMyAnimeListClient, MyAnimeListClient>(static provider =>
 		{
 			var factory = provider.GetRequiredService<IHttpClientFactory>();
 			var logger = provider.GetRequiredService<ILogger<MyAnimeListClient>>();
 			return new(logger, unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName),
 				officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName),
-				tenraiApiHttpClient: factory.CreateClient(Constants.TenraiHttpClientName),
-				circuit: provider.GetRequiredService<TenraiCircuit>());
+				enrichment: provider.GetRequiredService<IMyAnimeListEnrichment>());
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<MalUser, MalUserFeatures>, MalUserFeaturesService>();
 		serviceCollection.AddSingleton<MalUserService>();

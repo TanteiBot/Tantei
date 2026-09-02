@@ -206,7 +206,7 @@ internal static class Extensions
 	}
 
 	public static async Task<DiscordEmbedBuilder> ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
-		this TLe listEntry, User user, IMyAnimeListClient client, MalUser dbUser, CancellationToken cancellationToken)
+		this TLe listEntry, User user, IMyAnimeListEnrichment client, MalUser dbUser, CancellationToken cancellationToken)
 		where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
 		where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
 		where TStatus : BaseListEntryStatus<TListStatus>

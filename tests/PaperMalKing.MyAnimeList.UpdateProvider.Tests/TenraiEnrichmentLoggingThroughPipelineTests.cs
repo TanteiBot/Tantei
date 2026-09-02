@@ -5,13 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
-using Microsoft.Extensions.Http.Resilience;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using PaperMalKing.Common.RateLimiters;
-using PaperMalKing.MyAnimeList.UpdateProvider.Installer;
 using PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
-using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
@@ -139,39 +135,27 @@ public sealed class TenraiEnrichmentLoggingThroughPipelineTests
 
 	private sealed class Scope : IDisposable
 	{
-		private readonly TenraiAttemptHandler _attemptHandler;
-		private readonly TenraiCircuitHandler _circuitHandler;
-		private readonly TenraiCooldownHandler _cooldownHandler;
-		private readonly RateLimiter<TenraiClient> _limiter;
 		private readonly FakeHttpMessageHandler _primaryHandler;
-		private readonly ResilienceHandler _resilienceHandler;
+		private readonly ServiceProvider _provider;
 
 		public Scope(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> respond)
 		{
 			this.Time = new(Start);
-			var cooldown = new TenraiCooldown(this.Time, NullLogger<TenraiCooldown>.Instance);
-			var circuit = new TenraiCircuit(this.Time, NullLogger<TenraiCircuit>.Instance);
-			this._limiter = TenraiResiliencePipeline.CreateRateLimiter();
 			this._primaryHandler = new(respond);
-			this._resilienceHandler = new(TenraiResiliencePipeline.Create(this.Time, this._limiter, cooldown))
-			{
-				InnerHandler = new TenraiResponseBufferingHandler(this._primaryHandler),
-			};
-			this._cooldownHandler = new(cooldown) { InnerHandler = this._resilienceHandler, };
-			this._circuitHandler = new(circuit) { InnerHandler = this._cooldownHandler, };
-			this._attemptHandler = new() { InnerHandler = this._circuitHandler, };
-			this.RawClient = new(this._attemptHandler, disposeHandler: false)
-			{
-				BaseAddress = new("https://example.test/v1/"),
-				Timeout = Timeout.InfiniteTimeSpan,
-			};
+			var services = new ServiceCollection();
+			services.AddSingleton<TimeProvider>(this.Time);
+			_ = services.AddLogging();
+			_ = services.AddTenraiEnrichment();
+			_ = services.AddHttpClient(TenraiConstants.HttpClientName).ConfigurePrimaryHttpMessageHandler(() => this._primaryHandler);
+			this._provider = services.BuildServiceProvider();
+			this.RawClient = this._provider.GetRequiredService<IHttpClientFactory>().CreateClient(TenraiConstants.HttpClientName);
 			this.Logger = new();
-			this.Client = new(this.Logger, null!, null!, this.RawClient, circuit);
+			this.Client = new(this.Logger, this.RawClient, this._provider.GetRequiredService<TenraiCircuit>());
 		}
 
-		public MyAnimeListClient Client { get; }
+		public TenraiEnrichment Client { get; }
 
-		public RecordingLogger<MyAnimeListClient> Logger { get; }
+		public RecordingLogger<TenraiEnrichment> Logger { get; }
 
 		public HttpClient RawClient { get; }
 
@@ -192,12 +176,8 @@ public sealed class TenraiEnrichmentLoggingThroughPipelineTests
 		public void Dispose()
 		{
 			this.RawClient.Dispose();
-			this._attemptHandler.Dispose();
-			this._circuitHandler.Dispose();
-			this._cooldownHandler.Dispose();
-			this._resilienceHandler.Dispose();
+			this._provider.Dispose();
 			this._primaryHandler.Dispose();
-			this._limiter.Dispose();
 		}
 	}
 

@@ -6,12 +6,11 @@ using System.Net;
 using System.Threading.RateLimiting;
 using Microsoft.Extensions.Http.Resilience;
 using PaperMalKing.Common.RateLimiters;
-using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 using Polly;
 using Polly.Retry;
 using Polly.Timeout;
 
-namespace PaperMalKing.MyAnimeList.UpdateProvider.Installer;
+namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 internal static class TenraiResiliencePipeline
 {

@@ -3,13 +3,10 @@
 
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
-using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests;
 
-internal sealed class FakeMyAnimeListEnrichmentClient : IMyAnimeListClient
+internal sealed class FakeMyAnimeListEnrichmentClient : IMyAnimeListEnrichment
 {
 	public MediaInfo AnimeDetailsResult { get; init; } = MediaInfo.Empty;
 
@@ -48,25 +45,4 @@ internal sealed class FakeMyAnimeListEnrichmentClient : IMyAnimeListClient
 			? Task.FromResult(this.AnimeSeiyuResult)
 			: Task.FromException<IReadOnlyList<SeyuInfo>>(this.AnimeSeiyuCancellation);
 	}
-
-	public Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken) => throw new NotSupportedException();
-
-	public Task<string> GetUsernameAsync(uint id, CancellationToken cancellationToken) => throw new NotSupportedException();
-
-	public Task<IReadOnlyList<TE>> GetLatestListUpdatesAsync<TE, TListType, TRequestOptions, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
-		string username, TRequestOptions requestOptions, CancellationToken cancellationToken)
-		where TE : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
-		where TListType : IListType
-		where TRequestOptions : unmanaged, Enum
-		where TNode : BaseListEntryNode<TMediaType, TNodeStatus>
-		where TStatus : BaseListEntryStatus<TListStatus>
-		where TMediaType : unmanaged, Enum
-		where TNodeStatus : unmanaged, Enum
-		where TListStatus : unmanaged, Enum => throw new NotSupportedException();
-
-	public Task<IReadOnlyList<AnimeSearchResult>> SearchAnimeAsync(string query, bool includeNsfw, CancellationToken cancellationToken) =>
-		throw new NotSupportedException();
-
-	public Task<IReadOnlyList<MangaSearchResult>> SearchMangaAsync(string query, bool includeNsfw, CancellationToken cancellationToken) =>
-		throw new NotSupportedException();
 }

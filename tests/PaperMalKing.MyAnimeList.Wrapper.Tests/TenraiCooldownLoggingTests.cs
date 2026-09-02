@@ -4,10 +4,9 @@
 using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
-using PaperMalKing.MyAnimeList.UpdateProvider.Installer;
-using PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
+using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
-namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests;
+namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
 
 public sealed class TenraiCooldownLoggingTests
 {

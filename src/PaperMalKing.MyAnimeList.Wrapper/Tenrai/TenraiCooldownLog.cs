@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace PaperMalKing.MyAnimeList.UpdateProvider.Installer;
+namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 internal static partial class TenraiCooldownLog
 {

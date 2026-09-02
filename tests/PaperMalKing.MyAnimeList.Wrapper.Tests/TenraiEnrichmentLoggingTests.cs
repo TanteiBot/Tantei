@@ -8,7 +8,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
 
-public sealed class MyAnimeListClientLoggingTests
+public sealed class TenraiEnrichmentLoggingTests
 {
 	private const int TerminalFailureEventId = 1;
 	private const int NotFoundEventId = 2;
@@ -114,10 +114,10 @@ public sealed class MyAnimeListClientLoggingTests
 		await Assert.That(Failures(scope.Logger)).IsEmpty();
 	}
 
-	private static RecordedLogEntry[] Failures(RecordingLogger<MyAnimeListClient> logger) =>
+	private static RecordedLogEntry[] Failures(RecordingLogger<TenraiEnrichment> logger) =>
 		[.. logger.Entries.Where(static entry => entry.EventId.Id == TerminalFailureEventId)];
 
-	private static async Task AssertNoEntryMentionsTheBody(RecordingLogger<MyAnimeListClient> logger)
+	private static async Task AssertNoEntryMentionsTheBody(RecordingLogger<TenraiEnrichment> logger)
 	{
 		foreach (var entry in logger.Entries)
 		{
@@ -152,14 +152,14 @@ public sealed class MyAnimeListClientLoggingTests
 			};
 			this.Logger = new();
 			this.Circuit = new(new FixedTimeProvider(), NullLogger<TenraiCircuit>.Instance);
-			this.Client = new(this.Logger, null!, null!, this._tenraiClient, this.Circuit);
+			this.Client = new(this.Logger, this._tenraiClient, this.Circuit);
 		}
 
 		public TenraiCircuit Circuit { get; }
 
-		public MyAnimeListClient Client { get; }
+		public TenraiEnrichment Client { get; }
 
-		public RecordingLogger<MyAnimeListClient> Logger { get; }
+		public RecordingLogger<TenraiEnrichment> Logger { get; }
 
 		public void Dispose()
 		{

@@ -2,10 +2,9 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Net;
-using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 using Polly.Timeout;
 
-namespace PaperMalKing.MyAnimeList.UpdateProvider.Installer;
+namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 internal sealed class TenraiCircuitHandler : DelegatingHandler
 {

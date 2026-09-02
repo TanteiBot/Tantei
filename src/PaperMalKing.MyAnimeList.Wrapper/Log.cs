@@ -22,13 +22,4 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Debug, "Requesting {Username} {Type} list")]
 	public static partial void RequestingList(this ILogger<MyAnimeListClient> logger, string username, ListEntryType type);
-
-	[LoggerMessage(LogLevel.Debug, "Requesting {Id} anime details")]
-	public static partial void RequestingAnimeDetails(this ILogger<MyAnimeListClient> logger, long id);
-
-	[LoggerMessage(LogLevel.Debug, "Requesting {Id} manga details")]
-	public static partial void RequestingMangaDetails(this ILogger<MyAnimeListClient> logger, long id);
-
-	[LoggerMessage(LogLevel.Debug, "Requesting {Id} anime seiyu")]
-	public static partial void RequestingSeiyuDetails(this ILogger<MyAnimeListClient> logger, long id);
 }

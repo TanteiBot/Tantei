@@ -8,7 +8,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 
-public interface IMyAnimeListClient
+public interface IMyAnimeListClient : IMyAnimeListEnrichment
 {
 	Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken);
 
@@ -29,10 +29,4 @@ public interface IMyAnimeListClient
 	Task<IReadOnlyList<AnimeSearchResult>> SearchAnimeAsync(string query, bool includeNsfw, CancellationToken cancellationToken);
 
 	Task<IReadOnlyList<MangaSearchResult>> SearchMangaAsync(string query, bool includeNsfw, CancellationToken cancellationToken);
-
-	Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken);
-
-	Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken);
-
-	Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken);
 }

@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
-using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
 
@@ -202,12 +201,7 @@ public sealed class MyAnimeListClientSearchTests
 			this._unofficialHandler = new(_ => throw new InvalidOperationException("The unofficial client should not be used"));
 			this._unofficialClient = new(this._unofficialHandler, disposeHandler: false);
 			this._officialClient = new(officialHandler, disposeHandler: false);
-			this.Client = new(
-				NullLogger<MyAnimeListClient>.Instance,
-				this._unofficialClient,
-				this._officialClient,
-				null!,
-				new TenraiCircuit(TimeProvider.System, NullLogger<TenraiCircuit>.Instance));
+			this.Client = new(NullLogger<MyAnimeListClient>.Instance, this._unofficialClient, this._officialClient, null!);
 		}
 
 		public MyAnimeListClient Client { get; }

@@ -6,7 +6,6 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Installer" />
         <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.Wrapper" />
     </ItemGroup>
 

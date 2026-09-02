@@ -7,7 +7,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
 
-public sealed class MyAnimeListClientCircuitTests
+public sealed class TenraiEnrichmentCircuitTests
 {
 	private const int FailureThreshold = 5;
 	private const int SustainedAttempts = 10;
@@ -142,17 +142,12 @@ public sealed class MyAnimeListClientCircuitTests
 				BaseAddress = new("https://example.test/v1/"),
 			};
 			this.Circuit = new(new FixedTimeProvider(), NullLogger<TenraiCircuit>.Instance);
-			this.Client = new(
-				NullLogger<MyAnimeListClient>.Instance,
-				null!,
-				null!,
-				this._tenraiClient,
-				this.Circuit);
+			this.Client = new(NullLogger<TenraiEnrichment>.Instance, this._tenraiClient, this.Circuit);
 		}
 
 		public TenraiCircuit Circuit { get; }
 
-		public MyAnimeListClient Client { get; }
+		public TenraiEnrichment Client { get; }
 
 		public int Requests => Volatile.Read(ref this._requests);
 

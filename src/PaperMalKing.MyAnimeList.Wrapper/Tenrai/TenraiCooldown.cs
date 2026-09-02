@@ -4,7 +4,7 @@
 using System.Net;
 using Microsoft.Extensions.Logging;
 
-namespace PaperMalKing.MyAnimeList.UpdateProvider.Installer;
+namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 internal sealed class TenraiCooldown
 {

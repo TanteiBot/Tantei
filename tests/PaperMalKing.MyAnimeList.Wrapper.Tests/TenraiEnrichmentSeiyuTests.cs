@@ -7,7 +7,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
 
-public sealed class MyAnimeListClientSeiyuTests
+public sealed class TenraiEnrichmentSeiyuTests
 {
 	[Test]
 	public async Task SeiyuUsesTenraiCharactersAndPreservesAcceptedActorsInReceivedOrder()
@@ -154,14 +154,12 @@ public sealed class MyAnimeListClientSeiyuTests
 				BaseAddress = new("https://example.test/v1/"),
 			};
 			this.Client = new(
-				NullLogger<MyAnimeListClient>.Instance,
-				null!,
-				null!,
+				NullLogger<TenraiEnrichment>.Instance,
 				this._tenraiClient,
 				new TenraiCircuit(TimeProvider.System, NullLogger<TenraiCircuit>.Instance));
 		}
 
-		public MyAnimeListClient Client { get; }
+		public TenraiEnrichment Client { get; }
 
 		public void Dispose() => this._tenraiClient.Dispose();
 	}

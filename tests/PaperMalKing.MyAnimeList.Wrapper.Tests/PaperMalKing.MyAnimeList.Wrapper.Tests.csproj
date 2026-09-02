@@ -9,6 +9,8 @@
       <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.Wrapper.Abstractions\PaperMalKing.MyAnimeList.Wrapper.Abstractions.csproj" />
         <PackageReference Include="AngleSharp" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
         <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.Wrapper\PaperMalKing.MyAnimeList.Wrapper.csproj" />
     </ItemGroup>
     

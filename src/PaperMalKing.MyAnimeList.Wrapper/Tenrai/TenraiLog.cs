@@ -51,4 +51,13 @@ internal static partial class TenraiLog
 
 	[LoggerMessage(EventId = 7, Level = LogLevel.Warning, Message = "Tenrai enrichment circuit closed and resumed calling the provider")]
 	public static partial void TenraiCircuitClosed(this ILogger logger);
+
+	[LoggerMessage(EventId = 8, Level = LogLevel.Debug, Message = "Requesting {Id} anime details")]
+	public static partial void RequestingAnimeDetails(this ILogger logger, long id);
+
+	[LoggerMessage(EventId = 9, Level = LogLevel.Debug, Message = "Requesting {Id} manga details")]
+	public static partial void RequestingMangaDetails(this ILogger logger, long id);
+
+	[LoggerMessage(EventId = 10, Level = LogLevel.Debug, Message = "Requesting {Id} anime seiyu")]
+	public static partial void RequestingSeiyuDetails(this ILogger logger, long id);
 }

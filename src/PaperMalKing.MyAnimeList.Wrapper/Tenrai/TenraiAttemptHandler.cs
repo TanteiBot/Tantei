@@ -2,10 +2,9 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
-using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 using Polly.RateLimiting;
 
-namespace PaperMalKing.MyAnimeList.UpdateProvider.Installer;
+namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 internal sealed class TenraiAttemptHandler : DelegatingHandler
 {

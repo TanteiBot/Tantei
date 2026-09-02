@@ -5,6 +5,9 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="AngleSharp" />
         <PackageReference Include="Microsoft.Extensions.Telemetry.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+        <PackageReference Include="System.Threading.RateLimiting" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\PaperMalKing.MyAnimeList.Wrapper.Abstractions\PaperMalKing.MyAnimeList.Wrapper.Abstractions.csproj" />

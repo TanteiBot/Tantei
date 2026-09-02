@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Json;
@@ -16,7 +15,6 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Parsers;
-using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 namespace PaperMalKing.MyAnimeList.Wrapper;
 
@@ -29,40 +27,25 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 	private const string MangaSearchFields =
 		"id,title,main_picture,alternative_titles,media_type,status,num_chapters,num_volumes,mean,start_date,num_list_users,genres{name},synopsis,nsfw";
 
-	private const int MinSuccessStatusCode = 200;
-	private const int MinRedirectStatusCode = 300;
-	private const int NotFoundStatusCode = 404;
-	private const string SeiyuOperation = "characters";
-
-	private readonly TenraiCircuit _circuit;
+	private readonly IMyAnimeListEnrichment _enrichment;
 	private readonly ILogger<MyAnimeListClient> _logger;
 	private readonly HttpClient _officialApiHttpClient;
-	private readonly TenraiClient _tenraiClient;
 	private readonly HttpClient _unofficialApiHttpClient;
 
 	internal MyAnimeListClient(
 		ILogger<MyAnimeListClient> logger,
 		HttpClient unofficialApiHttpClient,
 		HttpClient officialApiHttpClient,
-		HttpClient tenraiApiHttpClient,
-		TenraiCircuit circuit)
+		IMyAnimeListEnrichment enrichment)
 	{
 		this._logger = logger;
 		this._unofficialApiHttpClient = unofficialApiHttpClient;
 		this._officialApiHttpClient = officialApiHttpClient;
-		this._tenraiClient = new(tenraiApiHttpClient);
-		this._circuit = circuit;
+		this._enrichment = enrichment;
 	}
 
 	private static string CreateSearchUrl(string mediaPath, string query, string fields, bool includeNsfw) =>
 		$"{Constants.BaseOfficialApiUrl}/{mediaPath}?q={Uri.EscapeDataString(query)}&limit=100&offset=0&fields={fields}{(includeNsfw ? "&nsfw=true" : string.Empty)}";
-
-	private static string[] ValidNames(IEnumerable<CatalogReference>? entries) => entries?
-		.Where(static entry => !string.IsNullOrWhiteSpace(entry.Name))
-		.Select(static entry => entry.Name!)
-		.ToArray() ?? [];
-
-	private static bool IsMalformedSuccess(int statusCode) => statusCode is >= MinSuccessStatusCode and < MinRedirectStatusCode;
 
 	private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
 	{
@@ -149,172 +132,12 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		return response?.Results.Select(static envelope => envelope.Result).ToArray() ?? [];
 	}
 
-	public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken)
-	{
-		this._logger.RequestingAnimeDetails(id);
-		return this.GetDetailsAsync("anime", id, this._tenraiClient.GetAnimeByIdAsync, cancellationToken);
-	}
+	public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken) =>
+		this._enrichment.GetAnimeDetailsAsync(id, cancellationToken);
 
-	public Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken)
-	{
-		this._logger.RequestingMangaDetails(id);
-		return this.GetDetailsAsync("manga", id, this._tenraiClient.GetMangaByIdAsync, cancellationToken);
-	}
+	public Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken) =>
+		this._enrichment.GetMangaDetailsAsync(id, cancellationToken);
 
-	private async Task<MediaInfo> GetDetailsAsync(
-		string operation,
-		long id,
-		Func<int, CancellationToken, Task<TenraiResponse<MediaResponse>>> request,
-		CancellationToken cancellationToken)
-	{
-		var outcome = await this.GetDetailsOutcomeAsync(id, request, cancellationToken);
-		return this.Complete(operation, id, outcome, MediaInfo.Empty);
-	}
-
-	internal Task<TenraiEnrichmentOutcome<MediaInfo>> GetAnimeDetailsOutcomeAsync(long id, CancellationToken cancellationToken) =>
-		this.GetDetailsOutcomeAsync(id, this._tenraiClient.GetAnimeByIdAsync, cancellationToken);
-
-	internal Task<TenraiEnrichmentOutcome<MediaInfo>> GetMangaDetailsOutcomeAsync(long id, CancellationToken cancellationToken) =>
-		this.GetDetailsOutcomeAsync(id, this._tenraiClient.GetMangaByIdAsync, cancellationToken);
-
-	private async Task<TenraiEnrichmentOutcome<MediaInfo>> GetDetailsOutcomeAsync(
-		long id,
-		Func<int, CancellationToken, Task<TenraiResponse<MediaResponse>>> request,
-		CancellationToken cancellationToken)
-	{
-		if (this._circuit.IsOpen)
-		{
-			return new TenraiEnrichmentOutcome<MediaInfo>.Suppressed(TenraiSuppression.CircuitOpen);
-		}
-
-		var start = Stopwatch.GetTimestamp();
-		try
-		{
-			var response = await request(checked((int)id), cancellationToken);
-			var data = response.Result.Data;
-			if (data.Themes is null && data.Demographics is null)
-			{
-				return new TenraiEnrichmentOutcome<MediaInfo>.Failed(
-					TenraiFailureKind.Schema, Status: null, TenraiAttempt.Read(response.Headers), ElapsedMilliseconds(start));
-			}
-
-			var themes = ValidNames(data.Themes);
-			var demographic = ValidNames(data.Demographics);
-			return new TenraiEnrichmentOutcome<MediaInfo>.Enriched(themes.Length is 0 && demographic.Length is 0
-				? MediaInfo.Empty
-				: new() { Themes = themes, Demographic = demographic, });
-		}
-		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-		{
-			throw;
-		}
-		catch (Exception ex)
-		{
-			return Failure<MediaInfo>(ex, start);
-		}
-	}
-
-	public async Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken)
-	{
-		this._logger.RequestingSeiyuDetails(id);
-		var outcome = await this.GetAnimeSeiyuOutcomeAsync(id, cancellationToken);
-		return this.Complete(SeiyuOperation, id, outcome, []);
-	}
-
-	internal async Task<TenraiEnrichmentOutcome<IReadOnlyList<SeyuInfo>>> GetAnimeSeiyuOutcomeAsync(
-		long id,
-		CancellationToken cancellationToken)
-	{
-		if (this._circuit.IsOpen)
-		{
-			return new TenraiEnrichmentOutcome<IReadOnlyList<SeyuInfo>>.Suppressed(TenraiSuppression.CircuitOpen);
-		}
-
-		var start = Stopwatch.GetTimestamp();
-		try
-		{
-			var response = await this._tenraiClient.GetAnimeByIdCharactersAsync(checked((int)id), cancellationToken);
-			ICollection<Character>? characters = response.Result.Data;
-			if (characters is null)
-			{
-				return new TenraiEnrichmentOutcome<IReadOnlyList<SeyuInfo>>.Failed(
-					TenraiFailureKind.Schema, Status: null, TenraiAttempt.Read(response.Headers), ElapsedMilliseconds(start));
-			}
-
-			var result = new List<SeyuInfo>();
-			foreach (var character in characters)
-			{
-				AddValidSeiyu(character?.Voice_actors, result);
-			}
-
-			return new TenraiEnrichmentOutcome<IReadOnlyList<SeyuInfo>>.Enriched(result);
-		}
-		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-		{
-			throw;
-		}
-		catch (Exception ex)
-		{
-			return Failure<IReadOnlyList<SeyuInfo>>(ex, start);
-		}
-	}
-
-	private static TenraiEnrichmentOutcome<TValue> Failure<TValue>(Exception exception, long start) => exception switch
-	{
-		TenraiSuppressedException suppressed => new TenraiEnrichmentOutcome<TValue>.Suppressed(suppressed.Reason),
-		TenraiApiException { StatusCode: NotFoundStatusCode } => new TenraiEnrichmentOutcome<TValue>.NotFound(),
-		TenraiApiException api => new TenraiEnrichmentOutcome<TValue>.Failed(
-			IsMalformedSuccess(api.StatusCode) ? TenraiFailureKind.Schema : TenraiFailureKind.Transport, Status: api.StatusCode,
-			TenraiAttempt.Read(api.Headers), ElapsedMilliseconds(start)),
-		TenraiTransportException transport => new TenraiEnrichmentOutcome<TValue>.Failed(
-			TenraiFailureKind.Transport, Status: null, transport.Facts, ElapsedMilliseconds(start)),
-		_ => new TenraiEnrichmentOutcome<TValue>.Failed(TenraiFailureKind.Transport, Status: null, default, ElapsedMilliseconds(start)),
-	};
-
-	private static long ElapsedMilliseconds(long start) => (long)Stopwatch.GetElapsedTime(start).TotalMilliseconds;
-
-	private static void AddValidSeiyu(IEnumerable<VoiceActor>? actors, List<SeyuInfo> result)
-	{
-		if (actors is null)
-		{
-			return;
-		}
-
-		foreach (var actor in actors)
-		{
-			var person = actor?.Person;
-			if (!string.Equals(actor?.Language, "Japanese", StringComparison.Ordinal) ||
-				string.IsNullOrWhiteSpace(person?.Name) ||
-				!IsMyAnimeListPersonUrl(person.Url))
-			{
-				continue;
-			}
-
-			result.Add(new() { Name = person.Name, Url = person.Url, });
-		}
-	}
-
-	private static bool IsMyAnimeListPersonUrl([NotNullWhen(true)] string? url)
-	{
-		if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
-			(!uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
-			 !uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)))
-		{
-			return false;
-		}
-
-		return uri.Host.Equals("myanimelist.net", StringComparison.OrdinalIgnoreCase) ||
-			uri.Host.EndsWith(".myanimelist.net", StringComparison.OrdinalIgnoreCase);
-	}
-
-	private TValue Complete<TValue>(string operation, long id, TenraiEnrichmentOutcome<TValue> outcome, TValue fallback)
-	{
-		TenraiEnrichmentReport.Report(this._logger, operation, id, outcome);
-		if (outcome is TenraiEnrichmentOutcome<TValue>.Failed { Kind: TenraiFailureKind.Schema, })
-		{
-			this._circuit.RecordTerminalFailure();
-		}
-
-		return outcome is TenraiEnrichmentOutcome<TValue>.Enriched enriched ? enriched.Value : fallback;
-	}
+	public Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken) =>
+		this._enrichment.GetAnimeSeiyuAsync(id, cancellationToken);
 }

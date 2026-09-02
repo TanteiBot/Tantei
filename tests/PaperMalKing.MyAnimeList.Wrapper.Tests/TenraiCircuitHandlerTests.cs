@@ -3,13 +3,11 @@
 
 using System.Net;
 using Microsoft.Extensions.Logging.Abstractions;
-using PaperMalKing.MyAnimeList.UpdateProvider.Installer;
-using PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 using Polly.RateLimiting;
 using Polly.Timeout;
 
-namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests;
+namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
 
 public sealed class TenraiCircuitHandlerTests
 {
