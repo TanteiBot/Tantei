@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using PaperMalKing.Common.RateLimiters;
 using PaperMalKing.MyAnimeList.UpdateProvider.Installer;
 using PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 using PaperMalKing.MyAnimeList.Wrapper;
@@ -141,7 +142,7 @@ public sealed class TenraiEnrichmentLoggingThroughPipelineTests
 		private readonly TenraiAttemptHandler _attemptHandler;
 		private readonly TenraiCircuitHandler _circuitHandler;
 		private readonly TenraiCooldownHandler _cooldownHandler;
-		private readonly TenraiRateLimiter _limiter;
+		private readonly RateLimiter<TenraiClient> _limiter;
 		private readonly FakeHttpMessageHandler _primaryHandler;
 		private readonly ResilienceHandler _resilienceHandler;
 
@@ -150,7 +151,7 @@ public sealed class TenraiEnrichmentLoggingThroughPipelineTests
 			this.Time = new(Start);
 			var cooldown = new TenraiCooldown(this.Time, NullLogger<TenraiCooldown>.Instance);
 			var circuit = new TenraiCircuit(this.Time, NullLogger<TenraiCircuit>.Instance);
-			this._limiter = new(this.Time);
+			this._limiter = TenraiResiliencePipeline.CreateRateLimiter();
 			this._primaryHandler = new(respond);
 			this._resilienceHandler = new(TenraiResiliencePipeline.Create(this.Time, this._limiter, cooldown))
 			{

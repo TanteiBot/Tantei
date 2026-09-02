@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Threading.RateLimiting;
 using Microsoft.Extensions.Http.Resilience;
+using PaperMalKing.Common.RateLimiters;
 using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 using Polly;
 using Polly.Retry;
@@ -12,15 +15,30 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Installer;
 
 internal static class TenraiResiliencePipeline
 {
+	private const int QueueLimit = 10;
+	private const int TokenLimit = 2;
+	private const int TokensPerPeriod = 1;
 	private static readonly TimeSpan AttemptTimeout = TimeSpan.FromSeconds(5);
 	private static readonly TimeSpan MaximumRetryAfterDelay = TimeSpan.FromSeconds(5);
 	private static readonly TimeSpan MinimumRetryAfterDelay = TimeSpan.FromTicks(1L);
+	private static readonly TimeSpan ReplenishmentPeriod = TimeSpan.FromSeconds(2.4D);
 	private static readonly TimeSpan RetryDelay = TimeSpan.FromMilliseconds(500);
+
+	[SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Its candled in created ratelimiter")]
+	public static RateLimiter<TenraiClient> CreateRateLimiter() => new(new TokenBucketRateLimiter(new()
+	{
+		AutoReplenishment = true,
+		QueueLimit = QueueLimit,
+		QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+		ReplenishmentPeriod = ReplenishmentPeriod,
+		TokenLimit = TokenLimit,
+		TokensPerPeriod = TokensPerPeriod,
+	}));
 
 	public static void Configure(
 		ResiliencePipelineBuilder<HttpResponseMessage> builder,
 		TimeProvider timeProvider,
-		TenraiRateLimiter rateLimiter,
+		RateLimiter rateLimiter,
 		TenraiCooldown cooldown)
 	{
 		ArgumentNullException.ThrowIfNull(builder);
@@ -50,7 +68,7 @@ internal static class TenraiResiliencePipeline
 
 	public static ResiliencePipeline<HttpResponseMessage> Create(
 		TimeProvider timeProvider,
-		TenraiRateLimiter rateLimiter,
+		RateLimiter rateLimiter,
 		TenraiCooldown cooldown)
 	{
 		var builder = new ResiliencePipelineBuilder<HttpResponseMessage>();

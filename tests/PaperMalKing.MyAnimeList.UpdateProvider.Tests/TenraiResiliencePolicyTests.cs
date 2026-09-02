@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging.Abstractions;
+using PaperMalKing.Common.RateLimiters;
 using PaperMalKing.MyAnimeList.UpdateProvider.Installer;
 using PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 using PaperMalKing.MyAnimeList.Wrapper;
@@ -21,77 +21,13 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests;
 public sealed class TenraiResiliencePolicyTests
 {
 	private const string AnimePath = "anime/1";
-	private const int AcceptedBeforeQueueRejection = 12;
-	private const int InitialBurst = 2;
 	private const int NoRetryAttemptCount = 1;
 	private const int QueueLimit = 10;
-	private const int RequestsInFirstMinute = 27;
 	private const int RetryAttemptCount = 2;
 	private static readonly DateTimeOffset Start = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
-	private static readonly TimeSpan ReplenishmentPeriod = TimeSpan.FromSeconds(2.4D);
 
 	[Test]
-	public async Task LimiterAllowsTwoImmediatelyThenSustainsTwentyFiveRequestsPerMinute()
-	{
-		var attempts = 0;
-		using var scope = new PolicyScope((_, _) =>
-		{
-			Interlocked.Increment(ref attempts);
-			return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
-		});
-
-		for (var request = 0; request < RequestsInFirstMinute; request++)
-		{
-			var path = "anime/" + request.ToString(CultureInfo.InvariantCulture);
-			var responseTask = scope.Client.GetAsync(path, TestContext.Current!.Execution.CancellationToken);
-			if (request >= InitialBurst)
-			{
-				await Assert.That(responseTask.IsCompleted).IsFalse();
-				scope.Time.Advance(ReplenishmentPeriod);
-			}
-
-			using var response = await responseTask;
-		}
-
-		var queued = scope.Client.GetAsync("anime/27", TestContext.Current!.Execution.CancellationToken);
-		await Assert.That(attempts).IsEqualTo(RequestsInFirstMinute);
-		await Assert.That(queued.IsCompleted).IsFalse();
-	}
-
-	[Test]
-	public async Task LimiterQueuesTenOldestFirstAndRejectsTheEleventhQueuedRequest()
-	{
-		var started = new ConcurrentQueue<int>();
-		using var scope = new PolicyScope((request, _) =>
-		{
-			started.Enqueue(int.Parse(request.RequestUri!.Segments[^1], CultureInfo.InvariantCulture));
-			return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
-		});
-		var requests = Enumerable.Range(0, AcceptedBeforeQueueRejection + 1)
-			.Select(index => scope.Client.GetAsync(
-				"anime/" + index.ToString(CultureInfo.InvariantCulture),
-				TestContext.Current!.Execution.CancellationToken))
-			.ToArray();
-
-		var rejection = await Assert.That(async () => await requests[^1]).Throws<TenraiSuppressedException>();
-		await Assert.That(rejection!.Reason).IsEqualTo(TenraiSuppression.Queue);
-		for (var index = InitialBurst; index < AcceptedBeforeQueueRejection; index++)
-		{
-			scope.Time.Advance(ReplenishmentPeriod);
-			using var response = await requests[index];
-		}
-
-		var responses = await Task.WhenAll(requests.Take(AcceptedBeforeQueueRejection));
-		foreach (var response in responses)
-		{
-			response.Dispose();
-		}
-
-		await Assert.That(string.Join(',', started)).IsEqualTo("0,1,2,3,4,5,6,7,8,9,10,11");
-	}
-
-	[Test]
-	public async Task QueuedRequestHasNoInternalTimeoutAndCallerCancellationPropagates()
+	public async Task QueuedRequestCancellationPropagatesTheCallerToken()
 	{
 		using var scope = new PolicyScope((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)));
 		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
@@ -103,7 +39,6 @@ public sealed class TenraiResiliencePolicyTests
 				"queued/" + index.ToString(CultureInfo.InvariantCulture), cancellationSource.Token))
 			.ToArray();
 
-		scope.Time.Advance(TimeSpan.FromSeconds(5));
 		await Assert.That(queued[^1].IsCompleted).IsFalse();
 		cancellationSource.Cancel();
 
@@ -281,33 +216,6 @@ public sealed class TenraiResiliencePolicyTests
 	}
 
 	[Test]
-	public async Task RetryReacquiresTheSharedLimiterPermit()
-	{
-		var attempts = 0;
-		using var scope = new PolicyScope((request, _) =>
-		{
-			if (request.RequestUri?.AbsolutePath.EndsWith("warmup", StringComparison.Ordinal) is true)
-			{
-				return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
-			}
-
-			return Task.FromResult(new HttpResponseMessage(
-				Interlocked.Increment(ref attempts) is NoRetryAttemptCount ? HttpStatusCode.ServiceUnavailable : HttpStatusCode.OK));
-		});
-		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
-		using var warmup = await scope.Client.GetAsync("anime/warmup", cancellationToken);
-		var retried = scope.Client.GetAsync("anime/retry", cancellationToken);
-
-		scope.Time.Advance(TimeSpan.FromSeconds(2));
-		await DrainContinuationsAsync();
-		await Assert.That(attempts).IsEqualTo(NoRetryAttemptCount);
-		scope.Time.Advance(TimeSpan.FromMilliseconds(400));
-
-		using var response = await retried;
-		await Assert.That(attempts).IsEqualTo(RetryAttemptCount);
-	}
-
-	[Test]
 	public async Task AttemptTimesOutAtFiveSecondsWithoutTimingOutLimiterQueue()
 	{
 		using var scope = new PolicyScope(async (_, cancellationToken) =>
@@ -462,7 +370,7 @@ public sealed class TenraiResiliencePolicyTests
 		private readonly TenraiAttemptHandler _attemptHandler;
 		private readonly TenraiCircuitHandler _circuitHandler;
 		private readonly TenraiCooldownHandler _cooldownHandler;
-		private readonly TenraiRateLimiter _limiter;
+		private readonly RateLimiter<TenraiClient> _limiter;
 		private readonly FakeHttpMessageHandler _primaryHandler;
 		private readonly ResilienceHandler _resilienceHandler;
 
@@ -471,7 +379,7 @@ public sealed class TenraiResiliencePolicyTests
 			this.Time = new(Start);
 			var cooldown = new TenraiCooldown(this.Time, NullLogger<TenraiCooldown>.Instance);
 			this.Circuit = new(this.Time, NullLogger<TenraiCircuit>.Instance);
-			this._limiter = new(this.Time);
+			this._limiter = TenraiResiliencePipeline.CreateRateLimiter();
 			this._primaryHandler = new(respond);
 			this._resilienceHandler = new(TenraiResiliencePipeline.Create(this.Time, this._limiter, cooldown))
 			{

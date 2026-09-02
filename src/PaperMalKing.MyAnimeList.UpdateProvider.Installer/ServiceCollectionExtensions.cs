@@ -34,7 +34,7 @@ public static class ServiceCollectionExtensions
 		serviceCollection.TryAddSingleton(TimeProvider.System);
 		serviceCollection.AddSingleton<TenraiCooldown>();
 		serviceCollection.AddSingleton<TenraiCircuit>();
-		serviceCollection.AddSingleton<TenraiRateLimiter>();
+		serviceCollection.AddSingleton(static _ => TenraiResiliencePipeline.CreateRateLimiter());
 		serviceCollection.AddMemoryCache();
 		serviceCollection.AddSingleton<MalSearchPicker>();
 		serviceCollection.AddSingleton<MalSearchService>();
@@ -87,7 +87,7 @@ public static class ServiceCollectionExtensions
 						 .AddResilienceHandler("tenrai", static (builder, context) =>
 						 {
 							 var timeProvider = context.ServiceProvider.GetRequiredService<TimeProvider>();
-							 var rateLimiter = context.ServiceProvider.GetRequiredService<TenraiRateLimiter>();
+							 var rateLimiter = context.ServiceProvider.GetRequiredService<RateLimiter<TenraiClient>>();
 							 var cooldown = context.ServiceProvider.GetRequiredService<TenraiCooldown>();
 							 TenraiResiliencePipeline.Configure(builder, timeProvider, rateLimiter, cooldown);
 						 });
