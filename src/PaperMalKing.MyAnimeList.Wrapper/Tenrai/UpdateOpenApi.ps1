@@ -10,7 +10,7 @@ $upstreamPath = Join-Path $stageDirectory 'upstream.openapi.json'
 try {
     New-Item -ItemType Directory -Path $stageDirectory | Out-Null
 
-    & dotnet tool restore --configfile (Join-Path $PSScriptRoot 'NuGet.Offline.config')
+    & dotnet tool restore
     Assert-NativeCommandSucceeded 'dotnet tool restore'
 
     Invoke-WebRequest -Uri 'https://api.tenrai.org/documentation/openapi.json' -OutFile $upstreamPath
