@@ -38,7 +38,7 @@ internal static class Program
 		var source = JsonNode.Parse(sourceText)?.AsObject() ?? throw new InvalidDataException("The source OpenAPI document is empty.");
 		ValidateDocument(source);
 		var output = CreateProjection(source);
-		File.WriteAllText(args[1], output.ToJsonString(new JsonSerializerOptions { WriteIndented = true }) + "\n");
+		File.WriteAllText(args[1], output.ToJsonString(new JsonSerializerOptions { WriteIndented = true, NewLine = "\n" }) + "\n");
 	}
 
 	private static void ValidateDocument(JsonObject source)
