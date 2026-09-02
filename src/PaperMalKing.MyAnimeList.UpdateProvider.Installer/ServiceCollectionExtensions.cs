@@ -14,6 +14,7 @@ using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.UpdateProvider.Search;
 using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
+using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Features;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
@@ -34,6 +35,7 @@ public static class ServiceCollectionExtensions
 
 		serviceCollection.TryAddSingleton(TimeProvider.System);
 		serviceCollection.AddSingleton<TenraiCooldown>();
+		serviceCollection.AddSingleton<TenraiCircuit>();
 		serviceCollection.AddSingleton<TenraiRateLimiter>();
 		serviceCollection.AddMemoryCache();
 		serviceCollection.AddSingleton<MalSearchPicker>();
@@ -81,6 +83,8 @@ public static class ServiceCollectionExtensions
 						 })
 						 .ConfigurePrimaryHttpMessageHandler(static _ => new TenraiResponseBufferingHandler(HttpClientHandlerFactory()))
 						 .AddHttpMessageHandler(static provider =>
+							 new TenraiCircuitHandler(provider.GetRequiredService<TenraiCircuit>()))
+						 .AddHttpMessageHandler(static provider =>
 							 new TenraiCooldownHandler(provider.GetRequiredService<TenraiCooldown>()))
 						 .AddResilienceHandler("tenrai", static (builder, context) =>
 						 {
@@ -113,9 +117,10 @@ public static class ServiceCollectionExtensions
 		{
 			var factory = provider.GetRequiredService<IHttpClientFactory>();
 			var logger = provider.GetRequiredService<ILogger<MyAnimeListClient>>();
-			return new(logger, _unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName),
-				_officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName),
-				_tenraiApiHttpClient: factory.CreateClient(Constants.TenraiHttpClientName));
+			return new(logger, unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName),
+				officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName),
+				tenraiApiHttpClient: factory.CreateClient(Constants.TenraiHttpClientName),
+				circuit: provider.GetRequiredService<TenraiCircuit>());
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<MalUser, MalUserFeatures>, MalUserFeaturesService>();
 		serviceCollection.AddSingleton<MalUserService>();

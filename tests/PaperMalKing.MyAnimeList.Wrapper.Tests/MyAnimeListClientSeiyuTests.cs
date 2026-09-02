@@ -3,6 +3,7 @@
 
 using System.Net;
 using Microsoft.Extensions.Logging.Abstractions;
+using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
 
@@ -152,7 +153,7 @@ public sealed class MyAnimeListClientSeiyuTests
 			{
 				BaseAddress = new("https://example.test/v1/"),
 			};
-			this.Client = new(NullLogger<MyAnimeListClient>.Instance, null!, null!, this._tenraiClient);
+			this.Client = new(NullLogger<MyAnimeListClient>.Instance, null!, null!, this._tenraiClient, new TenraiCircuit(TimeProvider.System));
 		}
 
 		public MyAnimeListClient Client { get; }

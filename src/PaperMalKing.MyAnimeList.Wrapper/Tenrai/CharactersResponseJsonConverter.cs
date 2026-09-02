@@ -15,7 +15,7 @@ internal sealed class CharactersResponseJsonConverter : JsonConverter<Characters
 			!document.RootElement.TryGetProperty("data", out var data) ||
 			data.ValueKind is not JsonValueKind.Array)
 		{
-			return new();
+			return new() { Data = null!, };
 		}
 
 		var characters = new List<Character>();

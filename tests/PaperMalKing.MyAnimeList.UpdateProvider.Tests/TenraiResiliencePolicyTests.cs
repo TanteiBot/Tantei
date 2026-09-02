@@ -12,6 +12,7 @@ using PaperMalKing.MyAnimeList.UpdateProvider.Installer;
 using PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
+using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 using Polly.RateLimiting;
 using Polly.Timeout;
 
@@ -224,7 +225,7 @@ public sealed class TenraiResiliencePolicyTests
 			Interlocked.Increment(ref attempts);
 			return Task.FromResult(CreateResponse(statusCode, new RetryConditionHeaderValue(TimeSpan.FromSeconds(6))));
 		});
-		var client = CreateClient(scope.Client);
+		var client = CreateClient(scope);
 		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
 
 		var initial = await client.GetAnimeDetailsAsync(1L, cancellationToken);
@@ -346,7 +347,7 @@ public sealed class TenraiResiliencePolicyTests
 			await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
 			return new HttpResponseMessage(HttpStatusCode.OK);
 		});
-		var client = CreateClient(scope.Client);
+		var client = CreateClient(scope);
 		var resultTask = client.GetAnimeDetailsAsync(1L, TestContext.Current!.Execution.CancellationToken);
 
 		scope.Time.Advance(TimeSpan.FromSeconds(5));
@@ -371,7 +372,7 @@ public sealed class TenraiResiliencePolicyTests
 			.Select(index => scope.Client.GetAsync(
 				"queued/" + index.ToString(CultureInfo.InvariantCulture), queueCancellation.Token))
 			.ToArray();
-		var client = CreateClient(scope.Client);
+		var client = CreateClient(scope);
 
 		var result = await client.GetMangaDetailsAsync(1L, cancellationToken);
 
@@ -381,8 +382,50 @@ public sealed class TenraiResiliencePolicyTests
 		await Assert.That(async () => await Task.WhenAll(queued)).Throws<OperationCanceledException>();
 	}
 
-	private static MyAnimeListClient CreateClient(HttpClient tenraiClient) =>
-		new(NullLogger<MyAnimeListClient>.Instance, null!, null!, tenraiClient);
+	[Test]
+	public async Task ExhaustedTransientFailureThroughThePipelineOpensTheSharedCircuit()
+	{
+		const int failureThreshold = 5;
+		using var scope = new PolicyScope((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)));
+		for (var failure = 0; failure < failureThreshold - 1; failure++)
+		{
+			scope.Circuit.RecordTerminalFailure();
+		}
+
+		var client = CreateClient(scope);
+		var resultTask = client.GetAnimeDetailsAsync(1L, TestContext.Current!.Execution.CancellationToken);
+		scope.Time.Advance(TimeSpan.FromSeconds(1));
+
+		var result = await resultTask;
+		await Assert.That(result).IsEqualTo(MediaInfo.Empty);
+		await Assert.That(scope.Circuit.IsOpen).IsTrue();
+	}
+
+	[Test]
+	public async Task OpenCircuitFailsFastThroughTheFullPipeline()
+	{
+		const int failureThreshold = 5;
+		var attempts = 0;
+		using var scope = new PolicyScope((_, _) =>
+		{
+			Interlocked.Increment(ref attempts);
+			return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"data\":{}}"), });
+		});
+		for (var failure = 0; failure < failureThreshold; failure++)
+		{
+			scope.Circuit.RecordTerminalFailure();
+		}
+
+		var client = CreateClient(scope);
+
+		var result = await client.GetAnimeDetailsAsync(1L, TestContext.Current!.Execution.CancellationToken);
+
+		await Assert.That(result).IsEqualTo(MediaInfo.Empty);
+		await Assert.That(attempts).IsEqualTo(0);
+	}
+
+	private static MyAnimeListClient CreateClient(PolicyScope scope) =>
+		new(NullLogger<MyAnimeListClient>.Instance, null!, null!, scope.Client, scope.Circuit);
 
 	private static HttpResponseMessage CreateResponse(HttpStatusCode statusCode, RetryConditionHeaderValue retryAfter)
 	{
@@ -413,6 +456,7 @@ public sealed class TenraiResiliencePolicyTests
 
 	private sealed class PolicyScope : IDisposable
 	{
+		private readonly TenraiCircuitHandler _circuitHandler;
 		private readonly TenraiCooldownHandler _cooldownHandler;
 		private readonly TenraiRateLimiter _limiter;
 		private readonly FakeHttpMessageHandler _primaryHandler;
@@ -422,6 +466,7 @@ public sealed class TenraiResiliencePolicyTests
 		{
 			this.Time = new(Start);
 			var cooldown = new TenraiCooldown(this.Time);
+			this.Circuit = new(this.Time);
 			this._limiter = new(this.Time);
 			this._primaryHandler = new(respond);
 			this._resilienceHandler = new(TenraiResiliencePipeline.Create(this.Time, this._limiter, cooldown))
@@ -429,12 +474,15 @@ public sealed class TenraiResiliencePolicyTests
 				InnerHandler = new TenraiResponseBufferingHandler(this._primaryHandler),
 			};
 			this._cooldownHandler = new(cooldown) { InnerHandler = this._resilienceHandler, };
-			this.Client = new(this._cooldownHandler, disposeHandler: false)
+			this._circuitHandler = new(this.Circuit) { InnerHandler = this._cooldownHandler, };
+			this.Client = new(this._circuitHandler, disposeHandler: false)
 			{
 				BaseAddress = new("https://example.test/v1/"),
 				Timeout = Timeout.InfiniteTimeSpan,
 			};
 		}
+
+		public TenraiCircuit Circuit { get; }
 
 		public HttpClient Client { get; }
 
@@ -443,6 +491,7 @@ public sealed class TenraiResiliencePolicyTests
 		public void Dispose()
 		{
 			this.Client.Dispose();
+			this._circuitHandler.Dispose();
 			this._cooldownHandler.Dispose();
 			this._resilienceHandler.Dispose();
 			this._primaryHandler.Dispose();

@@ -11,6 +11,12 @@
       <ProjectReference Include="..\PaperMalKing.MyAnimeList.Wrapper.Abstractions\PaperMalKing.MyAnimeList.Wrapper.Abstractions.csproj" />
       <Compile Remove="Tenrai\ProjectOpenApi.cs" />
     </ItemGroup>
+
+    <ItemGroup>
+      <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Installer" />
+      <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.Wrapper.Tests" />
+      <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Tests" />
+    </ItemGroup>
     
     <PropertyGroup>
         <NoWarn>$(NoWarn);S3242;</NoWarn>
