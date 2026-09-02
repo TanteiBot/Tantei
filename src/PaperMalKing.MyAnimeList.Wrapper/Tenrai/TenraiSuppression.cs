@@ -3,9 +3,9 @@
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
-internal enum TenraiSuppression
+public enum TenraiSuppression
 {
-	None = 0,
+	CircuitOpen = 0,
 	Cooldown = 1,
 	Queue = 2,
 }

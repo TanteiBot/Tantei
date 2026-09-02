@@ -147,8 +147,7 @@ public sealed class MyAnimeListClientCircuitTests
 				null!,
 				null!,
 				this._tenraiClient,
-				this.Circuit,
-				new TenraiEnrichmentTelemetry());
+				this.Circuit);
 		}
 
 		public TenraiCircuit Circuit { get; }

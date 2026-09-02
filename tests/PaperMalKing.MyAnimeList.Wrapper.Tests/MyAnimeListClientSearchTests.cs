@@ -207,8 +207,7 @@ public sealed class MyAnimeListClientSearchTests
 				this._unofficialClient,
 				this._officialClient,
 				null!,
-				new TenraiCircuit(TimeProvider.System, NullLogger<TenraiCircuit>.Instance),
-				new TenraiEnrichmentTelemetry());
+				new TenraiCircuit(TimeProvider.System, NullLogger<TenraiCircuit>.Instance));
 		}
 
 		public MyAnimeListClient Client { get; }

@@ -13,7 +13,6 @@ using PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
-using Polly.RateLimiting;
 using Polly.Timeout;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests;
@@ -74,7 +73,8 @@ public sealed class TenraiResiliencePolicyTests
 				TestContext.Current!.Execution.CancellationToken))
 			.ToArray();
 
-		await Assert.That(async () => await requests[^1]).Throws<RateLimiterRejectedException>();
+		var rejection = await Assert.That(async () => await requests[^1]).Throws<TenraiSuppressedException>();
+		await Assert.That(rejection!.Reason).IsEqualTo(TenraiSuppression.Queue);
 		for (var index = InitialBurst; index < AcceptedBeforeQueueRejection; index++)
 		{
 			scope.Time.Advance(ReplenishmentPeriod);
@@ -257,7 +257,8 @@ public sealed class TenraiResiliencePolicyTests
 
 		scope.Time.Advance(TimeSpan.FromSeconds(2));
 
-		await Assert.That(async () => await responseTask).Throws<HttpRequestException>();
+		var failure = await Assert.That(async () => await responseTask).Throws<TenraiTransportException>();
+		_ = await Assert.That(failure!.InnerException).IsTypeOf<HttpRequestException>();
 		await Assert.That(attempts).IsEqualTo(RetryAttemptCount);
 	}
 
@@ -320,7 +321,8 @@ public sealed class TenraiResiliencePolicyTests
 		await Assert.That(responseTask.IsCompleted).IsFalse();
 		scope.Time.Advance(TimeSpan.FromMilliseconds(1));
 
-		await Assert.That(async () => await responseTask).Throws<TimeoutRejectedException>();
+		var timeout = await Assert.That(async () => await responseTask).Throws<TenraiTransportException>();
+		_ = await Assert.That(timeout!.InnerException).IsTypeOf<TimeoutRejectedException>();
 	}
 
 	[Test]
@@ -336,7 +338,8 @@ public sealed class TenraiResiliencePolicyTests
 		await Assert.That(responseTask.IsCompleted).IsFalse();
 		scope.Time.Advance(TimeSpan.FromMilliseconds(1));
 
-		await Assert.That(async () => await responseTask).Throws<TimeoutRejectedException>();
+		var timeout = await Assert.That(async () => await responseTask).Throws<TenraiTransportException>();
+		_ = await Assert.That(timeout!.InnerException).IsTypeOf<TimeoutRejectedException>();
 	}
 
 	[Test]
@@ -425,7 +428,7 @@ public sealed class TenraiResiliencePolicyTests
 	}
 
 	private static MyAnimeListClient CreateClient(PolicyScope scope) =>
-		new(NullLogger<MyAnimeListClient>.Instance, null!, null!, scope.Client, scope.Circuit, scope.Telemetry);
+		new(NullLogger<MyAnimeListClient>.Instance, null!, null!, scope.Client, scope.Circuit);
 
 	private static HttpResponseMessage CreateResponse(HttpStatusCode statusCode, RetryConditionHeaderValue retryAfter)
 	{
@@ -456,6 +459,7 @@ public sealed class TenraiResiliencePolicyTests
 
 	private sealed class PolicyScope : IDisposable
 	{
+		private readonly TenraiAttemptHandler _attemptHandler;
 		private readonly TenraiCircuitHandler _circuitHandler;
 		private readonly TenraiCooldownHandler _cooldownHandler;
 		private readonly TenraiRateLimiter _limiter;
@@ -465,18 +469,18 @@ public sealed class TenraiResiliencePolicyTests
 		public PolicyScope(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> respond)
 		{
 			this.Time = new(Start);
-			this.Telemetry = new();
 			var cooldown = new TenraiCooldown(this.Time, NullLogger<TenraiCooldown>.Instance);
 			this.Circuit = new(this.Time, NullLogger<TenraiCircuit>.Instance);
-			this._limiter = new(this.Time, this.Telemetry);
+			this._limiter = new(this.Time);
 			this._primaryHandler = new(respond);
-			this._resilienceHandler = new(TenraiResiliencePipeline.Create(this.Time, this._limiter, cooldown, this.Telemetry))
+			this._resilienceHandler = new(TenraiResiliencePipeline.Create(this.Time, this._limiter, cooldown))
 			{
 				InnerHandler = new TenraiResponseBufferingHandler(this._primaryHandler),
 			};
-			this._cooldownHandler = new(cooldown, this.Telemetry) { InnerHandler = this._resilienceHandler, };
+			this._cooldownHandler = new(cooldown) { InnerHandler = this._resilienceHandler, };
 			this._circuitHandler = new(this.Circuit) { InnerHandler = this._cooldownHandler, };
-			this.Client = new(this._circuitHandler, disposeHandler: false)
+			this._attemptHandler = new() { InnerHandler = this._circuitHandler, };
+			this.Client = new(this._attemptHandler, disposeHandler: false)
 			{
 				BaseAddress = new("https://example.test/v1/"),
 				Timeout = Timeout.InfiniteTimeSpan,
@@ -487,13 +491,12 @@ public sealed class TenraiResiliencePolicyTests
 
 		public HttpClient Client { get; }
 
-		public TenraiEnrichmentTelemetry Telemetry { get; }
-
 		public ManualTimeProvider Time { get; }
 
 		public void Dispose()
 		{
 			this.Client.Dispose();
+			this._attemptHandler.Dispose();
 			this._circuitHandler.Dispose();
 			this._cooldownHandler.Dispose();
 			this._resilienceHandler.Dispose();

@@ -152,7 +152,7 @@ public sealed class MyAnimeListClientLoggingTests
 			};
 			this.Logger = new();
 			this.Circuit = new(new FixedTimeProvider(), NullLogger<TenraiCircuit>.Instance);
-			this.Client = new(this.Logger, null!, null!, this._tenraiClient, this.Circuit, new TenraiEnrichmentTelemetry());
+			this.Client = new(this.Logger, null!, null!, this._tenraiClient, this.Circuit);
 		}
 
 		public TenraiCircuit Circuit { get; }
