@@ -144,7 +144,7 @@ public sealed class TenraiEnrichmentDetailsTests
 			this.Client = new(
 				NullLogger<TenraiEnrichment>.Instance,
 				this._tenraiClient,
-				new TenraiCircuit(TimeProvider.System, NullLogger<TenraiCircuit>.Instance));
+				new TenraiGate(TimeProvider.System, NullLogger<TenraiGate>.Instance));
 		}
 
 		public TenraiEnrichment Client { get; }

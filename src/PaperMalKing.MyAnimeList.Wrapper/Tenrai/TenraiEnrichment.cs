@@ -19,18 +19,18 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 	private const int MinRedirectStatusCode = 300;
 	private const int NotFoundStatusCode = 404;
 
-	private readonly TenraiCircuit _circuit;
 	private readonly TenraiClient _client;
+	private readonly TenraiGate _gate;
 	private readonly ILogger<TenraiEnrichment> _logger;
 
-	public TenraiEnrichment(ILogger<TenraiEnrichment> logger, HttpClient httpClient, TenraiCircuit circuit)
+	public TenraiEnrichment(ILogger<TenraiEnrichment> logger, HttpClient httpClient, TenraiGate gate)
 	{
 		ArgumentNullException.ThrowIfNull(logger);
 		ArgumentNullException.ThrowIfNull(httpClient);
-		ArgumentNullException.ThrowIfNull(circuit);
+		ArgumentNullException.ThrowIfNull(gate);
 		this._logger = logger;
 		this._client = new(httpClient);
-		this._circuit = circuit;
+		this._gate = gate;
 	}
 
 	public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken)
@@ -152,9 +152,9 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 		CancellationToken cancellationToken)
 		where TValue : class
 	{
-		if (this._circuit.IsOpen)
+		if (this._gate.Check() is { } suppression)
 		{
-			return new TenraiEnrichmentOutcome<TValue>.Suppressed(TenraiSuppression.CircuitOpen);
+			return new TenraiEnrichmentOutcome<TValue>.Suppressed(suppression);
 		}
 
 		var start = Stopwatch.GetTimestamp();
@@ -187,7 +187,7 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 		TenraiEnrichmentReport.Report(this._logger, operation, id, outcome);
 		if (outcome is TenraiEnrichmentOutcome<TValue>.Failed { Kind: TenraiFailureKind.Schema, })
 		{
-			this._circuit.RecordTerminalFailure();
+			_ = this._gate.Record(TenraiSignal.Failed);
 		}
 
 		return outcome is TenraiEnrichmentOutcome<TValue>.Enriched enriched ? enriched.Value : fallback;

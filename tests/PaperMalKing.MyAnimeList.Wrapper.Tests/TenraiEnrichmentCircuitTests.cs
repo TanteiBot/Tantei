@@ -18,6 +18,8 @@ public sealed class TenraiEnrichmentCircuitTests
 		"{\"data\":[{\"voice_actors\":[{\"language\":\"Japanese\"," +
 		"\"person\":{\"name\":\"Megumi Hayashibara\",\"url\":\"https://myanimelist.net/people/14\"}}]}]}";
 
+	private static readonly DateTimeOffset Now = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
 	[Test]
 	public async Task MalformedDetailResponsesOpenTheSharedCircuit()
 	{
@@ -63,7 +65,7 @@ public sealed class TenraiEnrichmentCircuitTests
 			_ = await scope.Client.GetAnimeDetailsAsync(1L, cancellationToken);
 		}
 
-		await Assert.That(scope.Circuit.IsOpen).IsTrue();
+		await Assert.That(scope.Gate.Check()).IsEqualTo(TenraiSuppression.CircuitOpen);
 	}
 
 	[Test]
@@ -78,7 +80,7 @@ public sealed class TenraiEnrichmentCircuitTests
 			await Assert.That(string.Join('|', result.Demographic)).IsEqualTo("Josei");
 		}
 
-		await Assert.That(scope.Circuit.IsOpen).IsFalse();
+		await Assert.That(scope.Gate.Check()).IsNull();
 	}
 
 	[Test]
@@ -92,7 +94,7 @@ public sealed class TenraiEnrichmentCircuitTests
 			_ = await scope.Client.GetAnimeDetailsAsync(1L, cancellationToken);
 		}
 
-		await Assert.That(scope.Circuit.IsOpen).IsFalse();
+		await Assert.That(scope.Gate.Check()).IsNull();
 	}
 
 	[Test]
@@ -141,11 +143,11 @@ public sealed class TenraiEnrichmentCircuitTests
 			{
 				BaseAddress = new("https://example.test/v1/"),
 			};
-			this.Circuit = new(new FixedTimeProvider(), NullLogger<TenraiCircuit>.Instance);
-			this.Client = new(NullLogger<TenraiEnrichment>.Instance, this._tenraiClient, this.Circuit);
+			this.Gate = new(new ManualTimeProvider(Now), NullLogger<TenraiGate>.Instance);
+			this.Client = new(NullLogger<TenraiEnrichment>.Instance, this._tenraiClient, this.Gate);
 		}
 
-		public TenraiCircuit Circuit { get; }
+		public TenraiGate Gate { get; }
 
 		public TenraiEnrichment Client { get; }
 
@@ -163,12 +165,5 @@ public sealed class TenraiEnrichmentCircuitTests
 	{
 		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
 			respond(request, cancellationToken);
-	}
-
-	private sealed class FixedTimeProvider : TimeProvider
-	{
-		private static readonly DateTimeOffset Now = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
-
-		public override DateTimeOffset GetUtcNow() => Now;
 	}
 }

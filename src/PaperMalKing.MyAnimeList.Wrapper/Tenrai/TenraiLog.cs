@@ -60,4 +60,7 @@ internal static partial class TenraiLog
 
 	[LoggerMessage(EventId = 10, Level = LogLevel.Debug, Message = "Requesting {Id} anime seiyu")]
 	public static partial void RequestingSeiyuDetails(this ILogger logger, long id);
+
+	[LoggerMessage(EventId = 11, Level = LogLevel.Warning, Message = "Tenrai shared Retry-After cooldown engaged for {RetryAfter}")]
+	public static partial void TenraiCooldownEngaged(this ILogger logger, TimeSpan retryAfter);
 }

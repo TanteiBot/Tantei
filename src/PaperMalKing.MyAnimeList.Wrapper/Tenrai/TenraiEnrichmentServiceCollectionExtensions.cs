@@ -15,8 +15,7 @@ public static class TenraiEnrichmentServiceCollectionExtensions
 	{
 		ArgumentNullException.ThrowIfNull(serviceCollection);
 		serviceCollection.TryAddSingleton(TimeProvider.System);
-		serviceCollection.AddSingleton<TenraiCircuit>();
-		serviceCollection.AddSingleton<TenraiCooldown>();
+		serviceCollection.AddSingleton<TenraiGate>();
 		serviceCollection.AddSingleton(static _ => TenraiResiliencePipeline.CreateRateLimiter());
 		var httpClientBuilder = serviceCollection.AddHttpClient(TenraiConstants.HttpClientName, static client =>
 		{
@@ -30,20 +29,19 @@ public static class TenraiEnrichmentServiceCollectionExtensions
 			PooledConnectionLifetime = TimeSpan.FromMinutes(15),
 		});
 		_ = httpClientBuilder.AddHttpMessageHandler(static _ => new TenraiAttemptHandler());
-		_ = httpClientBuilder.AddHttpMessageHandler(static provider => new TenraiCircuitHandler(provider.GetRequiredService<TenraiCircuit>()));
-		_ = httpClientBuilder.AddHttpMessageHandler(static provider => new TenraiCooldownHandler(provider.GetRequiredService<TenraiCooldown>()));
+		_ = httpClientBuilder.AddHttpMessageHandler(static provider => new TenraiGateHandler(provider.GetRequiredService<TenraiGate>()));
 		_ = httpClientBuilder.AddResilienceHandler("tenrai", static (builder, context) =>
 		{
 			var timeProvider = context.ServiceProvider.GetRequiredService<TimeProvider>();
 			var rateLimiter = context.ServiceProvider.GetRequiredService<RateLimiter<TenraiClient>>();
-			var cooldown = context.ServiceProvider.GetRequiredService<TenraiCooldown>();
-			TenraiResiliencePipeline.Configure(builder, timeProvider, rateLimiter, cooldown);
+			var gate = context.ServiceProvider.GetRequiredService<TenraiGate>();
+			TenraiResiliencePipeline.Configure(builder, timeProvider, rateLimiter, gate);
 		});
 		_ = httpClientBuilder.AddHttpMessageHandler(static () => new TenraiResponseBufferingHandler());
 		serviceCollection.AddSingleton<IMyAnimeListEnrichment>(static provider => new TenraiEnrichment(
 			provider.GetRequiredService<ILogger<TenraiEnrichment>>(),
 			provider.GetRequiredService<IHttpClientFactory>().CreateClient(TenraiConstants.HttpClientName),
-			provider.GetRequiredService<TenraiCircuit>()));
+			provider.GetRequiredService<TenraiGate>()));
 		return serviceCollection;
 	}
 }

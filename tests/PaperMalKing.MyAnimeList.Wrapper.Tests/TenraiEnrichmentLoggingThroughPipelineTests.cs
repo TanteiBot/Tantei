@@ -149,7 +149,7 @@ public sealed class TenraiEnrichmentLoggingThroughPipelineTests
 			this._provider = services.BuildServiceProvider();
 			this.RawClient = this._provider.GetRequiredService<IHttpClientFactory>().CreateClient(TenraiConstants.HttpClientName);
 			this.Logger = new();
-			this.Client = new(this.Logger, this.RawClient, this._provider.GetRequiredService<TenraiCircuit>());
+			this.Client = new(this.Logger, this.RawClient, this._provider.GetRequiredService<TenraiGate>());
 		}
 
 		public TenraiEnrichment Client { get; }

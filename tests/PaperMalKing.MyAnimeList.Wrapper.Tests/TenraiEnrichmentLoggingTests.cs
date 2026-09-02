@@ -17,6 +17,7 @@ public sealed class TenraiEnrichmentLoggingTests
 	private const long AnimeId = 1L;
 	private const long MangaId = 2L;
 	private const string SecretBody = "SECRET-PROVIDER-BODY-7f3a";
+	private static readonly DateTimeOffset Now = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
 	[Test]
 	public async Task MalformedSuccessLogsOneWarningWithoutTheResponseBody()
@@ -90,7 +91,7 @@ public sealed class TenraiEnrichmentLoggingTests
 		});
 		for (var failure = 0; failure < FailureThreshold; failure++)
 		{
-			scope.Circuit.RecordTerminalFailure();
+			_ = scope.Gate.Record(TenraiSignal.Failed);
 		}
 
 		var requestsBefore = Volatile.Read(ref requests);
@@ -151,11 +152,11 @@ public sealed class TenraiEnrichmentLoggingTests
 				BaseAddress = new("https://example.test/v1/"),
 			};
 			this.Logger = new();
-			this.Circuit = new(new FixedTimeProvider(), NullLogger<TenraiCircuit>.Instance);
-			this.Client = new(this.Logger, this._tenraiClient, this.Circuit);
+			this.Gate = new(new ManualTimeProvider(Now), NullLogger<TenraiGate>.Instance);
+			this.Client = new(this.Logger, this._tenraiClient, this.Gate);
 		}
 
-		public TenraiCircuit Circuit { get; }
+		public TenraiGate Gate { get; }
 
 		public TenraiEnrichment Client { get; }
 
@@ -173,12 +174,5 @@ public sealed class TenraiEnrichmentLoggingTests
 	{
 		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
 			respond(request, cancellationToken);
-	}
-
-	private sealed class FixedTimeProvider : TimeProvider
-	{
-		private static readonly DateTimeOffset Now = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
-
-		public override DateTimeOffset GetUtcNow() => Now;
 	}
 }

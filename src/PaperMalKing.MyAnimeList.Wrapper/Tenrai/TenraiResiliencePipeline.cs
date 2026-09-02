@@ -22,6 +22,7 @@ internal static class TenraiResiliencePipeline
 	private static readonly TimeSpan MinimumRetryAfterDelay = TimeSpan.FromTicks(1L);
 	private static readonly TimeSpan ReplenishmentPeriod = TimeSpan.FromSeconds(2.4D);
 	private static readonly TimeSpan RetryDelay = TimeSpan.FromMilliseconds(500);
+	private static readonly ResiliencePropertyKey<TimeSpan?> RetryAfterKey = new("Tenrai.RetryAfter");
 
 	[SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Its candled in created ratelimiter")]
 	public static RateLimiter<TenraiClient> CreateRateLimiter() => new(new TokenBucketRateLimiter(new()
@@ -38,12 +39,12 @@ internal static class TenraiResiliencePipeline
 		ResiliencePipelineBuilder<HttpResponseMessage> builder,
 		TimeProvider timeProvider,
 		RateLimiter rateLimiter,
-		TenraiCooldown cooldown)
+		TenraiGate gate)
 	{
 		ArgumentNullException.ThrowIfNull(builder);
 		ArgumentNullException.ThrowIfNull(timeProvider);
 		ArgumentNullException.ThrowIfNull(rateLimiter);
-		ArgumentNullException.ThrowIfNull(cooldown);
+		ArgumentNullException.ThrowIfNull(gate);
 
 		builder.TimeProvider = timeProvider;
 		builder.AddRetry(new HttpRetryStrategyOptions
@@ -51,8 +52,8 @@ internal static class TenraiResiliencePipeline
 			BackoffType = DelayBackoffType.Constant,
 			Delay = RetryDelay,
 			MaxRetryAttempts = 1,
-			DelayGenerator = arguments => RetryDelayAsync(arguments, cooldown),
-			ShouldHandle = arguments => ShouldRetryAsync(arguments, cooldown),
+			DelayGenerator = RetryDelayAsync,
+			ShouldHandle = arguments => ShouldRetryAsync(arguments, gate),
 			OnRetry = arguments =>
 			{
 				AttemptFor(arguments.Context)?.RecordRetry();
@@ -65,21 +66,10 @@ internal static class TenraiResiliencePipeline
 		builder.AddTimeout(new TimeoutStrategyOptions { Timeout = AttemptTimeout, });
 	}
 
-	public static ResiliencePipeline<HttpResponseMessage> Create(
-		TimeProvider timeProvider,
-		RateLimiter rateLimiter,
-		TenraiCooldown cooldown)
-	{
-		var builder = new ResiliencePipelineBuilder<HttpResponseMessage>();
-		Configure(builder, timeProvider, rateLimiter, cooldown);
-		return builder.Build();
-	}
-
-	private static ValueTask<TimeSpan?> RetryDelayAsync(
-		RetryDelayGeneratorArguments<HttpResponseMessage> arguments,
-		TenraiCooldown cooldown) => ValueTask.FromResult(arguments.Outcome.Result is { } response
-		? MinimumPositive(cooldown.GetRetryAfter(response))
-		: null);
+	private static ValueTask<TimeSpan?> RetryDelayAsync(RetryDelayGeneratorArguments<HttpResponseMessage> arguments) =>
+		ValueTask.FromResult(arguments.Context.Properties.TryGetValue(RetryAfterKey, out var retryAfter)
+			? MinimumPositive(retryAfter)
+			: null);
 
 	private static TimeSpan? MinimumPositive(TimeSpan? delay) => delay == TimeSpan.Zero ? MinimumRetryAfterDelay : delay;
 
@@ -87,19 +77,16 @@ internal static class TenraiResiliencePipeline
 
 	private static ValueTask<bool> ShouldRetryAsync(
 		RetryPredicateArguments<HttpResponseMessage> arguments,
-		TenraiCooldown cooldown)
+		TenraiGate gate)
 	{
-		if (arguments.Outcome.Exception is HttpRequestException)
-		{
-			return ValueTask.FromResult(true);
-		}
-
 		if (arguments.Outcome.Result is not { } response)
 		{
-			return ValueTask.FromResult(false);
+			arguments.Context.Properties.Set(RetryAfterKey, value: null);
+			return ValueTask.FromResult(arguments.Outcome.Exception is HttpRequestException);
 		}
 
-		var retryAfter = cooldown.ApplyRetryAfter(response);
+		var retryAfter = gate.Record(TenraiSignal.Attempted(response));
+		arguments.Context.Properties.Set(RetryAfterKey, retryAfter);
 		AttemptFor(arguments.Context)?.RecordRetryAfter(retryAfter);
 		var shouldRetry = response.StatusCode switch
 		{

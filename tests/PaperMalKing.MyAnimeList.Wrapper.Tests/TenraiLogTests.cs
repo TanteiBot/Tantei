@@ -15,7 +15,9 @@ public sealed class TenraiLogTests
 	private const int QueueRejectedEventId = 5;
 	private const int CircuitOpenedEventId = 6;
 	private const int CircuitClosedEventId = 7;
+	private const int CooldownEngagedEventId = 11;
 	private const string Anime = "anime";
+	private const string RetryAfterField = "RetryAfter";
 	private const long MediaId = 5114L;
 	private const int Status = 503;
 	private const int RetryCount = 1;
@@ -41,7 +43,7 @@ public sealed class TenraiLogTests
 			await Assert.That(Field(entry, "Status")).IsEqualTo("503");
 			await Assert.That(Field(entry, "RetryCount")).IsEqualTo("1");
 			await Assert.That(Field(entry, "ElapsedMilliseconds")).IsEqualTo("4200");
-			await Assert.That(Field(entry, "RetryAfter")).IsEqualTo("00:00:03");
+			await Assert.That(Field(entry, RetryAfterField)).IsEqualTo("00:00:03");
 		}
 	}
 
@@ -56,8 +58,8 @@ public sealed class TenraiLogTests
 		await Assert.That(entry.Level).IsEqualTo(LogLevel.Warning);
 		await Assert.That(HasField(entry, "Status")).IsTrue();
 		await Assert.That(RawField(entry, "Status") is null).IsTrue();
-		await Assert.That(HasField(entry, "RetryAfter")).IsTrue();
-		await Assert.That(RawField(entry, "RetryAfter") is null).IsTrue();
+		await Assert.That(HasField(entry, RetryAfterField)).IsTrue();
+		await Assert.That(RawField(entry, RetryAfterField) is null).IsTrue();
 		await Assert.That(Field(entry, "RetryCount")).IsEqualTo("0");
 	}
 
@@ -127,7 +129,7 @@ public sealed class TenraiLogTests
 	[Test]
 	public async Task CircuitOpenedIsWarningWithDuration()
 	{
-		var logger = new RecordingLogger<TenraiCircuit>();
+		var logger = new RecordingLogger<TenraiGate>();
 
 		logger.TenraiCircuitOpened(OpenDurationSeconds);
 
@@ -140,13 +142,27 @@ public sealed class TenraiLogTests
 	[Test]
 	public async Task CircuitClosedIsWarning()
 	{
-		var logger = new RecordingLogger<TenraiCircuit>();
+		var logger = new RecordingLogger<TenraiGate>();
 
 		logger.TenraiCircuitClosed();
 
 		var entry = logger.Single();
 		await Assert.That(entry.Level).IsEqualTo(LogLevel.Warning);
 		await Assert.That(entry.EventId.Id).IsEqualTo(CircuitClosedEventId);
+	}
+
+	[Test]
+	public async Task CooldownEngagedIsWarningWithDelayAndOwnEventId()
+	{
+		var logger = new RecordingLogger<TenraiGate>();
+
+		logger.TenraiCooldownEngaged(RetryAfter);
+
+		var entry = logger.Single();
+		await Assert.That(entry.Level).IsEqualTo(LogLevel.Warning);
+		await Assert.That(entry.EventId.Id).IsEqualTo(CooldownEngagedEventId);
+		await Assert.That(entry.EventId.Id).IsNotEqualTo(TerminalFailureEventId);
+		await Assert.That(Field(entry, RetryAfterField)).IsEqualTo("00:00:03");
 	}
 
 	private static string? Field(RecordedLogEntry entry, string name) => RawField(entry, name)?.ToString();

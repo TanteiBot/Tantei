@@ -296,7 +296,7 @@ public sealed class TenraiResiliencePolicyTests
 		using var scope = new PolicyScope((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)));
 		for (var failure = 0; failure < failureThreshold - 1; failure++)
 		{
-			scope.Circuit.RecordTerminalFailure();
+			_ = scope.Gate.Record(TenraiSignal.Failed);
 		}
 
 		var client = CreateClient(scope);
@@ -305,7 +305,7 @@ public sealed class TenraiResiliencePolicyTests
 
 		var result = await resultTask;
 		await Assert.That(result).IsEqualTo(MediaInfo.Empty);
-		await Assert.That(scope.Circuit.IsOpen).IsTrue();
+		await Assert.That(scope.Gate.Check()).IsEqualTo(TenraiSuppression.CircuitOpen);
 	}
 
 	[Test]
@@ -320,7 +320,7 @@ public sealed class TenraiResiliencePolicyTests
 		});
 		for (var failure = 0; failure < failureThreshold; failure++)
 		{
-			scope.Circuit.RecordTerminalFailure();
+			_ = scope.Gate.Record(TenraiSignal.Failed);
 		}
 
 		var client = CreateClient(scope);
@@ -332,7 +332,7 @@ public sealed class TenraiResiliencePolicyTests
 	}
 
 	private static TenraiEnrichment CreateClient(PolicyScope scope) =>
-		new(NullLogger<TenraiEnrichment>.Instance, scope.Client, scope.Circuit);
+		new(NullLogger<TenraiEnrichment>.Instance, scope.Client, scope.Gate);
 
 	private static HttpResponseMessage CreateResponse(HttpStatusCode statusCode, RetryConditionHeaderValue retryAfter)
 	{
@@ -377,10 +377,10 @@ public sealed class TenraiResiliencePolicyTests
 			_ = services.AddHttpClient(TenraiConstants.HttpClientName).ConfigurePrimaryHttpMessageHandler(() => this._primaryHandler);
 			this._provider = services.BuildServiceProvider();
 			this.Client = this._provider.GetRequiredService<IHttpClientFactory>().CreateClient(TenraiConstants.HttpClientName);
-			this.Circuit = this._provider.GetRequiredService<TenraiCircuit>();
+			this.Gate = this._provider.GetRequiredService<TenraiGate>();
 		}
 
-		public TenraiCircuit Circuit { get; }
+		public TenraiGate Gate { get; }
 
 		public HttpClient Client { get; }
 
