@@ -7,12 +7,11 @@ using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 using Polly.Timeout;
 
-namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests;
+namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
 
 [SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "The tasks are started by each test")]
 public sealed class TenraiResiliencePolicyTests

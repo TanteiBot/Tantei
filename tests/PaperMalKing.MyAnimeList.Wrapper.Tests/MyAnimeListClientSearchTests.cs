@@ -3,6 +3,8 @@
 
 using System.Net;
 using Microsoft.Extensions.Logging.Abstractions;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
@@ -201,7 +203,7 @@ public sealed class MyAnimeListClientSearchTests
 			this._unofficialHandler = new(_ => throw new InvalidOperationException("The unofficial client should not be used"));
 			this._unofficialClient = new(this._unofficialHandler, disposeHandler: false);
 			this._officialClient = new(officialHandler, disposeHandler: false);
-			this.Client = new(NullLogger<MyAnimeListClient>.Instance, this._unofficialClient, this._officialClient, null!);
+			this.Client = new(NullLogger<MyAnimeListClient>.Instance, this._unofficialClient, this._officialClient, new UnusedEnrichment());
 		}
 
 		public MyAnimeListClient Client { get; }
@@ -212,6 +214,16 @@ public sealed class MyAnimeListClientSearchTests
 			this._officialClient.Dispose();
 			this._unofficialHandler.Dispose();
 		}
+	}
+
+	private sealed class UnusedEnrichment : IMyAnimeListEnrichment
+	{
+		public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken) => throw new InvalidOperationException();
+
+		public Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken) => throw new InvalidOperationException();
+
+		public Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken) =>
+			throw new InvalidOperationException();
 	}
 
 	private sealed class FakeHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> respond) : HttpMessageHandler

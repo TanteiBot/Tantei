@@ -19,19 +19,19 @@ public static class TenraiEnrichmentServiceCollectionExtensions
 		serviceCollection.AddSingleton<TenraiCooldown>();
 		serviceCollection.AddSingleton(static _ => TenraiResiliencePipeline.CreateRateLimiter());
 		var httpClientBuilder = serviceCollection.AddHttpClient(TenraiConstants.HttpClientName, static client =>
-						 {
-							 client.BaseAddress = new(TenraiConstants.ApiUrl);
-							 client.Timeout = Timeout.InfiniteTimeSpan;
-						 })
-						 .ConfigurePrimaryHttpMessageHandler(static _ => new SocketsHttpHandler
-						 {
-							 UseCookies = true,
-							 CookieContainer = new(),
-							 PooledConnectionLifetime = TimeSpan.FromMinutes(15),
-						 })
-						 .AddHttpMessageHandler(static _ => new TenraiAttemptHandler())
-						 .AddHttpMessageHandler(static provider => new TenraiCircuitHandler(provider.GetRequiredService<TenraiCircuit>()))
-						 .AddHttpMessageHandler(static provider => new TenraiCooldownHandler(provider.GetRequiredService<TenraiCooldown>()));
+		{
+			client.BaseAddress = new(TenraiConstants.ApiUrl);
+			client.Timeout = Timeout.InfiniteTimeSpan;
+		});
+		_ = httpClientBuilder.ConfigurePrimaryHttpMessageHandler(static _ => new SocketsHttpHandler
+		{
+			UseCookies = true,
+			CookieContainer = new(),
+			PooledConnectionLifetime = TimeSpan.FromMinutes(15),
+		});
+		_ = httpClientBuilder.AddHttpMessageHandler(static _ => new TenraiAttemptHandler());
+		_ = httpClientBuilder.AddHttpMessageHandler(static provider => new TenraiCircuitHandler(provider.GetRequiredService<TenraiCircuit>()));
+		_ = httpClientBuilder.AddHttpMessageHandler(static provider => new TenraiCooldownHandler(provider.GetRequiredService<TenraiCooldown>()));
 		_ = httpClientBuilder.AddResilienceHandler("tenrai", static (builder, context) =>
 		{
 			var timeProvider = context.ServiceProvider.GetRequiredService<TimeProvider>();

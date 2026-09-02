@@ -17,7 +17,6 @@
     <ItemGroup>
       <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Installer" />
       <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.Wrapper.Tests" />
-      <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Tests" />
     </ItemGroup>
     
     <PropertyGroup>
