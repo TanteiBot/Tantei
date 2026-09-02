@@ -16,12 +16,17 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.Base;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Types;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Parsers;
+using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 namespace PaperMalKing.MyAnimeList.Wrapper;
 
 [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "We want to ignore exceptions")]
-public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpClient _unofficialApiHttpClient, HttpClient _officialApiHttpClient, IJikan _jikanClient)
-	: IMyAnimeListClient
+public sealed class MyAnimeListClient(
+	ILogger<MyAnimeListClient> _logger,
+	HttpClient _unofficialApiHttpClient,
+	HttpClient _officialApiHttpClient,
+	HttpClient _tenraiApiHttpClient,
+	IJikan _jikanClient) : IMyAnimeListClient
 {
 	private const string AnimeSearchFields =
 		"id,title,main_picture,alternative_titles,media_type,status,num_episodes,mean,start_date,start_season,num_list_users,genres{name},synopsis,nsfw";
@@ -29,8 +34,15 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 	private const string MangaSearchFields =
 		"id,title,main_picture,alternative_titles,media_type,status,num_chapters,num_volumes,mean,start_date,num_list_users,genres{name},synopsis,nsfw";
 
+	private readonly TenraiClient _tenraiClient = new(_tenraiApiHttpClient);
+
 	private static string CreateSearchUrl(string mediaPath, string query, string fields, bool includeNsfw) =>
 		$"{Constants.BaseOfficialApiUrl}/{mediaPath}?q={Uri.EscapeDataString(query)}&limit=100&offset=0&fields={fields}{(includeNsfw ? "&nsfw=true" : string.Empty)}";
+
+	private static string[] ValidNames(IEnumerable<CatalogReference>? entries) => entries?
+		.Where(static entry => !string.IsNullOrWhiteSpace(entry.Name))
+		.Select(static entry => entry.Name!)
+		.ToArray() ?? [];
 
 	private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
 	{
@@ -117,44 +129,42 @@ public sealed class MyAnimeListClient(ILogger<MyAnimeListClient> _logger, HttpCl
 		return response?.Results.Select(static envelope => envelope.Result).ToArray() ?? [];
 	}
 
-	public async Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken)
+	public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken)
 	{
 		_logger.RequestingAnimeDetails(id);
-		try
-		{
-			var anime = await _jikanClient.GetAnimeAsync(id, cancellationToken);
-			return new()
-			{
-				Demographic = [.. anime.Data.Demographics.Select(static x => x.Name),],
-				Themes = [.. anime.Data.Themes.Select(static x => x.Name),],
-			};
-		}
-		catch (Exception ex)
-		{
-			_logger.ErrorHappenedInJikanWhenRequestingAnime(ex, id);
-		}
-
-		return MediaInfo.Empty;
+		return this.GetDetailsAsync("anime", id, this._tenraiClient.GetAnimeByIdAsync, cancellationToken);
 	}
 
-	public async Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken)
+	public Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken)
 	{
 		_logger.RequestingMangaDetails(id);
+		return this.GetDetailsAsync("manga", id, this._tenraiClient.GetMangaByIdAsync, cancellationToken);
+	}
+
+	private async Task<MediaInfo> GetDetailsAsync(
+		string operation,
+		long id,
+		Func<int, CancellationToken, Task<TenraiResponse<MediaResponse>>> request,
+		CancellationToken cancellationToken)
+	{
 		try
 		{
-			var manga = await _jikanClient.GetMangaAsync(id, cancellationToken);
-			return new()
-			{
-				Demographic = [.. manga.Data.Demographics.Select(static x => x.Name),],
-				Themes = [.. manga.Data.Themes.Select(static x => x.Name),],
-			};
+			var response = await request(checked((int)id), cancellationToken);
+			var themes = ValidNames(response.Result.Data.Themes);
+			var demographic = ValidNames(response.Result.Data.Demographics);
+			return themes.Length is 0 && demographic.Length is 0
+				? MediaInfo.Empty
+				: new() { Themes = themes, Demographic = demographic, };
+		}
+		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+		{
+			throw;
 		}
 		catch (Exception ex)
 		{
-			_logger.ErrorHappenedInJikanWhenRequestingManga(ex, id);
+			_logger.ErrorHappenedInTenraiWhenRequestingDetails(ex, operation, id);
+			return MediaInfo.Empty;
 		}
-
-		return MediaInfo.Empty;
 	}
 
 	public async Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken)

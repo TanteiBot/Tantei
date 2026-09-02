@@ -72,6 +72,8 @@ public static class ServiceCollectionExtensions
 							 var rateLimiter = rbc.ServiceProvider.GetRequiredService<RateLimiter<IMyAnimeListClient>>();
 							 builder.AddRateLimiter(rateLimiter);
 						 });
+		serviceCollection.AddHttpClient(Constants.TenraiHttpClientName, static client => client.BaseAddress = new(Constants.TenraiApiUrl))
+						 .ConfigurePrimaryHttpMessageHandler(static _ => HttpClientHandlerFactory());
 		serviceCollection.AddHttpClient(Constants.JikanHttpClientName, static client => client.BaseAddress = new(Constants.JikanApiUrl))
 						 .ConfigurePrimaryHttpMessageHandler(static _ => HttpClientHandlerFactory())
 						 .AddResilienceHandler("jikan", static builder =>
@@ -98,7 +100,8 @@ public static class ServiceCollectionExtensions
 			var logger = provider.GetRequiredService<ILogger<MyAnimeListClient>>();
 			var jikan = provider.GetRequiredService<IJikan>();
 			return new(logger, _unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName),
-				_officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName), _jikanClient: jikan);
+				_officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName),
+				_tenraiApiHttpClient: factory.CreateClient(Constants.TenraiHttpClientName), _jikanClient: jikan);
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<MalUser, MalUserFeatures>, MalUserFeaturesService>();
 		serviceCollection.AddSingleton<MalUserService>();
