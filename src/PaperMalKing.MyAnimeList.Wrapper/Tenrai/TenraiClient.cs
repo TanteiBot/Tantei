@@ -9,6 +9,9 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 [SuppressMessage("Performance", "CA1852:Seal internal types", Justification = "The generated partial declaration contains virtual members")]
 internal partial class TenraiClient
 {
-	static partial void UpdateJsonSerializerSettings(JsonSerializerOptions settings) =>
+	static partial void UpdateJsonSerializerSettings(JsonSerializerOptions settings)
+	{
 		settings.Converters.Add(new MediaResponseJsonConverter());
+		settings.Converters.Add(new CharactersResponseJsonConverter());
+	}
 }

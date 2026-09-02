@@ -201,7 +201,7 @@ public sealed class MyAnimeListClientSearchTests
 			this._unofficialHandler = new(_ => throw new InvalidOperationException("The unofficial client should not be used"));
 			this._unofficialClient = new(this._unofficialHandler, disposeHandler: false);
 			this._officialClient = new(officialHandler, disposeHandler: false);
-			this.Client = new(NullLogger<MyAnimeListClient>.Instance, this._unofficialClient, this._officialClient, null!, null!);
+			this.Client = new(NullLogger<MyAnimeListClient>.Instance, this._unofficialClient, this._officialClient, null!);
 		}
 
 		public MyAnimeListClient Client { get; }

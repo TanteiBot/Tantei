@@ -7,7 +7,6 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization.Metadata;
 using AngleSharp;
 using AngleSharp.Dom;
-using JikanDotNet;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common.Exceptions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
@@ -25,8 +24,7 @@ public sealed class MyAnimeListClient(
 	ILogger<MyAnimeListClient> _logger,
 	HttpClient _unofficialApiHttpClient,
 	HttpClient _officialApiHttpClient,
-	HttpClient _tenraiApiHttpClient,
-	IJikan _jikanClient) : IMyAnimeListClient
+	HttpClient _tenraiApiHttpClient) : IMyAnimeListClient
 {
 	private const string AnimeSearchFields =
 		"id,title,main_picture,alternative_titles,media_type,status,num_episodes,mean,start_date,start_season,num_list_users,genres{name},synopsis,nsfw";
@@ -169,22 +167,60 @@ public sealed class MyAnimeListClient(
 
 	public async Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken)
 	{
-		_logger.RequestingSeyuDetails(id);
+		_logger.RequestingSeiyuDetails(id);
 		try
 		{
-			var animeCharacters = await _jikanClient.GetAnimeCharactersAsync(id, cancellationToken);
-			return [.. animeCharacters.Data.SelectMany(x => x.VoiceActors).Where(x => x.Language.Equals("Japanese", StringComparison.Ordinal))
-								  .Select(x => new SeyuInfo
-								  {
-									  Name = x.Person.Name,
-									  Url = x.Person.Url,
-								  }),];
+			var response = await this._tenraiClient.GetAnimeByIdCharactersAsync(checked((int)id), cancellationToken);
+			var result = new List<SeyuInfo>();
+			foreach (var character in response.Result.Data)
+			{
+				AddValidSeiyu(character?.Voice_actors, result);
+			}
+
+			return result;
+		}
+		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+		{
+			throw;
 		}
 		catch (Exception ex)
 		{
-			_logger.ErrorHappenedInJikanWhenRequestingSeyu(ex, id);
+			_logger.ErrorHappenedInTenraiWhenRequestingSeiyu(ex, id);
+			return [];
+		}
+	}
+
+	private static void AddValidSeiyu(IEnumerable<VoiceActor>? actors, List<SeyuInfo> result)
+	{
+		if (actors is null)
+		{
+			return;
 		}
 
-		return [];
+		foreach (var actor in actors)
+		{
+			var person = actor?.Person;
+			if (!string.Equals(actor?.Language, "Japanese", StringComparison.Ordinal) ||
+				string.IsNullOrWhiteSpace(person?.Name) ||
+				!IsMyAnimeListPersonUrl(person.Url))
+			{
+				continue;
+			}
+
+			result.Add(new() { Name = person.Name, Url = person.Url, });
+		}
+	}
+
+	private static bool IsMyAnimeListPersonUrl([NotNullWhen(true)] string? url)
+	{
+		if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
+			(!uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
+			 !uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)))
+		{
+			return false;
+		}
+
+		return uri.Host.Equals("myanimelist.net", StringComparison.OrdinalIgnoreCase) ||
+			uri.Host.EndsWith(".myanimelist.net", StringComparison.OrdinalIgnoreCase);
 	}
 }

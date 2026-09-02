@@ -140,7 +140,7 @@ public sealed class MyAnimeListClientDetailsTests
 			{
 				BaseAddress = new("https://example.test/v1/"),
 			};
-			this.Client = new(NullLogger<MyAnimeListClient>.Instance, null!, null!, this._tenraiClient, null!);
+			this.Client = new(NullLogger<MyAnimeListClient>.Instance, null!, null!, this._tenraiClient);
 		}
 
 		public MyAnimeListClient Client { get; }

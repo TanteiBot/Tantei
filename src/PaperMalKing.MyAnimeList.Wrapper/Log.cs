@@ -37,8 +37,8 @@ internal static partial class Log
 		long id);
 
 	[LoggerMessage(LogLevel.Debug, "Requesting {Id} anime seiyu")]
-	public static partial void RequestingSeyuDetails(this ILogger<MyAnimeListClient> logger, long id);
+	public static partial void RequestingSeiyuDetails(this ILogger<MyAnimeListClient> logger, long id);
 
-	[LoggerMessage(LogLevel.Warning, "Error happened in Jikan when requesting seyu {Id}")]
-	public static partial void ErrorHappenedInJikanWhenRequestingSeyu(this ILogger<MyAnimeListClient> logger, Exception ex, long id);
+	[LoggerMessage(LogLevel.Warning, "Error happened in Tenrai when requesting seiyu {Id}")]
+	public static partial void ErrorHappenedInTenraiWhenRequestingSeiyu(this ILogger<MyAnimeListClient> logger, Exception ex, long id);
 }

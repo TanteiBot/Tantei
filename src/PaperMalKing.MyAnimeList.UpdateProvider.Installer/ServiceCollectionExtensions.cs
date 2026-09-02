@@ -98,10 +98,9 @@ public static class ServiceCollectionExtensions
 		{
 			var factory = provider.GetRequiredService<IHttpClientFactory>();
 			var logger = provider.GetRequiredService<ILogger<MyAnimeListClient>>();
-			var jikan = provider.GetRequiredService<IJikan>();
 			return new(logger, _unofficialApiHttpClient: factory.CreateClient(Constants.UnOfficialApiHttpClientName),
 				_officialApiHttpClient: factory.CreateClient(Constants.OfficialApiHttpClientName),
-				_tenraiApiHttpClient: factory.CreateClient(Constants.TenraiHttpClientName), _jikanClient: jikan);
+				_tenraiApiHttpClient: factory.CreateClient(Constants.TenraiHttpClientName));
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<MalUser, MalUserFeatures>, MalUserFeaturesService>();
 		serviceCollection.AddSingleton<MalUserService>();
