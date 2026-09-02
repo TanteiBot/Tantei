@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using System.Threading.RateLimiting;
 using Microsoft.Extensions.Http.Resilience;
 using PaperMalKing.Common.RateLimiters;
@@ -18,7 +17,6 @@ internal static class TenraiResiliencePipeline
 	private const int TokenLimit = 2;
 	private const int TokensPerPeriod = 1;
 	private static readonly TimeSpan AttemptTimeout = TimeSpan.FromSeconds(5);
-	private static readonly TimeSpan MaximumRetryAfterDelay = TimeSpan.FromSeconds(5);
 	private static readonly TimeSpan MinimumRetryAfterDelay = TimeSpan.FromTicks(1L);
 	private static readonly TimeSpan ReplenishmentPeriod = TimeSpan.FromSeconds(2.4D);
 	private static readonly TimeSpan RetryDelay = TimeSpan.FromMilliseconds(500);
@@ -88,19 +86,6 @@ internal static class TenraiResiliencePipeline
 		var retryAfter = gate.Record(TenraiSignal.Attempted(response));
 		arguments.Context.Properties.Set(RetryAfterKey, retryAfter);
 		AttemptFor(arguments.Context)?.RecordRetryAfter(retryAfter);
-		var shouldRetry = response.StatusCode switch
-		{
-			HttpStatusCode.TooManyRequests => retryAfter <= MaximumRetryAfterDelay,
-			HttpStatusCode.ServiceUnavailable when retryAfter is not null => retryAfter <= MaximumRetryAfterDelay,
-			_ => IsRetryable(response.StatusCode),
-		};
-		return ValueTask.FromResult(shouldRetry);
+		return ValueTask.FromResult(TenraiClassification.ShouldRetry(TenraiClassification.Classify(response.StatusCode), retryAfter));
 	}
-
-	private static bool IsRetryable(HttpStatusCode statusCode) => statusCode is
-		HttpStatusCode.RequestTimeout or
-		HttpStatusCode.InternalServerError or
-		HttpStatusCode.BadGateway or
-		HttpStatusCode.ServiceUnavailable or
-		HttpStatusCode.GatewayTimeout;
 }

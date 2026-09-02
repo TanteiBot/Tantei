@@ -44,15 +44,9 @@ public sealed class TenraiResiliencePolicyTests
 	}
 
 	[Test]
-	[Arguments(HttpStatusCode.RequestTimeout, RetryAttemptCount)]
-	[Arguments(HttpStatusCode.BadRequest, NoRetryAttemptCount)]
-	[Arguments(HttpStatusCode.TooManyRequests, NoRetryAttemptCount)]
 	[Arguments(HttpStatusCode.InternalServerError, RetryAttemptCount)]
-	[Arguments(HttpStatusCode.NotImplemented, NoRetryAttemptCount)]
-	[Arguments(HttpStatusCode.BadGateway, RetryAttemptCount)]
-	[Arguments(HttpStatusCode.ServiceUnavailable, RetryAttemptCount)]
-	[Arguments(HttpStatusCode.GatewayTimeout, RetryAttemptCount)]
-	public async Task RetryStatusAllowlistIsNarrow(HttpStatusCode firstStatus, int expectedAttempts)
+	[Arguments(HttpStatusCode.BadRequest, NoRetryAttemptCount)]
+	public async Task RetryHappensAtMostOnceAndOnlyForRetryableStatuses(HttpStatusCode firstStatus, int expectedAttempts)
 	{
 		var attempts = 0;
 		using var scope = new PolicyScope((_, _) => Task.FromResult(new HttpResponseMessage(

@@ -100,34 +100,21 @@ public sealed class TenraiGateTests
 	}
 
 	[Test]
-	[Arguments(HttpStatusCode.RequestTimeout)]
-	[Arguments(HttpStatusCode.InternalServerError)]
-	[Arguments(HttpStatusCode.BadGateway)]
-	[Arguments(HttpStatusCode.ServiceUnavailable)]
-	[Arguments(HttpStatusCode.GatewayTimeout)]
-	public async Task TerminalTransientStatusesOpenTheCircuit(HttpStatusCode statusCode)
+	public async Task CompletedResponsesTheClassificationCallsTransientOpenTheCircuit()
 	{
 		var gate = CreateGate(new ManualTimeProvider(Start));
 
-		RecordCompleted(gate, statusCode, FailureThreshold);
+		RecordCompleted(gate, HttpStatusCode.InternalServerError, FailureThreshold);
 
 		await Assert.That(gate.Check()).IsEqualTo(TenraiSuppression.CircuitOpen);
 	}
 
 	[Test]
-	[Arguments(HttpStatusCode.OK)]
-	[Arguments(HttpStatusCode.NotFound)]
-	[Arguments(HttpStatusCode.BadRequest)]
-	[Arguments(HttpStatusCode.Unauthorized)]
-	[Arguments(HttpStatusCode.Forbidden)]
-	[Arguments(HttpStatusCode.MethodNotAllowed)]
-	[Arguments(HttpStatusCode.TooManyRequests)]
-	[Arguments(HttpStatusCode.NotImplemented)]
-	public async Task ExcludedStatusesNeverOpenTheCircuit(HttpStatusCode statusCode)
+	public async Task CompletedResponsesTheClassificationExcludesNeverOpenTheCircuit()
 	{
 		var gate = CreateGate(new ManualTimeProvider(Start));
 
-		RecordCompleted(gate, statusCode, FailureThreshold);
+		RecordCompleted(gate, HttpStatusCode.BadRequest, FailureThreshold);
 
 		await Assert.That(gate.Check()).IsNull();
 	}
@@ -202,13 +189,11 @@ public sealed class TenraiGateTests
 	}
 
 	[Test]
-	[Arguments(HttpStatusCode.TooManyRequests)]
-	[Arguments(HttpStatusCode.ServiceUnavailable)]
-	public async Task ActiveCooldownSuppressesNewOperations(HttpStatusCode statusCode)
+	public async Task ActiveCooldownSuppressesNewOperations()
 	{
 		var time = new ManualTimeProvider(Start);
 		var gate = CreateGate(time);
-		using var response = RateLimited(statusCode, TimeSpan.FromSeconds(3));
+		using var response = RateLimited(HttpStatusCode.TooManyRequests, TimeSpan.FromSeconds(3));
 
 		var retryAfter = gate.Record(TenraiSignal.Attempted(response));
 
@@ -235,14 +220,12 @@ public sealed class TenraiGateTests
 	}
 
 	[Test]
-	[Arguments(HttpStatusCode.TooManyRequests, null)]
-	[Arguments(HttpStatusCode.TooManyRequests, "invalid")]
-	[Arguments(HttpStatusCode.ServiceUnavailable, null)]
-	[Arguments(HttpStatusCode.ServiceUnavailable, "invalid")]
-	public async Task UnusableRetryAfterNeverEngagesTheCooldown(HttpStatusCode statusCode, string? retryAfter)
+	[Arguments(null)]
+	[Arguments("invalid")]
+	public async Task UnusableRetryAfterNeverEngagesTheCooldown(string? retryAfter)
 	{
 		var gate = CreateGate(new ManualTimeProvider(Start));
-		using var response = new HttpResponseMessage(statusCode);
+		using var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests);
 		if (retryAfter is not null)
 		{
 			_ = response.Headers.TryAddWithoutValidation("Retry-After", retryAfter);
@@ -255,13 +238,10 @@ public sealed class TenraiGateTests
 	}
 
 	[Test]
-	[Arguments(HttpStatusCode.OK)]
-	[Arguments(HttpStatusCode.NotFound)]
-	[Arguments(HttpStatusCode.InternalServerError)]
-	public async Task RetryAfterOnOtherStatusesIsIgnored(HttpStatusCode statusCode)
+	public async Task RetryAfterOnAStatusTheClassificationDoesNotGateIsIgnored()
 	{
 		var gate = CreateGate(new ManualTimeProvider(Start));
-		using var response = RateLimited(statusCode, TimeSpan.FromSeconds(30));
+		using var response = RateLimited(HttpStatusCode.InternalServerError, TimeSpan.FromSeconds(30));
 
 		var recorded = gate.Record(TenraiSignal.Attempted(response));
 

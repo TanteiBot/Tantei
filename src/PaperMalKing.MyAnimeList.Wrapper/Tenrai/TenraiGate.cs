@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics;
-using System.Net;
 using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai;
@@ -56,7 +55,8 @@ internal sealed class TenraiGate
 			case TenraiSignalKind.Attempted:
 				return signal.Response is { } attempted ? this.EngageCooldown(attempted) : null;
 			case TenraiSignalKind.Completed:
-				if (signal.Response is { } completed && CountsTowardCircuit(completed.StatusCode))
+				if (signal.Response is { } completed &&
+					TenraiClassification.OpensCircuit(TenraiClassification.Classify(completed.StatusCode)))
 				{
 					this.RecordTerminalFailure();
 				}
@@ -69,13 +69,6 @@ internal sealed class TenraiGate
 				throw new UnreachableException();
 		}
 	}
-
-	private static bool CountsTowardCircuit(HttpStatusCode statusCode) => statusCode is
-		HttpStatusCode.RequestTimeout or
-		HttpStatusCode.InternalServerError or
-		HttpStatusCode.BadGateway or
-		HttpStatusCode.ServiceUnavailable or
-		HttpStatusCode.GatewayTimeout;
 
 	private TimeSpan? EngageCooldown(HttpResponseMessage response)
 	{
@@ -108,7 +101,7 @@ internal sealed class TenraiGate
 
 	private TimeSpan? ParseRetryAfter(HttpResponseMessage response)
 	{
-		if (response.StatusCode is not (HttpStatusCode.TooManyRequests or HttpStatusCode.ServiceUnavailable))
+		if (!TenraiClassification.GatesCooldown(TenraiClassification.Classify(response.StatusCode)))
 		{
 			return null;
 		}

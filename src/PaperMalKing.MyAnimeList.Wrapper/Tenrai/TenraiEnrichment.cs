@@ -15,9 +15,6 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 	private const string AnimeOperation = "anime";
 	private const string MangaOperation = "manga";
 	private const string SeiyuOperation = "characters";
-	private const int MinSuccessStatusCode = 200;
-	private const int MinRedirectStatusCode = 300;
-	private const int NotFoundStatusCode = 404;
 
 	private readonly TenraiClient _client;
 	private readonly TenraiGate _gate;
@@ -95,21 +92,26 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 		.Select(static entry => entry.Name!)
 		.ToArray() ?? [];
 
-	private static bool IsMalformedSuccess(int statusCode) => statusCode is >= MinSuccessStatusCode and < MinRedirectStatusCode;
-
 	private static long ElapsedMilliseconds(long start) => (long)Stopwatch.GetElapsedTime(start).TotalMilliseconds;
 
-	private static TenraiEnrichmentOutcome<TValue> Failure<TValue>(Exception exception, long start) => exception switch
+	private static TenraiEnrichmentOutcome<TValue> Failure<TValue>(Exception exception, long start) =>
+		(TenraiClassification.Fault(exception), exception) switch
+		{
+			(TenraiFault.Suppressed, TenraiSuppressedException suppressed) => new TenraiEnrichmentOutcome<TValue>.Suppressed(suppressed.Reason),
+			(TenraiFault.Api, TenraiApiException api) => ApiFailure<TValue>(api, start),
+			(TenraiFault.Transport, TenraiTransportException transport) => new TenraiEnrichmentOutcome<TValue>.Failed(
+				TenraiFailureKind.Transport, Status: null, transport.Facts, ElapsedMilliseconds(start)),
+			_ => new TenraiEnrichmentOutcome<TValue>.Failed(TenraiFailureKind.Transport, Status: null, default, ElapsedMilliseconds(start)),
+		};
+
+	private static TenraiEnrichmentOutcome<TValue> ApiFailure<TValue>(TenraiApiException exception, long start)
 	{
-		TenraiSuppressedException suppressed => new TenraiEnrichmentOutcome<TValue>.Suppressed(suppressed.Reason),
-		TenraiApiException { StatusCode: NotFoundStatusCode } => new TenraiEnrichmentOutcome<TValue>.NotFound(),
-		TenraiApiException api => new TenraiEnrichmentOutcome<TValue>.Failed(
-			IsMalformedSuccess(api.StatusCode) ? TenraiFailureKind.Schema : TenraiFailureKind.Transport, Status: api.StatusCode,
-			TenraiAttempt.Read(api.Headers), ElapsedMilliseconds(start)),
-		TenraiTransportException transport => new TenraiEnrichmentOutcome<TValue>.Failed(
-			TenraiFailureKind.Transport, Status: null, transport.Facts, ElapsedMilliseconds(start)),
-		_ => new TenraiEnrichmentOutcome<TValue>.Failed(TenraiFailureKind.Transport, Status: null, default, ElapsedMilliseconds(start)),
-	};
+		var disposition = TenraiClassification.Classify(exception.StatusCode);
+		return disposition is TenraiDisposition.NotFound
+			? new TenraiEnrichmentOutcome<TValue>.NotFound()
+			: new TenraiEnrichmentOutcome<TValue>.Failed(TenraiClassification.FailureKind(disposition), exception.StatusCode,
+				TenraiAttempt.Read(exception.Headers), ElapsedMilliseconds(start));
+	}
 
 	private static void AddValidSeiyu(IEnumerable<VoiceActor>? actors, List<SeyuInfo> result)
 	{
@@ -164,7 +166,8 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 			return project(response.Result) is { } value
 				? new TenraiEnrichmentOutcome<TValue>.Enriched(value)
 				: new TenraiEnrichmentOutcome<TValue>.Failed(
-					TenraiFailureKind.Schema, Status: null, TenraiAttempt.Read(response.Headers), ElapsedMilliseconds(start));
+					TenraiClassification.FailureKind(TenraiDisposition.Success), Status: null, TenraiAttempt.Read(response.Headers),
+					ElapsedMilliseconds(start));
 		}
 		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
 		{
@@ -185,7 +188,7 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 	{
 		var outcome = await attempt(id, cancellationToken);
 		TenraiEnrichmentReport.Report(this._logger, operation, id, outcome);
-		if (outcome is TenraiEnrichmentOutcome<TValue>.Failed { Kind: TenraiFailureKind.Schema, })
+		if (outcome is TenraiEnrichmentOutcome<TValue>.Failed failed && TenraiClassification.OpensCircuit(failed.Kind))
 		{
 			_ = this._gate.Record(TenraiSignal.Failed);
 		}

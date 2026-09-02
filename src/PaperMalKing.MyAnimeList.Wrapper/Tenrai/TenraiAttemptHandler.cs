@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
-using Polly.RateLimiting;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
@@ -18,21 +17,19 @@ internal sealed class TenraiAttemptHandler : DelegatingHandler
 			attempt.WriteTo(response);
 			return response;
 		}
-		catch (TenraiSuppressedException)
-		{
-			throw;
-		}
-		catch (RateLimiterRejectedException)
-		{
-			throw new TenraiSuppressedException(TenraiSuppression.Queue);
-		}
-		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-		{
-			throw;
-		}
 		catch (Exception exception)
 		{
-			throw new TenraiTransportException(attempt.Facts, exception);
+			switch (TenraiClassification.Fault(exception))
+			{
+				case TenraiFault.Suppressed:
+					throw;
+				case TenraiFault.Queue:
+					throw new TenraiSuppressedException(TenraiSuppression.Queue);
+				case TenraiFault.Cancelled when cancellationToken.IsCancellationRequested:
+					throw;
+				default:
+					throw new TenraiTransportException(attempt.Facts, exception);
+			}
 		}
 	}
 }
