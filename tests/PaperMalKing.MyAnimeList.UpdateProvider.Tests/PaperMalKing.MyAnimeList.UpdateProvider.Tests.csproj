@@ -16,6 +16,7 @@
         <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.UpdateProvider\PaperMalKing.MyAnimeList.UpdateProvider.csproj" />
         <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.UpdateProvider.Installer\PaperMalKing.MyAnimeList.UpdateProvider.Installer.csproj" />
         <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.Wrapper.Abstractions\PaperMalKing.MyAnimeList.Wrapper.Abstractions.csproj" />
+        <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.Wrapper\PaperMalKing.MyAnimeList.Wrapper.csproj" />
         <ProjectReference Include="..\..\src\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
     </ItemGroup>
 

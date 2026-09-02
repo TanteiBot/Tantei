@@ -33,6 +33,7 @@ public static class ServiceCollectionExtensions
 		const int malHttpRetries = 3;
 
 		serviceCollection.TryAddSingleton(TimeProvider.System);
+		serviceCollection.AddSingleton<TenraiRateLimiter>();
 		serviceCollection.AddMemoryCache();
 		serviceCollection.AddSingleton<MalSearchPicker>();
 		serviceCollection.AddSingleton<MalSearchService>();
@@ -72,8 +73,18 @@ public static class ServiceCollectionExtensions
 							 var rateLimiter = rbc.ServiceProvider.GetRequiredService<RateLimiter<IMyAnimeListClient>>();
 							 builder.AddRateLimiter(rateLimiter);
 						 });
-		serviceCollection.AddHttpClient(Constants.TenraiHttpClientName, static client => client.BaseAddress = new(Constants.TenraiApiUrl))
-						 .ConfigurePrimaryHttpMessageHandler(static _ => HttpClientHandlerFactory());
+		serviceCollection.AddHttpClient(Constants.TenraiHttpClientName, static client =>
+						 {
+							 client.BaseAddress = new(Constants.TenraiApiUrl);
+							 client.Timeout = Timeout.InfiniteTimeSpan;
+						 })
+						 .ConfigurePrimaryHttpMessageHandler(static _ => new TenraiResponseBufferingHandler(HttpClientHandlerFactory()))
+						 .AddResilienceHandler("tenrai", static (builder, context) =>
+						 {
+							 var timeProvider = context.ServiceProvider.GetRequiredService<TimeProvider>();
+							 var rateLimiter = context.ServiceProvider.GetRequiredService<TenraiRateLimiter>();
+							 TenraiResiliencePipeline.Configure(builder, timeProvider, rateLimiter);
+						 });
 		serviceCollection.AddHttpClient(Constants.JikanHttpClientName, static client => client.BaseAddress = new(Constants.JikanApiUrl))
 						 .ConfigurePrimaryHttpMessageHandler(static _ => HttpClientHandlerFactory())
 						 .AddResilienceHandler("jikan", static builder =>
