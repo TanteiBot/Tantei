@@ -153,7 +153,13 @@ public sealed class MyAnimeListClientSeiyuTests
 			{
 				BaseAddress = new("https://example.test/v1/"),
 			};
-			this.Client = new(NullLogger<MyAnimeListClient>.Instance, null!, null!, this._tenraiClient, new TenraiCircuit(TimeProvider.System));
+			this.Client = new(
+				NullLogger<MyAnimeListClient>.Instance,
+				null!,
+				null!,
+				this._tenraiClient,
+				new TenraiCircuit(TimeProvider.System, NullLogger<TenraiCircuit>.Instance),
+				new TenraiEnrichmentTelemetry());
 		}
 
 		public MyAnimeListClient Client { get; }

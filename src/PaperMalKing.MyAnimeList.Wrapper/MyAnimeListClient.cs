@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Json;
@@ -30,11 +31,14 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 
 	private const int MinSuccessStatusCode = 200;
 	private const int MinRedirectStatusCode = 300;
+	private const int NotFoundStatusCode = 404;
+	private const string SeiyuOperation = "characters";
 
 	private readonly TenraiCircuit _circuit;
 	private readonly ILogger<MyAnimeListClient> _logger;
 	private readonly HttpClient _officialApiHttpClient;
 	private readonly TenraiClient _tenraiClient;
+	private readonly TenraiEnrichmentTelemetry _telemetry;
 	private readonly HttpClient _unofficialApiHttpClient;
 
 	internal MyAnimeListClient(
@@ -42,13 +46,15 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		HttpClient unofficialApiHttpClient,
 		HttpClient officialApiHttpClient,
 		HttpClient tenraiApiHttpClient,
-		TenraiCircuit circuit)
+		TenraiCircuit circuit,
+		TenraiEnrichmentTelemetry telemetry)
 	{
 		this._logger = logger;
 		this._unofficialApiHttpClient = unofficialApiHttpClient;
 		this._officialApiHttpClient = officialApiHttpClient;
 		this._tenraiClient = new(tenraiApiHttpClient);
 		this._circuit = circuit;
+		this._telemetry = telemetry;
 	}
 
 	private static string CreateSearchUrl(string mediaPath, string query, string fields, bool includeNsfw) =>
@@ -166,9 +172,12 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 	{
 		if (this._circuit.IsOpen)
 		{
+			this._logger.TenraiEnrichmentCircuitSkipped(operation, id);
 			return MediaInfo.Empty;
 		}
 
+		var attempt = this._telemetry.Begin();
+		var start = Stopwatch.GetTimestamp();
 		try
 		{
 			var response = await request(checked((int)id), cancellationToken);
@@ -176,6 +185,8 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 			if (data.Themes is null && data.Demographics is null)
 			{
 				this._circuit.RecordTerminalFailure();
+				this._logger.TenraiEnrichmentFailed(
+					operation, id, TenraiFailureKind.Schema, status: null, attempt.RetryCount, ElapsedMilliseconds(start), attempt.RetryAfter);
 				return MediaInfo.Empty;
 			}
 
@@ -192,13 +203,18 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		catch (TenraiApiException ex) when (IsMalformedSuccess(ex.StatusCode))
 		{
 			this._circuit.RecordTerminalFailure();
-			this._logger.ErrorHappenedInTenraiWhenRequestingDetails(ex, operation, id);
+			this._logger.TenraiEnrichmentFailed(
+				operation, id, TenraiFailureKind.Schema, ex.StatusCode, attempt.RetryCount, ElapsedMilliseconds(start), attempt.RetryAfter);
 			return MediaInfo.Empty;
 		}
 		catch (Exception ex)
 		{
-			this._logger.ErrorHappenedInTenraiWhenRequestingDetails(ex, operation, id);
+			LogTenraiFailure(this._logger, operation, id, ex, attempt, start);
 			return MediaInfo.Empty;
+		}
+		finally
+		{
+			this._telemetry.End();
 		}
 	}
 
@@ -207,9 +223,12 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		this._logger.RequestingSeiyuDetails(id);
 		if (this._circuit.IsOpen)
 		{
+			this._logger.TenraiEnrichmentCircuitSkipped(SeiyuOperation, id);
 			return [];
 		}
 
+		var attempt = this._telemetry.Begin();
+		var start = Stopwatch.GetTimestamp();
 		try
 		{
 			var response = await this._tenraiClient.GetAnimeByIdCharactersAsync(checked((int)id), cancellationToken);
@@ -217,6 +236,8 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 			if (characters is null)
 			{
 				this._circuit.RecordTerminalFailure();
+				this._logger.TenraiEnrichmentFailed(
+					SeiyuOperation, id, TenraiFailureKind.Schema, status: null, attempt.RetryCount, ElapsedMilliseconds(start), attempt.RetryAfter);
 				return [];
 			}
 
@@ -235,15 +256,53 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		catch (TenraiApiException ex) when (IsMalformedSuccess(ex.StatusCode))
 		{
 			this._circuit.RecordTerminalFailure();
-			this._logger.ErrorHappenedInTenraiWhenRequestingSeiyu(ex, id);
+			this._logger.TenraiEnrichmentFailed(
+				SeiyuOperation, id, TenraiFailureKind.Schema, ex.StatusCode, attempt.RetryCount, ElapsedMilliseconds(start), attempt.RetryAfter);
 			return [];
 		}
 		catch (Exception ex)
 		{
-			this._logger.ErrorHappenedInTenraiWhenRequestingSeiyu(ex, id);
+			LogTenraiFailure(this._logger, SeiyuOperation, id, ex, attempt, start);
 			return [];
 		}
+		finally
+		{
+			this._telemetry.End();
+		}
 	}
+
+	private static void LogTenraiFailure(
+		ILogger<MyAnimeListClient> logger,
+		string operation,
+		long id,
+		Exception exception,
+		TenraiEnrichmentAttempt attempt,
+		long start)
+	{
+		if (attempt.Suppression is TenraiSuppression.Cooldown)
+		{
+			logger.TenraiEnrichmentCooldownSuppressed(operation, id);
+			return;
+		}
+
+		if (attempt.Suppression is TenraiSuppression.Queue)
+		{
+			logger.TenraiEnrichmentQueueRejected(operation, id);
+			return;
+		}
+
+		if (exception is TenraiApiException { StatusCode: NotFoundStatusCode })
+		{
+			logger.TenraiEnrichmentNotFound(operation, id);
+			return;
+		}
+
+		var status = exception is TenraiApiException apiException ? apiException.StatusCode : (int?)null;
+		logger.TenraiEnrichmentFailed(
+			operation, id, TenraiFailureKind.Transport, status, attempt.RetryCount, ElapsedMilliseconds(start), attempt.RetryAfter);
+	}
+
+	private static long ElapsedMilliseconds(long start) => (long)Stopwatch.GetElapsedTime(start).TotalMilliseconds;
 
 	private static void AddValidSeiyu(IEnumerable<VoiceActor>? actors, List<SeyuInfo> result)
 	{

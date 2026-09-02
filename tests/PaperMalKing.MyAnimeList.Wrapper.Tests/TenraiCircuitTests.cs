@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
@@ -15,7 +16,7 @@ public sealed class TenraiCircuitTests
 	public async Task FourFailuresWithinTheWindowKeepTheCircuitClosed()
 	{
 		var time = new TestTimeProvider(Start);
-		var circuit = new TenraiCircuit(time);
+		var circuit = new TenraiCircuit(time, NullLogger<TenraiCircuit>.Instance);
 
 		for (var failure = 0; failure < FailureThreshold - 1; failure++)
 		{
@@ -29,7 +30,7 @@ public sealed class TenraiCircuitTests
 	public async Task FifthFailureWithinTheWindowOpensTheCircuit()
 	{
 		var time = new TestTimeProvider(Start);
-		var circuit = new TenraiCircuit(time);
+		var circuit = new TenraiCircuit(time, NullLogger<TenraiCircuit>.Instance);
 
 		for (var failure = 0; failure < FailureThreshold; failure++)
 		{
@@ -43,7 +44,7 @@ public sealed class TenraiCircuitTests
 	public async Task FailuresSpreadAcrossTheWindowStillAccumulate()
 	{
 		var time = new TestTimeProvider(Start);
-		var circuit = new TenraiCircuit(time);
+		var circuit = new TenraiCircuit(time, NullLogger<TenraiCircuit>.Instance);
 
 		for (var failure = 0; failure < FailureThreshold - 1; failure++)
 		{
@@ -61,7 +62,7 @@ public sealed class TenraiCircuitTests
 	public async Task FailuresOlderThanTheWindowAreEvicted()
 	{
 		var time = new TestTimeProvider(Start);
-		var circuit = new TenraiCircuit(time);
+		var circuit = new TenraiCircuit(time, NullLogger<TenraiCircuit>.Instance);
 		for (var failure = 0; failure < FailureThreshold - 1; failure++)
 		{
 			circuit.RecordTerminalFailure();
@@ -82,7 +83,7 @@ public sealed class TenraiCircuitTests
 	public async Task OpenCircuitClosesAfterThirtySeconds()
 	{
 		var time = new TestTimeProvider(Start);
-		var circuit = new TenraiCircuit(time);
+		var circuit = new TenraiCircuit(time, NullLogger<TenraiCircuit>.Instance);
 		for (var failure = 0; failure < FailureThreshold; failure++)
 		{
 			circuit.RecordTerminalFailure();
@@ -99,7 +100,7 @@ public sealed class TenraiCircuitTests
 	public async Task FailuresRecordedWhileOpenDoNotExtendTheOpenWindow()
 	{
 		var time = new TestTimeProvider(Start);
-		var circuit = new TenraiCircuit(time);
+		var circuit = new TenraiCircuit(time, NullLogger<TenraiCircuit>.Instance);
 		for (var failure = 0; failure < FailureThreshold; failure++)
 		{
 			circuit.RecordTerminalFailure();

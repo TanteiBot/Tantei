@@ -2,19 +2,23 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Net;
+using Microsoft.Extensions.Logging;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Installer;
 
 internal sealed class TenraiCooldown
 {
 	private readonly Lock _gate = new();
+	private readonly ILogger<TenraiCooldown> _logger;
 	private readonly TimeProvider _timeProvider;
 	private DateTimeOffset _expiresAt;
 
-	public TenraiCooldown(TimeProvider timeProvider)
+	public TenraiCooldown(TimeProvider timeProvider, ILogger<TenraiCooldown> logger)
 	{
 		ArgumentNullException.ThrowIfNull(timeProvider);
+		ArgumentNullException.ThrowIfNull(logger);
 		this._timeProvider = timeProvider;
+		this._logger = logger;
 	}
 
 	public bool IsActive
@@ -47,14 +51,22 @@ internal sealed class TenraiCooldown
 			return null;
 		}
 
+		var engaged = false;
 		lock (this._gate)
 		{
 			var now = this._timeProvider.GetUtcNow();
+			var wasActive = now < this._expiresAt;
 			var expiresAt = delay.Value >= DateTimeOffset.MaxValue - now ? DateTimeOffset.MaxValue : now + delay.Value;
 			if (expiresAt > this._expiresAt)
 			{
 				this._expiresAt = expiresAt;
+				engaged = !wasActive;
 			}
+		}
+
+		if (engaged)
+		{
+			this._logger.TenraiCooldownEngaged(delay.Value);
 		}
 
 		return delay;

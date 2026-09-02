@@ -202,7 +202,13 @@ public sealed class MyAnimeListClientSearchTests
 			this._unofficialHandler = new(_ => throw new InvalidOperationException("The unofficial client should not be used"));
 			this._unofficialClient = new(this._unofficialHandler, disposeHandler: false);
 			this._officialClient = new(officialHandler, disposeHandler: false);
-			this.Client = new(NullLogger<MyAnimeListClient>.Instance, this._unofficialClient, this._officialClient, null!, new TenraiCircuit(TimeProvider.System));
+			this.Client = new(
+				NullLogger<MyAnimeListClient>.Instance,
+				this._unofficialClient,
+				this._officialClient,
+				null!,
+				new TenraiCircuit(TimeProvider.System, NullLogger<TenraiCircuit>.Instance),
+				new TenraiEnrichmentTelemetry());
 		}
 
 		public MyAnimeListClient Client { get; }

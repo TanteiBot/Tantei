@@ -141,8 +141,14 @@ public sealed class MyAnimeListClientCircuitTests
 			{
 				BaseAddress = new("https://example.test/v1/"),
 			};
-			this.Circuit = new(new FixedTimeProvider());
-			this.Client = new(NullLogger<MyAnimeListClient>.Instance, null!, null!, this._tenraiClient, this.Circuit);
+			this.Circuit = new(new FixedTimeProvider(), NullLogger<TenraiCircuit>.Instance);
+			this.Client = new(
+				NullLogger<MyAnimeListClient>.Instance,
+				null!,
+				null!,
+				this._tenraiClient,
+				this.Circuit,
+				new TenraiEnrichmentTelemetry());
 		}
 
 		public TenraiCircuit Circuit { get; }

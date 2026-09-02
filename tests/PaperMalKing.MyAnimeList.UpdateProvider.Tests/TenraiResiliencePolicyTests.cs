@@ -425,7 +425,7 @@ public sealed class TenraiResiliencePolicyTests
 	}
 
 	private static MyAnimeListClient CreateClient(PolicyScope scope) =>
-		new(NullLogger<MyAnimeListClient>.Instance, null!, null!, scope.Client, scope.Circuit);
+		new(NullLogger<MyAnimeListClient>.Instance, null!, null!, scope.Client, scope.Circuit, scope.Telemetry);
 
 	private static HttpResponseMessage CreateResponse(HttpStatusCode statusCode, RetryConditionHeaderValue retryAfter)
 	{
@@ -465,15 +465,16 @@ public sealed class TenraiResiliencePolicyTests
 		public PolicyScope(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> respond)
 		{
 			this.Time = new(Start);
-			var cooldown = new TenraiCooldown(this.Time);
-			this.Circuit = new(this.Time);
-			this._limiter = new(this.Time);
+			this.Telemetry = new();
+			var cooldown = new TenraiCooldown(this.Time, NullLogger<TenraiCooldown>.Instance);
+			this.Circuit = new(this.Time, NullLogger<TenraiCircuit>.Instance);
+			this._limiter = new(this.Time, this.Telemetry);
 			this._primaryHandler = new(respond);
-			this._resilienceHandler = new(TenraiResiliencePipeline.Create(this.Time, this._limiter, cooldown))
+			this._resilienceHandler = new(TenraiResiliencePipeline.Create(this.Time, this._limiter, cooldown, this.Telemetry))
 			{
 				InnerHandler = new TenraiResponseBufferingHandler(this._primaryHandler),
 			};
-			this._cooldownHandler = new(cooldown) { InnerHandler = this._resilienceHandler, };
+			this._cooldownHandler = new(cooldown, this.Telemetry) { InnerHandler = this._resilienceHandler, };
 			this._circuitHandler = new(this.Circuit) { InnerHandler = this._cooldownHandler, };
 			this.Client = new(this._circuitHandler, disposeHandler: false)
 			{
@@ -485,6 +486,8 @@ public sealed class TenraiResiliencePolicyTests
 		public TenraiCircuit Circuit { get; }
 
 		public HttpClient Client { get; }
+
+		public TenraiEnrichmentTelemetry Telemetry { get; }
 
 		public ManualTimeProvider Time { get; }
 

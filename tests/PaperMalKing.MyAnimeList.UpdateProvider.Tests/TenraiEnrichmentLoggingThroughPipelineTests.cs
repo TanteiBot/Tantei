@@ -1,0 +1,149 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2021-2026 N0D4N
+
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Net;
+using System.Net.Http.Headers;
+using Microsoft.Extensions.Http.Resilience;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using PaperMalKing.MyAnimeList.UpdateProvider.Installer;
+using PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
+using PaperMalKing.MyAnimeList.Wrapper;
+using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
+
+namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests;
+
+[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "The tasks are started by each test")]
+public sealed class TenraiEnrichmentLoggingThroughPipelineTests
+{
+	private const int CooldownSuppressedEventId = 4;
+	private const int QueueRejectedEventId = 5;
+	private const int QueueLimit = 10;
+	private const int TerminalFailureEventId = 1;
+	private const long SecondMediaId = 2L;
+	private static readonly DateTimeOffset Start = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+	[Test]
+	public async Task ExhaustedTransientFailureLogsExactlyOneWarningWithTheRetryCount()
+	{
+		using var scope = new Scope((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)));
+
+		var task = scope.Client.GetAnimeDetailsAsync(1L, TestContext.Current!.Execution.CancellationToken);
+		scope.Time.Advance(TimeSpan.FromSeconds(2));
+		_ = await task;
+
+		var failure = scope.Logger.Entries.Single(static entry => entry.EventId.Id == TerminalFailureEventId);
+		await Assert.That(failure.Level).IsEqualTo(LogLevel.Warning);
+		await Assert.That(Field(failure, "RetryCount")).IsEqualTo("1");
+		await Assert.That(Field(failure, "Kind")).IsEqualTo(nameof(TenraiFailureKind.Transport));
+		await Assert.That(scope.Logger.Entries.Count(static entry => entry.Level == LogLevel.Warning)).IsEqualTo(1);
+	}
+
+	[Test]
+	public async Task ActiveCooldownSuppressesFollowingOperationsAtDebug()
+	{
+		using var scope = new Scope((_, _) =>
+			Task.FromResult(RateLimited(HttpStatusCode.TooManyRequests, TimeSpan.FromSeconds(6))));
+		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
+
+		_ = await scope.Client.GetAnimeDetailsAsync(1L, cancellationToken);
+		_ = await scope.Client.GetMangaDetailsAsync(SecondMediaId, cancellationToken);
+
+		var suppressed = scope.Logger.Entries.Single(static entry => entry.EventId.Id == CooldownSuppressedEventId);
+		await Assert.That(suppressed.Level).IsEqualTo(LogLevel.Debug);
+		await Assert.That(scope.Logger.Entries.Count(static entry => entry.EventId.Id == TerminalFailureEventId)).IsEqualTo(1);
+	}
+
+	[Test]
+	public async Task QueueRejectionIsLoggedAtDebug()
+	{
+		using var scope = new Scope((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+		{
+			Content = new StringContent("{\"data\":{}}"),
+		}));
+		var cancellationToken = TestContext.Current!.Execution.CancellationToken;
+		using var first = await scope.RawClient.GetAsync("warmup/1", cancellationToken);
+		using var second = await scope.RawClient.GetAsync("warmup/2", cancellationToken);
+		using var queueCancellation = new CancellationTokenSource();
+		var queued = Enumerable.Range(0, QueueLimit)
+			.Select(index => scope.RawClient.GetAsync("queued/" + index.ToString(CultureInfo.InvariantCulture), queueCancellation.Token))
+			.ToArray();
+
+		_ = await scope.Client.GetMangaDetailsAsync(1L, cancellationToken);
+
+		var rejected = scope.Logger.Entries.Single(static entry => entry.EventId.Id == QueueRejectedEventId);
+		await Assert.That(rejected.Level).IsEqualTo(LogLevel.Debug);
+		await Assert.That(scope.Logger.Entries.Exists(static entry => entry.Level == LogLevel.Warning)).IsFalse();
+		queueCancellation.Cancel();
+		await Assert.That(async () => await Task.WhenAll(queued)).Throws<OperationCanceledException>();
+	}
+
+	private static HttpResponseMessage RateLimited(HttpStatusCode statusCode, TimeSpan retryAfter)
+	{
+		var response = new HttpResponseMessage(statusCode);
+		response.Headers.RetryAfter = new RetryConditionHeaderValue(retryAfter);
+		return response;
+	}
+
+	private static string? Field(RecordedLogEntry entry, string name) =>
+		entry.State.SingleOrDefault(field => string.Equals(field.Key, name, StringComparison.Ordinal)).Value?.ToString();
+
+	private sealed class Scope : IDisposable
+	{
+		private readonly TenraiCircuitHandler _circuitHandler;
+		private readonly TenraiCooldownHandler _cooldownHandler;
+		private readonly TenraiRateLimiter _limiter;
+		private readonly FakeHttpMessageHandler _primaryHandler;
+		private readonly ResilienceHandler _resilienceHandler;
+
+		public Scope(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> respond)
+		{
+			this.Time = new(Start);
+			var telemetry = new TenraiEnrichmentTelemetry();
+			var cooldown = new TenraiCooldown(this.Time, NullLogger<TenraiCooldown>.Instance);
+			var circuit = new TenraiCircuit(this.Time, NullLogger<TenraiCircuit>.Instance);
+			this._limiter = new(this.Time, telemetry);
+			this._primaryHandler = new(respond);
+			this._resilienceHandler = new(TenraiResiliencePipeline.Create(this.Time, this._limiter, cooldown, telemetry))
+			{
+				InnerHandler = new TenraiResponseBufferingHandler(this._primaryHandler),
+			};
+			this._cooldownHandler = new(cooldown, telemetry) { InnerHandler = this._resilienceHandler, };
+			this._circuitHandler = new(circuit) { InnerHandler = this._cooldownHandler, };
+			this.RawClient = new(this._circuitHandler, disposeHandler: false)
+			{
+				BaseAddress = new("https://example.test/v1/"),
+				Timeout = Timeout.InfiniteTimeSpan,
+			};
+			this.Logger = new();
+			this.Client = new(this.Logger, null!, null!, this.RawClient, circuit, telemetry);
+		}
+
+		public MyAnimeListClient Client { get; }
+
+		public RecordingLogger<MyAnimeListClient> Logger { get; }
+
+		public HttpClient RawClient { get; }
+
+		public ManualTimeProvider Time { get; }
+
+		public void Dispose()
+		{
+			this.RawClient.Dispose();
+			this._circuitHandler.Dispose();
+			this._cooldownHandler.Dispose();
+			this._resilienceHandler.Dispose();
+			this._primaryHandler.Dispose();
+			this._limiter.Dispose();
+		}
+	}
+
+	private sealed class FakeHttpMessageHandler(
+		Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> respond) : HttpMessageHandler
+	{
+		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+			respond(request, cancellationToken);
+	}
+}

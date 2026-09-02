@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Net;
+using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.MyAnimeList.UpdateProvider.Installer;
 using PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
@@ -108,7 +109,7 @@ public sealed class TenraiCircuitHandlerTests
 
 		public HandlerScope(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> respond)
 		{
-			this.Circuit = new(new ManualTimeProvider(Start));
+			this.Circuit = new(new ManualTimeProvider(Start), NullLogger<TenraiCircuit>.Instance);
 			this._inner = new(respond);
 			this._handler = new(this.Circuit) { InnerHandler = this._inner, };
 			this.Client = new(this._handler, disposeHandler: false)

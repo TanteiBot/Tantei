@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.RateLimiting;
+using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Installer;
 
@@ -13,6 +14,7 @@ internal sealed class TenraiRateLimiter : RateLimiter
 	private static readonly TimeSpan ReplenishmentPeriod = TimeSpan.FromSeconds(2.4D);
 	private readonly Lock _gate = new();
 	private readonly LinkedList<PendingRequest> _queue = [];
+	private readonly TenraiEnrichmentTelemetry _telemetry;
 	private readonly ITimer _timer;
 	private long _failedLeases;
 	private long _successfulLeases;
@@ -20,9 +22,11 @@ internal sealed class TenraiRateLimiter : RateLimiter
 	private bool _disposed;
 
 	[SuppressMessage("Major Bug", "S3366:Make sure 'this' is not exposed", Justification = "The timer cannot fire before construction completes")]
-	public TenraiRateLimiter(TimeProvider timeProvider)
+	public TenraiRateLimiter(TimeProvider timeProvider, TenraiEnrichmentTelemetry telemetry)
 	{
 		ArgumentNullException.ThrowIfNull(timeProvider);
+		ArgumentNullException.ThrowIfNull(telemetry);
+		this._telemetry = telemetry;
 		this._timer = timeProvider.CreateTimer(static state => ((TenraiRateLimiter)state!).Replenish(), this,
 			ReplenishmentPeriod, ReplenishmentPeriod);
 	}
@@ -76,6 +80,7 @@ internal sealed class TenraiRateLimiter : RateLimiter
 			if (permitCount is not 1)
 			{
 				this._failedLeases++;
+				this._telemetry.Current?.RecordSuppression(TenraiSuppression.Queue);
 				return ValueTask.FromResult<RateLimitLease>(TenraiRateLimitLease.Rejected);
 			}
 
@@ -87,6 +92,7 @@ internal sealed class TenraiRateLimiter : RateLimiter
 			if (this._queue.Count >= QueueLimit)
 			{
 				this._failedLeases++;
+				this._telemetry.Current?.RecordSuppression(TenraiSuppression.Queue);
 				return ValueTask.FromResult<RateLimitLease>(TenraiRateLimitLease.Rejected);
 			}
 

@@ -29,16 +29,6 @@ internal static partial class Log
 	[LoggerMessage(LogLevel.Debug, "Requesting {Id} manga details")]
 	public static partial void RequestingMangaDetails(this ILogger<MyAnimeListClient> logger, long id);
 
-	[LoggerMessage(LogLevel.Warning, "Error happened in Tenrai when requesting {Operation} details for {Id}")]
-	public static partial void ErrorHappenedInTenraiWhenRequestingDetails(
-		this ILogger<MyAnimeListClient> logger,
-		Exception ex,
-		string operation,
-		long id);
-
 	[LoggerMessage(LogLevel.Debug, "Requesting {Id} anime seiyu")]
 	public static partial void RequestingSeiyuDetails(this ILogger<MyAnimeListClient> logger, long id);
-
-	[LoggerMessage(LogLevel.Warning, "Error happened in Tenrai when requesting seiyu {Id}")]
-	public static partial void ErrorHappenedInTenraiWhenRequestingSeiyu(this ILogger<MyAnimeListClient> logger, Exception ex, long id);
 }

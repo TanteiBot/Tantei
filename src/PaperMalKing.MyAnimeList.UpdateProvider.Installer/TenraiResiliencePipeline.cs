@@ -3,6 +3,7 @@
 
 using System.Net;
 using Microsoft.Extensions.Http.Resilience;
+using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
 using Polly;
 using Polly.Retry;
 using Polly.Timeout;
@@ -20,12 +21,14 @@ internal static class TenraiResiliencePipeline
 		ResiliencePipelineBuilder<HttpResponseMessage> builder,
 		TimeProvider timeProvider,
 		TenraiRateLimiter rateLimiter,
-		TenraiCooldown cooldown)
+		TenraiCooldown cooldown,
+		TenraiEnrichmentTelemetry telemetry)
 	{
 		ArgumentNullException.ThrowIfNull(builder);
 		ArgumentNullException.ThrowIfNull(timeProvider);
 		ArgumentNullException.ThrowIfNull(rateLimiter);
 		ArgumentNullException.ThrowIfNull(cooldown);
+		ArgumentNullException.ThrowIfNull(telemetry);
 
 		builder.TimeProvider = timeProvider;
 		builder.AddRetry(new HttpRetryStrategyOptions
@@ -34,7 +37,12 @@ internal static class TenraiResiliencePipeline
 			Delay = RetryDelay,
 			MaxRetryAttempts = 1,
 			DelayGenerator = arguments => RetryDelayAsync(arguments, cooldown),
-			ShouldHandle = arguments => ShouldRetryAsync(arguments, cooldown),
+			ShouldHandle = arguments => ShouldRetryAsync(arguments, cooldown, telemetry),
+			OnRetry = _ =>
+			{
+				telemetry.Current?.RecordRetry();
+				return default;
+			},
 			ShouldRetryAfterHeader = false,
 			UseJitter = true,
 		});
@@ -45,10 +53,11 @@ internal static class TenraiResiliencePipeline
 	public static ResiliencePipeline<HttpResponseMessage> Create(
 		TimeProvider timeProvider,
 		TenraiRateLimiter rateLimiter,
-		TenraiCooldown cooldown)
+		TenraiCooldown cooldown,
+		TenraiEnrichmentTelemetry telemetry)
 	{
 		var builder = new ResiliencePipelineBuilder<HttpResponseMessage>();
-		Configure(builder, timeProvider, rateLimiter, cooldown);
+		Configure(builder, timeProvider, rateLimiter, cooldown, telemetry);
 		return builder.Build();
 	}
 
@@ -62,7 +71,8 @@ internal static class TenraiResiliencePipeline
 
 	private static ValueTask<bool> ShouldRetryAsync(
 		RetryPredicateArguments<HttpResponseMessage> arguments,
-		TenraiCooldown cooldown)
+		TenraiCooldown cooldown,
+		TenraiEnrichmentTelemetry telemetry)
 	{
 		if (arguments.Outcome.Exception is HttpRequestException)
 		{
@@ -75,6 +85,7 @@ internal static class TenraiResiliencePipeline
 		}
 
 		var retryAfter = cooldown.ApplyRetryAfter(response);
+		telemetry.Current?.RecordRetryAfter(retryAfter);
 		var shouldRetry = response.StatusCode switch
 		{
 			HttpStatusCode.TooManyRequests => retryAfter <= MaximumRetryAfterDelay,
