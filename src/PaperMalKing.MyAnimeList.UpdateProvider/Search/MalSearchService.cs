@@ -24,9 +24,7 @@ internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchest
 			MatchKey.Create(query),
 			query,
 			PickerMediaKind.Anime,
-			IncludeNsfw: false,
-			Filter: mediaType?.ToString(),
-			RequesterId: 0UL);
+			SearchTypeFilter.From(mediaType));
 		return _orchestrator.RunAsync(this, invocation, request, cancellationToken);
 	}
 
@@ -38,9 +36,7 @@ internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchest
 			MatchKey.Create(query),
 			query,
 			PickerMediaKind.Manga,
-			IncludeNsfw: false,
-			Filter: mediaType?.ToString(),
-			RequesterId: 0UL);
+			SearchTypeFilter.From(mediaType));
 		return _orchestrator.RunAsync(this, invocation, request, cancellationToken);
 	}
 
@@ -49,13 +45,13 @@ internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchest
 		if (request.MediaKind == PickerMediaKind.Manga)
 		{
 			var mangaResults = await _client.SearchMangaAsync(request.RawQuery, request.IncludeNsfw, cancellationToken).ConfigureAwait(false);
-			var mangaFilter = Enum.TryParse<MangaMediaType>(request.Filter, out var manga) ? manga : (MangaMediaType?)null;
+			var mangaFilter = request.Filter?.As<MangaMediaType>();
 			var mangaCandidates = mangaResults.Select(result => MalMediaCandidate.Create<MangaMediaType, MangaPublishingStatus>(result, mangaFilter));
 			return SearchEvaluator.Evaluate(request.QueryKey, mangaCandidates, applyTypeFilter: mangaFilter.HasValue);
 		}
 
 		var animeResults = await _client.SearchAnimeAsync(request.RawQuery, request.IncludeNsfw, cancellationToken).ConfigureAwait(false);
-		var animeFilter = Enum.TryParse<AnimeMediaType>(request.Filter, out var anime) ? anime : (AnimeMediaType?)null;
+		var animeFilter = request.Filter?.As<AnimeMediaType>();
 		var animeCandidates = animeResults.Select(result => MalMediaCandidate.Create<AnimeMediaType, AnimeAiringStatus>(result, animeFilter));
 		return SearchEvaluator.Evaluate(request.QueryKey, animeCandidates, applyTypeFilter: animeFilter.HasValue);
 	}

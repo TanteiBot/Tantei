@@ -35,7 +35,7 @@ internal sealed class SearchOrchestrator(
 		var context = new PickerSearchContext(
 			request.RawQuery,
 			request.MediaKind,
-			request.Filter,
+			request.Filter?.Label,
 			invocation.DiscordUserId,
 			invocation.RequesterDisplayName,
 			invocation.RequesterAvatarUrl,

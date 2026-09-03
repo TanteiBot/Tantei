@@ -10,6 +10,9 @@ internal readonly record struct SearchRequest(
 	MatchKey QueryKey,
 	string RawQuery,
 	PickerMediaKind MediaKind,
-	bool IncludeNsfw,
-	string? Filter,
-	ulong RequesterId);
+	SearchTypeFilter? Filter)
+{
+	public ulong RequesterId { get; init; }
+
+	public bool IncludeNsfw { get; init; }
+}

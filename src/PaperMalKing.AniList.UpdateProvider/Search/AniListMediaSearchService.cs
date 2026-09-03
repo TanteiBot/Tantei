@@ -27,14 +27,14 @@ internal sealed class AniListMediaSearchService(
 	{
 		ArgumentNullException.ThrowIfNull(invocation);
 		ArgumentNullException.ThrowIfNull(query);
-		return _orchestrator.RunAsync(this, invocation, BuildRequest(invocation, query, PickerMediaKind.Anime, format), cancellationToken);
+		return _orchestrator.RunAsync(this, invocation, BuildRequest(query, PickerMediaKind.Anime, format), cancellationToken);
 	}
 
 	public Task SearchMangaAsync(ISearchInvocation invocation, string query, MediaFormat? format, CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(invocation);
 		ArgumentNullException.ThrowIfNull(query);
-		return _orchestrator.RunAsync(this, invocation, BuildRequest(invocation, query, PickerMediaKind.Manga, format), cancellationToken);
+		return _orchestrator.RunAsync(this, invocation, BuildRequest(query, PickerMediaKind.Manga, format), cancellationToken);
 	}
 
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
@@ -48,7 +48,7 @@ internal sealed class AniListMediaSearchService(
 		var options = (RequestOptions)features;
 
 		var mediaType = request.MediaKind == PickerMediaKind.Manga ? ListType.Manga : ListType.Anime;
-		var format = Enum.TryParse<MediaFormat>(request.Filter, out var parsedFormat) ? parsedFormat : (MediaFormat?)null;
+		var format = request.Filter?.As<MediaFormat>();
 		var isAdult = request.IncludeNsfw ? (bool?)null : false;
 		var response = await _client.SearchMediaAsync(request.RawQuery, mediaType, options, format, isAdult, dbUser?.Id, cancellationToken).ConfigureAwait(false);
 
@@ -74,11 +74,9 @@ internal sealed class AniListMediaSearchService(
 		return new(SearchMessages.Failed(ProviderIdentity.DisplayName), logger => logger.SearchFailed(exception));
 	}
 
-	private static SearchRequest BuildRequest(ISearchInvocation invocation, string query, PickerMediaKind mediaKind, MediaFormat? format) => new(
+	private static SearchRequest BuildRequest(string query, PickerMediaKind mediaKind, MediaFormat? format) => new(
 		MatchKey.Create(query),
 		query,
 		mediaKind,
-		IncludeNsfw: invocation.IncludeNsfw,
-		Filter: format?.ToString(),
-		RequesterId: invocation.DiscordUserId);
+		SearchTypeFilter.From(format));
 }
