@@ -57,6 +57,54 @@ public sealed class AniListMediaSearchServiceTests
 	}
 
 	[Test]
+	public async Task SearchAppliesTheSelectedFormatToTheClient()
+	{
+		var client = new FakeAniListSearchClient { Response = Response(Media(id: 1U, romaji: Query)) };
+		await using var scope = await ServiceScope.CreateAsync(client);
+		var target = new FakeSearchMessageTarget();
+
+		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target), Query, MediaFormat.Movie, CancellationToken.None);
+
+		await Assert.That(client.Formats.Single()).IsEqualTo(MediaFormat.Movie);
+	}
+
+	[Test]
+	public async Task SearchWithoutAFormatPassesNoFormatToTheClient()
+	{
+		var client = new FakeAniListSearchClient { Response = Response(Media(id: 1U, romaji: Query)) };
+		await using var scope = await ServiceScope.CreateAsync(client);
+		var target = new FakeSearchMessageTarget();
+
+		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target), Query, format: null, CancellationToken.None);
+
+		await Assert.That(client.Formats.Single()).IsNull();
+	}
+
+	[Test]
+	public async Task ANonNsfwChannelExcludesAdultResults()
+	{
+		var client = new FakeAniListSearchClient { Response = Response(Media(id: 1U, romaji: Query)) };
+		await using var scope = await ServiceScope.CreateAsync(client);
+		var target = new FakeSearchMessageTarget();
+
+		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target) { IncludeNsfw = false }, Query, format: null, CancellationToken.None);
+
+		await Assert.That(client.IsAdults.Single()).IsFalse();
+	}
+
+	[Test]
+	public async Task AnNsfwChannelReturnsSfwAndAdultResults()
+	{
+		var client = new FakeAniListSearchClient { Response = Response(Media(id: 1U, romaji: Query)) };
+		await using var scope = await ServiceScope.CreateAsync(client);
+		var target = new FakeSearchMessageTarget();
+
+		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target) { IncludeNsfw = true }, Query, format: null, CancellationToken.None);
+
+		await Assert.That(client.IsAdults.Single()).IsNull();
+	}
+
+	[Test]
 	public async Task AnEmptyPageIsReportedAsNoResults()
 	{
 		var client = new FakeAniListSearchClient { Response = MediaSearchResponse.Empty };

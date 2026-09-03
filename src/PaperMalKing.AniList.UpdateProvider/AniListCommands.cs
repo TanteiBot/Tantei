@@ -5,6 +5,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.AniList.UpdateProvider.Search;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 using PaperMalKing.Common;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base;
@@ -88,11 +89,17 @@ internal sealed class AniListCommands : ApplicationCommandModule
 		protected override bool IsResponseVisibleOnlyForRequester => true;
 
 		[SlashCommand("anime", "Search anime")]
-		public Task SearchAnimeAsync(InteractionContext context, [Option("title", "title of the anime")] string title) =>
-			searchService.SearchAnimeAsync(DiscordSearchInvocation.Create(context), title, format: null, CancellationToken.None);
+		public Task SearchAnimeAsync(InteractionContext context,
+									 [Option("title", "title of the anime")] string title,
+									 [ChoiceProvider(typeof(EnumChoiceProvider<AnimeMediaFormatChoiceProvider, MediaFormat>)),
+									  Option("format", "Media format to keep in the results")] string? unparsedFormat = null) =>
+			searchService.SearchAnimeAsync(DiscordSearchInvocation.Create(context), title, AnimeMediaFormatChoiceProvider.Parse(unparsedFormat), CancellationToken.None);
 
 		[SlashCommand("manga", "Search manga")]
-		public Task SearchMangaAsync(InteractionContext context, [Option("title", "title of the manga")] string title) =>
-			searchService.SearchMangaAsync(DiscordSearchInvocation.Create(context), title, format: null, CancellationToken.None);
+		public Task SearchMangaAsync(InteractionContext context,
+									 [Option("title", "title of the manga")] string title,
+									 [ChoiceProvider(typeof(EnumChoiceProvider<MangaMediaFormatChoiceProvider, MediaFormat>)),
+									  Option("format", "Media format to keep in the results")] string? unparsedFormat = null) =>
+			searchService.SearchMangaAsync(DiscordSearchInvocation.Create(context), title, MangaMediaFormatChoiceProvider.Parse(unparsedFormat), CancellationToken.None);
 	}
 }

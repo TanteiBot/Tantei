@@ -24,12 +24,19 @@ internal sealed class FakeAniListSearchClient : IAniListClient
 
 	public List<uint?> UserIds { get; } = [];
 
-	public Task<MediaSearchResponse> SearchMediaAsync(string query, ListType mediaType, RequestOptions requestOptions, uint? userId, CancellationToken cancellationToken)
+	public List<MediaFormat?> Formats { get; } = [];
+
+	public List<bool?> IsAdults { get; } = [];
+
+	public Task<MediaSearchResponse> SearchMediaAsync(string query, ListType mediaType, RequestOptions requestOptions, MediaFormat? format, bool? isAdult, uint? userId,
+													  CancellationToken cancellationToken)
 	{
 		this.CallCount++;
 		this.Queries.Add(query);
 		this.Types.Add(mediaType);
 		this.Options.Add(requestOptions);
+		this.Formats.Add(format);
+		this.IsAdults.Add(isAdult);
 		this.UserIds.Add(userId);
 		return this.SearchException is null
 			? Task.FromResult(this.Response)

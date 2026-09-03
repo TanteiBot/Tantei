@@ -48,7 +48,9 @@ internal sealed class AniListMediaSearchService(
 		var options = (RequestOptions)features;
 
 		var mediaType = request.MediaKind == PickerMediaKind.Manga ? ListType.Manga : ListType.Anime;
-		var response = await _client.SearchMediaAsync(request.RawQuery, mediaType, options, dbUser?.Id, cancellationToken).ConfigureAwait(false);
+		var format = Enum.TryParse<MediaFormat>(request.Filter, out var parsedFormat) ? parsedFormat : (MediaFormat?)null;
+		var isAdult = request.IncludeNsfw ? (bool?)null : false;
+		var response = await _client.SearchMediaAsync(request.RawQuery, mediaType, options, format, isAdult, dbUser?.Id, cancellationToken).ConfigureAwait(false);
 
 		var titleLanguage = response.User?.Options.TitleLanguage ?? TitleLanguage.Default;
 		var scoreFormat = response.User?.MediaListOptions?.ScoreFormat ?? ScoreFormat.POINT_100;
@@ -78,7 +80,7 @@ internal sealed class AniListMediaSearchService(
 		MatchKey.Create(query),
 		query,
 		mediaKind,
-		IncludeNsfw: false,
+		IncludeNsfw: invocation.IncludeNsfw,
 		Filter: format?.ToString(),
 		RequesterId: invocation.DiscordUserId);
 }

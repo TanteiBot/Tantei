@@ -41,14 +41,17 @@ internal static class Requests
 				studioIds,
 			});
 
-	public static GraphQLRequest SearchMediaRequest(string query, RequestOptions options, ListType type, uint? userId)
+	public static GraphQLRequest SearchMediaRequest(string query, RequestOptions options, ListType type, MediaFormat? format, bool? isAdult, uint? userId)
 	{
+		var formatIn = format is { } value ? new[] { value } : null;
 		if (userId is not null)
 		{
 			return new(MediaSearchQueryBuilder.BuildWithUser(options), new
 			{
 				query,
 				type,
+				isAdult,
+				formatIn,
 				userId,
 			});
 		}
@@ -57,6 +60,8 @@ internal static class Requests
 		{
 			query,
 			type,
+			isAdult,
+			formatIn,
 		});
 	}
 }
