@@ -7,15 +7,15 @@ namespace PaperMalKing.AniList.Wrapper.Abstractions.Models.Responses;
 
 public sealed class MediaSearchResponse
 {
-	[JsonPropertyName("Media")]
-	public required Media? Media { get; init; }
+	[JsonPropertyName("Page")]
+	public required Page<SearchMedia> Page { get; init; }
 
 	[JsonPropertyName("User")]
 	public User? User { get; init; }
 
 	public static readonly MediaSearchResponse Empty = new()
 	{
-		Media = null,
+		Page = Page<SearchMedia>.Empty,
 		User = null,
 	};
 }

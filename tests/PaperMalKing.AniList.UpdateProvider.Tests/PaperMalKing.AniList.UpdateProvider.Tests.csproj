@@ -6,6 +6,7 @@
 
     <ItemGroup>
         <PackageReference Include="DSharpPlus" />
+        <PackageReference Include="GraphQL.Client" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
         <PackageReference Include="Microsoft.Extensions.Configuration" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />

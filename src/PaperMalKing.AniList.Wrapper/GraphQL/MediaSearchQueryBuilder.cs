@@ -8,25 +8,65 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL;
 
 internal static class MediaSearchQueryBuilder
 {
-	private const string UserSmallInfo =
+	private const string UserBlock =
 		"""
 		User(id: $userId) {
 			id
 			name
+			siteUrl
 			options {
 				titleLanguage
 			}
-			siteUrl
+			mediaListOptions {
+				scoreFormat
+				animeList {
+					advancedScoringEnabled
+				}
+				mangaList {
+					advancedScoringEnabled
+				}
+			}
 		}
 		""";
 
-	private const string MediaHeader =
+	private const string PageHeader =
 		"""
-		Media(search: $query, type: $type){
+		Page(page: 1, perPage: 50) {
+			values: media(search: $query, type: $type, sort: [SEARCH_MATCH], isAdult: $isAdult, format_in: $formatIn){
+		""";
+
+	private const string MediaCore =
+		"""
+		id
+		title {
+			stylisedRomaji: romaji(stylised: true)
+			romaji(stylised: false)
+			stylisedEnglish: english(stylised: true)
+			english(stylised: false)
+			stylisedNative: native(stylised: true)
+			native(stylised: false)
+		}
+		synonyms
+		type
+		siteUrl
+		image: coverImage {
+			large: extraLarge
+		}
+		format
+		isAdult
+		popularity
+		status(version: 2)
+		episodes
+		chapters
+		volumes
+		averageScore
+		seasonYear
+		season
 		""";
 
 	private const string Ender =
 		"""
+		}
 		}
 		}
 		""";
@@ -35,14 +75,13 @@ internal static class MediaSearchQueryBuilder
 	{
 		var sb = new StringBuilder(
 			"""
-			query ($query: String, $type: MediaType, $userId: Int){
-				
+			query ($query: String, $type: MediaType, $isAdult: Boolean, $formatIn: [MediaFormat], $userId: Int){
+
 			""");
 
-		sb.Append(UserSmallInfo)
-		  .Append(MediaHeader);
+		sb.AppendLine(UserBlock).AppendLine(PageHeader);
 
-		Helpers.AppendMediaFields(sb, options);
+		AppendSearchMediaFields(sb, options);
 
 		sb.Append(Ender);
 
@@ -53,16 +92,37 @@ internal static class MediaSearchQueryBuilder
 	{
 		var sb = new StringBuilder(
 			"""
-			query ($query: String, $type: MediaType){
-				
+			query ($query: String, $type: MediaType, $isAdult: Boolean, $formatIn: [MediaFormat]){
+
 			""");
 
-		sb.Append(MediaHeader);
+		sb.AppendLine(PageHeader);
 
-		Helpers.AppendMediaFields(sb, options);
+		AppendSearchMediaFields(sb, options);
 
 		sb.Append(Ender);
 
 		return sb.ToString();
+	}
+
+	private static void AppendSearchMediaFields(StringBuilder sb, RequestOptions options)
+	{
+		sb.AppendLine(MediaCore);
+		if (options.HasFlag(RequestOptions.MediaDescription))
+		{
+			sb.AppendLine("description(asHtml: false)");
+		}
+
+		if (options.HasFlag(RequestOptions.Tags))
+		{
+			sb.AppendLine(
+				"""
+				tags{
+					name
+					rank
+					isMediaSpoiler
+				}
+				""");
+		}
 	}
 }

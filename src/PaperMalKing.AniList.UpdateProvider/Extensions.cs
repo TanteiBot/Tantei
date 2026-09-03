@@ -13,6 +13,7 @@ using PaperMalKing.AniList.UpdateProvider.CombinedResponses;
 using PaperMalKing.AniList.Wrapper.Abstractions;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Interfaces;
 using PaperMalKing.Common;
 using PaperMalKing.Database.Models.AniList;
 
@@ -105,7 +106,7 @@ internal static partial class Extensions
 
 	extension(DiscordEmbedBuilder eb)
 	{
-		public DiscordEmbedBuilder WithMediaTitle(Media media, TitleLanguage titleLanguage, AniListUserFeatures features)
+		public DiscordEmbedBuilder WithMediaTitle(IMediaTitleInfo media, TitleLanguage titleLanguage, AniListUserFeatures features)
 		{
 			const int discordTitleLimit = 256;
 			var strings = new List<string> { media.Title.GetTitle(titleLanguage) };
@@ -198,6 +199,11 @@ internal static partial class Extensions
 				eb.AddFieldIfPresent("Genres", fieldVal, inline: fieldVal.Length <= InlineFieldValueMaxLength);
 			}
 
+			return eb.EnrichWithTextInfo(media, features);
+		}
+
+		public DiscordEmbedBuilder EnrichWithTextInfo(IMediaTextInfo media, AniListUserFeatures features)
+		{
 			if (features.HasFlag(AniListUserFeatures.Tags) && media.Tags is not [])
 			{
 				var fieldVal = media.Tags.OrderByDescending(t => t.Rank).Take(7).Select(t => t.IsSpoiler ? Formatter.Spoiler(t.Name) : t.Name).JoinToString();
@@ -218,7 +224,7 @@ internal static partial class Extensions
 			return eb;
 		}
 
-		public DiscordEmbedBuilder WithTotalSubEntries(Media media)
+		public DiscordEmbedBuilder WithTotalSubEntries(IMediaCountsInfo media)
 		{
 			var episodes = media.Episodes.GetValueOrDefault();
 			var chapters = media.Chapters.GetValueOrDefault();
@@ -256,9 +262,9 @@ internal static partial class Extensions
 		}
 	}
 
-	private static string? GetEmbedFormat(this Media media)
+	private static string? GetEmbedFormat(this IMediaTitleInfo media)
 	{
-		static string? DefaultFormatting(Media media) => media.Format?.Humanize(LetterCasing.Sentence);
+		static string? DefaultFormatting(IMediaTitleInfo media) => media.Format?.Humanize(LetterCasing.Sentence);
 
 		return media.CountryOfOrigin switch
 		{
