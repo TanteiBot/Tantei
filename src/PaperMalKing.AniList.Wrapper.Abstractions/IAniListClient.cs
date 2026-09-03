@@ -16,5 +16,5 @@ public interface IAniListClient
 	Task<FavouritesResponse> FavouritesInfoAsync(byte page, uint[] animeIds, uint[] mangaIds, uint[] charIds, uint[] staffIds, uint[] studioIds,
 												 RequestOptions options, CancellationToken cancellationToken);
 
-	Task<MediaSearchResponse> SearchMediaAsync(string query, ListType mediaType, RequestOptions requestOptions, MediaFormat? format, bool? isAdult, uint? userId, CancellationToken cancellationToken);
+	Task<MediaSearchResponse> SearchMediaAsync(string query, ListType mediaType, RequestOptions requestOptions, MediaFormat? format, uint? userId, CancellationToken cancellationToken);
 }

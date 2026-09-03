@@ -49,13 +49,16 @@ internal sealed class AniListMediaSearchService(
 
 		var mediaType = request.MediaKind == PickerMediaKind.Manga ? ListType.Manga : ListType.Anime;
 		var format = request.Filter?.As<MediaFormat>();
-		var isAdult = request.IncludeNsfw ? (bool?)null : false;
-		var response = await _client.SearchMediaAsync(request.RawQuery, mediaType, options, format, isAdult, dbUser?.Id, cancellationToken).ConfigureAwait(false);
+		var response = await _client.SearchMediaAsync(request.RawQuery, mediaType, options, format, dbUser?.Id, cancellationToken).ConfigureAwait(false);
 
 		var titleLanguage = response.User?.Options.TitleLanguage ?? TitleLanguage.Default;
 		var scoreFormat = response.User?.MediaListOptions?.ScoreFormat ?? ScoreFormat.POINT_100;
 
-		var candidates = response.Page.Values.Select(media => AniListMediaCandidate.Create(
+		var results = request.IncludeNsfw
+			? response.Page.Values.AsEnumerable()
+			: response.Page.Values.Where(static media => !media.IsAdult);
+
+		var candidates = results.Select(media => AniListMediaCandidate.Create(
 			media,
 			titleLanguage,
 			scoreFormat,

@@ -83,25 +83,26 @@ public sealed class AniListMediaSearchServiceTests
 	[Test]
 	public async Task ANonNsfwChannelExcludesAdultResults()
 	{
-		var client = new FakeAniListSearchClient { Response = Response(Media(id: 1U, romaji: Query)) };
+		var client = new FakeAniListSearchClient { Response = Response(Media(id: 1U, romaji: Query, isAdult: true)) };
 		await using var scope = await ServiceScope.CreateAsync(client);
 		var target = new FakeSearchMessageTarget();
 
 		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target) { IncludeNsfw = false }, Query, format: null, CancellationToken.None);
 
-		await Assert.That(client.IsAdults.Single()).IsFalse();
+		await Assert.That(target.Operations).IsEquivalentTo([FakeSearchMessageTarget.EditOperation], CollectionOrdering.Matching);
+		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.NoResults(Query));
 	}
 
 	[Test]
-	public async Task AnNsfwChannelReturnsSfwAndAdultResults()
+	public async Task AnNsfwChannelKeepsAdultResults()
 	{
-		var client = new FakeAniListSearchClient { Response = Response(Media(id: 1U, romaji: Query)) };
+		var client = new FakeAniListSearchClient { Response = Response(Media(id: 1U, romaji: Query, isAdult: true)) };
 		await using var scope = await ServiceScope.CreateAsync(client);
 		var target = new FakeSearchMessageTarget();
 
 		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target) { IncludeNsfw = true }, Query, format: null, CancellationToken.None);
 
-		await Assert.That(client.IsAdults.Single()).IsNull();
+		await Assert.That(target.Posts.Single().Title).StartsWith(Query);
 	}
 
 	[Test]
@@ -186,11 +187,12 @@ public sealed class AniListMediaSearchServiceTests
 		return new(HttpStatusCode.TooManyRequests, response.Headers, "");
 	}
 
-	private static SearchMedia Media(uint id, string romaji) => new()
+	private static SearchMedia Media(uint id, string romaji, bool isAdult = false) => new()
 	{
 		Id = id,
 		Title = new() { Romaji = romaji },
 		Url = $"https://anilist.co/anime/{id}",
+		IsAdult = isAdult,
 	};
 
 	private static User Requester(TitleLanguage titleLanguage) => new()

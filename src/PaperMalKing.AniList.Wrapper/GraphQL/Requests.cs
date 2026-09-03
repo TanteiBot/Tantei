@@ -41,27 +41,30 @@ internal static class Requests
 				studioIds,
 			});
 
-	public static GraphQLRequest SearchMediaRequest(string query, RequestOptions options, ListType type, MediaFormat? format, bool? isAdult, uint? userId)
+	public static GraphQLRequest SearchMediaRequest(string query, RequestOptions options, ListType type, MediaFormat? format, uint? userId)
 	{
-		var formatIn = format is { } value ? new[] { value } : null;
-		if (userId is not null)
+		var hasFormat = format is not null;
+		var hasUser = userId is not null;
+
+		var variables = new Dictionary<string, object?>(StringComparer.Ordinal)
 		{
-			return new(MediaSearchQueryBuilder.BuildWithUser(options), new
-			{
-				query,
-				type,
-				isAdult,
-				formatIn,
-				userId,
-			});
+			["query"] = query,
+			["type"] = type,
+		};
+		if (hasFormat)
+		{
+			variables["formatIn"] = new[] { format!.Value };
 		}
 
-		return new(MediaSearchQueryBuilder.Build(options), new
+		if (hasUser)
 		{
-			query,
-			type,
-			isAdult,
-			formatIn,
-		});
+			variables["userId"] = userId;
+		}
+
+		var queryText = hasUser
+			? MediaSearchQueryBuilder.BuildWithUser(options, hasFormat)
+			: MediaSearchQueryBuilder.Build(options, hasFormat);
+
+		return new(queryText, variables);
 	}
 }

@@ -32,7 +32,13 @@ internal static class MediaSearchQueryBuilder
 	private const string PageHeader =
 		"""
 		Page(page: 1, perPage: 50) {
-			values: media(search: $query, type: $type, sort: [SEARCH_MATCH], isAdult: $isAdult, format_in: $formatIn){
+			values: media(search: $query, type: $type, sort: [SEARCH_MATCH]){
+		""";
+
+	private const string PageHeaderWithFormat =
+		"""
+		Page(page: 1, perPage: 50) {
+			values: media(search: $query, type: $type, sort: [SEARCH_MATCH], format_in: $formatIn){
 		""";
 
 	private const string MediaCore =
@@ -71,32 +77,31 @@ internal static class MediaSearchQueryBuilder
 		}
 		""";
 
-	public static string BuildWithUser(RequestOptions options)
+	public static string BuildWithUser(RequestOptions options, bool hasFormat) => BuildQuery(options, hasFormat, includeUser: true);
+
+	public static string Build(RequestOptions options, bool hasFormat) => BuildQuery(options, hasFormat, includeUser: false);
+
+	private static string BuildQuery(RequestOptions options, bool hasFormat, bool includeUser)
 	{
-		var sb = new StringBuilder(
-			"""
-			query ($query: String, $type: MediaType, $isAdult: Boolean, $formatIn: [MediaFormat], $userId: Int){
+		var sb = new StringBuilder("query ($query: String, $type: MediaType");
+		if (hasFormat)
+		{
+			sb.Append(", $formatIn: [MediaFormat]");
+		}
 
-			""");
+		if (includeUser)
+		{
+			sb.Append(", $userId: Int");
+		}
 
-		sb.AppendLine(UserBlock).AppendLine(PageHeader);
+		sb.AppendLine("){").AppendLine();
 
-		AppendSearchMediaFields(sb, options);
+		if (includeUser)
+		{
+			sb.AppendLine(UserBlock);
+		}
 
-		sb.Append(Ender);
-
-		return sb.ToString();
-	}
-
-	public static string Build(RequestOptions options)
-	{
-		var sb = new StringBuilder(
-			"""
-			query ($query: String, $type: MediaType, $isAdult: Boolean, $formatIn: [MediaFormat]){
-
-			""");
-
-		sb.AppendLine(PageHeader);
+		sb.AppendLine(hasFormat ? PageHeaderWithFormat : PageHeader);
 
 		AppendSearchMediaFields(sb, options);
 
