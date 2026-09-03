@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
+        <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider" />
+        <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider.Installer" />
+        <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider.Tests" />
         <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider" />
         <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Installer" />
         <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Tests" />

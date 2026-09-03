@@ -6,10 +6,12 @@
     
     <ItemGroup>
         <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider.Installer" />
+        <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider.Tests" />
         <ProjectReference Include="..\PaperMalKing.AniList.Wrapper.Abstractions\PaperMalKing.AniList.Wrapper.Abstractions.csproj" />
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
         <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
         <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
+        <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base.Search\PaperMalKing.UpdatesProviders.Base.Search.csproj" />
         <PackageReference Include="DSharpPlus" />
         <PackageReference Include="DSharpPlus.SlashCommands" />
         <PackageReference Include="Humanizer.Core" />
