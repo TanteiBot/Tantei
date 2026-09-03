@@ -8,12 +8,12 @@ using DSharpPlus.Entities;
 using Humanizer;
 using PaperMalKing.Common;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
+using PaperMalKing.UpdatesProviders.Base.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
 internal static class SearchEmbedBuilder
 {
-	private const int AuthorNameLimit = 256;
 	private const int DescriptionLimit = 4096;
 	private const int FieldValueLimit = 1024;
 	private const int SynopsisLimit = 500;
@@ -92,15 +92,10 @@ internal static class SearchEmbedBuilder
 		string requesterDisplayName,
 		string? avatarUrl)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(requesterDisplayName);
 		var builder = new DiscordEmbedBuilder()
 			.WithColor(Constants.MalBlue)
 			.WithMalUpdateProviderFooter();
-		builder.Author = new()
-		{
-			Name = $"Requested by {requesterDisplayName}".Truncate(AuthorNameLimit),
-			IconUrl = IsValidUrl(avatarUrl) ? avatarUrl : null,
-		};
+		builder.WithRequestedByAuthor(requesterDisplayName, avatarUrl);
 
 		if (result.PrimaryTitle.Length <= TitleLimit)
 		{

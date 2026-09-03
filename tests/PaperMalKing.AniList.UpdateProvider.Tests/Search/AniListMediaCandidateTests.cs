@@ -1,68 +1,62 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using DSharpPlus.Entities;
 using PaperMalKing.AniList.UpdateProvider.Search;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 
 namespace PaperMalKing.AniList.UpdateProvider.Tests.Search;
 
-public sealed class AniListSearchPresentationTests
+public sealed class AniListMediaCandidateTests
 {
 	private const ushort SeasonYear = 2004;
 	private const ushort AverageScore = 85;
 	private const uint Popularity = 1_400_000;
 	private const uint SmallPopularity = 999;
-	private const uint ThousandsPopularity = 1_200;
 
 	[Test]
-	public async Task ComposesFormatYearScoreAndPopularity()
+	public async Task OptionDescriptionComposesFormatYearScoreAndPopularity()
 	{
 		var media = Media(format: MediaFormat.Movie, seasonYear: SeasonYear, averageScore: AverageScore, popularity: Popularity);
 
-		await Assert.That(AniListSearchPresentation.BuildOptionDescription(media, ScoreFormat.POINT_100)).IsEqualTo("Movie · 2004 · 85/100 · 1.4M");
+		await Assert.That(OptionDescription(media, ScoreFormat.POINT_100)).IsEqualTo("Movie · 2004 · 85/100 · 1.4M");
 	}
 
 	[Test]
-	public async Task RendersScoreInTheRequesterScoreFormat()
+	public async Task OptionDescriptionRendersScoreInTheRequesterScoreFormat()
 	{
 		var media = Media(format: MediaFormat.Movie, seasonYear: SeasonYear, averageScore: AverageScore, popularity: Popularity);
 
-		await Assert.That(AniListSearchPresentation.BuildOptionDescription(media, ScoreFormat.POINT_10_DECIMAL)).IsEqualTo("Movie · 2004 · 8.5/10 · 1.4M");
+		await Assert.That(OptionDescription(media, ScoreFormat.POINT_10_DECIMAL)).IsEqualTo("Movie · 2004 · 8.5/10 · 1.4M");
 	}
 
 	[Test]
-	public async Task AdultResultsCarryTheBadge()
+	public async Task OptionDescriptionForAdultResultsCarriesTheBadge()
 	{
 		var media = Media(format: MediaFormat.Movie, seasonYear: SeasonYear, averageScore: AverageScore, popularity: Popularity, isAdult: true);
 
-		await Assert.That(AniListSearchPresentation.BuildOptionDescription(media, ScoreFormat.POINT_100)).IsEqualTo("Movie · 2004 · 85/100 · 1.4M · 🔞");
+		await Assert.That(OptionDescription(media, ScoreFormat.POINT_100)).IsEqualTo("Movie · 2004 · 85/100 · 1.4M · 🔞");
 	}
 
 	[Test]
-	public async Task NullScoreOmitsTheScoreToken()
+	public async Task OptionDescriptionOmitsTheNullScoreToken()
 	{
 		var media = Media(format: MediaFormat.Movie, seasonYear: SeasonYear, averageScore: null, popularity: Popularity);
 
-		await Assert.That(AniListSearchPresentation.BuildOptionDescription(media, ScoreFormat.POINT_100)).IsEqualTo("Movie · 2004 · 1.4M");
+		await Assert.That(OptionDescription(media, ScoreFormat.POINT_100)).IsEqualTo("Movie · 2004 · 1.4M");
 	}
 
 	[Test]
-	public async Task NullFormatAndYearAreOmitted()
+	public async Task OptionDescriptionOmitsNullFormatAndYear()
 	{
 		var media = Media(format: null, seasonYear: null, averageScore: AverageScore, popularity: SmallPopularity);
 
-		await Assert.That(AniListSearchPresentation.BuildOptionDescription(media, ScoreFormat.POINT_100)).IsEqualTo("85/100 · 999");
+		await Assert.That(OptionDescription(media, ScoreFormat.POINT_100)).IsEqualTo("85/100 · 999");
 	}
 
-	[Test]
-	[Arguments(SmallPopularity, "999")]
-	[Arguments(ThousandsPopularity, "1.2K")]
-	[Arguments(Popularity, "1.4M")]
-	public async Task PopularityIsHumanized(uint popularity, string expected)
-	{
-		await Assert.That(AniListSearchPresentation.FormatPopularity(popularity)).IsEqualTo(expected);
-	}
+	private static string OptionDescription(SearchMedia media, ScoreFormat scoreFormat) =>
+		AniListMediaCandidate.Create(media, TitleLanguage.Romaji, scoreFormat, static _ => new DiscordEmbedBuilder()).OptionDescription;
 
 	private static SearchMedia Media(
 		MediaFormat? format,

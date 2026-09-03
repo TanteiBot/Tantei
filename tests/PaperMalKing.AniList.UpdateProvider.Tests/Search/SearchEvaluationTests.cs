@@ -18,6 +18,9 @@ public sealed class SearchEvaluationTests
 	private const string PocketMonsters = "Pocket Monsters";
 	private const string Kaibutsu = "Kaibutsu";
 	private const string MonsterNative = "モンスター";
+	private const ushort MonsterSeasonYear = 2004;
+	private const ushort MonsterAverageScore = 85;
+	private const uint MonsterPopularity = 1_400_000U;
 	private const uint PrimaryResultId = 2U;
 	private const uint ToomMatchId = 3U;
 	private const uint DeletedBoundaryMatchId = 4U;
@@ -72,7 +75,7 @@ public sealed class SearchEvaluationTests
 	{
 		var synonymPrimary = SearchEvaluator.Evaluate(
 			MatchKey.Create(Monster),
-			[Candidate(PrimaryResultId, TitleLanguage.Romaji, romaji: "!!!", synonyms: ["", null, Monster])]);
+			[Candidate(PrimaryResultId, TitleLanguage.Romaji, romaji: "!!!", synonyms: ["", Monster])]);
 		var romajiPrimary = SearchEvaluator.Evaluate(
 			MatchKey.Create(Monster),
 			[Candidate(ToomMatchId, TitleLanguage.Romaji, romaji: Monster, english: Monster)]);
@@ -96,14 +99,17 @@ public sealed class SearchEvaluationTests
 	[Test]
 	public async Task AutoPostResultCarriesTheProviderBuiltOptionDescriptionAndEmbed()
 	{
-		const string optionDescription = "TV · 2004 · 85/100 · 1.4M";
+		const string optionDescription = "Movie · 2004 · 85/100 · 1.4M";
 		var candidates = new[]
 		{
 			Candidate(
 				PrimaryResultId,
 				TitleLanguage.Romaji,
 				romaji: Monster,
-				optionDescription: optionDescription,
+				format: MediaFormat.Movie,
+				seasonYear: MonsterSeasonYear,
+				averageScore: MonsterAverageScore,
+				popularity: MonsterPopularity,
 				buildEmbed: static context => new DiscordEmbedBuilder().WithTitle(context.Query)),
 		};
 
@@ -132,20 +138,32 @@ public sealed class SearchEvaluationTests
 		string? romaji = null,
 		string? english = null,
 		string? native = null,
-		IReadOnlyList<string?>? synonyms = null,
-		long popularity = 0L,
-		string optionDescription = "",
+		IReadOnlyList<string>? synonyms = null,
+		MediaFormat? format = null,
+		ushort? seasonYear = null,
+		ushort? averageScore = null,
+		uint popularity = 0U,
+		bool isAdult = false,
+		ScoreFormat scoreFormat = ScoreFormat.POINT_100,
 		Func<PickerSearchContext, DiscordEmbedBuilder>? buildEmbed = null) => AniListMediaCandidate.Create(
-		id,
-		new MediaTitle
+		new SearchMedia
 		{
-			Romaji = romaji,
-			English = english,
-			Native = native,
+			Id = id,
+			Title = new()
+			{
+				Romaji = romaji,
+				English = english,
+				Native = native,
+			},
+			Url = "https://anilist.co/anime/1",
+			Synonyms = synonyms ?? [],
+			Format = format,
+			SeasonYear = seasonYear,
+			AverageScore = averageScore,
+			Popularity = popularity,
+			IsAdult = isAdult,
 		},
-		synonyms ?? [],
-		popularity,
 		titleLanguage,
-		optionDescription,
+		scoreFormat,
 		buildEmbed ?? (static _ => new DiscordEmbedBuilder()));
 }

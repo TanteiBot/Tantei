@@ -10,9 +10,6 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
 internal static class MalMediaCandidate
 {
-	private const uint Thousand = 1_000U;
-	private const uint Million = 1_000_000U;
-
 	public static SearchCandidate Create<TMediaType, TStatus>(BaseSearchResult<TMediaType, TStatus> result, TMediaType? mediaTypeFilter)
 		where TMediaType : unmanaged, Enum
 		where TStatus : unmanaged, Enum
@@ -40,40 +37,19 @@ internal static class MalMediaCandidate
 			result.ListUserCount,
 			result.PrimaryTitle,
 			matchTitles,
-			CreateOptionDescription(result),
+			DescribeOption(result),
 			context => SearchEmbedBuilder.Build(result, context.RequesterDisplayName, context.RequesterAvatarUrl),
 			passesTypeFilter);
 	}
 
-	private static string CreateOptionDescription<TMediaType, TStatus>(BaseSearchResult<TMediaType, TStatus> result)
+	private static string DescribeOption<TMediaType, TStatus>(BaseSearchResult<TMediaType, TStatus> result)
 		where TMediaType : unmanaged, Enum
 		where TStatus : unmanaged, Enum
 	{
-		var descriptionParts = new List<string>(4);
 		var mediaType = result.MediaType.Humanize(LetterCasing.Sentence);
-		if (!string.IsNullOrWhiteSpace(mediaType))
-		{
-			descriptionParts.Add(mediaType);
-		}
-
-		if (result.StartDate?.Year is { } year)
-		{
-			descriptionParts.Add(year.ToString(CultureInfo.InvariantCulture));
-		}
-
-		if (result.Mean is { } mean)
-		{
-			descriptionParts.Add($"★ {mean.ToString("0.##", CultureInfo.InvariantCulture)}");
-		}
-
-		descriptionParts.Add($"{FormatMemberCount(result.ListUserCount)} members");
-		return string.Join(" · ", descriptionParts);
+		var year = result.StartDate?.Year is { } startYear ? startYear.ToString(CultureInfo.InvariantCulture) : null;
+		var score = result.Mean is { } mean ? $"★ {mean.ToString("0.##", CultureInfo.InvariantCulture)}" : null;
+		var members = $"{SearchPresentation.AbbreviateCount(result.ListUserCount)} members";
+		return SearchPresentation.ComposeOptionDescription([mediaType, year, score, members]);
 	}
-
-	private static string FormatMemberCount(uint memberCount) => memberCount switch
-	{
-		>= Million => $"{(memberCount / (double)Million).ToString("0.#", CultureInfo.InvariantCulture)}M",
-		>= Thousand => $"{(memberCount / (double)Thousand).ToString("0.#", CultureInfo.InvariantCulture)}K",
-		_ => memberCount.ToString(CultureInfo.InvariantCulture),
-	};
 }

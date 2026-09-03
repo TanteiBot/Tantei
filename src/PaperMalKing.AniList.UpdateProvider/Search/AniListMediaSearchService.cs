@@ -56,12 +56,9 @@ internal sealed class AniListMediaSearchService(
 		var scoreFormat = response.User?.MediaListOptions?.ScoreFormat ?? ScoreFormat.POINT_100;
 
 		var candidates = response.Page.Values.Select(media => AniListMediaCandidate.Create(
-			media.Id,
-			media.Title,
-			media.Synonyms,
-			media.Popularity,
+			media,
 			titleLanguage,
-			AniListSearchPresentation.BuildOptionDescription(media, scoreFormat),
+			scoreFormat,
 			context => SearchEmbedBuilder.Build(media, features, titleLanguage, context.RequesterDisplayName, context.RequesterAvatarUrl)));
 
 		return SearchEvaluator.Evaluate(request.QueryKey, candidates);
