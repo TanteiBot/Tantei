@@ -55,15 +55,16 @@ internal sealed class AniListMediaSearchService(
 		var titleLanguage = response.User?.Options.TitleLanguage ?? TitleLanguage.Default;
 		var scoreFormat = response.User?.MediaListOptions?.ScoreFormat ?? ScoreFormat.POINT_100;
 
-		var candidates = response.Page.Values.Select(media => new AniListMediaCandidate(
+		var candidates = response.Page.Values.Select(media => AniListMediaCandidate.Create(
 			media.Id,
 			media.Title,
 			media.Synonyms,
-			(int)media.Popularity,
+			media.Popularity,
+			titleLanguage,
 			AniListSearchPresentation.BuildOptionDescription(media, scoreFormat),
 			context => SearchEmbedBuilder.Build(media, features, titleLanguage, context.RequesterDisplayName, context.RequesterAvatarUrl)));
 
-		return AniListMediaEvaluator.Evaluate(request.QueryKey, titleLanguage, candidates);
+		return SearchEvaluator.Evaluate(request.QueryKey, candidates);
 	}
 
 	public SearchFailure Classify(Exception exception)

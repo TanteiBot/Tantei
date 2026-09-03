@@ -1,31 +1,21 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
-using PaperMalKing.UpdatesProviders.Base.Search;
+namespace PaperMalKing.UpdatesProviders.Base.Search;
 
-namespace PaperMalKing.AniList.UpdateProvider.Search;
-
-internal static class AniListMediaEvaluator
+internal static class SearchEvaluator
 {
-	public static SearchEvaluation Evaluate(
-		MatchKey queryKey,
-		TitleLanguage titleLanguage,
-		IEnumerable<AniListMediaCandidate> mediaCandidates)
+	public static SearchEvaluation Evaluate(MatchKey queryKey, IEnumerable<SearchCandidate> candidates, bool applyTypeFilter = false)
 	{
 		ArgumentNullException.ThrowIfNull(queryKey);
-		ArgumentNullException.ThrowIfNull(mediaCandidates);
+		ArgumentNullException.ThrowIfNull(candidates);
 		if (queryKey.IsEmpty)
 		{
 			throw new ArgumentException("The query Match Key cannot be empty.", nameof(queryKey));
 		}
 
-		var floorSurvivors = mediaCandidates
-			.Select(candidate =>
-			{
-				var resolvedTitle = candidate.Title.GetTitle(titleLanguage);
-				return (Candidate: candidate, ResolvedTitle: resolvedTitle, Rank: GetMatchRank(queryKey, candidate, resolvedTitle));
-			})
+		var floorSurvivors = candidates
+			.Select(candidate => (Candidate: candidate, Rank: GetMatchRank(queryKey, candidate.MatchTitles)))
 			.Where(static candidate => candidate.Rank != MatchRank.None)
 			.ToArray();
 		if (floorSurvivors.Length == 0)
@@ -37,13 +27,24 @@ internal static class AniListMediaEvaluator
 				AutoPostResult: null);
 		}
 
-		var sorted = floorSurvivors
+		var filtered = applyTypeFilter
+			? floorSurvivors.Where(static candidate => candidate.Candidate.PassesTypeFilter)
+			: floorSurvivors;
+		var sorted = filtered
 			.OrderBy(static candidate => candidate.Rank)
 			.ThenByDescending(static candidate => candidate.Candidate.Popularity)
 			.ThenBy(static candidate => candidate.Candidate.Id)
-			.Select(static candidate => Adapt(candidate.Candidate, candidate.ResolvedTitle, candidate.Rank))
+			.Select(static candidate => Adapt(candidate.Candidate, candidate.Rank))
 			.ToArray();
 		var rankedResults = Array.AsReadOnly(sorted);
+		if (rankedResults.Count == 0)
+		{
+			return new(
+				Kind: SearchOutcomeKind.TypeFilterEmpty,
+				Results: rankedResults,
+				FloorSurvivorCount: floorSurvivors.Length,
+				AutoPostResult: null);
+		}
 
 		var primaryMatches = rankedResults.Where(static result => result.Rank == MatchRank.Primary).Take(2).ToArray();
 		if (primaryMatches.Length == 1)
@@ -63,9 +64,9 @@ internal static class AniListMediaEvaluator
 			AutoPostResult: null);
 	}
 
-	private static MatchRank GetMatchRank(MatchKey queryKey, AniListMediaCandidate candidate, string resolvedTitle)
+	private static MatchRank GetMatchRank(MatchKey queryKey, IReadOnlyList<(string? Title, MatchRank Rank)> matchTitles)
 	{
-		var candidateKeys = CreateCandidateKeys(candidate, resolvedTitle);
+		var candidateKeys = CreateCandidateKeys(matchTitles);
 		var exactMatch = candidateKeys.Find(candidateKey => candidateKey.Key.Equals(queryKey));
 		if (exactMatch != default)
 		{
@@ -75,39 +76,30 @@ internal static class AniListMediaEvaluator
 		return candidateKeys.Exists(candidateKey => candidateKey.Key.Contains(queryKey)) ? MatchRank.Contains : MatchRank.None;
 	}
 
-	private static List<(MatchKey Key, MatchRank Rank)> CreateCandidateKeys(AniListMediaCandidate candidate, string resolvedTitle)
+	private static List<(MatchKey Key, MatchRank Rank)> CreateCandidateKeys(IReadOnlyList<(string? Title, MatchRank Rank)> matchTitles)
 	{
-		var candidateKeys = new List<(MatchKey Key, MatchRank Rank)>();
+		var candidateKeys = new List<(MatchKey Key, MatchRank Rank)>(matchTitles.Count);
 		var keys = new HashSet<MatchKey>();
-		Add(resolvedTitle, MatchRank.Primary);
-		Add(candidate.Title.Romaji, MatchRank.Primary);
-		foreach (var synonym in candidate.Synonyms)
-		{
-			Add(synonym, MatchRank.Synonym);
-		}
-
-		Add(candidate.Title.Native, MatchRank.Native);
-		Add(candidate.Title.English, MatchRank.English);
-		return candidateKeys;
-
-		void Add(string? title, MatchRank exactRank)
+		foreach (var (title, rank) in matchTitles)
 		{
 			if (title is null)
 			{
-				return;
+				continue;
 			}
 
 			var key = MatchKey.Create(title);
 			if (!key.IsEmpty && keys.Add(key))
 			{
-				candidateKeys.Add((key, exactRank));
+				candidateKeys.Add((key, rank));
 			}
 		}
+
+		return candidateKeys;
 	}
 
-	private static SearchResult Adapt(AniListMediaCandidate candidate, string resolvedTitle, MatchRank rank) => new(
+	private static SearchResult Adapt(SearchCandidate candidate, MatchRank rank) => new(
 		candidate.Id,
-		resolvedTitle,
+		candidate.PrimaryTitle,
 		rank,
 		candidate.OptionDescription,
 		candidate.BuildEmbed);

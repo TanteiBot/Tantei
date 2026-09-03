@@ -50,12 +50,14 @@ internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchest
 		{
 			var mangaResults = await _client.SearchMangaAsync(request.RawQuery, request.IncludeNsfw, cancellationToken).ConfigureAwait(false);
 			var mangaFilter = Enum.TryParse<MangaMediaType>(request.Filter, out var manga) ? manga : (MangaMediaType?)null;
-			return MalMediaEvaluator.Evaluate<MangaMediaType, MangaPublishingStatus>(request.QueryKey, mangaResults, mangaFilter);
+			var mangaCandidates = mangaResults.Select(result => MalMediaCandidate.Create<MangaMediaType, MangaPublishingStatus>(result, mangaFilter));
+			return SearchEvaluator.Evaluate(request.QueryKey, mangaCandidates, applyTypeFilter: mangaFilter.HasValue);
 		}
 
 		var animeResults = await _client.SearchAnimeAsync(request.RawQuery, request.IncludeNsfw, cancellationToken).ConfigureAwait(false);
 		var animeFilter = Enum.TryParse<AnimeMediaType>(request.Filter, out var anime) ? anime : (AnimeMediaType?)null;
-		return MalMediaEvaluator.Evaluate<AnimeMediaType, AnimeAiringStatus>(request.QueryKey, animeResults, animeFilter);
+		var animeCandidates = animeResults.Select(result => MalMediaCandidate.Create<AnimeMediaType, AnimeAiringStatus>(result, animeFilter));
+		return SearchEvaluator.Evaluate(request.QueryKey, animeCandidates, applyTypeFilter: animeFilter.HasValue);
 	}
 
 	public SearchFailure Classify(Exception exception)
