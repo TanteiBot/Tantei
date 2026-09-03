@@ -12,6 +12,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaLi
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Colors;
 using PaperMalKing.UpdatesProviders.Base.Features;
+using PaperMalKing.UpdatesProviders.Base.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider;
 

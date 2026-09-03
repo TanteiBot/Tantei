@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Globalization;
 using PaperMalKing.MyAnimeList.UpdateProvider.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
+using PaperMalKing.UpdatesProviders.Base.Search;
 using TUnit.Assertions.Enums;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
@@ -35,7 +37,7 @@ public sealed class SearchEvaluationTests
 			Anime(1U, Monster, mediaType: AnimeMediaType.TV),
 			Anime(PrimaryResultId, Kaibutsu, mediaType: AnimeMediaType.Movie));
 
-		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), response, AnimeMediaType.Movie);
+		var evaluation = MalMediaEvaluator.Evaluate(MatchKey.Create(Monster), response, AnimeMediaType.Movie);
 
 		await Assert.That(evaluation.Kind).IsEqualTo(SearchOutcomeKind.TypeFilterEmpty);
 		await Assert.That(evaluation.FloorSurvivorCount).IsEqualTo(1);
@@ -45,8 +47,8 @@ public sealed class SearchEvaluationTests
 	[Test]
 	public async Task EmptyMalResponseAndEmptyRelevanceFloorHaveTheSameOutcome()
 	{
-		var malEmpty = SearchEvaluation.Evaluate(MatchKey.Create(Monster), Response(), mediaTypeFilter: null);
-		var floorEmpty = SearchEvaluation.Evaluate(
+		var malEmpty = MalMediaEvaluator.Evaluate(MatchKey.Create(Monster), Response(), mediaTypeFilter: null);
+		var floorEmpty = MalMediaEvaluator.Evaluate(
 			MatchKey.Create(Monster),
 			Response(Anime(1U, Kaibutsu, mediaType: AnimeMediaType.Movie)),
 			AnimeMediaType.TV);
@@ -67,10 +69,10 @@ public sealed class SearchEvaluationTests
 			Anime(5U, PocketMonsters),
 			Anime(IrrelevantResultId, Kaibutsu));
 
-		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
+		var evaluation = MalMediaEvaluator.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
 
 		await Assert.That(evaluation.Results.Select(static result => result.Rank)).IsEquivalentTo(
-			[MatchRank.Primary, MatchRank.Synonym, MatchRank.Japanese, MatchRank.English, MatchRank.Contains,],
+			[MatchRank.Primary, MatchRank.Synonym, MatchRank.Native, MatchRank.English, MatchRank.Contains,],
 			CollectionOrdering.Matching);
 		await Assert.That(evaluation.Results.Select(static result => result.Id)).DoesNotContain(IrrelevantResultId);
 	}
@@ -82,8 +84,8 @@ public sealed class SearchEvaluationTests
 			Anime(1U, "K-On!", synonyms: ["K On", string.Empty, null, "!!!"], japanese: "Ｋ－ＯＮ！", english: "K-On"),
 			Anime(2U, "!!!", synonyms: [string.Empty, null, Monster]));
 
-		var primary = SearchEvaluation.Evaluate(MatchKey.Create("kon"), response, mediaTypeFilter: null);
-		var synonym = SearchEvaluation.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
+		var primary = MalMediaEvaluator.Evaluate(MatchKey.Create("kon"), response, mediaTypeFilter: null);
+		var synonym = MalMediaEvaluator.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
 
 		await Assert.That(primary.Results.Single().Rank).IsEqualTo(MatchRank.Primary);
 		await Assert.That(synonym.Results.Single().Rank).IsEqualTo(MatchRank.Synonym);
@@ -98,9 +100,9 @@ public sealed class SearchEvaluationTests
 			Anime(ToomMatchId, "Boomba & Toomba"),
 			Anime(DeletedBoundaryMatchId, "Ao Haru Ride"));
 
-		var kon = SearchEvaluation.Evaluate(MatchKey.Create("kon"), response, mediaTypeFilter: null);
-		var toom = SearchEvaluation.Evaluate(MatchKey.Create("Toom"), response, mediaTypeFilter: null);
-		var deletedBoundary = SearchEvaluation.Evaluate(MatchKey.Create("OHARU"), response, mediaTypeFilter: null);
+		var kon = MalMediaEvaluator.Evaluate(MatchKey.Create("kon"), response, mediaTypeFilter: null);
+		var toom = MalMediaEvaluator.Evaluate(MatchKey.Create("Toom"), response, mediaTypeFilter: null);
+		var deletedBoundary = MalMediaEvaluator.Evaluate(MatchKey.Create("OHARU"), response, mediaTypeFilter: null);
 
 		await Assert.That(kon.Results.Single().Id).IsEqualTo(1U);
 		await Assert.That(kon.Results.Single().Rank).IsEqualTo(MatchRank.Primary);
@@ -119,7 +121,7 @@ public sealed class SearchEvaluationTests
 			Anime(LowestSortedId, Monster, listUserCount: LowestSortedId),
 			Anime(ContainsSortedId, PocketMonsters, listUserCount: 1_000U));
 
-		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
+		var evaluation = MalMediaEvaluator.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
 
 		await Assert.That(evaluation.Results.Select(static result => result.Id)).IsEquivalentTo(
 			[LowestSortedId, MiddleSortedId, HighestSortedId, ContainsSortedId,],
@@ -134,7 +136,7 @@ public sealed class SearchEvaluationTests
 			Anime(PrimaryResultId, Monster, listUserCount: 1U),
 			Anime(ToomMatchId, MonsterStory, listUserCount: 200U, synonyms: [Monster]));
 
-		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
+		var evaluation = MalMediaEvaluator.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
 
 		await Assert.That(evaluation.Kind).IsEqualTo(SearchOutcomeKind.AutoPosted);
 		await Assert.That(evaluation.AutoPostResult).IsNotNull();
@@ -148,7 +150,7 @@ public sealed class SearchEvaluationTests
 			Anime(1U, "Boomba & Toomba"),
 			Anime(PrimaryResultId, "Btooom!"));
 
-		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create("Toom"), response, mediaTypeFilter: null);
+		var evaluation = MalMediaEvaluator.Evaluate(MatchKey.Create("Toom"), response, mediaTypeFilter: null);
 
 		await Assert.That(evaluation.Kind).IsEqualTo(SearchOutcomeKind.AutoPosted);
 		await Assert.That(evaluation.AutoPostResult).IsNotNull();
@@ -162,7 +164,7 @@ public sealed class SearchEvaluationTests
 			Anime(PrimaryResultId, Monster, listUserCount: 10U),
 			Anime(1U, Monster, listUserCount: LowestSortedId));
 
-		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
+		var evaluation = MalMediaEvaluator.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
 
 		await Assert.That(evaluation.Kind).IsEqualTo(SearchOutcomeKind.PickerOpened);
 		await Assert.That(evaluation.AutoPostResult).IsNull();
@@ -175,7 +177,7 @@ public sealed class SearchEvaluationTests
 			Anime(1U, MonsterStory),
 			Anime(PrimaryResultId, PocketMonsters));
 
-		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
+		var evaluation = MalMediaEvaluator.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
 
 		await Assert.That(evaluation.Kind).IsEqualTo(SearchOutcomeKind.PickerOpened);
 		await Assert.That(evaluation.AutoPostResult).IsNull();
@@ -190,9 +192,9 @@ public sealed class SearchEvaluationTests
 			startDate: new(ExpectedAnimeStartDateYear, 4, 7),
 			startSeason: new() { Season = AnimeSeason.Spring, Year = ExpectedAnimeStartSeasonYear, }));
 
-		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), results, mediaTypeFilter: null);
+		var evaluation = MalMediaEvaluator.Evaluate(MatchKey.Create(Monster), results, mediaTypeFilter: null);
 
-		await Assert.That(evaluation.Results.Single().Year).IsEqualTo(ExpectedAnimeStartDateYear);
+		await Assert.That(evaluation.Results.Single().OptionDescription).Contains(ExpectedAnimeStartDateYear.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[Test]
@@ -204,9 +206,31 @@ public sealed class SearchEvaluationTests
 			startDate: new(ExpectedAnimeStartDateYear, 4, 7),
 			startSeason: new() { Season = AnimeSeason.Unknown, Year = 0U, }));
 
-		var evaluation = SearchEvaluation.Evaluate(MatchKey.Create(Monster), results, mediaTypeFilter: null);
+		var evaluation = MalMediaEvaluator.Evaluate(MatchKey.Create(Monster), results, mediaTypeFilter: null);
 
-		await Assert.That(evaluation.Results.Single().Year).IsEqualTo(ExpectedAnimeStartDateYear);
+		await Assert.That(evaluation.Results.Single().OptionDescription).Contains(ExpectedAnimeStartDateYear.ToString(CultureInfo.InvariantCulture));
+	}
+
+	[Test]
+	public async Task PickerOptionDescriptionComposesTypeYearScoreAndMembers()
+	{
+		var response = Response(new AnimeSearchResult
+		{
+			Id = 42U,
+			PrimaryTitle = Monster,
+			MediaType = AnimeMediaType.TV,
+			Status = AnimeAiringStatus.Unknown,
+			Episodes = 0U,
+			ListUserCount = 1_400_000U,
+			Genres = [],
+			Mean = 8.88,
+			StartDate = new(ExpectedAnimeStartSeasonYear, 1, 1),
+		});
+
+		var evaluation = MalMediaEvaluator.Evaluate(MatchKey.Create(Monster), response, mediaTypeFilter: null);
+
+		await Assert.That(evaluation.Results.Single().OptionDescription).IsEqualTo(
+			$"TV · {ExpectedAnimeStartSeasonYear.ToString(CultureInfo.InvariantCulture)} · ★ 8.88 · 1.4M members");
 	}
 
 	[Test]
@@ -218,7 +242,7 @@ public sealed class SearchEvaluationTests
 			Manga(PrimaryResultId, MangaMediaType.LightNovel),
 		};
 
-		var evaluation = SearchEvaluation.Evaluate<MangaMediaType, MangaPublishingStatus>(
+		var evaluation = MalMediaEvaluator.Evaluate<MangaMediaType, MangaPublishingStatus>(
 			MatchKey.Create(Monster),
 			results,
 			MangaMediaType.LightNovel);
@@ -236,8 +260,8 @@ public sealed class SearchEvaluationTests
 
 		await Assert.That(evaluation.Kind).IsEqualTo(SearchOutcomeKind.AutoPosted);
 		await Assert.That(result.Id).IsEqualTo(PrimaryResultId);
-		await Assert.That(result.MediaType).IsEqualTo("Light novel");
-		await Assert.That(result.Year).IsEqualTo(ExpectedMangaStartYear);
+		await Assert.That(result.OptionDescription).IsEqualTo(
+			$"Light novel · {ExpectedMangaStartYear.ToString(CultureInfo.InvariantCulture)} · 0 members");
 		await Assert.That(embed.Title).IsEqualTo(Monster);
 	}
 

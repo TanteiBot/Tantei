@@ -9,6 +9,7 @@ using PaperMalKing.MyAnimeList.UpdateProvider.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
+using PaperMalKing.UpdatesProviders.Base.Search;
 using Polly.RateLimiting;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
@@ -208,7 +209,7 @@ public sealed class MalSearchServiceTests
 
 		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target), Query, mediaType: null, CancellationToken.None);
 
-		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.Busy);
+		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.Busy("MyAnimeList"));
 		await Assert.That(EventNames(scope)).IsEquivalentTo(["OfficialApiForbidden"]);
 	}
 
@@ -221,7 +222,7 @@ public sealed class MalSearchServiceTests
 
 		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target), Query, mediaType: null, CancellationToken.None);
 
-		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.Busy);
+		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.Busy("MyAnimeList"));
 		await Assert.That(EventNames(scope)).IsEquivalentTo(["RateLimiterQueueRejected"]);
 	}
 
@@ -234,7 +235,7 @@ public sealed class MalSearchServiceTests
 
 		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target), Query, mediaType: null, CancellationToken.None);
 
-		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.Failed);
+		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.Failed("MyAnimeList"));
 		await Assert.That(EventNames(scope)).IsEquivalentTo(["SearchFailed"]);
 	}
 
@@ -278,15 +279,16 @@ public sealed class MalSearchServiceTests
 	{
 		private readonly MemoryCache _cache = new(new MemoryCacheOptions());
 
-		public RecordingLogger<MalSearchService> Logger { get; } = new();
+		public RecordingLogger<SearchOrchestrator> Logger { get; } = new();
 
 		public MalSearchService Service { get; }
 
 		public ServiceScope(FakeMyAnimeListSearchClient client)
 		{
 			var timeProvider = new ManualTimeProvider(Start);
-			var picker = new MalSearchPicker(this._cache, timeProvider, NullLogger<MalSearchPicker>.Instance);
-			this.Service = new(client, picker, timeProvider, this.Logger);
+			var picker = new SearchPicker(this._cache, timeProvider, NullLogger<SearchPicker>.Instance);
+			var orchestrator = new SearchOrchestrator(picker, timeProvider, this.Logger);
+			this.Service = new(client, orchestrator);
 		}
 
 		public void Dispose() => this._cache.Dispose();
