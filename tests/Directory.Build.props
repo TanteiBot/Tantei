@@ -1,7 +1,7 @@
 <Project>
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\'))" />
     <PropertyGroup>
-        <IsTestSupportProject Condition="'$(MSBuildProjectName)' == 'Tantei.TestSupport.Core'">true</IsTestSupportProject>
+        <IsTestSupportProject Condition="$(MSBuildProjectName.StartsWith('Tantei.TestSupport.'))">true</IsTestSupportProject>
     </PropertyGroup>
 
     <PropertyGroup>

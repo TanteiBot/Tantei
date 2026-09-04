@@ -3,7 +3,7 @@
 
 using PaperMalKing.UpdatesProviders.Base.Search;
 
-namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
+namespace Tantei.TestSupport;
 
 internal sealed record FakeSearchInvocation(IPickerMessageTarget Target) : ISearchInvocation
 {
