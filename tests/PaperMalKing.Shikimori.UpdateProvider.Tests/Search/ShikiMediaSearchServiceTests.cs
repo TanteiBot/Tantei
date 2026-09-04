@@ -216,7 +216,7 @@ public sealed class ShikiMediaSearchServiceTests
 			}
 
 			var cache = new MemoryCache(new MemoryCacheOptions());
-			var time = new ManualTimeProvider(Start);
+			var time = new FakeTimeProvider(Start);
 			var picker = new SearchPicker(cache, time, NullLogger<SearchPicker>.Instance);
 			var orchestrator = new SearchOrchestrator(picker, time, NullLogger<SearchOrchestrator>.Instance);
 			return new(connection, cache, new(client, factory, orchestrator));

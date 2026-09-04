@@ -152,7 +152,7 @@ public sealed class TenraiEnrichmentLoggingTests
 				BaseAddress = new("https://example.test/v1/"),
 			};
 			this.Logger = new();
-			this.Gate = new(new ManualTimeProvider(Now), NullLogger<TenraiGate>.Instance);
+			this.Gate = new(new FakeTimeProvider(Now), NullLogger<TenraiGate>.Instance);
 			this.Client = new(this.Logger, this._tenraiClient, this.Gate);
 		}
 

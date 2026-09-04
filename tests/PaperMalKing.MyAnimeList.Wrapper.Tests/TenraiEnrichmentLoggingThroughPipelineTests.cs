@@ -158,7 +158,7 @@ public sealed class TenraiEnrichmentLoggingThroughPipelineTests
 
 		public HttpClient RawClient { get; }
 
-		public ManualTimeProvider Time { get; }
+		public FakeTimeProvider Time { get; }
 
 		public async Task<Task<HttpResponseMessage>[]> FillQueueAsync(CancellationToken queueCancellation, CancellationToken cancellationToken)
 		{
