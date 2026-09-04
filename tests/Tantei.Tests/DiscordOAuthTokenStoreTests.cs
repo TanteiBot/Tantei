@@ -117,7 +117,7 @@ public sealed class DiscordOAuthTokenStoreTests
 		await using var ownedConnection = connection;
 
 		store.Save(UserId, AccessToken, RefreshToken, DateTimeOffset.UnixEpoch);
-		timeProvider.Now = start.AddDays(LaterInDays);
+		timeProvider.SetUtcNow(start.AddDays(LaterInDays));
 		store.Save(OtherUserId, AccessToken, RefreshToken, DateTimeOffset.UnixEpoch);
 
 		var removed = store.PruneUnusedSince(start.AddDays(StaleAfterDays));
@@ -125,12 +125,5 @@ public sealed class DiscordOAuthTokenStoreTests
 		await Assert.That(removed).IsEqualTo(1);
 		await Assert.That(store.Get(UserId)).IsNull();
 		await Assert.That(store.Get(OtherUserId)).IsNotNull();
-	}
-
-	private sealed class FakeTimeProvider(DateTimeOffset now) : TimeProvider
-	{
-		public DateTimeOffset Now { get; set; } = now;
-
-		public override DateTimeOffset GetUtcNow() => this.Now;
 	}
 }

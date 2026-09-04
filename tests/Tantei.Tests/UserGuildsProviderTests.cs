@@ -33,11 +33,6 @@ public sealed class UserGuildsProviderTests
 
 	private static readonly TimeSpan TokenLifetime = TimeSpan.FromDays(7);
 
-	private sealed class FakeTimeProvider(DateTimeOffset now) : TimeProvider
-	{
-		public override DateTimeOffset GetUtcNow() => now;
-	}
-
 	private sealed class FakeHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> respond) : HttpMessageHandler
 	{
 		public int CallCount { get; private set; }

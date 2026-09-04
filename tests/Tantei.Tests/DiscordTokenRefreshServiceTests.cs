@@ -192,13 +192,6 @@ public sealed class DiscordTokenRefreshServiceTests
 		await Assert.That(handler.CallCount).IsEqualTo(0);
 	}
 
-	private sealed class FakeTimeProvider(DateTimeOffset now) : TimeProvider
-	{
-		public DateTimeOffset Now { get; set; } = now;
-
-		public override DateTimeOffset GetUtcNow() => this.Now;
-	}
-
 	private sealed class FakeHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> respond) : HttpMessageHandler
 	{
 		private int _callCount;
