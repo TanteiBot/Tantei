@@ -10,14 +10,10 @@ using Polly.RateLimiting;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
-internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchestrator _orchestrator) : MediaSearchServiceBase(_orchestrator)
+internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchestrator _orchestrator)
+	: MediaSearchServiceBase(_orchestrator, new("MyAnimeList", "mal"), MinimumQueryTextElements)
 {
 	private const int MinimumQueryTextElements = 3;
-	private static readonly SearchProviderIdentity ProviderIdentity = new("MyAnimeList", "mal");
-
-	public override SearchProviderIdentity Identity => ProviderIdentity;
-
-	public override int MinimumQueryLength => MinimumQueryTextElements;
 
 	public Task SearchAnimeAsync(ISearchInvocation invocation, string query, AnimeMediaType? mediaType, CancellationToken cancellationToken)
 		=> this.RunSearchAsync(invocation, query, PickerMediaKind.Anime, SearchTypeFilter.From(mediaType), cancellationToken);
@@ -45,14 +41,14 @@ internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchest
 	{
 		if (exception is HttpRequestException { StatusCode: HttpStatusCode.Forbidden })
 		{
-			return new(SearchMessages.Busy(ProviderIdentity.DisplayName), static logger => logger.OfficialApiForbidden());
+			return new(SearchMessages.Busy(this.Identity.DisplayName), static logger => logger.OfficialApiForbidden());
 		}
 
 		if (exception is RateLimiterRejectedException)
 		{
-			return new(SearchMessages.Busy(ProviderIdentity.DisplayName), static logger => logger.RateLimiterQueueRejected());
+			return new(SearchMessages.Busy(this.Identity.DisplayName), static logger => logger.RateLimiterQueueRejected());
 		}
 
-		return new(SearchMessages.Failed(ProviderIdentity.DisplayName), logger => logger.SearchFailed(exception));
+		return new(SearchMessages.Failed(this.Identity.DisplayName), logger => logger.SearchFailed(exception));
 	}
 }
