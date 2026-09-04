@@ -7,11 +7,13 @@ using GraphQL.Client.Serializer.SystemTextJson;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.AniList.UpdateProvider.Search;
 using PaperMalKing.AniList.Wrapper;
 using PaperMalKing.AniList.Wrapper.Abstractions;
 using PaperMalKing.Common.RateLimiters;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base.Features;
+using PaperMalKing.UpdatesProviders.Base.Search;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 using Polly;
 
@@ -51,6 +53,9 @@ public static class ServiceCollectionExtensions
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<AniListUser, AniListUserFeatures>, AniListUserFeaturesService>();
 		serviceCollection.AddSingleton<AniListUserService>();
+
+		serviceCollection.AddSearch();
+		serviceCollection.AddSingleton<AniListMediaSearchService>();
 
 		serviceCollection.AddSingleton<AniListUpdateProvider>();
 		serviceCollection.AddSingleton<BaseUpdateProvider>(static f => f.GetRequiredService<AniListUpdateProvider>());

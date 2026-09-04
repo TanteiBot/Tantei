@@ -12,8 +12,8 @@ using PaperMalKing.MyAnimeList.UpdateProvider.Search;
 using PaperMalKing.MyAnimeList.Wrapper;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Tenrai;
-using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Features;
+using PaperMalKing.UpdatesProviders.Base.Search;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 using Polly;
 
@@ -31,11 +31,8 @@ public static class ServiceCollectionExtensions
 		const int malHttpRetries = 3;
 
 		serviceCollection.AddTenraiEnrichment();
-		serviceCollection.AddMemoryCache();
-		serviceCollection.AddSingleton<MalSearchPicker>();
+		serviceCollection.AddSearch();
 		serviceCollection.AddSingleton<MalSearchService>();
-		serviceCollection.AddSingleton<SearchPickerComponentHandler>();
-		serviceCollection.AddSingleton<IExecuteOnStartupService>(static provider => provider.GetRequiredService<SearchPickerComponentHandler>());
 
 		serviceCollection.AddOptions<MalOptions>().BindConfiguration(Constants.Name).ValidateDataAnnotations().ValidateOnStart();
 		serviceCollection.AddSingleton(RateLimiterExtensions.ConfigurationLambda<MalOptions, IMyAnimeListClient>);

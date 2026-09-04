@@ -1,17 +1,17 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.AniList.UpdateProvider.Search;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 using PaperMalKing.Common;
-using PaperMalKing.Common.Exceptions;
 using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Colors;
 using PaperMalKing.UpdatesProviders.Base.Features;
+using PaperMalKing.UpdatesProviders.Base.Search;
 
 namespace PaperMalKing.AniList.UpdateProvider;
 
@@ -84,47 +84,22 @@ internal sealed class AniListCommands : ApplicationCommandModule
 
 	[SlashCommandGroup("search", "Search anime/manga on anilist")]
 	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
-	public sealed class AniListMediaSearchCommands(ILogger<AniListMediaSearchCommands> logger, AniListUserService userService) : BotCommandsModule
+	public sealed class AniListMediaSearchCommands(AniListMediaSearchService searchService) : BotCommandsModule
 	{
-		private static readonly DiscordEmbed AnimeNotFoundEmbed = new DiscordEmbedBuilder().WithTitle("Anime not found").WithColor(DiscordColor.Red);
-		private static readonly DiscordEmbed MangaNotFoundEmbed = new DiscordEmbedBuilder().WithTitle("Manga not found").WithColor(DiscordColor.Red);
-
-		protected override bool IsResponseVisibleOnlyForRequester => false;
+		protected override bool IsResponseVisibleOnlyForRequester => true;
 
 		[SlashCommand("anime", "Search anime")]
-		public Task SearchAnimeAsync(InteractionContext context, [Option("title", "title of the anime")] string title)
-		{
-			return this.FindMedia(context, title, ListType.Anime);
-		}
+		public Task SearchAnimeAsync(InteractionContext context,
+									 [Option("title", "title of the anime")] string title,
+									 [ChoiceProvider(typeof(EnumChoiceProvider<AnimeMediaFormatChoiceProvider, MediaFormat>)),
+									  Option("format", "Media format to keep in the results")] string? unparsedFormat = null) =>
+			searchService.SearchAnimeAsync(DiscordSearchInvocation.Create(context), title, AnimeMediaFormatChoiceProvider.Parse(unparsedFormat), CancellationToken.None);
 
 		[SlashCommand("manga", "Search manga")]
-		public Task SearchMangaAsync(InteractionContext context, [Option("title", "title of the manga")] string title)
-		{
-			return this.FindMedia(context, title, ListType.Manga);
-		}
-
-		private async Task FindMedia(InteractionContext context, string title, ListType listType)
-		{
-			using var scope = CreateLoggerScope(logger, context);
-
-			try
-			{
-				var embed = await userService.SearchMediaAsync(context.User.Id, title, listType);
-
-				if (embed is null)
-				{
-					await context.EditResponseAsync(embed: listType == ListType.Anime ? AnimeNotFoundEmbed : MangaNotFoundEmbed);
-					return;
-				}
-
-				await context.EditResponseAsync(embed: embed);
-			}
-			catch (Exception ex)
-			{
-				var embed = ex is ArgumentException or UserFacingException ? EmbedTemplate.ErrorEmbed(ex.FullMessage) : EmbedTemplate.UnknownErrorEmbed;
-				await context.EditResponseAsync(embed: embed);
-				throw;
-			}
-		}
+		public Task SearchMangaAsync(InteractionContext context,
+									 [Option("title", "title of the manga")] string title,
+									 [ChoiceProvider(typeof(EnumChoiceProvider<MangaMediaFormatChoiceProvider, MediaFormat>)),
+									  Option("format", "Media format to keep in the results")] string? unparsedFormat = null) =>
+			searchService.SearchMangaAsync(DiscordSearchInvocation.Create(context), title, MangaMediaFormatChoiceProvider.Parse(unparsedFormat), CancellationToken.None);
 	}
 }

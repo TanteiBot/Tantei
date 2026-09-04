@@ -45,11 +45,12 @@ internal sealed class AniListClient(GraphQLHttpClient _client, ILogger<AniListCl
 		return response.Data;
 	}
 
-	public async Task<MediaSearchResponse> SearchMediaAsync(string query, ListType mediaType, RequestOptions requestOptions, uint? userId, CancellationToken cancellationToken)
+	public async Task<MediaSearchResponse> SearchMediaAsync(string query, ListType mediaType, RequestOptions requestOptions, MediaFormat? format, uint? userId,
+														   CancellationToken cancellationToken)
 	{
 		cancellationToken.ThrowIfCancellationRequested();
 
-		var request = Requests.SearchMediaRequest(query, requestOptions, mediaType, userId);
+		var request = Requests.SearchMediaRequest(query, requestOptions, mediaType, format, userId);
 		try
 		{
 			var response = await _client.SendQueryAsync<MediaSearchResponse>(request, cancellationToken);

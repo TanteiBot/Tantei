@@ -8,61 +8,126 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL;
 
 internal static class MediaSearchQueryBuilder
 {
-	private const string UserSmallInfo =
+	private const string UserBlock =
 		"""
 		User(id: $userId) {
 			id
 			name
+			siteUrl
 			options {
 				titleLanguage
 			}
-			siteUrl
+			mediaListOptions {
+				scoreFormat
+				animeList {
+					advancedScoringEnabled
+				}
+				mangaList {
+					advancedScoringEnabled
+				}
+			}
 		}
 		""";
 
-	private const string MediaHeader =
+	private const string PageHeader =
 		"""
-		Media(search: $query, type: $type){
+		Page(page: 1, perPage: 50) {
+			values: media(search: $query, type: $type, sort: [SEARCH_MATCH]){
+		""";
+
+	private const string PageHeaderWithFormat =
+		"""
+		Page(page: 1, perPage: 50) {
+			values: media(search: $query, type: $type, sort: [SEARCH_MATCH], format_in: $formatIn){
+		""";
+
+	private const string MediaCore =
+		"""
+		id
+		title {
+			stylisedRomaji: romaji(stylised: true)
+			romaji(stylised: false)
+			stylisedEnglish: english(stylised: true)
+			english(stylised: false)
+			stylisedNative: native(stylised: true)
+			native(stylised: false)
+		}
+		synonyms
+		type
+		siteUrl
+		image: coverImage {
+			large: extraLarge
+		}
+		format
+		isAdult
+		popularity
+		status(version: 2)
+		episodes
+		chapters
+		volumes
+		averageScore
+		seasonYear
+		season
 		""";
 
 	private const string Ender =
 		"""
 		}
 		}
+		}
 		""";
 
-	public static string BuildWithUser(RequestOptions options)
+	public static string BuildWithUser(RequestOptions options, bool hasFormat) => BuildQuery(options, hasFormat, includeUser: true);
+
+	public static string Build(RequestOptions options, bool hasFormat) => BuildQuery(options, hasFormat, includeUser: false);
+
+	private static string BuildQuery(RequestOptions options, bool hasFormat, bool includeUser)
 	{
-		var sb = new StringBuilder(
-			"""
-			query ($query: String, $type: MediaType, $userId: Int){
-				
-			""");
+		var sb = new StringBuilder("query ($query: String, $type: MediaType");
+		if (hasFormat)
+		{
+			sb.Append(", $formatIn: [MediaFormat]");
+		}
 
-		sb.Append(UserSmallInfo)
-		  .Append(MediaHeader);
+		if (includeUser)
+		{
+			sb.Append(", $userId: Int");
+		}
 
-		Helpers.AppendMediaFields(sb, options);
+		sb.AppendLine("){").AppendLine();
+
+		if (includeUser)
+		{
+			sb.AppendLine(UserBlock);
+		}
+
+		sb.AppendLine(hasFormat ? PageHeaderWithFormat : PageHeader);
+
+		AppendSearchMediaFields(sb, options);
 
 		sb.Append(Ender);
 
 		return sb.ToString();
 	}
 
-	public static string Build(RequestOptions options)
+	private static void AppendSearchMediaFields(StringBuilder sb, RequestOptions options)
 	{
-		var sb = new StringBuilder(
-			"""
-			query ($query: String, $type: MediaType){
-				
-			""");
+		sb.AppendLine(MediaCore);
+		if (options.HasFlag(RequestOptions.MediaDescription))
+		{
+			sb.AppendLine("description(asHtml: false)");
+		}
 
-		sb.Append(MediaHeader);
-
-		Helpers.AppendMediaFields(sb, options);
-
-		sb.Append(Ender);
-
-		return sb.ToString();
+		if (options.HasFlag(RequestOptions.Tags))
+		{
+			sb.AppendLine(
+				"""
+				tags{
+					name
+					rank
+					isMediaSpoiler
+				}
+				""");
+		}
 	}
 }
