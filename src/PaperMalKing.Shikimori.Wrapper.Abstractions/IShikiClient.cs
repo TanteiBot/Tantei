@@ -3,6 +3,7 @@
 
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Enums;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
 namespace PaperMalKing.Shikimori.Wrapper.Abstractions;
@@ -21,6 +22,10 @@ public interface IShikiClient
 		where TMedia : BaseMedia;
 
 	Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken);
+
+	Task<IReadOnlyList<AnimeSearchMedia>> SearchAnimeAsync(string query, AnimeKind? kind, bool includeNsfw, CancellationToken cancellationToken);
+
+	Task<IReadOnlyList<MangaSearchMedia>> SearchMangaAsync(string query, MangaKind? kind, bool includeNsfw, CancellationToken cancellationToken);
 
 	Task<byte[]?> GetImageContentAsync(string url, CancellationToken cancellationToken);
 }

@@ -4,6 +4,7 @@
 using System.Text;
 using GraphQL;
 using PaperMalKing.Shikimori.Wrapper.Abstractions;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Enums;
 
 namespace PaperMalKing.Shikimori.Wrapper;
 
@@ -82,5 +83,63 @@ internal static class Queries
 					}
 				}
 				""";
+	}
+
+	private const string SearchLimit = "50";
+
+	private const string SearchIdentitySubQuery =
+		"""
+		id
+		name
+		russian
+		english
+		japanese
+		synonyms
+		kind
+		score
+		status
+		airedOn { year }
+		statusesStats { count }
+		url
+		""";
+
+	public static string GetAnimeSearchQuery(AnimeKind? kind, bool includeNsfw)
+	{
+		return $$"""
+				query ($search: String) {
+					media: animes (search: $search, limit: {{SearchLimit}}{{SearchArguments(kind?.ToGraphQlKind(), includeNsfw)}}) {
+						{{SearchIdentitySubQuery}}
+						rating
+						studios { name, id }
+						personRoles { roles_russian: rolesRu, roles: rolesEn, person { name, russian, id } }
+						{{GenresSubQuery}}
+						{{DescriptionSubQuery}}
+						{{PosterSubQuery}}
+					}
+				}
+				""";
+	}
+
+	public static string GetMangaSearchQuery(MangaKind? kind, bool includeNsfw)
+	{
+		return $$"""
+				query ($search: String) {
+					media: mangas (search: $search, limit: {{SearchLimit}}{{SearchArguments(kind?.ToGraphQlKind(), includeNsfw)}}) {
+						{{SearchIdentitySubQuery}}
+						publishers { name, id }
+						personRoles { roles_russian: rolesRu, roles: rolesEn, person { name, russian, id, isMangaka } }
+						{{GenresSubQuery}}
+						{{DescriptionSubQuery}}
+						{{PosterSubQuery}}
+					}
+				}
+				""";
+	}
+
+	private static string SearchArguments(string? kindToken, bool includeNsfw)
+	{
+		var censored = includeNsfw ? "false" : "true";
+		var kindArgument = kindToken is null ? "" : $", kind: \"{kindToken}\"";
+		return $", censored: {censored}{kindArgument}";
 	}
 }

@@ -61,6 +61,8 @@
     <Project Path="tests/PaperMalKing.AniList.Wrapper.Tests/PaperMalKing.AniList.Wrapper.Tests.csproj" />
     <Project Path="tests/PaperMalKing.MyAnimeList.UpdateProvider.Tests/PaperMalKing.MyAnimeList.UpdateProvider.Tests.csproj" />
     <Project Path="tests/PaperMalKing.MyAnimeList.Wrapper.Tests/PaperMalKing.MyAnimeList.Wrapper.Tests.csproj" />
+    <Project Path="tests/PaperMalKing.Shikimori.UpdateProvider.Tests/PaperMalKing.Shikimori.UpdateProvider.Tests.csproj" />
+    <Project Path="tests/PaperMalKing.Shikimori.Wrapper.Tests/PaperMalKing.Shikimori.Wrapper.Tests.csproj" />
     <Project Path="tests/PaperMalKing.UpdateProviders.Base.Tests/PaperMalKing.UpdateProviders.Base.Tests.csproj" />
     <Project Path="tests/PaperMalKing.UpdatesProviders.Base.Search.Tests/PaperMalKing.UpdatesProviders.Base.Search.Tests.csproj" />
     <Project Path="tests/Tantei.Tests/Tantei.Tests.csproj" />

@@ -13,9 +13,11 @@ using Microsoft.Extensions.Options;
 using PaperMalKing.Common.RateLimiters;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.Shikimori.UpdateProvider.Achievements;
+using PaperMalKing.Shikimori.UpdateProvider.Search;
 using PaperMalKing.Shikimori.Wrapper;
 using PaperMalKing.Shikimori.Wrapper.Abstractions;
 using PaperMalKing.UpdatesProviders.Base.Features;
+using PaperMalKing.UpdatesProviders.Base.Search;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 using Polly;
 
@@ -72,6 +74,9 @@ public static class ServiceCollectionExtensions
 		});
 		serviceCollection.AddSingleton<BaseUserFeaturesService<ShikiUser, ShikiUserFeatures>, ShikiUserFeaturesService>();
 		serviceCollection.AddSingleton<ShikiUserService>();
+
+		serviceCollection.AddSearch();
+		serviceCollection.AddSingleton<ShikiMediaSearchService>();
 
 		var achievementsPath = configuration.GetValue<string?>("Shikimori:PathToAchievementsJson") ?? "neko.json";
 		var nekoFileJson = new NekoFileJson();

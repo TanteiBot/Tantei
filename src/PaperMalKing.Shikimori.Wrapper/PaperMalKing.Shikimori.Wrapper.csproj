@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
     
     <ItemGroup>
+        <InternalsVisibleTo Include="PaperMalKing.Shikimori.Wrapper.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="GraphQL.Client" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Telemetry.Abstractions" />

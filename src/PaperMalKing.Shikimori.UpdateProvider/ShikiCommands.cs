@@ -4,10 +4,14 @@
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
+using PaperMalKing.Common;
 using PaperMalKing.Database.Models.Shikimori;
+using PaperMalKing.Shikimori.UpdateProvider.Search;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Enums;
 using PaperMalKing.UpdatesProviders.Base;
 using PaperMalKing.UpdatesProviders.Base.Colors;
 using PaperMalKing.UpdatesProviders.Base.Features;
+using PaperMalKing.UpdatesProviders.Base.Search;
 
 namespace PaperMalKing.Shikimori.UpdateProvider;
 
@@ -75,5 +79,26 @@ internal sealed class ShikiCommands : ApplicationCommandModule
 
 		[SlashCommand("list", "Lists your overriden types")]
 		public override Task ListOverridenColor(InteractionContext context) => base.ListOverridenColor(context);
+	}
+
+	[SlashCommandGroup("search", "Search anime/manga on Shikimori")]
+	[SlashModuleLifespan(SlashModuleLifespan.Singleton)]
+	public sealed class ShikiMediaSearchCommands(ShikiMediaSearchService searchService) : BotCommandsModule
+	{
+		protected override bool IsResponseVisibleOnlyForRequester => true;
+
+		[SlashCommand("anime", "Search anime")]
+		public Task SearchAnimeAsync(InteractionContext context,
+									 [Option("title", "title of the anime")] string title,
+									 [ChoiceProvider(typeof(EnumChoiceProvider<MediaTypeChoiceProvider<AnimeKind>, AnimeKind>)),
+									  Option("kind", "Media kind to keep in the results")] string? unparsedKind = null) =>
+			searchService.SearchAnimeAsync(DiscordSearchInvocation.Create(context), title, MediaTypeChoiceProvider<AnimeKind>.Parse(unparsedKind), CancellationToken.None);
+
+		[SlashCommand("manga", "Search manga")]
+		public Task SearchMangaAsync(InteractionContext context,
+									 [Option("title", "title of the manga")] string title,
+									 [ChoiceProvider(typeof(EnumChoiceProvider<MediaTypeChoiceProvider<MangaKind>, MangaKind>)),
+									  Option("kind", "Media kind to keep in the results")] string? unparsedKind = null) =>
+			searchService.SearchMangaAsync(DiscordSearchInvocation.Create(context), title, MediaTypeChoiceProvider<MangaKind>.Parse(unparsedKind), CancellationToken.None);
 	}
 }

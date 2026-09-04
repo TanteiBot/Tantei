@@ -7,6 +7,9 @@
         <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider" />
         <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Installer" />
         <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Tests" />
+        <InternalsVisibleTo Include="PaperMalKing.Shikimori.UpdateProvider" />
+        <InternalsVisibleTo Include="PaperMalKing.Shikimori.UpdateProvider.Installer" />
+        <InternalsVisibleTo Include="PaperMalKing.Shikimori.UpdateProvider.Tests" />
         <InternalsVisibleTo Include="PaperMalKing.UpdatesProviders.Base.Search.Tests" />
     </ItemGroup>
 
