@@ -3,11 +3,12 @@
 
 namespace PaperMalKing.UpdatesProviders.Base.Search;
 
-internal abstract class MediaSearchServiceBase(SearchOrchestrator _orchestrator) : IMediaSearchProvider
+internal abstract class MediaSearchServiceBase(SearchOrchestrator _orchestrator, SearchProviderIdentity _identity, int _minimumQueryLength)
+	: IMediaSearchProvider
 {
-	public abstract SearchProviderIdentity Identity { get; }
+	public SearchProviderIdentity Identity => _identity;
 
-	public abstract int MinimumQueryLength { get; }
+	public int MinimumQueryLength => _minimumQueryLength;
 
 	public abstract Task<SearchEvaluation> EvaluateAsync(SearchRequest request, CancellationToken cancellationToken);
 
