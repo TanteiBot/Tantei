@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+      <PackageReference Include="GraphQL.Client" />
+      <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+      <ProjectReference Include="..\..\src\PaperMalKing.Shikimori.Wrapper.Abstractions\PaperMalKing.Shikimori.Wrapper.Abstractions.csproj" />
+      <ProjectReference Include="..\..\src\PaperMalKing.Shikimori.Wrapper\PaperMalKing.Shikimori.Wrapper.csproj" />
+  </ItemGroup>
+</Project>

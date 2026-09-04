@@ -30,6 +30,9 @@ internal static partial class Log
 	[LoggerMessage(LogLevel.Debug, "Requesting {UserId} achievements")]
 	public static partial void RequestingUserAchievements(this ILogger<ShikiClient> logger, uint userId);
 
+	[LoggerMessage(LogLevel.Debug, "Searching {Type} with query {Query}, kind {Kind}, includeNsfw {IncludeNsfw}")]
+	public static partial void SearchingMedia(this ILogger<ShikiClient> logger, ListEntryType type, string query, string? kind, bool includeNsfw);
+
 	[LoggerMessage(LogLevel.Warning, "Image {Url} not found")]
 	public static partial void ImageNotFound(this ILogger<ShikiClient> logger, string url);
 }

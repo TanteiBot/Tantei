@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DSharpPlus" />
+        <PackageReference Include="GraphQL.Client" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+        <PackageReference Include="Microsoft.VisualStudio.Threading" />
+        <ProjectReference Include="..\..\src\PaperMalKing.Common\PaperMalKing.Common.csproj" />
+        <ProjectReference Include="..\..\src\PaperMalKing.Database\PaperMalKing.Database.csproj" />
+        <ProjectReference Include="..\..\src\PaperMalKing.Shikimori.UpdateProvider\PaperMalKing.Shikimori.UpdateProvider.csproj" />
+        <ProjectReference Include="..\..\src\PaperMalKing.Shikimori.UpdateProvider.Installer\PaperMalKing.Shikimori.UpdateProvider.Installer.csproj" />
+        <ProjectReference Include="..\..\src\PaperMalKing.Shikimori.Wrapper.Abstractions\PaperMalKing.Shikimori.Wrapper.Abstractions.csproj" />
+        <ProjectReference Include="..\..\src\PaperMalKing.Shikimori.Wrapper\PaperMalKing.Shikimori.Wrapper.csproj" />
+        <ProjectReference Include="..\..\src\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
+        <ProjectReference Include="..\..\src\PaperMalKing.UpdatesProviders.Base.Search\PaperMalKing.UpdatesProviders.Base.Search.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -5,10 +5,8 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
-public class AnimeMedia : BaseMedia
+public sealed class IncompleteDate
 {
-	[JsonPropertyName("studios")]
-	public IReadOnlyList<Studio> Studios { get; init; } = [];
-
-	protected override string Type => "animes";
+	[JsonPropertyName("year")]
+	public int? Year { get; init; }
 }

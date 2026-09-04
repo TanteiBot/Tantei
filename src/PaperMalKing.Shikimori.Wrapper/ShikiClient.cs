@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Shikimori.Wrapper.Abstractions;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
+using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Enums;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 using PaperMalKing.Shikimori.Wrapper.Responses;
 
@@ -94,6 +95,26 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		var query = type == ListEntryType.Anime ? Queries.GetAnimeQuery(requestOptions) : Queries.GetMangaQuery(requestOptions);
 
 		return new(query, new { ids = id.ToString(CultureInfo.InvariantCulture) });
+	}
+
+	public async Task<IReadOnlyList<AnimeSearchMedia>> SearchAnimeAsync(string query, AnimeKind? kind, bool includeNsfw, CancellationToken cancellationToken)
+	{
+		_logger.SearchingMedia(ListEntryType.Anime, query, kind?.ToGraphQlKind(), includeNsfw);
+		var request = new GraphQLHttpRequest(Queries.GetAnimeSearchQuery(kind, includeNsfw), new { search = query });
+
+		var response = await _graphQlClient.SendQueryAsync<MediaResponse<AnimeSearchMedia>>(request, cancellationToken);
+
+		return response.Data.Media;
+	}
+
+	public async Task<IReadOnlyList<MangaSearchMedia>> SearchMangaAsync(string query, MangaKind? kind, bool includeNsfw, CancellationToken cancellationToken)
+	{
+		_logger.SearchingMedia(ListEntryType.Manga, query, kind?.ToGraphQlKind(), includeNsfw);
+		var request = new GraphQLHttpRequest(Queries.GetMangaSearchQuery(kind, includeNsfw), new { search = query });
+
+		var response = await _graphQlClient.SendQueryAsync<MediaResponse<MangaSearchMedia>>(request, cancellationToken);
+
+		return response.Data.Media;
 	}
 
 	public async Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken)

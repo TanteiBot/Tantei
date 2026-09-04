@@ -5,6 +5,7 @@
     <ItemGroup>
         <PackageReference Include="DSharpPlus" />
         <PackageReference Include="DSharpPlus.SlashCommands" />
+        <PackageReference Include="GraphQL.Client" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Hosting" />
         <PackageReference Include="Humanizer.Core" />
@@ -17,6 +18,7 @@
         <ProjectReference Include="..\PaperMalKing.Database\PaperMalKing.Database.csproj" />
         <ProjectReference Include="..\PaperMalKing.Shikimori.Wrapper.Abstractions\PaperMalKing.Shikimori.Wrapper.Abstractions.csproj" />
         <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
+        <ProjectReference Include="..\PaperMalKing.UpdatesProviders.Base.Search\PaperMalKing.UpdatesProviders.Base.Search.csproj" />
     </ItemGroup>
 
 </Project>

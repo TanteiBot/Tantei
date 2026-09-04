@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
-public sealed class MangaMedia : BaseMedia
+public class MangaMedia : BaseMedia
 {
 	[JsonPropertyName("publishers")]
 	public IReadOnlyList<Publisher> Publishers { get; init; } = [];
