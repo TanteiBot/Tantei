@@ -17,30 +17,22 @@ namespace PaperMalKing.AniList.UpdateProvider.Search;
 internal sealed class AniListMediaSearchService(
 	IAniListClient _client,
 	IDbContextFactory<DatabaseContext> _dbContextFactory,
-	SearchOrchestrator _orchestrator) : IMediaSearchProvider
+	SearchOrchestrator _orchestrator) : MediaSearchServiceBase(_orchestrator)
 {
 	private static readonly SearchProviderIdentity ProviderIdentity = new("AniList", "anilist");
 
-	public SearchProviderIdentity Identity => ProviderIdentity;
+	public override SearchProviderIdentity Identity => ProviderIdentity;
 
-	public int MinimumQueryLength => 1;
+	public override int MinimumQueryLength => 1;
 
 	public Task SearchAnimeAsync(ISearchInvocation invocation, string query, MediaFormat? format, CancellationToken cancellationToken)
-	{
-		ArgumentNullException.ThrowIfNull(invocation);
-		ArgumentNullException.ThrowIfNull(query);
-		return _orchestrator.RunAsync(this, invocation, BuildRequest(query, PickerMediaKind.Anime, format), cancellationToken);
-	}
+		=> this.RunSearchAsync(invocation, query, PickerMediaKind.Anime, SearchTypeFilter.From(format), cancellationToken);
 
 	public Task SearchMangaAsync(ISearchInvocation invocation, string query, MediaFormat? format, CancellationToken cancellationToken)
-	{
-		ArgumentNullException.ThrowIfNull(invocation);
-		ArgumentNullException.ThrowIfNull(query);
-		return _orchestrator.RunAsync(this, invocation, BuildRequest(query, PickerMediaKind.Manga, format), cancellationToken);
-	}
+		=> this.RunSearchAsync(invocation, query, PickerMediaKind.Manga, SearchTypeFilter.From(format), cancellationToken);
 
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
-	public async Task<SearchEvaluation> EvaluateAsync(SearchRequest request, CancellationToken cancellationToken)
+	public override async Task<SearchEvaluation> EvaluateAsync(SearchRequest request, CancellationToken cancellationToken)
 	{
 		using var db = _dbContextFactory.CreateDbContext();
 		var dbUser = db.AniListUsers.TagWith("Query user when searching for media").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == request.RequesterId);
@@ -69,7 +61,7 @@ internal sealed class AniListMediaSearchService(
 		return SearchEvaluator.Evaluate(request.QueryKey, candidates);
 	}
 
-	public SearchFailure Classify(Exception exception)
+	public override SearchFailure Classify(Exception exception)
 	{
 		if (exception is GraphQLHttpRequestException { StatusCode: HttpStatusCode.TooManyRequests })
 		{
@@ -78,10 +70,4 @@ internal sealed class AniListMediaSearchService(
 
 		return new(SearchMessages.Failed(ProviderIdentity.DisplayName), logger => logger.SearchFailed(exception));
 	}
-
-	private static SearchRequest BuildRequest(string query, PickerMediaKind mediaKind, MediaFormat? format) => new(
-		MatchKey.Create(query),
-		query,
-		mediaKind,
-		SearchTypeFilter.From(format));
 }

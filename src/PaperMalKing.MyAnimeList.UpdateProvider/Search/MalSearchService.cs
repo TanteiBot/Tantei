@@ -10,40 +10,22 @@ using Polly.RateLimiting;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
-internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchestrator _orchestrator) : IMediaSearchProvider
+internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchestrator _orchestrator) : MediaSearchServiceBase(_orchestrator)
 {
 	private const int MinimumQueryTextElements = 3;
 	private static readonly SearchProviderIdentity ProviderIdentity = new("MyAnimeList", "mal");
 
-	public SearchProviderIdentity Identity => ProviderIdentity;
+	public override SearchProviderIdentity Identity => ProviderIdentity;
 
-	public int MinimumQueryLength => MinimumQueryTextElements;
+	public override int MinimumQueryLength => MinimumQueryTextElements;
 
 	public Task SearchAnimeAsync(ISearchInvocation invocation, string query, AnimeMediaType? mediaType, CancellationToken cancellationToken)
-	{
-		ArgumentNullException.ThrowIfNull(invocation);
-		ArgumentNullException.ThrowIfNull(query);
-		var request = new SearchRequest(
-			MatchKey.Create(query),
-			query,
-			PickerMediaKind.Anime,
-			SearchTypeFilter.From(mediaType));
-		return _orchestrator.RunAsync(this, invocation, request, cancellationToken);
-	}
+		=> this.RunSearchAsync(invocation, query, PickerMediaKind.Anime, SearchTypeFilter.From(mediaType), cancellationToken);
 
 	public Task SearchMangaAsync(ISearchInvocation invocation, string query, MangaMediaType? mediaType, CancellationToken cancellationToken)
-	{
-		ArgumentNullException.ThrowIfNull(invocation);
-		ArgumentNullException.ThrowIfNull(query);
-		var request = new SearchRequest(
-			MatchKey.Create(query),
-			query,
-			PickerMediaKind.Manga,
-			SearchTypeFilter.From(mediaType));
-		return _orchestrator.RunAsync(this, invocation, request, cancellationToken);
-	}
+		=> this.RunSearchAsync(invocation, query, PickerMediaKind.Manga, SearchTypeFilter.From(mediaType), cancellationToken);
 
-	public async Task<SearchEvaluation> EvaluateAsync(SearchRequest request, CancellationToken cancellationToken)
+	public override async Task<SearchEvaluation> EvaluateAsync(SearchRequest request, CancellationToken cancellationToken)
 	{
 		if (request.MediaKind == PickerMediaKind.Manga)
 		{
@@ -59,7 +41,7 @@ internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchest
 		return SearchEvaluator.Evaluate(request.QueryKey, animeCandidates, applyTypeFilter: animeFilter.HasValue);
 	}
 
-	public SearchFailure Classify(Exception exception)
+	public override SearchFailure Classify(Exception exception)
 	{
 		if (exception is HttpRequestException { StatusCode: HttpStatusCode.Forbidden })
 		{
