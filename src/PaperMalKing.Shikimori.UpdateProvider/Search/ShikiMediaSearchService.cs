@@ -17,30 +17,16 @@ namespace PaperMalKing.Shikimori.UpdateProvider.Search;
 internal sealed class ShikiMediaSearchService(
 	IShikiClient _client,
 	IDbContextFactory<DatabaseContext> _dbContextFactory,
-	SearchOrchestrator _orchestrator) : IMediaSearchProvider
+	SearchOrchestrator _orchestrator) : MediaSearchServiceBase(_orchestrator, new("Shikimori", "shikimori"), 1)
 {
-	private static readonly SearchProviderIdentity ProviderIdentity = new("Shikimori", "shikimori");
-
-	public SearchProviderIdentity Identity => ProviderIdentity;
-
-	public int MinimumQueryLength => 1;
-
 	public Task SearchAnimeAsync(ISearchInvocation invocation, string query, AnimeKind? kind, CancellationToken cancellationToken)
-	{
-		ArgumentNullException.ThrowIfNull(invocation);
-		ArgumentNullException.ThrowIfNull(query);
-		return _orchestrator.RunAsync(this, invocation, BuildRequest(query, PickerMediaKind.Anime, SearchTypeFilter.From(kind)), cancellationToken);
-	}
+		=> this.RunSearchAsync(invocation, query, PickerMediaKind.Anime, SearchTypeFilter.From(kind), cancellationToken);
 
 	public Task SearchMangaAsync(ISearchInvocation invocation, string query, MangaKind? kind, CancellationToken cancellationToken)
-	{
-		ArgumentNullException.ThrowIfNull(invocation);
-		ArgumentNullException.ThrowIfNull(query);
-		return _orchestrator.RunAsync(this, invocation, BuildRequest(query, PickerMediaKind.Manga, SearchTypeFilter.From(kind)), cancellationToken);
-	}
+		=> this.RunSearchAsync(invocation, query, PickerMediaKind.Manga, SearchTypeFilter.From(kind), cancellationToken);
 
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
-	public async Task<SearchEvaluation> EvaluateAsync(SearchRequest request, CancellationToken cancellationToken)
+	public override async Task<SearchEvaluation> EvaluateAsync(SearchRequest request, CancellationToken cancellationToken)
 	{
 		using var db = _dbContextFactory.CreateDbContext();
 		var dbUser = db.ShikiUsers.TagWith("Query user when searching for media").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == request.RequesterId);
@@ -63,19 +49,13 @@ internal sealed class ShikiMediaSearchService(
 		return SearchEvaluator.Evaluate(request.QueryKey, animeCandidates, applyTypeFilter: animeKind.HasValue);
 	}
 
-	public SearchFailure Classify(Exception exception)
+	public override SearchFailure Classify(Exception exception)
 	{
 		if (exception is GraphQLHttpRequestException { StatusCode: HttpStatusCode.TooManyRequests })
 		{
-			return new(SearchMessages.Busy(ProviderIdentity.DisplayName), static logger => logger.RateLimiterQueueRejected());
+			return new(SearchMessages.Busy(this.Identity.DisplayName), static logger => logger.RateLimiterQueueRejected());
 		}
 
-		return new(SearchMessages.Failed(ProviderIdentity.DisplayName), logger => logger.SearchFailed(exception));
+		return new(SearchMessages.Failed(this.Identity.DisplayName), logger => logger.SearchFailed(exception));
 	}
-
-	private static SearchRequest BuildRequest(string query, PickerMediaKind mediaKind, SearchTypeFilter? filter) => new(
-		MatchKey.Create(query),
-		query,
-		mediaKind,
-		filter);
 }

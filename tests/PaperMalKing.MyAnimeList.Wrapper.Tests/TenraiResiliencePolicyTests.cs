@@ -378,7 +378,7 @@ public sealed class TenraiResiliencePolicyTests
 
 		public HttpClient Client { get; }
 
-		public ManualTimeProvider Time { get; }
+		public FakeTimeProvider Time { get; }
 
 		public void Dispose()
 		{

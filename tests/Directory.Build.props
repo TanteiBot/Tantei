@@ -14,5 +14,10 @@
         <PackageReference Include="Verify" />
         <PackageReference Include="Verify.TUnit" />
         <PackageReference Include="TUnit" />
+        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Microsoft.Extensions.Time.Testing" />
     </ItemGroup>
 </Project>

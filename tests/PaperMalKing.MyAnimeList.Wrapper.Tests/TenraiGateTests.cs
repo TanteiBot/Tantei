@@ -25,7 +25,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task FourFailuresWithinTheWindowKeepCallsFlowing()
 	{
-		var gate = CreateGate(new ManualTimeProvider(Start));
+		var gate = CreateGate(new FakeTimeProvider(Start));
 
 		RecordFailures(gate, FailureThreshold - 1);
 
@@ -35,7 +35,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task FifthFailureWithinTheWindowSuppressesCallsWithCircuitOpen()
 	{
-		var gate = CreateGate(new ManualTimeProvider(Start));
+		var gate = CreateGate(new FakeTimeProvider(Start));
 
 		RecordFailures(gate, FailureThreshold);
 
@@ -45,7 +45,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task FailuresSpreadAcrossTheWindowStillAccumulate()
 	{
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var gate = CreateGate(time);
 		RecordFailures(gate, FailureThreshold - 1);
 
@@ -59,7 +59,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task FailuresOlderThanTheWindowAreEvicted()
 	{
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var gate = CreateGate(time);
 		RecordFailures(gate, FailureThreshold - 1);
 
@@ -74,7 +74,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task OpenCircuitClosesAfterThirtySeconds()
 	{
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var gate = CreateGate(time);
 		RecordFailures(gate, FailureThreshold);
 
@@ -88,7 +88,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task FailuresRecordedWhileOpenDoNotExtendTheOpenWindow()
 	{
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var gate = CreateGate(time);
 		RecordFailures(gate, FailureThreshold);
 
@@ -102,7 +102,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task CompletedResponsesTheClassificationCallsTransientOpenTheCircuit()
 	{
-		var gate = CreateGate(new ManualTimeProvider(Start));
+		var gate = CreateGate(new FakeTimeProvider(Start));
 
 		RecordCompleted(gate, HttpStatusCode.InternalServerError, FailureThreshold);
 
@@ -112,7 +112,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task CompletedResponsesTheClassificationExcludesNeverOpenTheCircuit()
 	{
-		var gate = CreateGate(new ManualTimeProvider(Start));
+		var gate = CreateGate(new FakeTimeProvider(Start));
 
 		RecordCompleted(gate, HttpStatusCode.BadRequest, FailureThreshold);
 
@@ -122,7 +122,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task SuccessfulOutcomesDoNotEraseLiveFailureTimestamps()
 	{
-		var gate = CreateGate(new ManualTimeProvider(Start));
+		var gate = CreateGate(new FakeTimeProvider(Start));
 		RecordFailures(gate, FailureThreshold - 1);
 
 		RecordCompleted(gate, HttpStatusCode.OK, FailureThreshold);
@@ -136,7 +136,7 @@ public sealed class TenraiGateTests
 	public async Task FailuresBelowThresholdEmitNoTransitionLog()
 	{
 		var logger = new RecordingLogger<TenraiGate>();
-		var gate = new TenraiGate(new ManualTimeProvider(Start), logger);
+		var gate = new TenraiGate(new FakeTimeProvider(Start), logger);
 
 		RecordFailures(gate, FailureThreshold - 1);
 
@@ -147,7 +147,7 @@ public sealed class TenraiGateTests
 	public async Task OpeningEmitsExactlyOneWarning()
 	{
 		var logger = new RecordingLogger<TenraiGate>();
-		var gate = new TenraiGate(new ManualTimeProvider(Start), logger);
+		var gate = new TenraiGate(new FakeTimeProvider(Start), logger);
 
 		RecordFailures(gate, FailureThreshold);
 
@@ -160,7 +160,7 @@ public sealed class TenraiGateTests
 	public async Task ClosingAfterTheWindowEmitsExactlyOneClosedWarning()
 	{
 		var logger = new RecordingLogger<TenraiGate>();
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var gate = new TenraiGate(time, logger);
 		RecordFailures(gate, FailureThreshold);
 
@@ -177,7 +177,7 @@ public sealed class TenraiGateTests
 	public async Task FailuresWhileOpenDoNotEmitAdditionalOpenWarnings()
 	{
 		var logger = new RecordingLogger<TenraiGate>();
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var gate = new TenraiGate(time, logger);
 		RecordFailures(gate, FailureThreshold);
 
@@ -191,7 +191,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task ActiveCooldownSuppressesNewOperations()
 	{
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var gate = CreateGate(time);
 		using var response = RateLimited(HttpStatusCode.TooManyRequests, TimeSpan.FromSeconds(3));
 
@@ -206,7 +206,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task HttpDateRetryAfterEngagesTheCooldown()
 	{
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var gate = CreateGate(time);
 		using var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests)
 		{
@@ -224,7 +224,7 @@ public sealed class TenraiGateTests
 	[Arguments("invalid")]
 	public async Task UnusableRetryAfterNeverEngagesTheCooldown(string? retryAfter)
 	{
-		var gate = CreateGate(new ManualTimeProvider(Start));
+		var gate = CreateGate(new FakeTimeProvider(Start));
 		using var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests);
 		if (retryAfter is not null)
 		{
@@ -240,7 +240,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task RetryAfterOnAStatusTheClassificationDoesNotGateIsIgnored()
 	{
-		var gate = CreateGate(new ManualTimeProvider(Start));
+		var gate = CreateGate(new FakeTimeProvider(Start));
 		using var response = RateLimited(HttpStatusCode.InternalServerError, TimeSpan.FromSeconds(30));
 
 		var recorded = gate.Record(TenraiSignal.Attempted(response));
@@ -252,7 +252,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task LongerExpiryExtendsTheCooldownAndShorterOneDoesNot()
 	{
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var gate = CreateGate(time);
 		using var longer = RateLimited(HttpStatusCode.TooManyRequests, TimeSpan.FromSeconds(10));
 		using var shorter = RateLimited(HttpStatusCode.TooManyRequests, TimeSpan.FromSeconds(1));
@@ -269,7 +269,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task OverlongRetryAfterDoesNotOverflowTheCooldown()
 	{
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var gate = CreateGate(time);
 		using var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests)
 		{
@@ -284,7 +284,7 @@ public sealed class TenraiGateTests
 	[Test]
 	public async Task OpenCircuitTakesPrecedenceOverAnActiveCooldown()
 	{
-		var gate = CreateGate(new ManualTimeProvider(Start));
+		var gate = CreateGate(new FakeTimeProvider(Start));
 		using var response = RateLimited(HttpStatusCode.TooManyRequests, TimeSpan.FromSeconds(3));
 		_ = gate.Record(TenraiSignal.Attempted(response));
 
@@ -297,7 +297,7 @@ public sealed class TenraiGateTests
 	public async Task EngagingTheCooldownEmitsOneWarningWithTheDelay()
 	{
 		var logger = new RecordingLogger<TenraiGate>();
-		var gate = new TenraiGate(new ManualTimeProvider(Start), logger);
+		var gate = new TenraiGate(new FakeTimeProvider(Start), logger);
 		using var response = RateLimited(HttpStatusCode.TooManyRequests, TimeSpan.FromSeconds(3));
 
 		_ = gate.Record(TenraiSignal.Attempted(response));
@@ -312,7 +312,7 @@ public sealed class TenraiGateTests
 	public async Task ExtendingAnActiveCooldownDoesNotEmitAnotherWarning()
 	{
 		var logger = new RecordingLogger<TenraiGate>();
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var gate = new TenraiGate(time, logger);
 		using var first = RateLimited(HttpStatusCode.TooManyRequests, TimeSpan.FromSeconds(5));
 		using var second = RateLimited(HttpStatusCode.TooManyRequests, TimeSpan.FromSeconds(5));
@@ -328,7 +328,7 @@ public sealed class TenraiGateTests
 	public async Task ReEngagingAfterExpiryEmitsAnotherWarning()
 	{
 		var logger = new RecordingLogger<TenraiGate>();
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var gate = new TenraiGate(time, logger);
 		using var first = RateLimited(HttpStatusCode.TooManyRequests, TimeSpan.FromSeconds(2));
 		using var second = RateLimited(HttpStatusCode.TooManyRequests, TimeSpan.FromSeconds(2));
@@ -344,7 +344,7 @@ public sealed class TenraiGateTests
 	public async Task MissingRetryAfterEmitsNoWarning()
 	{
 		var logger = new RecordingLogger<TenraiGate>();
-		var gate = new TenraiGate(new ManualTimeProvider(Start), logger);
+		var gate = new TenraiGate(new FakeTimeProvider(Start), logger);
 		using var response = new HttpResponseMessage(HttpStatusCode.TooManyRequests);
 
 		_ = gate.Record(TenraiSignal.Attempted(response));
@@ -460,7 +460,7 @@ public sealed class TenraiGateTests
 
 		public HandlerScope(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> respond)
 		{
-			this.Gate = new(new ManualTimeProvider(Start), NullLogger<TenraiGate>.Instance);
+			this.Gate = new(new FakeTimeProvider(Start), NullLogger<TenraiGate>.Instance);
 			this._inner = new(respond);
 			this._handler = new(this.Gate) { InnerHandler = this._inner, };
 			this.Client = new(this._handler, disposeHandler: false)

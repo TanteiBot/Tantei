@@ -285,7 +285,7 @@ public sealed class MalSearchServiceTests
 
 		public ServiceScope(FakeMyAnimeListSearchClient client)
 		{
-			var timeProvider = new ManualTimeProvider(Start);
+			var timeProvider = new FakeTimeProvider(Start);
 			var picker = new SearchPicker(this._cache, timeProvider, NullLogger<SearchPicker>.Instance);
 			var orchestrator = new SearchOrchestrator(picker, timeProvider, this.Logger);
 			this.Service = new(client, orchestrator);
