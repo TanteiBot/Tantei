@@ -3,9 +3,9 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
+namespace Tantei.TestSupport;
 
-internal sealed class RecordingLogger<T> : ILogger<T>
+public sealed class RecordingLogger<T> : ILogger<T>
 {
 	public List<RecordedLogEntry> Entries { get; } = [];
 

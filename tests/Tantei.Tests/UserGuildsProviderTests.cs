@@ -33,17 +33,6 @@ public sealed class UserGuildsProviderTests
 
 	private static readonly TimeSpan TokenLifetime = TimeSpan.FromDays(7);
 
-	private sealed class FakeHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> respond) : HttpMessageHandler
-	{
-		public int CallCount { get; private set; }
-
-		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-		{
-			this.CallCount++;
-			return Task.FromResult(respond(request));
-		}
-	}
-
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	private static async Task<(DiscordOAuthTokenStore Store, SqliteConnection Connection)> CreateStoreAsync(TimeProvider timeProvider)
 	{

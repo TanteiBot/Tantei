@@ -151,11 +151,4 @@ public sealed class TenraiEnrichmentDetailsTests
 
 		public void Dispose() => this._tenraiClient.Dispose();
 	}
-
-	private sealed class FakeHttpMessageHandler(
-		Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> respond) : HttpMessageHandler
-	{
-		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
-			respond(request, cancellationToken);
-	}
 }

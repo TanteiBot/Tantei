@@ -1,14 +1,21 @@
 <Project>
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\'))" />
     <PropertyGroup>
+        <IsTestSupportProject Condition="'$(MSBuildProjectName)' == 'Tantei.TestSupport.Core'">true</IsTestSupportProject>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <IsPackable>false</IsPackable>
         <ImplicitUsings>enable</ImplicitUsings>
         <NoWarn>$(NoWarn);VSTHRD200;CA1515;EA0004;AsyncFixer01;</NoWarn>
         <IsPublishable>false</IsPublishable>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(IsTestSupportProject)' != 'true'">
         <OutputType>Exe</OutputType>
     </PropertyGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition="'$(IsTestSupportProject)' != 'true'">
         <PackageReference Include="coverlet.collector" />
         <PackageReference Include="GitHubActionsTestLogger" />
         <PackageReference Include="Verify" />
@@ -17,7 +24,12 @@
         <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
     </ItemGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition="'$(IsTestSupportProject)' != 'true'">
         <Using Include="Microsoft.Extensions.Time.Testing" />
+        <Using Include="Tantei.TestSupport" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(IsTestSupportProject)' != 'true'">
+        <ProjectReference Include="$(MSBuildThisFileDirectory)Tantei.TestSupport.Core\Tantei.TestSupport.Core.csproj" />
     </ItemGroup>
 </Project>

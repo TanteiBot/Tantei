@@ -191,17 +191,4 @@ public sealed class DiscordTokenRefreshServiceTests
 		await Assert.That(result).IsEqualTo(AccessToken);
 		await Assert.That(handler.CallCount).IsEqualTo(0);
 	}
-
-	private sealed class FakeHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> respond) : HttpMessageHandler
-	{
-		private int _callCount;
-
-		public int CallCount => this._callCount;
-
-		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-		{
-			Interlocked.Increment(ref this._callCount);
-			return Task.FromResult(respond(request));
-		}
-	}
 }

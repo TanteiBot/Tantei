@@ -400,13 +400,6 @@ public sealed class TenraiResiliencePolicyTests
 		}
 	}
 
-	private sealed class FakeHttpMessageHandler(
-		Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> respond) : HttpMessageHandler
-	{
-		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
-			respond(request, cancellationToken);
-	}
-
 	private sealed class SlowContent : HttpContent
 	{
 		protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) =>

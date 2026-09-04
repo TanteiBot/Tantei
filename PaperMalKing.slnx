@@ -65,6 +65,7 @@
     <Project Path="tests/PaperMalKing.Shikimori.Wrapper.Tests/PaperMalKing.Shikimori.Wrapper.Tests.csproj" />
     <Project Path="tests/PaperMalKing.UpdateProviders.Base.Tests/PaperMalKing.UpdateProviders.Base.Tests.csproj" />
     <Project Path="tests/PaperMalKing.UpdatesProviders.Base.Search.Tests/PaperMalKing.UpdatesProviders.Base.Search.Tests.csproj" />
+    <Project Path="tests/Tantei.TestSupport.Core/Tantei.TestSupport.Core.csproj" />
     <Project Path="tests/Tantei.Tests/Tantei.Tests.csproj" />
   </Folder>
 </Solution>

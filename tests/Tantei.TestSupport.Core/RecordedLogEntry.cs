@@ -3,9 +3,9 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace PaperMalKing.MyAnimeList.Wrapper.Tests;
+namespace Tantei.TestSupport;
 
-internal sealed record RecordedLogEntry(
+public sealed record RecordedLogEntry(
 	LogLevel Level,
 	EventId EventId,
 	string Message,
