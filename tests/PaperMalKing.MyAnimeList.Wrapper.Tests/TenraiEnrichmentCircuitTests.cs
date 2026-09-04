@@ -143,7 +143,7 @@ public sealed class TenraiEnrichmentCircuitTests
 			{
 				BaseAddress = new("https://example.test/v1/"),
 			};
-			this.Gate = new(new ManualTimeProvider(Now), NullLogger<TenraiGate>.Instance);
+			this.Gate = new(new FakeTimeProvider(Now), NullLogger<TenraiGate>.Instance);
 			this.Client = new(NullLogger<TenraiEnrichment>.Instance, this._tenraiClient, this.Gate);
 		}
 

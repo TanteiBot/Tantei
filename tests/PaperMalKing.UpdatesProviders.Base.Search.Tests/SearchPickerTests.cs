@@ -31,7 +31,7 @@ public sealed class SearchPickerTests
 	public async Task AnUnrecognizedInteractionRemainsUntouched()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start));
 		var interaction = new FakePickerInteraction("another-feature:next");
 
 		var routed = await picker.HandleAsync(interaction);
@@ -45,7 +45,7 @@ public sealed class SearchPickerTests
 	public async Task AMalformedPickerInteractionIsARecognizedUnavailableOutcome()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start));
 		var interaction = new FakePickerInteraction("search:not-a-picker");
 
 		var routed = await picker.HandleAsync(interaction);
@@ -58,7 +58,7 @@ public sealed class SearchPickerTests
 	public async Task AnUnopenedPickerIsARecognizedUnavailableOutcome()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start));
 		var interaction = new FakePickerInteraction(PickerCustomId.Create(SearchId, PickerAction.Next));
 
 		var routed = await picker.HandleAsync(interaction);
@@ -73,7 +73,7 @@ public sealed class SearchPickerTests
 	public async Task AnOverduePickerOpensInAControlFreeExpiredState()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start + AbsoluteLifetime);
+		var time = new FakeTimeProvider(Start + AbsoluteLifetime);
 		var picker = CreatePicker(cache, time);
 
 		var opened = Open(picker, new FakePickerMessageTarget(), resultCount: 1);
@@ -86,7 +86,7 @@ public sealed class SearchPickerTests
 	public async Task InitialDeliveryFailureLeavesThePickerUnavailable()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget { EditException = new InvalidOperationException("delivery failed"), };
 		var failed = false;
@@ -118,7 +118,7 @@ public sealed class SearchPickerTests
 	public async Task ExpiryCancelsAHangingInitialDeliveryWithoutOpeningThePicker()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget { PauseEditNumber = 1, };
 		var opening = picker.OpenAsync(
@@ -144,7 +144,7 @@ public sealed class SearchPickerTests
 	public async Task EvictionDuringOpeningCannotReactivateThePicker()
 	{
 		using var cache = new EvictingMemoryCache();
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget();
 
@@ -165,7 +165,7 @@ public sealed class SearchPickerTests
 	public async Task PageInteractionUpdatesThePickerWithinTheSnapshot()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start));
 		var opened = Open(picker, new FakePickerMessageTarget(), ResultCountAcrossTwoPages);
 		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Next));
 
@@ -181,7 +181,7 @@ public sealed class SearchPickerTests
 	public async Task InteractionFromAnyoneOtherThanTheRequesterIsIgnored()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start));
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
 		var interaction = Pick(opened.SearchId) with { DiscordUserId = 99UL, };
@@ -196,7 +196,7 @@ public sealed class SearchPickerTests
 	public async Task PickPostsBeforeDeletingTheOriginal()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start));
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
 		var interaction = Pick(opened.SearchId);
@@ -211,7 +211,7 @@ public sealed class SearchPickerTests
 	public async Task SuccessfulPickEndsBeforeItsDeleteCompletes()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget { PauseDelete = true, };
 		var opened = Open(picker, target);
@@ -232,7 +232,7 @@ public sealed class SearchPickerTests
 	public async Task PostFailureLeavesOneControlFreeTerminalError()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start));
 		var target = new FakePickerMessageTarget { PostException = new InvalidOperationException("denied"), };
 		var opened = Open(picker, target);
 
@@ -249,7 +249,7 @@ public sealed class SearchPickerTests
 	public async Task ConcurrentPickAndCancelHaveOneTerminalWinner()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start));
 		var target = new FakePickerMessageTarget { PausePost = true, };
 		var opened = Open(picker, target);
 		var pick = picker.HandleAsync(Pick(opened.SearchId));
@@ -269,7 +269,7 @@ public sealed class SearchPickerTests
 	public async Task InactivityTimeoutWinsWhileAPublicPostHangs()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget { PausePost = true, };
 		var opened = Open(picker, target);
@@ -289,7 +289,7 @@ public sealed class SearchPickerTests
 	public async Task TimeoutThatWinsThePickRacePreventsThePost()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
@@ -307,7 +307,7 @@ public sealed class SearchPickerTests
 	public async Task InactivityTimeoutEndsThePickerWhileItsTerminalEditHangs()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget { PauseEditNumber = 2, };
 		var opened = Open(picker, target);
@@ -326,7 +326,7 @@ public sealed class SearchPickerTests
 	public async Task InactivityTimeoutEndsThePickerWhileAPageEditHangs()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
@@ -348,7 +348,7 @@ public sealed class SearchPickerTests
 	public async Task InactivityClockSlidesOnEveryRecognizedInteraction()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
@@ -367,7 +367,7 @@ public sealed class SearchPickerTests
 	public async Task AbsoluteClockNeverSlides()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var picker = CreatePicker(cache, time);
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
@@ -387,7 +387,7 @@ public sealed class SearchPickerTests
 	public async Task AbsoluteTimeoutEndsThePickerWhileAPublicPostHangs()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var time = new ManualTimeProvider(Start);
+		var time = new FakeTimeProvider(Start);
 		var logger = new RecordingLogger<SearchPicker>();
 		var picker = CreatePicker(cache, time, logger);
 		var target = new FakePickerMessageTarget { PausePost = true, };
@@ -416,7 +416,7 @@ public sealed class SearchPickerTests
 	public async Task AcknowledgementFailureTerminatesAndReportsThroughTheComponent()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start));
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
 		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Next))
@@ -436,7 +436,7 @@ public sealed class SearchPickerTests
 	public async Task UnexpectedInteractionErrorTerminatesAndReportsThroughTheComponent()
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start));
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start));
 		var target = new FakePickerMessageTarget();
 		var opened = Open(picker, target);
 		var interaction = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Next)) { ReplacementFailuresRemaining = 1, };
@@ -454,7 +454,7 @@ public sealed class SearchPickerTests
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var logger = new RecordingLogger<SearchPicker>();
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start), logger);
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start), logger);
 
 		await picker.HandleAsync(new FakePickerInteraction(PickerCustomId.Create(SearchId, PickerAction.Next)));
 
@@ -466,7 +466,7 @@ public sealed class SearchPickerTests
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var logger = new RecordingLogger<SearchPicker>();
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start), logger);
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start), logger);
 		var target = new FakePickerMessageTarget { DeleteException = new InvalidOperationException("delete failed"), };
 		var opened = Open(picker, target);
 
@@ -481,7 +481,7 @@ public sealed class SearchPickerTests
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var logger = new RecordingLogger<SearchPicker>();
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start), logger);
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start), logger);
 		var opened = Open(picker, new FakePickerMessageTarget());
 		var cancel = new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Cancel)) { ReplacementFailuresRemaining = 1, };
 
@@ -496,7 +496,7 @@ public sealed class SearchPickerTests
 	{
 		using var cache = new MemoryCache(new MemoryCacheOptions());
 		var logger = new RecordingLogger<SearchPicker>();
-		var picker = CreatePicker(cache, new ManualTimeProvider(Start), logger);
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start), logger);
 		var target = new FakePickerMessageTarget { PausePost = true, };
 		var opened = Open(picker, target);
 		var pick = picker.HandleAsync(Pick(opened.SearchId));
