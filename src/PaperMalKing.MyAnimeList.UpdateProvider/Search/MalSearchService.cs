@@ -12,9 +12,12 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
 internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchestrator _orchestrator) : IMediaSearchProvider
 {
+	private const int MinimumQueryTextElements = 3;
 	private static readonly SearchProviderIdentity ProviderIdentity = new("MyAnimeList", "mal");
 
 	public SearchProviderIdentity Identity => ProviderIdentity;
+
+	public int MinimumQueryLength => MinimumQueryTextElements;
 
 	public Task SearchAnimeAsync(ISearchInvocation invocation, string query, AnimeMediaType? mediaType, CancellationToken cancellationToken)
 	{

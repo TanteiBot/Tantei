@@ -11,8 +11,6 @@ internal sealed class SearchOrchestrator(
 	TimeProvider _timeProvider,
 	ILogger<SearchOrchestrator> _logger)
 {
-	public const int MinimumQueryTextElements = 3;
-
 	public Task RunAsync(
 		IMediaSearchProvider provider,
 		ISearchInvocation invocation,
@@ -51,9 +49,9 @@ internal sealed class SearchOrchestrator(
 			return;
 		}
 
-		if (new StringInfo(request.RawQuery).LengthInTextElements < MinimumQueryTextElements)
+		if (new StringInfo(request.RawQuery).LengthInTextElements < provider.MinimumQueryLength)
 		{
-			await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.QueryTooShort), cancellationToken).ConfigureAwait(false);
+			await target.EditOriginalAsync(PickerView.Terminal(SearchMessages.QueryTooShort(provider.MinimumQueryLength)), cancellationToken).ConfigureAwait(false);
 			return;
 		}
 

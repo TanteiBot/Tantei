@@ -119,6 +119,32 @@ public sealed class AniListMediaSearchServiceTests
 	}
 
 	[Test]
+	public async Task ASingleCharacterQueryReachesAniList()
+	{
+		const string singleCharacterQuery = "K";
+		var client = new FakeAniListSearchClient { Response = Response(Media(id: 1U, romaji: singleCharacterQuery)) };
+		await using var scope = await ServiceScope.CreateAsync(client);
+		var target = new FakeSearchMessageTarget();
+
+		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target), singleCharacterQuery, format: null, CancellationToken.None);
+
+		await Assert.That(client.CallCount).IsEqualTo(1);
+	}
+
+	[Test]
+	public async Task AnEmptyQueryIsRejectedWithTheMinimumOfOneCharacter()
+	{
+		var client = new FakeAniListSearchClient();
+		await using var scope = await ServiceScope.CreateAsync(client);
+		var target = new FakeSearchMessageTarget();
+
+		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target), "", format: null, CancellationToken.None);
+
+		await Assert.That(client.CallCount).IsZero();
+		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.QueryTooShort(1));
+	}
+
+	[Test]
 	public async Task DropsTheMediaFormatStripButKeepsGenresStudioAndMangakaStripped()
 	{
 		var features = AniListUserFeatures.Default | AniListUserFeatures.Genres | AniListUserFeatures.Studio |

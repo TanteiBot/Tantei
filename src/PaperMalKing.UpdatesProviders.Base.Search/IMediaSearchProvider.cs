@@ -7,6 +7,8 @@ internal interface IMediaSearchProvider
 {
 	SearchProviderIdentity Identity { get; }
 
+	int MinimumQueryLength { get; }
+
 	Task<SearchEvaluation> EvaluateAsync(SearchRequest request, CancellationToken cancellationToken);
 
 	SearchFailure Classify(Exception exception);

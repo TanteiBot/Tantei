@@ -23,6 +23,8 @@ internal sealed class AniListMediaSearchService(
 
 	public SearchProviderIdentity Identity => ProviderIdentity;
 
+	public int MinimumQueryLength => 1;
+
 	public Task SearchAnimeAsync(ISearchInvocation invocation, string query, MediaFormat? format, CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(invocation);

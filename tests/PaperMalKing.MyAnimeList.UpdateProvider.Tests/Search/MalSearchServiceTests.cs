@@ -44,7 +44,7 @@ public sealed class MalSearchServiceTests
 		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target), "\U0001F1EF\U0001F1F5こ", mediaType: null, CancellationToken.None);
 
 		await Assert.That(client.CallCount).IsZero();
-		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.QueryTooShort);
+		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.QueryTooShort(scope.Service.MinimumQueryLength));
 	}
 
 	[Test]
