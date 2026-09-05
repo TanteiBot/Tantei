@@ -501,12 +501,12 @@ export async function resolveAuth(params: {
       if (scheme.in === "query") {
         if (query[name] === undefined) query[name] = token;
       } else if (scheme.in === "cookie") {
-        headers.Cookie = [headers.Cookie, `${name}=${token}`].filter(Boolean).join("; ");
+        headers["Cookie"] = [headers["Cookie"], `${name}=${token}`].filter(Boolean).join("; ");
       } else if (!hasHeader(headers, name)) {
         headers[name] = token;
       }
     } else if (!hasHeader(headers, "Authorization")) {
-      headers.Authorization =
+      headers["Authorization"] =
         scheme.scheme === "basic" ? `Basic ${btoa(token)}` : `Bearer ${token}`;
     }
     return;
@@ -615,7 +615,7 @@ async function resolveRequest<TBody, TRequest, TResponse>({
 
   if (requestConfig.cookies) {
     const cookie = serializeCookies(requestConfig.cookies, requestConfig.styles?.cookie);
-    if (cookie) headers.Cookie = [headers.Cookie, cookie].filter(Boolean).join("; ");
+    if (cookie) headers["Cookie"] = [headers["Cookie"], cookie].filter(Boolean).join("; ");
   }
 
   const validatedBody = await runValidator(requestConfig.validator?.request, requestConfig.body);

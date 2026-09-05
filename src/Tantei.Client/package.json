@@ -22,24 +22,24 @@
     "build-storybook": "storybook build --loglevel error"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.126",
+    "@iconify-json/lucide": "^1.2.128",
     "@nuxt/ui": "^4.11.0",
-    "@tanstack/vue-query": "^5.102.4",
+    "@tanstack/vue-query": "^5.102.8",
     "tailwindcss": "^4.3.3",
-    "vue": "^3.5.41",
+    "vue": "^3.5.42",
     "vue-i18n": "^11.4.10",
-    "vue-router": "^5.2.0"
+    "vue-router": "^5.3.0"
   },
   "devDependencies": {
     "@iconify-json/circle-flags": "^1.2.10",
     "@intlify/unplugin-vue-i18n": "^11.2.5",
-    "@kubb/plugin-fetch": "^5.0.1",
+    "@kubb/plugin-fetch": "^5.1.2",
     "@kubb/plugin-ts": "^5.0.0",
     "@kubb/plugin-vue-query": "^5.0.0",
     "@kubb/plugin-zod": "^5.0.0",
     "@storybook/addon-docs": "^10.5.10",
     "@storybook/vue3-vite": "^10.5.10",
-    "@tanstack/vue-query-devtools": "^6.1.44",
+    "@tanstack/vue-query-devtools": "^6.1.48",
     "@tsconfig/node24": "^24.0.5",
     "@types/node": "^24.13.3",
     "@vitejs/plugin-vue": "^6.0.8",
