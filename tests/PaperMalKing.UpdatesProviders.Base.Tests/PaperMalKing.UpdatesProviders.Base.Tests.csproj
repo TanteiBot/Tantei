@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-    <ItemGroup>
-        <ProjectReference Include="..\..\src\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
-        <ProjectReference Include="..\..\src\PaperMalKing.Database\PaperMalKing.Database.csproj" />
-
-    </ItemGroup>
-
-</Project>

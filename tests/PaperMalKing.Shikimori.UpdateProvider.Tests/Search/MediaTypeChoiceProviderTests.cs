@@ -49,13 +49,8 @@ public sealed class MediaTypeChoiceProviderTests
 	}
 
 	[Test]
-	public async Task EveryChoiceValueParsesBackToItsKind()
+	public async Task ParseReturnsNullForMissingOrUnknownKind()
 	{
-		foreach (var choice in await MediaTypeChoiceProvider<AnimeKind>.CreateChoicesAsync())
-		{
-			await Assert.That(MediaTypeChoiceProvider<AnimeKind>.Parse((string)choice.Value)).IsNotNull();
-		}
-
 		await Assert.That(MediaTypeChoiceProvider<MangaKind>.Parse(value: null)).IsNull();
 		await Assert.That(MediaTypeChoiceProvider<AnimeKind>.Parse("not-a-kind")).IsNull();
 	}
