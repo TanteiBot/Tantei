@@ -79,7 +79,7 @@ public sealed class MyAnimeListClientSearchTests
 		await Assert.That(result.AlternativeTitles.Japanese).IsNull();
 		await Assert.That(result.ListUserCount).IsEqualTo(expectedMembers);
 		await Assert.That(result.Genres).IsNotNull();
-		await Assert.That(result.Genres.Single().Name).IsEqualTo("Action");
+		await Assert.That(result.Genres!.Single().Name).IsEqualTo("Action");
 		await Assert.That(result.Synopsis).IsEqualTo("Two brothers search for a Philosopher's Stone.");
 		await Assert.That(result.Nsfw).IsEqualTo(NsfwCategory.White);
 	}
