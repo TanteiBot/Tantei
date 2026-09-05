@@ -5,16 +5,17 @@ using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.Database.Models.Shikimori;
 
-namespace PaperMalKing.UpdateProviders.Base.Tests;
+namespace PaperMalKing.UpdatesProviders.Base.Tests;
 
-public class UserFeaturesTypesTests
+public sealed class UserFeaturesFlagsTest
 {
 	[Test]
 	[Arguments(typeof(MalUserFeatures))]
 	[Arguments(typeof(ShikiUserFeatures))]
 	[Arguments(typeof(AniListUserFeatures))]
-	public async Task FeaturesHaveUlongAsUnderlyingType(Type featureType)
+	public async Task UserFeaturesTypeMustHaveFlagsAttribute(Type featuresType)
 	{
-		await Assert.That(Enum.GetUnderlyingType(featureType)).IsEqualTo(typeof(ulong));
+		await Assert.That(featuresType.GetCustomAttributes(typeof(FlagsAttribute), inherit: true).Select(static x => x.GetType()))
+					.Contains(typeof(FlagsAttribute));
 	}
 }
