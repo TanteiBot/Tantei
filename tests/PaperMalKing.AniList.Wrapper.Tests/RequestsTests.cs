@@ -11,8 +11,6 @@ public sealed class RequestsTests
 {
 	internal const RequestOptions AnimeAndMangaLists = RequestOptions.AnimeList | RequestOptions.MangaList;
 
-	private const int DuplicatedFieldOccurrences = 2;
-
 	[Test]
 	[Arguments(RequestOptions.Favourites, "favourites {")]
 	[Arguments(RequestOptions.Reviews, "ReviewsPage: Page(")]
@@ -93,28 +91,24 @@ public sealed class RequestsTests
 	[Test]
 	[Arguments(RequestOptions.Genres, "genres")]
 	[Arguments(RequestOptions.Tags, "tags{")]
-	public async Task UpdateCheckQueryEmitsMediaFieldTwiceUntilDuplicationDefectFixed(RequestOptions flag, string marker)
+	public async Task UpdateCheckQueryEmitsMediaFieldExactlyOnce(RequestOptions flag, string marker)
 	{
 		var withFlag = UpdateCheckQueryBuilder.Build(AnimeAndMangaLists | flag);
 		var withoutFlag = UpdateCheckQueryBuilder.Build(AnimeAndMangaLists);
 
 		await Assert.That(OccurrenceCount(withoutFlag, marker)).IsEqualTo(0);
-
-		// TODO(issue 15): Helpers.AppendMediaFields emits this selection twice; flip the expected count to 1 once the defect is fixed.
-		await Assert.That(OccurrenceCount(withFlag, marker)).IsEqualTo(DuplicatedFieldOccurrences);
+		await Assert.That(OccurrenceCount(withFlag, marker)).IsEqualTo(1);
 		GraphQlAssertions.AssertValidGraphQl(withFlag);
 	}
 
 	[Test]
-	public async Task UpdateCheckQueryEmitsCountryOfOriginTwiceWithMediaFormatUntilDuplicationDefectFixed()
+	public async Task UpdateCheckQueryEmitsCountryOfOriginOnceWithMediaFormat()
 	{
 		var withoutFormat = UpdateCheckQueryBuilder.Build(AnimeAndMangaLists);
 		var withFormat = UpdateCheckQueryBuilder.Build(AnimeAndMangaLists | RequestOptions.MediaFormat);
 
 		await Assert.That(OccurrenceCount(withoutFormat, "countryOfOrigin")).IsEqualTo(1);
-
-		// TODO(issue 15): the MediaFormat branch re-emits countryOfOrigin already present in the media core; flip to 1 once fixed.
-		await Assert.That(OccurrenceCount(withFormat, "countryOfOrigin")).IsEqualTo(DuplicatedFieldOccurrences);
+		await Assert.That(OccurrenceCount(withFormat, "countryOfOrigin")).IsEqualTo(1);
 		await Assert.That(withFormat).Contains("format");
 		GraphQlAssertions.AssertValidGraphQl(withFormat);
 	}
