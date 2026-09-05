@@ -137,6 +137,19 @@ export function isDefaultJsonBody(body: unknown): boolean {
   return body !== undefined && body !== null && !isFormBody(body);
 }
 
+/**
+ * Emits a `bigint` (`format: int64`) as a JSON number, which `JSON.stringify` refuses to do itself.
+ * Past the safe-integer range it throws, so an id never goes out silently truncated.
+ */
+function jsonReplacer(_key: string, value: unknown): unknown {
+  if (typeof value !== "bigint") return value;
+  if (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER)
+    throw new TypeError(
+      `Cannot serialize ${value}n as JSON without losing precision, register a serializer.body to send it another way.`,
+    );
+  return Number(value);
+}
+
 function appendFormDataValue({
   formData,
   key,
@@ -151,7 +164,7 @@ function appendFormDataValue({
   if (value === undefined || value === null) return;
   if (value instanceof Blob) formData.append(key, value);
   else if (typeof value === "object" && !(value instanceof Date)) {
-    const json = JSON.stringify(value);
+    const json = JSON.stringify(value, jsonReplacer);
     // A part's media type can only be set by wrapping the value in a typed Blob.
     formData.append(key, contentType ? new Blob([json], { type: contentType }) : json);
   } else formData.append(key, toValue(value));
@@ -189,7 +202,7 @@ export const defaultBodySerializer: BodySerializer = ({ body, contentType, encod
     if (encoding) return serializeUrlencodedBody(body as Record<string, unknown>, encoding);
     return new URLSearchParams(body as Record<string, string>);
   }
-  return JSON.stringify(body);
+  return JSON.stringify(body, jsonReplacer);
 };
 
 function serializeUrlencodedBody(
