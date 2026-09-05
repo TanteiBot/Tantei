@@ -4,7 +4,7 @@
 using DSharpPlus.Entities;
 using PaperMalKing.UpdatesProviders.Base.Search;
 
-namespace PaperMalKing.Shikimori.UpdateProvider.Tests.Search;
+namespace Tantei.TestSupport;
 
 internal sealed class FakeSearchMessageTarget : IPickerMessageTarget
 {

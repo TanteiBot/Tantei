@@ -8,7 +8,6 @@ using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.MyAnimeList;
-using PaperMalKing.MyAnimeList.UpdateProvider.Tests.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
@@ -175,10 +174,5 @@ public sealed class MalUpdateProviderTests
 		public T Get(string? name) => value;
 
 		public IDisposable? OnChange(Action<T, string?> listener) => null;
-	}
-
-	private sealed class TestDbContextFactory(DbContextOptions<DatabaseContext> options) : IDbContextFactory<DatabaseContext>
-	{
-		public DatabaseContext CreateDbContext() => new(options);
 	}
 }

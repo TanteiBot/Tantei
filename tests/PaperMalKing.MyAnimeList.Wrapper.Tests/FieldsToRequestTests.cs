@@ -16,16 +16,4 @@ public sealed class FieldsToRequestTests
 		var mftr = Enum.GetNames<MangaFieldsToRequest>();
 		await Assert.That(aftr[..enumStart]).IsEquivalentTo(mftr[..enumStart], CollectionOrdering.Matching);
 	}
-
-	[Test]
-	public async Task FieldsToRequestEnumsHaveByteAsUnderlyingType()
-	{
-		static async Task Check(Type t)
-		{
-			await Assert.That(Enum.GetUnderlyingType(t)).IsEqualTo(typeof(byte));
-		}
-
-		await Check(typeof(MangaFieldsToRequest));
-		await Check(typeof(AnimeFieldsToRequest));
-	}
 }

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Tantei.TestSupport</RootNamespace>
+        <IsTestProject>false</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="GraphQL-Parser" />
+    </ItemGroup>
+
+</Project>

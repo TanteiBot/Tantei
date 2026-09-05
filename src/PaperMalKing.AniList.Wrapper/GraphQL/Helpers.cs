@@ -55,33 +55,12 @@ internal static class Helpers
 
 		if (options.HasFlag(RequestOptions.MediaFormat))
 		{
-			sb.AppendLine(
-				"""
-				format
-				countryOfOrigin
-				""");
+			sb.AppendLine("format");
 		}
 
 		if (options.HasFlag(RequestOptions.MediaStatus))
 		{
 			sb.AppendLine("status(version: 2)");
-		}
-
-		if (options.HasFlag(RequestOptions.Genres))
-		{
-			sb.AppendLine("genres");
-		}
-
-		if (options.HasFlag(RequestOptions.Tags))
-		{
-			sb.AppendLine(
-				"""
-				tags{
-					name
-					rank
-					isMediaSpoiler
-				}
-				""");
 		}
 
 		if (options.HasFlag(RequestOptions.Studio))

@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using DSharpPlus;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Startup.Web.Guilds;
@@ -26,28 +25,9 @@ public sealed class GuildQueryServiceTests
 
 	private const ulong FourthGuildId = 400UL;
 
-	private sealed class FakeBotGuildPresence(params ulong[] presentGuildIds) : IBotGuildPresence
-	{
-		public BotGuildInfo? GetGuild(ulong guildId)
-			=> presentGuildIds.Contains(guildId) ? new(guildId, $"Guild {guildId}", IconUrl: null) : null;
-
-		public Task<bool> IsGuildAdminAsync(ulong guildId, ulong discordUserId) => Task.FromResult(false);
-	}
-
-	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	private static async Task<(IDbContextFactory<DatabaseContext> Factory, SqliteConnection Connection)> CreateDatabaseAsync()
 	{
-		var connection = new SqliteConnection("Filename=:memory:");
-		await connection.OpenAsync();
-		var services = new ServiceCollection();
-		services.AddDbContextFactory<DatabaseContext>(o => o.UseSqlite(connection));
-		var provider = services.BuildServiceProvider();
-		var factory = provider.GetRequiredService<IDbContextFactory<DatabaseContext>>();
-		using (var db = factory.CreateDbContext())
-		{
-			await db.Database.EnsureCreatedAsync();
-		}
-
+		var (factory, connection, _) = await SqliteInMemoryDatabase.CreateAsync();
 		return (factory, connection);
 	}
 

@@ -63,8 +63,11 @@
     <Project Path="tests/PaperMalKing.MyAnimeList.Wrapper.Tests/PaperMalKing.MyAnimeList.Wrapper.Tests.csproj" />
     <Project Path="tests/PaperMalKing.Shikimori.UpdateProvider.Tests/PaperMalKing.Shikimori.UpdateProvider.Tests.csproj" />
     <Project Path="tests/PaperMalKing.Shikimori.Wrapper.Tests/PaperMalKing.Shikimori.Wrapper.Tests.csproj" />
-    <Project Path="tests/PaperMalKing.UpdateProviders.Base.Tests/PaperMalKing.UpdateProviders.Base.Tests.csproj" />
     <Project Path="tests/PaperMalKing.UpdatesProviders.Base.Search.Tests/PaperMalKing.UpdatesProviders.Base.Search.Tests.csproj" />
+    <Project Path="tests/Tantei.TestSupport.Core/Tantei.TestSupport.Core.csproj" />
+    <Project Path="tests/Tantei.TestSupport.GraphQl/Tantei.TestSupport.GraphQl.csproj" />
+    <Project Path="tests/Tantei.TestSupport.Database/Tantei.TestSupport.Database.csproj" />
+    <Project Path="tests/Tantei.TestSupport.Search/Tantei.TestSupport.Search.csproj" />
     <Project Path="tests/Tantei.Tests/Tantei.Tests.csproj" />
   </Folder>
 </Solution>

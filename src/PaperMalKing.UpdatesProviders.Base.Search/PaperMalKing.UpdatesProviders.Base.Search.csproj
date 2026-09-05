@@ -11,6 +11,7 @@
         <InternalsVisibleTo Include="PaperMalKing.Shikimori.UpdateProvider.Installer" />
         <InternalsVisibleTo Include="PaperMalKing.Shikimori.UpdateProvider.Tests" />
         <InternalsVisibleTo Include="PaperMalKing.UpdatesProviders.Base.Search.Tests" />
+        <InternalsVisibleTo Include="Tantei.TestSupport.Search" />
     </ItemGroup>
 
     <ItemGroup>

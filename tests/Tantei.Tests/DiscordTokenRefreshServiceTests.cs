@@ -1,14 +1,10 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Json;
-using EntityFramework.Exceptions.Sqlite;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
@@ -31,26 +27,11 @@ public sealed class DiscordTokenRefreshServiceTests
 
 	private const int ExpiresInSeconds = 604800;
 
-	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	private static async Task<(DiscordOAuthTokenStore Store, IDbContextFactory<DatabaseContext> Factory, SqliteConnection Connection)> CreateStoreAsync(
 		TimeProvider timeProvider)
 	{
-		var connection = new SqliteConnection("Filename=:memory:");
-		await connection.OpenAsync();
-
-		var services = new ServiceCollection();
-		services.AddDbContextFactory<DatabaseContext>(o => o.UseSqlite(connection).UseExceptionProcessor());
-		services.AddDataProtection();
-		var provider = services.BuildServiceProvider();
-
-		var factory = provider.GetRequiredService<IDbContextFactory<DatabaseContext>>();
-		using (var db = factory.CreateDbContext())
-		{
-			await db.Database.EnsureCreatedAsync();
-		}
-
-		return (new(factory, provider.GetRequiredService<IDataProtectionProvider>(), timeProvider, NullLogger<DiscordOAuthTokenStore>.Instance), factory,
-			connection);
+		var (factory, connection, dataProtection) = await SqliteInMemoryDatabase.CreateAsync(addDataProtection: true);
+		return (new(factory, dataProtection!, timeProvider, NullLogger<DiscordOAuthTokenStore>.Instance), factory, connection);
 	}
 
 	private static IOptions<DiscordOptions> CreateDiscordOptions() =>
@@ -190,25 +171,5 @@ public sealed class DiscordTokenRefreshServiceTests
 
 		await Assert.That(result).IsEqualTo(AccessToken);
 		await Assert.That(handler.CallCount).IsEqualTo(0);
-	}
-
-	private sealed class FakeTimeProvider(DateTimeOffset now) : TimeProvider
-	{
-		public DateTimeOffset Now { get; set; } = now;
-
-		public override DateTimeOffset GetUtcNow() => this.Now;
-	}
-
-	private sealed class FakeHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> respond) : HttpMessageHandler
-	{
-		private int _callCount;
-
-		public int CallCount => this._callCount;
-
-		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-		{
-			Interlocked.Increment(ref this._callCount);
-			return Task.FromResult(respond(request));
-		}
 	}
 }

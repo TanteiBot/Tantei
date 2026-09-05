@@ -17,14 +17,6 @@ public sealed class InviteAuthorizationTests
 
 	private const ulong OtherGuildId = 200UL;
 
-	private sealed class FakeBotGuildPresence(params ulong[] presentGuildIds) : IBotGuildPresence
-	{
-		public BotGuildInfo? GetGuild(ulong guildId)
-			=> presentGuildIds.Contains(guildId) ? new(guildId, $"Guild {guildId}", IconUrl: null) : null;
-
-		public Task<bool> IsGuildAdminAsync(ulong guildId, ulong discordUserId) => Task.FromResult(false);
-	}
-
 	private sealed class FakeUserGuildsProvider(IReadOnlyList<DiscordPartialGuild>? guilds) : IUserGuildsProvider
 	{
 		public Task<IReadOnlyList<DiscordPartialGuild>?> GetGuildsAsync(ulong discordUserId, CancellationToken cancellationToken)

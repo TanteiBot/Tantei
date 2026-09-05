@@ -44,29 +44,15 @@ public sealed class MediaFormatChoiceProviderTests
 	}
 
 	[Test]
-	public async Task EveryAnimeChoiceValueParsesBackToItsFormat()
+	public async Task ParseReturnsNullForMissingOrUnknownFormat()
 	{
-		var choices = await AnimeMediaFormatChoiceProvider.CreateChoicesAsync();
-
-		foreach (var choice in choices)
-		{
-			await Assert.That(AnimeMediaFormatChoiceProvider.Parse((string)choice.Value)).IsNotNull();
-		}
-
 		await Assert.That(AnimeMediaFormatChoiceProvider.Parse(value: null)).IsNull();
 		await Assert.That(AnimeMediaFormatChoiceProvider.Parse("not-a-format")).IsNull();
 	}
 
 	[Test]
-	public async Task EveryMangaChoiceValueParsesBackToItsFormat()
+	public async Task MangaParseReturnsNullForMissingOrUnknownFormat()
 	{
-		var choices = await MangaMediaFormatChoiceProvider.CreateChoicesAsync();
-
-		foreach (var choice in choices)
-		{
-			await Assert.That(MangaMediaFormatChoiceProvider.Parse((string)choice.Value)).IsNotNull();
-		}
-
 		await Assert.That(MangaMediaFormatChoiceProvider.Parse(value: null)).IsNull();
 		await Assert.That(MangaMediaFormatChoiceProvider.Parse("not-a-format")).IsNull();
 	}

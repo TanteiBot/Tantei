@@ -276,6 +276,7 @@ public sealed class SearchEvaluatorTests
 
 		await Assert.That(evaluation.Kind).IsEqualTo(SearchOutcomeKind.AutoPosted);
 		await Assert.That(result.Id).IsEqualTo(PrimaryResultId);
+		await Assert.That(result.PrimaryTitle).IsEqualTo(Monster);
 		await Assert.That(result.OptionDescription).IsEqualTo(optionDescription);
 		await Assert.That(embed.Title).IsEqualTo(Monster);
 	}

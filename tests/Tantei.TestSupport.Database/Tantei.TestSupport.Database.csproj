@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Tantei.TestSupport</RootNamespace>
+        <IsTestProject>false</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+        <PackageReference Include="EntityFrameworkCore.Exceptions.Sqlite" />
+        <ProjectReference Include="..\..\src\PaperMalKing.Database\PaperMalKing.Database.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -35,6 +35,7 @@
     <PackageVersion Include="GraphQL.Client.Abstractions" Version="$(GraphQLClientVersion)" />
     <PackageVersion Include="GraphQL.Primitives" Version="$(GraphQLClientVersion)" />
     <PackageVersion Include="GraphQL.Client.Serializer.SystemTextJson" Version="$(GraphQLClientVersion)" />
+    <PackageVersion Include="GraphQL-Parser" Version="9.5.1" />
 
     <!-- EF Core -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EntityFrameworkCoreVersion)" />

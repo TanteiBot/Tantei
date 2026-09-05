@@ -19,7 +19,7 @@ public sealed class ShikiClientSearchTests
 		const long expectedPopularity = 300L;
 		const int expectedYear = 2009;
 		string? capturedBody = null;
-		using var handler = new FakeHttpMessageHandler(async request =>
+		using var handler = new FakeHttpMessageHandler(async (request, _) =>
 		{
 			if (request.Content is { } content)
 			{
@@ -54,7 +54,7 @@ public sealed class ShikiClientSearchTests
 	[Test]
 	public async Task AnimeSearchRecognizesHentaiRatingAsAdult()
 	{
-		using var handler = new FakeHttpMessageHandler(_ => Task.FromResult(JsonResponse(
+		using var handler = new FakeHttpMessageHandler((_, _) => Task.FromResult(JsonResponse(
 			"{\"data\":{\"media\":[{\"id\":1,\"name\":\"Adult\",\"synonyms\":[],\"kind\":\"ova\",\"rating\":\"rx\"," +
 			"\"statusesStats\":[],\"url\":\"https://shikimori.io/animes/1\"}]}}")));
 		using var scope = new ClientScope(handler);
@@ -68,7 +68,7 @@ public sealed class ShikiClientSearchTests
 	public async Task MangaSearchDeserializesTheResult()
 	{
 		const ulong expectedId = 2UL;
-		using var handler = new FakeHttpMessageHandler(_ => Task.FromResult(JsonResponse(
+		using var handler = new FakeHttpMessageHandler((_, _) => Task.FromResult(JsonResponse(
 			"{\"data\":{\"media\":[{\"id\":2,\"name\":\"Berserk\",\"synonyms\":[],\"kind\":\"manga\",\"score\":9.3," +
 			"\"status\":\"ongoing\",\"statusesStats\":[{\"count\":500}],\"url\":\"/mangas/2\"}]}}")));
 		using var scope = new ClientScope(handler);
@@ -113,10 +113,5 @@ public sealed class ShikiClientSearchTests
 			this._restClient.Dispose();
 			this._restHandler.Dispose();
 		}
-	}
-
-	private sealed class FakeHttpMessageHandler(Func<HttpRequestMessage, Task<HttpResponseMessage>> respond) : HttpMessageHandler
-	{
-		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) => respond(request);
 	}
 }

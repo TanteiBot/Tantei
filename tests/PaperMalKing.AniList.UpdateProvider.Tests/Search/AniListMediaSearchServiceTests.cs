@@ -297,9 +297,4 @@ public sealed class AniListMediaSearchServiceTests
 			});
 		}
 	}
-
-	private sealed class TestDbContextFactory(DbContextOptions<DatabaseContext> options) : IDbContextFactory<DatabaseContext>
-	{
-		public DatabaseContext CreateDbContext() => new(options);
-	}
 }

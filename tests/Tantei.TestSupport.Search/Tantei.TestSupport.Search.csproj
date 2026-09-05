@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Tantei.TestSupport</RootNamespace>
+        <IsTestProject>false</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="PaperMalKing.AniList.UpdateProvider.Tests" />
+        <InternalsVisibleTo Include="PaperMalKing.MyAnimeList.UpdateProvider.Tests" />
+        <InternalsVisibleTo Include="PaperMalKing.Shikimori.UpdateProvider.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DSharpPlus" />
+        <ProjectReference Include="..\..\src\PaperMalKing.UpdatesProviders.Base.Search\PaperMalKing.UpdatesProviders.Base.Search.csproj" />
+    </ItemGroup>
+
+</Project>
