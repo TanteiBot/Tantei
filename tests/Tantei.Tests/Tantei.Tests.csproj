@@ -8,6 +8,7 @@
     <ProjectReference Include="..\..\src\PaperMalKing.Database.Migrations\PaperMalKing.Database.Migrations.csproj" />
     <ProjectReference Include="..\..\src\PaperMalKing.Startup\PaperMalKing.Startup.csproj" />
     <ProjectReference Include="..\..\src\PaperMalKing\PaperMalKing.csproj" ExcludeAssets="analyzers" />
+    <ProjectReference Include="..\Tantei.TestSupport.Database\Tantei.TestSupport.Database.csproj" />
 
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
         <PrivateAssets>all</PrivateAssets>

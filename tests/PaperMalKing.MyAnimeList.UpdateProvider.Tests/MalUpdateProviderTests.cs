@@ -175,9 +175,4 @@ public sealed class MalUpdateProviderTests
 
 		public IDisposable? OnChange(Action<T, string?> listener) => null;
 	}
-
-	private sealed class TestDbContextFactory(DbContextOptions<DatabaseContext> options) : IDbContextFactory<DatabaseContext>
-	{
-		public DatabaseContext CreateDbContext() => new(options);
-	}
 }

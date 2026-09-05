@@ -1,9 +1,7 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
-using EntityFramework.Exceptions.Sqlite;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -36,20 +34,10 @@ public sealed class TanteiCookieEventsTests
 		return new(httpContext, scheme, new(), new AuthenticationProperties(), redirectUri);
 	}
 
-	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	private static async Task<(IDbContextFactory<DatabaseContext> Factory, SqliteConnection Connection)> CreateDbContextFactoryAsync()
 	{
-		var connection = new SqliteConnection("Filename=:memory:");
-		await connection.OpenAsync();
-
-		var services = new ServiceCollection();
-		services.AddDbContextFactory<DatabaseContext>(o => o.UseSqlite(connection).UseExceptionProcessor());
-		var provider = services.BuildServiceProvider();
-
-		var factory = provider.GetRequiredService<IDbContextFactory<DatabaseContext>>();
-		using (var db = factory.CreateDbContext())
+		var (factory, connection, _) = await SqliteInMemoryDatabase.CreateAsync(seed: db =>
 		{
-			await db.Database.EnsureCreatedAsync();
 			db.DiscordUsers.Add(new()
 			{
 				DiscordUserId = RegisteredUserId,
@@ -57,8 +45,7 @@ public sealed class TanteiCookieEventsTests
 				Guilds = [],
 			});
 			db.SaveChanges();
-		}
-
+		});
 		return (factory, connection);
 	}
 

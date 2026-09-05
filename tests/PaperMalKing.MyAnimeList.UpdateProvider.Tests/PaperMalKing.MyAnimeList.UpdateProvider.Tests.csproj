@@ -20,6 +20,7 @@
         <ProjectReference Include="..\..\src\PaperMalKing.MyAnimeList.Wrapper\PaperMalKing.MyAnimeList.Wrapper.csproj" />
         <ProjectReference Include="..\..\src\PaperMalKing.UpdatesProviders.Base\PaperMalKing.UpdatesProviders.Base.csproj" />
         <ProjectReference Include="..\..\src\PaperMalKing.UpdatesProviders.Base.Search\PaperMalKing.UpdatesProviders.Base.Search.csproj" />
+        <ProjectReference Include="..\Tantei.TestSupport.Database\Tantei.TestSupport.Database.csproj" />
         <ProjectReference Include="..\Tantei.TestSupport.Search\Tantei.TestSupport.Search.csproj" />
     </ItemGroup>
 

@@ -2,11 +2,8 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
-using EntityFramework.Exceptions.Sqlite;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.Database;
 using PaperMalKing.Startup.Web.Tokens;
@@ -27,26 +24,11 @@ public sealed class DiscordOAuthTokenStoreTests
 
 	private const int LaterInDays = 40;
 
-	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	private static async Task<(DiscordOAuthTokenStore Store, IDbContextFactory<DatabaseContext> Factory, SqliteConnection Connection)> CreateStoreAsync(
 		TimeProvider timeProvider)
 	{
-		var connection = new SqliteConnection("Filename=:memory:");
-		await connection.OpenAsync();
-
-		var services = new ServiceCollection();
-		services.AddDbContextFactory<DatabaseContext>(o => o.UseSqlite(connection).UseExceptionProcessor());
-		services.AddDataProtection();
-		var provider = services.BuildServiceProvider();
-
-		var factory = provider.GetRequiredService<IDbContextFactory<DatabaseContext>>();
-		using (var db = factory.CreateDbContext())
-		{
-			await db.Database.EnsureCreatedAsync();
-		}
-
-		return (new(factory, provider.GetRequiredService<IDataProtectionProvider>(), timeProvider, NullLogger<DiscordOAuthTokenStore>.Instance), factory,
-			connection);
+		var (factory, connection, dataProtection) = await SqliteInMemoryDatabase.CreateAsync(addDataProtection: true);
+		return (new(factory, dataProtection!, timeProvider, NullLogger<DiscordOAuthTokenStore>.Instance), factory, connection);
 	}
 
 	[Test]
