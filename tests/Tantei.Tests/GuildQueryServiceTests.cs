@@ -25,14 +25,6 @@ public sealed class GuildQueryServiceTests
 
 	private const ulong FourthGuildId = 400UL;
 
-	private sealed class FakeBotGuildPresence(params ulong[] presentGuildIds) : IBotGuildPresence
-	{
-		public BotGuildInfo? GetGuild(ulong guildId)
-			=> presentGuildIds.Contains(guildId) ? new(guildId, $"Guild {guildId}", IconUrl: null) : null;
-
-		public Task<bool> IsGuildAdminAsync(ulong guildId, ulong discordUserId) => Task.FromResult(false);
-	}
-
 	private static async Task<(IDbContextFactory<DatabaseContext> Factory, SqliteConnection Connection)> CreateDatabaseAsync()
 	{
 		var (factory, connection, _) = await SqliteInMemoryDatabase.CreateAsync();
