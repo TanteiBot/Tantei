@@ -55,7 +55,7 @@ internal static class SearchEmbedBuilder
 			var detail = await client.GetMediaWithSeyuAsync(media.Id, media.Type, cancellationToken).ConfigureAwait(false);
 			if (detail is not null)
 			{
-				eb.EnrichWithSeyu(detail, titleLanguage);
+				eb.AddSeyu(detail.Seyu.Nodes, titleLanguage, features);
 			}
 		}
 		catch (Exception exception)
