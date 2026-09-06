@@ -260,6 +260,19 @@ internal static partial class Extensions
 			eb.Footer = AniListFooter;
 			return eb;
 		}
+
+		public DiscordEmbedBuilder EnrichWithSeyu(SearchMedia media, TitleLanguage titleLanguage)
+		{
+			var seyus = media.Seyu.Nodes.Where(static x => x.VoiceActors is not []).Select(x =>
+			{
+				var seyu = x.VoiceActors[0];
+				return Formatter.MaskedUrl(seyu.Name.GetName(titleLanguage), new(seyu.Url));
+			}).JoinToString();
+
+			eb.AddFieldIfPresent("Seyu", seyus);
+
+			return eb;
+		}
 	}
 
 	private static string? GetEmbedFormat(this IMediaTitleInfo media)

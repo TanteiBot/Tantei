@@ -9,7 +9,7 @@ namespace PaperMalKing.AniList.Wrapper.GraphQL;
 
 internal static class Helpers
 {
-	private const string Media =
+	internal const string Media =
 								"""
 								title {
 									stylisedRomaji: romaji(stylised: true)
@@ -25,6 +25,28 @@ internal static class Helpers
 								id
 								image: coverImage {
 									large: extraLarge
+								}
+								""";
+
+	// We select node since without it anilist provides empty array in voice actors
+	internal const string CharactersWithVoiceActors =
+								"""
+								characters(perPage: 6, sort: [ROLE, RELEVANCE]) {
+									values: edges {
+										voiceActors(language: JAPANESE, sort: [RELEVANCE]) {
+											siteUrl
+											name {
+												native
+												full
+											}
+											image {
+												large
+											}
+										}
+										node {
+											id
+										}
+									}
 								}
 								""";
 
@@ -98,26 +120,7 @@ internal static class Helpers
 
 		if (options.HasAllFlags(RequestOptions.Seyu, RequestOptions.AnimeList))
 		{
-			sb.AppendLine(// We select node since without it anilist provides empty array in voice actors
-				"""
-				characters(perPage: 6, sort: [ROLE, RELEVANCE]) {
-					values: edges {
-						voiceActors(language: JAPANESE, sort: [RELEVANCE]) {
-							siteUrl
-							name {
-								native
-								full
-							}
-							image {
-								large
-							}
-						}
-						node {
-							id
-						}
-					}
-				}
-				""");
+			sb.AppendLine(CharactersWithVoiceActors);
 		}
 
 		return sb;

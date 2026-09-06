@@ -26,6 +26,12 @@ internal sealed class FakeAniListSearchClient : IAniListClient
 
 	public List<MediaFormat?> Formats { get; } = [];
 
+	public SearchMedia? SeyuDetail { get; init; }
+
+	public Exception? SeyuException { get; init; }
+
+	public List<uint> SeyuIds { get; } = [];
+
 	public Task<MediaSearchResponse> SearchMediaAsync(string query, ListType mediaType, RequestOptions requestOptions, MediaFormat? format, uint? userId,
 													  CancellationToken cancellationToken)
 	{
@@ -38,6 +44,14 @@ internal sealed class FakeAniListSearchClient : IAniListClient
 		return this.SearchException is null
 			? Task.FromResult(this.Response)
 			: Task.FromException<MediaSearchResponse>(this.SearchException);
+	}
+
+	public Task<SearchMedia?> GetMediaWithSeyuAsync(uint id, ListType mediaType, CancellationToken cancellationToken)
+	{
+		this.SeyuIds.Add(id);
+		return this.SeyuException is null
+			? Task.FromResult(this.SeyuDetail)
+			: Task.FromException<SearchMedia?>(this.SeyuException);
 	}
 
 	public Task<InitialUserInfoResponse> GetInitialUserInfoAsync(string username, byte favouritesPage = 1, CancellationToken cancellationToken = default) =>
