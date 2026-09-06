@@ -66,7 +66,7 @@ public sealed class SearchEmbedBuilderTests
 				("Total", "74 ep.", true),
 				("Season", "Spring 2004", true),
 				(MembersField, "1,360,412", true),
-				("Genres", "Award Winning, Drama, Mystery, Suspense", false),
+				("Genres", "Award Winning, Drama, Mystery, Suspense", true),
 			],
 			CollectionOrdering.Matching);
 	}
@@ -96,7 +96,7 @@ public sealed class SearchEmbedBuilderTests
 				("Score", "9.47", true),
 				("Total", "84 ch, 9 v.", true),
 				(MembersField, "735,311", true),
-				("Genres", "Action, Adventure", false),
+				("Genres", "Action, Adventure", true),
 			],
 			CollectionOrdering.Matching);
 	}
@@ -201,7 +201,7 @@ public sealed class SearchEmbedBuilderTests
 
 		await Assert.That(genresField.Name).IsEqualTo("Genres");
 		await Assert.That(genresField.Value).IsEqualTo("Genre 1, Genre 2, Genre 3, Genre 4, Genre 5, Genre 6, Genre 7");
-		await Assert.That(genresField.Inline).IsFalse();
+		await Assert.That(genresField.Inline).IsTrue();
 	}
 
 	[Test]

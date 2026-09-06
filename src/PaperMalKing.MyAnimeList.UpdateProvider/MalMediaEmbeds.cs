@@ -435,7 +435,7 @@ internal static class MalMediaEmbeds
 		return builder;
 	}
 
-	private static void AddGenres(DiscordEmbedBuilder eb, IReadOnlyList<Genre>? genres, MalUserFeatures features)
+	internal static void AddGenres(DiscordEmbedBuilder eb, IReadOnlyList<Genre>? genres, MalUserFeatures features)
 	{
 		if (!features.HasFlag(MalUserFeatures.Genres) || genres is not { Count: > 0 })
 		{
@@ -450,7 +450,7 @@ internal static class MalMediaEmbeds
 		}
 	}
 
-	private static void AddStudios(DiscordEmbedBuilder eb, IReadOnlyList<Studio>? studios, MalUserFeatures features)
+	internal static void AddStudios(DiscordEmbedBuilder eb, IReadOnlyList<Studio>? studios, MalUserFeatures features)
 	{
 		if (!features.HasFlag(MalUserFeatures.Studio) || studios is not { Count: > 0 })
 		{
@@ -464,7 +464,7 @@ internal static class MalMediaEmbeds
 		}
 	}
 
-	private static void AddAuthors(DiscordEmbedBuilder eb, IReadOnlyList<Author>? authors, MalUserFeatures features)
+	internal static void AddAuthors(DiscordEmbedBuilder eb, IReadOnlyList<Author>? authors, MalUserFeatures features)
 	{
 		if (!features.HasFlag(MalUserFeatures.Mangakas) || authors is not { Count: > 0 })
 		{
@@ -484,7 +484,7 @@ internal static class MalMediaEmbeds
 		}
 	}
 
-	private static void AddSeiyu(DiscordEmbedBuilder eb, IReadOnlyList<SeyuInfo> seiyu, MalUserFeatures features)
+	internal static void AddSeiyu(DiscordEmbedBuilder eb, IReadOnlyList<SeyuInfo> seiyu, MalUserFeatures features)
 	{
 		if (!features.HasFlag(MalUserFeatures.Seiyu) || seiyu is not { Count: > 0 })
 		{
@@ -498,7 +498,7 @@ internal static class MalMediaEmbeds
 		}
 	}
 
-	private static void AddThemes(DiscordEmbedBuilder eb, MediaInfo mediaInfo, MalUserFeatures features)
+	internal static void AddThemes(DiscordEmbedBuilder eb, MediaInfo mediaInfo, MalUserFeatures features)
 	{
 		if (!features.HasFlag(MalUserFeatures.Themes) || mediaInfo.Themes is [])
 		{
@@ -512,7 +512,7 @@ internal static class MalMediaEmbeds
 		}
 	}
 
-	private static void AddDemographic(DiscordEmbedBuilder eb, MediaInfo mediaInfo, MalUserFeatures features)
+	internal static void AddDemographic(DiscordEmbedBuilder eb, MediaInfo mediaInfo, MalUserFeatures features)
 	{
 		if (!features.HasFlag(MalUserFeatures.Demographic) || mediaInfo.Demographic is [])
 		{

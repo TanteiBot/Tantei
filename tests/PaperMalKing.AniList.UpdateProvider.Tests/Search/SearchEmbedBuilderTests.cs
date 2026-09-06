@@ -131,6 +131,39 @@ public sealed class SearchEmbedBuilderTests
 	}
 
 	[Test]
+	public async Task AddSeyuStaysByteIdenticalAcrossSearchAndFeedSources()
+	{
+		CharacterEdge[] characterNodes =
+		[
+			VoiceActor("Hidenobu Kiuchi", "https://anilist.co/staff/1"),
+			VoiceActor("Romi Park", "https://anilist.co/staff/2"),
+		];
+		var searchMedia = new SearchMedia
+		{
+			Id = 1U,
+			Title = new() { Romaji = MonsterTitle },
+			Url = MediaUrl,
+			Type = ListType.Anime,
+			Seyu = new() { Nodes = characterNodes },
+		};
+		var feedMedia = new Media
+		{
+			Title = new() { Romaji = MonsterTitle },
+			Url = MediaUrl,
+			Type = ListType.Anime,
+			Characters = new() { Nodes = characterNodes },
+		};
+		const AniListUserFeatures features = AniListUserFeatures.Seyu;
+
+		var fromSearch = new DiscordEmbedBuilder().AddSeyu(searchMedia.Seyu.Nodes, TitleLanguage.Romaji, features);
+		var fromFeed = new DiscordEmbedBuilder().AddSeyu(feedMedia.Characters.Nodes, TitleLanguage.Romaji, features);
+
+		await Assert.That(fromSearch.Fields.Select(static field => (field.Name, field.Value, field.Inline))).IsEquivalentTo(
+			fromFeed.Fields.Select(static field => (field.Name, field.Value, field.Inline)),
+			CollectionOrdering.Matching);
+	}
+
+	[Test]
 	public async Task SearchDefaultRendersTagsDescriptionAndSeyuButNotBannerCarriedFields()
 	{
 		var media = Media(description: Description, tags: [Tag(ActionTag, PrimaryTagRank)]);
@@ -224,6 +257,14 @@ public sealed class SearchEmbedBuilderTests
 				},
 			],
 		},
+	};
+
+	private static CharacterEdge VoiceActor(string name, string url) => new()
+	{
+		VoiceActors =
+		[
+			new() { Name = new() { Full = name, Native = name }, Url = url },
+		],
 	};
 
 	private static MediaTag Tag(string name, byte rank, bool isSpoiler = false) => new()
