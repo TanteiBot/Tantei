@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using DSharpPlus.Entities;
+using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.AniList.UpdateProvider.Search;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
@@ -128,6 +129,102 @@ public sealed class SearchEmbedBuilderTests
 			textOnly.Fields.Select(static field => (field.Name, field.Value, field.Inline)),
 			CollectionOrdering.Matching);
 	}
+
+	[Test]
+	public async Task SearchDefaultRendersTagsDescriptionAndSeyuButNotBannerCarriedFields()
+	{
+		var media = Media(description: Description, tags: [Tag(ActionTag, PrimaryTagRank)]);
+		var client = new FakeAniListSearchClient { SeyuDetail = SeyuDetail("Hidenobu Kiuchi") };
+
+		var embed = await SearchEmbedBuilder.BuildAsync(
+			client,
+			media,
+			AniListUserFeatures.SearchDefault,
+			TitleLanguage.Romaji,
+			RequesterDisplayName,
+			AvatarUrl,
+			NullLogger.Instance,
+			CancellationToken.None);
+
+		var fieldNames = embed.Fields.Select(static field => field.Name).ToArray();
+		await Assert.That(client.SeyuIds).IsEquivalentTo([1U]);
+		await Assert.That(fieldNames).Contains("Tags");
+		await Assert.That(fieldNames).Contains("Description");
+		await Assert.That(fieldNames).Contains("Seyu");
+		await Assert.That(fieldNames).DoesNotContain("Genres");
+		await Assert.That(fieldNames).DoesNotContain("Studio");
+		await Assert.That(fieldNames).DoesNotContain("Mangaka");
+		await Assert.That(fieldNames).DoesNotContain("Director");
+		await Assert.That(embed.Fields.Single(static field => string.Equals(field.Name, "Seyu", StringComparison.Ordinal)).Value).Contains("Hidenobu Kiuchi");
+	}
+
+	[Test]
+	public async Task AThrownSeyuDetailFetchDegradesToTheSnapshotEmbedAndStillRenders()
+	{
+		var media = Media(description: Description, tags: [Tag(ActionTag, PrimaryTagRank)]);
+		var client = new FakeAniListSearchClient { SeyuException = new InvalidOperationException("rate limited") };
+
+		var embed = await SearchEmbedBuilder.BuildAsync(
+			client,
+			media,
+			AniListUserFeatures.SearchDefault,
+			TitleLanguage.Romaji,
+			RequesterDisplayName,
+			AvatarUrl,
+			NullLogger.Instance,
+			CancellationToken.None);
+
+		await Assert.That(client.SeyuIds).IsEquivalentTo([1U]);
+		await Assert.That(embed.Title).StartsWith(MonsterTitle);
+		await Assert.That(embed.Fields.Select(static field => field.Name)).DoesNotContain("Seyu");
+	}
+
+	[Test]
+	public async Task SeyuIsNotFetchedForManga()
+	{
+		var media = new SearchMedia
+		{
+			Id = 2U,
+			Title = new() { Romaji = MonsterTitle },
+			Url = "https://anilist.co/manga/2",
+			Type = ListType.Manga,
+		};
+		var client = new FakeAniListSearchClient();
+
+		var embed = await SearchEmbedBuilder.BuildAsync(
+			client,
+			media,
+			AniListUserFeatures.SearchDefault,
+			TitleLanguage.Romaji,
+			RequesterDisplayName,
+			AvatarUrl,
+			NullLogger.Instance,
+			CancellationToken.None);
+
+		await Assert.That(client.SeyuIds).IsEmpty();
+		await Assert.That(embed.Fields.Select(static field => field.Name)).DoesNotContain("Seyu");
+	}
+
+	private static SearchMedia SeyuDetail(string voiceActorName) => new()
+	{
+		Id = 1U,
+		Title = new() { Romaji = MonsterTitle },
+		Url = MediaUrl,
+		Type = ListType.Anime,
+		Seyu = new()
+		{
+			Nodes =
+			[
+				new()
+				{
+					VoiceActors =
+					[
+						new() { Name = new() { Full = voiceActorName, Native = voiceActorName }, Url = "https://anilist.co/staff/1" },
+					],
+				},
+			],
+		},
+	};
 
 	private static MediaTag Tag(string name, byte rank, bool isSpoiler = false) => new()
 	{

@@ -23,13 +23,21 @@ public sealed class SearchEmbedBuilderTests
 	private const string AvatarUrl = "https://cdn.discordapp.com/avatars/1/avatar.png";
 	private const string DisplayName = "nodan";
 	private const string MediumPosterUrl = "https://cdn.myanimelist.net/medium.jpg";
+	private const string MonsterTitle = "Monster";
+	private const string StudiosField = "Studios";
+	private const string ThemesField = "Themes";
+	private const string DemographicField = "Demographic";
+	private const string SeiyuField = "Seiyu";
+	private const string MembersField = "Members";
+	private const uint MonsterId = 19U;
+	private const uint BerserkId = 2U;
 
 	[Test]
 	public async Task CompleteAnimeEmbedHasTheFixedPublicShapeWithoutFeatureGating()
 	{
 		var result = Anime(
 			id: 19U,
-			title: "Monster",
+			title: MonsterTitle,
 			picture: new() { Large = "https://cdn.myanimelist.net/large.jpg", Medium = MediumPosterUrl, },
 			mean: 8.88,
 			episodes: 74U,
@@ -40,7 +48,7 @@ public sealed class SearchEmbedBuilderTests
 
 		var embed = SearchEmbedBuilder.Build(result, MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
 
-		await Assert.That(embed.Title).IsEqualTo("Monster");
+		await Assert.That(embed.Title).IsEqualTo(MonsterTitle);
 		await Assert.That(embed.Url).IsEqualTo("https://myanimelist.net/anime/19");
 		await Assert.That(embed.Description).IsEqualTo("Inspector Kenzou Tenma searches for the truth.");
 		await Assert.That(embed.Thumbnail.Url).IsEqualTo("https://cdn.myanimelist.net/large.jpg");
@@ -58,7 +66,7 @@ public sealed class SearchEmbedBuilderTests
 				("Score", "8.88", true),
 				("Total", "74 ep.", true),
 				("Season", "Spring 2004", true),
-				("Members", "1,360,412", true),
+				(MembersField, "1,360,412", true),
 				("Genres", "Award Winning, Drama, Mystery, Suspense", false),
 			],
 			CollectionOrdering.Matching);
@@ -88,7 +96,7 @@ public sealed class SearchEmbedBuilderTests
 				("Status", "Currently publishing", true),
 				("Score", "9.47", true),
 				("Total", "84 ch, 9 v.", true),
-				("Members", "735,311", true),
+				(MembersField, "735,311", true),
 				("Genres", "Action, Adventure", false),
 			],
 			CollectionOrdering.Matching);
@@ -148,7 +156,7 @@ public sealed class SearchEmbedBuilderTests
 		await Assert.That(embed.Description).IsNull();
 		await Assert.That(embed.Thumbnail).IsNull();
 		await Assert.That(embed.Author.IconUrl).IsNull();
-		await Assert.That(embed.Fields.Select(static field => field.Name)).IsEquivalentTo(["Members",]);
+		await Assert.That(embed.Fields.Select(static field => field.Name)).IsEquivalentTo([MembersField,]);
 		await Assert.That(embed.Fields[0].Value).IsEqualTo("0");
 	}
 
@@ -208,9 +216,76 @@ public sealed class SearchEmbedBuilderTests
 		await Assert.That(embed.Author.Name.Length).IsLessThanOrEqualTo(AuthorNameLimit);
 	}
 
+	[Test]
+	public async Task SearchDefaultAnimeRendersStudiosPlusThemesDemographicAndSeiyuFromTheDetailFetch()
+	{
+		var result = Anime(id: MonsterId, title: MonsterTitle, studios: [new() { Id = 11U, Name = "Madhouse" }]);
+		var enrichment = new FakeMyAnimeListEnrichmentClient
+		{
+			AnimeDetailsResult = new() { Themes = ["Psychological"], Demographic = ["Seinen"] },
+			AnimeSeiyuResult = [new() { Name = "Hidenobu Kiuchi", Url = "https://myanimelist.net/people/1" }],
+		};
+
+		var embed = await SearchEmbedBuilder.BuildAsync(result, MalUserFeatures.SearchDefault, enrichment, DisplayName, AvatarUrl, CancellationToken.None);
+
+		var fieldNames = embed.Fields.Select(static field => field.Name).ToArray();
+		await Assert.That(enrichment.AnimeDetailsCalls.Select(static call => call.Id)).IsEquivalentTo([(long)MonsterId]);
+		await Assert.That(enrichment.AnimeSeiyuCalls.Select(static call => call.Id)).IsEquivalentTo([(long)MonsterId]);
+		await Assert.That(fieldNames).Contains(StudiosField);
+		await Assert.That(fieldNames).Contains(ThemesField);
+		await Assert.That(fieldNames).Contains(DemographicField);
+		await Assert.That(fieldNames).Contains(SeiyuField);
+	}
+
+	[Test]
+	public async Task AnEmptyTenraiReturnDropsOnlyTheTenraiFields()
+	{
+		var result = Anime(id: MonsterId, title: MonsterTitle, studios: [new() { Id = 11U, Name = "Madhouse" }]);
+		var enrichment = new FakeMyAnimeListEnrichmentClient();
+
+		var embed = await SearchEmbedBuilder.BuildAsync(result, MalUserFeatures.SearchDefault, enrichment, DisplayName, AvatarUrl, CancellationToken.None);
+
+		var fieldNames = embed.Fields.Select(static field => field.Name).ToArray();
+		await Assert.That(fieldNames).Contains(StudiosField);
+		await Assert.That(fieldNames).Contains(MembersField);
+		await Assert.That(fieldNames).DoesNotContain(ThemesField);
+		await Assert.That(fieldNames).DoesNotContain(DemographicField);
+		await Assert.That(fieldNames).DoesNotContain(SeiyuField);
+	}
+
+	[Test]
+	public async Task SearchDefaultMangaRendersAuthorsThemesAndDemographicWithoutFetchingSeiyu()
+	{
+		var result = Manga(
+			id: BerserkId,
+			title: "Berserk",
+			picture: null,
+			mean: null,
+			chapters: 0U,
+			volumes: 0U,
+			listUserCount: 1U,
+			genres: [],
+			synopsis: null,
+			authors: [new() { Role = "Story & Art", Person = new() { Id = 1U, FirstName = "Kentarou", LastName = "Miura" } }]);
+		var enrichment = new FakeMyAnimeListEnrichmentClient
+		{
+			MangaDetailsResult = new() { Themes = ["Gore"], Demographic = ["Seinen"] },
+		};
+
+		var embed = await SearchEmbedBuilder.BuildAsync(result, MalUserFeatures.SearchDefault, enrichment, DisplayName, AvatarUrl, CancellationToken.None);
+
+		var fieldNames = embed.Fields.Select(static field => field.Name).ToArray();
+		await Assert.That(enrichment.MangaDetailsCalls.Select(static call => call.Id)).IsEquivalentTo([(long)BerserkId]);
+		await Assert.That(enrichment.AnimeSeiyuCalls).IsEmpty();
+		await Assert.That(fieldNames).Contains("Authors");
+		await Assert.That(fieldNames).Contains(ThemesField);
+		await Assert.That(fieldNames).Contains(DemographicField);
+		await Assert.That(fieldNames).DoesNotContain(SeiyuField);
+	}
+
 	private static AnimeSearchResult Anime(
 		uint id = 1U,
-		string title = "Monster",
+		string title = MonsterTitle,
 		Picture? picture = null,
 		double? mean = null,
 		uint episodes = 0U,
@@ -219,7 +294,8 @@ public sealed class SearchEmbedBuilderTests
 		IReadOnlyList<string>? genres = null,
 		string? synopsis = null,
 		AnimeMediaType mediaType = AnimeMediaType.TV,
-		AnimeAiringStatus status = AnimeAiringStatus.FinishedAiring) => new()
+		AnimeAiringStatus status = AnimeAiringStatus.FinishedAiring,
+		IReadOnlyList<Studio>? studios = null) => new()
 		{
 			Id = id,
 			PrimaryTitle = title,
@@ -232,6 +308,7 @@ public sealed class SearchEmbedBuilderTests
 			Genres = ToGenres(genres),
 			Synopsis = synopsis,
 			StartSeason = season,
+			Studios = studios,
 		};
 
 	private static MangaSearchResult Manga(
@@ -243,7 +320,8 @@ public sealed class SearchEmbedBuilderTests
 		uint volumes,
 		uint listUserCount,
 		IReadOnlyList<string> genres,
-		string? synopsis) => new()
+		string? synopsis,
+		IReadOnlyList<Author>? authors = null) => new()
 		{
 			Id = id,
 			PrimaryTitle = title,
@@ -256,6 +334,7 @@ public sealed class SearchEmbedBuilderTests
 			ListUserCount = listUserCount,
 			Genres = ToGenres(genres),
 			Synopsis = synopsis,
+			Authors = authors,
 		};
 
 	private static Genre[] ToGenres(IReadOnlyList<string>? genres) =>

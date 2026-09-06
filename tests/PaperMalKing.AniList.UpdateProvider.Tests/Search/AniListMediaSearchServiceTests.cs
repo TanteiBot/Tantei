@@ -198,6 +198,15 @@ public sealed class AniListMediaSearchServiceTests
 		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.Busy("AniList"));
 	}
 
+	[Test]
+	public async Task TheSearchServiceHasNoDatabaseDependency()
+	{
+		var parameters = typeof(AniListMediaSearchService).GetConstructors().Single().GetParameters();
+		var dependsOnDatabase = Array.Exists(parameters, static parameter => parameter.ParameterType.FullName?.Contains("DbContext", StringComparison.Ordinal) == true);
+
+		await Assert.That(dependsOnDatabase).IsFalse();
+	}
+
 	private static GraphQLHttpRequestException RateLimitException()
 	{
 		using var response = new HttpResponseMessage();
