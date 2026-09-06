@@ -69,5 +69,8 @@ public static class AniListUserFeaturesExtensions
 													 AniListUserFeatures.Favourites | AniListUserFeatures.Mention |
 													 AniListUserFeatures.Website | AniListUserFeatures.MediaFormat |
 													 AniListUserFeatures.MediaStatus;
+
+		public static AniListUserFeatures SearchDefault => AniListUserFeatures.Default | AniListUserFeatures.MediaDescription |
+														   AniListUserFeatures.Tags | AniListUserFeatures.Seyu;
 	}
 }

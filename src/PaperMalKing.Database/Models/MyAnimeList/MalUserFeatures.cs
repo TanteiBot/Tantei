@@ -72,5 +72,10 @@ public static class MalUserFeaturesExtensions
 												 MalUserFeatures.Favorites | MalUserFeatures.Mention |
 												 MalUserFeatures.Website | MalUserFeatures.MediaFormat |
 												 MalUserFeatures.MediaStatus;
+
+		public static MalUserFeatures SearchDefault => MalUserFeatures.Default | MalUserFeatures.Genres |
+													   MalUserFeatures.Synopsis | MalUserFeatures.Studio |
+													   MalUserFeatures.Mangakas | MalUserFeatures.Themes |
+													   MalUserFeatures.Demographic | MalUserFeatures.Seiyu;
 	}
 }

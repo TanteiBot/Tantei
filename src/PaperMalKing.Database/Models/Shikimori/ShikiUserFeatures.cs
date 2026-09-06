@@ -66,5 +66,10 @@ public static class ShikiUserFeaturesExtensions
 												ShikiUserFeatures.Favourites | ShikiUserFeatures.Mention |
 												ShikiUserFeatures.Website | ShikiUserFeatures.MediaFormat |
 												ShikiUserFeatures.MediaStatus | ShikiUserFeatures.Achievements;
+
+		public static ShikiUserFeatures SearchDefault => ShikiUserFeatures.Default | ShikiUserFeatures.Mangaka |
+													  ShikiUserFeatures.Director | ShikiUserFeatures.Genres |
+													  ShikiUserFeatures.Description | ShikiUserFeatures.Studio |
+													  ShikiUserFeatures.Publisher;
 	}
 }
