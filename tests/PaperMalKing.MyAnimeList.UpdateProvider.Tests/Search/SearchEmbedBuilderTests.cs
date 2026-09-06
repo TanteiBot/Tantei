@@ -3,7 +3,6 @@
 
 using System.Globalization;
 using PaperMalKing.Database.Models.MyAnimeList;
-using PaperMalKing.MyAnimeList.UpdateProvider.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
@@ -46,7 +45,7 @@ public sealed class SearchEmbedBuilderTests
 			genres: ["Award Winning", "Drama", "Mystery", "Suspense",],
 			synopsis: "Inspector Kenzou Tenma searches for the truth.");
 
-		var embed = SearchEmbedBuilder.Build(result, MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
+		var embed = MalMediaEmbeds.Build(result, MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
 
 		await Assert.That(embed.Title).IsEqualTo(MonsterTitle);
 		await Assert.That(embed.Url).IsEqualTo("https://myanimelist.net/anime/19");
@@ -86,7 +85,7 @@ public sealed class SearchEmbedBuilderTests
 			genres: ["Action", "Adventure",],
 			synopsis: "Guts pursues his own dream.");
 
-		var embed = SearchEmbedBuilder.Build(result, MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
+		var embed = MalMediaEmbeds.Build(result, MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
 
 		await Assert.That(embed.Url).IsEqualTo("https://myanimelist.net/manga/2");
 		await Assert.That(embed.Thumbnail.Url).IsEqualTo(MediumPosterUrl);
@@ -119,7 +118,7 @@ public sealed class SearchEmbedBuilderTests
 			genres: [],
 			synopsis: null);
 
-		var embed = SearchEmbedBuilder.Build(result, MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
+		var embed = MalMediaEmbeds.Build(result, MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
 		var total = embed.Fields.SingleOrDefault(static field => string.Equals(field.Name, "Total", StringComparison.Ordinal))?.Value;
 
 		await Assert.That(total).IsEqualTo(expected);
@@ -130,7 +129,7 @@ public sealed class SearchEmbedBuilderTests
 	{
 		var picture = new Picture { Large = " ", Medium = MediumPosterUrl, };
 
-		var embed = SearchEmbedBuilder.Build(Anime(picture: picture), MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
+		var embed = MalMediaEmbeds.Build(Anime(picture: picture), MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
 
 		await Assert.That(embed.Thumbnail.Url).IsEqualTo(MediumPosterUrl);
 	}
@@ -151,7 +150,7 @@ public sealed class SearchEmbedBuilderTests
 			mediaType: AnimeMediaType.Unknown,
 			status: AnimeAiringStatus.Unknown);
 
-		var embed = SearchEmbedBuilder.Build(result, MalUserFeatures.SearchDefault, DisplayName, avatarUrl: null);
+		var embed = MalMediaEmbeds.Build(result, MalUserFeatures.SearchDefault, DisplayName, avatarUrl: null);
 
 		await Assert.That(embed.Description).IsNull();
 		await Assert.That(embed.Thumbnail).IsNull();
@@ -165,7 +164,7 @@ public sealed class SearchEmbedBuilderTests
 	[Arguments("A complete synopsis. [Written by MAL Rewrite]")]
 	public async Task SourceCreditTailIsRemoved(string synopsis)
 	{
-		var embed = SearchEmbedBuilder.Build(Anime(synopsis: synopsis), MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
+		var embed = MalMediaEmbeds.Build(Anime(synopsis: synopsis), MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
 
 		await Assert.That(embed.Description).IsEqualTo("A complete synopsis.");
 	}
@@ -173,7 +172,7 @@ public sealed class SearchEmbedBuilderTests
 	[Test]
 	public async Task SynopsisIsTruncatedToFiveHundredCharactersWithEllipsis()
 	{
-		var embed = SearchEmbedBuilder.Build(Anime(synopsis: new('a', 600)), MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
+		var embed = MalMediaEmbeds.Build(Anime(synopsis: new('a', 600)), MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
 
 		await Assert.That(embed.Description).IsNotNull();
 		await Assert.That(embed.Description.Length).IsEqualTo(SynopsisLimit);
@@ -185,7 +184,7 @@ public sealed class SearchEmbedBuilderTests
 	{
 		var title = new string('x', 257);
 
-		var embed = SearchEmbedBuilder.Build(Anime(title: title, synopsis: "This synopsis is replaced."), MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
+		var embed = MalMediaEmbeds.Build(Anime(title: title, synopsis: "This synopsis is replaced."), MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
 
 		await Assert.That(embed.Title).IsNull();
 		await Assert.That(embed.Url).IsNull();
@@ -197,7 +196,7 @@ public sealed class SearchEmbedBuilderTests
 	{
 		var genres = Enumerable.Range(1, 8).Select(static number => string.Create(CultureInfo.InvariantCulture, $"Genre {number}")).ToArray();
 
-		var embed = SearchEmbedBuilder.Build(Anime(genres: genres), MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
+		var embed = MalMediaEmbeds.Build(Anime(genres: genres), MalUserFeatures.SearchDefault, DisplayName, AvatarUrl);
 		var genresField = embed.Fields[^1];
 
 		await Assert.That(genresField.Name).IsEqualTo("Genres");
@@ -210,7 +209,7 @@ public sealed class SearchEmbedBuilderTests
 	{
 		var genres = Enumerable.Range(1, 7).Select(static number => string.Create(CultureInfo.InvariantCulture, $"Genre {number}{new string('x', 200)}")).ToArray();
 
-		var embed = SearchEmbedBuilder.Build(Anime(genres: genres), MalUserFeatures.SearchDefault, new string('n', 300), AvatarUrl);
+		var embed = MalMediaEmbeds.Build(Anime(genres: genres), MalUserFeatures.SearchDefault, new string('n', 300), AvatarUrl);
 
 		await Assert.That(embed.Fields[^1].Value.Length).IsLessThanOrEqualTo(FieldValueLimit);
 		await Assert.That(embed.Author.Name.Length).IsLessThanOrEqualTo(AuthorNameLimit);
@@ -226,7 +225,7 @@ public sealed class SearchEmbedBuilderTests
 			AnimeSeiyuResult = [new() { Name = "Hidenobu Kiuchi", Url = "https://myanimelist.net/people/1" }],
 		};
 
-		var embed = await SearchEmbedBuilder.BuildAsync(result, MalUserFeatures.SearchDefault, enrichment, DisplayName, AvatarUrl, CancellationToken.None);
+		var embed = await MalMediaEmbeds.BuildAsync(result, MalUserFeatures.SearchDefault, enrichment, DisplayName, AvatarUrl, CancellationToken.None);
 
 		var fieldNames = embed.Fields.Select(static field => field.Name).ToArray();
 		await Assert.That(enrichment.AnimeDetailsCalls.Select(static call => call.Id)).IsEquivalentTo([(long)MonsterId]);
@@ -243,7 +242,7 @@ public sealed class SearchEmbedBuilderTests
 		var result = Anime(id: MonsterId, title: MonsterTitle, studios: [new() { Id = 11U, Name = "Madhouse" }]);
 		var enrichment = new FakeMyAnimeListEnrichmentClient();
 
-		var embed = await SearchEmbedBuilder.BuildAsync(result, MalUserFeatures.SearchDefault, enrichment, DisplayName, AvatarUrl, CancellationToken.None);
+		var embed = await MalMediaEmbeds.BuildAsync(result, MalUserFeatures.SearchDefault, enrichment, DisplayName, AvatarUrl, CancellationToken.None);
 
 		var fieldNames = embed.Fields.Select(static field => field.Name).ToArray();
 		await Assert.That(fieldNames).Contains(StudiosField);
@@ -272,7 +271,7 @@ public sealed class SearchEmbedBuilderTests
 			MangaDetailsResult = new() { Themes = ["Gore"], Demographic = ["Seinen"] },
 		};
 
-		var embed = await SearchEmbedBuilder.BuildAsync(result, MalUserFeatures.SearchDefault, enrichment, DisplayName, AvatarUrl, CancellationToken.None);
+		var embed = await MalMediaEmbeds.BuildAsync(result, MalUserFeatures.SearchDefault, enrichment, DisplayName, AvatarUrl, CancellationToken.None);
 
 		var fieldNames = embed.Fields.Select(static field => field.Name).ToArray();
 		await Assert.That(enrichment.MangaDetailsCalls.Select(static call => call.Id)).IsEquivalentTo([(long)BerserkId]);

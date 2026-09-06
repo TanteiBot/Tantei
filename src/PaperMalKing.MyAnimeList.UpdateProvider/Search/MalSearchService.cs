@@ -32,7 +32,7 @@ internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchest
 			var mangaCandidates = mangaResults.Select(result => MalMediaCandidate.Create<MangaMediaType, MangaPublishingStatus>(
 				result,
 				mangaFilter,
-				(context, ct) => SearchEmbedBuilder.BuildAsync(result, features, _client, context.RequesterDisplayName, context.RequesterAvatarUrl, ct)));
+				(context, ct) => MalMediaEmbeds.BuildAsync(result, features, _client, context.RequesterDisplayName, context.RequesterAvatarUrl, ct)));
 			return SearchEvaluator.Evaluate(request.QueryKey, mangaCandidates, applyTypeFilter: mangaFilter.HasValue);
 		}
 
@@ -41,7 +41,7 @@ internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchest
 		var animeCandidates = animeResults.Select(result => MalMediaCandidate.Create<AnimeMediaType, AnimeAiringStatus>(
 			result,
 			animeFilter,
-			(context, ct) => SearchEmbedBuilder.BuildAsync(result, features, _client, context.RequesterDisplayName, context.RequesterAvatarUrl, ct)));
+			(context, ct) => MalMediaEmbeds.BuildAsync(result, features, _client, context.RequesterDisplayName, context.RequesterAvatarUrl, ct)));
 		return SearchEvaluator.Evaluate(request.QueryKey, animeCandidates, applyTypeFilter: animeFilter.HasValue);
 	}
 
