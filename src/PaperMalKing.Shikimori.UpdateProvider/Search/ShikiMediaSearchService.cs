@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using GraphQL.Client.Http;
-using Microsoft.EntityFrameworkCore;
 using PaperMalKing.Common.Enums;
-using PaperMalKing.Database;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.Shikimori.Wrapper.Abstractions;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Enums;
@@ -16,7 +13,6 @@ namespace PaperMalKing.Shikimori.UpdateProvider.Search;
 
 internal sealed class ShikiMediaSearchService(
 	IShikiClient _client,
-	IDbContextFactory<DatabaseContext> _dbContextFactory,
 	SearchOrchestrator _orchestrator) : MediaSearchServiceBase(_orchestrator, new("Shikimori", "shikimori"), 1)
 {
 	public Task SearchAnimeAsync(ISearchInvocation invocation, string query, AnimeKind? kind, CancellationToken cancellationToken)
@@ -25,14 +21,10 @@ internal sealed class ShikiMediaSearchService(
 	public Task SearchMangaAsync(ISearchInvocation invocation, string query, MangaKind? kind, CancellationToken cancellationToken)
 		=> this.RunSearchAsync(invocation, query, PickerMediaKind.Manga, SearchTypeFilter.From(kind), cancellationToken);
 
-	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	public override async Task<SearchEvaluation> EvaluateAsync(SearchRequest request, CancellationToken cancellationToken)
 	{
-		using var db = _dbContextFactory.CreateDbContext();
-		var dbUser = db.ShikiUsers.TagWith("Query user when searching for media").TagWithCallSite().FirstOrDefault(su => su.DiscordUserId == request.RequesterId);
-
-		var features = dbUser?.Features ?? ShikiUserFeatures.Default;
-		var useRussian = features.HasFlag(ShikiUserFeatures.Russian);
+		var features = ShikiUserFeatures.SearchDefault;
+		const bool useRussian = false;
 
 		if (request.MediaKind == PickerMediaKind.Manga)
 		{
