@@ -2,9 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Globalization;
-using System.Text;
 using DSharpPlus.Entities;
-using Humanizer;
 using PaperMalKing.Common.Enums;
 using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
@@ -31,19 +29,7 @@ internal static class SearchEmbedBuilder
 				 .WithShikiUpdateProviderFooter();
 		eb.WithRequestedByAuthor(requesterDisplayName, avatarUrl);
 
-		var titleSb = new StringBuilder();
-		titleSb.Append(media.GetNameOrAltName(useRussian));
-		if (features.HasFlag(ShikiUserFeatures.MediaFormat))
-		{
-			titleSb.Append(CultureInfo.InvariantCulture, $" ({(media.Kind ?? "Unknown").Humanize(LetterCasing.Sentence)})");
-		}
-
-		if (features.HasFlag(ShikiUserFeatures.MediaStatus) && !string.IsNullOrWhiteSpace(media.Status))
-		{
-			titleSb.Append(CultureInfo.InvariantCulture, $" [{media.Status.Humanize(LetterCasing.Sentence)}]");
-		}
-
-		eb.WithTitle(titleSb.ToString());
+		eb.WithShikiMediaTitle(media.GetNameOrAltName(useRussian), media.Kind, media.Status, features);
 
 		if (media.Score is > 0f)
 		{

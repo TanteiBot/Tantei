@@ -62,6 +62,23 @@ internal static partial class Extensions
 			return builder;
 		}
 
+		public DiscordEmbedBuilder WithShikiMediaTitle(string name, string? kind, string? status, ShikiUserFeatures features)
+		{
+			var titleSb = new StringBuilder();
+			titleSb.Append(name);
+			if (features.HasFlag(ShikiUserFeatures.MediaFormat))
+			{
+				titleSb.Append(CultureInfo.InvariantCulture, $" ({(kind ?? "Unknown").Humanize(LetterCasing.Sentence)})");
+			}
+
+			if (features.HasFlag(ShikiUserFeatures.MediaStatus) && !string.IsNullOrWhiteSpace(status))
+			{
+				titleSb.Append(CultureInfo.InvariantCulture, $" [{status.Humanize(LetterCasing.Sentence)}]");
+			}
+
+			return builder.WithTitle(titleSb.ToString());
+		}
+
 		public void FillMediaInfo(BaseMedia? media, ShikiUserFeatures features, ListEntryType type)
 		{
 			if (media is null)
@@ -265,21 +282,7 @@ internal static partial class Extensions
 
 		eb = eb.WithColor(color);
 
-		var titleSb = new StringBuilder();
-
-		titleSb.Append(target.GetNameOrAltName(features));
-
-		if (features.HasFlag(ShikiUserFeatures.MediaFormat))
-		{
-			titleSb.Append(CultureInfo.InvariantCulture, $" ({(target.Kind ?? "Unknown").Humanize(LetterCasing.Sentence)})");
-		}
-
-		if (features.HasFlag(ShikiUserFeatures.MediaStatus))
-		{
-			titleSb.AppendLine(CultureInfo.InvariantCulture, $" [{target.Status.Humanize(LetterCasing.Sentence)}]");
-		}
-
-		eb.WithTitle(titleSb.ToString()).WithUrl(target.Url);
+		eb.WithShikiMediaTitle(target.GetNameOrAltName(features), target.Kind, target.Status, features).WithUrl(target.Url);
 
 		if (!string.IsNullOrWhiteSpace(target.ImageUrl))
 		{
