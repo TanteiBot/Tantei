@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Globalization;
+using DSharpPlus.Entities;
 using Humanizer;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 using PaperMalKing.UpdatesProviders.Base.Search;
@@ -10,11 +11,15 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider.Search;
 
 internal static class MalMediaCandidate
 {
-	public static SearchCandidate Create<TMediaType, TStatus>(BaseSearchResult<TMediaType, TStatus> result, TMediaType? mediaTypeFilter)
+	public static SearchCandidate Create<TMediaType, TStatus>(
+		BaseSearchResult<TMediaType, TStatus> result,
+		TMediaType? mediaTypeFilter,
+		Func<PickerSearchContext, CancellationToken, Task<DiscordEmbedBuilder>> buildEmbed)
 		where TMediaType : unmanaged, Enum
 		where TStatus : unmanaged, Enum
 	{
 		ArgumentNullException.ThrowIfNull(result);
+		ArgumentNullException.ThrowIfNull(buildEmbed);
 		var matchTitles = new List<(string? Title, MatchRank Rank)>((result.AlternativeTitles?.Synonyms?.Count ?? 0) + 3)
 		{
 			(result.PrimaryTitle, MatchRank.Primary),
@@ -38,7 +43,7 @@ internal static class MalMediaCandidate
 			result.PrimaryTitle,
 			matchTitles,
 			DescribeOption(result),
-			(context, _) => Task.FromResult(SearchEmbedBuilder.Build(result, context.RequesterDisplayName, context.RequesterAvatarUrl)),
+			buildEmbed,
 			passesTypeFilter);
 	}
 

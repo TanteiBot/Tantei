@@ -13,4 +13,7 @@ public sealed class AnimeSearchResult : BaseSearchResult<AnimeMediaType, AnimeAi
 
 	[JsonPropertyName("start_season")]
 	public AnimeStartSeason? StartSeason { get; init; }
+
+	[JsonPropertyName("studios")]
+	public IReadOnlyList<Studio>? Studios { get; init; }
 }

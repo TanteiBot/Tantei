@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Net;
+using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
@@ -23,17 +24,24 @@ internal sealed class MalSearchService(IMyAnimeListClient _client, SearchOrchest
 
 	public override async Task<SearchEvaluation> EvaluateAsync(SearchRequest request, CancellationToken cancellationToken)
 	{
+		var features = MalUserFeatures.SearchDefault;
 		if (request.MediaKind == PickerMediaKind.Manga)
 		{
 			var mangaResults = await _client.SearchMangaAsync(request.RawQuery, request.IncludeNsfw, cancellationToken).ConfigureAwait(false);
 			var mangaFilter = request.Filter?.As<MangaMediaType>();
-			var mangaCandidates = mangaResults.Select(result => MalMediaCandidate.Create<MangaMediaType, MangaPublishingStatus>(result, mangaFilter));
+			var mangaCandidates = mangaResults.Select(result => MalMediaCandidate.Create<MangaMediaType, MangaPublishingStatus>(
+				result,
+				mangaFilter,
+				(context, ct) => SearchEmbedBuilder.BuildAsync(result, features, _client, context.RequesterDisplayName, context.RequesterAvatarUrl, ct)));
 			return SearchEvaluator.Evaluate(request.QueryKey, mangaCandidates, applyTypeFilter: mangaFilter.HasValue);
 		}
 
 		var animeResults = await _client.SearchAnimeAsync(request.RawQuery, request.IncludeNsfw, cancellationToken).ConfigureAwait(false);
 		var animeFilter = request.Filter?.As<AnimeMediaType>();
-		var animeCandidates = animeResults.Select(result => MalMediaCandidate.Create<AnimeMediaType, AnimeAiringStatus>(result, animeFilter));
+		var animeCandidates = animeResults.Select(result => MalMediaCandidate.Create<AnimeMediaType, AnimeAiringStatus>(
+			result,
+			animeFilter,
+			(context, ct) => SearchEmbedBuilder.BuildAsync(result, features, _client, context.RequesterDisplayName, context.RequesterAvatarUrl, ct)));
 		return SearchEvaluator.Evaluate(request.QueryKey, animeCandidates, applyTypeFilter: animeFilter.HasValue);
 	}
 

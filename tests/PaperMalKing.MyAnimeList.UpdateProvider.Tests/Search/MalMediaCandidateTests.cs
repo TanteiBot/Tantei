@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Globalization;
+using DSharpPlus.Entities;
 using PaperMalKing.MyAnimeList.UpdateProvider.Search;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
@@ -21,12 +22,15 @@ public sealed class MalMediaCandidateTests
 	private const int MangaStartYear = 1988;
 	private const uint MonsterMembers = 1_400_000U;
 
+	private static readonly Func<PickerSearchContext, CancellationToken, Task<DiscordEmbedBuilder>> NoEmbed =
+		static (_, _) => Task.FromResult(new DiscordEmbedBuilder());
+
 	[Test]
 	public async Task MatchTitlesCarryTheExpectedRanks()
 	{
 		var media = Anime(1U, Monster, synonyms: [MonsterStory], japanese: MonsterNative, english: Kaibutsu);
 
-		var candidate = MalMediaCandidate.Create(media, mediaTypeFilter: null);
+		var candidate = MalMediaCandidate.Create(media, mediaTypeFilter: null, NoEmbed);
 
 		await Assert.That(candidate.MatchTitles).Contains((Monster, MatchRank.Primary));
 		await Assert.That(candidate.MatchTitles).Contains((MonsterStory, MatchRank.Synonym));
@@ -39,7 +43,7 @@ public sealed class MalMediaCandidateTests
 	{
 		var media = Anime(1U, Monster);
 
-		var candidate = MalMediaCandidate.Create(media, mediaTypeFilter: null);
+		var candidate = MalMediaCandidate.Create(media, mediaTypeFilter: null, NoEmbed);
 
 		await Assert.That(candidate.PrimaryTitle).IsEqualTo(Monster);
 	}
@@ -49,7 +53,7 @@ public sealed class MalMediaCandidateTests
 	{
 		var media = Anime(1U, Monster, listUserCount: MonsterMembers);
 
-		var candidate = MalMediaCandidate.Create(media, mediaTypeFilter: null);
+		var candidate = MalMediaCandidate.Create(media, mediaTypeFilter: null, NoEmbed);
 
 		await Assert.That(candidate.Popularity).IsEqualTo(MonsterMembers);
 	}
@@ -59,9 +63,9 @@ public sealed class MalMediaCandidateTests
 	{
 		var media = Anime(1U, Monster, mediaType: AnimeMediaType.TV);
 
-		var matching = MalMediaCandidate.Create(media, AnimeMediaType.TV);
-		var mismatched = MalMediaCandidate.Create(media, AnimeMediaType.Movie);
-		var unfiltered = MalMediaCandidate.Create(media, mediaTypeFilter: null);
+		var matching = MalMediaCandidate.Create(media, AnimeMediaType.TV, NoEmbed);
+		var mismatched = MalMediaCandidate.Create(media, AnimeMediaType.Movie, NoEmbed);
+		var unfiltered = MalMediaCandidate.Create(media, mediaTypeFilter: null, NoEmbed);
 
 		await Assert.That(matching.PassesTypeFilter).IsTrue();
 		await Assert.That(mismatched.PassesTypeFilter).IsFalse();
@@ -73,8 +77,8 @@ public sealed class MalMediaCandidateTests
 	{
 		var media = Manga(1U, MangaMediaType.LightNovel);
 
-		var matching = MalMediaCandidate.Create(media, MangaMediaType.LightNovel);
-		var mismatched = MalMediaCandidate.Create(media, MangaMediaType.Manga);
+		var matching = MalMediaCandidate.Create(media, MangaMediaType.LightNovel, NoEmbed);
+		var mismatched = MalMediaCandidate.Create(media, MangaMediaType.Manga, NoEmbed);
 
 		await Assert.That(matching.PassesTypeFilter).IsTrue();
 		await Assert.That(mismatched.PassesTypeFilter).IsFalse();
@@ -96,7 +100,7 @@ public sealed class MalMediaCandidateTests
 			StartDate = new(AnimeSeasonYear, 1, 1),
 		};
 
-		var candidate = MalMediaCandidate.Create(media, mediaTypeFilter: null);
+		var candidate = MalMediaCandidate.Create(media, mediaTypeFilter: null, NoEmbed);
 
 		await Assert.That(candidate.OptionDescription).IsEqualTo(
 			$"TV · {AnimeSeasonYear.ToString(CultureInfo.InvariantCulture)} · ★ 8.88 · 1.4M members");
@@ -111,7 +115,7 @@ public sealed class MalMediaCandidateTests
 			startDate: new(AnimeStartDateYear, 4, 7),
 			startSeason: new() { Season = AnimeSeason.Spring, Year = AnimeSeasonYear });
 
-		var candidate = MalMediaCandidate.Create(media, mediaTypeFilter: null);
+		var candidate = MalMediaCandidate.Create(media, mediaTypeFilter: null, NoEmbed);
 
 		await Assert.That(candidate.OptionDescription).Contains(AnimeStartDateYear.ToString(CultureInfo.InvariantCulture));
 	}
@@ -121,7 +125,7 @@ public sealed class MalMediaCandidateTests
 	{
 		var media = Manga(1U, MangaMediaType.LightNovel, startDate: new(MangaStartYear, 9, 1));
 
-		var candidate = MalMediaCandidate.Create(media, mediaTypeFilter: null);
+		var candidate = MalMediaCandidate.Create(media, mediaTypeFilter: null, NoEmbed);
 
 		await Assert.That(candidate.OptionDescription).IsEqualTo(
 			$"Light novel · {MangaStartYear.ToString(CultureInfo.InvariantCulture)} · 0 members");

@@ -61,6 +61,7 @@ public sealed class MyAnimeListClientSearchTests
 			"num_list_users",
 			"genres{name}",
 			"synopsis",
+			"studios",
 			"nsfw",
 		]);
 
@@ -129,6 +130,8 @@ public sealed class MyAnimeListClientSearchTests
 			"num_list_users",
 			"genres{name}",
 			"synopsis",
+			"authors{first_name",
+			"last_name}",
 			"nsfw",
 		]);
 

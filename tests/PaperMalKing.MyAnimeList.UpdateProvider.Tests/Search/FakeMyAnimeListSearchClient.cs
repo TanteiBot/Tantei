@@ -54,11 +54,11 @@ internal sealed class FakeMyAnimeListSearchClient : IMyAnimeListClient
 		where TNodeStatus : unmanaged, Enum
 		where TListStatus : unmanaged, Enum => throw new NotSupportedException();
 
-	public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken) => throw new NotSupportedException();
+	public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken) => Task.FromResult(MediaInfo.Empty);
 
-	public Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken) => throw new NotSupportedException();
+	public Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken) => Task.FromResult(MediaInfo.Empty);
 
-	public Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken) => throw new NotSupportedException();
+	public Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken) => Task.FromResult<IReadOnlyList<SeyuInfo>>([]);
 
 	private void Record(string query, bool includeNsfw)
 	{
