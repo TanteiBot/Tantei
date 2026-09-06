@@ -102,7 +102,8 @@ internal sealed class SearchOrchestrator(
 	{
 		try
 		{
-			await target.SendPublicAsync(result.BuildEmbed(context), cancellationToken).ConfigureAwait(false);
+			var embed = await result.BuildEmbedAsync(context, cancellationToken).ConfigureAwait(false);
+			await target.SendPublicAsync(embed, cancellationToken).ConfigureAwait(false);
 		}
 #pragma warning disable CA1031
 		catch (Exception exception)

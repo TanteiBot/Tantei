@@ -44,7 +44,7 @@ internal static class ShikiMediaCandidate
 			resolvedTitle,
 			matchTitles,
 			DescribeOption(media),
-			context => SearchEmbedBuilder.Build(media, type, features, useRussian, context.RequesterDisplayName, context.RequesterAvatarUrl),
+			(context, _) => Task.FromResult(SearchEmbedBuilder.Build(media, type, features, useRussian, context.RequesterDisplayName, context.RequesterAvatarUrl)),
 			passesTypeFilter);
 	}
 

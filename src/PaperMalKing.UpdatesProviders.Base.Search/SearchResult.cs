@@ -10,9 +10,9 @@ internal sealed class SearchResult(
 	string primaryTitle,
 	MatchRank rank,
 	string optionDescription,
-	Func<PickerSearchContext, DiscordEmbedBuilder> buildEmbed)
+	Func<PickerSearchContext, CancellationToken, Task<DiscordEmbedBuilder>> buildEmbed)
 {
-	private readonly Func<PickerSearchContext, DiscordEmbedBuilder> _buildEmbed = buildEmbed;
+	private readonly Func<PickerSearchContext, CancellationToken, Task<DiscordEmbedBuilder>> _buildEmbed = buildEmbed;
 
 	public MatchRank Rank { get; } = rank;
 
@@ -22,5 +22,5 @@ internal sealed class SearchResult(
 
 	public string OptionDescription { get; } = optionDescription;
 
-	public DiscordEmbedBuilder BuildEmbed(PickerSearchContext context) => this._buildEmbed(context);
+	public Task<DiscordEmbedBuilder> BuildEmbedAsync(PickerSearchContext context, CancellationToken ct) => this._buildEmbed(context, ct);
 }

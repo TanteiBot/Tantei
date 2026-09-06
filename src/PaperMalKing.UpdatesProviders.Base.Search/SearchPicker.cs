@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using DSharpPlus.Entities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
@@ -369,7 +368,10 @@ internal sealed class SearchPicker(IMemoryCache _cache, TimeProvider _timeProvid
 	[SuppressMessage("Maintainability", "CA1508:Avoid dead conditional code", Justification = "Expiry or eviction can change the state between the two locks")]
 	private async Task PickAsync(PickerState state, IPickerInteraction interaction)
 	{
-		PickOperation operation;
+		SearchResult result;
+		IPickerMessageTarget target;
+		PickerSearchContext context;
+		CancellationToken cancellationToken;
 		lock (state.LifecycleGate)
 		{
 			if (state.Phase != PickerPhase.Active)
@@ -385,10 +387,14 @@ internal sealed class SearchPicker(IMemoryCache _cache, TimeProvider _timeProvid
 				throw new FormatException("The Picker selection is invalid.");
 			}
 
-			var result = state.Snapshot.Results[selectedIndex];
-			operation = new(state.Target!, result.BuildEmbed(state.Context!), result.Id, state.LifetimeCancellation.Token);
+			result = state.Snapshot.Results[selectedIndex];
+			target = state.Target!;
+			context = state.Context!;
+			cancellationToken = state.LifetimeCancellation.Token;
 			state.Phase = PickerPhase.Posting;
 		}
+
+		var embed = await result.BuildEmbedAsync(context, cancellationToken).ConfigureAwait(false);
 
 		try
 		{
@@ -400,7 +406,7 @@ internal sealed class SearchPicker(IMemoryCache _cache, TimeProvider _timeProvid
 					return;
 				}
 
-				post = operation.Target.SendPublicAsync(operation.Embed, operation.CancellationToken);
+				post = target.SendPublicAsync(embed, cancellationToken);
 			}
 
 			await post.ConfigureAwait(false);
@@ -428,7 +434,7 @@ internal sealed class SearchPicker(IMemoryCache _cache, TimeProvider _timeProvid
 			}
 
 			this.CompleteEnd(state, transition.Value, PickerTerminalReason.PostFailed, selectedMediaId: null);
-			await this.TryPushAsync(() => operation.Target.EditOriginalAsync(PickerView.Terminal(SearchMessages.PostFailed), CancellationToken.None))
+			await this.TryPushAsync(() => target.EditOriginalAsync(PickerView.Terminal(SearchMessages.PostFailed), CancellationToken.None))
 				.ConfigureAwait(false);
 			return;
 		}
@@ -439,8 +445,8 @@ internal sealed class SearchPicker(IMemoryCache _cache, TimeProvider _timeProvid
 			return;
 		}
 
-		this.CompleteEnd(state, completed.Value, PickerTerminalReason.Picked, operation.SelectedMediaId);
-		await this.TryPushAsync(() => operation.Target.DeleteOriginalAsync(CancellationToken.None)).ConfigureAwait(false);
+		this.CompleteEnd(state, completed.Value, PickerTerminalReason.Picked, result.Id);
+		await this.TryPushAsync(() => target.DeleteOriginalAsync(CancellationToken.None)).ConfigureAwait(false);
 	}
 
 	private void BeginExpiry(PickerState state, PickerTerminalReason reason)
@@ -599,12 +605,6 @@ internal sealed class SearchPicker(IMemoryCache _cache, TimeProvider _timeProvid
 	private readonly record struct TerminalCacheKey(Guid SearchId);
 
 	private readonly record struct PickerStateLookup(PickerLookup Kind, PickerState? State);
-
-	private readonly record struct PickOperation(
-		IPickerMessageTarget Target,
-		DiscordEmbedBuilder Embed,
-		uint SelectedMediaId,
-		CancellationToken CancellationToken);
 
 	private readonly record struct TerminalTransition(
 		IPickerMessageTarget Target,

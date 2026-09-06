@@ -50,7 +50,7 @@ internal sealed class AniListMediaSearchService(
 			media,
 			titleLanguage,
 			scoreFormat,
-			context => SearchEmbedBuilder.Build(media, features, titleLanguage, context.RequesterDisplayName, context.RequesterAvatarUrl)));
+			(context, _) => Task.FromResult(SearchEmbedBuilder.Build(media, features, titleLanguage, context.RequesterDisplayName, context.RequesterAvatarUrl))));
 
 		return SearchEvaluator.Evaluate(request.QueryKey, candidates);
 	}

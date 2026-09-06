@@ -18,7 +18,7 @@ internal static class AniListMediaCandidate
 		SearchMedia media,
 		TitleLanguage titleLanguage,
 		ScoreFormat scoreFormat,
-		Func<PickerSearchContext, DiscordEmbedBuilder> buildEmbed)
+		Func<PickerSearchContext, CancellationToken, Task<DiscordEmbedBuilder>> buildEmbed)
 	{
 		ArgumentNullException.ThrowIfNull(media);
 		ArgumentNullException.ThrowIfNull(buildEmbed);

@@ -38,7 +38,7 @@ internal static class MalMediaCandidate
 			result.PrimaryTitle,
 			matchTitles,
 			DescribeOption(result),
-			context => SearchEmbedBuilder.Build(result, context.RequesterDisplayName, context.RequesterAvatarUrl),
+			(context, _) => Task.FromResult(SearchEmbedBuilder.Build(result, context.RequesterDisplayName, context.RequesterAvatarUrl)),
 			passesTypeFilter);
 	}
 

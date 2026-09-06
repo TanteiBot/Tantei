@@ -42,7 +42,7 @@ public sealed class PickerRendererTests
 		var longTitle = string.Concat(Enumerable.Repeat("é", 100));
 		var snapshot = PickerSnapshot.Create(
 		[
-			new(42U, longTitle, MatchRank.Primary, "TV · 2004 · ★ 8.88 · 1.4M members", static _ => new()),
+			new(42U, longTitle, MatchRank.Primary, "TV · 2004 · ★ 8.88 · 1.4M members", static (_, _) => Task.FromResult(new DiscordEmbedBuilder())),
 		]);
 
 		var view = PickerRenderer.Render(snapshot, SearchId, page: 0, ProviderDisplayName);
@@ -64,7 +64,7 @@ public sealed class PickerRendererTests
 	public async Task AnOverlongProviderDescriptionIsTruncatedToTheDiscordLimit()
 	{
 		var description = string.Concat(Enumerable.Repeat("word · ", 40));
-		var snapshot = PickerSnapshot.Create([new SearchResult(1U, "Title", MatchRank.Primary, description, static _ => new())]);
+		var snapshot = PickerSnapshot.Create([new SearchResult(1U, "Title", MatchRank.Primary, description, static (_, _) => Task.FromResult(new DiscordEmbedBuilder()))]);
 
 		var view = PickerRenderer.Render(snapshot, SearchId, page: 0, ProviderDisplayName);
 		var option = ((DiscordSelectComponent)view.Rows[0][0]).Options.Single();
@@ -79,7 +79,7 @@ public sealed class PickerRendererTests
 		const int paddingLength = 96;
 		const int tailLength = 40;
 		var title = new string('a', paddingLength) + "𝐀́́" + new string('b', tailLength);
-		var snapshot = PickerSnapshot.Create([new SearchResult(1U, title, MatchRank.Primary, "TV · 1 members", static _ => new())]);
+		var snapshot = PickerSnapshot.Create([new SearchResult(1U, title, MatchRank.Primary, "TV · 1 members", static (_, _) => Task.FromResult(new DiscordEmbedBuilder()))]);
 
 		var view = PickerRenderer.Render(snapshot, SearchId, page: 0, ProviderDisplayName);
 		var label = ((DiscordSelectComponent)view.Rows[0][0]).Options.Single().Label;
@@ -94,5 +94,5 @@ public sealed class PickerRendererTests
 		$"Result {id.ToString(CultureInfo.InvariantCulture)}",
 		MatchRank.Contains,
 		"TV",
-		static _ => new());
+		static (_, _) => Task.FromResult(new DiscordEmbedBuilder()));
 }

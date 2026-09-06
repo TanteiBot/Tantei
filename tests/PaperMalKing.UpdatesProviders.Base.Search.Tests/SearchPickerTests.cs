@@ -555,7 +555,7 @@ public sealed class SearchPickerTests
 		$"Result {id.ToString(CultureInfo.InvariantCulture)}",
 		MatchRank.Contains,
 		"TV",
-		static _ => new());
+		static (_, _) => Task.FromResult(new DiscordEmbedBuilder()));
 
 	private sealed record FakePickerInteraction(string CustomId) : IPickerInteraction
 	{
