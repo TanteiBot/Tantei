@@ -11,5 +11,5 @@ internal sealed record SearchCandidate(
 	string PrimaryTitle,
 	IReadOnlyList<(string? Title, MatchRank Rank)> MatchTitles,
 	string OptionDescription,
-	Func<PickerSearchContext, DiscordEmbedBuilder> BuildEmbed,
+	Func<PickerSearchContext, CancellationToken, Task<DiscordEmbedBuilder>> BuildEmbed,
 	bool PassesTypeFilter = true);

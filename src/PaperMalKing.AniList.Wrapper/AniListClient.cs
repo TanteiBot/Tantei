@@ -62,4 +62,21 @@ internal sealed class AniListClient(GraphQLHttpClient _client, ILogger<AniListCl
 			return MediaSearchResponse.Empty;
 		}
 	}
+
+	public async Task<SearchMedia?> GetMediaWithSeyuAsync(uint id, ListType mediaType, CancellationToken cancellationToken)
+	{
+		cancellationToken.ThrowIfCancellationRequested();
+
+		var request = Requests.MediaByIdWithSeyuRequest(id, mediaType);
+		try
+		{
+			var response = await _client.SendQueryAsync<MediaByIdResponse>(request, cancellationToken);
+
+			return response.Data.Media;
+		}
+		catch (GraphQLHttpRequestException ex) when (ex.StatusCode is HttpStatusCode.NotFound)
+		{
+			return null;
+		}
+	}
 }

@@ -509,6 +509,86 @@ public sealed class SearchPickerTests
 		await Assert.That(Events(logger, PickerEndedEvent)).IsEquivalentTo(["Picked"]);
 	}
 
+	[Test]
+	public async Task PickAwaitsTheAsynchronousBuildAndPostsItsEmbed()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start));
+		var target = new FakePickerMessageTarget();
+		var built = new DiscordEmbedBuilder().WithTitle("Built");
+		var opened = OpenResults(picker, target, ResultWith(1, async (_, _) =>
+		{
+			await Task.Yield();
+			return built;
+		}));
+
+		await picker.HandleAsync(Pick(opened.SearchId));
+
+		await Assert.That(target.Operations).IsEquivalentTo([PostOperation, DeleteOperation], TUnit.Assertions.Enums.CollectionOrdering.Matching);
+		await Assert.That(target.Posts.Single()).IsSameReferenceAs(built);
+	}
+
+	[Test]
+	public async Task ConcurrentSelectClicksDuringTheFetchStayInertBecausePhaseIsPosting()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var picker = CreatePicker(cache, new FakeTimeProvider(Start));
+		var target = new FakePickerMessageTarget();
+		var buildStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var allowBuild = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var opened = OpenResults(picker, target, ResultWith(1, async (_, _) =>
+		{
+			buildStarted.SetResult();
+			await allowBuild.Task;
+			return new DiscordEmbedBuilder();
+		}));
+		var firstPick = picker.HandleAsync(Pick(opened.SearchId));
+		await buildStarted.Task;
+
+		var secondClick = Pick(opened.SearchId);
+		var secondPick = picker.HandleAsync(secondClick);
+		allowBuild.SetResult();
+		await Task.WhenAll(firstPick, secondPick);
+
+		await Assert.That(target.Operations).IsEquivalentTo([PostOperation, DeleteOperation], TUnit.Assertions.Enums.CollectionOrdering.Matching);
+		await Assert.That(target.Posts).HasSingleItem();
+		await Assert.That(secondClick.RecognizedCount).IsEqualTo(1);
+	}
+
+	[Test]
+	public async Task AbsoluteExpiryDuringTheFetchPreventsThePostWithoutCrashingTheLifecycle()
+	{
+		using var cache = new MemoryCache(new MemoryCacheOptions());
+		var time = new FakeTimeProvider(Start);
+		var picker = CreatePicker(cache, time);
+		var target = new FakePickerMessageTarget();
+		var buildStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var allowBuild = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var opened = OpenResults(picker, target, ResultWith(1, async (_, _) =>
+		{
+			buildStarted.SetResult();
+			await allowBuild.Task;
+			return new DiscordEmbedBuilder();
+		}));
+		for (var minute = 0; minute < MinutesBeforeAbsoluteExpiry; minute++)
+		{
+			time.Advance(TimeSpan.FromMinutes(1));
+			await picker.HandleAsync(new FakePickerInteraction(PickerCustomId.Create(opened.SearchId, PickerAction.Page)));
+		}
+
+		target.Operations.Clear();
+		target.Edits.Clear();
+		var pick = picker.HandleAsync(Pick(opened.SearchId));
+		await buildStarted.Task;
+		time.Advance(TimeSpan.FromMinutes(1));
+		allowBuild.SetResult();
+		await pick;
+
+		await Assert.That(target.Operations).DoesNotContain(PostOperation);
+		await Assert.That(target.Posts).IsEmpty();
+		await Assert.That(target.Edits.Single().Content).Contains("expired");
+	}
+
 	private static SearchPicker CreatePicker(IMemoryCache cache, TimeProvider timeProvider, ILogger<SearchPicker>? logger = null) =>
 		new(cache, timeProvider, logger ?? NullLogger<SearchPicker>.Instance);
 
@@ -537,6 +617,27 @@ public sealed class SearchPickerTests
 		return new(SearchId, view);
 	}
 
+	private static (Guid SearchId, PickerView View) OpenResults(SearchPicker picker, FakePickerMessageTarget target, params SearchResult[] results)
+	{
+		var opening = picker.OpenAsync(SearchId, results, Context(), target, ProviderDisplayName);
+		if (!opening.IsCompletedSuccessfully)
+		{
+			throw new InvalidOperationException("The test Picker did not open synchronously.");
+		}
+
+		var view = target.Edits.Single();
+		target.Operations.Clear();
+		target.Edits.Clear();
+		return new(SearchId, view);
+	}
+
+	private static SearchResult ResultWith(int id, Func<PickerSearchContext, CancellationToken, Task<DiscordEmbedBuilder>> buildEmbed) => new(
+		(uint)id,
+		$"Result {id.ToString(CultureInfo.InvariantCulture)}",
+		MatchRank.Contains,
+		"TV",
+		buildEmbed);
+
 	private static PickerSearchContext Context() => new(
 		Query: "Monster",
 		MediaKind: PickerMediaKind.Anime,
@@ -555,7 +656,7 @@ public sealed class SearchPickerTests
 		$"Result {id.ToString(CultureInfo.InvariantCulture)}",
 		MatchRank.Contains,
 		"TV",
-		static _ => new());
+		static (_, _) => Task.FromResult(new DiscordEmbedBuilder()));
 
 	private sealed record FakePickerInteraction(string CustomId) : IPickerInteraction
 	{
@@ -673,6 +774,8 @@ public sealed class SearchPickerTests
 
 		public List<PickerView> Edits { get; } = [];
 
+		public List<DiscordEmbedBuilder> Posts { get; } = [];
+
 		public Exception? PostException { get; init; }
 
 		public Exception? DeleteException { get; init; }
@@ -741,6 +844,7 @@ public sealed class SearchPickerTests
 		public async Task SendPublicAsync(DiscordEmbedBuilder embed, CancellationToken cancellationToken = default)
 		{
 			this.Operations.Add(PostOperation);
+			this.Posts.Add(embed);
 			if (this.PostException is not null)
 			{
 				throw this.PostException;

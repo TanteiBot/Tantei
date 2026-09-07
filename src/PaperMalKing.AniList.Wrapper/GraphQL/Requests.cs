@@ -41,6 +41,13 @@ internal static class Requests
 				studioIds,
 			});
 
+	public static GraphQLRequest MediaByIdWithSeyuRequest(uint id, ListType type) =>
+		new(Queries.MediaByIdWithSeyuQuery, new
+		{
+			id,
+			type,
+		});
+
 	public static GraphQLRequest SearchMediaRequest(string query, RequestOptions options, ListType type, MediaFormat? format, uint? userId)
 	{
 		var hasFormat = format is not null;

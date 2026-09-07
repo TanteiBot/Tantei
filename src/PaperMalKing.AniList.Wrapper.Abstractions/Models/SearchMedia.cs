@@ -63,5 +63,8 @@ public sealed class SearchMedia : IIdentifiable, IImageble, ISiteUrlable, IMedia
 	[JsonPropertyName("tags")]
 	public IReadOnlyList<MediaTag> Tags { get; init; } = [];
 
+	[JsonPropertyName("characters")]
+	public Connection<CharacterEdge> Seyu { get; init; } = Connection<CharacterEdge>.Empty;
+
 	string? IMediaTitleInfo.CountryOfOrigin => null;
 }

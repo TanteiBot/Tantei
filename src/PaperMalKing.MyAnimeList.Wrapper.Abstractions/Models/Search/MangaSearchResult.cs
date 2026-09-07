@@ -13,4 +13,7 @@ public sealed class MangaSearchResult : BaseSearchResult<MangaMediaType, MangaPu
 
 	[JsonPropertyName("num_volumes")]
 	public required uint Volumes { get; init; }
+
+	[JsonPropertyName("authors")]
+	public IReadOnlyList<Author>? Authors { get; init; }
 }

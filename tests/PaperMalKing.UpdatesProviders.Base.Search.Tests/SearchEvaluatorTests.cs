@@ -258,21 +258,23 @@ public sealed class SearchEvaluatorTests
 				PrimaryResultId,
 				[(Monster, MatchRank.Primary)],
 				optionDescription: optionDescription,
-				buildEmbed: static context => new DiscordEmbedBuilder().WithTitle(context.Query)),
+				buildEmbed: static (context, _) => Task.FromResult(new DiscordEmbedBuilder().WithTitle(context.Query))),
 		};
 
 		var evaluation = SearchEvaluator.Evaluate(MatchKey.Create(Monster), candidates);
 		var result = evaluation.AutoPostResult!;
-		var embed = result.BuildEmbed(new(
-			Monster,
-			PickerMediaKind.Anime,
-			null,
-			1UL,
-			"Requester",
-			null,
-			2UL,
-			3UL,
-			DateTimeOffset.UnixEpoch));
+		var embed = await result.BuildEmbedAsync(
+			new(
+				Monster,
+				PickerMediaKind.Anime,
+				null,
+				1UL,
+				"Requester",
+				null,
+				2UL,
+				3UL,
+				DateTimeOffset.UnixEpoch),
+			CancellationToken.None);
 
 		await Assert.That(evaluation.Kind).IsEqualTo(SearchOutcomeKind.AutoPosted);
 		await Assert.That(result.Id).IsEqualTo(PrimaryResultId);
@@ -287,12 +289,12 @@ public sealed class SearchEvaluatorTests
 		long popularity = 0L,
 		string optionDescription = "",
 		bool passesTypeFilter = true,
-		Func<PickerSearchContext, DiscordEmbedBuilder>? buildEmbed = null) => new(
+		Func<PickerSearchContext, CancellationToken, Task<DiscordEmbedBuilder>>? buildEmbed = null) => new(
 		id,
 		popularity,
 		matchTitles.Length == 0 ? "" : matchTitles[0].Title ?? "",
 		matchTitles,
 		optionDescription,
-		buildEmbed ?? (static _ => new DiscordEmbedBuilder()),
+		buildEmbed ?? (static (_, _) => Task.FromResult(new DiscordEmbedBuilder())),
 		passesTypeFilter);
 }

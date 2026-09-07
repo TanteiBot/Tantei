@@ -17,4 +17,6 @@ public interface IAniListClient
 												 RequestOptions options, CancellationToken cancellationToken);
 
 	Task<MediaSearchResponse> SearchMediaAsync(string query, ListType mediaType, RequestOptions requestOptions, MediaFormat? format, uint? userId, CancellationToken cancellationToken);
+
+	Task<SearchMedia?> GetMediaWithSeyuAsync(uint id, ListType mediaType, CancellationToken cancellationToken);
 }

@@ -65,7 +65,7 @@ public sealed class AniListMediaCandidateTests
 	{
 		var media = TitledMedia(romaji: Monster, english: Kaibutsu, native: MonsterNative, synonyms: [MonsterStory]);
 
-		var candidate = AniListMediaCandidate.Create(media, TitleLanguage.Romaji, ScoreFormat.POINT_100, static _ => new DiscordEmbedBuilder());
+		var candidate = AniListMediaCandidate.Create(media, TitleLanguage.Romaji, ScoreFormat.POINT_100, static (_, _) => Task.FromResult(new DiscordEmbedBuilder()));
 
 		await Assert.That(candidate.MatchTitles).Contains((Monster, MatchRank.Primary));
 		await Assert.That(candidate.MatchTitles).Contains((MonsterStory, MatchRank.Synonym));
@@ -78,7 +78,7 @@ public sealed class AniListMediaCandidateTests
 	{
 		var media = TitledMedia(romaji: Monster, english: Kaibutsu);
 
-		var candidate = AniListMediaCandidate.Create(media, TitleLanguage.English, ScoreFormat.POINT_100, static _ => new DiscordEmbedBuilder());
+		var candidate = AniListMediaCandidate.Create(media, TitleLanguage.English, ScoreFormat.POINT_100, static (_, _) => Task.FromResult(new DiscordEmbedBuilder()));
 
 		var primaries = candidate.MatchTitles.Where(static title => title.Rank == MatchRank.Primary).Select(static title => title.Title);
 		await Assert.That(primaries).Contains(Monster);
@@ -90,7 +90,7 @@ public sealed class AniListMediaCandidateTests
 	{
 		var media = TitledMedia(romaji: Monster, english: Kaibutsu);
 
-		var candidate = AniListMediaCandidate.Create(media, TitleLanguage.English, ScoreFormat.POINT_100, static _ => new DiscordEmbedBuilder());
+		var candidate = AniListMediaCandidate.Create(media, TitleLanguage.English, ScoreFormat.POINT_100, static (_, _) => Task.FromResult(new DiscordEmbedBuilder()));
 
 		await Assert.That(candidate.PrimaryTitle).IsEqualTo(Kaibutsu);
 	}
@@ -100,13 +100,13 @@ public sealed class AniListMediaCandidateTests
 	{
 		var media = TitledMedia(romaji: Monster, native: MonsterNative);
 
-		var candidate = AniListMediaCandidate.Create(media, TitleLanguage.Native, ScoreFormat.POINT_100, static _ => new DiscordEmbedBuilder());
+		var candidate = AniListMediaCandidate.Create(media, TitleLanguage.Native, ScoreFormat.POINT_100, static (_, _) => Task.FromResult(new DiscordEmbedBuilder()));
 
 		await Assert.That(candidate.PrimaryTitle).IsEqualTo(MonsterNative);
 	}
 
 	private static string OptionDescription(SearchMedia media, ScoreFormat scoreFormat) =>
-		AniListMediaCandidate.Create(media, TitleLanguage.Romaji, scoreFormat, static _ => new DiscordEmbedBuilder()).OptionDescription;
+		AniListMediaCandidate.Create(media, TitleLanguage.Romaji, scoreFormat, static (_, _) => Task.FromResult(new DiscordEmbedBuilder())).OptionDescription;
 
 	private static SearchMedia Media(
 		MediaFormat? format,

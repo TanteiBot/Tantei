@@ -3,17 +3,12 @@
 
 using System.Net;
 using GraphQL.Client.Http;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
 using PaperMalKing.AniList.UpdateProvider.Search;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Responses;
-using PaperMalKing.Database;
-using PaperMalKing.Database.Models;
-using PaperMalKing.Database.Models.AniList;
 using PaperMalKing.UpdatesProviders.Base.Search;
 using TUnit.Assertions.Enums;
 
@@ -22,8 +17,6 @@ namespace PaperMalKing.AniList.UpdateProvider.Tests.Search;
 public sealed class AniListMediaSearchServiceTests
 {
 	private const string Query = "Monster";
-	private const ulong RequesterDiscordId = 1UL;
-	private const uint LinkedAniListId = 777U;
 	private static readonly DateTimeOffset Start = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
 	[Test]
@@ -145,12 +138,10 @@ public sealed class AniListMediaSearchServiceTests
 	}
 
 	[Test]
-	public async Task DropsTheMediaFormatStripButKeepsGenresStudioAndMangakaStripped()
+	public async Task RendersFromTheStaticSearchDefaultWithoutQueryingTheRequester()
 	{
-		var features = AniListUserFeatures.Default | AniListUserFeatures.Genres | AniListUserFeatures.Studio |
-					   AniListUserFeatures.Mangaka | AniListUserFeatures.Tags;
 		var client = new FakeAniListSearchClient { Response = Response(Media(id: 1U, romaji: Query)) };
-		await using var scope = await ServiceScope.CreateAsync(client, features);
+		await using var scope = await ServiceScope.CreateAsync(client);
 		var target = new FakeSearchMessageTarget();
 
 		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target), Query, format: null, CancellationToken.None);
@@ -161,7 +152,7 @@ public sealed class AniListMediaSearchServiceTests
 		await Assert.That(options.HasFlag(RequestOptions.Genres)).IsFalse();
 		await Assert.That(options.HasFlag(RequestOptions.Studio)).IsFalse();
 		await Assert.That(options.HasFlag(RequestOptions.Mangaka)).IsFalse();
-		await Assert.That(client.UserIds.Single()).IsEqualTo(LinkedAniListId);
+		await Assert.That(client.UserIds.Single()).IsNull();
 	}
 
 	[Test]
@@ -207,6 +198,15 @@ public sealed class AniListMediaSearchServiceTests
 		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.Busy("AniList"));
 	}
 
+	[Test]
+	public async Task TheSearchServiceHasNoDatabaseDependency()
+	{
+		var parameters = typeof(AniListMediaSearchService).GetConstructors().Single().GetParameters();
+		var dependsOnDatabase = Array.Exists(parameters, static parameter => parameter.ParameterType.FullName?.Contains("DbContext", StringComparison.Ordinal) == true);
+
+		await Assert.That(dependsOnDatabase).IsFalse();
+	}
+
 	private static GraphQLHttpRequestException RateLimitException()
 	{
 		using var response = new HttpResponseMessage();
@@ -236,65 +236,29 @@ public sealed class AniListMediaSearchServiceTests
 
 	private sealed class ServiceScope : IAsyncDisposable
 	{
-		private readonly SqliteConnection _connection;
 		private readonly MemoryCache _cache;
 
 		public AniListMediaSearchService Service { get; }
 
-		private ServiceScope(SqliteConnection connection, MemoryCache cache, AniListMediaSearchService service)
+		private ServiceScope(MemoryCache cache, AniListMediaSearchService service)
 		{
-			this._connection = connection;
 			this._cache = cache;
 			this.Service = service;
 		}
 
-		public static async Task<ServiceScope> CreateAsync(FakeAniListSearchClient client, AniListUserFeatures? linkedFeatures = null)
+		public static Task<ServiceScope> CreateAsync(FakeAniListSearchClient client)
 		{
-			var connection = new SqliteConnection("Filename=:memory:");
-			await connection.OpenAsync();
-			var options = new DbContextOptionsBuilder<DatabaseContext>().UseSqlite(connection).Options;
-			var factory = new TestDbContextFactory(options);
-			await using (var db = factory.CreateDbContext())
-			{
-				await db.Database.EnsureCreatedAsync();
-				if (linkedFeatures is { } features)
-				{
-					SeedLinkedUser(db, features);
-				}
-
-				db.SaveChanges();
-			}
-
 			var cache = new MemoryCache(new MemoryCacheOptions());
 			var time = new FakeTimeProvider(Start);
 			var picker = new SearchPicker(cache, time, NullLogger<SearchPicker>.Instance);
 			var orchestrator = new SearchOrchestrator(picker, time, NullLogger<SearchOrchestrator>.Instance);
-			return new(connection, cache, new(client, factory, orchestrator));
+			return Task.FromResult(new ServiceScope(cache, new(client, NullLogger<AniListMediaSearchService>.Instance, orchestrator)));
 		}
 
-		public async ValueTask DisposeAsync()
+		public ValueTask DisposeAsync()
 		{
 			this._cache.Dispose();
-			await this._connection.DisposeAsync();
-		}
-
-		private static void SeedLinkedUser(DatabaseContext db, AniListUserFeatures features)
-		{
-			var guild = new DiscordGuild { DiscordGuildId = 2UL, PostingChannelId = 2UL, Users = [] };
-			var discordUser = new DiscordUser { DiscordUserId = RequesterDiscordId, BotUser = new(), Guilds = [guild] };
-			guild.Users.Add(discordUser);
-			db.AniListUsers.Add(new()
-			{
-				Id = LinkedAniListId,
-				DiscordUserId = RequesterDiscordId,
-				DiscordUser = discordUser,
-				Features = features,
-				FavouritesIdHash = string.Empty,
-				LastActivityTimestamp = 0,
-				LastReviewTimestamp = 0,
-				Favourites = [],
-				Colors = [],
-			});
+			return ValueTask.CompletedTask;
 		}
 	}
 }

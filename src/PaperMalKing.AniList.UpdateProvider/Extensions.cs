@@ -168,16 +168,7 @@ internal static partial class Extensions
 					}
 				}
 
-				if (features.HasFlag(AniListUserFeatures.Seyu))
-				{
-					var seyus = media.Characters.Nodes.Where(x => x.VoiceActors is not []).Select(x =>
-					{
-						var seyu = x.VoiceActors[0];
-						return Formatter.MaskedUrl(seyu.Name.GetName(user?.Options.TitleLanguage ?? TitleLanguage.Default), new(seyu.Url));
-					}).JoinToString();
-
-					eb.AddFieldIfPresent("Seyu", seyus);
-				}
+				eb.AddSeyu(media.Characters.Nodes, user?.Options.TitleLanguage ?? TitleLanguage.Default, features);
 			}
 			else
 			{
@@ -258,6 +249,24 @@ internal static partial class Extensions
 		public DiscordEmbedBuilder WithAniListFooter()
 		{
 			eb.Footer = AniListFooter;
+			return eb;
+		}
+
+		public DiscordEmbedBuilder AddSeyu(CharacterEdge[] characterNodes, TitleLanguage titleLanguage, AniListUserFeatures features)
+		{
+			if (!features.HasFlag(AniListUserFeatures.Seyu))
+			{
+				return eb;
+			}
+
+			var seyus = characterNodes.Where(static x => x.VoiceActors is not []).Select(x =>
+			{
+				var seyu = x.VoiceActors[0];
+				return Formatter.MaskedUrl(seyu.Name.GetName(titleLanguage), new(seyu.Url));
+			}).JoinToString();
+
+			eb.AddFieldIfPresent("Seyu", seyus);
+
 			return eb;
 		}
 	}

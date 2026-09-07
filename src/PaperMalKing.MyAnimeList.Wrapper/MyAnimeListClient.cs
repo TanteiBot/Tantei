@@ -22,10 +22,10 @@ namespace PaperMalKing.MyAnimeList.Wrapper;
 public sealed class MyAnimeListClient : IMyAnimeListClient
 {
 	private const string AnimeSearchFields =
-		"id,title,main_picture,alternative_titles,media_type,status,num_episodes,mean,start_date,start_season,num_list_users,genres{name},synopsis,nsfw";
+		"id,title,main_picture,alternative_titles,media_type,status,num_episodes,mean,start_date,start_season,num_list_users,genres{name},synopsis,studios,nsfw";
 
 	private const string MangaSearchFields =
-		"id,title,main_picture,alternative_titles,media_type,status,num_chapters,num_volumes,mean,start_date,num_list_users,genres{name},synopsis,nsfw";
+		"id,title,main_picture,alternative_titles,media_type,status,num_chapters,num_volumes,mean,start_date,num_list_users,genres{name},synopsis,authors{first_name,last_name},nsfw";
 
 	private readonly IMyAnimeListEnrichment _enrichment;
 	private readonly ILogger<MyAnimeListClient> _logger;

@@ -3,13 +3,8 @@
 
 using System.Net;
 using GraphQL.Client.Http;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
-using PaperMalKing.Database;
-using PaperMalKing.Database.Models;
-using PaperMalKing.Database.Models.Shikimori;
 using PaperMalKing.Shikimori.UpdateProvider.Search;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Enums;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
@@ -21,8 +16,6 @@ namespace PaperMalKing.Shikimori.UpdateProvider.Tests.Search;
 public sealed class ShikiMediaSearchServiceTests
 {
 	private const string Query = "Monster";
-	private const ulong RequesterDiscordId = 1UL;
-	private const uint LinkedShikiId = 777U;
 	private static readonly DateTimeOffset Start = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
 	[Test]
@@ -106,19 +99,7 @@ public sealed class ShikiMediaSearchServiceTests
 	}
 
 	[Test]
-	public async Task RussianPreferenceDisplaysTheRussianTitle()
-	{
-		var client = new FakeShikiSearchClient { AnimeResults = [Anime(id: 1UL, name: Query, russian: "Монстр")] };
-		await using var scope = await ServiceScope.CreateAsync(client, ShikiUserFeatures.Default | ShikiUserFeatures.Russian);
-		var target = new FakeSearchMessageTarget();
-
-		await scope.Service.SearchAnimeAsync(new FakeSearchInvocation(target), Query, kind: null, CancellationToken.None);
-
-		await Assert.That(target.Posts.Single().Title).StartsWith("Монстр");
-	}
-
-	[Test]
-	public async Task WithoutRussianPreferenceDisplaysTheDefaultTitle()
+	public async Task RendersTheDefaultNativeTitleWithoutRussian()
 	{
 		var client = new FakeShikiSearchClient { AnimeResults = [Anime(id: 1UL, name: Query, russian: "Монстр")] };
 		await using var scope = await ServiceScope.CreateAsync(client);
@@ -154,6 +135,15 @@ public sealed class ShikiMediaSearchServiceTests
 		await Assert.That(target.Edits.Single().Content).IsEqualTo(SearchMessages.Busy("Shikimori"));
 	}
 
+	[Test]
+	public async Task TheSearchServiceHasNoDatabaseDependency()
+	{
+		var parameters = typeof(ShikiMediaSearchService).GetConstructors().Single().GetParameters();
+		var dependsOnDatabase = Array.Exists(parameters, static parameter => parameter.ParameterType.FullName?.Contains("DbContext", StringComparison.Ordinal) == true);
+
+		await Assert.That(dependsOnDatabase).IsFalse();
+	}
+
 	private static GraphQLHttpRequestException RateLimitException()
 	{
 		using var response = new HttpResponseMessage();
@@ -186,64 +176,29 @@ public sealed class ShikiMediaSearchServiceTests
 
 	private sealed class ServiceScope : IAsyncDisposable
 	{
-		private readonly SqliteConnection _connection;
 		private readonly MemoryCache _cache;
 
 		public ShikiMediaSearchService Service { get; }
 
-		private ServiceScope(SqliteConnection connection, MemoryCache cache, ShikiMediaSearchService service)
+		private ServiceScope(MemoryCache cache, ShikiMediaSearchService service)
 		{
-			this._connection = connection;
 			this._cache = cache;
 			this.Service = service;
 		}
 
-		public static async Task<ServiceScope> CreateAsync(FakeShikiSearchClient client, ShikiUserFeatures? linkedFeatures = null)
+		public static Task<ServiceScope> CreateAsync(FakeShikiSearchClient client)
 		{
-			var connection = new SqliteConnection("Filename=:memory:");
-			await connection.OpenAsync();
-			var options = new DbContextOptionsBuilder<DatabaseContext>().UseSqlite(connection).Options;
-			var factory = new TestDbContextFactory(options);
-			await using (var db = factory.CreateDbContext())
-			{
-				await db.Database.EnsureCreatedAsync();
-				if (linkedFeatures is { } features)
-				{
-					SeedLinkedUser(db, features);
-				}
-
-				db.SaveChanges();
-			}
-
 			var cache = new MemoryCache(new MemoryCacheOptions());
 			var time = new FakeTimeProvider(Start);
 			var picker = new SearchPicker(cache, time, NullLogger<SearchPicker>.Instance);
 			var orchestrator = new SearchOrchestrator(picker, time, NullLogger<SearchOrchestrator>.Instance);
-			return new(connection, cache, new(client, factory, orchestrator));
+			return Task.FromResult(new ServiceScope(cache, new(client, orchestrator)));
 		}
 
-		public async ValueTask DisposeAsync()
+		public ValueTask DisposeAsync()
 		{
 			this._cache.Dispose();
-			await this._connection.DisposeAsync();
-		}
-
-		private static void SeedLinkedUser(DatabaseContext db, ShikiUserFeatures features)
-		{
-			var guild = new DiscordGuild { DiscordGuildId = 2UL, PostingChannelId = 2UL, Users = [] };
-			var discordUser = new DiscordUser { DiscordUserId = RequesterDiscordId, BotUser = new(), Guilds = [guild] };
-			guild.Users.Add(discordUser);
-			db.ShikiUsers.Add(new()
-			{
-				Id = LinkedShikiId,
-				DiscordUserId = RequesterDiscordId,
-				DiscordUser = discordUser,
-				Features = features,
-				FavouritesIdHash = string.Empty,
-				Favourites = [],
-				Achievements = [],
-				Colors = [],
-			});
+			return ValueTask.CompletedTask;
 		}
 	}
 }
