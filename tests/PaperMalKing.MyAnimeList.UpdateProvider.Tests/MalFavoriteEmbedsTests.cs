@@ -125,6 +125,37 @@ public sealed class MalFavoriteEmbedsTests
 	}
 
 	[Test]
+	public async Task AFailedTenraiFetchDropsOnlyItsFieldsAndLogsAWarning()
+	{
+		var client = new FakeMyAnimeListFavoriteClient { TenraiException = new HttpRequestException("boom"), };
+		var logger = new RecordingLogger<BaseUpdateProvider>();
+
+		var embed = await BuildSingleAsync(client, CharacterFavorite(), MalUserFeatures.Default | MalUserFeatures.Synopsis, logger);
+
+		await Assert.That(embed.Title).IsEqualTo("Fav Character [Character]");
+		await Assert.That(FieldValue(embed, "From")).IsEqualTo("Stored Show");
+		await Assert.That(FieldNames(embed)).DoesNotContain("Description");
+		await Assert.That(logger.Entries.Select(static entry => entry.EventId.Name)).Contains("FailedToEnrichFavorite");
+	}
+
+	[Test]
+	public async Task AFailedTenraiFetchLeavesTheOfficiallySourcedMediaFields()
+	{
+		var client = new FakeMyAnimeListFavoriteClient
+		{
+			AnimeResult = AnimeResult(),
+			TenraiException = new HttpRequestException("boom"),
+		};
+
+		var embed = await BuildSingleAsync(client, AnimeFavorite(), MalUserFeatures.Default | MalUserFeatures.Seiyu | MalUserFeatures.Themes);
+
+		await Assert.That(embed.Title).IsEqualTo("Canonical Anime (TV) [2002]");
+		await Assert.That(FieldValue(embed, "Score")).IsEqualTo("8.75");
+		await Assert.That(FieldNames(embed)).DoesNotContain("Seiyu");
+		await Assert.That(FieldNames(embed)).DoesNotContain("Themes");
+	}
+
+	[Test]
 	public async Task ARemovalRendersTheSameFieldsAsItsMatchingAddition()
 	{
 		var client = new FakeMyAnimeListFavoriteClient { AnimeResult = AnimeResult(), };

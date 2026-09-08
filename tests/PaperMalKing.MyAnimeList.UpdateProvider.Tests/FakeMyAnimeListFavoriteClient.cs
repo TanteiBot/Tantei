@@ -17,6 +17,8 @@ internal sealed class FakeMyAnimeListFavoriteClient : IMyAnimeListClient
 
 	public Exception? OfficialException { get; init; }
 
+	public Exception? TenraiException { get; init; }
+
 	public MediaInfo AnimeDetailsResult { get; init; } = MediaInfo.Empty;
 
 	public MediaInfo MangaDetailsResult { get; init; } = MediaInfo.Empty;
@@ -64,37 +66,39 @@ internal sealed class FakeMyAnimeListFavoriteClient : IMyAnimeListClient
 	public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken)
 	{
 		this.AnimeDetailsCalls.Add(id);
-		return Task.FromResult(this.AnimeDetailsResult);
+		return this.TenraiException is null ? Task.FromResult(this.AnimeDetailsResult) : Task.FromException<MediaInfo>(this.TenraiException);
 	}
 
 	public Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken)
 	{
 		this.MangaDetailsCalls.Add(id);
-		return Task.FromResult(this.MangaDetailsResult);
+		return this.TenraiException is null ? Task.FromResult(this.MangaDetailsResult) : Task.FromException<MediaInfo>(this.TenraiException);
 	}
 
 	public Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken)
 	{
 		this.AnimeSeiyuCalls.Add(id);
-		return Task.FromResult(this.AnimeSeiyuResult);
+		return this.TenraiException is null
+			? Task.FromResult(this.AnimeSeiyuResult)
+			: Task.FromException<IReadOnlyList<SeyuInfo>>(this.TenraiException);
 	}
 
 	public Task<EntityInfo> GetCharacterInfoAsync(long id, bool withDescription, CancellationToken cancellationToken)
 	{
 		this.CharacterInfoCalls.Add((id, withDescription));
-		return Task.FromResult(this.CharacterInfoResult);
+		return this.TenraiException is null ? Task.FromResult(this.CharacterInfoResult) : Task.FromException<EntityInfo>(this.TenraiException);
 	}
 
 	public Task<EntityInfo> GetPersonInfoAsync(long id, bool withDescription, CancellationToken cancellationToken)
 	{
 		this.PersonInfoCalls.Add((id, withDescription));
-		return Task.FromResult(this.PersonInfoResult);
+		return this.TenraiException is null ? Task.FromResult(this.PersonInfoResult) : Task.FromException<EntityInfo>(this.TenraiException);
 	}
 
 	public Task<EntityInfo> GetStudioInfoAsync(long id, CancellationToken cancellationToken)
 	{
 		this.StudioInfoCalls.Add(id);
-		return Task.FromResult(this.StudioInfoResult);
+		return this.TenraiException is null ? Task.FromResult(this.StudioInfoResult) : Task.FromException<EntityInfo>(this.TenraiException);
 	}
 
 	public Task<User> GetUserAsync(string username, ParserOptions options, CancellationToken cancellationToken) => throw new NotSupportedException();

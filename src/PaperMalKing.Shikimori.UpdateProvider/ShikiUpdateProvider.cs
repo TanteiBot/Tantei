@@ -32,9 +32,11 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 
 	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
+	protected override Task CheckForUpdatesAsync(CancellationToken cancellationToken) => this.CheckForUpdatesOnceAsync(cancellationToken);
+
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	[SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Used for logging only")]
-	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
+	internal async Task CheckForUpdatesOnceAsync(CancellationToken cancellationToken)
 	{
 		if (this.UpdateFoundEvent is null)
 		{
