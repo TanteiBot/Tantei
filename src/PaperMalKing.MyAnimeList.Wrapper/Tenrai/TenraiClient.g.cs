@@ -607,7 +607,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
 
         /// <returns>Successful response returning matching anime series</returns>
         /// <exception cref="TenraiApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TenraiResponse<AnimeSearchResponse>> GetAnimeAsync(string? producers, string? order_by, string? sort, int? limit)
+        public virtual System.Threading.Tasks.Task<TenraiResponse<AnimeSearchResponse>> GetAnimeAsync(string? producers, Order_by? order_by, Sort? sort, int? limit)
         {
             return GetAnimeAsync(producers, order_by, sort, limit, System.Threading.CancellationToken.None);
         }
@@ -615,7 +615,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Successful response returning matching anime series</returns>
         /// <exception cref="TenraiApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TenraiResponse<AnimeSearchResponse>> GetAnimeAsync(string? producers, string? order_by, string? sort, int? limit, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TenraiResponse<AnimeSearchResponse>> GetAnimeAsync(string? producers, Order_by? order_by, Sort? sort, int? limit, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -862,6 +862,189 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                                 throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return new TenraiResponse<CharacterResponse>(status_, headers_, objectResponse_.Object);
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Bad Request - Invalid parameters or request body", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Unauthorized - the supplied X-Server-Key is invalid; restricted endpoints also require a Server Key", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Forbidden - Nginx temporarily blocked the request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Resource Not Found - The requested record does not exist", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 405)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Method Not Allowed - only GET, HEAD, and OPTIONS are accepted", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 429)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Rate Limit Exceeded - wait for the duration in Retry-After before retrying", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Internal Server Error - Something went wrong on our end", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 502)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Bad Gateway - the API gateway could not reach the upstream service", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 503)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Service Unavailable - The API is temporarily offline or busy", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 504)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Gateway Timeout - the upstream service did not respond in time", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new TenraiApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <returns>Successful response returning full character details</returns>
+        /// <exception cref="TenraiApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<TenraiResponse<CharacterFullResponse>> GetCharactersByIdFullAsync(int id)
+        {
+            return GetCharactersByIdFullAsync(id, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Successful response returning full character details</returns>
+        /// <exception cref="TenraiApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<TenraiResponse<CharacterFullResponse>> GetCharactersByIdFullAsync(int id, System.Threading.CancellationToken cancellationToken)
+        {
+            if (id == null)
+                throw new System.ArgumentNullException("id");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+
+                    // Operation Path: "characters/{id}/full"
+                    urlBuilder_.Append("characters/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/full");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<CharacterFullResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return new TenraiResponse<CharacterFullResponse>(status_, headers_, objectResponse_.Object);
                         }
                         else
                         if (status_ == 400)
@@ -1991,6 +2174,28 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    internal partial class CharacterFullDetails
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("about")]
+        public string? About { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("anime")]
+        public System.Collections.Generic.ICollection<CharacterAnimeEntry>? Anime { get; set; } = default!;
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    internal partial class CharacterFullResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("data")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public CharacterFullDetails Data { get; set; } = new CharacterFullDetails();
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class CharacterAnimeResponse
     {
 
@@ -2063,9 +2268,6 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
         [System.Text.Json.Serialization.JsonPropertyName("titles")]
         public System.Collections.Generic.ICollection<ProducerTitle>? Titles { get; set; } = default!;
 
-        [System.Text.Json.Serialization.JsonPropertyName("images")]
-        public ImageSet? Images { get; set; } = default!;
-
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -2096,6 +2298,57 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
 
         [System.Text.Json.Serialization.JsonPropertyName("path")]
         public string? Path { get; set; } = default!;
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    internal enum Order_by
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"mal_id")]
+        Mal_id = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"title")]
+        Title = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"start_date")]
+        Start_date = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"end_date")]
+        End_date = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"episodes")]
+        Episodes = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"score")]
+        Score = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"scored_by")]
+        Scored_by = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"rank")]
+        Rank = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"popularity")]
+        Popularity = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"members")]
+        Members = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"favorites")]
+        Favorites = 10,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
+    internal enum Sort
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"asc")]
+        Asc = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"desc")]
+        Desc = 1,
 
     }
 
