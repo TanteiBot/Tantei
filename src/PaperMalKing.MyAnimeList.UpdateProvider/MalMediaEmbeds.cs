@@ -467,13 +467,7 @@ internal static class MalMediaEmbeds
 		}
 	}
 
-	internal static void AddSynopsis(DiscordEmbedBuilder eb, string? synopsis, MalUserFeatures features) =>
-		AddDescriptionField(eb, "Synopsis", synopsis, features);
-
-	internal static void AddDescription(DiscordEmbedBuilder eb, string? description, MalUserFeatures features) =>
-		AddDescriptionField(eb, "Description", description, features);
-
-	private static void AddDescriptionField(DiscordEmbedBuilder eb, string fieldName, string? description, MalUserFeatures features)
+	internal static void AddDescription(DiscordEmbedBuilder eb, string fieldName, string? description, MalUserFeatures features)
 	{
 		if (!features.HasFlag(MalUserFeatures.Synopsis) || string.IsNullOrWhiteSpace(description))
 		{

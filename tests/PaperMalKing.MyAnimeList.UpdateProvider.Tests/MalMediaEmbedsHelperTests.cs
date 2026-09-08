@@ -452,7 +452,7 @@ public sealed class MalMediaEmbedsHelperTests
 	{
 		var embed = new DiscordEmbedBuilder();
 
-		MalMediaEmbeds.AddDescription(embed, "A bio.", MalUserFeatures.None);
+		MalMediaEmbeds.AddDescription(embed, MalEmbedTestLimits.DescriptionField, "A bio.", MalUserFeatures.None);
 
 		await Assert.That(embed.Fields).IsEmpty();
 	}
@@ -462,7 +462,7 @@ public sealed class MalMediaEmbedsHelperTests
 	{
 		var embed = new DiscordEmbedBuilder();
 
-		MalMediaEmbeds.AddDescription(embed, "A bio. (Source: Wikipedia)", MalUserFeatures.Synopsis);
+		MalMediaEmbeds.AddDescription(embed, MalEmbedTestLimits.DescriptionField, "A bio. (Source: Wikipedia)", MalUserFeatures.Synopsis);
 
 		await Assert.That(SingleField(embed, MalEmbedTestLimits.DescriptionField).Value).IsEqualTo("A bio.");
 	}
@@ -472,7 +472,7 @@ public sealed class MalMediaEmbedsHelperTests
 	{
 		var embed = new DiscordEmbedBuilder();
 
-		MalMediaEmbeds.AddDescription(embed, new string('a', 4000), MalUserFeatures.Synopsis);
+		MalMediaEmbeds.AddDescription(embed, MalEmbedTestLimits.DescriptionField, new string('a', 4000), MalUserFeatures.Synopsis);
 
 		var field = SingleField(embed, MalEmbedTestLimits.DescriptionField);
 		await Assert.That(field.Value.Length).IsLessThanOrEqualTo(MalEmbedTestLimits.DescriptionTextLimit);

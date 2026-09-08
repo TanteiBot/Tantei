@@ -133,13 +133,13 @@ internal static class MalFavoriteEmbeds
 			case MalFavoriteCharacter character:
 				MalMediaEmbeds.AddThumbnail(eb, favorite.ImageUrl);
 				eb.WithTitle($"{character.Name} [Character]");
-				MalMediaEmbeds.AddDescription(eb, enriched.Entity.Description, features);
+				MalMediaEmbeds.AddDescription(eb, "Description", enriched.Entity.Description, features);
 				AddBestKnownWork(eb, "From", enriched.Entity.BestKnownWork, character.FromTitleName);
 				break;
 			case MalFavoritePerson person:
 				MalMediaEmbeds.AddThumbnail(eb, favorite.ImageUrl);
 				eb.WithTitle($"{person.Name} [Person]");
-				MalMediaEmbeds.AddDescription(eb, enriched.Entity.Description, features);
+				MalMediaEmbeds.AddDescription(eb, "Description", enriched.Entity.Description, features);
 				AddBestKnownWork(eb, "From", enriched.Entity.BestKnownWork, fallback: null);
 				break;
 			case MalFavoriteCompany company:
@@ -176,7 +176,7 @@ internal static class MalFavoriteEmbeds
 		MalMediaEmbeds.AddThemes(eb, enriched.MediaInfo, features);
 		MalMediaEmbeds.AddDemographic(eb, enriched.MediaInfo, features);
 		MalMediaEmbeds.AddSeiyu(eb, enriched.Seiyu, features);
-		MalMediaEmbeds.AddSynopsis(eb, result?.Synopsis, features);
+		MalMediaEmbeds.AddDescription(eb, "Synopsis", result?.Synopsis, features);
 	}
 
 	private static void AddBestKnownWork(DiscordEmbedBuilder eb, string fieldName, BestKnownWork? work, string? fallback)
