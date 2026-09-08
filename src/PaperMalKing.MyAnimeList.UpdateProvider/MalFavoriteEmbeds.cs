@@ -165,15 +165,10 @@ internal static class MalFavoriteEmbeds
 		var title = anime?.PrimaryTitle ?? manga?.PrimaryTitle ?? favorite.Name;
 		eb.WithTitle($"{title}{format} [{favorite.StartYear.ToString(CultureInfo.InvariantCulture)}]");
 
-		if (features.HasFlag(MalUserFeatures.MediaStatus))
-		{
-			var status = anime is not null ? anime.Status.Humanize(LetterCasing.Sentence) : manga?.Status.Humanize(LetterCasing.Sentence);
-			eb.AddFieldIfPresent("Status", status, inline: true);
-		}
-
 		var result = (BaseSearchResult?)anime ?? manga;
-		eb.AddFieldIfPresent("Score", result?.Mean?.ToString("0.##", CultureInfo.InvariantCulture), inline: true);
-		eb.AddFieldIfPresent("Total", TotalOf(anime, manga), inline: true);
+		MalMediaEmbeds.AddStatus(eb, result, features);
+		MalMediaEmbeds.AddScore(eb, result);
+		MalMediaEmbeds.AddTotal(eb, result);
 
 		MalMediaEmbeds.AddGenres(eb, result?.Genres, features);
 		MalMediaEmbeds.AddStudios(eb, anime?.Studios, features);
@@ -182,16 +177,6 @@ internal static class MalFavoriteEmbeds
 		MalMediaEmbeds.AddDemographic(eb, enriched.MediaInfo, features);
 		MalMediaEmbeds.AddSeiyu(eb, enriched.Seiyu, features);
 		MalMediaEmbeds.AddSynopsis(eb, result?.Synopsis, features);
-	}
-
-	private static string? TotalOf(AnimeSearchResult? anime, MangaSearchResult? manga)
-	{
-		if (anime is not null)
-		{
-			return anime.Episodes == 0U ? null : $"{anime.Episodes.ToString(CultureInfo.InvariantCulture)} ep.";
-		}
-
-		return manga is null ? null : MalMediaEmbeds.FormatMangaTotal(manga);
 	}
 
 	private static void AddDescription(DiscordEmbedBuilder eb, string? description, MalUserFeatures features)

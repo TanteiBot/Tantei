@@ -313,7 +313,6 @@ internal static class MalMediaEmbeds
 	{
 		ArgumentNullException.ThrowIfNull(result);
 		string mediaPath;
-		string? total;
 		string? season;
 		IReadOnlyList<Studio>? studios = null;
 		IReadOnlyList<Author>? mangakas = null;
@@ -321,7 +320,6 @@ internal static class MalMediaEmbeds
 		{
 			case AnimeSearchResult anime:
 				mediaPath = "anime";
-				total = anime.Episodes == 0U ? null : $"{anime.Episodes.ToString(CultureInfo.InvariantCulture)} ep.";
 				season = anime.StartSeason is { Season: not AnimeSeason.Unknown, Year: not 0U } startSeason
 					? $"{startSeason.Season.Humanize(LetterCasing.Sentence)} {startSeason.Year.ToString(CultureInfo.InvariantCulture)}"
 					: null;
@@ -329,7 +327,6 @@ internal static class MalMediaEmbeds
 				break;
 			case MangaSearchResult manga:
 				mediaPath = "manga";
-				total = FormatMangaTotal(manga);
 				season = null;
 				mangakas = manga.Authors;
 				break;
@@ -340,16 +337,11 @@ internal static class MalMediaEmbeds
 		var mediaType = EqualityComparer<TMediaType>.Default.Equals(result.MediaType, default)
 			? null
 			: result.MediaType.Humanize(LetterCasing.Sentence);
-		var status = EqualityComparer<TStatus>.Default.Equals(result.Status, default)
-			? null
-			: result.Status.Humanize(LetterCasing.Sentence);
 		return Build(
 			result,
 			new($"https://myanimelist.net/{mediaPath}/{result.Id.ToString(CultureInfo.InvariantCulture)}"),
 			features,
 			mediaType,
-			status,
-			total,
 			season,
 			studios,
 			mangakas,
@@ -357,7 +349,43 @@ internal static class MalMediaEmbeds
 			avatarUrl);
 	}
 
-	internal static string? FormatMangaTotal(MangaSearchResult manga)
+	internal static void AddStatus(DiscordEmbedBuilder eb, BaseSearchResult? result, MalUserFeatures features)
+	{
+		if (!features.HasFlag(MalUserFeatures.MediaStatus))
+		{
+			return;
+		}
+
+		var status = result switch
+		{
+			null => null,
+			AnimeSearchResult anime => anime.Status is AnimeAiringStatus.Unknown ? null : anime.Status.Humanize(LetterCasing.Sentence),
+			MangaSearchResult manga => manga.Status is MangaPublishingStatus.Unknown ? null : manga.Status.Humanize(LetterCasing.Sentence),
+			_ => throw new ArgumentException("The MAL Search Result type is not supported.", nameof(result)),
+		};
+
+		eb.AddFieldIfPresent("Status", status, inline: true);
+	}
+
+	internal static void AddScore(DiscordEmbedBuilder eb, BaseSearchResult? result)
+	{
+		eb.AddFieldIfPresent("Score", result?.Mean?.ToString("0.##", CultureInfo.InvariantCulture), inline: true);
+	}
+
+	internal static void AddTotal(DiscordEmbedBuilder eb, BaseSearchResult? result)
+	{
+		var total = result switch
+		{
+			null => null,
+			AnimeSearchResult anime => anime.Episodes == 0U ? null : $"{anime.Episodes.ToString(CultureInfo.InvariantCulture)} ep.",
+			MangaSearchResult manga => FormatMangaTotal(manga),
+			_ => throw new ArgumentException("The MAL Search Result type is not supported.", nameof(result)),
+		};
+
+		eb.AddFieldIfPresent("Total", total, inline: true);
+	}
+
+	private static string? FormatMangaTotal(MangaSearchResult manga)
 	{
 		var totals = new List<string>(2);
 		if (manga.Chapters != 0U)
@@ -378,8 +406,6 @@ internal static class MalMediaEmbeds
 		Uri mediaUrl,
 		MalUserFeatures features,
 		string? mediaType,
-		string? status,
-		string? total,
 		string? season,
 		IReadOnlyList<Studio>? studios,
 		IReadOnlyList<Author>? mangakas,
@@ -422,9 +448,9 @@ internal static class MalMediaEmbeds
 		}
 
 		builder.AddFieldIfPresent("Type", features.HasFlag(MalUserFeatures.MediaFormat) ? mediaType : null, inline: true);
-		builder.AddFieldIfPresent("Status", features.HasFlag(MalUserFeatures.MediaStatus) ? status : null, inline: true);
-		builder.AddFieldIfPresent("Score", result.Mean?.ToString("0.##", CultureInfo.InvariantCulture), inline: true);
-		builder.AddFieldIfPresent("Total", total, inline: true);
+		AddStatus(builder, result, features);
+		AddScore(builder, result);
+		AddTotal(builder, result);
 		builder.AddFieldIfPresent("Season", season, inline: true);
 		builder.AddFieldIfPresent("Members", result.ListUserCount.ToString("N0", CultureInfo.InvariantCulture), inline: true);
 
