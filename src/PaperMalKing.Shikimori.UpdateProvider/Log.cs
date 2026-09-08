@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
 using Microsoft.Extensions.Logging;
@@ -13,4 +13,7 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Information, "Found {amount} achievements")]
 	public static partial void FoundAchievements(this ILogger<ShikiAchievementsService> logger, int amount);
+
+	[LoggerMessage(LogLevel.Warning, "Failed to enrich {FavouriteType} favourite with id {FavouriteId}")]
+	public static partial void FailedToEnrichFavourite(this ILogger<ShikiUpdateProvider> logger, Exception ex, string favouriteType, uint favouriteId);
 }

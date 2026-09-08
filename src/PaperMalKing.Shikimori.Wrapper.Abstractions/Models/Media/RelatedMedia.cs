@@ -6,10 +6,10 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
-public abstract class BaseMedia : IMultiLanguageName
+public sealed class RelatedMedia : IMultiLanguageName
 {
 	[JsonPropertyName("id")]
-	public ulong Id { get; init; }
+	public uint Id { get; init; }
 
 	[JsonPropertyName("name")]
 	public string? Name { get; init; }
@@ -17,13 +17,8 @@ public abstract class BaseMedia : IMultiLanguageName
 	[JsonPropertyName("russian")]
 	public string? RussianName { get; init; }
 
-	[JsonPropertyName("kind")]
-	public string? Kind { get; init; }
-
-	[JsonPropertyName("status")]
-	public string? Status { get; init; }
-
 	[JsonPropertyName("score")]
+	[JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
 	public float? Score { get; init; }
 
 	[JsonPropertyName("url")]
@@ -33,18 +28,4 @@ public abstract class BaseMedia : IMultiLanguageName
 		get;
 		init => field = value.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? value : Constants.BaseUrl + value;
 	}
-
-	[JsonPropertyName("genres")]
-	public IReadOnlyList<Genre> Genres { get; init; } = [];
-
-	[JsonPropertyName("description")]
-	public string? Description { get; init; }
-
-	[JsonPropertyName("personRoles")]
-	public IReadOnlyList<Role> PersonRoles { get; init; } = [];
-
-	[JsonPropertyName("poster")]
-	public MediaPoster? Poster { get; init; }
-
-	protected abstract string Type { get; }
 }

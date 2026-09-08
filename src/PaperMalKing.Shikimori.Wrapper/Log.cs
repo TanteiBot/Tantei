@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
 using Microsoft.Extensions.Logging;
@@ -32,6 +32,15 @@ internal static partial class Log
 
 	[LoggerMessage(LogLevel.Debug, "Searching {Type} with query {Query}, kind {Kind}, includeNsfw {IncludeNsfw}")]
 	public static partial void SearchingMedia(this ILogger<ShikiClient> logger, ListEntryType type, string query, string? kind, bool includeNsfw);
+
+	[LoggerMessage(LogLevel.Debug, "Requesting favourites info for {AnimesCount} animes, {MangasCount} mangas, {CharactersCount} characters, {PeopleCount} people with options: {Options}")]
+	public static partial void RequestingFavouritesInfo(this ILogger<ShikiClient> logger, int animesCount, int mangasCount, int charactersCount, int peopleCount, RequestOptions options);
+
+	[LoggerMessage(LogLevel.Debug, "Requesting details of character with id: {CharacterId}")]
+	public static partial void RequestingCharacterDetails(this ILogger<ShikiClient> logger, uint characterId);
+
+	[LoggerMessage(LogLevel.Debug, "Requesting details of person with id: {PersonId}")]
+	public static partial void RequestingPersonDetails(this ILogger<ShikiClient> logger, uint personId);
 
 	[LoggerMessage(LogLevel.Warning, "Image {Url} not found")]
 	public static partial void ImageNotFound(this ILogger<ShikiClient> logger, string url);

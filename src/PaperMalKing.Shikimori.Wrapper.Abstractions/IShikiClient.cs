@@ -21,6 +21,12 @@ public interface IShikiClient
 	Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, RequestOptions options, CancellationToken cancellationToken)
 		where TMedia : BaseMedia;
 
+	Task<FavouritesInfo> GetFavouritesInfoAsync(FavouriteIds ids, RequestOptions options, CancellationToken cancellationToken);
+
+	Task<CharacterDetails?> GetCharacterDetailsAsync(uint id, CancellationToken cancellationToken);
+
+	Task<PersonDetails?> GetPersonDetailsAsync(uint id, CancellationToken cancellationToken);
+
 	Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken);
 
 	Task<IReadOnlyList<AnimeSearchMedia>> SearchAnimeAsync(string query, AnimeKind? kind, bool includeNsfw, CancellationToken cancellationToken);

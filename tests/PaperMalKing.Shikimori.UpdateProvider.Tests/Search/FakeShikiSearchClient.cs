@@ -61,6 +61,13 @@ internal sealed class FakeShikiSearchClient : IShikiClient
 	public Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, RequestOptions options, CancellationToken cancellationToken)
 		where TMedia : BaseMedia => throw new NotSupportedException();
 
+	public Task<FavouritesInfo> GetFavouritesInfoAsync(FavouriteIds ids, RequestOptions options, CancellationToken cancellationToken) =>
+		throw new NotSupportedException();
+
+	public Task<CharacterDetails?> GetCharacterDetailsAsync(uint id, CancellationToken cancellationToken) => throw new NotSupportedException();
+
+	public Task<PersonDetails?> GetPersonDetailsAsync(uint id, CancellationToken cancellationToken) => throw new NotSupportedException();
+
 	public Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken) => throw new NotSupportedException();
 
 	public Task<byte[]?> GetImageContentAsync(string url, CancellationToken cancellationToken) => throw new NotSupportedException();

@@ -10,5 +10,11 @@ public class AnimeMedia : BaseMedia
 	[JsonPropertyName("studios")]
 	public IReadOnlyList<Studio> Studios { get; init; } = [];
 
+	[JsonPropertyName("episodes")]
+	public uint? Episodes { get; init; }
+
+	[JsonPropertyName("episodesAired")]
+	public uint? EpisodesAired { get; init; }
+
 	protected override string Type => "animes";
 }

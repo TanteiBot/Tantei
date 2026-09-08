@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
@@ -95,6 +95,79 @@ public sealed class ShikiClient(HttpClient _httpClient, ILogger<ShikiClient> _lo
 		var query = type == ListEntryType.Anime ? Queries.GetAnimeQuery(requestOptions) : Queries.GetMangaQuery(requestOptions);
 
 		return new(query, new { ids = id.ToString(CultureInfo.InvariantCulture) });
+	}
+
+	public async Task<FavouritesInfo> GetFavouritesInfoAsync(FavouriteIds ids, RequestOptions options, CancellationToken cancellationToken)
+	{
+		if (ids.IsEmpty)
+		{
+			return FavouritesInfo.Empty;
+		}
+
+		var animes = new List<AnimeMedia>(ids.AnimeIds.Count);
+		var mangas = new List<MangaMedia>(ids.MangaIds.Count);
+		var characters = new List<FavouriteCharacter>(ids.CharacterIds.Count);
+		var people = new List<FavouritePerson>(ids.PersonIds.Count);
+
+		foreach (var chunk in Chunk(ids))
+		{
+			_logger.RequestingFavouritesInfo(chunk.AnimeIds.Count, chunk.MangaIds.Count, chunk.CharacterIds.Count, chunk.PersonIds.Count, options);
+
+			var request = new GraphQLHttpRequest(Queries.GetFavouritesInfoQuery(chunk, options));
+			var response = await _graphQlClient.SendQueryAsync<FavouritesInfo>(request, cancellationToken);
+
+			animes.AddRange(response.Data.Animes);
+			mangas.AddRange(response.Data.Mangas);
+			characters.AddRange(response.Data.Characters);
+			people.AddRange(response.Data.People);
+		}
+
+		return new()
+		{
+			Animes = animes,
+			Mangas = mangas,
+			Characters = characters,
+			People = people,
+		};
+	}
+
+	private static IEnumerable<FavouriteIds> Chunk(FavouriteIds ids)
+	{
+		var chunks = Math.Max(Math.Max(CountOfChunks(ids.AnimeIds.Count), CountOfChunks(ids.MangaIds.Count)),
+			Math.Max(CountOfChunks(ids.CharacterIds.Count), CountOfChunks(ids.PersonIds.Count)));
+
+		for (var i = 0; i < chunks; i++)
+		{
+			yield return new()
+			{
+				AnimeIds = Slice(ids.AnimeIds, i),
+				MangaIds = Slice(ids.MangaIds, i),
+				CharacterIds = Slice(ids.CharacterIds, i),
+				PersonIds = Slice(ids.PersonIds, i),
+			};
+		}
+
+		static int CountOfChunks(int count) => (count + Queries.FavouritesBatchLimit - 1) / Queries.FavouritesBatchLimit;
+
+		static IReadOnlyList<uint> Slice(IReadOnlyList<uint> source, int index)
+		{
+			var start = index * Queries.FavouritesBatchLimit;
+			return start >= source.Count ? [] : [.. source.Skip(start).Take(Queries.FavouritesBatchLimit)];
+		}
+	}
+
+	public Task<CharacterDetails?> GetCharacterDetailsAsync(uint id, CancellationToken cancellationToken)
+	{
+		_logger.RequestingCharacterDetails(id);
+		var url = $"{Constants.BaseApiUrl}/characters/{id.ToString(CultureInfo.InvariantCulture)}";
+		return _httpClient.GetFromJsonAsync(url, JsonContext.Default.CharacterDetails, cancellationToken);
+	}
+
+	public Task<PersonDetails?> GetPersonDetailsAsync(uint id, CancellationToken cancellationToken)
+	{
+		_logger.RequestingPersonDetails(id);
+		var url = $"{Constants.BaseApiUrl}/people/{id.ToString(CultureInfo.InvariantCulture)}";
+		return _httpClient.GetFromJsonAsync(url, JsonContext.Default.PersonDetails, cancellationToken);
 	}
 
 	public async Task<IReadOnlyList<AnimeSearchMedia>> SearchAnimeAsync(string query, AnimeKind? kind, bool includeNsfw, CancellationToken cancellationToken)

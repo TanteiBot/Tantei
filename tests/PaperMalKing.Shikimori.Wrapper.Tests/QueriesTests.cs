@@ -13,6 +13,8 @@ public sealed class QueriesTests
 
 	private const string PersonRolesMarker = "personRoles";
 
+	private const string DescriptionMarker = "description";
+
 	[Test]
 	public async Task AnimeSearchWithoutKindOmitsTheKindArgument()
 	{
@@ -89,7 +91,7 @@ public sealed class QueriesTests
 	[Arguments(RequestOptions.Studio, "studios { name, id }")]
 	[Arguments(RequestOptions.Director, "personRoles { roles_russian: rolesRu, roles: rolesEn, person { name, russian, id } }")]
 	[Arguments(RequestOptions.Genres, "genres { name russian }")]
-	[Arguments(RequestOptions.Description, "description")]
+	[Arguments(RequestOptions.Description, DescriptionMarker)]
 	public async Task AnimeQueryEmitsBlockOnlyWhenFlagPresent(RequestOptions flag, string marker)
 	{
 		var withFlag = Queries.GetAnimeQuery(flag);
@@ -115,7 +117,7 @@ public sealed class QueriesTests
 	{
 		var query = Queries.GetAnimeQuery(RequestOptions.None);
 
-		foreach (var marker in new[] { "studios", "personRoles", "genres", "description" })
+		foreach (var marker in new[] { "studios", PersonRolesMarker, "genres", DescriptionMarker })
 		{
 			await Assert.That(query).DoesNotContain(marker);
 		}
@@ -139,7 +141,7 @@ public sealed class QueriesTests
 	[Arguments(RequestOptions.Publisher, "publishers { name, id }")]
 	[Arguments(RequestOptions.Mangaka, "person { name, russian, id, isMangaka }")]
 	[Arguments(RequestOptions.Genres, "genres { name russian }")]
-	[Arguments(RequestOptions.Description, "description")]
+	[Arguments(RequestOptions.Description, DescriptionMarker)]
 	public async Task MangaQueryEmitsBlockOnlyWhenFlagPresent(RequestOptions flag, string marker)
 	{
 		var withFlag = Queries.GetMangaQuery(flag);
@@ -165,7 +167,7 @@ public sealed class QueriesTests
 	{
 		var query = Queries.GetMangaQuery(RequestOptions.None);
 
-		foreach (var marker in new[] { "publishers", "personRoles", "genres", "description" })
+		foreach (var marker in new[] { "publishers", PersonRolesMarker, "genres", DescriptionMarker })
 		{
 			await Assert.That(query).DoesNotContain(marker);
 		}
@@ -198,6 +200,63 @@ public sealed class QueriesTests
 		await Assert.That(query).Contains("id");
 		await Assert.That(query).Contains("nickname");
 		await Assert.That(query).Contains("avatarUrl");
+		GraphQlAssertions.AssertValidGraphQl(query);
+	}
+
+	[Test]
+	public async Task FavouritesInfoQueryPassesLimitOnEveryAliasAndTakesPeopleIdsAsAList()
+	{
+		var query = Queries.GetFavouritesInfoQuery(new()
+		{
+			AnimeIds = [1, 5],
+			MangaIds = [25],
+			CharacterIds = [62],
+			PersonIds = [1870, 1874],
+		}, RequestOptions.None);
+
+		await Assert.That(query).Contains("animes (ids: \"1,5\", limit: 50)");
+		await Assert.That(query).Contains("mangas (ids: \"25\", limit: 50)");
+		await Assert.That(query).Contains("characters (ids: \"62\", limit: 50)");
+		await Assert.That(query).Contains("people (ids: [\"1870\",\"1874\"], limit: 50)");
+		GraphQlAssertions.AssertValidGraphQl(query);
+	}
+
+	[Test]
+	public async Task FavouritesInfoQuerySelectsIdentityFieldsWithoutAnyFlags()
+	{
+		var query = Queries.GetFavouritesInfoQuery(new()
+		{
+			AnimeIds = [1],
+			MangaIds = [25],
+		}, RequestOptions.None);
+
+		foreach (var field in new[] { "name", "russian", "kind", "status", "score", "url", "episodes", "episodesAired", "chapters", "volumes" })
+		{
+			await Assert.That(query).Contains(field);
+		}
+
+		foreach (var marker in new[] { "studios", PersonRolesMarker, "genres", DescriptionMarker })
+		{
+			await Assert.That(query).DoesNotContain(marker);
+		}
+
+		await Assert.That(query).Contains(PosterMarker);
+		GraphQlAssertions.AssertValidGraphQl(query);
+	}
+
+	[Test]
+	public async Task FavouritesInfoQueryOmitsAliasesWithoutIds()
+	{
+		var query = Queries.GetFavouritesInfoQuery(new()
+		{
+			CharacterIds = [62],
+		}, RequestOptions.Description);
+
+		await Assert.That(query).Contains("characters (ids:");
+		await Assert.That(query).Contains(DescriptionMarker);
+		await Assert.That(query).DoesNotContain("animes (ids:");
+		await Assert.That(query).DoesNotContain("mangas (ids:");
+		await Assert.That(query).DoesNotContain("people (ids:");
 		GraphQlAssertions.AssertValidGraphQl(query);
 	}
 }
