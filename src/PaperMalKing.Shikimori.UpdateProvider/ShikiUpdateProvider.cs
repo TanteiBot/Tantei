@@ -243,72 +243,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 			db.ShikiFavourites.RemoveRange(removedValues.Select(Selector(dbUser)));
 		}
 
-		var addedFavourites = addedValues.Select(static x => new EnrichedFavourite { FavouriteEntry = x }).ToArray();
-		var removedFavourites = removedValues.Select(static x => new EnrichedFavourite { FavouriteEntry = x }).ToArray();
-
-		await this.EnrichFavouritesAsync([.. addedFavourites, .. removedFavourites], dbUser, cancellationToken);
-
-		return (addedFavourites, removedFavourites);
-	}
-
-	private async Task EnrichFavouritesAsync(IReadOnlyList<EnrichedFavourite> favourites, ShikiUser dbUser, CancellationToken cancellationToken)
-	{
-		if (favourites is [])
-		{
-			return;
-		}
-
-		var info = await _client.GetFavouritesInfoAsync(new()
-		{
-			AnimeIds = IdsOf(favourites, ShikiFavouriteKind.Anime),
-			MangaIds = IdsOf(favourites, ShikiFavouriteKind.Manga),
-			CharacterIds = IdsOf(favourites, ShikiFavouriteKind.Character),
-			PersonIds = IdsOf(favourites, ShikiFavouriteKind.Person),
-		}, (RequestOptions)dbUser.Features, cancellationToken);
-
-		foreach (var favourite in favourites)
-		{
-			var id = favourite.FavouriteEntry.Id;
-			favourite.Media = favourite.Kind switch
-			{
-				ShikiFavouriteKind.Anime => info.Animes.FirstOrDefault(x => x.Id == id),
-				ShikiFavouriteKind.Manga => info.Mangas.FirstOrDefault(x => x.Id == id),
-				_ => null,
-			};
-			favourite.Character = favourite.Kind == ShikiFavouriteKind.Character ? info.Characters.FirstOrDefault(x => x.Id == id) : null;
-			favourite.Person = favourite.Kind == ShikiFavouriteKind.Person ? info.People.FirstOrDefault(x => x.Id == id) : null;
-		}
-
-		foreach (var favourite in favourites)
-		{
-			await this.FillBestKnownWorkAsync(favourite, cancellationToken);
-		}
-
-		static IReadOnlyList<uint> IdsOf(IReadOnlyList<EnrichedFavourite> source, ShikiFavouriteKind kind) =>
-			[.. source.Where(x => x.Kind == kind).Select(static x => x.FavouriteEntry.Id).Distinct()];
-	}
-
-	[SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Enrichment is best effort")]
-	private async Task FillBestKnownWorkAsync(EnrichedFavourite favourite, CancellationToken cancellationToken)
-	{
-		try
-		{
-			if (favourite.Character is not null)
-			{
-				var details = await _client.GetCharacterDetailsAsync(favourite.FavouriteEntry.Id, cancellationToken);
-				favourite.BestKnownWork = details?.BestKnownWork();
-			}
-
-			if (favourite.Person is { } person)
-			{
-				var details = await _client.GetPersonDetailsAsync(favourite.FavouriteEntry.Id, cancellationToken);
-				favourite.BestKnownWork = details?.BestKnownWork(person.PrefersRolesOverWorks());
-			}
-		}
-		catch (Exception ex) when (ex is not OperationCanceledException)
-		{
-			logger.FailedToEnrichFavourite(ex, favourite.FavouriteEntry.GenericType ?? "unknown", favourite.FavouriteEntry.Id);
-		}
+		return await ShikiFavouriteEnrichment.EnrichAsync(addedValues, removedValues, dbUser.Features, _client, logger, cancellationToken);
 	}
 
 	private async Task<IReadOnlyList<ShikiAchievement>> GetAchievementsUpdatesAsync(ShikiUser dbUser, CancellationToken cancellationToken)
