@@ -19,6 +19,8 @@ internal static class FavouritesInfoQueryBuilder
 						hasNextPage
 					}
 			values: media(type: ANIME, id_in: $animeIds) {
+			episodes
+			averageScore
 			""");
 		Helpers.AppendMediaFields(sb, options);
 		sb.AppendLine(
@@ -30,6 +32,9 @@ internal static class FavouritesInfoQueryBuilder
 					hasNextPage
 				}
 				values: media(type: MANGA, id_in: $mangaIds) {
+			chapters
+			volumes
+			averageScore
 			""");
 		Helpers.AppendMediaFields(sb, options);
 		sb.AppendLine(
@@ -51,6 +56,12 @@ internal static class FavouritesInfoQueryBuilder
 					id
 					primaryOccupations,
 					staffMedia(sort:POPULARITY_DESC, page: 1, perPage: 1){
+			""");
+		FillLesserMediaFields(sb);
+		sb.AppendLine(
+			"""
+			}
+			characterMedia(sort: POPULARITY_DESC, page: 1, perPage: 1){
 			""");
 		FillLesserMediaFields(sb);
 		sb.Append(
@@ -90,9 +101,14 @@ internal static class FavouritesInfoQueryBuilder
 			media(sort: POPULARITY_DESC, page: 1, perPage: 1) {
 			""");
 		FillLesserMediaFields(sb);
+		sb.AppendLine("}");
+		if (options.HasFlag(RequestOptions.Description))
+		{
+			sb.AppendLine("description(asHtml: false)");
+		}
+
 		sb.Append(
 			"""
-			}
 			}
 			}
 			Studios: Page(page: $page, perPage: 50) {

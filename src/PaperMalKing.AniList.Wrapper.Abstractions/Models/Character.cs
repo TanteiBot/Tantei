@@ -20,6 +20,9 @@ public sealed class Character : IImageble, ISiteUrlable, IIdentifiable
 	[JsonPropertyName("media")]
 	public required Page<Media> Media { get; init; }
 
+	[JsonPropertyName("description")]
+	public string? Description { get; init; }
+
 	[JsonPropertyName("id")]
 	public uint Id { get; init; }
 }
