@@ -465,6 +465,942 @@
           }
         }
       }
+    },
+    "/anime": {
+      "get": {
+        "operationId": "getAnime",
+        "tags": [
+          "Tenrai"
+        ],
+        "parameters": [
+          {
+            "name": "producers",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response returning matching anime series",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnimeSearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid parameters or request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - the supplied X-Server-Key is invalid; restricted endpoints also require a Server Key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Nginx temporarily blocked the request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource Not Found - The requested record does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed - only GET, HEAD, and OPTIONS are accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate Limit Exceeded - wait for the duration in Retry-After before retrying",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$",
+                  "example": "1"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Something went wrong on our end",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway - the API gateway could not reach the upstream service",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - The API is temporarily offline or busy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "1"
+                  ]
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout - the upstream service did not respond in time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/characters/{id}": {
+      "get": {
+        "operationId": "getCharactersById",
+        "tags": [
+          "Tenrai"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response returning character details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid parameters or request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - the supplied X-Server-Key is invalid; restricted endpoints also require a Server Key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Nginx temporarily blocked the request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource Not Found - The requested record does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed - only GET, HEAD, and OPTIONS are accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate Limit Exceeded - wait for the duration in Retry-After before retrying",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$",
+                  "example": "1"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Something went wrong on our end",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway - the API gateway could not reach the upstream service",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - The API is temporarily offline or busy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "1"
+                  ]
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout - the upstream service did not respond in time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/characters/{id}/anime": {
+      "get": {
+        "operationId": "getCharactersByIdAnime",
+        "tags": [
+          "Tenrai"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response returning matching anime series",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterAnimeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid parameters or request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - the supplied X-Server-Key is invalid; restricted endpoints also require a Server Key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Nginx temporarily blocked the request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource Not Found - The requested record does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed - only GET, HEAD, and OPTIONS are accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate Limit Exceeded - wait for the duration in Retry-After before retrying",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$",
+                  "example": "1"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Something went wrong on our end",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway - the API gateway could not reach the upstream service",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - The API is temporarily offline or busy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "1"
+                  ]
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout - the upstream service did not respond in time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/people/{id}": {
+      "get": {
+        "operationId": "getPeopleById",
+        "tags": [
+          "Tenrai"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response returning person details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid parameters or request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - the supplied X-Server-Key is invalid; restricted endpoints also require a Server Key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Nginx temporarily blocked the request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource Not Found - The requested record does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed - only GET, HEAD, and OPTIONS are accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate Limit Exceeded - wait for the duration in Retry-After before retrying",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$",
+                  "example": "1"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Something went wrong on our end",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway - the API gateway could not reach the upstream service",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - The API is temporarily offline or busy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "1"
+                  ]
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout - the upstream service did not respond in time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/people/{id}/voices": {
+      "get": {
+        "operationId": "getPeopleByIdVoices",
+        "tags": [
+          "Tenrai"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response returning voice roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonVoicesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid parameters or request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - the supplied X-Server-Key is invalid; restricted endpoints also require a Server Key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Nginx temporarily blocked the request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource Not Found - The requested record does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed - only GET, HEAD, and OPTIONS are accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate Limit Exceeded - wait for the duration in Retry-After before retrying",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$",
+                  "example": "1"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Something went wrong on our end",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway - the API gateway could not reach the upstream service",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - The API is temporarily offline or busy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "1"
+                  ]
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout - the upstream service did not respond in time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/producers/{id}": {
+      "get": {
+        "operationId": "getProducersById",
+        "tags": [
+          "Tenrai"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response returning producer details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid parameters or request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - the supplied X-Server-Key is invalid; restricted endpoints also require a Server Key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Nginx temporarily blocked the request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource Not Found - The requested record does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed - only GET, HEAD, and OPTIONS are accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate Limit Exceeded - wait for the duration in Retry-After before retrying",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$",
+                  "example": "1"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Something went wrong on our end",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway - the API gateway could not reach the upstream service",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - The API is temporarily offline or busy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "1"
+                  ]
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout - the upstream service did not respond in time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -563,6 +1499,203 @@
             "items": {
               "$ref": "#/components/schemas/Character"
             }
+          }
+        }
+      },
+      "ImageUrls": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "image_url": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ImageSet": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "jpg": {
+            "$ref": "#/components/schemas/ImageUrls"
+          }
+        }
+      },
+      "AnimeReference": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "images": {
+            "$ref": "#/components/schemas/ImageSet"
+          }
+        }
+      },
+      "AnimeSearchResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnimeReference"
+            }
+          }
+        }
+      },
+      "CharacterDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "about": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CharacterResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/CharacterDetails"
+          }
+        }
+      },
+      "CharacterAnimeEntry": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "anime": {
+            "$ref": "#/components/schemas/AnimeReference"
+          }
+        }
+      },
+      "CharacterAnimeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterAnimeEntry"
+            }
+          }
+        }
+      },
+      "PersonDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "about": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PersonResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PersonDetails"
+          }
+        }
+      },
+      "PersonVoiceEntry": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "anime": {
+            "$ref": "#/components/schemas/AnimeReference"
+          }
+        }
+      },
+      "PersonVoicesResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonVoiceEntry"
+            }
+          }
+        }
+      },
+      "ProducerTitle": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ProducerDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "titles": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ProducerTitle"
+            }
+          },
+          "images": {
+            "$ref": "#/components/schemas/ImageSet"
+          }
+        }
+      },
+      "ProducerResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ProducerDetails"
           }
         }
       },
