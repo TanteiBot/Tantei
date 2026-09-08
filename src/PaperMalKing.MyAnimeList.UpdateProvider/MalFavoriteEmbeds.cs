@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using Humanizer;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.Common;
 using PaperMalKing.Database.Models.MyAnimeList;
@@ -19,8 +18,6 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider;
 
 internal static class MalFavoriteEmbeds
 {
-	private const int DescriptionFieldLimit = 500;
-
 	public static async Task<IReadOnlyList<DiscordEmbedBuilder>> BuildAsync(
 		IReadOnlyList<EnrichedMalFavorite> favorites,
 		User user,
@@ -134,17 +131,20 @@ internal static class MalFavoriteEmbeds
 				FillMedia(eb, listFavorite, enriched, features);
 				break;
 			case MalFavoriteCharacter character:
-				eb.WithThumbnail(favorite.ImageUrl).WithTitle($"{character.Name} [Character]");
-				AddDescription(eb, enriched.Entity.Description, features);
+				MalMediaEmbeds.AddThumbnail(eb, favorite.ImageUrl);
+				eb.WithTitle($"{character.Name} [Character]");
+				MalMediaEmbeds.AddDescription(eb, enriched.Entity.Description, features);
 				AddBestKnownWork(eb, "From", enriched.Entity.BestKnownWork, character.FromTitleName);
 				break;
 			case MalFavoritePerson person:
-				eb.WithThumbnail(favorite.ImageUrl).WithTitle($"{person.Name} [Person]");
-				AddDescription(eb, enriched.Entity.Description, features);
+				MalMediaEmbeds.AddThumbnail(eb, favorite.ImageUrl);
+				eb.WithTitle($"{person.Name} [Person]");
+				MalMediaEmbeds.AddDescription(eb, enriched.Entity.Description, features);
 				AddBestKnownWork(eb, "From", enriched.Entity.BestKnownWork, fallback: null);
 				break;
 			case MalFavoriteCompany company:
-				eb.WithThumbnail(favorite.ImageUrl).WithTitle($"{company.Name} [Studio]");
+				MalMediaEmbeds.AddThumbnail(eb, favorite.ImageUrl);
+				eb.WithTitle($"{company.Name} [Studio]");
 				AddBestKnownWork(eb, "Known for", enriched.Entity.BestKnownWork, fallback: null);
 				break;
 			default:
@@ -159,7 +159,7 @@ internal static class MalFavoriteEmbeds
 		var anime = enriched.Anime;
 		var manga = enriched.Manga;
 		var picture = anime?.Picture ?? manga?.Picture;
-		eb.WithThumbnail(picture?.Large ?? picture?.Medium ?? favorite.ImageUrl);
+		MalMediaEmbeds.AddThumbnail(eb, picture, favorite.ImageUrl);
 
 		var format = features.HasFlag(MalUserFeatures.MediaFormat) ? $" ({favorite.Type})" : "";
 		var title = anime?.PrimaryTitle ?? manga?.PrimaryTitle ?? favorite.Name;
@@ -177,16 +177,6 @@ internal static class MalFavoriteEmbeds
 		MalMediaEmbeds.AddDemographic(eb, enriched.MediaInfo, features);
 		MalMediaEmbeds.AddSeiyu(eb, enriched.Seiyu, features);
 		MalMediaEmbeds.AddSynopsis(eb, result?.Synopsis, features);
-	}
-
-	private static void AddDescription(DiscordEmbedBuilder eb, string? description, MalUserFeatures features)
-	{
-		if (!features.HasFlag(MalUserFeatures.Synopsis) || string.IsNullOrWhiteSpace(description))
-		{
-			return;
-		}
-
-		eb.AddFieldIfPresent("Description", description.RemoveSourceTail().Trim().Truncate(DescriptionFieldLimit));
 	}
 
 	private static void AddBestKnownWork(DiscordEmbedBuilder eb, string fieldName, BestKnownWork? work, string? fallback)

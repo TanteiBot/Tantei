@@ -24,8 +24,8 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider;
 [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:Prefix local calls with this", Justification = "False positive")]
 internal static class MalMediaEmbeds
 {
-	private const int DescriptionLimit = 4096;
-	private const int SynopsisLimit = 500;
+	private const int EmbedDescriptionLimit = 4096;
+	private const int DescriptionTextLimit = 500;
 	private const int TitleLimit = 256;
 
 	private static readonly DiscordEmbedBuilder.EmbedFooter MalUpdateFooter = new()
@@ -69,8 +69,8 @@ internal static class MalMediaEmbeds
 				: $"{title} ({mediaType})";
 
 		var features = dbUser.Features;
-		var eb = new DiscordEmbedBuilder().WithThumbnail(listEntry.Node.Picture?.Large ?? listEntry.Node.Picture?.Medium!)
-										  .WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl).WithTimestamp(listEntry.Status.UpdatedAt);
+		var eb = new DiscordEmbedBuilder().WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl).WithTimestamp(listEntry.Status.UpdatedAt);
+		AddThumbnail(eb, listEntry.Node.Picture);
 		if (listEntry.Status.Score != 0)
 		{
 			eb.AddFieldIfPresent("Score", listEntry.Status.Score.ToString(NumberFormatInfo.InvariantInfo), inline: true);
@@ -422,7 +422,7 @@ internal static class MalMediaEmbeds
 			builder.WithTitle(result.PrimaryTitle).WithUrl(mediaUrl);
 			if (features.HasFlag(MalUserFeatures.Synopsis))
 			{
-				var synopsis = result.Synopsis.RemoveSourceTail().Trim().Truncate(SynopsisLimit);
+				var synopsis = result.Synopsis.RemoveSourceTail().Trim().Truncate(DescriptionTextLimit);
 				if (!string.IsNullOrWhiteSpace(synopsis))
 				{
 					builder.WithDescription(synopsis);
@@ -432,7 +432,7 @@ internal static class MalMediaEmbeds
 		else
 		{
 			var linkedTitle = Formatter.MaskedUrl(result.PrimaryTitle, mediaUrl);
-			if (linkedTitle.Length > DescriptionLimit)
+			if (linkedTitle.Length > EmbedDescriptionLimit)
 			{
 				throw new ArgumentException("The linked Primary Title exceeds Discord's description limit.", nameof(result));
 			}
@@ -440,12 +440,7 @@ internal static class MalMediaEmbeds
 			builder.WithDescription(linkedTitle);
 		}
 
-		var largePosterUrl = result.Picture?.Large;
-		var thumbnailUrl = IsValidUrl(largePosterUrl) ? largePosterUrl : result.Picture?.Medium;
-		if (IsValidUrl(thumbnailUrl))
-		{
-			builder.WithThumbnail(thumbnailUrl);
-		}
+		AddThumbnail(builder, result.Picture);
 
 		builder.AddFieldIfPresent("Type", features.HasFlag(MalUserFeatures.MediaFormat) ? mediaType : null, inline: true);
 		AddStatus(builder, result, features);
@@ -461,17 +456,34 @@ internal static class MalMediaEmbeds
 		return builder;
 	}
 
-	internal static void AddSynopsis(DiscordEmbedBuilder eb, string? synopsis, MalUserFeatures features)
+	internal static void AddThumbnail(DiscordEmbedBuilder eb, string? imageUrl) => AddThumbnail(eb, picture: null, imageUrl);
+
+	internal static void AddThumbnail(DiscordEmbedBuilder eb, Picture? picture, string? fallbackUrl = null)
 	{
-		if (!features.HasFlag(MalUserFeatures.Synopsis) || string.IsNullOrWhiteSpace(synopsis))
+		var thumbnailUrl = FirstValidUrl(picture?.Large, picture?.Medium, fallbackUrl);
+		if (thumbnailUrl is not null)
+		{
+			eb.WithThumbnail(thumbnailUrl);
+		}
+	}
+
+	internal static void AddSynopsis(DiscordEmbedBuilder eb, string? synopsis, MalUserFeatures features) =>
+		AddDescriptionField(eb, "Synopsis", synopsis, features);
+
+	internal static void AddDescription(DiscordEmbedBuilder eb, string? description, MalUserFeatures features) =>
+		AddDescriptionField(eb, "Description", description, features);
+
+	private static void AddDescriptionField(DiscordEmbedBuilder eb, string fieldName, string? description, MalUserFeatures features)
+	{
+		if (!features.HasFlag(MalUserFeatures.Synopsis) || string.IsNullOrWhiteSpace(description))
 		{
 			return;
 		}
 
-		var text = synopsis.RemoveSourceTail().Trim().Truncate(SynopsisLimit);
+		var text = description.RemoveSourceTail().Trim().Truncate(DescriptionTextLimit);
 		if (!string.IsNullOrWhiteSpace(text))
 		{
-			AddAsFieldOrTruncateToDescription(eb, "Synopsis", text, inline: false);
+			AddAsFieldOrTruncateToDescription(eb, fieldName, text, inline: false);
 		}
 	}
 
@@ -587,6 +599,19 @@ internal static class MalMediaEmbeds
 				eb.Description += $"{'\n'}{descToAdd}";
 			}
 		}
+	}
+
+	private static string? FirstValidUrl(params ReadOnlySpan<string?> urls)
+	{
+		foreach (var url in urls)
+		{
+			if (IsValidUrl(url))
+			{
+				return url;
+			}
+		}
+
+		return null;
 	}
 
 	private static bool IsValidUrl([NotNullWhen(true)] string? url)

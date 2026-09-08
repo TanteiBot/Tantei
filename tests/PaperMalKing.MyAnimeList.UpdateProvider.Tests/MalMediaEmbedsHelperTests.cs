@@ -24,6 +24,9 @@ public sealed class MalMediaEmbedsHelperTests
 	private const string ScoreField = "Score";
 	private const string TotalField = "Total";
 	private const int SevenItemCap = 7;
+	private const string LargeUrl = "https://cdn.myanimelist.net/anime/large.jpg";
+	private const string MediumUrl = "https://cdn.myanimelist.net/anime/medium.jpg";
+	private const string FallbackUrl = "https://cdn.myanimelist.net/anime/stored.jpg";
 
 	[Test]
 	public async Task AddStudiosSkipsFieldWhenFeatureDisabled()
@@ -393,6 +396,102 @@ public sealed class MalMediaEmbedsHelperTests
 
 		await Assert.That(embed.Fields).IsEmpty();
 	}
+
+	[Test]
+	public async Task AddThumbnailPrefersTheLargePicture()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddThumbnail(embed, Picture(LargeUrl, MediumUrl), FallbackUrl);
+
+		await Assert.That(embed.Thumbnail?.Url).IsEqualTo(LargeUrl);
+	}
+
+	[Test]
+	public async Task AddThumbnailFallsBackToTheMediumPosterWhenTheLargeUrlExceedsTheLimit()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddThumbnail(embed, Picture(MalEmbedTestLimits.OverLongUrl(), MediumUrl), FallbackUrl);
+
+		await Assert.That(embed.Thumbnail?.Url).IsEqualTo(MediumUrl);
+	}
+
+	[Test]
+	public async Task AddThumbnailFallsBackToTheStoredImageWhenBothPosterUrlsExceedTheLimit()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddThumbnail(embed, Picture(MalEmbedTestLimits.OverLongUrl(), MalEmbedTestLimits.OverLongUrl()), FallbackUrl);
+
+		await Assert.That(embed.Thumbnail?.Url).IsEqualTo(FallbackUrl);
+	}
+
+	[Test]
+	public async Task AddThumbnailRendersNoThumbnailWhenEveryCandidateExceedsTheLimit()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddThumbnail(embed, Picture(MalEmbedTestLimits.OverLongUrl(), MalEmbedTestLimits.OverLongUrl()), MalEmbedTestLimits.OverLongUrl());
+
+		await Assert.That(embed.Thumbnail).IsNull();
+	}
+
+	[Test]
+	public async Task AddThumbnailRendersNoThumbnailWhenThereIsNoCandidate()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddThumbnail(embed, picture: null);
+
+		await Assert.That(embed.Thumbnail).IsNull();
+	}
+
+	[Test]
+	public async Task AddDescriptionSkipsFieldWhenFeatureDisabled()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddDescription(embed, "A bio.", MalUserFeatures.None);
+
+		await Assert.That(embed.Fields).IsEmpty();
+	}
+
+	[Test]
+	public async Task AddDescriptionStripsTheSourceTail()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddDescription(embed, "A bio. (Source: Wikipedia)", MalUserFeatures.Synopsis);
+
+		await Assert.That(SingleField(embed, MalEmbedTestLimits.DescriptionField).Value).IsEqualTo("A bio.");
+	}
+
+	[Test]
+	public async Task AddDescriptionTruncatesRatherThanDroppingAnOverLongDescription()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddDescription(embed, new string('a', 4000), MalUserFeatures.Synopsis);
+
+		var field = SingleField(embed, MalEmbedTestLimits.DescriptionField);
+		await Assert.That(field.Value.Length).IsLessThanOrEqualTo(MalEmbedTestLimits.DescriptionTextLimit);
+		await Assert.That(field.Inline).IsFalse();
+	}
+
+	[Test]
+	public async Task AnOverLongFieldValueSpillsIntoTheEmbedDescription()
+	{
+		var genres = Enumerable.Repeat(Genre(new string('g', 200)), 7).ToArray();
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddGenres(embed, genres, MalUserFeatures.Genres);
+
+		await Assert.That(embed.Fields).IsEmpty();
+		await Assert.That(embed.Description).StartsWith(GenresField);
+	}
+
+	private static Picture Picture(string? large, string medium) => new() { Large = large, Medium = medium };
 
 	private static AnimeSearchResult Anime(AnimeAiringStatus status = AnimeAiringStatus.Unknown, uint episodes = 0U, double? mean = null) => new()
 	{

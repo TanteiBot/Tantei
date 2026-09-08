@@ -5,6 +5,7 @@ using DSharpPlus.Entities;
 using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Favorites;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
@@ -91,7 +92,7 @@ public sealed class MalFavoriteEmbedsTests
 		await Assert.That(client.CharacterInfoCalls).IsEquivalentTo([((long)CharacterId, true),]);
 		await Assert.That(embed.Title).IsEqualTo("Fav Character [Character]");
 		await Assert.That(FieldValue(embed, "From")).IsEqualTo("[Main Show](https://myanimelist.net/anime/1)");
-		await Assert.That(FieldValue(embed, "Description")).IsEqualTo("A bio.");
+		await Assert.That(FieldValue(embed, MalEmbedTestLimits.DescriptionField)).IsEqualTo("A bio.");
 	}
 
 	[Test]
@@ -103,7 +104,7 @@ public sealed class MalFavoriteEmbedsTests
 
 		await Assert.That(client.CharacterInfoCalls).IsEquivalentTo([((long)CharacterId, false),]);
 		await Assert.That(FieldValue(embed, "From")).IsEqualTo("Stored Show");
-		await Assert.That(FieldNames(embed)).DoesNotContain("Description");
+		await Assert.That(FieldNames(embed)).DoesNotContain(MalEmbedTestLimits.DescriptionField);
 	}
 
 	[Test]
@@ -134,7 +135,7 @@ public sealed class MalFavoriteEmbedsTests
 
 		await Assert.That(embed.Title).IsEqualTo("Fav Character [Character]");
 		await Assert.That(FieldValue(embed, "From")).IsEqualTo("Stored Show");
-		await Assert.That(FieldNames(embed)).DoesNotContain("Description");
+		await Assert.That(FieldNames(embed)).DoesNotContain(MalEmbedTestLimits.DescriptionField);
 		await Assert.That(logger.Entries.Select(static entry => entry.EventId.Name)).Contains("FailedToEnrichFavorite");
 	}
 
@@ -174,6 +175,41 @@ public sealed class MalFavoriteEmbedsTests
 					.IsEquivalentTo(added.Fields.Select(static field => (field.Name, field.Value)));
 	}
 
+	[Test]
+	public async Task AMediaFavoriteWithAnOverLongPosterUrlFallsBackToTheStoredImage()
+	{
+		var client = new FakeMyAnimeListFavoriteClient
+		{
+			AnimeResult = AnimeResult(new() { Large = MalEmbedTestLimits.OverLongUrl(), Medium = MalEmbedTestLimits.OverLongUrl(), }),
+		};
+
+		var embed = await BuildSingleAsync(client, AnimeFavorite(), MalUserFeatures.Default);
+
+		await Assert.That(embed.Thumbnail?.Url).IsEqualTo("https://cdn.myanimelist.net/anime/stored.jpg");
+	}
+
+	[Test]
+	public async Task AMediaFavoriteWhoseEveryImageUrlIsOverLongRendersNoThumbnail()
+	{
+		var client = new FakeMyAnimeListFavoriteClient
+		{
+			AnimeResult = AnimeResult(new() { Large = MalEmbedTestLimits.OverLongUrl(), Medium = MalEmbedTestLimits.OverLongUrl(), }),
+		};
+		var embed = await BuildSingleAsync(client, AnimeFavorite(MalEmbedTestLimits.OverLongUrl()), MalUserFeatures.Default);
+
+		await Assert.That(embed.Thumbnail).IsNull();
+	}
+
+	[Test]
+	public async Task AnOverLongCharacterDescriptionIsTruncatedRatherThanDropped()
+	{
+		var client = new FakeMyAnimeListFavoriteClient { CharacterInfoResult = new() { Description = new string('a', 4000), }, };
+
+		var embed = await BuildSingleAsync(client, CharacterFavorite(), MalUserFeatures.Default | MalUserFeatures.Synopsis);
+
+		await Assert.That(FieldValue(embed, MalEmbedTestLimits.DescriptionField).Length).IsLessThanOrEqualTo(MalEmbedTestLimits.DescriptionTextLimit);
+	}
+
 	private static async Task<DiscordEmbedBuilder> BuildSingleAsync(
 		FakeMyAnimeListFavoriteClient client,
 		BaseMalFavorite favorite,
@@ -190,7 +226,7 @@ public sealed class MalFavoriteEmbedsTests
 	private static string FieldValue(DiscordEmbedBuilder embed, string name) =>
 		embed.Fields.Single(field => string.Equals(field.Name, name, StringComparison.Ordinal)).Value;
 
-	private static AnimeSearchResult AnimeResult() => new()
+	private static AnimeSearchResult AnimeResult(Picture? picture = null) => new()
 	{
 		Id = AnimeId,
 		PrimaryTitle = "Canonical Anime",
@@ -199,16 +235,16 @@ public sealed class MalFavoriteEmbedsTests
 		Episodes = AnimeEpisodes,
 		Mean = AnimeScore,
 		ListUserCount = AnimeListUserCount,
-		Picture = new() { Medium = "https://cdn.myanimelist.net/anime/medium.jpg", Large = "https://cdn.myanimelist.net/anime/large.jpg", },
+		Picture = picture ?? new() { Medium = "https://cdn.myanimelist.net/anime/medium.jpg", Large = "https://cdn.myanimelist.net/anime/large.jpg", },
 	};
 
-	private static MalFavoriteAnime AnimeFavorite() => new()
+	private static MalFavoriteAnime AnimeFavorite(string? imageUrl = null) => new()
 	{
 		Id = AnimeId,
 		Name = "Fav Anime",
 		Type = "TV",
 		StartYear = AnimeStartYear,
-		ImageUrl = "https://cdn.myanimelist.net/anime/stored.jpg",
+		ImageUrl = imageUrl ?? "https://cdn.myanimelist.net/anime/stored.jpg",
 		NameUrl = "https://myanimelist.net/anime/101",
 		User = CreateMalUser(MalUserFeatures.Default),
 	};
