@@ -4,7 +4,6 @@
 using System.Net;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.MyAnimeList;
@@ -177,14 +176,5 @@ public sealed class MalUpdateProviderTests
 			throw new NotSupportedException();
 
 		public Task<EntityInfo> GetStudioInfoAsync(long id, CancellationToken cancellationToken) => throw new NotSupportedException();
-	}
-
-	private sealed class StaticOptionsMonitor<T>(T value) : IOptionsMonitor<T>
-	{
-		public T CurrentValue => value;
-
-		public T Get(string? name) => value;
-
-		public IDisposable? OnChange(Action<T, string?> listener) => null;
 	}
 }

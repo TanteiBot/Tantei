@@ -8,7 +8,7 @@ using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
 namespace PaperMalKing.Shikimori.Wrapper.Abstractions;
 
-public interface IShikiClient
+public interface IShikiClient : IShikiFavouriteClient
 {
 	Task<UserInfo> GetUserByNicknameAsync(string nickname, CancellationToken cancellationToken);
 
@@ -20,12 +20,6 @@ public interface IShikiClient
 
 	Task<TMedia?> GetMediaAsync<TMedia>(ulong id, ListEntryType type, RequestOptions options, CancellationToken cancellationToken)
 		where TMedia : BaseMedia;
-
-	Task<FavouritesInfo> GetFavouritesInfoAsync(FavouriteIds ids, RequestOptions options, CancellationToken cancellationToken);
-
-	Task<CharacterDetails?> GetCharacterDetailsAsync(uint id, CancellationToken cancellationToken);
-
-	Task<PersonDetails?> GetPersonDetailsAsync(uint id, CancellationToken cancellationToken);
 
 	Task<IReadOnlyList<UserAchievement>> GetUserAchievementsAsync(uint userId, CancellationToken cancellationToken);
 

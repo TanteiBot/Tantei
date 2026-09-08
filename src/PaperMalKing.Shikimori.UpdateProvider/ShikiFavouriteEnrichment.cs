@@ -15,7 +15,7 @@ internal static class ShikiFavouriteEnrichment
 		IReadOnlyList<FavouriteEntry> addedValues,
 		IReadOnlyList<FavouriteEntry> removedValues,
 		ShikiUserFeatures features,
-		IShikiClient client,
+		IShikiFavouriteClient client,
 		ILogger<ShikiUpdateProvider> logger,
 		CancellationToken cancellationToken)
 	{
@@ -27,7 +27,7 @@ internal static class ShikiFavouriteEnrichment
 		return (addedFavourites, removedFavourites);
 	}
 
-	private static async Task EnrichAsync(IReadOnlyList<EnrichedFavourite> favourites, ShikiUserFeatures features, IShikiClient client,
+	private static async Task EnrichAsync(IReadOnlyList<EnrichedFavourite> favourites, ShikiUserFeatures features, IShikiFavouriteClient client,
 										  ILogger<ShikiUpdateProvider> logger, CancellationToken cancellationToken)
 	{
 		if (favourites is [])
@@ -66,7 +66,7 @@ internal static class ShikiFavouriteEnrichment
 	}
 
 	[SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Enrichment is best effort")]
-	private static async Task FillBestKnownWorkAsync(EnrichedFavourite favourite, IShikiClient client, ILogger<ShikiUpdateProvider> logger,
+	private static async Task FillBestKnownWorkAsync(EnrichedFavourite favourite, IShikiFavouriteClient client, ILogger<ShikiUpdateProvider> logger,
 													CancellationToken cancellationToken)
 	{
 		try

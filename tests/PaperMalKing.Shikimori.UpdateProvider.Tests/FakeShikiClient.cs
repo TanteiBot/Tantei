@@ -13,45 +13,18 @@ internal sealed class FakeShikiClient : IShikiClient
 {
 	public Favourites Favourites { get; init; } = Favourites.Empty;
 
-	public FavouritesInfo FavouritesInfo { get; init; } = FavouritesInfo.Empty;
-
-	public CharacterDetails? CharacterDetails { get; init; }
-
-	public PersonDetails? PersonDetails { get; init; }
-
-	public Exception? CharacterDetailsException { get; init; }
-
-	public Exception? PersonDetailsException { get; init; }
-
-	public List<FavouriteIds> FavouritesInfoCalls { get; } = [];
-
-	public List<uint> CharacterDetailsCalls { get; } = [];
-
-	public List<uint> PersonDetailsCalls { get; } = [];
+	public FakeShikiFavouriteClient Favourite { get; init; } = new();
 
 	public Task<Favourites> GetUserFavouritesAsync(uint userId, CancellationToken cancellationToken) => Task.FromResult(this.Favourites);
 
-	public Task<FavouritesInfo> GetFavouritesInfoAsync(FavouriteIds ids, RequestOptions options, CancellationToken cancellationToken)
-	{
-		this.FavouritesInfoCalls.Add(ids);
-		return Task.FromResult(this.FavouritesInfo);
-	}
+	public Task<FavouritesInfo> GetFavouritesInfoAsync(FavouriteIds ids, RequestOptions options, CancellationToken cancellationToken) =>
+		this.Favourite.GetFavouritesInfoAsync(ids, options, cancellationToken);
 
-	public Task<CharacterDetails?> GetCharacterDetailsAsync(uint id, CancellationToken cancellationToken)
-	{
-		this.CharacterDetailsCalls.Add(id);
-		return this.CharacterDetailsException is null
-			? Task.FromResult(this.CharacterDetails)
-			: Task.FromException<CharacterDetails?>(this.CharacterDetailsException);
-	}
+	public Task<CharacterDetails?> GetCharacterDetailsAsync(uint id, CancellationToken cancellationToken) =>
+		this.Favourite.GetCharacterDetailsAsync(id, cancellationToken);
 
-	public Task<PersonDetails?> GetPersonDetailsAsync(uint id, CancellationToken cancellationToken)
-	{
-		this.PersonDetailsCalls.Add(id);
-		return this.PersonDetailsException is null
-			? Task.FromResult(this.PersonDetails)
-			: Task.FromException<PersonDetails?>(this.PersonDetailsException);
-	}
+	public Task<PersonDetails?> GetPersonDetailsAsync(uint id, CancellationToken cancellationToken) =>
+		this.Favourite.GetPersonDetailsAsync(id, cancellationToken);
 
 	public Task<UserInfo> GetUserByIdAsync(uint userId, CancellationToken cancellationToken) =>
 		Task.FromResult(new UserInfo { Id = userId, Nickname = "test-user", });

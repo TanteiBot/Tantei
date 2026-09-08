@@ -1,77 +1,268 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using System.Globalization;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
-using PaperMalKing.Database;
-using PaperMalKing.Database.Models;
+using Microsoft.Extensions.Logging;
 using PaperMalKing.Database.Models.Shikimori;
-using PaperMalKing.Shikimori.UpdateProvider.Achievements;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
-using PaperMalKing.UpdatesProviders.Base;
 
 namespace PaperMalKing.Shikimori.UpdateProvider.Tests;
 
 public sealed class ShikiFavouriteEnrichmentTests
 {
+	private const uint AnimeId = 5114;
+
 	private const uint CharacterId = 62;
 
+	private const uint PersonId = 1870;
+
 	private const int MediaFavouriteCount = 5;
+
+	private const int MoreIdsThanOneBatchHolds = 51;
+
+	private const uint AddedAnimeId = 1;
+
+	private const uint RemovedAnimeId = 2;
+
+	private const string RolesWorkName = "Best Known Role";
+
+	private const string WorksWorkName = "Best Known Work";
+
+	private const string PersonName = "Fav Person";
+
+	[Test]
+	public async Task ADefaultFlagsMediaFavouriteCostsNoEnrichmentCall()
+	{
+		var client = new FakeShikiFavouriteClient { FavouritesInfo = new() { Animes = [AnimeMedia(AnimeId),], }, };
+
+		var favourite = await EnrichOneAsync(client, AnimeEntry(AnimeId));
+
+		await Assert.That(client.FavouritesInfoCalls).Count().IsEqualTo(1);
+		await Assert.That(client.EnrichmentCallCount).IsEqualTo(0);
+		await Assert.That(favourite.Media?.Name).IsEqualTo($"Canonical Anime {AnimeId}");
+	}
 
 	[Test]
 	public async Task EveryChangedMediaFavouriteOfATickRidesOneCallForFavouriteInfo()
 	{
-		var animes = Enumerable.Range(1, MediaFavouriteCount).Select(static i => Entry((uint)i, string.Create(CultureInfo.InvariantCulture, $"Anime {i}"))).ToArray();
-		var client = new FakeShikiClient
-		{
-			Favourites = new() { Animes = animes, },
-			FavouritesInfo = new() { Animes = [.. animes.Select(static entry => AnimeMedia(entry.Id))], },
-		};
-		await using var scope = await ProviderScope.CreateAsync(client);
+		var entries = Enumerable.Range(1, MediaFavouriteCount).Select(static i => AnimeEntry((uint)i)).ToArray();
+		var client = new FakeShikiFavouriteClient { FavouritesInfo = new() { Animes = [.. entries.Select(static entry => AnimeMedia(entry.Id))], }, };
 
-		var updates = await scope.CollectUpdatesAsync();
+		var (added, _) = await EnrichAsync(client, entries, []);
 
 		await Assert.That(client.FavouritesInfoCalls).Count().IsEqualTo(1);
-		await Assert.That(client.FavouritesInfoCalls[0].AnimeIds).IsEquivalentTo(animes.Select(static entry => entry.Id));
-		await Assert.That(updates).Count().IsEqualTo(MediaFavouriteCount);
+		await Assert.That(client.FavouritesInfoCalls[0].AnimeIds).IsEquivalentTo(entries.Select(static entry => entry.Id));
+		await Assert.That(client.EnrichmentCallCount).IsEqualTo(0);
+		await Assert.That(added.Select(static favourite => favourite.Media?.Name ?? string.Empty))
+					.IsEquivalentTo(entries.Select(static entry => $"Canonical Anime {entry.Id}"));
 	}
 
 	[Test]
-	public async Task AThrownCharacterDetailsFetchDropsOnlyItsFieldAndStillPosts()
+	public async Task AddedAndRemovedFavouritesOfATickShareTheSameBatchedRequest()
 	{
-		var client = new FakeShikiClient
-		{
-			Favourites = new() { Characters = [Entry(CharacterId, "Stored Character"),], },
-			FavouritesInfo = new()
-			{
-				Characters =
-				[
-					new()
-					{
-						Id = CharacterId,
-						Name = "Fav Character",
-						Url = $"https://shikimori.one/characters/{CharacterId}",
-					},
-				],
-			},
-			CharacterDetailsException = new HttpRequestException("boom"),
-		};
-		await using var scope = await ProviderScope.CreateAsync(client);
+		var client = new FakeShikiFavouriteClient { FavouritesInfo = new() { Animes = [AnimeMedia(AddedAnimeId), AnimeMedia(RemovedAnimeId),], }, };
 
-		var updates = await scope.CollectUpdatesAsync();
+		var (added, removed) = await EnrichAsync(client, [AnimeEntry(AddedAnimeId),], [AnimeEntry(RemovedAnimeId),]);
 
-		await Assert.That(client.CharacterDetailsCalls).IsEquivalentTo([CharacterId,]);
-		var embed = updates.Single().EmbedBuilder;
-		await Assert.That(embed.Title).IsEqualTo("Fav Character [Character]");
-		await Assert.That(embed.Fields.Select(static field => field.Name)).DoesNotContain("From");
-		await Assert.That(scope.Logger.Entries.Select(static entry => entry.EventId.Name)).Contains("FailedToEnrichFavourite");
+		await Assert.That(client.FavouritesInfoCalls).Count().IsEqualTo(1);
+		await Assert.That(client.FavouritesInfoCalls[0].AnimeIds).IsEquivalentTo([AddedAnimeId, RemovedAnimeId,]);
+		await Assert.That(added.Single().Media?.Name).IsEqualTo($"Canonical Anime {AddedAnimeId}");
+		await Assert.That(removed.Single().Media?.Name).IsEqualTo($"Canonical Anime {RemovedAnimeId}");
 	}
 
-	private static FavouriteEntry Entry(uint id, string name) => new() { Id = id, Name = name, };
+	[Test]
+	public async Task MoreIdsOfOneKindThanABatchHoldsReachTheClientWhole()
+	{
+		var entries = Enumerable.Range(1, MoreIdsThanOneBatchHolds).Select(static i => AnimeEntry((uint)i)).ToArray();
+		var client = new FakeShikiFavouriteClient();
+
+		await EnrichAsync(client, entries, []);
+
+		await Assert.That(client.FavouritesInfoCalls).Count().IsEqualTo(1);
+		await Assert.That(client.FavouritesInfoCalls[0].AnimeIds).IsEquivalentTo(entries.Select(static entry => entry.Id));
+	}
+
+	[Test]
+	public async Task ACharacterFavouriteCostsExactlyOneEnrichmentCall()
+	{
+		var client = new FakeShikiFavouriteClient
+		{
+			FavouritesInfo = new() { Characters = [Character(),], },
+			CharacterDetails = new() { Animes = [RelatedMedia(WorksWorkName, score: 9.1f), RelatedMedia("Lesser Work", score: 5),], },
+		};
+
+		var favourite = await EnrichOneAsync(client, CharacterEntry());
+
+		await Assert.That(client.EnrichmentCallCount).IsEqualTo(1);
+		await Assert.That(client.CharacterDetailsCalls).IsEquivalentTo([CharacterId,]);
+		await Assert.That(favourite.BestKnownWork?.Name).IsEqualTo(WorksWorkName);
+	}
+
+	[Test]
+	public async Task APersonFavouriteCostsExactlyOneEnrichmentCall()
+	{
+		var client = new FakeShikiFavouriteClient
+		{
+			FavouritesInfo = new() { People = [Person(isSeyu: false),], },
+			PersonDetails = PersonDetails(),
+		};
+
+		var favourite = await EnrichOneAsync(client, PersonEntry());
+
+		await Assert.That(client.EnrichmentCallCount).IsEqualTo(1);
+		await Assert.That(client.PersonDetailsCalls).IsEquivalentTo([PersonId,]);
+		await Assert.That(favourite.BestKnownWork?.Name).IsEqualTo(WorksWorkName);
+	}
+
+	[Test]
+	public async Task ASeyuTakesItsBestKnownWorkFromRolesRatherThanWorks()
+	{
+		var client = new FakeShikiFavouriteClient { FavouritesInfo = new() { People = [Person(isSeyu: true),], }, PersonDetails = PersonDetails(), };
+
+		var favourite = await EnrichOneAsync(client, PersonEntry());
+
+		await Assert.That(client.PersonDetailsCalls).IsEquivalentTo([PersonId,]);
+		await Assert.That(favourite.BestKnownWork?.Name).IsEqualTo(RolesWorkName);
+	}
+
+	[Test]
+	public async Task AThrownCharacterEnrichmentDropsOnlyTheBestKnownWorkAndWarns()
+	{
+		var client = new FakeShikiFavouriteClient
+		{
+			FavouritesInfo = new() { Characters = [Character(),], },
+			CharacterDetailsException = new HttpRequestException("boom"),
+		};
+		var logger = new RecordingLogger<ShikiUpdateProvider>();
+
+		var favourite = await EnrichOneAsync(client, CharacterEntry(), logger);
+
+		await Assert.That(favourite.Character?.Name).IsEqualTo("Fav Character");
+		await Assert.That(favourite.BestKnownWork).IsNull();
+		await AssertWarnedAsync(logger);
+	}
+
+	[Test]
+	public async Task AnEmptyCharacterEnrichmentDropsOnlyTheBestKnownWork()
+	{
+		var client = new FakeShikiFavouriteClient { FavouritesInfo = new() { Characters = [Character(),], }, CharacterDetails = new(), };
+		var logger = new RecordingLogger<ShikiUpdateProvider>();
+
+		var favourite = await EnrichOneAsync(client, CharacterEntry(), logger);
+
+		await Assert.That(favourite.Character?.Name).IsEqualTo("Fav Character");
+		await Assert.That(favourite.BestKnownWork).IsNull();
+		await Assert.That(logger.Entries).IsEmpty();
+	}
+
+	[Test]
+	public async Task AThrownPersonEnrichmentDropsOnlyTheBestKnownWorkAndWarns()
+	{
+		var client = new FakeShikiFavouriteClient
+		{
+			FavouritesInfo = new() { People = [Person(isSeyu: false),], },
+			PersonDetailsException = new HttpRequestException("boom"),
+		};
+		var logger = new RecordingLogger<ShikiUpdateProvider>();
+
+		var favourite = await EnrichOneAsync(client, PersonEntry(), logger);
+
+		await Assert.That(favourite.Person?.Name).IsEqualTo(PersonName);
+		await Assert.That(favourite.BestKnownWork).IsNull();
+		await AssertWarnedAsync(logger);
+	}
+
+	[Test]
+	public async Task AThrownSeyuEnrichmentDropsOnlyTheBestKnownWorkAndWarns()
+	{
+		var client = new FakeShikiFavouriteClient
+		{
+			FavouritesInfo = new() { People = [Person(isSeyu: true),], },
+			PersonDetailsException = new HttpRequestException("boom"),
+		};
+		var logger = new RecordingLogger<ShikiUpdateProvider>();
+
+		var favourite = await EnrichOneAsync(client, PersonEntry(), logger);
+
+		await Assert.That(favourite.Person?.IsSeyu).IsTrue();
+		await Assert.That(favourite.BestKnownWork).IsNull();
+		await AssertWarnedAsync(logger);
+	}
+
+	[Test]
+	public async Task AnEmptyPersonEnrichmentDropsOnlyTheBestKnownWork()
+	{
+		var client = new FakeShikiFavouriteClient { FavouritesInfo = new() { People = [Person(isSeyu: false),], }, PersonDetails = new(), };
+		var logger = new RecordingLogger<ShikiUpdateProvider>();
+
+		var favourite = await EnrichOneAsync(client, PersonEntry(), logger);
+
+		await Assert.That(favourite.Person?.Name).IsEqualTo(PersonName);
+		await Assert.That(favourite.BestKnownWork).IsNull();
+		await Assert.That(logger.Entries).IsEmpty();
+	}
+
+	[Test]
+	public async Task ASeyuWithoutRolesDropsOnlyTheBestKnownWork()
+	{
+		var client = new FakeShikiFavouriteClient
+		{
+			FavouritesInfo = new() { People = [Person(isSeyu: true),], },
+			PersonDetails = new() { Works = [new() { Anime = RelatedMedia(WorksWorkName, score: 8.5f), },], },
+		};
+		var logger = new RecordingLogger<ShikiUpdateProvider>();
+
+		var favourite = await EnrichOneAsync(client, PersonEntry(), logger);
+
+		await Assert.That(favourite.Person?.Name).IsEqualTo(PersonName);
+		await Assert.That(favourite.BestKnownWork).IsNull();
+		await Assert.That(logger.Entries).IsEmpty();
+	}
+
+	private static async Task AssertWarnedAsync(RecordingLogger<ShikiUpdateProvider> logger)
+	{
+		var entry = logger.Single();
+
+		await Assert.That(entry.Level).IsEqualTo(LogLevel.Warning);
+		await Assert.That(entry.EventId.Name).IsEqualTo("FailedToEnrichFavourite");
+	}
+
+	private static async Task<EnrichedFavourite> EnrichOneAsync(FakeShikiFavouriteClient client, FavouriteEntry entry,
+																RecordingLogger<ShikiUpdateProvider>? logger = null)
+	{
+		var (added, _) = await EnrichAsync(client, [entry,], [], logger);
+
+		return added.Single();
+	}
+
+	private static Task<(IReadOnlyList<EnrichedFavourite> AddedValues, IReadOnlyList<EnrichedFavourite> RemovedValues)> EnrichAsync(
+		FakeShikiFavouriteClient client, IReadOnlyList<FavouriteEntry> added, IReadOnlyList<FavouriteEntry> removed,
+		RecordingLogger<ShikiUpdateProvider>? logger = null) =>
+		ShikiFavouriteEnrichment.EnrichAsync(added, removed, ShikiUserFeatures.Default, client, logger ?? new(), CancellationToken.None);
+
+	private static FavouriteEntry AnimeEntry(uint id) => new()
+	{
+		Id = id,
+		Name = $"Stored Anime {id}",
+		GenericType = "animes",
+		SpecificType = "Anime",
+	};
+
+	private static FavouriteEntry CharacterEntry() => new()
+	{
+		Id = CharacterId,
+		Name = "Stored Character",
+		GenericType = "characters",
+		SpecificType = "Character",
+	};
+
+	private static FavouriteEntry PersonEntry() => new()
+	{
+		Id = PersonId,
+		Name = "Stored Person",
+		GenericType = "people",
+		SpecificType = "Person",
+	};
 
 	private static AnimeMedia AnimeMedia(uint id) => new()
 	{
@@ -82,81 +273,32 @@ public sealed class ShikiFavouriteEnrichmentTests
 		Url = $"https://shikimori.one/animes/{id}",
 	};
 
-	private sealed class ProviderScope : IAsyncDisposable
+	private static FavouriteCharacter Character() => new()
 	{
-		private readonly SqliteConnection _connection;
-		private readonly List<UpdateContents> _updates = [];
+		Id = CharacterId,
+		Name = "Fav Character",
+		Url = $"https://shikimori.one/characters/{CharacterId}",
+	};
 
-		public RecordingLogger<ShikiUpdateProvider> Logger { get; } = new();
-
-		private ShikiUpdateProvider Provider { get; }
-
-		private ProviderScope(SqliteConnection connection, FakeShikiClient client, IDbContextFactory<DatabaseContext> factory)
-		{
-			this._connection = connection;
-			this.Provider = new(this.Logger, new StaticOptionsMonitor<ShikiOptions>(new() { DelayBetweenChecksInMilliseconds = 1, }), client, factory,
-				new(new(), NullLogger<ShikiAchievementsService>.Instance));
-			this.Provider.UpdateFoundEvent += async (_, args) =>
-			{
-				await foreach (var update in args.Update.GetUpdateContentsAsync())
-				{
-					this._updates.Add(update);
-				}
-			};
-		}
-
-		public static async Task<ProviderScope> CreateAsync(FakeShikiClient client)
-		{
-			var connection = new SqliteConnection("Filename=:memory:");
-			await connection.OpenAsync();
-			var options = new DbContextOptionsBuilder<DatabaseContext>().UseSqlite(connection).Options;
-			var factory = new TestDbContextFactory(options);
-			await using (var db = factory.CreateDbContext())
-			{
-				await db.Database.EnsureCreatedAsync();
-				var guildUsers = new List<DiscordUser>();
-				var guild = new DiscordGuild { DiscordGuildId = 1, PostingChannelId = 1, Users = guildUsers, };
-				var discordUser = new DiscordUser { DiscordUserId = 1, BotUser = new(), Guilds = [guild,], };
-				guildUsers.Add(discordUser);
-				db.ShikiUsers.Add(new()
-				{
-					Id = 1,
-					DiscordUserId = 1,
-					DiscordUser = discordUser,
-					Features = ShikiUserFeatures.Default,
-					FavouritesIdHash = string.Empty,
-					Favourites = [],
-					Achievements = [],
-					Colors = [],
-				});
-				db.SaveChanges();
-			}
-
-			return new(connection, client, factory);
-		}
-
-		public async Task<IReadOnlyList<UpdateContents>> CollectUpdatesAsync()
-		{
-			await this.Provider.CheckForUpdatesOnceAsync(CancellationToken.None);
-
-			await Assert.That(this.Logger.Entries.Select(static entry => entry.EventId.Name)).DoesNotContain("ErrorWhileCheckingUpdatesForUser");
-
-			return this._updates;
-		}
-
-		public async ValueTask DisposeAsync()
-		{
-			this.Provider.Dispose();
-			await this._connection.DisposeAsync();
-		}
-	}
-
-	private sealed class StaticOptionsMonitor<T>(T value) : IOptionsMonitor<T>
+	private static FavouritePerson Person(bool isSeyu) => new()
 	{
-		public T CurrentValue => value;
+		Id = PersonId,
+		Name = PersonName,
+		IsSeyu = isSeyu,
+		Url = $"https://shikimori.one/people/{PersonId}",
+	};
 
-		public T Get(string? name) => value;
+	private static PersonDetails PersonDetails() => new()
+	{
+		Works = [new() { Anime = RelatedMedia(WorksWorkName, score: 8.5f), },],
+		Roles = [new() { Animes = [RelatedMedia(RolesWorkName, score: 9.3f),], },],
+	};
 
-		public IDisposable? OnChange(Action<T, string?> listener) => null;
-	}
+	private static RelatedMedia RelatedMedia(string name, float score) => new()
+	{
+		Id = 1,
+		Name = name,
+		Score = score,
+		Url = "https://shikimori.one/animes/1",
+	};
 }
