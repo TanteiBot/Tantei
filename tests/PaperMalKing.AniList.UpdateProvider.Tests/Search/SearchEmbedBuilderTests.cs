@@ -29,7 +29,7 @@ public sealed class SearchEmbedBuilderTests
 	private const string MonsterTitle = "Monster";
 
 	private const AniListUserFeatures RichFeatures =
-		AniListUserFeatures.MediaFormat | AniListUserFeatures.MediaStatus | AniListUserFeatures.Tags | AniListUserFeatures.MediaDescription;
+		AniListUserFeatures.MediaFormat | AniListUserFeatures.MediaStatus | AniListUserFeatures.Tags | AniListUserFeatures.Description;
 
 	[Test]
 	public async Task BannerDrivenEmbedKeepsTheChromeAndLeanFieldSet()
@@ -120,7 +120,7 @@ public sealed class SearchEmbedBuilderTests
 			Description = Description,
 			Tags = [Tag(ActionTag, PrimaryTagRank), Tag("Spoiler", SpoilerTagRank, isSpoiler: true)],
 		};
-		const AniListUserFeatures features = AniListUserFeatures.Tags | AniListUserFeatures.MediaDescription;
+		const AniListUserFeatures features = AniListUserFeatures.Tags | AniListUserFeatures.Description;
 
 		var full = new DiscordEmbedBuilder().EnrichWithMediaInfo(media, user: null, features);
 		var textOnly = new DiscordEmbedBuilder().EnrichWithTextInfo(media, features);

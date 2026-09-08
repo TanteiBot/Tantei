@@ -201,7 +201,7 @@ internal static partial class Extensions
 				eb.AddFieldIfPresent("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 			}
 
-			if (features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrWhiteSpace(media.Description))
+			if (features.HasFlag(AniListUserFeatures.Description) && !string.IsNullOrWhiteSpace(media.Description))
 			{
 				const int mediaDescriptionLimit = 350;
 				var mediaDescription = media.Description.StripHtml();

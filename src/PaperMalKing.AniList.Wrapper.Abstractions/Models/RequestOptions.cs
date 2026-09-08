@@ -11,7 +11,7 @@ public enum RequestOptions : ulong
 	Favourites = 1 << 2,
 	MediaFormat = 1 << 5,
 	MediaStatus = 1 << 6,
-	MediaDescription = 1 << 7,
+	Description = 1 << 7,
 	Genres = 1 << 8,
 	Tags = 1 << 9,
 	Studio = 1 << 10,
@@ -21,6 +21,6 @@ public enum RequestOptions : ulong
 	Director = 1 << 14,
 	Seyu = 1 << 15,
 
-	All = AnimeList | MangaList | Favourites | MediaFormat | MediaStatus | MediaDescription | Genres | Tags | Studio | Mangaka | Reviews |
+	All = AnimeList | MangaList | Favourites | MediaFormat | MediaStatus | Description | Genres | Tags | Studio | Mangaka | Reviews |
 		  CustomLists | Director | Seyu,
 }

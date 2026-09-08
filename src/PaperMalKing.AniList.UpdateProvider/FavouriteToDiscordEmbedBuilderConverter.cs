@@ -71,7 +71,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 		var eb = InitialFavouriteEmbedBuilder(staff, user, added, dbUser)
 			.WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [{staff.PrimaryOccupations.FirstOrDefault() ?? "Staff"}]");
 
-		if (dbUser.Features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrWhiteSpace(staff.Description))
+		if (dbUser.Features.HasFlag(AniListUserFeatures.Description) && !string.IsNullOrWhiteSpace(staff.Description))
 		{
 			const int mediaDescriptionLimit = 350;
 			var mediaDescription = staff.Description.StripHtml();

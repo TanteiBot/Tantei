@@ -35,7 +35,7 @@ public enum MalUserFeatures : ulong
 	[EnumDescription("genres", "Show genres of media in update")]
 	Genres = 1 << 7,
 
-	[EnumDescription("synopsis", "Show synopsis of media in update")]
+	[EnumDescription("synopsis", "Show descriptions of anime, manga, characters and people")]
 	Synopsis = 1 << 8,
 
 	[EnumDescription("studios", "Show studios that made anime in update")]

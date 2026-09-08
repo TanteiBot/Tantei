@@ -61,7 +61,7 @@ internal static class FavouritesInfoQueryBuilder
 				large
 			}
 			""");
-		if (options.HasFlag(RequestOptions.MediaDescription))
+		if (options.HasFlag(RequestOptions.Description))
 		{
 			sb.AppendLine("description(asHtml: false)");
 		}
