@@ -12,5 +12,7 @@ namespace PaperMalKing.MyAnimeList.Wrapper;
 [JsonSerializable(typeof(ListQueryResult<MangaListEntry, MangaListEntryNode, MangaListEntryStatus, MangaMediaType, MangaPublishingStatus, MangaListStatus>))]
 [JsonSerializable(typeof(SearchResponse<AnimeSearchResult>))]
 [JsonSerializable(typeof(SearchResponse<MangaSearchResult>))]
+[JsonSerializable(typeof(AnimeSearchResult))]
+[JsonSerializable(typeof(MangaSearchResult))]
 [JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Metadata, RespectNullableAnnotations = true, RespectRequiredConstructorParameters = true)]
 internal sealed partial class JsonContext : JsonSerializerContext;

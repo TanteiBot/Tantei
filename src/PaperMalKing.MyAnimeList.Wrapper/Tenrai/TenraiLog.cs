@@ -63,4 +63,13 @@ internal static partial class TenraiLog
 
 	[LoggerMessage(EventId = 11, Level = LogLevel.Warning, Message = "Tenrai shared Retry-After cooldown engaged for {RetryAfter}")]
 	public static partial void TenraiCooldownEngaged(this ILogger logger, TimeSpan retryAfter);
+
+	[LoggerMessage(EventId = 12, Level = LogLevel.Debug, Message = "Requesting {Id} character info")]
+	public static partial void RequestingCharacterInfo(this ILogger logger, long id);
+
+	[LoggerMessage(EventId = 13, Level = LogLevel.Debug, Message = "Requesting {Id} person info")]
+	public static partial void RequestingPersonInfo(this ILogger logger, long id);
+
+	[LoggerMessage(EventId = 14, Level = LogLevel.Debug, Message = "Requesting {Id} studio info")]
+	public static partial void RequestingStudioInfo(this ILogger logger, long id);
 }

@@ -12,4 +12,10 @@ public interface IMyAnimeListEnrichment
 	Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken);
 
 	Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken);
+
+	Task<EntityInfo> GetCharacterInfoAsync(long id, bool withDescription, CancellationToken cancellationToken);
+
+	Task<EntityInfo> GetPersonInfoAsync(long id, bool withDescription, CancellationToken cancellationToken);
+
+	Task<EntityInfo> GetStudioInfoAsync(long id, CancellationToken cancellationToken);
 }

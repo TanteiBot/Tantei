@@ -165,6 +165,18 @@ public sealed class MalUpdateProviderTests
 		public Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken) => throw new NotSupportedException();
 
 		public Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken) => throw new NotSupportedException();
+
+		public Task<AnimeSearchResult?> GetAnimeByIdAsync(uint id, CancellationToken cancellationToken) => throw new NotSupportedException();
+
+		public Task<MangaSearchResult?> GetMangaByIdAsync(uint id, CancellationToken cancellationToken) => throw new NotSupportedException();
+
+		public Task<EntityInfo> GetCharacterInfoAsync(long id, bool withDescription, CancellationToken cancellationToken) =>
+			throw new NotSupportedException();
+
+		public Task<EntityInfo> GetPersonInfoAsync(long id, bool withDescription, CancellationToken cancellationToken) =>
+			throw new NotSupportedException();
+
+		public Task<EntityInfo> GetStudioInfoAsync(long id, CancellationToken cancellationToken) => throw new NotSupportedException();
 	}
 
 	private sealed class StaticOptionsMonitor<T>(T value) : IOptionsMonitor<T>

@@ -357,7 +357,7 @@ internal static class MalMediaEmbeds
 			avatarUrl);
 	}
 
-	private static string? FormatMangaTotal(MangaSearchResult manga)
+	internal static string? FormatMangaTotal(MangaSearchResult manga)
 	{
 		var totals = new List<string>(2);
 		if (manga.Chapters != 0U)
@@ -433,6 +433,20 @@ internal static class MalMediaEmbeds
 		AddGenres(builder, result.Genres, features);
 
 		return builder;
+	}
+
+	internal static void AddSynopsis(DiscordEmbedBuilder eb, string? synopsis, MalUserFeatures features)
+	{
+		if (!features.HasFlag(MalUserFeatures.Synopsis) || string.IsNullOrWhiteSpace(synopsis))
+		{
+			return;
+		}
+
+		var text = synopsis.RemoveSourceTail().Trim().Truncate(SynopsisLimit);
+		if (!string.IsNullOrWhiteSpace(text))
+		{
+			AddAsFieldOrTruncateToDescription(eb, "Synopsis", text, inline: false);
+		}
 	}
 
 	internal static void AddGenres(DiscordEmbedBuilder eb, IReadOnlyList<Genre>? genres, MalUserFeatures features)

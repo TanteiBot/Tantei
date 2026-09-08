@@ -54,6 +54,17 @@ internal sealed class FakeMyAnimeListSearchClient : IMyAnimeListClient
 		where TNodeStatus : unmanaged, Enum
 		where TListStatus : unmanaged, Enum => throw new NotSupportedException();
 
+	public Task<AnimeSearchResult?> GetAnimeByIdAsync(uint id, CancellationToken cancellationToken) => throw new NotSupportedException();
+
+	public Task<MangaSearchResult?> GetMangaByIdAsync(uint id, CancellationToken cancellationToken) => throw new NotSupportedException();
+
+	public Task<EntityInfo> GetCharacterInfoAsync(long id, bool withDescription, CancellationToken cancellationToken) =>
+		Task.FromResult(EntityInfo.Empty);
+
+	public Task<EntityInfo> GetPersonInfoAsync(long id, bool withDescription, CancellationToken cancellationToken) => Task.FromResult(EntityInfo.Empty);
+
+	public Task<EntityInfo> GetStudioInfoAsync(long id, CancellationToken cancellationToken) => Task.FromResult(EntityInfo.Empty);
+
 	public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken) => Task.FromResult(MediaInfo.Empty);
 
 	public Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken) => Task.FromResult(MediaInfo.Empty);
