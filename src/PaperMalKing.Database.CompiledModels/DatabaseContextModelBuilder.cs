@@ -11,7 +11,7 @@ namespace PaperMalKing.Database.CompiledModels;
 public partial class DatabaseContextModel
 {
     private DatabaseContextModel()
-        : base(skipDetectChanges: false, modelId: new Guid("f25159df-d5e2-4bd2-836f-846a1e7e1afe"), entityTypeCount: 15)
+        : base(skipDetectChanges: false, modelId: new Guid("30e8f737-9027-4194-b2d4-2cd78831379e"), entityTypeCount: 16)
     {
     }
 
@@ -22,6 +22,7 @@ public partial class DatabaseContextModel
         var aniListUser = AniListUserEntityType.Create(this);
         var botUser = BotUserEntityType.Create(this);
         var discordGuild = DiscordGuildEntityType.Create(this);
+        var discordOAuthToken = DiscordOAuthTokenEntityType.Create(this);
         var discordUser = DiscordUserEntityType.Create(this);
         var baseMalFavorite = BaseMalFavoriteEntityType.Create(this);
         var malUser = MalUserEntityType.Create(this);
@@ -55,6 +56,7 @@ public partial class DatabaseContextModel
         AniListUserEntityType.CreateAnnotations(aniListUser);
         BotUserEntityType.CreateAnnotations(botUser);
         DiscordGuildEntityType.CreateAnnotations(discordGuild);
+        DiscordOAuthTokenEntityType.CreateAnnotations(discordOAuthToken);
         DiscordUserEntityType.CreateAnnotations(discordUser);
         BaseMalFavoriteEntityType.CreateAnnotations(baseMalFavorite);
         MalUserEntityType.CreateAnnotations(malUser);
@@ -66,6 +68,6 @@ public partial class DatabaseContextModel
         MalFavoriteMangaEntityType.CreateAnnotations(malFavoriteManga);
         MalFavoritePersonEntityType.CreateAnnotations(malFavoritePerson);
 
-        AddAnnotation("ProductVersion", "11.0.0-preview.5.26302.115");
+        AddAnnotation("ProductVersion", "11.0.0-preview.7.26381.103");
     }
 }

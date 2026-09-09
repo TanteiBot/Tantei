@@ -15,12 +15,12 @@ partial class DatabaseContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20260625173031_DotnetElevenP5";
+    public override string LastMigrationId => "20260909045933_Net11Rc1";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
 #pragma warning disable 612, 618
-        modelBuilder.HasAnnotation("ProductVersion", "11.0.0-preview.5.26302.115");
+        modelBuilder.HasAnnotation("ProductVersion", "11.0.0-preview.7.26381.103");
 
         modelBuilder.Entity("DiscordGuildDiscordUser", b =>
             {
@@ -131,6 +131,32 @@ partial class DatabaseContextModelSnapshot : ModelSnapshot
                 b.ToTable("DiscordGuilds");
             });
 
+        modelBuilder.Entity("PaperMalKing.Database.Models.DiscordOAuthToken", b =>
+            {
+                b.Property<ulong>("DiscordUserId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("AccessToken")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.Property<long>("ExpiresAt")
+                    .HasColumnType("INTEGER");
+
+                b.Property<long>("LastUsedAt")
+                    .HasColumnType("INTEGER");
+
+                b.Property<string>("RefreshToken")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
+
+                b.HasKey("DiscordUserId");
+
+                b.HasIndex("LastUsedAt");
+
+                b.ToTable("DiscordOAuthTokens");
+            });
+
         modelBuilder.Entity("PaperMalKing.Database.Models.DiscordUser", b =>
             {
                 b.Property<ulong>("DiscordUserId")
@@ -179,7 +205,7 @@ partial class DatabaseContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("UserId");
 
-                b.ToTable("MalFavorites", (string)null);
+                b.ToTable("MalFavorites");
 
                 b.HasDiscriminator<byte>("FavoriteType");
 

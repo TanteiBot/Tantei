@@ -2,7 +2,6 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Net;
-using System.Net.Http.Json;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
