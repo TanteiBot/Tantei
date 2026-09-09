@@ -85,6 +85,7 @@
             IDE0028; <!-- Collection initialization can be simplified -->
             IDE0051; <!-- TODO REMOVE, same as below. Name of rule: Remove unused private member -->
             IDE0052; <!-- TODO REMOVE, seems to have false positives as of .NET 10.0.4. Name of rule: Remove unread private member -->
+            IDE0055; <!-- TODO REMOVE seems to be false positive -->
             IDE0058; <!--Remove unnecessary expression value-->
             IDE0061; <!--Use expression body for local functions-->
             IDE0160; <!--Namespace declaration preferences-->
