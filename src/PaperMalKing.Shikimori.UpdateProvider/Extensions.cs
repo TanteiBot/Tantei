@@ -450,13 +450,14 @@ internal static partial class Extensions
 	public static bool PrefersRolesOverWorks(this FavouritePerson person) => person is { IsSeyu: true, IsMangaka: false };
 
 	public static RelatedMedia? BestKnownWork(this CharacterDetails details) =>
-		details.Animes.Concat(details.Mangas).Where(static x => !string.IsNullOrWhiteSpace(x.Url)).MaxBy(static x => x.Score.GetValueOrDefault());
+		(details.Animes ?? []).Concat(details.Mangas ?? []).Where(static x => !string.IsNullOrWhiteSpace(x.Url))
+							  .MaxBy(static x => x.Score.GetValueOrDefault());
 
 	public static RelatedMedia? BestKnownWork(this PersonDetails details, bool isSeyu) =>
 		isSeyu
-			? details.Roles.Select(static r => r.Media).OfType<RelatedMedia>().Where(static x => !string.IsNullOrWhiteSpace(x.Url))
+			? (details.Roles ?? []).Select(static r => r.Media).OfType<RelatedMedia>().Where(static x => !string.IsNullOrWhiteSpace(x.Url))
 					 .MaxBy(static x => x.Score.GetValueOrDefault())
-			: details.Works.Select(static w => w.Media).OfType<RelatedMedia>().FirstOrDefault(static x => !string.IsNullOrWhiteSpace(x.Url));
+			: (details.Works ?? []).Select(static w => w.Media).OfType<RelatedMedia>().FirstOrDefault(static x => !string.IsNullOrWhiteSpace(x.Url));
 
 	public static FavoriteIdType[] ToFavoriteIdType<T>(this T favorites)
 		where T : IReadOnlyCollection<FavouriteEntry>

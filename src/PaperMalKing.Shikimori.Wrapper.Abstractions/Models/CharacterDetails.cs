@@ -9,8 +9,8 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 public sealed class CharacterDetails
 {
 	[JsonPropertyName("animes")]
-	public IReadOnlyList<RelatedMedia> Animes { get; init; } = [];
+	public IReadOnlyList<RelatedMedia>? Animes { get; init; }
 
 	[JsonPropertyName("mangas")]
-	public IReadOnlyList<RelatedMedia> Mangas { get; init; } = [];
+	public IReadOnlyList<RelatedMedia>? Mangas { get; init; }
 }

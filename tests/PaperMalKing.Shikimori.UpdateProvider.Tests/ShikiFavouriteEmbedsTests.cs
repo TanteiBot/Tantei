@@ -30,6 +30,8 @@ public sealed class ShikiFavouriteEmbedsTests
 
 	private const string PersonTitle = "Fav Person";
 
+	private const string VoicedShow = "Voiced Show";
+
 	[Test]
 	public async Task ADefaultFlagsMediaFavouriteRendersTheWholeIdentityBlock()
 	{
@@ -96,11 +98,22 @@ public sealed class ShikiFavouriteEmbedsTests
 		var details = new PersonDetails
 		{
 			Works = [new() { Anime = RelatedMedia("Themesong Show", id: 2, score: 1f), },],
-			Roles = [new() { Animes = [RelatedMedia("Voiced Show", id: 3, score: 7f),], },],
+			Roles = [new() { Animes = [RelatedMedia(VoicedShow, id: 3, score: 7f),], },],
 		};
 
-		await Assert.That(details.BestKnownWork(isSeyu: true)?.Name).IsEqualTo("Voiced Show");
+		await Assert.That(details.BestKnownWork(isSeyu: true)?.Name).IsEqualTo(VoicedShow);
 		await Assert.That(details.BestKnownWork(isSeyu: false)?.Name).IsEqualTo("Themesong Show");
+	}
+
+	[Test]
+	public async Task BestKnownWorkToleratesNullCollectionsInTheDetailsPayload()
+	{
+		var person = new PersonDetails { Roles = [new() { Animes = [RelatedMedia(VoicedShow, id: 3, score: 7f),], Mangas = null, },], };
+		var character = new CharacterDetails { Animes = [RelatedMedia("Shown In", id: 4, score: 7f),], Mangas = null, };
+
+		await Assert.That(person.BestKnownWork(isSeyu: true)?.Name).IsEqualTo(VoicedShow);
+		await Assert.That(new PersonDetails().BestKnownWork(isSeyu: false)).IsNull();
+		await Assert.That(character.BestKnownWork()?.Name).IsEqualTo("Shown In");
 	}
 
 	[Test]

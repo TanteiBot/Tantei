@@ -77,6 +77,38 @@ public sealed class ShikiClientFavouritesTests
 		await Assert.That(info.Animes).IsEmpty();
 	}
 
+	[Test]
+	public async Task PersonDetailsTolerateNullCollectionsInThePayload()
+	{
+		const string payload =
+			"""
+			{"works":null,"roles":[{"animes":[{"id":1,"name":"Voiced Show","score":"7.0","url":"/animes/1"}],"mangas":null}]}
+			""";
+		using var restHandler = new FakeHttpMessageHandler(_ => JsonResponse(payload));
+		using var graphQlHandler = new FakeHttpMessageHandler(_ => throw new InvalidOperationException("No GraphQL request expected"));
+		using var scope = new ClientScope(graphQlHandler, restHandler);
+
+		var details = await scope.Client.GetPersonDetailsAsync(1, TestContext.Current!.Execution.CancellationToken);
+
+		await Assert.That(details!.Works).IsNull();
+		await Assert.That(details.Roles![0].Mangas).IsNull();
+		await Assert.That(details.Roles[0].Media?.Name).IsEqualTo("Voiced Show");
+	}
+
+	[Test]
+	public async Task CharacterDetailsTolerateNullCollectionsInThePayload()
+	{
+		const string payload = """{"animes":[{"id":1,"name":"Shown In","score":"7.0","url":"/animes/1"}],"mangas":null}""";
+		using var restHandler = new FakeHttpMessageHandler(_ => JsonResponse(payload));
+		using var graphQlHandler = new FakeHttpMessageHandler(_ => throw new InvalidOperationException("No GraphQL request expected"));
+		using var scope = new ClientScope(graphQlHandler, restHandler);
+
+		var details = await scope.Client.GetCharacterDetailsAsync(1, TestContext.Current!.Execution.CancellationToken);
+
+		await Assert.That(details!.Mangas).IsNull();
+		await Assert.That(details.Animes).Count().IsEqualTo(1);
+	}
+
 	private static uint[] Ids(int count, uint offset) => [.. Enumerable.Range(1, count).Select(i => offset + (uint)i)];
 
 	private static HttpResponseMessage JsonResponse(string json) => new(HttpStatusCode.OK)
@@ -91,10 +123,13 @@ public sealed class ShikiClientFavouritesTests
 		private readonly HttpClient _graphQlHttpClient;
 		private readonly GraphQLHttpClient _graphQlClient;
 
-		public ClientScope(HttpMessageHandler handler)
+		public ClientScope(HttpMessageHandler handler, HttpMessageHandler? restHandler = null)
 		{
 			this._restHandler = new(_ => throw new InvalidOperationException("The REST client should not be used"));
-			this._restClient = new(this._restHandler, disposeHandler: false);
+			this._restClient = new(restHandler ?? this._restHandler, disposeHandler: false)
+			{
+				BaseAddress = new(Abstractions.Constants.BaseUrl),
+			};
 			this._graphQlHttpClient = new(handler, disposeHandler: false);
 			var options = new GraphQLHttpClientOptions { EndPoint = new(Abstractions.Constants.GraphQlBaseUrl) };
 			this._graphQlClient = new(options, new SystemTextJsonSerializer(), this._graphQlHttpClient);

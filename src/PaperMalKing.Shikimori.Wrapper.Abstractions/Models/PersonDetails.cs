@@ -10,10 +10,10 @@ namespace PaperMalKing.Shikimori.Wrapper.Abstractions.Models;
 public sealed class PersonDetails
 {
 	[JsonPropertyName("works")]
-	public IReadOnlyList<PersonWork> Works { get; init; } = [];
+	public IReadOnlyList<PersonWork>? Works { get; init; }
 
 	[JsonPropertyName("roles")]
-	public IReadOnlyList<PersonRoleGroup> Roles { get; init; } = [];
+	public IReadOnlyList<PersonRoleGroup>? Roles { get; init; }
 }
 
 [SuppressMessage("Design", "MA0048:File name must match type name", Justification = "Parts of one payload")]
@@ -33,11 +33,11 @@ public sealed class PersonWork
 public sealed class PersonRoleGroup
 {
 	[JsonPropertyName("animes")]
-	public IReadOnlyList<RelatedMedia> Animes { get; init; } = [];
+	public IReadOnlyList<RelatedMedia>? Animes { get; init; }
 
 	[JsonPropertyName("mangas")]
-	public IReadOnlyList<RelatedMedia> Mangas { get; init; } = [];
+	public IReadOnlyList<RelatedMedia>? Mangas { get; init; }
 
 	[JsonIgnore]
-	public RelatedMedia? Media => this.Animes.Concat(this.Mangas).FirstOrDefault();
+	public RelatedMedia? Media => (this.Animes ?? []).Concat(this.Mangas ?? []).FirstOrDefault();
 }
