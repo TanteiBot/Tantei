@@ -101,14 +101,17 @@ internal static partial class Extensions
 			return builder.AddFieldIfPresent("Description", NormalizeDescription(description));
 		}
 
-		public DiscordEmbedBuilder AddBestKnownWork(string fieldName, RelatedMedia? work, ShikiUserFeatures features)
+		public DiscordEmbedBuilder AddBestKnownWork(string fieldName, RelatedMedia? work, RelatedCharacter? character, ShikiUserFeatures features)
 		{
 			if (work is null || string.IsNullOrWhiteSpace(work.Url))
 			{
 				return builder;
 			}
 
-			return builder.AddFieldIfPresent(fieldName, Formatter.MaskedUrl(work.GetNameOrAltName(features), new(work.Url)), inline: true);
+			var link = Formatter.MaskedUrl(work.GetNameOrAltName(features), new(work.Url));
+			var characterName = character?.GetNameOrAltName(features);
+			return builder.AddFieldIfPresent(fieldName, string.IsNullOrWhiteSpace(characterName) ? link : characterName + " from " + link,
+				inline: true);
 		}
 
 		public DiscordEmbedBuilder FillMediaFavourite(BaseMedia media, FavouriteEntry entry, ShikiUserFeatures features)
@@ -374,13 +377,13 @@ internal static partial class Extensions
 		else if (favourite.Character is { } character)
 		{
 			eb.WithUrl(character.Url ?? entry.Url).WithTitle($"{FavouriteName(character, entry, features)} [Character]")
-			  .AddDescription(character.Description, features).AddBestKnownWork("From", favourite.BestKnownWork, features)
+			  .AddDescription(character.Description, features).AddBestKnownWork("From", favourite.BestKnownWork, character: null, features)
 			  .WithThumbnailIfPresent(character.Poster?.BestImageUrl);
 		}
 		else if (favourite.Person is { } person)
 		{
 			eb.WithUrl(person.Url ?? entry.Url).WithTitle($"{FavouriteName(person, entry, features)} [{person.SubKind()}]")
-			  .AddBestKnownWork("Known for", favourite.BestKnownWork, features).WithThumbnailIfPresent(person.Poster?.BestImageUrl);
+			  .AddBestKnownWork("Known for", favourite.BestKnownWork, favourite.BestKnownWorkCharacter, features).WithThumbnailIfPresent(person.Poster?.BestImageUrl);
 		}
 		else
 		{
@@ -455,9 +458,15 @@ internal static partial class Extensions
 
 	public static RelatedMedia? BestKnownWork(this PersonDetails details, bool isSeyu) =>
 		isSeyu
-			? (details.Roles ?? []).Select(static r => r.Media).OfType<RelatedMedia>().Where(static x => !string.IsNullOrWhiteSpace(x.Url))
-					 .MaxBy(static x => x.Score.GetValueOrDefault())
+			? BestKnownRole(details)?.Media
 			: (details.Works ?? []).Select(static w => w.Media).OfType<RelatedMedia>().FirstOrDefault(static x => !string.IsNullOrWhiteSpace(x.Url));
+
+	public static RelatedCharacter? BestKnownWorkCharacter(this PersonDetails details, bool isSeyu) =>
+		isSeyu ? (BestKnownRole(details)?.Characters ?? []).FirstOrDefault(static c => !string.IsNullOrWhiteSpace(c.Name)) : null;
+
+	private static PersonRoleGroup? BestKnownRole(PersonDetails details) =>
+		(details.Roles ?? []).Where(static r => r.Media is { Url.Length: > 0 })
+							 .MaxBy(static r => r.Media!.Score.GetValueOrDefault());
 
 	public static FavoriteIdType[] ToFavoriteIdType<T>(this T favorites)
 		where T : IReadOnlyCollection<FavouriteEntry>

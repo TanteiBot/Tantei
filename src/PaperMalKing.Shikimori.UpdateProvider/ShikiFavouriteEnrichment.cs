@@ -80,7 +80,9 @@ internal static class ShikiFavouriteEnrichment
 			if (favourite.Person is { } person)
 			{
 				var details = await client.GetPersonDetailsAsync(favourite.FavouriteEntry.Id, cancellationToken);
-				favourite.BestKnownWork = details?.BestKnownWork(person.PrefersRolesOverWorks());
+				var prefersRoles = person.PrefersRolesOverWorks();
+				favourite.BestKnownWork = details?.BestKnownWork(prefersRoles);
+				favourite.BestKnownWorkCharacter = details?.BestKnownWorkCharacter(prefersRoles);
 			}
 		}
 		catch (Exception ex) when (ex is not OperationCanceledException)

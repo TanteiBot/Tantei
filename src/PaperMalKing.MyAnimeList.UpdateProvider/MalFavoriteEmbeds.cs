@@ -194,6 +194,7 @@ internal static class MalFavoriteEmbeds
 			return;
 		}
 
-		eb.AddField(fieldName, Formatter.MaskedUrl(work.Title, new(work.Url)), inline: true);
+		var link = Formatter.MaskedUrl(work.Title, new(work.Url));
+		eb.AddField(fieldName, string.IsNullOrWhiteSpace(work.CharacterName) ? link : work.CharacterName + " from " + link, inline: true);
 	}
 }

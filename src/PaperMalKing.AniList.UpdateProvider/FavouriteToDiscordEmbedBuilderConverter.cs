@@ -35,14 +35,19 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 		return eb;
 	}
 
-	private static DiscordEmbedBuilder AddShortMediaLink(this DiscordEmbedBuilder eb, string fieldName, Media? media, TitleLanguage language)
+	private static DiscordEmbedBuilder AddShortMediaLink(this DiscordEmbedBuilder eb, string fieldName, Media? media, TitleLanguage language) =>
+		eb.AddShortMediaLink(fieldName, media, characterName: null, language);
+
+	private static DiscordEmbedBuilder AddShortMediaLink(this DiscordEmbedBuilder eb, string fieldName, Media? media, string? characterName,
+														TitleLanguage language)
 	{
 		if (media is null)
 		{
 			return eb;
 		}
 
-		eb.AddField(fieldName, Formatter.MaskedUrl(media.Title.GetTitle(language), new(media.Url)), inline: true);
+		var link = Formatter.MaskedUrl(media.Title.GetTitle(language), new(media.Url));
+		eb.AddField(fieldName, string.IsNullOrWhiteSpace(characterName) ? link : characterName + " from " + link, inline: true);
 		return eb;
 	}
 
@@ -90,12 +95,14 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 	private static DiscordEmbedBuilder Convert(Staff staff, User user, bool added, AniListUser dbUser)
 	{
 		var isVoiceActor = staff.PrimaryOccupations.Contains(VoiceActorOccupation, StringComparer.OrdinalIgnoreCase);
-		var bestKnownWork = (isVoiceActor ? staff.CharacterMedia : staff.StaffMedia).Nodes.FirstOrDefault();
+		var voicedRole = isVoiceActor ? staff.CharacterMedia.Nodes.FirstOrDefault() : null;
+		var bestKnownWork = isVoiceActor ? voicedRole?.Node : staff.StaffMedia.Nodes.FirstOrDefault();
+		var characterName = voicedRole?.Characters?.FirstOrDefault()?.Name.GetName(user.Options.TitleLanguage);
 
 		return InitialFavouriteEmbedBuilder(staff, user, added, dbUser)
 			   .WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [{staff.PrimaryOccupations.FirstOrDefault() ?? "Staff"}]")
 			   .AddDescription(staff.Description, dbUser.Features)
-			   .AddShortMediaLink("Known for", bestKnownWork, user.Options.TitleLanguage);
+			   .AddShortMediaLink("Known for", bestKnownWork, characterName, user.Options.TitleLanguage);
 	}
 
 	private static DiscordEmbedBuilder Convert(Studio studio, User user, bool added, AniListUser dbUser)

@@ -22,6 +22,8 @@ public sealed class AniListFavouriteEmbedsTests
 
 	private const string PopularShow = "Popular Show";
 
+	private const string VoicedCharacter = "Spike Spiegel";
+
 	[Test]
 	public async Task ADefaultFlagsMediaFavouriteRendersTheIdentityBlock()
 	{
@@ -61,7 +63,7 @@ public sealed class AniListFavouriteEmbedsTests
 		var director = Build(Staff("Director"), AniListUserFeatures.Default);
 
 		await Assert.That(voiceActor.Title).IsEqualTo("Fav Staff [Voice Actor]");
-		await Assert.That(FieldValue(voiceActor, "Known for")).IsEqualTo("[Voiced Show](https://anilist.co/anime/2)");
+		await Assert.That(FieldValue(voiceActor, "Known for")).IsEqualTo($"{VoicedCharacter} from [Voiced Show](https://anilist.co/anime/2)");
 		await Assert.That(director.Title).IsEqualTo("Fav Staff [Director]");
 		await Assert.That(FieldValue(director, "Known for")).IsEqualTo("[Directed Show](https://anilist.co/anime/3)");
 	}
@@ -144,7 +146,10 @@ public sealed class AniListFavouriteEmbedsTests
 		Image = new() { ImageUrl = "https://anilist.co/staff.jpg", },
 		Description = "A staff bio.",
 		PrimaryOccupations = [occupation],
-		CharacterMedia = new() { Nodes = [Media("Voiced Show", id: 2)], },
+		CharacterMedia = new()
+		{
+			Nodes = [new() { Characters = [new() { Name = new() { Full = VoicedCharacter, Native = VoicedCharacter, }, },], Node = Media("Voiced Show", id: 2), },],
+		},
 		StaffMedia = new() { Nodes = [Media("Directed Show", id: 3)], },
 	};
 

@@ -1419,6 +1419,158 @@
         }
       }
     },
+    "/people/{id}/full": {
+      "get": {
+        "operationId": "getPeopleByIdFull",
+        "tags": [
+          "Tenrai"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response returning person full details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonFullResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid parameters or request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - the supplied X-Server-Key is invalid; restricted endpoints also require a Server Key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Nginx temporarily blocked the request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource Not Found - The requested record does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed - only GET, HEAD, and OPTIONS are accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate Limit Exceeded - wait for the duration in Retry-After before retrying",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$",
+                  "example": "1"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Something went wrong on our end",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway - the API gateway could not reach the upstream service",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - The API is temporarily offline or busy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying the request.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "1"
+                  ]
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout - the upstream service did not respond in time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenraiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/producers/{id}": {
       "get": {
         "operationId": "getProducersById",
@@ -1823,6 +1975,34 @@
           }
         }
       },
+      "CharacterReference": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "MangaReference": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "PersonVoiceEntry": {
         "type": "object",
         "additionalProperties": false,
@@ -1833,6 +2013,67 @@
           },
           "anime": {
             "$ref": "#/components/schemas/AnimeReference"
+          },
+          "character": {
+            "$ref": "#/components/schemas/CharacterReference"
+          }
+        }
+      },
+      "PersonStaffAnimeEntry": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "position": {
+            "type": "string",
+            "nullable": true
+          },
+          "anime": {
+            "$ref": "#/components/schemas/AnimeReference"
+          }
+        }
+      },
+      "PersonStaffMangaEntry": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "position": {
+            "type": "string",
+            "nullable": true
+          },
+          "manga": {
+            "$ref": "#/components/schemas/MangaReference"
+          }
+        }
+      },
+      "PersonFullDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "anime": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PersonStaffAnimeEntry"
+            }
+          },
+          "manga": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PersonStaffMangaEntry"
+            }
+          }
+        }
+      },
+      "PersonFullResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PersonFullDetails"
           }
         }
       },

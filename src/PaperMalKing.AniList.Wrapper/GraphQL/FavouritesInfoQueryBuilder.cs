@@ -62,9 +62,22 @@ internal static class FavouritesInfoQueryBuilder
 			"""
 			}
 			characterMedia(sort: POPULARITY_DESC, page: 1, perPage: 1){
+			values: edges {
+				characters {
+					name {
+						full
+						native
+					}
+				}
+				node {
 			""");
-		FillLesserMediaFields(sb);
-		sb.Append(
+		FillLesserMediaBody(sb);
+		sb.AppendLine(
+			"""
+			}
+			}
+			""")
+		  .Append(
 			"""
 			}
 			siteUrl
@@ -135,10 +148,16 @@ internal static class FavouritesInfoQueryBuilder
 
 	private static void FillLesserMediaFields(StringBuilder sb)
 	{
+		sb.AppendLine("values: nodes {");
+		FillLesserMediaBody(sb);
+		sb.Append('}');
+	}
+
+	private static void FillLesserMediaBody(StringBuilder sb)
+	{
 		sb.Append(
 			"""
-			values: nodes {
-				title {
+			title {
 					stylisedRomaji: romaji(stylised: true)
 					romaji(stylised: false)
 					stylisedEnglish: english(stylised: true)
@@ -148,7 +167,6 @@ internal static class FavouritesInfoQueryBuilder
 				}
 			siteUrl
 			format
-			}
 			""");
 	}
 }

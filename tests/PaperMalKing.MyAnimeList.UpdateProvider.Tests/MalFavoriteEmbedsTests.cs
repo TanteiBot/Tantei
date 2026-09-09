@@ -112,7 +112,10 @@ public sealed class MalFavoriteEmbedsTests
 	{
 		var client = new FakeMyAnimeListFavoriteClient
 		{
-			PersonInfoResult = new() { BestKnownWork = new() { Title = "Voiced Show", Url = "https://myanimelist.net/anime/2", }, },
+			PersonInfoResult = new()
+			{
+				BestKnownWork = new() { Title = "Voiced Show", Url = "https://myanimelist.net/anime/2", CharacterName = "Spike Spiegel", },
+			},
 			StudioInfoResult = new() { BestKnownWork = new() { Title = "Made Show", Url = "https://myanimelist.net/anime/3", }, },
 		};
 
@@ -120,7 +123,7 @@ public sealed class MalFavoriteEmbedsTests
 		var studio = await BuildSingleAsync(client, CompanyFavorite(), MalUserFeatures.Default);
 
 		await Assert.That(person.Title).IsEqualTo("Fav Person [Person]");
-		await Assert.That(FieldValue(person, "Known for")).IsEqualTo("[Voiced Show](https://myanimelist.net/anime/2)");
+		await Assert.That(FieldValue(person, "Known for")).IsEqualTo("Spike Spiegel from [Voiced Show](https://myanimelist.net/anime/2)");
 		await Assert.That(studio.Title).IsEqualTo("Fav Studio [Studio]");
 		await Assert.That(FieldValue(studio, "Known for")).IsEqualTo("[Made Show](https://myanimelist.net/anime/3)");
 	}

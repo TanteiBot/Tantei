@@ -32,6 +32,10 @@ public sealed class ShikiFavouriteEmbedsTests
 
 	private const string VoicedShow = "Voiced Show";
 
+	private const string VoicedCharacter = "Spike Spiegel";
+
+	private const uint VoicedCharacterId = 9;
+
 	[Test]
 	public async Task ADefaultFlagsMediaFavouriteRendersTheWholeIdentityBlock()
 	{
@@ -78,7 +82,7 @@ public sealed class ShikiFavouriteEmbedsTests
 		var embed = Build(PersonFavourite(), ShikiUserFeatures.Default | ShikiUserFeatures.Description);
 
 		await Assert.That(embed.Title).IsEqualTo($"{PersonTitle} [Seyu]");
-		await Assert.That(FieldValue(embed, "Known for")).IsEqualTo($"[{BestKnownWorkName}]({BestKnownWorkUrl})");
+		await Assert.That(FieldValue(embed, "Known for")).IsEqualTo($"{VoicedCharacter} from [{BestKnownWorkName}]({BestKnownWorkUrl})");
 		await Assert.That(FieldNames(embed)).DoesNotContain("Description");
 	}
 
@@ -114,6 +118,16 @@ public sealed class ShikiFavouriteEmbedsTests
 		await Assert.That(person.BestKnownWork(isSeyu: true)?.Name).IsEqualTo(VoicedShow);
 		await Assert.That(new PersonDetails().BestKnownWork(isSeyu: false)).IsNull();
 		await Assert.That(character.BestKnownWork()?.Name).IsEqualTo("Shown In");
+	}
+
+	[Test]
+	public async Task OnlyASeyuNamesTheVoicedCharacterAlongsideTheWork()
+	{
+		var seyu = Build(PersonFavourite(), ShikiUserFeatures.Default);
+		var mangaka = Build(PersonFavourite(isSeyu: false, isMangaka: true), ShikiUserFeatures.Default);
+
+		await Assert.That(FieldValue(seyu, "Known for")).StartsWith(VoicedCharacter + " from ");
+		await Assert.That(FieldValue(mangaka, "Known for")).IsEqualTo($"[{BestKnownWorkName}]({BestKnownWorkUrl})");
 	}
 
 	[Test]
@@ -206,6 +220,7 @@ public sealed class ShikiFavouriteEmbedsTests
 
 	private static EnrichedFavourite PersonFavourite(bool isSeyu = true, bool isMangaka = false, bool isProducer = false) => new()
 	{
+		BestKnownWorkCharacter = isSeyu ? new() { Id = VoicedCharacterId, Name = VoicedCharacter, } : null,
 		FavouriteEntry = new() { Id = PersonId, Name = "Stored Person", GenericType = "people", },
 		Person = new()
 		{

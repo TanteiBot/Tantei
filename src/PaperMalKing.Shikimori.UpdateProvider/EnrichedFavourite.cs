@@ -18,6 +18,8 @@ internal sealed class EnrichedFavourite
 
 	public RelatedMedia? BestKnownWork { get; set; }
 
+	public RelatedCharacter? BestKnownWorkCharacter { get; set; }
+
 	public ShikiFavouriteKind Kind => this.FavouriteEntry.GenericType switch
 	{
 		"animes" => ShikiFavouriteKind.Anime,

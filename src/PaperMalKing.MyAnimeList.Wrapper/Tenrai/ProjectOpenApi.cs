@@ -42,6 +42,7 @@ internal static class Program
 		new("/characters/{id}/anime", "getCharactersByIdAnime", "CharacterAnimeResponse", [IdPathParameter]),
 		new("/people/{id}", "getPeopleById", "PersonResponse", [IdPathParameter]),
 		new("/people/{id}/voices", "getPeopleByIdVoices", "PersonVoicesResponse", [IdPathParameter]),
+		new("/people/{id}/full", "getPeopleByIdFull", "PersonFullResponse", [IdPathParameter]),
 		new("/producers/{id}", "getProducersById", "ProducerResponse", [IdPathParameter]),
 	];
 
@@ -376,12 +377,69 @@ internal static class Program
 					"data": { "$ref": "#/components/schemas/PersonDetails" }
 				}
 			},
+			"CharacterReference": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"name": { "type": "string", "nullable": true },
+					"url": { "type": "string", "nullable": true }
+				}
+			},
+			"MangaReference": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"title": { "type": "string", "nullable": true },
+					"url": { "type": "string", "nullable": true }
+				}
+			},
 			"PersonVoiceEntry": {
 				"type": "object",
 				"additionalProperties": false,
 				"properties": {
 					"role": { "type": "string", "nullable": true },
+					"anime": { "$ref": "#/components/schemas/AnimeReference" },
+					"character": { "$ref": "#/components/schemas/CharacterReference" }
+				}
+			},
+			"PersonStaffAnimeEntry": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"position": { "type": "string", "nullable": true },
 					"anime": { "$ref": "#/components/schemas/AnimeReference" }
+				}
+			},
+			"PersonStaffMangaEntry": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"position": { "type": "string", "nullable": true },
+					"manga": { "$ref": "#/components/schemas/MangaReference" }
+				}
+			},
+			"PersonFullDetails": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"anime": {
+						"type": "array",
+						"nullable": true,
+						"items": { "$ref": "#/components/schemas/PersonStaffAnimeEntry" }
+					},
+					"manga": {
+						"type": "array",
+						"nullable": true,
+						"items": { "$ref": "#/components/schemas/PersonStaffMangaEntry" }
+					}
+				}
+			},
+			"PersonFullResponse": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": ["data"],
+				"properties": {
+					"data": { "$ref": "#/components/schemas/PersonFullDetails" }
 				}
 			},
 			"PersonVoicesResponse": {

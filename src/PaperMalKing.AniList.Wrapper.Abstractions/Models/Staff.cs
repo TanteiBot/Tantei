@@ -27,7 +27,7 @@ public sealed class Staff : IImageble, ISiteUrlable, IIdentifiable
 	public Connection<Media> StaffMedia { get; init; } = Connection<Media>.Empty;
 
 	[JsonPropertyName("characterMedia")]
-	public Connection<Media> CharacterMedia { get; init; } = Connection<Media>.Empty;
+	public Connection<CharacterMediaEdge> CharacterMedia { get; init; } = Connection<CharacterMediaEdge>.Empty;
 
 	[JsonPropertyName("primaryOccupations")]
 	public IReadOnlyList<string> PrimaryOccupations { get; init; } = [];

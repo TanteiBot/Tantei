@@ -38,6 +38,9 @@ public sealed class PersonRoleGroup
 	[JsonPropertyName("mangas")]
 	public IReadOnlyList<RelatedMedia>? Mangas { get; init; }
 
+	[JsonPropertyName("characters")]
+	public IReadOnlyList<RelatedCharacter>? Characters { get; init; }
+
 	[JsonIgnore]
 	public RelatedMedia? Media => (this.Animes ?? []).Concat(this.Mangas ?? []).FirstOrDefault();
 }

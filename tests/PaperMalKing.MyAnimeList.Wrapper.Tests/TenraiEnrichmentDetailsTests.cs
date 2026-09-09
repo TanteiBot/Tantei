@@ -124,6 +124,63 @@ public sealed class TenraiEnrichmentDetailsTests
 		await Assert.That(ReferenceEquals(actual, expected)).IsTrue();
 	}
 
+	[Test]
+	public async Task AVoiceActorsBestKnownWorkCarriesTheVoicedCharacter()
+	{
+		var paths = new List<string>();
+		using var handler = new FakeHttpMessageHandler((request, _) =>
+		{
+			paths.Add(request.RequestUri!.AbsolutePath);
+			return Task.FromResult(JsonResponse(
+				"{\"data\":[{\"role\":\"Main\",\"anime\":{\"title\":\"Cowboy Bebop\",\"url\":\"https://myanimelist.net/anime/1\"}," +
+				"\"character\":{\"name\":\"Spike Spiegel\",\"url\":\"https://myanimelist.net/character/1\"}}]}"));
+		});
+		using var scope = new ClientScope(handler);
+
+		var result = await scope.Client.GetPersonInfoAsync(1L, withDescription: false, TestContext.Current!.Execution.CancellationToken);
+
+		await Assert.That(result.BestKnownWork!.Title).IsEqualTo("Cowboy Bebop");
+		await Assert.That(result.BestKnownWork.CharacterName).IsEqualTo("Spike Spiegel");
+		await Assert.That(paths).IsEquivalentTo(["/v1/people/1/voices",]);
+	}
+
+	[Test]
+	public async Task ANonVoiceActorFallsBackToTheFullStaffCredits()
+	{
+		var paths = new List<string>();
+		using var handler = new FakeHttpMessageHandler((request, _) =>
+		{
+			var path = request.RequestUri!.AbsolutePath;
+			paths.Add(path);
+			return Task.FromResult(JsonResponse(path.EndsWith("/voices", StringComparison.Ordinal)
+				? "{\"data\":[]}"
+				: "{\"data\":{\"anime\":[{\"position\":\"Director\",\"anime\":{\"title\":\"Directed Show\"," +
+				  "\"url\":\"https://myanimelist.net/anime/2\"}}]}}"));
+		});
+		using var scope = new ClientScope(handler);
+
+		var result = await scope.Client.GetPersonInfoAsync(1L, withDescription: false, TestContext.Current!.Execution.CancellationToken);
+
+		await Assert.That(result.BestKnownWork!.Title).IsEqualTo("Directed Show");
+		await Assert.That(result.BestKnownWork.CharacterName).IsNull();
+		await Assert.That(paths).IsEquivalentTo(["/v1/people/1/voices", "/v1/people/1/full",]);
+	}
+
+	[Test]
+	public async Task AMangakaFallsBackToTheirMangaStaffCredits()
+	{
+		using var handler = new FakeHttpMessageHandler((request, _) => Task.FromResult(JsonResponse(
+			request.RequestUri!.AbsolutePath.EndsWith("/voices", StringComparison.Ordinal)
+				? "{\"data\":[]}"
+				: "{\"data\":{\"anime\":[],\"manga\":[{\"position\":\"Story & Art\",\"manga\":{\"title\":\"Berserk\"," +
+				  "\"url\":\"https://myanimelist.net/manga/2\"}}]}}")));
+		using var scope = new ClientScope(handler);
+
+		var result = await scope.Client.GetPersonInfoAsync(1L, withDescription: false, TestContext.Current!.Execution.CancellationToken);
+
+		await Assert.That(result.BestKnownWork!.Title).IsEqualTo("Berserk");
+	}
+
 	private static FakeHttpMessageHandler RespondWith(string json) => new((_, _) => Task.FromResult(JsonResponse(json)));
 
 	private static HttpResponseMessage JsonResponse(string json) => new(HttpStatusCode.OK)
