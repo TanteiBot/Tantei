@@ -4,7 +4,6 @@
 using System.Net;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using PaperMalKing.Database;
 using PaperMalKing.Database.Models;
 using PaperMalKing.Database.Models.MyAnimeList;
@@ -165,14 +164,17 @@ public sealed class MalUpdateProviderTests
 		public Task<MediaInfo> GetMangaDetailsAsync(long id, CancellationToken cancellationToken) => throw new NotSupportedException();
 
 		public Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken) => throw new NotSupportedException();
-	}
 
-	private sealed class StaticOptionsMonitor<T>(T value) : IOptionsMonitor<T>
-	{
-		public T CurrentValue => value;
+		public Task<AnimeSearchResult?> GetAnimeByIdAsync(uint id, CancellationToken cancellationToken) => throw new NotSupportedException();
 
-		public T Get(string? name) => value;
+		public Task<MangaSearchResult?> GetMangaByIdAsync(uint id, CancellationToken cancellationToken) => throw new NotSupportedException();
 
-		public IDisposable? OnChange(Action<T, string?> listener) => null;
+		public Task<EntityInfo> GetCharacterInfoAsync(long id, bool withDescription, CancellationToken cancellationToken) =>
+			throw new NotSupportedException();
+
+		public Task<EntityInfo> GetPersonInfoAsync(long id, bool withDescription, CancellationToken cancellationToken) =>
+			throw new NotSupportedException();
+
+		public Task<EntityInfo> GetStudioInfoAsync(long id, CancellationToken cancellationToken) => throw new NotSupportedException();
 	}
 }

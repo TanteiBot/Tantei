@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using DSharpPlus.Entities;
 using PaperMalKing.Common;
 using PaperMalKing.Common.Exceptions;
 using PaperMalKing.Database.Models.MyAnimeList;
@@ -154,33 +153,6 @@ internal static class Extensions
 		User = user,
 		UserId = user.UserId,
 	};
-
-	public static DiscordEmbedBuilder ToDiscordEmbedBuilder(this BaseMalFavorite favorite, bool added, MalUser dbUser)
-	{
-		var eb = new DiscordEmbedBuilder
-		{
-			Url = favorite.NameUrl,
-		}.WithThumbnail(favorite.ImageUrl).WithDescription($"{(added ? "Added" : "Removed")} favorite");
-
-		var color = dbUser.Colors.Find(added
-			? static c => c.UpdateType == (byte)MalUpdateType.FavoriteAdded
-			: static c => c.UpdateType == (byte)MalUpdateType.FavoriteRemoved)?.ColorValue ?? (added ? Constants.MalGreen : Constants.MalRed);
-
-		eb.WithColor(color);
-
-		var title = favorite is BaseMalListFavorite baseListFavorite
-			? $"{baseListFavorite.Name} ({baseListFavorite.Type}) [{baseListFavorite.StartYear}]"
-			: favorite.Name;
-
-		eb.WithTitle(title);
-
-		if (favorite is MalFavoriteCharacter favoriteCharacter)
-		{
-			eb.AddFieldIfPresent("From", favoriteCharacter.FromTitleName, inline: true);
-		}
-
-		return eb;
-	}
 
 	public static Span<FavoriteIdType> GetFavoriteIdTypesFromFavorites(this UserFavorites favorites)
 	{

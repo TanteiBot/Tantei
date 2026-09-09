@@ -27,6 +27,8 @@ internal static partial class Extensions
 
 	private const int NotesLimit = 1023;
 
+	internal const int DescriptionLimit = 350;
+
 	[GeneratedRegex(@"(^\s+$[\r\n])|(\n{2,})", RegexOptions.Compiled | RegexOptions.Multiline, matchTimeoutMilliseconds: 1000/*1s*/)]
 	internal static partial Regex EmptyLinesRemovalRegex { get; }
 
@@ -58,6 +60,12 @@ internal static partial class Extensions
 		Text = ProviderConstants.Name,
 		IconUrl = ProviderConstants.IconUrl,
 	};
+
+	internal static string NormalizeDescription(string description)
+	{
+		var text = description.StripHtml().RemoveSourceTail();
+		return EmptyLinesRemovalRegex.Replace(text, string.Empty);
+	}
 
 	extension(IAniListClient client)
 	{
@@ -201,13 +209,9 @@ internal static partial class Extensions
 				eb.AddFieldIfPresent("Tags", fieldVal, fieldVal.Length <= InlineFieldValueMaxLength);
 			}
 
-			if (features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrWhiteSpace(media.Description))
+			if (features.HasFlag(AniListUserFeatures.Description) && !string.IsNullOrWhiteSpace(media.Description))
 			{
-				const int mediaDescriptionLimit = 350;
-				var mediaDescription = media.Description.StripHtml();
-				mediaDescription = mediaDescription.RemoveSourceTail();
-				mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
-				mediaDescription = Formatter.Strip(mediaDescription).Trim().Truncate(mediaDescriptionLimit);
+				var mediaDescription = Formatter.Strip(NormalizeDescription(media.Description)).Trim().Truncate(DescriptionLimit);
 
 				eb.AddFieldIfPresent("Description", mediaDescription, mediaDescription.Length <= InlineFieldValueMaxLength);
 			}

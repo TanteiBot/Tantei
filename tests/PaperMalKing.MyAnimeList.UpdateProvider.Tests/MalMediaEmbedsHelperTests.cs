@@ -8,6 +8,7 @@ using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.AnimeList;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.List.Official.MangaList;
+using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models.Search;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider.Tests;
 
@@ -19,7 +20,13 @@ public sealed class MalMediaEmbedsHelperTests
 	private const string GenresField = "Genres";
 	private const string ThemesField = "Themes";
 	private const string DemographicField = "Demographic";
+	private const string StatusField = "Status";
+	private const string ScoreField = "Community score";
+	private const string TotalField = "Total";
 	private const int SevenItemCap = 7;
+	private const string LargeUrl = "https://cdn.myanimelist.net/anime/large.jpg";
+	private const string MediumUrl = "https://cdn.myanimelist.net/anime/medium.jpg";
+	private const string FallbackUrl = "https://cdn.myanimelist.net/anime/stored.jpg";
 
 	[Test]
 	public async Task AddStudiosSkipsFieldWhenFeatureDisabled()
@@ -292,6 +299,221 @@ public sealed class MalMediaEmbedsHelperTests
 		var field = SingleField(embed, DemographicField);
 		await Assert.That(field.Value).IsEqualTo("Demographic 1, Demographic 2, Demographic 3");
 	}
+
+	[Test]
+	public async Task AddStatusSkipsFieldWhenFeatureDisabled()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddStatus(embed, Anime(status: AnimeAiringStatus.FinishedAiring), MalUserFeatures.None);
+
+		await Assert.That(embed.Fields).IsEmpty();
+	}
+
+	[Test]
+	public async Task AddStatusSkipsFieldWhenResultIsNull()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddStatus(embed, result: null, MalUserFeatures.MediaStatus);
+
+		await Assert.That(embed.Fields).IsEmpty();
+	}
+
+	[Test]
+	public async Task AddStatusSkipsFieldWhenStatusIsUnknown()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddStatus(embed, Anime(status: AnimeAiringStatus.Unknown), MalUserFeatures.MediaStatus);
+		MalMediaEmbeds.AddStatus(embed, Manga(status: MangaPublishingStatus.Unknown), MalUserFeatures.MediaStatus);
+
+		await Assert.That(embed.Fields).IsEmpty();
+	}
+
+	[Test]
+	public async Task AddStatusHumanizesAnimeAndMangaStatus()
+	{
+		var animeEmbed = new DiscordEmbedBuilder();
+		var mangaEmbed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddStatus(animeEmbed, Anime(status: AnimeAiringStatus.CurrentlyAiring), MalUserFeatures.MediaStatus);
+		MalMediaEmbeds.AddStatus(mangaEmbed, Manga(status: MangaPublishingStatus.CurrentlyPublishing), MalUserFeatures.MediaStatus);
+
+		await Assert.That(SingleField(animeEmbed, StatusField).Value).IsEqualTo("Currently airing");
+		await Assert.That(SingleField(mangaEmbed, StatusField).Value).IsEqualTo("Currently publishing");
+	}
+
+	[Test]
+	public async Task AddScoreSkipsFieldWhenMeanIsMissing()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddScore(embed, Anime(mean: null));
+		MalMediaEmbeds.AddScore(embed, result: null);
+
+		await Assert.That(embed.Fields).IsEmpty();
+	}
+
+	[Test]
+	public async Task AddScoreRendersAtMostTwoDecimals()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddScore(embed, Anime(mean: 8.5));
+
+		await Assert.That(SingleField(embed, ScoreField).Value).IsEqualTo("8.5");
+	}
+
+	[Test]
+	public async Task AddTotalRendersEpisodesForAnime()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddTotal(embed, Anime(episodes: 24U));
+
+		await Assert.That(SingleField(embed, TotalField).Value).IsEqualTo("24 ep.");
+	}
+
+	[Test]
+	public async Task AddTotalRendersChaptersAndVolumesForManga()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddTotal(embed, Manga(chapters: 120U, volumes: 12U));
+
+		await Assert.That(SingleField(embed, TotalField).Value).IsEqualTo("120 ch, 12 v.");
+	}
+
+	[Test]
+	public async Task AddTotalSkipsFieldWhenThereIsNothingToCount()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddTotal(embed, Anime(episodes: 0U));
+		MalMediaEmbeds.AddTotal(embed, Manga(chapters: 0U, volumes: 0U));
+		MalMediaEmbeds.AddTotal(embed, result: null);
+
+		await Assert.That(embed.Fields).IsEmpty();
+	}
+
+	[Test]
+	public async Task AddThumbnailPrefersTheLargePicture()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddThumbnail(embed, Picture(LargeUrl, MediumUrl), FallbackUrl);
+
+		await Assert.That(embed.Thumbnail?.Url).IsEqualTo(LargeUrl);
+	}
+
+	[Test]
+	public async Task AddThumbnailFallsBackToTheMediumPosterWhenTheLargeUrlExceedsTheLimit()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddThumbnail(embed, Picture(MalEmbedTestLimits.OverLongUrl(), MediumUrl), FallbackUrl);
+
+		await Assert.That(embed.Thumbnail?.Url).IsEqualTo(MediumUrl);
+	}
+
+	[Test]
+	public async Task AddThumbnailFallsBackToTheStoredImageWhenBothPosterUrlsExceedTheLimit()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddThumbnail(embed, Picture(MalEmbedTestLimits.OverLongUrl(), MalEmbedTestLimits.OverLongUrl()), FallbackUrl);
+
+		await Assert.That(embed.Thumbnail?.Url).IsEqualTo(FallbackUrl);
+	}
+
+	[Test]
+	public async Task AddThumbnailRendersNoThumbnailWhenEveryCandidateExceedsTheLimit()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddThumbnail(embed, Picture(MalEmbedTestLimits.OverLongUrl(), MalEmbedTestLimits.OverLongUrl()), MalEmbedTestLimits.OverLongUrl());
+
+		await Assert.That(embed.Thumbnail).IsNull();
+	}
+
+	[Test]
+	public async Task AddThumbnailRendersNoThumbnailWhenThereIsNoCandidate()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddThumbnail(embed, picture: null);
+
+		await Assert.That(embed.Thumbnail).IsNull();
+	}
+
+	[Test]
+	public async Task AddDescriptionSkipsFieldWhenFeatureDisabled()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddDescription(embed, MalEmbedTestLimits.DescriptionField, "A bio.", MalUserFeatures.None);
+
+		await Assert.That(embed.Fields).IsEmpty();
+	}
+
+	[Test]
+	public async Task AddDescriptionStripsTheSourceTail()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddDescription(embed, MalEmbedTestLimits.DescriptionField, "A bio. (Source: Wikipedia)", MalUserFeatures.Synopsis);
+
+		await Assert.That(SingleField(embed, MalEmbedTestLimits.DescriptionField).Value).IsEqualTo("A bio.");
+	}
+
+	[Test]
+	public async Task AddDescriptionTruncatesRatherThanDroppingAnOverLongDescription()
+	{
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddDescription(embed, MalEmbedTestLimits.DescriptionField, new string('a', 4000), MalUserFeatures.Synopsis);
+
+		var field = SingleField(embed, MalEmbedTestLimits.DescriptionField);
+		await Assert.That(field.Value.Length).IsLessThanOrEqualTo(MalEmbedTestLimits.DescriptionTextLimit);
+		await Assert.That(field.Inline).IsFalse();
+	}
+
+	[Test]
+	public async Task AnOverLongFieldValueSpillsIntoTheEmbedDescription()
+	{
+		var genres = Enumerable.Repeat(Genre(new string('g', 200)), 7).ToArray();
+		var embed = new DiscordEmbedBuilder();
+
+		MalMediaEmbeds.AddGenres(embed, genres, MalUserFeatures.Genres);
+
+		await Assert.That(embed.Fields).IsEmpty();
+		await Assert.That(embed.Description).StartsWith(GenresField);
+	}
+
+	private static Picture Picture(string? large, string medium) => new() { Large = large, Medium = medium };
+
+	private static AnimeSearchResult Anime(AnimeAiringStatus status = AnimeAiringStatus.Unknown, uint episodes = 0U, double? mean = null) => new()
+	{
+		Id = 1U,
+		PrimaryTitle = "Anime",
+		MediaType = AnimeMediaType.TV,
+		Status = status,
+		Episodes = episodes,
+		Mean = mean,
+		ListUserCount = 0U,
+	};
+
+	private static MangaSearchResult Manga(MangaPublishingStatus status = MangaPublishingStatus.Unknown, uint chapters = 0U, uint volumes = 0U) => new()
+	{
+		Id = 1U,
+		PrimaryTitle = "Manga",
+		MediaType = MangaMediaType.Manga,
+		Status = status,
+		Chapters = chapters,
+		Volumes = volumes,
+		ListUserCount = 0U,
+	};
 
 	private static string Named(string prefix, int number) =>
 		string.Create(CultureInfo.InvariantCulture, $"{prefix} {number}");

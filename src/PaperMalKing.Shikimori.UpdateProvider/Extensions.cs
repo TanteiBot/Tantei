@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
@@ -26,6 +26,8 @@ internal static partial class Extensions
 {
 	[GeneratedRegex(@"\[.+?\]", RegexOptions.Compiled | RegexOptions.NonBacktracking, matchTimeoutMilliseconds: 1000 /*1s*/)]
 	private static partial Regex BracketsRegex { get; }
+
+	private const int DescriptionLimit = 350;
 
 	private static readonly DiscordEmbedBuilder.EmbedFooter ShikiUpdateProviderFooter = new()
 	{
@@ -79,6 +81,52 @@ internal static partial class Extensions
 			return builder.WithTitle(titleSb.ToString());
 		}
 
+		public DiscordEmbedBuilder WithThumbnailIfPresent(string? url)
+		{
+			if (!string.IsNullOrWhiteSpace(url) && string.IsNullOrWhiteSpace(builder.Thumbnail?.Url))
+			{
+				builder.WithThumbnail(url);
+			}
+
+			return builder;
+		}
+
+		public DiscordEmbedBuilder AddDescription(string? description, ShikiUserFeatures features)
+		{
+			if (!features.HasFlag(ShikiUserFeatures.Description) || string.IsNullOrWhiteSpace(description))
+			{
+				return builder;
+			}
+
+			return builder.AddFieldIfPresent("Description", NormalizeDescription(description));
+		}
+
+		public DiscordEmbedBuilder AddBestKnownWork(string fieldName, RelatedMedia? work, RelatedCharacter? character, ShikiUserFeatures features)
+		{
+			if (work is null || string.IsNullOrWhiteSpace(work.Url))
+			{
+				return builder;
+			}
+
+			var link = Formatter.MaskedUrl(work.GetNameOrAltName(features), new(work.Url));
+			var characterName = character?.GetNameOrAltName(features);
+			return builder.AddFieldIfPresent(fieldName, string.IsNullOrWhiteSpace(characterName) ? link : characterName + " from " + link,
+				inline: true);
+		}
+
+		public DiscordEmbedBuilder FillMediaFavourite(BaseMedia media, FavouriteEntry entry, ShikiUserFeatures features)
+		{
+			builder.WithUrl(media.Url ?? entry.Url).WithShikiMediaTitle(FavouriteName(media, entry, features), media.Kind, media.Status, features);
+			builder.AddFieldIfPresent("Total", TotalOf(media), inline: true);
+			if (media.Score is > 0f)
+			{
+				builder.AddField("Community score", media.Score.Value.ToString("0.##", CultureInfo.InvariantCulture), inline: true);
+			}
+
+			builder.FillMediaInfo(media, features, media is AnimeMedia ? ListEntryType.Anime : ListEntryType.Manga);
+			return builder;
+		}
+
 		public void FillMediaInfo(BaseMedia? media, ShikiUserFeatures features, ListEntryType type)
 		{
 			if (media is null)
@@ -128,11 +176,7 @@ internal static partial class Extensions
 				}
 			}
 
-			if (features.HasFlag(ShikiUserFeatures.Description) && !string.IsNullOrWhiteSpace(media.Description))
-			{
-				var text = BracketsRegex.Replace(media.Description, "").Truncate(350);
-				builder.AddFieldIfPresent("Description", text);
-			}
+			builder.AddDescription(media.Description, features);
 
 			if (features.HasFlag(ShikiUserFeatures.Genres))
 			{
@@ -316,35 +360,37 @@ internal static partial class Extensions
 		return eb;
 	}
 
-	public static DiscordEmbedBuilder ToDiscordEmbed(this FavouriteMediaRoles favouriteEntry, UserInfo user, bool added, ShikiUser dbUser)
+	public static DiscordEmbedBuilder ToDiscordEmbed(this EnrichedFavourite favourite, UserInfo user, bool added, ShikiUser dbUser)
 	{
 		var features = dbUser.Features;
 		var color = dbUser.Colors.Find(added
 			? static c => c.UpdateType == (byte)ShikiUpdateType.FavoriteAdded
 			: static c => c.UpdateType == (byte)ShikiUpdateType.FavoriteRemoved)?.ColorValue ?? (added ? Constants.ShikiGreen : Constants.ShikiRed);
 
-		var favouriteName = favouriteEntry.FavouriteEntry.GetNameOrAltName(features);
-		var eb = new DiscordEmbedBuilder
-		{
-			Url = favouriteEntry.FavouriteEntry.Url,
-			Title = $"{favouriteName} [{(favouriteEntry.FavouriteEntry.SpecificType ?? favouriteEntry.FavouriteEntry.GenericType)?.ToFirstCharUpperCase()}]",
-		}.WithDescription($"{(added ? "Added" : "Removed")} favourite")
-		 .WithShikiAuthor(user)
-		 .WithColor(color);
+		var entry = favourite.FavouriteEntry;
+		var eb = new DiscordEmbedBuilder().WithDescription($"{(added ? "Added" : "Removed")} favourite").WithShikiAuthor(user).WithColor(color);
 
-		if (!string.IsNullOrWhiteSpace(favouriteEntry.FavouriteEntry.ImageUrl))
+		if (favourite.Media is { } media)
 		{
-			eb.WithThumbnail(favouriteEntry.FavouriteEntry.ImageUrl);
+			eb.FillMediaFavourite(media, entry, features);
+		}
+		else if (favourite.Character is { } character)
+		{
+			eb.WithUrl(character.Url ?? entry.Url).WithTitle($"{FavouriteName(character, entry, features)} [Character]")
+			  .AddDescription(character.Description, features).AddBestKnownWork("From", favourite.BestKnownWork, character: null, features)
+			  .WithThumbnailIfPresent(character.Poster?.BestImageUrl);
+		}
+		else if (favourite.Person is { } person)
+		{
+			eb.WithUrl(person.Url ?? entry.Url).WithTitle($"{FavouriteName(person, entry, features)} [{person.SubKind()}]")
+			  .AddBestKnownWork("Known for", favourite.BestKnownWork, favourite.BestKnownWorkCharacter, features).WithThumbnailIfPresent(person.Poster?.BestImageUrl);
+		}
+		else
+		{
+			eb.WithUrl(entry.Url).WithTitle($"{entry.GetNameOrAltName(features)} [{(entry.SpecificType ?? entry.GenericType)?.ToFirstCharUpperCase()}]");
 		}
 
-		var isAnime = favouriteEntry.FavouriteEntry.GenericType!.Contains("anime", StringComparison.OrdinalIgnoreCase);
-		var isManga = favouriteEntry.FavouriteEntry.GenericType.Contains("manga", StringComparison.OrdinalIgnoreCase);
-		if ((isAnime || isManga) && favouriteEntry.Media is not null)
-		{
-			eb.FillMediaInfo(favouriteEntry.Media, features, isAnime ? ListEntryType.Anime : ListEntryType.Manga);
-		}
-
-		return eb;
+		return eb.WithThumbnailIfPresent(entry.ImageUrl);
 	}
 
 	public static DiscordEmbedBuilder ToDiscordEmbed(this ShikiAchievement achievement, UserInfo user, ShikiUserFeatures features)
@@ -364,6 +410,63 @@ internal static partial class Extensions
 
 		return eb;
 	}
+
+	private static string NormalizeDescription(string description) => BracketsRegex.Replace(description, "").Truncate(DescriptionLimit);
+
+	private static string FavouriteName(IMultiLanguageName enriched, FavouriteEntry entry, ShikiUserFeatures features)
+	{
+		var name = enriched.GetNameOrAltName(features);
+		return string.IsNullOrWhiteSpace(name) ? entry.GetNameOrAltName(features) : name;
+	}
+
+	private static string? TotalOf(BaseMedia media)
+	{
+		if (media is MangaMedia manga)
+		{
+			var chapters = manga.Chapters.GetValueOrDefault();
+			var volumes = manga.Volumes.GetValueOrDefault();
+			if (chapters > 0)
+			{
+				return $"{chapters} ch. {volumes} v.";
+			}
+
+			return volumes > 0 ? $"{volumes} v." : null;
+		}
+
+		if (media is not AnimeMedia anime)
+		{
+			return null;
+		}
+
+		var episodes = anime.Episodes is > 0 ? anime.Episodes.GetValueOrDefault() : anime.EpisodesAired.GetValueOrDefault();
+		return episodes == 0 ? null : $"{episodes} ep.";
+	}
+
+	public static string SubKind(this FavouritePerson person) => person switch
+	{
+		{ IsMangaka: true } => "Mangaka",
+		{ IsProducer: true } => "Producer",
+		{ IsSeyu: true } => "Seyu",
+		_ => "Person",
+	};
+
+	public static bool PrefersRolesOverWorks(this FavouritePerson person) => person is { IsSeyu: true, IsMangaka: false };
+
+	public static RelatedMedia? BestKnownWork(this CharacterDetails details) =>
+		(details.Animes ?? []).Concat(details.Mangas ?? []).Where(static x => !string.IsNullOrWhiteSpace(x.Url))
+							  .MaxBy(static x => x.Score.GetValueOrDefault());
+
+	public static RelatedMedia? BestKnownWork(this PersonDetails details, bool isSeyu) =>
+		isSeyu
+			? BestKnownRole(details)?.Media
+			: (details.Works ?? []).Select(static w => w.Media).OfType<RelatedMedia>().FirstOrDefault(static x => !string.IsNullOrWhiteSpace(x.Url));
+
+	public static RelatedCharacter? BestKnownWorkCharacter(this PersonDetails details, bool isSeyu) =>
+		isSeyu ? (BestKnownRole(details)?.Characters ?? []).FirstOrDefault(static c => !string.IsNullOrWhiteSpace(c.Name)) : null;
+
+	private static PersonRoleGroup? BestKnownRole(PersonDetails details) =>
+		(details.Roles ?? []).Where(static r => r.Media is { Url.Length: > 0 })
+							 .MaxBy(static r => r.Media!.Score.GetValueOrDefault());
 
 	public static FavoriteIdType[] ToFavoriteIdType<T>(this T favorites)
 		where T : IReadOnlyCollection<FavouriteEntry>

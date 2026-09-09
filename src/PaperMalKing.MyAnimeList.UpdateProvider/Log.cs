@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using Microsoft.Extensions.Logging;
+using PaperMalKing.Database.Models.MyAnimeList;
 using PaperMalKing.UpdatesProviders.Base.UpdateProvider;
 
 namespace PaperMalKing.MyAnimeList.UpdateProvider;
@@ -14,6 +15,10 @@ internal static partial class Log
 	[LoggerMessage(LogLevel.Trace, "Found {AddedCount} new favorites, {RemovedCount} removed favorites of type {Type} of {Username}")]
 	public static partial void FoundNewFavoritesRemovedFavorites(this ILogger<BaseUpdateProvider> logger, int addedCount, int removedCount, Type type,
 																 string username);
+
+	[LoggerMessage(LogLevel.Warning, "Failed to enrich {FavoriteType} favorite with id {FavoriteId}")]
+	public static partial void FailedToEnrichFavorite(this ILogger<BaseUpdateProvider> logger, Exception exception, MalFavoriteType favoriteType,
+													  uint favoriteId);
 
 	[LoggerMessage(LogLevel.Trace, "Checking favorites updates of {Username}")]
 	public static partial void CheckingFavoritesUpdates(this ILogger<BaseUpdateProvider> logger, string username);

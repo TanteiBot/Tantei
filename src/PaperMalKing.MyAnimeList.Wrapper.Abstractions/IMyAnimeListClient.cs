@@ -29,4 +29,8 @@ public interface IMyAnimeListClient : IMyAnimeListEnrichment
 	Task<IReadOnlyList<AnimeSearchResult>> SearchAnimeAsync(string query, bool includeNsfw, CancellationToken cancellationToken);
 
 	Task<IReadOnlyList<MangaSearchResult>> SearchMangaAsync(string query, bool includeNsfw, CancellationToken cancellationToken);
+
+	Task<AnimeSearchResult?> GetAnimeByIdAsync(uint id, CancellationToken cancellationToken);
+
+	Task<MangaSearchResult?> GetMangaByIdAsync(uint id, CancellationToken cancellationToken);
 }

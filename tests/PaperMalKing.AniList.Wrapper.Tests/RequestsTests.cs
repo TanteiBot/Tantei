@@ -15,7 +15,7 @@ public sealed class RequestsTests
 	[Arguments(RequestOptions.Favourites, "favourites {")]
 	[Arguments(RequestOptions.Reviews, "ReviewsPage: Page(")]
 	[Arguments(RequestOptions.CustomLists, "customLists(asArray: true)")]
-	[Arguments(RequestOptions.MediaDescription, "description(asHtml: false)")]
+	[Arguments(RequestOptions.Description, "description(asHtml: false)")]
 	[Arguments(RequestOptions.MediaStatus, "status(version: 2)")]
 	[Arguments(RequestOptions.Studio, "studios(sort: FAVOURITES_DESC")]
 	[Arguments(RequestOptions.Director, "staff(sort: [RELEVANCE, ID]")]
@@ -137,9 +137,9 @@ public sealed class RequestsTests
 	}
 
 	[Test]
-	public async Task FavouritesInfoQueryEmitsDescriptionOnlyWithMediaDescriptionFlag()
+	public async Task FavouritesInfoQueryEmitsDescriptionOnlyWithDescriptionFlag()
 	{
-		var withDescription = FavouritesInfoQueryBuilder.Build(RequestOptions.MediaDescription);
+		var withDescription = FavouritesInfoQueryBuilder.Build(RequestOptions.Description);
 		var withoutDescription = FavouritesInfoQueryBuilder.Build(default);
 
 		await Assert.That(withDescription).Contains("description(asHtml: false)");

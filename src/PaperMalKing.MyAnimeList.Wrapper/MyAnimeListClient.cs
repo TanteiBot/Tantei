@@ -2,6 +2,7 @@
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization.Metadata;
@@ -132,6 +133,24 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 		return response?.Results.Select(static envelope => envelope.Result).ToArray() ?? [];
 	}
 
+	public Task<AnimeSearchResult?> GetAnimeByIdAsync(uint id, CancellationToken cancellationToken) =>
+		this.GetByIdAsync("anime", id, AnimeSearchFields, JsonContext.Default.AnimeSearchResult, cancellationToken);
+
+	public Task<MangaSearchResult?> GetMangaByIdAsync(uint id, CancellationToken cancellationToken) =>
+		this.GetByIdAsync("manga", id, MangaSearchFields, JsonContext.Default.MangaSearchResult, cancellationToken);
+
+	private Task<TResult?> GetByIdAsync<TResult>(
+		string mediaPath,
+		uint id,
+		string fields,
+		JsonTypeInfo<TResult> jsonTypeInfo,
+		CancellationToken cancellationToken)
+		where TResult : BaseSearchResult
+	{
+		var url = $"{Constants.BaseOfficialApiUrl}/{mediaPath}/{id.ToString(CultureInfo.InvariantCulture)}?fields={fields}";
+		return this._officialApiHttpClient.GetFromJsonAsync(url, jsonTypeInfo, cancellationToken);
+	}
+
 	public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken) =>
 		this._enrichment.GetAnimeDetailsAsync(id, cancellationToken);
 
@@ -140,4 +159,13 @@ public sealed class MyAnimeListClient : IMyAnimeListClient
 
 	public Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken) =>
 		this._enrichment.GetAnimeSeiyuAsync(id, cancellationToken);
+
+	public Task<EntityInfo> GetCharacterInfoAsync(long id, bool withDescription, CancellationToken cancellationToken) =>
+		this._enrichment.GetCharacterInfoAsync(id, withDescription, cancellationToken);
+
+	public Task<EntityInfo> GetPersonInfoAsync(long id, bool withDescription, CancellationToken cancellationToken) =>
+		this._enrichment.GetPersonInfoAsync(id, withDescription, cancellationToken);
+
+	public Task<EntityInfo> GetStudioInfoAsync(long id, CancellationToken cancellationToken) =>
+		this._enrichment.GetStudioInfoAsync(id, cancellationToken);
 }

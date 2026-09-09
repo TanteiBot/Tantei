@@ -53,7 +53,7 @@ internal static class Helpers
 	internal static StringBuilder AppendMediaFields(StringBuilder sb, RequestOptions options)
 	{
 		sb.AppendLine(Media);
-		if (options.HasFlag(RequestOptions.MediaDescription))
+		if (options.HasFlag(RequestOptions.Description))
 		{
 			sb.AppendLine("description(asHtml: false)");
 		}

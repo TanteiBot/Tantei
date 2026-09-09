@@ -8,7 +8,7 @@ using PaperMalKing.Shikimori.Wrapper.Abstractions.Models.Media;
 
 namespace PaperMalKing.Shikimori.Wrapper.Abstractions;
 
-public interface IShikiClient
+public interface IShikiClient : IShikiFavouriteClient
 {
 	Task<UserInfo> GetUserByNicknameAsync(string nickname, CancellationToken cancellationToken);
 

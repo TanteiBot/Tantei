@@ -14,12 +14,36 @@ internal static class Program
 {
 	private const string RetryAfterHeader = "Retry-After";
 	private const string SchemaProperty = "schema";
+	private const string QueryLocation = "query";
+	private const string PathLocation = "path";
+	private const string StringType = "string";
+	private const string IntegerType = "integer";
+	private const string RequiredProperty = "required";
+
+	private static readonly ParameterContract IdPathParameter = new("id", PathLocation, Required: true, IntegerType, "int32", AllowedValues: null);
 
 	private static readonly OperationContract[] Operations =
 	[
-		new("/anime/{id}", "getAnimeById", "MediaResponse"),
-		new("/manga/{id}", "getMangaById", "MediaResponse"),
-		new("/anime/{id}/characters", "getAnimeByIdCharacters", "CharactersResponse"),
+		new("/anime/{id}", "getAnimeById", "MediaResponse", [IdPathParameter]),
+		new("/manga/{id}", "getMangaById", "MediaResponse", [IdPathParameter]),
+		new("/anime/{id}/characters", "getAnimeByIdCharacters", "CharactersResponse", [IdPathParameter]),
+		new("/anime", "getAnime", "AnimeSearchResponse",
+		[
+			new("producers", QueryLocation, Required: false, StringType, Format: null, AllowedValues: null),
+			new("order_by", QueryLocation, Required: false, StringType, Format: null,
+			[
+				"mal_id", "title", "start_date", "end_date", "episodes", "score", "scored_by", "rank", "popularity", "members", "favorites",
+			]),
+			new("sort", QueryLocation, Required: false, StringType, Format: null, ["asc", "desc"]),
+			new("limit", QueryLocation, Required: false, IntegerType, "int32", AllowedValues: null),
+		]),
+		new("/characters/{id}", "getCharactersById", "CharacterResponse", [IdPathParameter]),
+		new("/characters/{id}/full", "getCharactersByIdFull", "CharacterFullResponse", [IdPathParameter]),
+		new("/characters/{id}/anime", "getCharactersByIdAnime", "CharacterAnimeResponse", [IdPathParameter]),
+		new("/people/{id}", "getPeopleById", "PersonResponse", [IdPathParameter]),
+		new("/people/{id}/voices", "getPeopleByIdVoices", "PersonVoicesResponse", [IdPathParameter]),
+		new("/people/{id}/full", "getPeopleByIdFull", "PersonFullResponse", [IdPathParameter]),
+		new("/producers/{id}", "getProducersById", "ProducerResponse", [IdPathParameter]),
 	];
 
 	private static readonly string[] ErrorStatuses = ["400", "401", "403", "404", "405", "429", "500", "502", "503", "504"];
@@ -82,6 +106,8 @@ internal static class Program
 			throw new InvalidDataException($"Expected operationId '{contract.OperationId}' exactly once, but found {occurrences.ToString(CultureInfo.InvariantCulture)} occurrences.");
 		}
 
+		ValidateParameters(operation, contract);
+
 		var responses = operation["responses"]?.AsObject() ?? throw new InvalidDataException($"Missing responses for GET {contract.Path}.");
 		var expectedStatuses = ErrorStatuses.Append("200").ToHashSet(StringComparer.Ordinal);
 		var actualStatuses = responses.Select(static response => response.Key).ToHashSet(StringComparer.Ordinal);
@@ -100,6 +126,62 @@ internal static class Program
 			_ = response["content"]?["application/json"]?[SchemaProperty]?.AsObject()
 				?? throw new InvalidDataException($"Missing application/json schema for GET {contract.Path} status {status}.");
 			ValidateResponseHeaders(contract.Path, status, response);
+		}
+	}
+
+	private static void ValidateParameters(JsonObject operation, OperationContract contract)
+	{
+		var parameters = operation["parameters"]?.AsArray() ?? throw new InvalidDataException($"Missing parameters for GET {contract.Path}.");
+		foreach (var parameter in contract.Parameters)
+		{
+			var matches = parameters
+				.Where(candidate =>
+					string.Equals(candidate?["name"]?.GetValue<string>(), parameter.Name, StringComparison.Ordinal)
+					&& string.Equals(candidate?["in"]?.GetValue<string>(), parameter.Location, StringComparison.Ordinal))
+				.ToArray();
+			if (matches.Length != 1)
+			{
+				throw new InvalidDataException(
+					$"Expected {parameter.Location} parameter '{parameter.Name}' exactly once for GET {contract.Path}, but found {matches.Length.ToString(CultureInfo.InvariantCulture)} occurrences.");
+			}
+
+			ValidateParameterShape(contract, parameter, matches[0]!.AsObject());
+		}
+	}
+
+	private static void ValidateParameterShape(OperationContract contract, ParameterContract parameter, JsonObject source)
+	{
+		var required = source[RequiredProperty]?.GetValue<bool>() ?? false;
+		if (required != parameter.Required)
+		{
+			throw new InvalidDataException(
+				$"Unexpected required flag for {parameter.Location} parameter '{parameter.Name}' of GET {contract.Path}.");
+		}
+
+		var schema = source[SchemaProperty]?.AsObject()
+			?? throw new InvalidDataException($"Missing schema for {parameter.Location} parameter '{parameter.Name}' of GET {contract.Path}.");
+		var type = schema["type"]?.GetValue<string>();
+		if (!string.Equals(type, parameter.Type, StringComparison.Ordinal))
+		{
+			throw new InvalidDataException(
+				$"Expected type '{parameter.Type}' for {parameter.Location} parameter '{parameter.Name}' of GET {contract.Path}, but found '{type ?? "<missing>"}'.");
+		}
+
+		if (parameter.AllowedValues is null)
+		{
+			return;
+		}
+
+		var actualValues = (schema["enum"]?.AsArray() ?? throw new InvalidDataException(
+				$"Missing enum for {parameter.Location} parameter '{parameter.Name}' of GET {contract.Path}."))
+			.Select(static value => value?.GetValue<string>() ?? string.Empty)
+			.ToHashSet(StringComparer.Ordinal);
+		if (!actualValues.SetEquals(parameter.AllowedValues))
+		{
+			var expected = string.Join(", ", parameter.AllowedValues.Order(StringComparer.Ordinal));
+			var actual = string.Join(", ", actualValues.Order(StringComparer.Ordinal));
+			throw new InvalidDataException(
+				$"Unexpected enum for {parameter.Location} parameter '{parameter.Name}' of GET {contract.Path}. Expected {expected}; found {actual}.");
 		}
 	}
 
@@ -192,6 +274,213 @@ internal static class Program
 					}
 				}
 			},
+			"ImageUrls": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"image_url": { "type": "string", "nullable": true }
+				}
+			},
+			"ImageSet": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"jpg": { "$ref": "#/components/schemas/ImageUrls" }
+				}
+			},
+			"AnimeReference": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"title": { "type": "string", "nullable": true },
+					"url": { "type": "string", "nullable": true },
+					"images": { "$ref": "#/components/schemas/ImageSet" }
+				}
+			},
+			"AnimeSearchResponse": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": ["data"],
+				"properties": {
+					"data": {
+						"type": "array",
+						"items": { "$ref": "#/components/schemas/AnimeReference" }
+					}
+				}
+			},
+			"CharacterDetails": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"about": { "type": "string", "nullable": true }
+				}
+			},
+			"CharacterResponse": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": ["data"],
+				"properties": {
+					"data": { "$ref": "#/components/schemas/CharacterDetails" }
+				}
+			},
+			"CharacterAnimeEntry": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"role": { "type": "string", "nullable": true },
+					"anime": { "$ref": "#/components/schemas/AnimeReference" }
+				}
+			},
+			"CharacterFullDetails": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"about": { "type": "string", "nullable": true },
+					"anime": {
+						"type": "array",
+						"nullable": true,
+						"items": { "$ref": "#/components/schemas/CharacterAnimeEntry" }
+					}
+				}
+			},
+			"CharacterFullResponse": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": ["data"],
+				"properties": {
+					"data": { "$ref": "#/components/schemas/CharacterFullDetails" }
+				}
+			},
+			"CharacterAnimeResponse": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": ["data"],
+				"properties": {
+					"data": {
+						"type": "array",
+						"items": { "$ref": "#/components/schemas/CharacterAnimeEntry" }
+					}
+				}
+			},
+			"PersonDetails": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"about": { "type": "string", "nullable": true }
+				}
+			},
+			"PersonResponse": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": ["data"],
+				"properties": {
+					"data": { "$ref": "#/components/schemas/PersonDetails" }
+				}
+			},
+			"CharacterReference": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"name": { "type": "string", "nullable": true },
+					"url": { "type": "string", "nullable": true }
+				}
+			},
+			"MangaReference": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"title": { "type": "string", "nullable": true },
+					"url": { "type": "string", "nullable": true }
+				}
+			},
+			"PersonVoiceEntry": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"role": { "type": "string", "nullable": true },
+					"anime": { "$ref": "#/components/schemas/AnimeReference" },
+					"character": { "$ref": "#/components/schemas/CharacterReference" }
+				}
+			},
+			"PersonStaffAnimeEntry": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"position": { "type": "string", "nullable": true },
+					"anime": { "$ref": "#/components/schemas/AnimeReference" }
+				}
+			},
+			"PersonStaffMangaEntry": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"position": { "type": "string", "nullable": true },
+					"manga": { "$ref": "#/components/schemas/MangaReference" }
+				}
+			},
+			"PersonFullDetails": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"anime": {
+						"type": "array",
+						"nullable": true,
+						"items": { "$ref": "#/components/schemas/PersonStaffAnimeEntry" }
+					},
+					"manga": {
+						"type": "array",
+						"nullable": true,
+						"items": { "$ref": "#/components/schemas/PersonStaffMangaEntry" }
+					}
+				}
+			},
+			"PersonFullResponse": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": ["data"],
+				"properties": {
+					"data": { "$ref": "#/components/schemas/PersonFullDetails" }
+				}
+			},
+			"PersonVoicesResponse": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": ["data"],
+				"properties": {
+					"data": {
+						"type": "array",
+						"items": { "$ref": "#/components/schemas/PersonVoiceEntry" }
+					}
+				}
+			},
+			"ProducerTitle": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"type": { "type": "string", "nullable": true },
+					"title": { "type": "string", "nullable": true }
+				}
+			},
+			"ProducerDetails": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"url": { "type": "string", "nullable": true },
+					"titles": {
+						"type": "array",
+						"nullable": true,
+						"items": { "$ref": "#/components/schemas/ProducerTitle" }
+					}
+				}
+			},
+			"ProducerResponse": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": ["data"],
+				"properties": {
+					"data": { "$ref": "#/components/schemas/ProducerDetails" }
+				}
+			},
 			"TenraiError": {
 				"type": "object",
 				"additionalProperties": false,
@@ -229,18 +518,7 @@ internal static class Program
 				{
 					["operationId"] = contract.OperationId,
 					["tags"] = new JsonArray(JsonValue.Create("Tenrai")),
-					["parameters"] = new JsonArray(
-						new JsonObject
-						{
-							["name"] = "id",
-							["in"] = "path",
-							["required"] = true,
-							[SchemaProperty] = new JsonObject
-							{
-								["type"] = "integer",
-								["format"] = "int32",
-							},
-						}),
+					["parameters"] = new JsonArray([.. contract.Parameters.Select(CreateParameter)]),
 					["responses"] = responses,
 				},
 			};
@@ -321,5 +599,29 @@ internal static class Program
 		}
 	}
 
-	private sealed record OperationContract(string Path, string OperationId, string SuccessSchema);
+	private static JsonObject CreateParameter(ParameterContract parameter)
+	{
+		var schema = new JsonObject { ["type"] = parameter.Type };
+		if (parameter.Format is not null)
+		{
+			schema["format"] = parameter.Format;
+		}
+
+		if (parameter.AllowedValues is not null)
+		{
+			schema["enum"] = new JsonArray([.. parameter.AllowedValues.Select(static value => JsonValue.Create(value))]);
+		}
+
+		return new JsonObject
+		{
+			["name"] = parameter.Name,
+			["in"] = parameter.Location,
+			[RequiredProperty] = parameter.Required,
+			[SchemaProperty] = schema,
+		};
+	}
+
+	private sealed record OperationContract(string Path, string OperationId, string SuccessSchema, ParameterContract[] Parameters);
+
+	private sealed record ParameterContract(string Name, string Location, bool Required, string Type, string? Format, string[]? AllowedValues);
 }

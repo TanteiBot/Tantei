@@ -10,5 +10,11 @@ public class MangaMedia : BaseMedia
 	[JsonPropertyName("publishers")]
 	public IReadOnlyList<Publisher> Publishers { get; init; } = [];
 
+	[JsonPropertyName("chapters")]
+	public uint? Chapters { get; init; }
+
+	[JsonPropertyName("volumes")]
+	public uint? Volumes { get; init; }
+
 	protected override string Type => "mangas";
 }

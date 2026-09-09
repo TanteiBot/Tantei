@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
 using System.Diagnostics.CodeAnalysis;
@@ -32,9 +32,11 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 
 	public override event AsyncEventHandler<UpdateFoundEventArgs>? UpdateFoundEvent;
 
+	protected override Task CheckForUpdatesAsync(CancellationToken cancellationToken) => this.CheckForUpdatesOnceAsync(cancellationToken);
+
 	[SuppressMessage("Roslynator", "RCS1261:Resource can be disposed asynchronously", Justification = "Sqlite does not support async")]
 	[SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Used for logging only")]
-	protected override async Task CheckForUpdatesAsync(CancellationToken cancellationToken)
+	internal async Task CheckForUpdatesOnceAsync(CancellationToken cancellationToken)
 	{
 		if (this.UpdateFoundEvent is null)
 		{
@@ -204,42 +206,9 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 		return groupedHistoryEntriesWithMediaAndRoles;
 	}
 
-	private async Task<(IReadOnlyList<FavouriteMediaRoles> AddedValues, IReadOnlyList<FavouriteMediaRoles> RemovedValues)>
+	private async Task<(IReadOnlyList<EnrichedFavourite> AddedValues, IReadOnlyList<EnrichedFavourite> RemovedValues)>
 		GetFavouritesUpdateAsync(Favourites favs, ShikiUser dbUser, DatabaseContext db, CancellationToken cancellationToken)
 	{
-		[SuppressMessage("Minor Code Smell", "S8969:Null-forgiving operators should not be redundant", Justification = "False positive")]
-		async Task FillMediaAndRolesAsync(FavouriteMediaRoles favouriteMediaRoles)
-		{
-			var (isManga, isAnime) = favouriteMediaRoles switch
-			{
-				_ when favouriteMediaRoles.FavouriteEntry.GenericType!.Contains("manga", StringComparison.OrdinalIgnoreCase) => (true, false),
-				_ when favouriteMediaRoles.FavouriteEntry.GenericType!.Contains("anime", StringComparison.OrdinalIgnoreCase) => (false, true),
-				_ => (false, false),
-			};
-
-			var requestOptions = (RequestOptions)dbUser.Features;
-
-			if (dbUser.Features.HasAnyFlag(ShikiUserFeatures.Description, ShikiUserFeatures.Genres) ||
-				(isAnime && dbUser.Features.HasAnyFlag(ShikiUserFeatures.Studio, ShikiUserFeatures.Director))
-				|| (isManga && dbUser.Features.HasAnyFlag(ShikiUserFeatures.Publisher, ShikiUserFeatures.Mangaka)))
-			{
-				favouriteMediaRoles.Media = (isManga, isAnime) switch
-				{
-					(true, _) => await _client.GetMediaAsync<MangaMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Manga, requestOptions, cancellationToken),
-					(_, true) => await _client.GetMediaAsync<AnimeMedia>(favouriteMediaRoles.FavouriteEntry.Id, ListEntryType.Anime, requestOptions, cancellationToken),
-					_ => null,
-				};
-			}
-		}
-
-		Func<FavouriteEntry, FavouriteMediaRoles> FavouriteToFavouriteMediaRolesSelector()
-		{
-			return x => new()
-			{
-				FavouriteEntry = x,
-			};
-		}
-
 		static Func<FavouriteEntry, ShikiFavourite> Selector(ShikiUser shikiUser)
 		{
 			return fe => new()
@@ -274,19 +243,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 			db.ShikiFavourites.RemoveRange(removedValues.Select(Selector(dbUser)));
 		}
 
-		var addedFavourites = addedValues.Select(FavouriteToFavouriteMediaRolesSelector()).ToArray();
-		var removedFavourites = removedValues.Select(FavouriteToFavouriteMediaRolesSelector()).ToArray();
-		foreach (var favouriteMediaRoles in addedFavourites)
-		{
-			await FillMediaAndRolesAsync(favouriteMediaRoles);
-		}
-
-		foreach (var favouriteMediaRoles in removedFavourites)
-		{
-			await FillMediaAndRolesAsync(favouriteMediaRoles);
-		}
-
-		return (addedFavourites, removedFavourites);
+		return await ShikiFavouriteEnrichment.EnrichAsync(addedValues, removedValues, dbUser.Features, _client, logger, cancellationToken);
 	}
 
 	private async Task<IReadOnlyList<ShikiAchievement>> GetAchievementsUpdatesAsync(ShikiUser dbUser, CancellationToken cancellationToken)

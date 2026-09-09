@@ -5,6 +5,7 @@ using System.Diagnostics;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
+using PaperMalKing.AniList.UpdateProvider.Search;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 using PaperMalKing.AniList.Wrapper.Abstractions.Models.Interfaces;
@@ -16,6 +17,8 @@ namespace PaperMalKing.AniList.UpdateProvider;
 
 internal static class FavouriteToDiscordEmbedBuilderConverter
 {
+	private const string VoiceActorOccupation = "Voice Actor";
+
 	private static DiscordEmbedBuilder InitialFavouriteEmbedBuilder(ISiteUrlable value, User user, bool added, AniListUser dbUser)
 	{
 		var color = dbUser.Colors.Find(added
@@ -32,10 +35,30 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 		return eb;
 	}
 
-	private static DiscordEmbedBuilder AddShortMediaLink(this DiscordEmbedBuilder eb, string fieldName, Media media, TitleLanguage language)
+	private static DiscordEmbedBuilder AddShortMediaLink(this DiscordEmbedBuilder eb, string fieldName, Media? media, TitleLanguage language) =>
+		eb.AddShortMediaLink(fieldName, media, characterName: null, language);
+
+	private static DiscordEmbedBuilder AddShortMediaLink(this DiscordEmbedBuilder eb, string fieldName, Media? media, string? characterName,
+														TitleLanguage language)
 	{
-		eb.AddField(fieldName, Formatter.MaskedUrl(media.Title.GetTitle(language), new(media.Url)), inline: true);
+		if (media is null)
+		{
+			return eb;
+		}
+
+		var link = Formatter.MaskedUrl(media.Title.GetTitle(language), new(media.Url));
+		eb.AddField(fieldName, string.IsNullOrWhiteSpace(characterName) ? link : characterName + " from " + link, inline: true);
 		return eb;
+	}
+
+	private static DiscordEmbedBuilder AddDescription(this DiscordEmbedBuilder eb, string? description, AniListUserFeatures features)
+	{
+		if (!features.HasFlag(AniListUserFeatures.Description) || string.IsNullOrWhiteSpace(description))
+		{
+			return eb;
+		}
+
+		return eb.AddFieldIfPresent("Description", NormalizeDescription(description).Trim().Truncate(DescriptionLimit));
 	}
 
 	public static DiscordEmbedBuilder Convert(ISiteUrlable obj, User user, bool added, AniListUser dbUser)
@@ -53,48 +76,42 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 	private static DiscordEmbedBuilder Convert(Media media, User user, bool added, AniListUser dbUser)
 	{
 		var eb = InitialFavouriteEmbedBuilder(media, user, added, dbUser).WithMediaTitle(media, user.Options.TitleLanguage, dbUser.Features)
-																		 .WithTotalSubEntries(media).EnrichWithMediaInfo(media, user, dbUser.Features);
+																		 .WithTotalSubEntries(media);
+		eb.AddFieldIfPresent("Community score", AniListScoreFormatter.Format(media.AverageScore, user.MediaListOptions?.ScoreFormat ?? ScoreFormat.POINT_100),
+			inline: true);
+		eb.EnrichWithMediaInfo(media, user, dbUser.Features);
 		eb.Description += $" {media.Type.Humanize(LetterCasing.Sentence)}";
 		return eb;
 	}
 
 	private static DiscordEmbedBuilder Convert(Character character, User user, bool added, AniListUser dbUser)
 	{
-		var media = character.Media.Values[0];
 		return InitialFavouriteEmbedBuilder(character, user, added, dbUser)
 			   .WithTitle($"{character.Name.GetName(user.Options.TitleLanguage)} [Character]")
-			   .AddShortMediaLink("From", media, user.Options.TitleLanguage);
+			   .AddDescription(character.Description, dbUser.Features)
+			   .AddShortMediaLink("From", character.Media.Values.FirstOrDefault(), user.Options.TitleLanguage);
 	}
 
 	private static DiscordEmbedBuilder Convert(Staff staff, User user, bool added, AniListUser dbUser)
 	{
-		var eb = InitialFavouriteEmbedBuilder(staff, user, added, dbUser)
-			.WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [{staff.PrimaryOccupations.FirstOrDefault() ?? "Staff"}]");
+		var isVoiceActor = staff.PrimaryOccupations.Contains(VoiceActorOccupation, StringComparer.OrdinalIgnoreCase);
+		var voicedRole = isVoiceActor ? BestVoicedRole(staff.CharacterMedia.Nodes) : null;
+		var bestKnownWork = isVoiceActor ? voicedRole?.Node : staff.StaffMedia.Nodes.FirstOrDefault();
+		var characterName = voicedRole?.Characters?.FirstOrDefault()?.Name.GetName(user.Options.TitleLanguage);
 
-		if (dbUser.Features.HasFlag(AniListUserFeatures.MediaDescription) && !string.IsNullOrWhiteSpace(staff.Description))
-		{
-			const int mediaDescriptionLimit = 350;
-			var mediaDescription = staff.Description.StripHtml();
-			mediaDescription = mediaDescription.RemoveSourceTail();
-			mediaDescription = EmptyLinesRemovalRegex.Replace(mediaDescription, string.Empty);
-			mediaDescription = mediaDescription.Trim().Truncate(mediaDescriptionLimit);
-
-			eb.AddFieldIfPresent("Description", mediaDescription);
-		}
-
-		var mostPopularWork = staff.StaffMedia.Nodes.FirstOrDefault();
-		if (mostPopularWork is not null)
-		{
-			eb.AddShortMediaLink("Most popular work", mostPopularWork, user.Options.TitleLanguage);
-		}
-
-		return eb;
+		return InitialFavouriteEmbedBuilder(staff, user, added, dbUser)
+			   .WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [{staff.PrimaryOccupations.FirstOrDefault() ?? "Staff"}]")
+			   .AddDescription(staff.Description, dbUser.Features)
+			   .AddShortMediaLink("Known for", bestKnownWork, characterName, user.Options.TitleLanguage);
 	}
 
 	private static DiscordEmbedBuilder Convert(Studio studio, User user, bool added, AniListUser dbUser)
 	{
-		var media = studio.Media.Nodes[0];
 		return InitialFavouriteEmbedBuilder(studio, user, added, dbUser).WithTitle($"{studio.Name} [Studio]")
-																.AddShortMediaLink("Most popular title", media, user.Options.TitleLanguage);
+																	   .AddShortMediaLink("Known for", studio.Media.Nodes.FirstOrDefault(),
+																		   user.Options.TitleLanguage);
 	}
+
+	private static CharacterMediaEdge? BestVoicedRole(IEnumerable<CharacterMediaEdge> edges) =>
+		edges.Where(static edge => edge.Node is not null).MinBy(static edge => edge.CharacterRole ?? CharacterRole.Background);
 }

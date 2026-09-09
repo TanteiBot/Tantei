@@ -44,7 +44,7 @@ public sealed class SearchEmbedBuilderTests
 		await Assert.That(embed.Footer.Text).IsEqualTo("Shikimori");
 		await Assert.That(embed.Author.Name).IsEqualTo("Requested by nodan");
 		var fieldNames = embed.Fields.Select(static field => field.Name).ToArray();
-		await Assert.That(fieldNames).Contains("Score");
+		await Assert.That(fieldNames).Contains("Community score");
 		await Assert.That(fieldNames).Contains("Studio");
 		await Assert.That(fieldNames).Contains(GenresField);
 		await Assert.That(fieldNames).Contains("Description");

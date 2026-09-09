@@ -44,6 +44,9 @@ public sealed class Media : IImageble, ISiteUrlable, IIdentifiable, IMediaTitleI
 	[JsonPropertyName("volumes")]
 	public ushort? Volumes { get; init; }
 
+	[JsonPropertyName("averageScore")]
+	public ushort? AverageScore { get; init; }
+
 	[JsonPropertyName("image")]
 	public Image? Image { get; init; }
 

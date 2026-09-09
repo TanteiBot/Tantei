@@ -19,6 +19,8 @@ internal static class FavouritesInfoQueryBuilder
 						hasNextPage
 					}
 			values: media(type: ANIME, id_in: $animeIds) {
+			episodes
+			averageScore
 			""");
 		Helpers.AppendMediaFields(sb, options);
 		sb.AppendLine(
@@ -30,6 +32,9 @@ internal static class FavouritesInfoQueryBuilder
 					hasNextPage
 				}
 				values: media(type: MANGA, id_in: $mangaIds) {
+			chapters
+			volumes
+			averageScore
 			""");
 		Helpers.AppendMediaFields(sb, options);
 		sb.AppendLine(
@@ -53,7 +58,27 @@ internal static class FavouritesInfoQueryBuilder
 					staffMedia(sort:POPULARITY_DESC, page: 1, perPage: 1){
 			""");
 		FillLesserMediaFields(sb);
-		sb.Append(
+		sb.AppendLine(
+			"""
+			}
+			characterMedia(sort: SCORE_DESC, page: 1, perPage: 25){
+			values: edges {
+				characterRole
+				characters {
+					name {
+						full
+						native
+					}
+				}
+				node {
+			""");
+		FillLesserMediaBody(sb);
+		sb.AppendLine(
+			"""
+			}
+			}
+			""")
+		  .Append(
 			"""
 			}
 			siteUrl
@@ -61,7 +86,7 @@ internal static class FavouritesInfoQueryBuilder
 				large
 			}
 			""");
-		if (options.HasFlag(RequestOptions.MediaDescription))
+		if (options.HasFlag(RequestOptions.Description))
 		{
 			sb.AppendLine("description(asHtml: false)");
 		}
@@ -90,9 +115,14 @@ internal static class FavouritesInfoQueryBuilder
 			media(sort: POPULARITY_DESC, page: 1, perPage: 1) {
 			""");
 		FillLesserMediaFields(sb);
+		sb.AppendLine("}");
+		if (options.HasFlag(RequestOptions.Description))
+		{
+			sb.AppendLine("description(asHtml: false)");
+		}
+
 		sb.Append(
 			"""
-			}
 			}
 			}
 			Studios: Page(page: $page, perPage: 50) {
@@ -119,10 +149,16 @@ internal static class FavouritesInfoQueryBuilder
 
 	private static void FillLesserMediaFields(StringBuilder sb)
 	{
+		sb.AppendLine("values: nodes {");
+		FillLesserMediaBody(sb);
+		sb.Append('}');
+	}
+
+	private static void FillLesserMediaBody(StringBuilder sb)
+	{
 		sb.Append(
 			"""
-			values: nodes {
-				title {
+			title {
 					stylisedRomaji: romaji(stylised: true)
 					romaji(stylised: false)
 					stylisedEnglish: english(stylised: true)
@@ -132,7 +168,6 @@ internal static class FavouritesInfoQueryBuilder
 				}
 			siteUrl
 			format
-			}
 			""");
 	}
 }

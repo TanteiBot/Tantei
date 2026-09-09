@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions;
 using PaperMalKing.MyAnimeList.Wrapper.Abstractions.Models;
@@ -15,6 +16,13 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 	private const string AnimeOperation = "anime";
 	private const string MangaOperation = "manga";
 	private const string SeiyuOperation = "characters";
+	private const string CharacterOperation = "character";
+	private const string PersonOperation = "person";
+	private const string PersonVoicesOperation = "person voices";
+
+	private const string PersonStaffOperation = "person staff credits";
+	private const string StudioOperation = "studio";
+	private const string MainRole = "Main";
 
 	private readonly TenraiClient _client;
 	private readonly TenraiGate _gate;
@@ -48,6 +56,40 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 		return this.RunAsync<IReadOnlyList<SeyuInfo>>(SeiyuOperation, id, [], this.GetAnimeSeiyuOutcomeAsync, cancellationToken);
 	}
 
+	public Task<EntityInfo> GetCharacterInfoAsync(long id, bool withDescription, CancellationToken cancellationToken)
+	{
+		this._logger.RequestingCharacterInfo(id);
+		return withDescription
+			? this.RunAsync(CharacterOperation, id, EntityInfo.Empty, this.GetCharacterFullOutcomeAsync, cancellationToken)
+			: this.RunAsync(CharacterOperation, id, EntityInfo.Empty, this.GetCharacterAnimeOutcomeAsync, cancellationToken);
+	}
+
+	public async Task<EntityInfo> GetPersonInfoAsync(long id, bool withDescription, CancellationToken cancellationToken)
+	{
+		this._logger.RequestingPersonInfo(id);
+		var voices = await this.RunAsync(PersonVoicesOperation, id, EntityInfo.Empty, this.GetPersonVoicesOutcomeAsync, cancellationToken);
+		var bestKnownWork = voices.BestKnownWork;
+		if (bestKnownWork is null)
+		{
+			var staff = await this.RunAsync(PersonStaffOperation, id, EntityInfo.Empty, this.GetPersonStaffWorkOutcomeAsync, cancellationToken);
+			bestKnownWork = staff.BestKnownWork;
+		}
+
+		if (!withDescription)
+		{
+			return new() { BestKnownWork = bestKnownWork, };
+		}
+
+		var about = await this.RunAsync(PersonOperation, id, EntityInfo.Empty, this.GetPersonDescriptionOutcomeAsync, cancellationToken);
+		return new() { Description = about.Description, BestKnownWork = bestKnownWork, };
+	}
+
+	public Task<EntityInfo> GetStudioInfoAsync(long id, CancellationToken cancellationToken)
+	{
+		this._logger.RequestingStudioInfo(id);
+		return this.RunAsync(StudioOperation, id, EntityInfo.Empty, this.GetStudioOutcomeAsync, cancellationToken);
+	}
+
 	internal Task<TenraiEnrichmentOutcome<MediaInfo>> GetAnimeDetailsOutcomeAsync(long id, CancellationToken cancellationToken) =>
 		this.AttemptAsync(id, this._client.GetAnimeByIdAsync, ProjectMedia, cancellationToken);
 
@@ -56,6 +98,27 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 
 	internal Task<TenraiEnrichmentOutcome<IReadOnlyList<SeyuInfo>>> GetAnimeSeiyuOutcomeAsync(long id, CancellationToken cancellationToken) =>
 		this.AttemptAsync(id, this._client.GetAnimeByIdCharactersAsync, ProjectSeiyu, cancellationToken);
+
+	internal Task<TenraiEnrichmentOutcome<EntityInfo>> GetCharacterFullOutcomeAsync(long id, CancellationToken cancellationToken) =>
+		this.AttemptAsync(id, this._client.GetCharactersByIdFullAsync, ProjectCharacterFull, cancellationToken);
+
+	internal Task<TenraiEnrichmentOutcome<EntityInfo>> GetCharacterAnimeOutcomeAsync(long id, CancellationToken cancellationToken) =>
+		this.AttemptAsync(id, this._client.GetCharactersByIdAnimeAsync, ProjectCharacterAnime, cancellationToken);
+
+	internal Task<TenraiEnrichmentOutcome<EntityInfo>> GetPersonVoicesOutcomeAsync(long id, CancellationToken cancellationToken) =>
+		this.AttemptAsync(id, this._client.GetPeopleByIdVoicesAsync, ProjectPersonVoices, cancellationToken);
+
+	internal Task<TenraiEnrichmentOutcome<EntityInfo>> GetPersonDescriptionOutcomeAsync(long id, CancellationToken cancellationToken) =>
+		this.AttemptAsync(id, this._client.GetPeopleByIdAsync, ProjectPersonDescription, cancellationToken);
+
+	internal Task<TenraiEnrichmentOutcome<EntityInfo>> GetPersonStaffWorkOutcomeAsync(long id, CancellationToken cancellationToken) =>
+		this.AttemptAsync(id, this._client.GetPeopleByIdFullAsync, ProjectPersonStaffWork, cancellationToken);
+
+	internal Task<TenraiEnrichmentOutcome<EntityInfo>> GetStudioOutcomeAsync(long id, CancellationToken cancellationToken) =>
+		this.AttemptCoreAsync(
+			token => this._client.GetAnimeAsync(id.ToString(CultureInfo.InvariantCulture), Order_by.Members, Sort.Desc, limit: 1, token),
+			ProjectStudio,
+			cancellationToken);
 
 	private static MediaInfo? ProjectMedia(MediaResponse response)
 	{
@@ -86,6 +149,65 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 
 		return result;
 	}
+
+	private static EntityInfo? ProjectCharacterFull(CharacterFullResponse response)
+	{
+		var data = response.Data;
+		return data.About is null && data.Anime is null
+			? null
+			: new EntityInfo { Description = Trimmed(data.About), BestKnownWork = BestKnownWorkOf(data.Anime), };
+	}
+
+	private static EntityInfo? ProjectCharacterAnime(CharacterAnimeResponse response) =>
+		response.Data is null ? null : new EntityInfo { BestKnownWork = BestKnownWorkOf(response.Data), };
+
+	private static EntityInfo? ProjectPersonVoices(PersonVoicesResponse response) =>
+		response.Data is null ? null : new EntityInfo { BestKnownWork = BestKnownWorkOf(response.Data), };
+
+	private static EntityInfo? ProjectPersonStaffWork(PersonFullResponse response) =>
+		response.Data is null ? null : new EntityInfo { BestKnownWork = StaffWorkOf(response.Data), };
+
+	private static EntityInfo? ProjectPersonDescription(PersonResponse response) =>
+		response.Data.About is null ? null : new EntityInfo { Description = Trimmed(response.Data.About), };
+
+	private static EntityInfo? ProjectStudio(AnimeSearchResponse response) =>
+		response.Data is null
+			? null
+			: new EntityInfo { BestKnownWork = FirstWork(response.Data.Select(static entry => ToBestKnownWork(entry))), };
+
+	private static BestKnownWork? BestKnownWorkOf(IEnumerable<CharacterAnimeEntry>? entries) =>
+		entries is null
+			? null
+			: FirstWork(entries.Where(static entry => string.Equals(entry.Role, MainRole, StringComparison.OrdinalIgnoreCase))
+							   .Select(static entry => ToBestKnownWork(entry.Anime)));
+
+	private static BestKnownWork? BestKnownWorkOf(IEnumerable<PersonVoiceEntry>? entries) =>
+		entries is null
+			? null
+			: FirstWork(entries.Where(static entry => string.Equals(entry.Role, MainRole, StringComparison.OrdinalIgnoreCase))
+							   .Select(static entry => ToBestKnownWork(entry.Anime, entry.Character?.Name)));
+
+	private static BestKnownWork? StaffWorkOf(PersonFullDetails? data) =>
+		data is null
+			? null
+			: FirstWork(data.Anime?.Select(static entry => ToBestKnownWork(entry.Anime)) ?? [])
+			  ?? FirstWork(data.Manga?.Select(static entry => ToBestKnownWork(entry.Manga)) ?? []);
+
+	private static BestKnownWork? FirstWork(IEnumerable<BestKnownWork?> works) => works.FirstOrDefault(static work => work is not null);
+
+	private static BestKnownWork? ToBestKnownWork(AnimeReference? anime) => ToBestKnownWork(anime, characterName: null);
+
+	private static BestKnownWork? ToBestKnownWork(AnimeReference? anime, string? characterName) =>
+		anime is not null && !string.IsNullOrWhiteSpace(anime.Title) && IsMyAnimeListUrl(anime.Url)
+			? new BestKnownWork { Title = anime.Title.Trim(), Url = anime.Url, CharacterName = Trimmed(characterName), }
+			: null;
+
+	private static BestKnownWork? ToBestKnownWork(MangaReference? manga) =>
+		manga is not null && !string.IsNullOrWhiteSpace(manga.Title) && IsMyAnimeListUrl(manga.Url)
+			? new BestKnownWork { Title = manga.Title.Trim(), Url = manga.Url, }
+			: null;
+
+	private static string? Trimmed(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
 	private static string[] ValidNames(IEnumerable<CatalogReference>? entries) => entries?
 		.Where(static entry => !string.IsNullOrWhiteSpace(entry.Name))
@@ -125,7 +247,7 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 			var person = actor?.Person;
 			if (!string.Equals(actor?.Language, "Japanese", StringComparison.Ordinal) ||
 				string.IsNullOrWhiteSpace(person?.Name) ||
-				!IsMyAnimeListPersonUrl(person.Url))
+				!IsMyAnimeListUrl(person.Url))
 			{
 				continue;
 			}
@@ -134,7 +256,7 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 		}
 	}
 
-	private static bool IsMyAnimeListPersonUrl([NotNullWhen(true)] string? url)
+	private static bool IsMyAnimeListUrl([NotNullWhen(true)] string? url)
 	{
 		if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
 			(!uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
@@ -147,9 +269,16 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 			uri.Host.EndsWith(".myanimelist.net", StringComparison.OrdinalIgnoreCase);
 	}
 
-	private async Task<TenraiEnrichmentOutcome<TValue>> AttemptAsync<TPayload, TValue>(
+	private Task<TenraiEnrichmentOutcome<TValue>> AttemptAsync<TPayload, TValue>(
 		long id,
 		Func<int, CancellationToken, Task<TenraiResponse<TPayload>>> request,
+		Func<TPayload, TValue?> project,
+		CancellationToken cancellationToken)
+		where TValue : class =>
+		this.AttemptCoreAsync(token => request(checked((int)id), token), project, cancellationToken);
+
+	private async Task<TenraiEnrichmentOutcome<TValue>> AttemptCoreAsync<TPayload, TValue>(
+		Func<CancellationToken, Task<TenraiResponse<TPayload>>> request,
 		Func<TPayload, TValue?> project,
 		CancellationToken cancellationToken)
 		where TValue : class
@@ -162,7 +291,7 @@ internal sealed class TenraiEnrichment : IMyAnimeListEnrichment
 		var start = Stopwatch.GetTimestamp();
 		try
 		{
-			var response = await request(checked((int)id), cancellationToken);
+			var response = await request(cancellationToken);
 			return project(response.Result) is { } value
 				? new TenraiEnrichmentOutcome<TValue>.Enriched(value)
 				: new TenraiEnrichmentOutcome<TValue>.Failed(

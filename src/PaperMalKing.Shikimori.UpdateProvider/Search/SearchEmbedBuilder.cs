@@ -33,7 +33,7 @@ internal static class SearchEmbedBuilder
 
 		if (media.Score is > 0f)
 		{
-			eb.AddField("Score", media.Score.Value.ToString("0.##", CultureInfo.InvariantCulture), inline: true);
+			eb.AddField("Community score", media.Score.Value.ToString("0.##", CultureInfo.InvariantCulture), inline: true);
 		}
 
 		eb.FillMediaInfo(media, features, type);

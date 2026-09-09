@@ -24,8 +24,8 @@ namespace PaperMalKing.MyAnimeList.UpdateProvider;
 [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:Prefix local calls with this", Justification = "False positive")]
 internal static class MalMediaEmbeds
 {
-	private const int DescriptionLimit = 4096;
-	private const int SynopsisLimit = 500;
+	private const int EmbedDescriptionLimit = 4096;
+	private const int DescriptionTextLimit = 500;
 	private const int TitleLimit = 256;
 
 	private static readonly DiscordEmbedBuilder.EmbedFooter MalUpdateFooter = new()
@@ -69,8 +69,8 @@ internal static class MalMediaEmbeds
 				: $"{title} ({mediaType})";
 
 		var features = dbUser.Features;
-		var eb = new DiscordEmbedBuilder().WithThumbnail(listEntry.Node.Picture?.Large ?? listEntry.Node.Picture?.Medium!)
-										  .WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl).WithTimestamp(listEntry.Status.UpdatedAt);
+		var eb = new DiscordEmbedBuilder().WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl).WithTimestamp(listEntry.Status.UpdatedAt);
+		AddThumbnail(eb, listEntry.Node.Picture);
 		if (listEntry.Status.Score != 0)
 		{
 			eb.AddFieldIfPresent("Score", listEntry.Status.Score.ToString(NumberFormatInfo.InvariantInfo), inline: true);
@@ -313,7 +313,6 @@ internal static class MalMediaEmbeds
 	{
 		ArgumentNullException.ThrowIfNull(result);
 		string mediaPath;
-		string? total;
 		string? season;
 		IReadOnlyList<Studio>? studios = null;
 		IReadOnlyList<Author>? mangakas = null;
@@ -321,7 +320,6 @@ internal static class MalMediaEmbeds
 		{
 			case AnimeSearchResult anime:
 				mediaPath = "anime";
-				total = anime.Episodes == 0U ? null : $"{anime.Episodes.ToString(CultureInfo.InvariantCulture)} ep.";
 				season = anime.StartSeason is { Season: not AnimeSeason.Unknown, Year: not 0U } startSeason
 					? $"{startSeason.Season.Humanize(LetterCasing.Sentence)} {startSeason.Year.ToString(CultureInfo.InvariantCulture)}"
 					: null;
@@ -329,7 +327,6 @@ internal static class MalMediaEmbeds
 				break;
 			case MangaSearchResult manga:
 				mediaPath = "manga";
-				total = FormatMangaTotal(manga);
 				season = null;
 				mangakas = manga.Authors;
 				break;
@@ -340,21 +337,55 @@ internal static class MalMediaEmbeds
 		var mediaType = EqualityComparer<TMediaType>.Default.Equals(result.MediaType, default)
 			? null
 			: result.MediaType.Humanize(LetterCasing.Sentence);
-		var status = EqualityComparer<TStatus>.Default.Equals(result.Status, default)
-			? null
-			: result.Status.Humanize(LetterCasing.Sentence);
 		return Build(
 			result,
 			new($"https://myanimelist.net/{mediaPath}/{result.Id.ToString(CultureInfo.InvariantCulture)}"),
 			features,
 			mediaType,
-			status,
-			total,
 			season,
 			studios,
 			mangakas,
 			requesterDisplayName,
 			avatarUrl);
+	}
+
+	internal static string? StatusOf(BaseSearchResult? result, MalUserFeatures features)
+	{
+		if (!features.HasFlag(MalUserFeatures.MediaStatus))
+		{
+			return null;
+		}
+
+		return result switch
+		{
+			null => null,
+			AnimeSearchResult anime => anime.Status is AnimeAiringStatus.Unknown ? null : anime.Status.Humanize(LetterCasing.Sentence),
+			MangaSearchResult manga => manga.Status is MangaPublishingStatus.Unknown ? null : manga.Status.Humanize(LetterCasing.Sentence),
+			_ => throw new ArgumentException("The MAL Search Result type is not supported.", nameof(result)),
+		};
+	}
+
+	internal static void AddStatus(DiscordEmbedBuilder eb, BaseSearchResult? result, MalUserFeatures features)
+	{
+		eb.AddFieldIfPresent("Status", StatusOf(result, features), inline: true);
+	}
+
+	internal static void AddScore(DiscordEmbedBuilder eb, BaseSearchResult? result)
+	{
+		eb.AddFieldIfPresent("Community score", result?.Mean?.ToString("0.##", CultureInfo.InvariantCulture), inline: true);
+	}
+
+	internal static void AddTotal(DiscordEmbedBuilder eb, BaseSearchResult? result)
+	{
+		var total = result switch
+		{
+			null => null,
+			AnimeSearchResult anime => anime.Episodes == 0U ? null : $"{anime.Episodes.ToString(CultureInfo.InvariantCulture)} ep.",
+			MangaSearchResult manga => FormatMangaTotal(manga),
+			_ => throw new ArgumentException("The MAL Search Result type is not supported.", nameof(result)),
+		};
+
+		eb.AddFieldIfPresent("Total", total, inline: true);
 	}
 
 	private static string? FormatMangaTotal(MangaSearchResult manga)
@@ -378,8 +409,6 @@ internal static class MalMediaEmbeds
 		Uri mediaUrl,
 		MalUserFeatures features,
 		string? mediaType,
-		string? status,
-		string? total,
 		string? season,
 		IReadOnlyList<Studio>? studios,
 		IReadOnlyList<Author>? mangakas,
@@ -396,7 +425,7 @@ internal static class MalMediaEmbeds
 			builder.WithTitle(result.PrimaryTitle).WithUrl(mediaUrl);
 			if (features.HasFlag(MalUserFeatures.Synopsis))
 			{
-				var synopsis = result.Synopsis.RemoveSourceTail().Trim().Truncate(SynopsisLimit);
+				var synopsis = result.Synopsis.RemoveSourceTail().Trim().Truncate(DescriptionTextLimit);
 				if (!string.IsNullOrWhiteSpace(synopsis))
 				{
 					builder.WithDescription(synopsis);
@@ -406,7 +435,7 @@ internal static class MalMediaEmbeds
 		else
 		{
 			var linkedTitle = Formatter.MaskedUrl(result.PrimaryTitle, mediaUrl);
-			if (linkedTitle.Length > DescriptionLimit)
+			if (linkedTitle.Length > EmbedDescriptionLimit)
 			{
 				throw new ArgumentException("The linked Primary Title exceeds Discord's description limit.", nameof(result));
 			}
@@ -414,17 +443,12 @@ internal static class MalMediaEmbeds
 			builder.WithDescription(linkedTitle);
 		}
 
-		var largePosterUrl = result.Picture?.Large;
-		var thumbnailUrl = IsValidUrl(largePosterUrl) ? largePosterUrl : result.Picture?.Medium;
-		if (IsValidUrl(thumbnailUrl))
-		{
-			builder.WithThumbnail(thumbnailUrl);
-		}
+		AddThumbnail(builder, result.Picture);
 
 		builder.AddFieldIfPresent("Type", features.HasFlag(MalUserFeatures.MediaFormat) ? mediaType : null, inline: true);
-		builder.AddFieldIfPresent("Status", features.HasFlag(MalUserFeatures.MediaStatus) ? status : null, inline: true);
-		builder.AddFieldIfPresent("Score", result.Mean?.ToString("0.##", CultureInfo.InvariantCulture), inline: true);
-		builder.AddFieldIfPresent("Total", total, inline: true);
+		AddStatus(builder, result, features);
+		AddScore(builder, result);
+		AddTotal(builder, result);
 		builder.AddFieldIfPresent("Season", season, inline: true);
 		builder.AddFieldIfPresent("Members", result.ListUserCount.ToString("N0", CultureInfo.InvariantCulture), inline: true);
 
@@ -433,6 +457,31 @@ internal static class MalMediaEmbeds
 		AddGenres(builder, result.Genres, features);
 
 		return builder;
+	}
+
+	internal static void AddThumbnail(DiscordEmbedBuilder eb, string? imageUrl) => AddThumbnail(eb, picture: null, imageUrl);
+
+	internal static void AddThumbnail(DiscordEmbedBuilder eb, Picture? picture, string? fallbackUrl = null)
+	{
+		var thumbnailUrl = FirstValidUrl(picture?.Large, picture?.Medium, fallbackUrl);
+		if (thumbnailUrl is not null)
+		{
+			eb.WithThumbnail(thumbnailUrl);
+		}
+	}
+
+	internal static void AddDescription(DiscordEmbedBuilder eb, string fieldName, string? description, MalUserFeatures features)
+	{
+		if (!features.HasFlag(MalUserFeatures.Synopsis) || string.IsNullOrWhiteSpace(description))
+		{
+			return;
+		}
+
+		var text = description.RemoveSourceTail().Trim().Truncate(DescriptionTextLimit);
+		if (!string.IsNullOrWhiteSpace(text))
+		{
+			AddAsFieldOrTruncateToDescription(eb, fieldName, text, inline: false);
+		}
 	}
 
 	internal static void AddGenres(DiscordEmbedBuilder eb, IReadOnlyList<Genre>? genres, MalUserFeatures features)
@@ -547,6 +596,19 @@ internal static class MalMediaEmbeds
 				eb.Description += $"{'\n'}{descToAdd}";
 			}
 		}
+	}
+
+	private static string? FirstValidUrl(params ReadOnlySpan<string?> urls)
+	{
+		foreach (var url in urls)
+		{
+			if (IsValidUrl(url))
+			{
+				return url;
+			}
+		}
+
+		return null;
 	}
 
 	private static bool IsValidUrl([NotNullWhen(true)] string? url)

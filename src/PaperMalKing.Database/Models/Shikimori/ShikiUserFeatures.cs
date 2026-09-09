@@ -44,7 +44,7 @@ public enum ShikiUserFeatures : ulong
 	[EnumDescription("genres", "Show genres of media")]
 	Genres = 1 << 10,
 
-	[EnumDescription("description", "Show truncated description of media")]
+	[EnumDescription("description", "Show truncated descriptions of anime, manga, characters and people")]
 	Description = 1 << 11,
 
 	[EnumDescription("studios", "Show studios that made anime")]

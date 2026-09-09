@@ -113,7 +113,7 @@ internal static class MediaSearchQueryBuilder
 	private static void AppendSearchMediaFields(StringBuilder sb, RequestOptions options)
 	{
 		sb.AppendLine(MediaCore);
-		if (options.HasFlag(RequestOptions.MediaDescription))
+		if (options.HasFlag(RequestOptions.Description))
 		{
 			sb.AppendLine("description(asHtml: false)");
 		}

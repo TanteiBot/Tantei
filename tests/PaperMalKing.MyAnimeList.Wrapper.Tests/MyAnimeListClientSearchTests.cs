@@ -227,5 +227,13 @@ public sealed class MyAnimeListClientSearchTests
 
 		public Task<IReadOnlyList<SeyuInfo>> GetAnimeSeiyuAsync(long id, CancellationToken cancellationToken) =>
 			throw new InvalidOperationException();
+
+		public Task<EntityInfo> GetCharacterInfoAsync(long id, bool withDescription, CancellationToken cancellationToken) =>
+			throw new InvalidOperationException();
+
+		public Task<EntityInfo> GetPersonInfoAsync(long id, bool withDescription, CancellationToken cancellationToken) =>
+			throw new InvalidOperationException();
+
+		public Task<EntityInfo> GetStudioInfoAsync(long id, CancellationToken cancellationToken) => throw new InvalidOperationException();
 	}
 }

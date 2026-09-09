@@ -24,6 +24,18 @@ internal sealed class FakeMyAnimeListEnrichmentClient : IMyAnimeListEnrichment
 
 	public List<(long Id, CancellationToken CancellationToken)> AnimeSeiyuCalls { get; } = [];
 
+	public EntityInfo CharacterInfoResult { get; init; } = EntityInfo.Empty;
+
+	public EntityInfo PersonInfoResult { get; init; } = EntityInfo.Empty;
+
+	public EntityInfo StudioInfoResult { get; init; } = EntityInfo.Empty;
+
+	public List<(long Id, bool WithDescription)> CharacterInfoCalls { get; } = [];
+
+	public List<(long Id, bool WithDescription)> PersonInfoCalls { get; } = [];
+
+	public List<long> StudioInfoCalls { get; } = [];
+
 	public Task<MediaInfo> GetAnimeDetailsAsync(long id, CancellationToken cancellationToken)
 	{
 		this.AnimeDetailsCalls.Add((id, cancellationToken));
@@ -44,5 +56,23 @@ internal sealed class FakeMyAnimeListEnrichmentClient : IMyAnimeListEnrichment
 		return this.AnimeSeiyuCancellation is null
 			? Task.FromResult(this.AnimeSeiyuResult)
 			: Task.FromException<IReadOnlyList<SeyuInfo>>(this.AnimeSeiyuCancellation);
+	}
+
+	public Task<EntityInfo> GetCharacterInfoAsync(long id, bool withDescription, CancellationToken cancellationToken)
+	{
+		this.CharacterInfoCalls.Add((id, withDescription));
+		return Task.FromResult(this.CharacterInfoResult);
+	}
+
+	public Task<EntityInfo> GetPersonInfoAsync(long id, bool withDescription, CancellationToken cancellationToken)
+	{
+		this.PersonInfoCalls.Add((id, withDescription));
+		return Task.FromResult(this.PersonInfoResult);
+	}
+
+	public Task<EntityInfo> GetStudioInfoAsync(long id, CancellationToken cancellationToken)
+	{
+		this.StudioInfoCalls.Add(id);
+		return Task.FromResult(this.StudioInfoResult);
 	}
 }

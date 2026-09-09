@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -211,9 +210,13 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 
 		var isFavoritesHashMismatch = !dbUser.FavoritesIdHash.Equals(HashHelpers.FavoritesHash(user.Favorites.GetFavoriteIdTypesFromFavorites()), StringComparison.Ordinal);
 
-		var favoritesUpdates = dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch
-			? this.CheckFavoritesUpdates(dbUser, user, db)
+		IReadOnlyList<EnrichedMalFavorite> changedFavorites = dbUser.Features.HasFlag(MalUserFeatures.Favorites) && isFavoritesHashMismatch
+			? this.CollectFavoritesUpdates(dbUser, user, db)
 			: [];
+
+		IReadOnlyList<DiscordEmbedBuilder> favoritesUpdates = changedFavorites is []
+			? []
+			: await MalFavoriteEmbeds.BuildAsync(changedFavorites, user, dbUser, _client, this.Logger, cancellationToken);
 
 		if (favoritesUpdates is not [])
 		{
@@ -299,9 +302,9 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 		return result;
 	}
 
-	private ReadOnlyCollection<DiscordEmbedBuilder> CheckFavoritesUpdates(MalUser dbUser, User user, DatabaseContext db)
+	private List<EnrichedMalFavorite> CollectFavoritesUpdates(MalUser dbUser, User user, DatabaseContext db)
 	{
-		static IReadOnlyList<DiscordEmbedBuilder> ToDiscordEmbedBuilders<TDbf, TWf>(ILogger<BaseUpdateProvider> logger, DbSet<TDbf> dbSet, IReadOnlyList<TWf> resulting, User user, MalUser dbUser)
+		static void Collect<TDbf, TWf>(ILogger<BaseUpdateProvider> logger, DbSet<TDbf> dbSet, IReadOnlyList<TWf> resulting, User user, MalUser dbUser, List<EnrichedMalFavorite> aggregator)
 			where TDbf : BaseMalFavorite, IEquatable<TDbf>
 			where TWf : BaseFavorite
 		{
@@ -311,7 +314,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 			if (dbIds.AsSpan().SequenceEqual(sr))
 			{
 				logger.DidntFindAnyFavoritesUpdatesForUser(typeof(TWf).Name, dbUser.Username);
-				return [];
+				return;
 			}
 
 			var dbEntries = withUserQuery.ToArray();
@@ -321,18 +324,15 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 			if (addedValues is [] && removedValues is [])
 			{
 				logger.DidntFindAnyFavoritesUpdatesForUser(typeof(TWf).Name, dbUser.Username);
-				return [];
+				return;
 			}
 
 			logger.FoundNewFavoritesRemovedFavorites(addedValues.Count, removedValues.Count, typeof(TWf), dbUser.Username);
-			var result = new List<DiscordEmbedBuilder>(addedValues.Count + removedValues.Count);
 
 			for (var i = 0; i < addedValues.Count; i++)
 			{
 				var fav = cResulting.First(favorite => favorite.Id == addedValues[i].Id);
-				var deb = fav.ToDiscordEmbedBuilder(added: true, dbUser);
-				deb.WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl);
-				result.Add(deb);
+				aggregator.Add(new() { Favorite = fav, Added = true, });
 			}
 
 			var toRm = new TDbf[removedValues.Count];
@@ -340,9 +340,7 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 			{
 				var fav = dbEntries.First(favorite => favorite.Id == removedValues[i].Id);
 				toRm[i] = fav;
-				var deb = fav.ToDiscordEmbedBuilder(added: false, dbUser);
-				deb.WithAuthor(user.Username, user.ProfileUrl, user.AvatarUrl);
-				result.Add(deb);
+				aggregator.Add(new() { Favorite = fav, Added = false, });
 			}
 
 			dbSet.AddRange(addedValues);
@@ -350,19 +348,17 @@ internal sealed class MalUpdateProvider(ILogger<MalUpdateProvider> logger, IOpti
 			{
 				dbSet.Remove(t);
 			}
-
-			return result;
 		}
 
 		this.Logger.CheckingFavoritesUpdates(dbUser.Username);
 
-		var list = new List<DiscordEmbedBuilder>();
-		list.AddRange(ToDiscordEmbedBuilders(this.Logger, db.MalFavoriteAnimes, user.Favorites.FavoriteAnime, user, dbUser));
-		list.AddRange(ToDiscordEmbedBuilders(this.Logger, db.MalFavoriteMangas, user.Favorites.FavoriteManga, user, dbUser));
-		list.AddRange(ToDiscordEmbedBuilders(this.Logger, db.MalFavoriteCharacters, user.Favorites.FavoriteCharacters, user, dbUser));
-		list.AddRange(ToDiscordEmbedBuilders(this.Logger, db.MalFavoritePersons, user.Favorites.FavoritePeople, user, dbUser));
-		list.AddRange(ToDiscordEmbedBuilders(this.Logger, db.MalFavoriteCompanies, user.Favorites.FavoriteCompanies, user, dbUser));
+		var result = new List<EnrichedMalFavorite>();
+		Collect(this.Logger, db.MalFavoriteAnimes, user.Favorites.FavoriteAnime, user, dbUser, result);
+		Collect(this.Logger, db.MalFavoriteMangas, user.Favorites.FavoriteManga, user, dbUser, result);
+		Collect(this.Logger, db.MalFavoriteCharacters, user.Favorites.FavoriteCharacters, user, dbUser, result);
+		Collect(this.Logger, db.MalFavoritePersons, user.Favorites.FavoritePeople, user, dbUser, result);
+		Collect(this.Logger, db.MalFavoriteCompanies, user.Favorites.FavoriteCompanies, user, dbUser, result);
 
-		return new(list.SortByThenBy(f => f.Color.HasValue ? f.Color.Value.Value : DiscordColor.None.Value, f => f.Title));
+		return result;
 	}
 }

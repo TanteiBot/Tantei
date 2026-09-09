@@ -32,8 +32,8 @@ public enum AniListUserFeatures : ulong
 	[EnumDescription("media status", "Show status of media in update (Releasing, Finished etc)")]
 	MediaStatus = 1 << 6,
 
-	[EnumDescription("description", "Show description of anime and manga")]
-	MediaDescription = 1 << 7,
+	[EnumDescription("description", "Show descriptions of anime, manga, characters and people")]
+	Description = 1 << 7,
 
 	[EnumDescription("genres", "Show genres of anime and manga")]
 	Genres = 1 << 8,
@@ -70,7 +70,7 @@ public static class AniListUserFeaturesExtensions
 													 AniListUserFeatures.Website | AniListUserFeatures.MediaFormat |
 													 AniListUserFeatures.MediaStatus;
 
-		public static AniListUserFeatures SearchDefault => AniListUserFeatures.Default | AniListUserFeatures.MediaDescription |
+		public static AniListUserFeatures SearchDefault => AniListUserFeatures.Default | AniListUserFeatures.Description |
 														   AniListUserFeatures.Tags | AniListUserFeatures.Seyu;
 	}
 }
