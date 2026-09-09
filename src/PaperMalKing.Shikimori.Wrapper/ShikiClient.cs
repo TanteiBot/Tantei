@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
-using System.Net.Http.Json;
 using System.Net.Mime;
 using GraphQL.Client.Http;
 using Microsoft.Extensions.Logging;
