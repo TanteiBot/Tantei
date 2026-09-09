@@ -22,10 +22,11 @@ public partial class MalFavoriteMangaEntityType
             typeof(MalFavoriteManga),
             baseEntityType,
             discriminatorProperty: "FavoriteType",
-            discriminatorValue: MalFavoriteType.Manga,
             propertyCount: 2,
             navigationCount: 1,
             foreignKeyCount: 1);
+
+        runtimeEntityType.SetDiscriminatorValueFromProviderValue((byte)2);
 
         var startYear = runtimeEntityType.AddProperty(
             "StartYear",

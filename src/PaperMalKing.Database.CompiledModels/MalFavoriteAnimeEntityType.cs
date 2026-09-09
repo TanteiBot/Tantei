@@ -22,10 +22,11 @@ public partial class MalFavoriteAnimeEntityType
             typeof(MalFavoriteAnime),
             baseEntityType,
             discriminatorProperty: "FavoriteType",
-            discriminatorValue: MalFavoriteType.Anime,
             propertyCount: 2,
             navigationCount: 1,
             foreignKeyCount: 1);
+
+        runtimeEntityType.SetDiscriminatorValueFromProviderValue((byte)1);
 
         var startYear = runtimeEntityType.AddProperty(
             "StartYear",

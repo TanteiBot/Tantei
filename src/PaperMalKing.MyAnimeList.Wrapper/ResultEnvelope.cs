@@ -5,8 +5,8 @@ using System.Text.Json.Serialization;
 
 namespace PaperMalKing.MyAnimeList.Wrapper;
 
-internal sealed class SearchResponse<TResult>
+public sealed class ResultEnvelope<TResult>
 {
-	[JsonPropertyName("data")]
-	public required IReadOnlyList<ResultEnvelope<TResult>> Results { get; init; }
+	[JsonPropertyName("node")]
+	public required TResult Result { get; init; }
 }

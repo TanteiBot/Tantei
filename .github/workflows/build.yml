@@ -160,4 +160,4 @@ jobs:
         run: for p in $(find ./src -type d \( -path ./src/PaperMalKing.Database.Migrations -o -path ./src/PaperMalKing.Database.CompiledModels \) -prune -o -name '*.csproj' -print); do dotnet build $p; done
         
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4.37.6
+        uses: github/codeql-action/analyze@v4.37.9
