@@ -101,14 +101,14 @@ internal static partial class Extensions
 			return builder.AddFieldIfPresent("Description", NormalizeDescription(description));
 		}
 
-		public DiscordEmbedBuilder AddBestKnownWork(RelatedMedia? work, ShikiUserFeatures features)
+		public DiscordEmbedBuilder AddBestKnownWork(string fieldName, RelatedMedia? work, ShikiUserFeatures features)
 		{
 			if (work is null || string.IsNullOrWhiteSpace(work.Url))
 			{
 				return builder;
 			}
 
-			return builder.AddFieldIfPresent("From", Formatter.MaskedUrl(work.GetNameOrAltName(features), new(work.Url)), inline: true);
+			return builder.AddFieldIfPresent(fieldName, Formatter.MaskedUrl(work.GetNameOrAltName(features), new(work.Url)), inline: true);
 		}
 
 		public DiscordEmbedBuilder FillMediaFavourite(BaseMedia media, FavouriteEntry entry, ShikiUserFeatures features)
@@ -117,7 +117,7 @@ internal static partial class Extensions
 			builder.AddFieldIfPresent("Total", TotalOf(media), inline: true);
 			if (media.Score is > 0f)
 			{
-				builder.AddField("Score", media.Score.Value.ToString("0.##", CultureInfo.InvariantCulture), inline: true);
+				builder.AddField("Community score", media.Score.Value.ToString("0.##", CultureInfo.InvariantCulture), inline: true);
 			}
 
 			builder.FillMediaInfo(media, features, media is AnimeMedia ? ListEntryType.Anime : ListEntryType.Manga);
@@ -374,13 +374,13 @@ internal static partial class Extensions
 		else if (favourite.Character is { } character)
 		{
 			eb.WithUrl(character.Url ?? entry.Url).WithTitle($"{FavouriteName(character, entry, features)} [Character]")
-			  .AddDescription(character.Description, features).AddBestKnownWork(favourite.BestKnownWork, features)
+			  .AddDescription(character.Description, features).AddBestKnownWork("From", favourite.BestKnownWork, features)
 			  .WithThumbnailIfPresent(character.Poster?.BestImageUrl);
 		}
 		else if (favourite.Person is { } person)
 		{
 			eb.WithUrl(person.Url ?? entry.Url).WithTitle($"{FavouriteName(person, entry, features)} [{person.SubKind()}]")
-			  .AddBestKnownWork(favourite.BestKnownWork, features).WithThumbnailIfPresent(person.Poster?.BestImageUrl);
+			  .AddBestKnownWork("Known for", favourite.BestKnownWork, features).WithThumbnailIfPresent(person.Poster?.BestImageUrl);
 		}
 		else
 		{

@@ -37,7 +37,7 @@ public sealed class ShikiFavouriteEmbedsTests
 
 		await Assert.That(embed.Title).IsEqualTo("Canonical Anime (Tv) [Released]");
 		await Assert.That(FieldValue(embed, "Total")).IsEqualTo("64 ep.");
-		await Assert.That(FieldValue(embed, "Score")).IsEqualTo("9.1");
+		await Assert.That(FieldValue(embed, "Community score")).IsEqualTo("9.1");
 		await Assert.That(embed.Thumbnail?.Url).IsEqualTo("https://shikimori.one/anime-original.jpg");
 	}
 
@@ -76,7 +76,7 @@ public sealed class ShikiFavouriteEmbedsTests
 		var embed = Build(PersonFavourite(), ShikiUserFeatures.Default | ShikiUserFeatures.Description);
 
 		await Assert.That(embed.Title).IsEqualTo($"{PersonTitle} [Seyu]");
-		await Assert.That(FieldValue(embed, "From")).IsEqualTo($"[{BestKnownWorkName}]({BestKnownWorkUrl})");
+		await Assert.That(FieldValue(embed, "Known for")).IsEqualTo($"[{BestKnownWorkName}]({BestKnownWorkUrl})");
 		await Assert.That(FieldNames(embed)).DoesNotContain("Description");
 	}
 

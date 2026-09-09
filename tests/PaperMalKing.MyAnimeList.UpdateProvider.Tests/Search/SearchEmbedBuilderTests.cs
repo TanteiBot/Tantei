@@ -62,7 +62,7 @@ public sealed class SearchEmbedBuilderTests
 			[
 				("Type", "TV", true),
 				("Status", "Finished airing", true),
-				("Score", "8.88", true),
+				("Community score", "8.88", true),
 				("Total", "74 ep.", true),
 				("Season", "Spring 2004", true),
 				(MembersField, "1,360,412", true),
@@ -93,7 +93,7 @@ public sealed class SearchEmbedBuilderTests
 			[
 				("Type", "Manga", true),
 				("Status", "Currently publishing", true),
-				("Score", "9.47", true),
+				("Community score", "9.47", true),
 				("Total", "84 ch, 9 v.", true),
 				(MembersField, "735,311", true),
 				("Genres", "Action, Adventure", true),

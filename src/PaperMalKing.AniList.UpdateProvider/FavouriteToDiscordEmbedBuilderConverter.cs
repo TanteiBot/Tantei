@@ -72,7 +72,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 	{
 		var eb = InitialFavouriteEmbedBuilder(media, user, added, dbUser).WithMediaTitle(media, user.Options.TitleLanguage, dbUser.Features)
 																		 .WithTotalSubEntries(media);
-		eb.AddFieldIfPresent("Score", AniListScoreFormatter.Format(media.AverageScore, user.MediaListOptions?.ScoreFormat ?? ScoreFormat.POINT_100),
+		eb.AddFieldIfPresent("Community score", AniListScoreFormatter.Format(media.AverageScore, user.MediaListOptions?.ScoreFormat ?? ScoreFormat.POINT_100),
 			inline: true);
 		eb.EnrichWithMediaInfo(media, user, dbUser.Features);
 		eb.Description += $" {media.Type.Humanize(LetterCasing.Sentence)}";
@@ -95,7 +95,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 		return InitialFavouriteEmbedBuilder(staff, user, added, dbUser)
 			   .WithTitle($"{staff.Name.GetName(user.Options.TitleLanguage)} [{staff.PrimaryOccupations.FirstOrDefault() ?? "Staff"}]")
 			   .AddDescription(staff.Description, dbUser.Features)
-			   .AddShortMediaLink("From", bestKnownWork, user.Options.TitleLanguage);
+			   .AddShortMediaLink("Known for", bestKnownWork, user.Options.TitleLanguage);
 	}
 
 	private static DiscordEmbedBuilder Convert(Studio studio, User user, bool added, AniListUser dbUser)

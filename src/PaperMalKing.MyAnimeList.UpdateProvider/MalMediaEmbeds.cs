@@ -349,27 +349,30 @@ internal static class MalMediaEmbeds
 			avatarUrl);
 	}
 
-	internal static void AddStatus(DiscordEmbedBuilder eb, BaseSearchResult? result, MalUserFeatures features)
+	internal static string? StatusOf(BaseSearchResult? result, MalUserFeatures features)
 	{
 		if (!features.HasFlag(MalUserFeatures.MediaStatus))
 		{
-			return;
+			return null;
 		}
 
-		var status = result switch
+		return result switch
 		{
 			null => null,
 			AnimeSearchResult anime => anime.Status is AnimeAiringStatus.Unknown ? null : anime.Status.Humanize(LetterCasing.Sentence),
 			MangaSearchResult manga => manga.Status is MangaPublishingStatus.Unknown ? null : manga.Status.Humanize(LetterCasing.Sentence),
 			_ => throw new ArgumentException("The MAL Search Result type is not supported.", nameof(result)),
 		};
+	}
 
-		eb.AddFieldIfPresent("Status", status, inline: true);
+	internal static void AddStatus(DiscordEmbedBuilder eb, BaseSearchResult? result, MalUserFeatures features)
+	{
+		eb.AddFieldIfPresent("Status", StatusOf(result, features), inline: true);
 	}
 
 	internal static void AddScore(DiscordEmbedBuilder eb, BaseSearchResult? result)
 	{
-		eb.AddFieldIfPresent("Score", result?.Mean?.ToString("0.##", CultureInfo.InvariantCulture), inline: true);
+		eb.AddFieldIfPresent("Community score", result?.Mean?.ToString("0.##", CultureInfo.InvariantCulture), inline: true);
 	}
 
 	internal static void AddTotal(DiscordEmbedBuilder eb, BaseSearchResult? result)

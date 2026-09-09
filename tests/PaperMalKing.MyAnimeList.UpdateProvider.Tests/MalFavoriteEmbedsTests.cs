@@ -39,9 +39,9 @@ public sealed class MalFavoriteEmbedsTests
 
 		await Assert.That(client.TotalCallCount).IsEqualTo(1);
 		await Assert.That(client.AnimeByIdCalls).IsEquivalentTo([AnimeId,]);
-		await Assert.That(embed.Title).IsEqualTo("Canonical Anime (TV) [2002]");
-		await Assert.That(FieldValue(embed, "Status")).IsEqualTo("Finished airing");
-		await Assert.That(FieldValue(embed, "Score")).IsEqualTo("8.75");
+		await Assert.That(embed.Title).IsEqualTo("Canonical Anime (TV) [Finished airing]");
+		await Assert.That(FieldValue(embed, "Year")).IsEqualTo("2002");
+		await Assert.That(FieldValue(embed, "Community score")).IsEqualTo("8.75");
 		await Assert.That(FieldValue(embed, "Total")).IsEqualTo("24 ep.");
 		await Assert.That(embed.Thumbnail?.Url).IsEqualTo("https://cdn.myanimelist.net/anime/large.jpg");
 	}
@@ -54,8 +54,8 @@ public sealed class MalFavoriteEmbedsTests
 
 		var embed = await BuildSingleAsync(client, AnimeFavorite(), MalUserFeatures.Default, logger);
 
-		await Assert.That(embed.Title).IsEqualTo("Fav Anime (TV) [2002]");
-		await Assert.That(FieldNames(embed)).IsEmpty();
+		await Assert.That(embed.Title).IsEqualTo("Fav Anime (TV)");
+		await Assert.That(FieldNames(embed)).IsEquivalentTo(["Year",]);
 		await Assert.That(embed.Thumbnail?.Url).IsEqualTo("https://cdn.myanimelist.net/anime/stored.jpg");
 		await Assert.That(logger.Entries.Select(static entry => entry.EventId.Name)).Contains("FailedToEnrichFavorite");
 	}
@@ -108,7 +108,7 @@ public sealed class MalFavoriteEmbedsTests
 	}
 
 	[Test]
-	public async Task APersonFavoriteIsLabelledPersonAndAStudioFavoriteIsKnownFor()
+	public async Task APersonAndAStudioFavoriteAreBothLabelledKnownFor()
 	{
 		var client = new FakeMyAnimeListFavoriteClient
 		{
@@ -120,7 +120,7 @@ public sealed class MalFavoriteEmbedsTests
 		var studio = await BuildSingleAsync(client, CompanyFavorite(), MalUserFeatures.Default);
 
 		await Assert.That(person.Title).IsEqualTo("Fav Person [Person]");
-		await Assert.That(FieldValue(person, "From")).IsEqualTo("[Voiced Show](https://myanimelist.net/anime/2)");
+		await Assert.That(FieldValue(person, "Known for")).IsEqualTo("[Voiced Show](https://myanimelist.net/anime/2)");
 		await Assert.That(studio.Title).IsEqualTo("Fav Studio [Studio]");
 		await Assert.That(FieldValue(studio, "Known for")).IsEqualTo("[Made Show](https://myanimelist.net/anime/3)");
 	}
@@ -150,8 +150,8 @@ public sealed class MalFavoriteEmbedsTests
 
 		var embed = await BuildSingleAsync(client, AnimeFavorite(), MalUserFeatures.Default | MalUserFeatures.Seiyu | MalUserFeatures.Themes);
 
-		await Assert.That(embed.Title).IsEqualTo("Canonical Anime (TV) [2002]");
-		await Assert.That(FieldValue(embed, "Score")).IsEqualTo("8.75");
+		await Assert.That(embed.Title).IsEqualTo("Canonical Anime (TV) [Finished airing]");
+		await Assert.That(FieldValue(embed, "Community score")).IsEqualTo("8.75");
 		await Assert.That(FieldNames(embed)).DoesNotContain("Seiyu");
 		await Assert.That(FieldNames(embed)).DoesNotContain("Themes");
 	}

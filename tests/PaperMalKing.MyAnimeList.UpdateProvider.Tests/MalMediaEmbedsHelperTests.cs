@@ -21,7 +21,7 @@ public sealed class MalMediaEmbedsHelperTests
 	private const string ThemesField = "Themes";
 	private const string DemographicField = "Demographic";
 	private const string StatusField = "Status";
-	private const string ScoreField = "Score";
+	private const string ScoreField = "Community score";
 	private const string TotalField = "Total";
 	private const int SevenItemCap = 7;
 	private const string LargeUrl = "https://cdn.myanimelist.net/anime/large.jpg";

@@ -140,7 +140,7 @@ internal static class MalFavoriteEmbeds
 				MalMediaEmbeds.AddThumbnail(eb, favorite.ImageUrl);
 				eb.WithTitle($"{person.Name} [Person]");
 				MalMediaEmbeds.AddDescription(eb, "Description", enriched.Entity.Description, features);
-				AddBestKnownWork(eb, "From", enriched.Entity.BestKnownWork, fallback: null);
+				AddBestKnownWork(eb, "Known for", enriched.Entity.BestKnownWork, fallback: null);
 				break;
 			case MalFavoriteCompany company:
 				MalMediaEmbeds.AddThumbnail(eb, favorite.ImageUrl);
@@ -161,12 +161,19 @@ internal static class MalFavoriteEmbeds
 		var picture = anime?.Picture ?? manga?.Picture;
 		MalMediaEmbeds.AddThumbnail(eb, picture, favorite.ImageUrl);
 
-		var format = features.HasFlag(MalUserFeatures.MediaFormat) ? $" ({favorite.Type})" : "";
-		var title = anime?.PrimaryTitle ?? manga?.PrimaryTitle ?? favorite.Name;
-		eb.WithTitle($"{title}{format} [{favorite.StartYear.ToString(CultureInfo.InvariantCulture)}]");
-
 		var result = (BaseSearchResult?)anime ?? manga;
-		MalMediaEmbeds.AddStatus(eb, result, features);
+
+		var format = features.HasFlag(MalUserFeatures.MediaFormat) ? $" ({favorite.Type})" : "";
+		var status = MalMediaEmbeds.StatusOf(result, features);
+		var statusSuffix = string.IsNullOrWhiteSpace(status) ? "" : " [" + status + "]";
+		var title = anime?.PrimaryTitle ?? manga?.PrimaryTitle ?? favorite.Name;
+		eb.WithTitle(title + format + statusSuffix);
+
+		if (favorite.StartYear != 0)
+		{
+			eb.AddField("Year", favorite.StartYear.ToString(CultureInfo.InvariantCulture), inline: true);
+		}
+
 		MalMediaEmbeds.AddScore(eb, result);
 		MalMediaEmbeds.AddTotal(eb, result);
 

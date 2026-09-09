@@ -29,7 +29,7 @@ public sealed class AniListFavouriteEmbedsTests
 
 		await Assert.That(embed.Title).IsEqualTo($"{PopularShow} (TV) [Finished]");
 		await Assert.That(FieldValue(embed, "Total")).IsEqualTo("24 ep.");
-		await Assert.That(FieldValue(embed, "Score")).IsEqualTo("85/100");
+		await Assert.That(FieldValue(embed, "Community score")).IsEqualTo("85/100");
 		await Assert.That(embed.Thumbnail?.Url).IsEqualTo("https://anilist.co/media.jpg");
 	}
 
@@ -61,9 +61,9 @@ public sealed class AniListFavouriteEmbedsTests
 		var director = Build(Staff("Director"), AniListUserFeatures.Default);
 
 		await Assert.That(voiceActor.Title).IsEqualTo("Fav Staff [Voice Actor]");
-		await Assert.That(FieldValue(voiceActor, "From")).IsEqualTo("[Voiced Show](https://anilist.co/anime/2)");
+		await Assert.That(FieldValue(voiceActor, "Known for")).IsEqualTo("[Voiced Show](https://anilist.co/anime/2)");
 		await Assert.That(director.Title).IsEqualTo("Fav Staff [Director]");
-		await Assert.That(FieldValue(director, "From")).IsEqualTo("[Directed Show](https://anilist.co/anime/3)");
+		await Assert.That(FieldValue(director, "Known for")).IsEqualTo("[Directed Show](https://anilist.co/anime/3)");
 	}
 
 	[Test]
