@@ -1,5 +1,5 @@
 {
-  "openapi": "3.1.1",
+  "openapi": "3.2.0",
   "info": {
     "title": "PaperMalKing | v1",
     "version": "1.0.0"
@@ -278,14 +278,8 @@
           }
         ],
         "responses": {
-          "404": {
-            "description": "Not Found"
-          },
           "302": {
             "description": "Found"
-          },
-          "403": {
-            "description": "Forbidden"
           },
           "401": {
             "description": "Unauthorized",
@@ -296,6 +290,12 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       }
@@ -310,8 +310,8 @@
           "204": {
             "description": "No Content"
           },
-          "502": {
-            "description": "Bad Gateway",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -320,8 +320,8 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
+          "502": {
+            "description": "Bad Gateway",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -631,10 +631,10 @@
       "name": "Credits"
     },
     {
-      "name": "Status"
+      "name": "Guilds"
     },
     {
-      "name": "Guilds"
+      "name": "Status"
     }
   ]
 }

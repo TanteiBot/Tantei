@@ -22,10 +22,11 @@ public partial class MalFavoriteCharacterEntityType
             typeof(MalFavoriteCharacter),
             baseEntityType,
             discriminatorProperty: "FavoriteType",
-            discriminatorValue: MalFavoriteType.Character,
             propertyCount: 1,
             navigationCount: 1,
             foreignKeyCount: 1);
+
+        runtimeEntityType.SetDiscriminatorValueFromProviderValue((byte)3);
 
         var fromTitleName = runtimeEntityType.AddProperty(
             "FromTitleName",

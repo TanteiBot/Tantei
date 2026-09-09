@@ -4,7 +4,6 @@
         <ProjectReference Include="..\PaperMalKing.Common\PaperMalKing.Common.csproj" />
         <PackageReference Include="AngleSharp" />
         <PackageReference Include="Microsoft.Extensions.Telemetry.Abstractions" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
         <PackageReference Include="System.Threading.RateLimiting" />
     </ItemGroup>

@@ -8,11 +8,5 @@ namespace PaperMalKing.MyAnimeList.Wrapper;
 internal sealed class SearchResponse<TResult>
 {
 	[JsonPropertyName("data")]
-	public required IReadOnlyList<ResultEnvelope> Results { get; init; }
-
-	public sealed class ResultEnvelope
-	{
-		[JsonPropertyName("node")]
-		public required TResult Result { get; init; }
-	}
+	public required IReadOnlyList<ResultEnvelope<TResult>> Results { get; init; }
 }

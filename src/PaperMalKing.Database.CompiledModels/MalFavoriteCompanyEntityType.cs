@@ -22,10 +22,11 @@ public partial class MalFavoriteCompanyEntityType
             typeof(MalFavoriteCompany),
             baseEntityType,
             discriminatorProperty: "FavoriteType",
-            discriminatorValue: MalFavoriteType.Company,
             propertyCount: 0,
             navigationCount: 1,
             foreignKeyCount: 1);
+
+        runtimeEntityType.SetDiscriminatorValueFromProviderValue((byte)5);
 
         return runtimeEntityType;
     }
