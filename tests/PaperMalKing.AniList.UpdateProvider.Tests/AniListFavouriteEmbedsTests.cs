@@ -24,6 +24,10 @@ public sealed class AniListFavouriteEmbedsTests
 
 	private const string VoicedCharacter = "Spike Spiegel";
 
+	private const string VoiceActorOccupation = "Voice Actor";
+
+	private const string KnownForField = "Known for";
+
 	[Test]
 	public async Task ADefaultFlagsMediaFavouriteRendersTheIdentityBlock()
 	{
@@ -59,13 +63,35 @@ public sealed class AniListFavouriteEmbedsTests
 	[Test]
 	public async Task AVoiceActorsBestKnownWorkComesFromCharacterMediaAndOtherStaffsFromStaffMedia()
 	{
-		var voiceActor = Build(Staff("Voice Actor"), AniListUserFeatures.Default);
+		var voiceActor = Build(Staff(VoiceActorOccupation), AniListUserFeatures.Default);
 		var director = Build(Staff("Director"), AniListUserFeatures.Default);
 
 		await Assert.That(voiceActor.Title).IsEqualTo("Fav Staff [Voice Actor]");
-		await Assert.That(FieldValue(voiceActor, "Known for")).IsEqualTo($"{VoicedCharacter} from [Voiced Show](https://anilist.co/anime/2)");
+		await Assert.That(FieldValue(voiceActor, KnownForField)).IsEqualTo($"{VoicedCharacter} from [Voiced Show](https://anilist.co/anime/2)");
 		await Assert.That(director.Title).IsEqualTo("Fav Staff [Director]");
-		await Assert.That(FieldValue(director, "Known for")).IsEqualTo("[Directed Show](https://anilist.co/anime/3)");
+		await Assert.That(FieldValue(director, KnownForField)).IsEqualTo("[Directed Show](https://anilist.co/anime/3)");
+	}
+
+	[Test]
+	public async Task AVoiceActorPrefersAMainRoleOverAHigherRatedSupportingOne()
+	{
+		var staff = Staff(VoiceActorOccupation, VoicedRole(CharacterRole.Supporting, "Bit Part", "Acclaimed Show", id: 5),
+			VoicedRole(CharacterRole.Main, VoicedCharacter, "Voiced Show", id: 2));
+
+		var embed = Build(staff, AniListUserFeatures.Default);
+
+		await Assert.That(FieldValue(embed, KnownForField)).IsEqualTo($"{VoicedCharacter} from [Voiced Show](https://anilist.co/anime/2)");
+	}
+
+	[Test]
+	public async Task AVoiceActorWithNoMainRoleFallsBackToTheHighestRatedSupportingOne()
+	{
+		var staff = Staff(VoiceActorOccupation, VoicedRole(CharacterRole.Supporting, "Bit Part", "Acclaimed Show", id: 5),
+			VoicedRole(CharacterRole.Background, "Passerby", "Lesser Show", id: 6));
+
+		var embed = Build(staff, AniListUserFeatures.Default);
+
+		await Assert.That(FieldValue(embed, KnownForField)).IsEqualTo("Bit Part from [Acclaimed Show](https://anilist.co/anime/5)");
 	}
 
 	[Test]
@@ -74,7 +100,7 @@ public sealed class AniListFavouriteEmbedsTests
 		var embed = Build(Studio(), AniListUserFeatures.Default);
 
 		await Assert.That(embed.Title).IsEqualTo("Fav Studio [Studio]");
-		await Assert.That(FieldValue(embed, "Known for")).IsEqualTo("[Made Show](https://anilist.co/anime/4)");
+		await Assert.That(FieldValue(embed, KnownForField)).IsEqualTo("[Made Show](https://anilist.co/anime/4)");
 		await Assert.That(embed.Thumbnail?.Url).IsNullOrEmpty();
 		await Assert.That(embed.ImageUrl).IsNullOrEmpty();
 	}
@@ -86,7 +112,7 @@ public sealed class AniListFavouriteEmbedsTests
 
 		await AssertRemovalMatchesAdditionAsync(Build(Media(PopularShow), features), Build(Media(PopularShow), features, added: false));
 		await AssertRemovalMatchesAdditionAsync(Build(Character(), features), Build(Character(), features, added: false));
-		await AssertRemovalMatchesAdditionAsync(Build(Staff("Voice Actor"), features), Build(Staff("Voice Actor"), features, added: false));
+		await AssertRemovalMatchesAdditionAsync(Build(Staff(VoiceActorOccupation), features), Build(Staff(VoiceActorOccupation), features, added: false));
 		await AssertRemovalMatchesAdditionAsync(Build(Studio(), features), Build(Studio(), features, added: false));
 	}
 
@@ -138,7 +164,7 @@ public sealed class AniListFavouriteEmbedsTests
 		Media = new() { Values = [Media(PopularShow)], },
 	};
 
-	private static Staff Staff(string occupation) => new()
+	private static Staff Staff(string occupation, params CharacterMediaEdge[] voicedRoles) => new()
 	{
 		Id = StaffId,
 		Name = new() { Full = "Fav Staff", Native = "Fav Staff", },
@@ -148,9 +174,16 @@ public sealed class AniListFavouriteEmbedsTests
 		PrimaryOccupations = [occupation],
 		CharacterMedia = new()
 		{
-			Nodes = [new() { Characters = [new() { Name = new() { Full = VoicedCharacter, Native = VoicedCharacter, }, },], Node = Media("Voiced Show", id: 2), },],
+			Nodes = voicedRoles.Length == 0 ? [VoicedRole(CharacterRole.Main, VoicedCharacter, "Voiced Show", id: 2),] : voicedRoles,
 		},
 		StaffMedia = new() { Nodes = [Media("Directed Show", id: 3)], },
+	};
+
+	private static CharacterMediaEdge VoicedRole(CharacterRole role, string character, string title, uint id) => new()
+	{
+		CharacterRole = role,
+		Characters = [new() { Name = new() { Full = character, Native = character, }, },],
+		Node = Media(title, id),
 	};
 
 	private static Studio Studio() => new()

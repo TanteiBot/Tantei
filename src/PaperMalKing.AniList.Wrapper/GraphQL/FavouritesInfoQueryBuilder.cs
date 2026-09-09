@@ -61,8 +61,9 @@ internal static class FavouritesInfoQueryBuilder
 		sb.AppendLine(
 			"""
 			}
-			characterMedia(sort: POPULARITY_DESC, page: 1, perPage: 1){
+			characterMedia(sort: SCORE_DESC, page: 1, perPage: 25){
 			values: edges {
+				characterRole
 				characters {
 					name {
 						full

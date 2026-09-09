@@ -95,7 +95,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 	private static DiscordEmbedBuilder Convert(Staff staff, User user, bool added, AniListUser dbUser)
 	{
 		var isVoiceActor = staff.PrimaryOccupations.Contains(VoiceActorOccupation, StringComparer.OrdinalIgnoreCase);
-		var voicedRole = isVoiceActor ? staff.CharacterMedia.Nodes.FirstOrDefault() : null;
+		var voicedRole = isVoiceActor ? BestVoicedRole(staff.CharacterMedia.Nodes) : null;
 		var bestKnownWork = isVoiceActor ? voicedRole?.Node : staff.StaffMedia.Nodes.FirstOrDefault();
 		var characterName = voicedRole?.Characters?.FirstOrDefault()?.Name.GetName(user.Options.TitleLanguage);
 
@@ -111,4 +111,7 @@ internal static class FavouriteToDiscordEmbedBuilderConverter
 																	   .AddShortMediaLink("Known for", studio.Media.Nodes.FirstOrDefault(),
 																		   user.Options.TitleLanguage);
 	}
+
+	private static CharacterMediaEdge? BestVoicedRole(IEnumerable<CharacterMediaEdge> edges) =>
+		edges.Where(static edge => edge.Node is not null).MinBy(static edge => edge.CharacterRole ?? CharacterRole.Background);
 }

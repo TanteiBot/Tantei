@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using PaperMalKing.AniList.Wrapper.Abstractions.Models.Enums;
 
 namespace PaperMalKing.AniList.Wrapper.Abstractions.Models;
 
@@ -10,6 +11,9 @@ public sealed class CharacterMediaEdge
 {
 	[JsonPropertyName("characters")]
 	public IReadOnlyList<VoicedCharacter>? Characters { get; init; }
+
+	[JsonPropertyName("characterRole")]
+	public CharacterRole? CharacterRole { get; init; }
 
 	[JsonPropertyName("node")]
 	public Media? Node { get; init; }
