@@ -7,12 +7,12 @@
   <PropertyGroup>
     <EntityFrameworkCoreVersion>10.0.12</EntityFrameworkCoreVersion>
     <DotnetExtensionsVersion>10.0.12</DotnetExtensionsVersion>
-    <DotnetSeparateExtensionsVersion>10.9.0</DotnetSeparateExtensionsVersion>  
+    <DotnetSeparateExtensionsVersion>10.10.0</DotnetSeparateExtensionsVersion>  
     <GraphQLClientVersion>6.1.0</GraphQLClientVersion>
     <DSharpPlusVersion>4.5.3</DSharpPlusVersion>
     <VisualStudioThreadingVersion>18.7.23</VisualStudioThreadingVersion>
 
-    <VerifyVersion>32.0.0</VerifyVersion>
+    <VerifyVersion>32.0.1</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
@@ -81,7 +81,7 @@
 
     <!-- Misc -->
     <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
-    <PackageVersion Include="AngleSharp" Version="1.8.0" />
+    <PackageVersion Include="AngleSharp" Version="1.8.1" />
     <PackageVersion Include="System.Threading.RateLimiting" Version="$(DotnetExtensionsVersion)" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="$(VisualStudioThreadingVersion)" />
     <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
@@ -93,11 +93,11 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.231">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.253">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.33.0.1635">
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.34.0.3385">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
