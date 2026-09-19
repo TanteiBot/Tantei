@@ -9,6 +9,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <NoWarn>$(NoWarn);VSTHRD200;CA1515;EA0004;AsyncFixer01;</NoWarn>
         <IsPublishable>false</IsPublishable>
+        <Verify_SponsorshipExemption>OpenSource</Verify_SponsorshipExemption>
+        <Verify_SponsorshipExemptionUntil>2027-09</Verify_SponsorshipExemptionUntil>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(IsTestSupportProject)' != 'true'">
