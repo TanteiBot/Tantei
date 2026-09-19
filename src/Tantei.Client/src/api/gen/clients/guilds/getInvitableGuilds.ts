@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Options, RequestResult } from "../../.kubb/client";
-import { client } from "../../.kubb/client";
+import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
+import { client, withUnwrap } from "../../.kubb/client";
 import type {
   GetInvitableGuildsOptions,
   GetInvitableGuildsResponses,
@@ -15,10 +15,12 @@ import type {
  */
 export function getInvitableGuilds<ThrowOnError extends boolean = true>(
   options: Options<GetInvitableGuildsOptions, ThrowOnError> = {},
-): Promise<RequestResult<GetInvitableGuildsResponses, ThrowOnError>> {
+): Unwrappable<RequestResult<GetInvitableGuildsResponses, ThrowOnError>> {
   const { client: request = client, ...config } = options;
 
-  return request({ method: "GET", url: "/api/guilds/invitable", ...config }) as Promise<
-    RequestResult<GetInvitableGuildsResponses, ThrowOnError>
-  >;
+  return withUnwrap(
+    request({ method: "GET", url: "/api/guilds/invitable", ...config }) as Promise<
+      RequestResult<GetInvitableGuildsResponses, ThrowOnError>
+    >,
+  );
 }

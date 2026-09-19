@@ -35,12 +35,11 @@ export function getUpdateTimesQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      const { data } = await getUpdateTimes({
+      return getUpdateTimes({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,
-      });
-      return data;
+      }).unwrap();
     },
   });
 }

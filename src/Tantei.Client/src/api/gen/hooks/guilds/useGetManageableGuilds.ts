@@ -35,12 +35,11 @@ export function getManageableGuildsQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      const { data } = await getManageableGuilds({
+      return getManageableGuilds({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,
-      });
-      return data;
+      }).unwrap();
     },
   });
 }

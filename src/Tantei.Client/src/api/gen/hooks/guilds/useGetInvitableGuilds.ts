@@ -34,12 +34,11 @@ export function getInvitableGuildsQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      const { data } = await getInvitableGuilds({
+      return getInvitableGuilds({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,
-      });
-      return data;
+      }).unwrap();
     },
   });
 }

@@ -27,12 +27,11 @@ export function getSiteConfigQueryOptions(
   return queryOptions<GetSiteConfigStatus200, ResponseErrorConfig<Error>, GetSiteConfigStatus200>({
     queryKey,
     queryFn: async ({ signal }) => {
-      const { data } = await getSiteConfig({
+      return getSiteConfig({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,
-      });
-      return data;
+      }).unwrap();
     },
   });
 }

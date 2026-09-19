@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Options, RequestResult } from "../../.kubb/client";
-import { client } from "../../.kubb/client";
+import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
+import { client, withUnwrap } from "../../.kubb/client";
 import type { GetCreditsOptions, GetCreditsResponses } from "../../types/credits/GetCredits";
 
 /**
@@ -12,10 +12,12 @@ import type { GetCreditsOptions, GetCreditsResponses } from "../../types/credits
  */
 export function getCredits<ThrowOnError extends boolean = true>(
   options: Options<GetCreditsOptions, ThrowOnError> = {},
-): Promise<RequestResult<GetCreditsResponses, ThrowOnError>> {
+): Unwrappable<RequestResult<GetCreditsResponses, ThrowOnError>> {
   const { client: request = client, ...config } = options;
 
-  return request({ method: "GET", url: "/api/credits", ...config }) as Promise<
-    RequestResult<GetCreditsResponses, ThrowOnError>
-  >;
+  return withUnwrap(
+    request({ method: "GET", url: "/api/credits", ...config }) as Promise<
+      RequestResult<GetCreditsResponses, ThrowOnError>
+    >,
+  );
 }

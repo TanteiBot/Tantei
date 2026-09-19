@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Options, RequestResult } from "../../.kubb/client";
-import { client } from "../../.kubb/client";
+import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
+import { client, withUnwrap } from "../../.kubb/client";
 import type {
   RefreshGuildsOptions,
   RefreshGuildsResponses,
@@ -15,10 +15,12 @@ import type {
  */
 export function refreshGuilds<ThrowOnError extends boolean = true>(
   options: Options<RefreshGuildsOptions, ThrowOnError> = {},
-): Promise<RequestResult<RefreshGuildsResponses, ThrowOnError>> {
+): Unwrappable<RequestResult<RefreshGuildsResponses, ThrowOnError>> {
   const { client: request = client, ...config } = options;
 
-  return request({ method: "POST", url: "/api/guilds/refresh", ...config }) as Promise<
-    RequestResult<RefreshGuildsResponses, ThrowOnError>
-  >;
+  return withUnwrap(
+    request({ method: "POST", url: "/api/guilds/refresh", ...config }) as Promise<
+      RequestResult<RefreshGuildsResponses, ThrowOnError>
+    >,
+  );
 }

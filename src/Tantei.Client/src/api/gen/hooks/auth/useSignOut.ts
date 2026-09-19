@@ -33,8 +33,7 @@ export function useSignOut<TContext>(
   return useMutation<SignOutStatus204, ResponseErrorConfig<Error>, undefined, TContext>(
     {
       mutationFn: async () => {
-        const { data } = await signOut({ ...config, throwOnError: true });
-        return data;
+        return signOut({ ...config, throwOnError: true }).unwrap();
       },
       mutationKey,
       ...mutationOptions,

@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Options, RequestResult } from "../../.kubb/client";
-import { client } from "../../.kubb/client";
+import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
+import { client, withUnwrap } from "../../.kubb/client";
 import type { PingOptions, PingResponses } from "../../types/status/Ping";
 
 /**
@@ -12,10 +12,12 @@ import type { PingOptions, PingResponses } from "../../types/status/Ping";
  */
 export function ping<ThrowOnError extends boolean = true>(
   options: Options<PingOptions, ThrowOnError> = {},
-): Promise<RequestResult<PingResponses, ThrowOnError>> {
+): Unwrappable<RequestResult<PingResponses, ThrowOnError>> {
   const { client: request = client, ...config } = options;
 
-  return request({ method: "GET", url: "/api/ping", ...config }) as Promise<
-    RequestResult<PingResponses, ThrowOnError>
-  >;
+  return withUnwrap(
+    request({ method: "GET", url: "/api/ping", ...config }) as Promise<
+      RequestResult<PingResponses, ThrowOnError>
+    >,
+  );
 }

@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Options, RequestResult } from "../../.kubb/client";
-import { client } from "../../.kubb/client";
+import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
+import { client, withUnwrap } from "../../.kubb/client";
 import type {
   GetCurrentUserOptions,
   GetCurrentUserResponses,
@@ -15,10 +15,12 @@ import type {
  */
 export function getCurrentUser<ThrowOnError extends boolean = true>(
   options: Options<GetCurrentUserOptions, ThrowOnError> = {},
-): Promise<RequestResult<GetCurrentUserResponses, ThrowOnError>> {
+): Unwrappable<RequestResult<GetCurrentUserResponses, ThrowOnError>> {
   const { client: request = client, ...config } = options;
 
-  return request({ method: "GET", url: "/api/auth/me", ...config }) as Promise<
-    RequestResult<GetCurrentUserResponses, ThrowOnError>
-  >;
+  return withUnwrap(
+    request({ method: "GET", url: "/api/auth/me", ...config }) as Promise<
+      RequestResult<GetCurrentUserResponses, ThrowOnError>
+    >,
+  );
 }

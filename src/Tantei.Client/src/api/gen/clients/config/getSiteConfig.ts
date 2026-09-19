@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Options, RequestResult } from "../../.kubb/client";
-import { client } from "../../.kubb/client";
+import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
+import { client, withUnwrap } from "../../.kubb/client";
 import type {
   GetSiteConfigOptions,
   GetSiteConfigResponses,
@@ -15,10 +15,12 @@ import type {
  */
 export function getSiteConfig<ThrowOnError extends boolean = true>(
   options: Options<GetSiteConfigOptions, ThrowOnError> = {},
-): Promise<RequestResult<GetSiteConfigResponses, ThrowOnError>> {
+): Unwrappable<RequestResult<GetSiteConfigResponses, ThrowOnError>> {
   const { client: request = client, ...config } = options;
 
-  return request({ method: "GET", url: "/api/config", ...config }) as Promise<
-    RequestResult<GetSiteConfigResponses, ThrowOnError>
-  >;
+  return withUnwrap(
+    request({ method: "GET", url: "/api/config", ...config }) as Promise<
+      RequestResult<GetSiteConfigResponses, ThrowOnError>
+    >,
+  );
 }

@@ -31,12 +31,7 @@ export function pingQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      const { data } = await ping({
-        ...config,
-        signal: config.signal ?? signal,
-        throwOnError: true,
-      });
-      return data;
+      return ping({ ...config, signal: config.signal ?? signal, throwOnError: true }).unwrap();
     },
   });
 }
