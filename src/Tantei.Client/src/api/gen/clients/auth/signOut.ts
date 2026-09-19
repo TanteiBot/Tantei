@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Options, RequestResult } from "../../.kubb/client";
-import { client } from "../../.kubb/client";
+import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
+import { client, withUnwrap } from "../../.kubb/client";
 import type { SignOutOptions, SignOutResponses } from "../../types/auth/SignOut";
 
 /**
@@ -12,10 +12,12 @@ import type { SignOutOptions, SignOutResponses } from "../../types/auth/SignOut"
  */
 export function signOut<ThrowOnError extends boolean = true>(
   options: Options<SignOutOptions, ThrowOnError> = {},
-): Promise<RequestResult<SignOutResponses, ThrowOnError>> {
+): Unwrappable<RequestResult<SignOutResponses, ThrowOnError>> {
   const { client: request = client, ...config } = options;
 
-  return request({ method: "POST", url: "/api/auth/sign-out", ...config }) as Promise<
-    RequestResult<SignOutResponses, ThrowOnError>
-  >;
+  return withUnwrap(
+    request({ method: "POST", url: "/api/auth/sign-out", ...config }) as Promise<
+      RequestResult<SignOutResponses, ThrowOnError>
+    >,
+  );
 }

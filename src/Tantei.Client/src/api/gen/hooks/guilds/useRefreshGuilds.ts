@@ -42,8 +42,7 @@ export function useRefreshGuilds<TContext>(
   >(
     {
       mutationFn: async () => {
-        const { data } = await refreshGuilds({ ...config, throwOnError: true });
-        return data;
+        return refreshGuilds({ ...config, throwOnError: true }).unwrap();
       },
       mutationKey,
       ...mutationOptions,

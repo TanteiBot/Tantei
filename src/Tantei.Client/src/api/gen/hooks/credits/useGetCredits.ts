@@ -27,12 +27,11 @@ export function getCreditsQueryOptions(
   return queryOptions<GetCreditsStatus200, ResponseErrorConfig<Error>, GetCreditsStatus200>({
     queryKey,
     queryFn: async ({ signal }) => {
-      const { data } = await getCredits({
+      return getCredits({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,
-      });
-      return data;
+      }).unwrap();
     },
   });
 }
