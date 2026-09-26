@@ -92,9 +92,9 @@ public sealed class GuildQueryServiceTests
 		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId));
 
 		var result = service.GetInvitableGuilds([
-			new(FirstGuildId, "Bot is here", null, Permissions.ManageGuild),
-			new(ThirdGuildId, "Can invite", null, Permissions.ManageGuild),
-			new(FourthGuildId, "No permission", null, Permissions.None),
+			new(FirstGuildId, "Bot is here", IconUrl: null, Permissions.ManageGuild),
+			new(ThirdGuildId, "Can invite", IconUrl: null, Permissions.ManageGuild),
+			new(FourthGuildId, "No permission", IconUrl: null, Permissions.None),
 		]);
 
 		await Assert.That(result.Select(g => g.GuildId)).IsEquivalentTo([ThirdGuildId,]);
@@ -107,6 +107,6 @@ public sealed class GuildQueryServiceTests
 		await using var ownedConnection = connection;
 		var service = new GuildQueryService(factory, new FakeBotGuildPresence(FirstGuildId));
 
-		await Assert.That(service.GetInvitableGuilds([new(FirstGuildId, "Bot is here", null, Permissions.ManageGuild),])).IsEmpty();
+		await Assert.That(service.GetInvitableGuilds([new(FirstGuildId, "Bot is here", IconUrl: null, Permissions.ManageGuild),])).IsEmpty();
 	}
 }
