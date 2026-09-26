@@ -267,10 +267,10 @@ public sealed class SearchEvaluatorTests
 			new(
 				Monster,
 				PickerMediaKind.Anime,
-				null,
+				MediaTypeFilter: null,
 				1UL,
 				"Requester",
-				null,
+				RequesterAvatarUrl: null,
 				2UL,
 				3UL,
 				DateTimeOffset.UnixEpoch),

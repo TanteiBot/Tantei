@@ -55,7 +55,7 @@ public sealed class UserGuildsProviderTests
 
 		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
 		var cache = new UserGuildsCache(memoryCache);
-		cache.Set(UserId, [new(CachedGuildId, "Cached", null, Permissions.ManageGuild),]);
+		cache.Set(UserId, [new(CachedGuildId, "Cached", IconUrl: null, Permissions.ManageGuild),]);
 
 		using var handler = new FakeHttpMessageHandler(_ => new(HttpStatusCode.OK));
 		using var httpClient = CreateHttpClient(handler);
