@@ -16,8 +16,11 @@ export function getCredits<ThrowOnError extends boolean = true>(
   const { client: request = client, ...config } = options;
 
   return withUnwrap(
-    request({ method: "GET", url: "/api/credits", ...config }) as Promise<
-      RequestResult<GetCreditsResponses, ThrowOnError>
-    >,
+    request({
+      method: "GET",
+      url: "/api/credits",
+      ...config,
+      throwOnError: config.throwOnError ?? true,
+    }) as Promise<RequestResult<GetCreditsResponses, ThrowOnError>>,
   );
 }

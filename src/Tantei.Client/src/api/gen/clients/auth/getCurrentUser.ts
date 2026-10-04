@@ -19,8 +19,11 @@ export function getCurrentUser<ThrowOnError extends boolean = true>(
   const { client: request = client, ...config } = options;
 
   return withUnwrap(
-    request({ method: "GET", url: "/api/auth/me", ...config }) as Promise<
-      RequestResult<GetCurrentUserResponses, ThrowOnError>
-    >,
+    request({
+      method: "GET",
+      url: "/api/auth/me",
+      ...config,
+      throwOnError: config.throwOnError ?? true,
+    }) as Promise<RequestResult<GetCurrentUserResponses, ThrowOnError>>,
   );
 }

@@ -16,8 +16,11 @@ export function signOut<ThrowOnError extends boolean = true>(
   const { client: request = client, ...config } = options;
 
   return withUnwrap(
-    request({ method: "POST", url: "/api/auth/sign-out", ...config }) as Promise<
-      RequestResult<SignOutResponses, ThrowOnError>
-    >,
+    request({
+      method: "POST",
+      url: "/api/auth/sign-out",
+      ...config,
+      throwOnError: config.throwOnError ?? true,
+    }) as Promise<RequestResult<SignOutResponses, ThrowOnError>>,
   );
 }

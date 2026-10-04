@@ -19,8 +19,11 @@ export function getSiteConfig<ThrowOnError extends boolean = true>(
   const { client: request = client, ...config } = options;
 
   return withUnwrap(
-    request({ method: "GET", url: "/api/config", ...config }) as Promise<
-      RequestResult<GetSiteConfigResponses, ThrowOnError>
-    >,
+    request({
+      method: "GET",
+      url: "/api/config",
+      ...config,
+      throwOnError: config.throwOnError ?? true,
+    }) as Promise<RequestResult<GetSiteConfigResponses, ThrowOnError>>,
   );
 }

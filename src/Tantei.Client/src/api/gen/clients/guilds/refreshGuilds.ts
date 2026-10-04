@@ -19,8 +19,11 @@ export function refreshGuilds<ThrowOnError extends boolean = true>(
   const { client: request = client, ...config } = options;
 
   return withUnwrap(
-    request({ method: "POST", url: "/api/guilds/refresh", ...config }) as Promise<
-      RequestResult<RefreshGuildsResponses, ThrowOnError>
-    >,
+    request({
+      method: "POST",
+      url: "/api/guilds/refresh",
+      ...config,
+      throwOnError: config.throwOnError ?? true,
+    }) as Promise<RequestResult<RefreshGuildsResponses, ThrowOnError>>,
   );
 }
