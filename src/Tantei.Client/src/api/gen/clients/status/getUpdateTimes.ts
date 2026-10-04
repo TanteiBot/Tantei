@@ -19,8 +19,11 @@ export function getUpdateTimes<ThrowOnError extends boolean = true>(
   const { client: request = client, ...config } = options;
 
   return withUnwrap(
-    request({ method: "GET", url: "/api/getUpdateTimes", ...config }) as Promise<
-      RequestResult<GetUpdateTimesResponses, ThrowOnError>
-    >,
+    request({
+      method: "GET",
+      url: "/api/getUpdateTimes",
+      ...config,
+      throwOnError: config.throwOnError ?? true,
+    }) as Promise<RequestResult<GetUpdateTimesResponses, ThrowOnError>>,
   );
 }

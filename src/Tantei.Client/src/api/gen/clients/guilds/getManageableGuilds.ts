@@ -19,8 +19,11 @@ export function getManageableGuilds<ThrowOnError extends boolean = true>(
   const { client: request = client, ...config } = options;
 
   return withUnwrap(
-    request({ method: "GET", url: "/api/guilds/manageable", ...config }) as Promise<
-      RequestResult<GetManageableGuildsResponses, ThrowOnError>
-    >,
+    request({
+      method: "GET",
+      url: "/api/guilds/manageable",
+      ...config,
+      throwOnError: config.throwOnError ?? true,
+    }) as Promise<RequestResult<GetManageableGuildsResponses, ThrowOnError>>,
   );
 }

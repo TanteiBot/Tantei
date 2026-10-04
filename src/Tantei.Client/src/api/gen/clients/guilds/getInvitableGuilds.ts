@@ -19,8 +19,11 @@ export function getInvitableGuilds<ThrowOnError extends boolean = true>(
   const { client: request = client, ...config } = options;
 
   return withUnwrap(
-    request({ method: "GET", url: "/api/guilds/invitable", ...config }) as Promise<
-      RequestResult<GetInvitableGuildsResponses, ThrowOnError>
-    >,
+    request({
+      method: "GET",
+      url: "/api/guilds/invitable",
+      ...config,
+      throwOnError: config.throwOnError ?? true,
+    }) as Promise<RequestResult<GetInvitableGuildsResponses, ThrowOnError>>,
   );
 }

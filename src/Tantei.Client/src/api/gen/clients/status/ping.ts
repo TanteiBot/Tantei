@@ -16,8 +16,11 @@ export function ping<ThrowOnError extends boolean = true>(
   const { client: request = client, ...config } = options;
 
   return withUnwrap(
-    request({ method: "GET", url: "/api/ping", ...config }) as Promise<
-      RequestResult<PingResponses, ThrowOnError>
-    >,
+    request({
+      method: "GET",
+      url: "/api/ping",
+      ...config,
+      throwOnError: config.throwOnError ?? true,
+    }) as Promise<RequestResult<PingResponses, ThrowOnError>>,
   );
 }
