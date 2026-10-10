@@ -27,7 +27,4 @@ export type RefreshGuildsResponses = {
 /**
  * @description Union of all possible responses
  */
-export type RefreshGuildsResponse =
-  | RefreshGuildsStatus204
-  | RefreshGuildsStatus401
-  | RefreshGuildsStatus502;
+export type RefreshGuildsResponse = RefreshGuildsStatus204;

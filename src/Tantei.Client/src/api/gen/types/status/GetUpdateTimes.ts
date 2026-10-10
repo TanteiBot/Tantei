@@ -28,7 +28,4 @@ export type GetUpdateTimesResponses = {
 /**
  * @description Union of all possible responses
  */
-export type GetUpdateTimesResponse =
-  | GetUpdateTimesStatus200
-  | GetUpdateTimesStatus401
-  | GetUpdateTimesStatus403;
+export type GetUpdateTimesResponse = GetUpdateTimesStatus200;

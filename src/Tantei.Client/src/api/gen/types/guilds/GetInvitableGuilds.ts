@@ -25,4 +25,4 @@ export type GetInvitableGuildsResponses = {
 /**
  * @description Union of all possible responses
  */
-export type GetInvitableGuildsResponse = GetInvitableGuildsStatus200 | GetInvitableGuildsStatus401;
+export type GetInvitableGuildsResponse = GetInvitableGuildsStatus200;
