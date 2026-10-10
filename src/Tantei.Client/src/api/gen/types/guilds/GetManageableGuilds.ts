@@ -28,7 +28,4 @@ export type GetManageableGuildsResponses = {
 /**
  * @description Union of all possible responses
  */
-export type GetManageableGuildsResponse =
-  | GetManageableGuildsStatus200
-  | GetManageableGuildsStatus401
-  | GetManageableGuildsStatus403;
+export type GetManageableGuildsResponse = GetManageableGuildsStatus200;
