@@ -42,7 +42,7 @@ public static class HashHelpers
 		return FormatHash(ids.Length, shaHashDestination);
 	}
 
-	private static string FormatHash(int length, Span<byte> shaHashDestination)
+	private static string FormatHash(int length, ReadOnlySpan<byte> shaHashDestination)
 	{
 		return string.Create(CultureInfo.InvariantCulture, $"{length}:{Convert.ToHexString(shaHashDestination)}");
 	}

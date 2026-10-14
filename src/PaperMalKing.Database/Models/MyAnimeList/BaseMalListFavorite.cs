@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PaperMalKing.Database.Models.MyAnimeList;
 
+// TODO Convert to closed class
 public abstract class BaseMalListFavorite : BaseMalFavorite
 {
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]

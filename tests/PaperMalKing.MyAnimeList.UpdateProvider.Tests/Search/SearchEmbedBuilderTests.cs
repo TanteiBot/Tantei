@@ -176,7 +176,7 @@ public sealed class SearchEmbedBuilderTests
 
 		await Assert.That(embed.Description).IsNotNull();
 		await Assert.That(embed.Description.Length).IsEqualTo(SynopsisLimit);
-		await Assert.That(embed.Description.EndsWith('…')).IsTrue();
+		await Assert.That(embed.Description.EndsWith('…', StringComparison.Ordinal)).IsTrue();
 	}
 
 	[Test]

@@ -6,7 +6,6 @@
         <PackageReference Include="DSharpPlus" />
         <PackageReference Include="DSharpPlus.SlashCommands" />
         <PackageReference Include="GraphQL.Client" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Hosting" />
         <PackageReference Include="Humanizer.Core" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" />

@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
-using System.Net.Http.Json;
 using System.Text.Json.Serialization.Metadata;
 using AngleSharp;
 using AngleSharp.Dom;

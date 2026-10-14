@@ -109,7 +109,7 @@ internal static class FavoritesParser
 	private static BaseFavorite ParseBaseFavorite(IElement parent)
 	{
 		var urlUnparsed = parent.GetAttribute("href")!;
-		if (urlUnparsed.StartsWith('/'))
+		if (urlUnparsed.StartsWith('/', StringComparison.Ordinal))
 		{
 			urlUnparsed = Constants.BaseUrl + urlUnparsed;
 		}

@@ -50,7 +50,7 @@ public sealed class PickerRendererTests
 		var option = select.Options.Single();
 
 		await Assert.That(option.Label.Length).IsLessThanOrEqualTo(PickerRenderer.OptionLabelLimit);
-		await Assert.That(option.Label.EndsWith('…')).IsTrue();
+		await Assert.That(option.Label.EndsWith('…', StringComparison.Ordinal)).IsTrue();
 		await Assert.That(option.Value).IsEqualTo("0");
 		await Assert.That(option.Description).IsEqualTo("TV · 2004 · ★ 8.88 · 1.4M members");
 		await Assert.That(option.Description!.Length).IsLessThanOrEqualTo(PickerRenderer.OptionDescriptionLimit);
@@ -70,7 +70,7 @@ public sealed class PickerRendererTests
 		var option = ((DiscordSelectComponent)view.Rows[0][0]).Options.Single();
 
 		await Assert.That(option.Description!.Length).IsLessThanOrEqualTo(PickerRenderer.OptionDescriptionLimit);
-		await Assert.That(option.Description!.EndsWith('…')).IsTrue();
+		await Assert.That(option.Description!.EndsWith('…', StringComparison.Ordinal)).IsTrue();
 	}
 
 	[Test]
@@ -86,7 +86,7 @@ public sealed class PickerRendererTests
 
 		await Assert.That(label.Length).IsLessThanOrEqualTo(PickerRenderer.OptionLabelLimit);
 		await Assert.That(label.IsNormalized()).IsTrue();
-		await Assert.That(label.EndsWith('…')).IsTrue();
+		await Assert.That(label.EndsWith('…', StringComparison.Ordinal)).IsTrue();
 	}
 
 	private static SearchResult Result(int id) => new(
