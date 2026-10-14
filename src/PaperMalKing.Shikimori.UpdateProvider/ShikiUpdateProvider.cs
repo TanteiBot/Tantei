@@ -206,7 +206,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 		return groupedHistoryEntriesWithMediaAndRoles;
 	}
 
-	private async Task<(IReadOnlyList<EnrichedFavourite> AddedValues, IReadOnlyList<EnrichedFavourite> RemovedValues)>
+	private Task<(IReadOnlyList<EnrichedFavourite> AddedValues, IReadOnlyList<EnrichedFavourite> RemovedValues)>
 		GetFavouritesUpdateAsync(Favourites favs, ShikiUser dbUser, DatabaseContext db, CancellationToken cancellationToken)
 	{
 		static Func<FavouriteEntry, ShikiFavourite> Selector(ShikiUser shikiUser)
@@ -229,7 +229,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 					   }).ToArray();
 		if (favs.AllFavourites.SequenceEqual(dbFavs))
 		{
-			return ([], []);
+			return Task.FromResult<(IReadOnlyList<EnrichedFavourite> AddedValues, IReadOnlyList<EnrichedFavourite> RemovedValues)>((Array.Empty<EnrichedFavourite>(), Array.Empty<EnrichedFavourite>()));
 		}
 
 		var (addedValues, removedValues) = dbFavs.GetDifference(favs.AllFavourites);
@@ -243,7 +243,7 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 			db.ShikiFavourites.RemoveRange(removedValues.Select(Selector(dbUser)));
 		}
 
-		return await ShikiFavouriteEnrichment.EnrichAsync(addedValues, removedValues, dbUser.Features, _client, logger, cancellationToken);
+		return ShikiFavouriteEnrichment.EnrichAsync(addedValues, removedValues, dbUser.Features, _client, logger, cancellationToken);
 	}
 
 	private async Task<IReadOnlyList<ShikiAchievement>> GetAchievementsUpdatesAsync(ShikiUser dbUser, CancellationToken cancellationToken)

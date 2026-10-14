@@ -331,7 +331,7 @@ internal sealed class SearchPicker(IMemoryCache _cache, TimeProvider _timeProvid
 		resources.Release();
 	}
 
-	private async Task ChangePageAsync(PickerState state, IPickerInteraction interaction, int offset)
+	private Task ChangePageAsync(PickerState state, IPickerInteraction interaction, int offset)
 	{
 		PickerView view;
 		CancellationToken cancellationToken;
@@ -339,7 +339,7 @@ internal sealed class SearchPicker(IMemoryCache _cache, TimeProvider _timeProvid
 		{
 			if (state.Phase != PickerPhase.Active)
 			{
-				return;
+				return Task.CompletedTask;
 			}
 
 			this.ResetInactivityTimer(state);
@@ -348,21 +348,21 @@ internal sealed class SearchPicker(IMemoryCache _cache, TimeProvider _timeProvid
 			cancellationToken = state.LifetimeCancellation.Token;
 		}
 
-		await interaction.ApplyOutcomeAsync(PickerInteractionOutcome.Replace(view), cancellationToken).ConfigureAwait(false);
+		return interaction.ApplyOutcomeAsync(PickerInteractionOutcome.Replace(view), cancellationToken);
 	}
 
-	private async Task CancelAsync(PickerState state, IPickerInteraction interaction)
+	private Task CancelAsync(PickerState state, IPickerInteraction interaction)
 	{
 		this.ResetInactivityIfActive(state);
 		var transition = this.TryEnd(state, allowOpening: false, requirePosting: false);
 		if (transition is null)
 		{
-			return;
+			return Task.CompletedTask;
 		}
 
 		this.CompleteEnd(state, transition.Value, PickerTerminalReason.Cancelled, selectedMediaId: null);
 		var outcome = PickerInteractionOutcome.Replace(PickerView.Terminal(SearchMessages.Cancelled));
-		await this.TryPushAsync(() => interaction.ApplyOutcomeAsync(outcome, CancellationToken.None)).ConfigureAwait(false);
+		return this.TryPushAsync(() => interaction.ApplyOutcomeAsync(outcome, CancellationToken.None));
 	}
 
 	[SuppressMessage("Maintainability", "CA1508:Avoid dead conditional code", Justification = "Expiry or eviction can change the state between the two locks")]
@@ -577,6 +577,7 @@ internal sealed class SearchPicker(IMemoryCache _cache, TimeProvider _timeProvid
 
 		private readonly TaskCompletionSource _completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
+		[SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "Reviewed here")]
 		public Task Completion => this._completion.Task;
 
 		public CancellationTokenSource LifetimeCancellation { get; } = new();
