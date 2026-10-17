@@ -1,9 +1,5 @@
-export { getCurrentUser } from "./auth/getCurrentUser";
-export { signOut } from "./auth/signOut";
-export { getSiteConfig } from "./config/getSiteConfig";
-export { getCredits } from "./credits/getCredits";
-export { getInvitableGuilds } from "./guilds/getInvitableGuilds";
-export { getManageableGuilds } from "./guilds/getManageableGuilds";
-export { refreshGuilds } from "./guilds/refreshGuilds";
-export { getUpdateTimes } from "./status/getUpdateTimes";
-export { ping } from "./status/ping";
+export * from "./auth/index";
+export * from "./config/index";
+export * from "./credits/index";
+export * from "./guilds/index";
+export * from "./status/index";
