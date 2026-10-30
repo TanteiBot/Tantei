@@ -5,8 +5,8 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <PropertyGroup>
-    <EntityFrameworkCoreVersion>10.0.13</EntityFrameworkCoreVersion>
-    <DotnetExtensionsVersion>10.0.13</DotnetExtensionsVersion>
+    <EntityFrameworkCoreVersion>10.0.14</EntityFrameworkCoreVersion>
+    <DotnetExtensionsVersion>10.0.14</DotnetExtensionsVersion>
     <DotnetSeparateExtensionsVersion>10.11.0</DotnetSeparateExtensionsVersion>  
     <GraphQLClientVersion>6.1.0</GraphQLClientVersion>
     <DSharpPlusVersion>4.5.3</DSharpPlusVersion>
@@ -73,7 +73,7 @@
     <!-- Web -->
     <PackageVersion Include="AspNet.Security.OAuth.Discord" Version="10.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(DotnetExtensionsVersion)" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.18.3" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.18.6" />
     <PackageVersion Include="Microsoft.Extensions.ApiDescription.Server" Version="$(DotnetExtensionsVersion)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -81,10 +81,10 @@
 
     <!-- Misc -->
     <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
-    <PackageVersion Include="AngleSharp" Version="1.8.5" />
+    <PackageVersion Include="AngleSharp" Version="1.8.6" />
     <PackageVersion Include="System.Threading.RateLimiting" Version="$(DotnetExtensionsVersion)" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="$(VisualStudioThreadingVersion)" />
-    <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
+    <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="4.0.1" />
     <GlobalPackageReference Include="GitVersion.MsBuild" Version="6.8.2">
         <PrivateAssets>All</PrivateAssets>
     </GlobalPackageReference>
@@ -93,7 +93,7 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.316">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.317">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -135,7 +135,7 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.5" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
     <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
-    <PackageVersion Include="TUnit" Version="1.76.0" />
+    <PackageVersion Include="TUnit" Version="1.76.45" />
     <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="$(DotnetSeparateExtensionsVersion)" />
 
 
