@@ -20,13 +20,22 @@ export default defineConfig({
   output: {
     path: "./src/api/gen",
     clean: true,
-    barrel: { type: "named", nested: true },
+    barrel: { type: "named" },
   },
   adapter: adapterOas(),
   plugins: [
-    pluginTs({ output: { path: "types" }, group }),
-    pluginFetch({ output: { path: "clients" }, group, exclude: [...exclude] }),
-    pluginVueQuery({ output: { path: "hooks" }, group, exclude: [...exclude], hooks: true }),
+    pluginTs({ output: { path: "types", barrel: { type: "named", nested: true } }, group }),
+    pluginFetch({
+      output: { path: "clients", barrel: { type: "named", nested: true } },
+      group,
+      exclude: [...exclude],
+    }),
+    pluginVueQuery({
+      output: { path: "hooks", barrel: { type: "named", nested: true } },
+      group,
+      exclude: [...exclude],
+      hooks: true,
+    }),
     pluginBarrel(),
   ],
 });
