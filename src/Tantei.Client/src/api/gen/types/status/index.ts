@@ -8,6 +8,7 @@ export type {
 } from "./GetUpdateTimes";
 export type {
   PingOptions,
+  PingResponse2,
   PingResponses,
   PingStatus200,
   PingStatus401,
