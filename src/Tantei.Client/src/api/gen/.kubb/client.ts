@@ -598,7 +598,9 @@ export async function resolveAuth(params: {
     if (scheme.type !== "apiKey") {
       if (getHeader(headers, "Authorization") === undefined) {
         headers["Authorization"] =
-          scheme.scheme === "basic" ? `Basic ${btoa(token)}` : `Bearer ${token}`;
+          scheme.scheme === "basic"
+            ? `Basic ${btoa(String.fromCharCode(...new TextEncoder().encode(token)))}`
+            : `Bearer ${token}`;
       }
       return;
     }

@@ -24,3 +24,8 @@ export type PingResponses = {
   "401": PingStatus401;
   "403": PingStatus403;
 };
+
+/**
+ * @description Union of all possible responses
+ */
+export type PingResponse2 = PingStatus200;

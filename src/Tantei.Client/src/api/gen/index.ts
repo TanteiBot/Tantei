@@ -95,6 +95,7 @@ export type {
 } from "./types/status/GetUpdateTimes";
 export type {
   PingOptions,
+  PingResponse2,
   PingResponses,
   PingStatus200,
   PingStatus401,
