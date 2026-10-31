@@ -33,9 +33,9 @@
   "devDependencies": {
     "@iconify-json/circle-flags": "^1.2.12",
     "@intlify/unplugin-vue-i18n": "^11.2.8",
-    "@kubb/plugin-fetch": "^5.9.2",
+    "@kubb/plugin-fetch": "^5.10.0",
     "@kubb/plugin-ts": "^5.0.0",
-    "@kubb/plugin-vue-query": "^5.6.2",
+    "@kubb/plugin-vue-query": "^5.7.0",
     "@kubb/plugin-zod": "^5.0.0",
     "@storybook/addon-docs": "^10.6.4",
     "@storybook/vue3-vite": "^10.6.4",
