@@ -222,7 +222,7 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 
 		var updatesCount = 0;
 
-		if (favorites.Any())
+		if (favorites is not [])
 		{
 			foreach (var deb in favorites)
 			{

@@ -26,7 +26,7 @@ public sealed class SearchEmbedExtensionsTests
 		var builder = new DiscordEmbedBuilder().WithRequestedByAuthor(new string('n', 300), AvatarUrl);
 
 		await Assert.That(builder.Author.Name.Length).IsLessThanOrEqualTo(AuthorNameLimit);
-		await Assert.That(builder.Author.Name.EndsWith('…')).IsTrue();
+		await Assert.That(builder.Author.Name.EndsWith('…', StringComparison.Ordinal)).IsTrue();
 	}
 
 	[Test]

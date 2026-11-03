@@ -64,7 +64,7 @@ public static class HostBuilderExtensions
 						   List<EventId> eventIds =
 						   [
 							   RelationalEventId.MultipleCollectionIncludeWarning, RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
-							   RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
+							   RelationalEventId.AllIndexPropertiesNotMappedToAnyTable,
 							   RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable,
 							   RelationalEventId.KeyPropertiesNotMappedToTable, RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables,
 							   RelationalEventId.ForeignKeyTpcPrincipalWarning,
@@ -119,7 +119,7 @@ public static class HostBuilderExtensions
 				options.RequestPathParameterRedactionMode = HttpRouteParameterRedactionMode.None;
 				options.BodyReadTimeout = TimeSpan.FromSeconds(59);
 
-				foreach (var contentType in (ReadOnlySpan<string>)["application/json"])
+				foreach (var contentType in (ReadOnlySpan<string>)[System.Net.Mime.MediaTypeNames.Application.Json])
 				{
 					options.RequestBodyContentTypes.Add(contentType);
 					options.ResponseBodyContentTypes.Add(contentType);
