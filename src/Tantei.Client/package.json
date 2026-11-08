@@ -24,7 +24,7 @@
   "dependencies": {
     "@iconify-json/lucide": "^1.2.151",
     "@nuxt/ui": "^4.12.0",
-    "@tanstack/vue-query": "^5.105.3",
+    "@tanstack/vue-query": "^5.106.0",
     "tailwindcss": "^4.3.4",
     "vue": "^3.5.44",
     "vue-i18n": "^11.4.18",
@@ -39,7 +39,7 @@
     "@kubb/plugin-zod": "^5.0.0",
     "@storybook/addon-docs": "^10.6.5",
     "@storybook/vue3-vite": "^10.6.5",
-    "@tanstack/vue-query-devtools": "^6.3.9",
+    "@tanstack/vue-query-devtools": "^6.3.10",
     "@tsconfig/node24": "^24.0.5",
     "@types/node": "^24.19.2",
     "@vitejs/plugin-vue": "^6.0.10",
