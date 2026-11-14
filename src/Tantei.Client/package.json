@@ -52,7 +52,7 @@
     "jiti": "^2.7.0",
     "kubb": "^5.15.3",
     "npm-run-all2": "^9.0.4",
-    "oxfmt": "0.76.0",
+    "oxfmt": "0.78.0",
     "oxlint": "~1.93.0",
     "storybook": "^10.5.10",
     "typescript": "~6.0.3",
