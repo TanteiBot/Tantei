@@ -134,8 +134,9 @@ internal sealed class ShikiUpdateProvider(ILogger<ShikiUpdateProvider> logger, I
 			await db.SaveChangesAndThrowOnNoneAsync(cancellationToken);
 		}
 
-		var (addedFavourites, removedFavourites) = dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) && isFavouritesMismatch ?
-			await this.GetFavouritesUpdateAsync(favs, dbUser, db, cancellationToken) : ([], []);
+		var (addedFavourites, removedFavourites) = dbUser.Features.HasFlag(ShikiUserFeatures.Favourites) && isFavouritesMismatch
+			? await this.GetFavouritesUpdateAsync(favs, dbUser, db, cancellationToken)
+			: ([], []);
 
 		if (addedFavourites is not [] || removedFavourites is not [])
 		{

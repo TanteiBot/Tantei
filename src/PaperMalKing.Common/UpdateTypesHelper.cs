@@ -29,7 +29,8 @@ public static class UpdateTypesHelper<[DynamicallyAccessedMembers(DynamicallyAcc
 	{
 		var ti = typeof(T).GetTypeInfo();
 		Debug.Assert(Enum.GetUnderlyingType(typeof(T)) == typeof(byte), $"All update types must have {nameof(Byte)} as underlying type");
-		return [.. Enum.GetValues<T>()
+
+		return Enum.GetValues<T>()
 			.Where(v => Attribute.IsDefined(ti.DeclaredFields.First(xm => xm.Name.Equals(v.ToString(), StringComparison.Ordinal)), typeof(EnumDescriptionAttribute))).Select(value =>
 		{
 			var name = value.ToString();
@@ -37,6 +38,6 @@ public static class UpdateTypesHelper<[DynamicallyAccessedMembers(DynamicallyAcc
 							  .GetCustomAttribute<EnumDescriptionAttribute>()!;
 
 			return new EnumInfo<T>(name, attribute.Description, attribute.Summary, value);
-		}),];
+		}).ToArray();
 	}
 }

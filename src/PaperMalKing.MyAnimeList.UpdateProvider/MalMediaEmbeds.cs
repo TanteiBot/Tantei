@@ -45,6 +45,7 @@ internal static class MalMediaEmbeds
 		return builder;
 	}
 
+	[SuppressMessage("Major Code Smell", "S103:Lines should not be too long", Justification = "Ok here")]
 	public static async Task<DiscordEmbedBuilder> ToDiscordEmbedBuilderAsync<TLe, TNode, TStatus, TMediaType, TNodeStatus, TListStatus>(
 		this TLe listEntry, User user, IMyAnimeListEnrichment enrichment, MalUser dbUser, CancellationToken cancellationToken)
 		where TLe : BaseListEntry<TNode, TStatus, TMediaType, TNodeStatus, TListStatus>
@@ -95,7 +96,8 @@ internal static class MalMediaEmbeds
 						SubEntriesProgress(mle.Status.VolumesRead, mle.Node.TotalVolumes, mle.Status.Status == MangaListStatus.PlanToRead, "v.");
 
 					userProgressText = string.IsNullOrWhiteSpace(volumeProgress) || !string.IsNullOrWhiteSpace(chapterProgress)
-						? $"{progress} - {chapterProgress}{volumeProgress}" : progress;
+						? $"{progress} - {chapterProgress}{volumeProgress}"
+						: progress;
 					break;
 				}
 
@@ -141,12 +143,9 @@ internal static class MalMediaEmbeds
 			eb.Description = Formatter.MaskedUrl(title, new(listEntry.Node.Url));
 		}
 
-		var mediaInfo = features.HasAnyFlag(MalUserFeatures.Demographic, MalUserFeatures.Themes) ? listEntry switch
-		{
-			MangaListEntry => await enrichment.GetMangaDetailsAsync(listEntry.Node.Id, cancellationToken),
-			AnimeListEntry => await enrichment.GetAnimeDetailsAsync(listEntry.Node.Id, cancellationToken),
-			_ => throw new UnreachableException(),
-		} : MediaInfo.Empty;
+		var mediaInfo = features.HasAnyFlag(MalUserFeatures.Demographic, MalUserFeatures.Themes)
+			? listEntry switch { MangaListEntry => await enrichment.GetMangaDetailsAsync(listEntry.Node.Id, cancellationToken), AnimeListEntry => await enrichment.GetAnimeDetailsAsync(listEntry.Node.Id, cancellationToken), _ => throw new UnreachableException(), }
+			: MediaInfo.Empty;
 
 		if (features.HasFlag(MalUserFeatures.Tags) && listEntry.Status.Tags is not null and not [])
 		{

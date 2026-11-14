@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2021-2026 N0D4N
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using DSharpPlus;
 using EntityFramework.Exceptions.Sqlite;
@@ -25,7 +26,6 @@ using PaperMalKing.UpdatesProviders.Base.Colors;
 using Serilog;
 using Serilog.Sinks.OpenTelemetry;
 #if IsInContainer
-using System.Diagnostics.CodeAnalysis;
 #else
 using Microsoft.Extensions.Hosting.Systemd;
 #endif
@@ -151,6 +151,7 @@ public static class HostBuilderExtensions
 	[SuppressMessage("ReSharper", "ConvertToConstant.Local", Justification = "Variables are considered consts in container builds")]
 	[SuppressMessage("Critical Code Smell", "S3353:Unchanged variables should be marked as \"const\"", Justification = "Variables are considered consts in container builds")]
 #endif
+	[SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1143:Conditional expressions must be formatted consistently", Justification = "Hard to untangle here")]
 	public static IHostBuilder ConfigureBotHost(this IHostBuilder hostBuilder)
 	{
 #if !IsInContainer

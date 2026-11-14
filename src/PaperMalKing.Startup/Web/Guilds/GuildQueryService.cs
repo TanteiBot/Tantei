@@ -20,11 +20,11 @@ public sealed class GuildQueryService(IDbContextFactory<DatabaseContext> _dbCont
 			return [];
 		}
 
-		return [..user.Guilds.Select(x => _botGuildPresence.GetGuild(x.DiscordGuildId))
-				   .Where(x => x is not null).Select(x => new ManageableGuild(x!.GuildId, x.Name, x.IconUrl))];
+		return user.Guilds.Select(x => _botGuildPresence.GetGuild(x.DiscordGuildId))
+				   .Where(x => x is not null).Select(x => new ManageableGuild(x!.GuildId, x.Name, x.IconUrl)).ToArray();
 	}
 
 	public IReadOnlyList<InvitableGuild> GetInvitableGuilds(IReadOnlyList<DiscordPartialGuild> guilds)
-		=> [.. guilds.Where(guild => guild.Permissions.HasFlag(Permissions.ManageGuild) && _botGuildPresence.GetGuild(guild.Id) is null)
-					 .Select(guild => new InvitableGuild(guild.Id, guild.Name, guild.IconUrl))];
+		=> guilds.Where(guild => guild.Permissions.HasFlag(Permissions.ManageGuild) && _botGuildPresence.GetGuild(guild.Id) is null)
+					 .Select(guild => new InvitableGuild(guild.Id, guild.Name, guild.IconUrl)).ToArray();
 }

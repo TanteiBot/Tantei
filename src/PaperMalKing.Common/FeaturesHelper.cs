@@ -30,16 +30,18 @@ public static class FeaturesHelper<[DynamicallyAccessedMembers(DynamicallyAccess
 	{
 		var ti = typeof(T).GetTypeInfo();
 		Debug.Assert(Enum.GetUnderlyingType(typeof(T)) == typeof(ulong), $"All features must have {nameof(UInt64)} as underlying type");
-		return [.. Enum.GetValues<T>()
+
+		return Enum.GetValues<T>()
 			.Where(v => Attribute.IsDefined(ti.DeclaredFields.First(xm => xm.Name.Equals(v.ToString(), StringComparison.Ordinal)), typeof(EnumDescriptionAttribute))).Select(value =>
 		{
 			Debug.Assert((value.ToUInt64(NumberFormatInfo.InvariantInfo) & (value.ToUInt64(CultureInfo.InvariantCulture) - 1UL)) == 0UL,
 				$"All features of {nameof(T)} must be a power of 2");
+
 			var name = value.ToString();
 			var attribute = ti.DeclaredFields.First(xm => xm.Name.Equals(name, StringComparison.Ordinal))
 							  .GetCustomAttribute<EnumDescriptionAttribute>()!;
 
 			return new EnumInfo<T>(name, attribute.Description, attribute.Summary, value);
-		}),];
+		}).ToArray();
 	}
 }

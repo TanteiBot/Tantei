@@ -79,7 +79,6 @@ public static class CollectionExtensions
 		public string JoinToString(string separator) => string.Join(separator, values);
 
 		public string JoinToString(char separator) => string.Join(separator, values);
-
 	}
 
 	public static void ForEach<T>(this IList<T> list, Action<T> action)
