@@ -1,4 +1,5 @@
 export * from "./.kubb/client";
+export * from "./.kubb/core";
 export * from "./.kubb/serializers";
 export * from "./.kubb/standardSchema";
 export type { GetCurrentUserQueryKey } from "./hooks/auth/useGetCurrentUser";
