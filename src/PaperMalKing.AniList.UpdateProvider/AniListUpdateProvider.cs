@@ -116,7 +116,7 @@ internal sealed class AniListUpdateProvider(ILogger<AniListUpdateProvider> logge
 
 	private async Task<IReadOnlyList<DiscordEmbedBuilder>> GetFavouritesUpdatesAsync(CombinedRecentUpdatesResponse response, AniListUser user, DatabaseContext db, CancellationToken cancellationToken)
 	{
-		Func<IdentifiableFavourite, AniListFavourite> FavouritesSelector(AniListUser aniListUser)
+		static Func<IdentifiableFavourite, AniListFavourite> FavouritesSelector(AniListUser aniListUser)
 		{
 			return av => new()
 			{

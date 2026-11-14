@@ -13,8 +13,8 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 namespace PaperMalKing.UpdatesProviders.Base.Features;
 
 public abstract class BaseUserFeaturesCommandsModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TUser,
-													 [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] TFeature>
-	(BaseUserFeaturesService<TUser, TFeature> userFeaturesService, ILogger<BaseUserFeaturesCommandsModule<TUser, TFeature>> logger) : BotCommandsModule
+													 [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] TFeature>(
+	BaseUserFeaturesService<TUser, TFeature> userFeaturesService, ILogger<BaseUserFeaturesCommandsModule<TUser, TFeature>> logger) : BotCommandsModule
 	where TUser : class, IUpdateProviderUser<TFeature>
 	where TFeature : unmanaged, Enum, IComparable, IConvertible, IFormattable
 {

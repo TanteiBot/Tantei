@@ -317,9 +317,9 @@ internal static partial class Extensions
 		var isAnime = activity.Media.Type == ListType.Anime;
 		var isHiddenProgressPresent = !string.IsNullOrWhiteSpace(activity.Progress) && mediaListEntry.Status is MediaListStatus.Paused or MediaListStatus.Dropped or MediaListStatus.Completed;
 
-		var desc = isHiddenProgressPresent ?
-			$"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it" :
-			$"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}";
+		var desc = isHiddenProgressPresent
+			? $"{(isAnime ? "Watched episode" : "Read chapter")} {activity.Progress} and {mediaListEntry.Status.Humanize(LetterCasing.LowerCase)} it"
+			: $"{activity.Status.Humanize(LetterCasing.Sentence)} {activity.Progress}";
 
 		var isAdvancedScoringEnabled =
 			(isAnime

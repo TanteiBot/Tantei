@@ -45,7 +45,6 @@ public abstract class BaseUpdateProviderUserService<[DynamicallyAccessedMembers(
 
 	public abstract IReadOnlyList<BaseUser> ListUsers(ulong guildId);
 
-	[SuppressMessage("Style", "IDE0305:Simplify collection initialization", Justification = "Tooling is buggy")]
 	protected IReadOnlyList<BaseUser> ListUsersCore<TOrderType>(ulong guildId, Expression<Func<TUser, TOrderType>> orderExpression, Expression<Func<TUser, BaseUser>> selector)
 	{
 		using var db = this.DbContextFactory.CreateDbContext();

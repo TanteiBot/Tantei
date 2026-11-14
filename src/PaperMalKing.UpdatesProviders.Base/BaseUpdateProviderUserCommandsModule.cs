@@ -12,8 +12,8 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 
 namespace PaperMalKing.UpdatesProviders.Base;
 
-public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser>
-	(TUpdateProviderUserService userService, ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser>> logger) : BotCommandsModule
+public abstract class BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser>(
+	TUpdateProviderUserService userService, ILogger<BaseUpdateProviderUserCommandsModule<TUpdateProviderUserService, TUser>> logger) : BotCommandsModule
 	where TUpdateProviderUserService : BaseUpdateProviderUserService<TUser>
 	where TUser : class, IUpdateProviderUser
 {

@@ -42,24 +42,24 @@ internal sealed class ShikiUserFeaturesService(IShikiClient _client, ILogger<Shi
 			case ShikiUserFeatures.Favourites:
 				{
 					var favourites = await _client.GetUserFavouritesAsync(dbUser.Id, CancellationToken.None);
-					dbUser.Favourites = [.. favourites.AllFavourites.Select(fe => new ShikiFavourite
+					dbUser.Favourites = favourites.AllFavourites.Select(fe => new ShikiFavourite
 					{
 						Id = fe.Id,
 						Name = fe.Name,
 						FavType = fe.GenericType!,
 						User = dbUser,
-					}),];
+					}).ToArray();
 					break;
 				}
 
 			case ShikiUserFeatures.Achievements:
 				{
 					var achievements = await _client.GetUserAchievementsAsync(dbUser.Id, CancellationToken.None);
-					dbUser.Achievements = [.. achievements.Select(x => new ShikiDbAchievement
+					dbUser.Achievements = achievements.Select(x => new ShikiDbAchievement
 					{
 						NekoId = x.Id,
 						Level = x.Level,
-					}),];
+					}).ToList();
 					break;
 				}
 

@@ -13,8 +13,8 @@ using PaperMalKing.UpdatesProviders.Base.Exceptions;
 namespace PaperMalKing.UpdatesProviders.Base.Colors;
 
 public abstract class BaseColorsCommandsModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TUser,
-											   [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] TUpdateType>
-	(ILogger<BaseColorsCommandsModule<TUser, TUpdateType>> logger, CustomColorService<TUser, TUpdateType> colorService) : BotCommandsModule
+											   [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] TUpdateType>(
+	ILogger<BaseColorsCommandsModule<TUser, TUpdateType>> logger, CustomColorService<TUser, TUpdateType> colorService) : BotCommandsModule
 	where TUser : class, IUpdateProviderUser
 	where TUpdateType : unmanaged, Enum
 {
