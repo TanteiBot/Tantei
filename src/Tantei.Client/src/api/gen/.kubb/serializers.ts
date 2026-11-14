@@ -7,6 +7,8 @@ export type HeadersInit = Array<[string, HeaderValue]> | Record<string, HeaderVa
  */
 export type RequestBody = NonNullable<RequestInit["body"]>;
 
+export type HttpMethod = "GET" | "PUT" | "PATCH" | "POST" | "DELETE" | "OPTIONS" | "HEAD" | "QUERY";
+
 /**
  * The OpenAPI query-parameter serialization style. `form` is the default; `spaceDelimited` and
  * `pipeDelimited` join arrays with a space or pipe, and `deepObject` renders objects as
@@ -31,9 +33,11 @@ export type ParamContentType = {
 };
 
 /**
- * The per-parameter query serialization metadata carried by the generated request.
+ * The per-parameter query serialization metadata carried by the generated request. `querystring` marks an OpenAPI 3.2
+ * `in: querystring` parameter, whose JSON value is the whole query string, sent without its name.
  */
-export type QueryParamStyle = SerializationStyle<QueryStyle> & ParamContentType;
+export type QueryParamStyle = SerializationStyle<QueryStyle> &
+  ParamContentType & { querystring?: boolean };
 
 /**
  * Serializes the query object into a search string. The optional second argument carries the
@@ -241,9 +245,17 @@ function serializeUrlencodedBody(
   return parts.join("&");
 }
 
-function isJsonMediaType(contentType: string | undefined): boolean {
-  const type = contentType?.split(";")[0]?.trim().toLowerCase();
-  return type === "application/json" || !!type?.endsWith("+json");
+/**
+ * The media type of a `Content-Type` value without its parameters, in lower case: `application/json; charset=utf-8` gives `application/json`.
+ */
+export function baseContentType(value: string | null | undefined): string | undefined {
+  if (!value) return undefined;
+  return value.split(";")[0]!.trim().toLowerCase() || undefined;
+}
+
+/** Whether a content type carries JSON: `application/json`, `text/json`, or a `+json` suffix. */
+export function isJsonMediaType(contentType: string | null | undefined): boolean {
+  return /[/+]json$/.test(baseContentType(contentType) ?? "");
 }
 
 function serializeCookie({
@@ -477,7 +489,8 @@ export const defaultQuerySerializer: QuerySerializer = (params, options) => {
   for (const [key, value] of Object.entries(params)) {
     const paramOptions = options?.[key];
     if (notNullish(value) && isJsonMediaType(paramOptions?.contentType)) {
-      parts.push(`${encodeComponent(key)}=${encodeComponent(JSON.stringify(value, jsonReplacer))}`);
+      const json = encodeComponent(JSON.stringify(value, jsonReplacer));
+      parts.push(paramOptions?.querystring ? json : `${encodeComponent(key)}=${json}`);
       continue;
     }
     parts.push(

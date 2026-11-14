@@ -129,3 +129,64 @@ export function toHeadersStandardSchema(
 
   return { "~standard": { validate } };
 }
+
+/**
+ * Identifies the value and request that failed validation in `onValidationError`.
+ */
+export type ValidationErrorContext = {
+  value: unknown;
+  direction: "request" | "response" | "error";
+  source: "body" | "path" | "query" | "headers";
+  method?: string;
+  url?: string;
+  status?: number;
+};
+
+/**
+ * Return `{ value }` to substitute a failed value, including `undefined`. Returning nothing rethrows the `ParseError`.
+ */
+export type ValidationErrorHandler = (
+  error: ParseError,
+  context: ValidationErrorContext,
+) => { value: unknown } | void | Promise<{ value: unknown } | void>;
+
+/**
+ * Turns generated validation on or off. `false` skips every validator, an object skips only the directions set to `false`:
+ * `request` is the body, `params` are path, query, and header params, `response` and `error` are the response bodies.
+ * @default true
+ */
+export type ValidateOption =
+  | boolean
+  | { request?: boolean; params?: boolean; response?: boolean; error?: boolean };
+
+export function isValidationEnabled(
+  validate: ValidateOption | undefined,
+  direction: "request" | "params" | "response" | "error",
+): boolean {
+  return typeof validate === "object" ? validate[direction] !== false : validate !== false;
+}
+
+/**
+ * Runs a validator when there is one, handing a `ParseError` to `onValidationError` first, which may substitute the value.
+ */
+export async function runValidator<T>({
+  validator,
+  value,
+  context,
+  onValidationError,
+}: {
+  validator: StandardSchemaValidator<T> | undefined;
+  value: T;
+  context: Omit<ValidationErrorContext, "value">;
+  onValidationError: ValidationErrorHandler | undefined;
+}): Promise<T> {
+  if (!validator) return value;
+  try {
+    return await validateStandardSchema(validator, value);
+  } catch (error) {
+    if (!onValidationError || !(error instanceof ParseError)) throw error;
+    const handled = await onValidationError(error, { ...context, value });
+    if (!handled) throw error;
+    return handled.value as T;
+  }
+}
