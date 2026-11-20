@@ -21,6 +21,9 @@ updates:
         - "Microsoft.*"
         - "System.*"
     groups:
+      nswag:
+        patterns:
+          - "NSwag.*"
       nuget:
         patterns:
           - "*"
