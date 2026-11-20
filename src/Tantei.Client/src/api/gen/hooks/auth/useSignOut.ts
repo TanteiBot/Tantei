@@ -7,7 +7,7 @@ import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import { useMutation } from "@tanstack/vue-query";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { signOut } from "../../clients/auth/signOut";
+import { signOut2 } from "../../clients/auth/signOut";
 import type { SignOutStatus204 } from "../../types/auth/SignOut";
 
 export const signOutMutationKey = () => [{ url: "/api/auth/sign-out" }] as const;
@@ -33,7 +33,7 @@ export function useSignOut<TContext>(
   return useMutation<SignOutStatus204, ResponseErrorConfig<Error>, undefined, TContext>(
     {
       mutationFn: async () => {
-        return signOut({ ...config, throwOnError: true }).unwrap();
+        return signOut2({ ...config, throwOnError: true }).unwrap();
       },
       mutationKey,
       ...mutationOptions,

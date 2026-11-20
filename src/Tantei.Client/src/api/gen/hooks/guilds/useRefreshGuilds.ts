@@ -7,7 +7,7 @@ import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import { useMutation } from "@tanstack/vue-query";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { refreshGuilds } from "../../clients/guilds/refreshGuilds";
+import { refreshGuilds2 } from "../../clients/guilds/refreshGuilds";
 import type {
   RefreshGuildsStatus204,
   RefreshGuildsStatus401,
@@ -42,7 +42,7 @@ export function useRefreshGuilds<TContext>(
   >(
     {
       mutationFn: async () => {
-        return refreshGuilds({ ...config, throwOnError: true }).unwrap();
+        return refreshGuilds2({ ...config, throwOnError: true }).unwrap();
       },
       mutationKey,
       ...mutationOptions,

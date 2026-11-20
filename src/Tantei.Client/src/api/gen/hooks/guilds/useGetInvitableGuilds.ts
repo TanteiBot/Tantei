@@ -13,7 +13,7 @@ import { queryOptions, useQuery } from "@tanstack/vue-query";
 import { toValue } from "vue";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { getInvitableGuilds } from "../../clients/guilds/getInvitableGuilds";
+import { getInvitableGuilds2 } from "../../clients/guilds/getInvitableGuilds";
 import type {
   GetInvitableGuildsStatus200,
   GetInvitableGuildsStatus401,
@@ -34,7 +34,7 @@ export function getInvitableGuildsQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      return getInvitableGuilds({
+      return getInvitableGuilds2({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,

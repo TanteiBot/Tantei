@@ -4,26 +4,26 @@
  */
 
 import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
-import { client, withUnwrap } from "../../.kubb/client";
+import { client, withUnwrap, resolveThrowOnError } from "../../.kubb/client";
 import type {
   GetCurrentUserOptions,
   GetCurrentUserResponses,
 } from "../../types/auth/GetCurrentUser";
 
 /**
- * {@link /api/auth/me}
+ * `GET /api/auth/me`
  */
 export function getCurrentUser<ThrowOnError extends boolean = true>(
   options: Options<GetCurrentUserOptions, ThrowOnError> = {},
 ): Unwrappable<RequestResult<GetCurrentUserResponses, ThrowOnError>> {
-  const { client: request = client, ...config } = options;
+  const { client: apiClient = client, ...config } = options;
 
   return withUnwrap(
-    request({
+    apiClient<GetCurrentUserResponses, ThrowOnError>({
       method: "GET",
       url: "/api/auth/me",
       ...config,
-      throwOnError: config.throwOnError ?? true,
-    }) as Promise<RequestResult<GetCurrentUserResponses, ThrowOnError>>,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
   );
 }

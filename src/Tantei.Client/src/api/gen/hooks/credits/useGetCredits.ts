@@ -13,7 +13,7 @@ import { queryOptions, useQuery } from "@tanstack/vue-query";
 import { toValue } from "vue";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { getCredits } from "../../clients/credits/getCredits";
+import { getCredits2 } from "../../clients/credits/getCredits";
 import type { GetCreditsStatus200 } from "../../types/credits/GetCredits";
 
 export const getCreditsQueryKey = () => [{ url: "/api/credits" }] as const;
@@ -27,7 +27,7 @@ export function getCreditsQueryOptions(
   return queryOptions<GetCreditsStatus200, ResponseErrorConfig<Error>, GetCreditsStatus200>({
     queryKey,
     queryFn: async ({ signal }) => {
-      return getCredits({
+      return getCredits2({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,

@@ -4,26 +4,26 @@
  */
 
 import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
-import { client, withUnwrap } from "../../.kubb/client";
+import { client, withUnwrap, resolveThrowOnError } from "../../.kubb/client";
 import type {
   GetManageableGuildsOptions,
   GetManageableGuildsResponses,
 } from "../../types/guilds/GetManageableGuilds";
 
 /**
- * {@link /api/guilds/manageable}
+ * `GET /api/guilds/manageable`
  */
 export function getManageableGuilds<ThrowOnError extends boolean = true>(
   options: Options<GetManageableGuildsOptions, ThrowOnError> = {},
 ): Unwrappable<RequestResult<GetManageableGuildsResponses, ThrowOnError>> {
-  const { client: request = client, ...config } = options;
+  const { client: apiClient = client, ...config } = options;
 
   return withUnwrap(
-    request({
+    apiClient<GetManageableGuildsResponses, ThrowOnError>({
       method: "GET",
       url: "/api/guilds/manageable",
       ...config,
-      throwOnError: config.throwOnError ?? true,
-    }) as Promise<RequestResult<GetManageableGuildsResponses, ThrowOnError>>,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
   );
 }

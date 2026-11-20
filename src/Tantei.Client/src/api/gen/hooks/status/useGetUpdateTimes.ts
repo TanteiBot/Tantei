@@ -13,7 +13,7 @@ import { queryOptions, useQuery } from "@tanstack/vue-query";
 import { toValue } from "vue";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { getUpdateTimes } from "../../clients/status/getUpdateTimes";
+import { getUpdateTimes2 } from "../../clients/status/getUpdateTimes";
 import type {
   GetUpdateTimesStatus200,
   GetUpdateTimesStatus401,
@@ -35,7 +35,7 @@ export function getUpdateTimesQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      return getUpdateTimes({
+      return getUpdateTimes2({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,

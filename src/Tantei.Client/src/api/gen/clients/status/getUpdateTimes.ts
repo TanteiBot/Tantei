@@ -4,26 +4,26 @@
  */
 
 import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
-import { client, withUnwrap } from "../../.kubb/client";
+import { client, withUnwrap, resolveThrowOnError } from "../../.kubb/client";
 import type {
   GetUpdateTimesOptions,
   GetUpdateTimesResponses,
 } from "../../types/status/GetUpdateTimes";
 
 /**
- * {@link /api/getUpdateTimes}
+ * `GET /api/getUpdateTimes`
  */
 export function getUpdateTimes<ThrowOnError extends boolean = true>(
   options: Options<GetUpdateTimesOptions, ThrowOnError> = {},
 ): Unwrappable<RequestResult<GetUpdateTimesResponses, ThrowOnError>> {
-  const { client: request = client, ...config } = options;
+  const { client: apiClient = client, ...config } = options;
 
   return withUnwrap(
-    request({
+    apiClient<GetUpdateTimesResponses, ThrowOnError>({
       method: "GET",
       url: "/api/getUpdateTimes",
       ...config,
-      throwOnError: config.throwOnError ?? true,
-    }) as Promise<RequestResult<GetUpdateTimesResponses, ThrowOnError>>,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
   );
 }

@@ -13,7 +13,7 @@ import { queryOptions, useQuery } from "@tanstack/vue-query";
 import { toValue } from "vue";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { getSiteConfig } from "../../clients/config/getSiteConfig";
+import { getSiteConfig2 } from "../../clients/config/getSiteConfig";
 import type { GetSiteConfigStatus200 } from "../../types/config/GetSiteConfig";
 
 export const getSiteConfigQueryKey = () => [{ url: "/api/config" }] as const;
@@ -27,7 +27,7 @@ export function getSiteConfigQueryOptions(
   return queryOptions<GetSiteConfigStatus200, ResponseErrorConfig<Error>, GetSiteConfigStatus200>({
     queryKey,
     queryFn: async ({ signal }) => {
-      return getSiteConfig({
+      return getSiteConfig2({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,

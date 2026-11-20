@@ -4,26 +4,26 @@
  */
 
 import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
-import { client, withUnwrap } from "../../.kubb/client";
+import { client, withUnwrap, resolveThrowOnError } from "../../.kubb/client";
 import type {
   GetSiteConfigOptions,
   GetSiteConfigResponses,
 } from "../../types/config/GetSiteConfig";
 
 /**
- * {@link /api/config}
+ * `GET /api/config`
  */
 export function getSiteConfig<ThrowOnError extends boolean = true>(
   options: Options<GetSiteConfigOptions, ThrowOnError> = {},
 ): Unwrappable<RequestResult<GetSiteConfigResponses, ThrowOnError>> {
-  const { client: request = client, ...config } = options;
+  const { client: apiClient = client, ...config } = options;
 
   return withUnwrap(
-    request({
+    apiClient<GetSiteConfigResponses, ThrowOnError>({
       method: "GET",
       url: "/api/config",
       ...config,
-      throwOnError: config.throwOnError ?? true,
-    }) as Promise<RequestResult<GetSiteConfigResponses, ThrowOnError>>,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
   );
 }

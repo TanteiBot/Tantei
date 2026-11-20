@@ -4,23 +4,23 @@
  */
 
 import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
-import { client, withUnwrap } from "../../.kubb/client";
+import { client, withUnwrap, resolveThrowOnError } from "../../.kubb/client";
 import type { GetCreditsOptions, GetCreditsResponses } from "../../types/credits/GetCredits";
 
 /**
- * {@link /api/credits}
+ * `GET /api/credits`
  */
 export function getCredits<ThrowOnError extends boolean = true>(
   options: Options<GetCreditsOptions, ThrowOnError> = {},
 ): Unwrappable<RequestResult<GetCreditsResponses, ThrowOnError>> {
-  const { client: request = client, ...config } = options;
+  const { client: apiClient = client, ...config } = options;
 
   return withUnwrap(
-    request({
+    apiClient<GetCreditsResponses, ThrowOnError>({
       method: "GET",
       url: "/api/credits",
       ...config,
-      throwOnError: config.throwOnError ?? true,
-    }) as Promise<RequestResult<GetCreditsResponses, ThrowOnError>>,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
   );
 }

@@ -13,7 +13,7 @@ import { queryOptions, useQuery } from "@tanstack/vue-query";
 import { toValue } from "vue";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { getManageableGuilds } from "../../clients/guilds/getManageableGuilds";
+import { getManageableGuilds2 } from "../../clients/guilds/getManageableGuilds";
 import type {
   GetManageableGuildsStatus200,
   GetManageableGuildsStatus401,
@@ -35,7 +35,7 @@ export function getManageableGuildsQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      return getManageableGuilds({
+      return getManageableGuilds2({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,

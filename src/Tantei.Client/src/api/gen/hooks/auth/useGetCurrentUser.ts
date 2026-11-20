@@ -13,7 +13,7 @@ import { queryOptions, useQuery } from "@tanstack/vue-query";
 import { toValue } from "vue";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { getCurrentUser } from "../../clients/auth/getCurrentUser";
+import { getCurrentUser2 } from "../../clients/auth/getCurrentUser";
 import type { GetCurrentUserStatus200 } from "../../types/auth/GetCurrentUser";
 
 export const getCurrentUserQueryKey = () => [{ url: "/api/auth/me" }] as const;
@@ -28,7 +28,7 @@ export function getCurrentUserQueryOptions(
     {
       queryKey,
       queryFn: async ({ signal }) => {
-        return getCurrentUser({
+        return getCurrentUser2({
           ...config,
           signal: config.signal ?? signal,
           throwOnError: true,

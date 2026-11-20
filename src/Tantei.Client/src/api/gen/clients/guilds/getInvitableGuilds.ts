@@ -4,26 +4,26 @@
  */
 
 import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
-import { client, withUnwrap } from "../../.kubb/client";
+import { client, withUnwrap, resolveThrowOnError } from "../../.kubb/client";
 import type {
   GetInvitableGuildsOptions,
   GetInvitableGuildsResponses,
 } from "../../types/guilds/GetInvitableGuilds";
 
 /**
- * {@link /api/guilds/invitable}
+ * `GET /api/guilds/invitable`
  */
 export function getInvitableGuilds<ThrowOnError extends boolean = true>(
   options: Options<GetInvitableGuildsOptions, ThrowOnError> = {},
 ): Unwrappable<RequestResult<GetInvitableGuildsResponses, ThrowOnError>> {
-  const { client: request = client, ...config } = options;
+  const { client: apiClient = client, ...config } = options;
 
   return withUnwrap(
-    request({
+    apiClient<GetInvitableGuildsResponses, ThrowOnError>({
       method: "GET",
       url: "/api/guilds/invitable",
       ...config,
-      throwOnError: config.throwOnError ?? true,
-    }) as Promise<RequestResult<GetInvitableGuildsResponses, ThrowOnError>>,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
   );
 }

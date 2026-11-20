@@ -4,23 +4,23 @@
  */
 
 import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
-import { client, withUnwrap } from "../../.kubb/client";
+import { client, withUnwrap, resolveThrowOnError } from "../../.kubb/client";
 import type { SignOutOptions, SignOutResponses } from "../../types/auth/SignOut";
 
 /**
- * {@link /api/auth/sign-out}
+ * `POST /api/auth/sign-out`
  */
 export function signOut<ThrowOnError extends boolean = true>(
   options: Options<SignOutOptions, ThrowOnError> = {},
 ): Unwrappable<RequestResult<SignOutResponses, ThrowOnError>> {
-  const { client: request = client, ...config } = options;
+  const { client: apiClient = client, ...config } = options;
 
   return withUnwrap(
-    request({
+    apiClient<SignOutResponses, ThrowOnError>({
       method: "POST",
       url: "/api/auth/sign-out",
       ...config,
-      throwOnError: config.throwOnError ?? true,
-    }) as Promise<RequestResult<SignOutResponses, ThrowOnError>>,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
   );
 }
