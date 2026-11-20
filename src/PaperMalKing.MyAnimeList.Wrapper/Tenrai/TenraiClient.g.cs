@@ -171,6 +171,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                             throw new TenraiApiException<TenraiError>("Method Not Allowed - only GET, HEAD, and OPTIONS are accepted", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 413)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Payload Too Large - this read-only API does not accept request bodies", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 414)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("URI Too Long - the request URL is longer than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -179,6 +199,16 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                                 throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new TenraiApiException<TenraiError>("Rate Limit Exceeded - wait for the duration in Retry-After before retrying", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 431)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Request Header Fields Too Large - a request header is larger than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -353,6 +383,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                             throw new TenraiApiException<TenraiError>("Method Not Allowed - only GET, HEAD, and OPTIONS are accepted", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 413)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Payload Too Large - this read-only API does not accept request bodies", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 414)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("URI Too Long - the request URL is longer than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -361,6 +411,16 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                                 throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new TenraiApiException<TenraiError>("Rate Limit Exceeded - wait for the duration in Retry-After before retrying", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 431)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Request Header Fields Too Large - a request header is larger than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -536,6 +596,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                             throw new TenraiApiException<TenraiError>("Method Not Allowed - only GET, HEAD, and OPTIONS are accepted", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 413)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Payload Too Large - this read-only API does not accept request bodies", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 414)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("URI Too Long - the request URL is longer than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -544,6 +624,16 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                                 throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new TenraiApiException<TenraiError>("Rate Limit Exceeded - wait for the duration in Retry-After before retrying", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 431)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Request Header Fields Too Large - a request header is larger than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -732,6 +822,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                             throw new TenraiApiException<TenraiError>("Method Not Allowed - only GET, HEAD, and OPTIONS are accepted", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 413)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Payload Too Large - this read-only API does not accept request bodies", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 414)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("URI Too Long - the request URL is longer than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -740,6 +850,16 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                                 throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new TenraiApiException<TenraiError>("Rate Limit Exceeded - wait for the duration in Retry-After before retrying", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 431)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Request Header Fields Too Large - a request header is larger than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -914,6 +1034,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                             throw new TenraiApiException<TenraiError>("Method Not Allowed - only GET, HEAD, and OPTIONS are accepted", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 413)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Payload Too Large - this read-only API does not accept request bodies", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 414)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("URI Too Long - the request URL is longer than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -922,6 +1062,16 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                                 throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new TenraiApiException<TenraiError>("Rate Limit Exceeded - wait for the duration in Retry-After before retrying", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 431)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Request Header Fields Too Large - a request header is larger than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -1097,6 +1247,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                             throw new TenraiApiException<TenraiError>("Method Not Allowed - only GET, HEAD, and OPTIONS are accepted", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 413)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Payload Too Large - this read-only API does not accept request bodies", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 414)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("URI Too Long - the request URL is longer than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -1105,6 +1275,16 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                                 throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new TenraiApiException<TenraiError>("Rate Limit Exceeded - wait for the duration in Retry-After before retrying", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 431)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Request Header Fields Too Large - a request header is larger than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -1280,6 +1460,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                             throw new TenraiApiException<TenraiError>("Method Not Allowed - only GET, HEAD, and OPTIONS are accepted", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 413)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Payload Too Large - this read-only API does not accept request bodies", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 414)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("URI Too Long - the request URL is longer than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -1288,6 +1488,16 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                                 throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new TenraiApiException<TenraiError>("Rate Limit Exceeded - wait for the duration in Retry-After before retrying", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 431)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Request Header Fields Too Large - a request header is larger than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -1462,6 +1672,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                             throw new TenraiApiException<TenraiError>("Method Not Allowed - only GET, HEAD, and OPTIONS are accepted", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 413)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Payload Too Large - this read-only API does not accept request bodies", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 414)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("URI Too Long - the request URL is longer than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -1470,6 +1700,16 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                                 throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new TenraiApiException<TenraiError>("Rate Limit Exceeded - wait for the duration in Retry-After before retrying", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 431)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Request Header Fields Too Large - a request header is larger than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -1645,6 +1885,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                             throw new TenraiApiException<TenraiError>("Method Not Allowed - only GET, HEAD, and OPTIONS are accepted", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 413)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Payload Too Large - this read-only API does not accept request bodies", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 414)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("URI Too Long - the request URL is longer than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -1653,6 +1913,16 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                                 throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new TenraiApiException<TenraiError>("Rate Limit Exceeded - wait for the duration in Retry-After before retrying", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 431)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Request Header Fields Too Large - a request header is larger than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -1828,6 +2098,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                             throw new TenraiApiException<TenraiError>("Method Not Allowed - only GET, HEAD, and OPTIONS are accepted", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 413)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Payload Too Large - this read-only API does not accept request bodies", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 414)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("URI Too Long - the request URL is longer than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -1836,6 +2126,16 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                                 throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new TenraiApiException<TenraiError>("Rate Limit Exceeded - wait for the duration in Retry-After before retrying", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 431)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Request Header Fields Too Large - a request header is larger than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -2010,6 +2310,26 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                             throw new TenraiApiException<TenraiError>("Method Not Allowed - only GET, HEAD, and OPTIONS are accepted", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 413)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Payload Too Large - this read-only API does not accept request bodies", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 414)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("URI Too Long - the request URL is longer than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -2018,6 +2338,16 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
                                 throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new TenraiApiException<TenraiError>("Rate Limit Exceeded - wait for the duration in Retry-After before retrying", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 431)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<TenraiError>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new TenraiApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new TenraiApiException<TenraiError>("Request Header Fields Too Large - a request header is larger than the API accepts", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 500)
@@ -2567,32 +2897,50 @@ namespace PaperMalKing.MyAnimeList.Wrapper.Tenrai
         [System.Runtime.Serialization.EnumMember(Value = @"title")]
         Title = 1,
 
+        [System.Runtime.Serialization.EnumMember(Value = @"title_english")]
+        Title_english = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"title_japanese")]
+        Title_japanese = 3,
+
         [System.Runtime.Serialization.EnumMember(Value = @"start_date")]
-        Start_date = 2,
+        Start_date = 4,
 
         [System.Runtime.Serialization.EnumMember(Value = @"end_date")]
-        End_date = 3,
+        End_date = 5,
 
         [System.Runtime.Serialization.EnumMember(Value = @"episodes")]
-        Episodes = 4,
+        Episodes = 6,
 
         [System.Runtime.Serialization.EnumMember(Value = @"score")]
-        Score = 5,
+        Score = 7,
 
         [System.Runtime.Serialization.EnumMember(Value = @"scored_by")]
-        Scored_by = 6,
+        Scored_by = 8,
 
         [System.Runtime.Serialization.EnumMember(Value = @"rank")]
-        Rank = 7,
+        Rank = 9,
 
         [System.Runtime.Serialization.EnumMember(Value = @"popularity")]
-        Popularity = 8,
+        Popularity = 10,
 
         [System.Runtime.Serialization.EnumMember(Value = @"members")]
-        Members = 9,
+        Members = 11,
 
         [System.Runtime.Serialization.EnumMember(Value = @"favorites")]
-        Favorites = 10,
+        Favorites = 12,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"added")]
+        Added = 13,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"score_change_30d")]
+        Score_change_30d = 14,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"score_spread")]
+        Score_spread = 15,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"members_gained_7d")]
+        Members_gained_7d = 16,
 
     }
 
