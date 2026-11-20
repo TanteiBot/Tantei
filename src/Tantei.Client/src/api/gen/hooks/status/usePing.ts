@@ -21,7 +21,9 @@ export const pingQueryKey = () => [{ url: "/api/ping" }] as const;
 export type PingQueryKey = ReturnType<typeof pingQueryKey>;
 
 export function pingQueryOptions(
-  config: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">> = {},
+  config: Partial<
+    Omit<RequestConfig, "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError">
+  > = {},
 ) {
   const queryKey = pingQueryKey();
   return queryOptions<
@@ -37,7 +39,7 @@ export function pingQueryOptions(
 }
 
 /**
- * {@link /api/ping}
+ * `GET /api/ping`
  */
 export function usePing<
   TData = PingStatus200,
@@ -54,7 +56,12 @@ export function usePing<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">>;
+    client?: Partial<
+      Omit<
+        RequestConfig,
+        "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError"
+      >
+    >;
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};

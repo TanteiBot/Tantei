@@ -21,7 +21,9 @@ export const getSiteConfigQueryKey = () => [{ url: "/api/config" }] as const;
 export type GetSiteConfigQueryKey = ReturnType<typeof getSiteConfigQueryKey>;
 
 export function getSiteConfigQueryOptions(
-  config: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">> = {},
+  config: Partial<
+    Omit<RequestConfig, "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError">
+  > = {},
 ) {
   const queryKey = getSiteConfigQueryKey();
   return queryOptions<GetSiteConfigStatus200, ResponseErrorConfig<Error>, GetSiteConfigStatus200>({
@@ -37,7 +39,7 @@ export function getSiteConfigQueryOptions(
 }
 
 /**
- * {@link /api/config}
+ * `GET /api/config`
  */
 export function useGetSiteConfig<
   TData = GetSiteConfigStatus200,
@@ -54,7 +56,12 @@ export function useGetSiteConfig<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">>;
+    client?: Partial<
+      Omit<
+        RequestConfig,
+        "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError"
+      >
+    >;
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};

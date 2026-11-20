@@ -4,26 +4,26 @@
  */
 
 import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
-import { client, withUnwrap } from "../../.kubb/client";
+import { client, withUnwrap, resolveThrowOnError } from "../../.kubb/client";
 import type {
   RefreshGuildsOptions,
   RefreshGuildsResponses,
 } from "../../types/guilds/RefreshGuilds";
 
 /**
- * {@link /api/guilds/refresh}
+ * `POST /api/guilds/refresh`
  */
 export function refreshGuilds<ThrowOnError extends boolean = true>(
   options: Options<RefreshGuildsOptions, ThrowOnError> = {},
 ): Unwrappable<RequestResult<RefreshGuildsResponses, ThrowOnError>> {
-  const { client: request = client, ...config } = options;
+  const { client: apiClient = client, ...config } = options;
 
   return withUnwrap(
-    request({
+    apiClient<RefreshGuildsResponses, ThrowOnError>({
       method: "POST",
       url: "/api/guilds/refresh",
       ...config,
-      throwOnError: config.throwOnError ?? true,
-    }) as Promise<RequestResult<RefreshGuildsResponses, ThrowOnError>>,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
   );
 }

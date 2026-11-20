@@ -4,23 +4,23 @@
  */
 
 import type { Options, Unwrappable, RequestResult } from "../../.kubb/client";
-import { client, withUnwrap } from "../../.kubb/client";
+import { client, withUnwrap, resolveThrowOnError } from "../../.kubb/client";
 import type { PingOptions, PingResponses } from "../../types/status/Ping";
 
 /**
- * {@link /api/ping}
+ * `GET /api/ping`
  */
 export function ping<ThrowOnError extends boolean = true>(
   options: Options<PingOptions, ThrowOnError> = {},
 ): Unwrappable<RequestResult<PingResponses, ThrowOnError>> {
-  const { client: request = client, ...config } = options;
+  const { client: apiClient = client, ...config } = options;
 
   return withUnwrap(
-    request({
+    apiClient<PingResponses, ThrowOnError>({
       method: "GET",
       url: "/api/ping",
       ...config,
-      throwOnError: config.throwOnError ?? true,
-    }) as Promise<RequestResult<PingResponses, ThrowOnError>>,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
   );
 }

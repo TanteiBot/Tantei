@@ -68,6 +68,26 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+  tenrai:
+    name: Check generated Tenrai client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install .NET SDK if needed
+        uses: actions/setup-dotnet@v6
+
+      - name: Regenerate Tenrai contract and client
+        shell: pwsh
+        run: ./src/PaperMalKing.MyAnimeList.Wrapper/Tenrai/Generate.ps1
+
+      - name: Check generated Tenrai client is up to date
+        run: |
+          if ! git diff --exit-code -- src/PaperMalKing.MyAnimeList.Wrapper/Tenrai .config/dotnet-tools.json; then
+            echo "::error::The checked-in Tenrai contract or client is stale. Run 'just generate-tenrai' and commit the regenerated files."
+            exit 1
+          fi
+
   client:
     name: Build client
     runs-on: ubuntu-latest

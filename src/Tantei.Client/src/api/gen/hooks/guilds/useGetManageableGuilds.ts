@@ -25,7 +25,9 @@ export const getManageableGuildsQueryKey = () => [{ url: "/api/guilds/manageable
 export type GetManageableGuildsQueryKey = ReturnType<typeof getManageableGuildsQueryKey>;
 
 export function getManageableGuildsQueryOptions(
-  config: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">> = {},
+  config: Partial<
+    Omit<RequestConfig, "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError">
+  > = {},
 ) {
   const queryKey = getManageableGuildsQueryKey();
   return queryOptions<
@@ -45,7 +47,7 @@ export function getManageableGuildsQueryOptions(
 }
 
 /**
- * {@link /api/guilds/manageable}
+ * `GET /api/guilds/manageable`
  */
 export function useGetManageableGuilds<
   TData = GetManageableGuildsStatus200,
@@ -62,7 +64,12 @@ export function useGetManageableGuilds<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">>;
+    client?: Partial<
+      Omit<
+        RequestConfig,
+        "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError"
+      >
+    >;
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};

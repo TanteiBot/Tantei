@@ -13,7 +13,7 @@ import type { SignOutStatus204 } from "../../types/auth/SignOut";
 export const signOutMutationKey = () => [{ url: "/api/auth/sign-out" }] as const;
 
 /**
- * {@link /api/auth/sign-out}
+ * `POST /api/auth/sign-out`
  */
 export function useSignOut<TContext>(
   options: {
@@ -23,7 +23,12 @@ export function useSignOut<TContext>(
       undefined,
       TContext
     > & { client?: QueryClient };
-    client?: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">>;
+    client?: Partial<
+      Omit<
+        RequestConfig,
+        "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError"
+      >
+    >;
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {};

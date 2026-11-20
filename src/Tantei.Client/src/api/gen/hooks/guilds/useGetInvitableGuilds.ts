@@ -24,7 +24,9 @@ export const getInvitableGuildsQueryKey = () => [{ url: "/api/guilds/invitable" 
 export type GetInvitableGuildsQueryKey = ReturnType<typeof getInvitableGuildsQueryKey>;
 
 export function getInvitableGuildsQueryOptions(
-  config: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">> = {},
+  config: Partial<
+    Omit<RequestConfig, "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError">
+  > = {},
 ) {
   const queryKey = getInvitableGuildsQueryKey();
   return queryOptions<
@@ -44,7 +46,7 @@ export function getInvitableGuildsQueryOptions(
 }
 
 /**
- * {@link /api/guilds/invitable}
+ * `GET /api/guilds/invitable`
  */
 export function useGetInvitableGuilds<
   TData = GetInvitableGuildsStatus200,
@@ -61,7 +63,12 @@ export function useGetInvitableGuilds<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">>;
+    client?: Partial<
+      Omit<
+        RequestConfig,
+        "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError"
+      >
+    >;
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};

@@ -19,8 +19,11 @@ internal static class Program
 	private const string StringType = "string";
 	private const string IntegerType = "integer";
 	private const string RequiredProperty = "required";
+	private const string MissingValue = "<missing>";
 
 	private static readonly ParameterContract IdPathParameter = new("id", PathLocation, Required: true, IntegerType, "int32", AllowedValues: null);
+
+	private static readonly UpstreamCommaSeparatedArray ProducerIdsArray = new(IntegerType, "int32");
 
 	private static readonly OperationContract[] Operations =
 	[
@@ -29,10 +32,11 @@ internal static class Program
 		new("/anime/{id}/characters", "getAnimeByIdCharacters", "CharactersResponse", [IdPathParameter]),
 		new("/anime", "getAnime", "AnimeSearchResponse",
 		[
-			new("producers", QueryLocation, Required: false, StringType, Format: null, AllowedValues: null),
+			new("producers", QueryLocation, Required: false, StringType, Format: null, AllowedValues: null, ProducerIdsArray),
 			new("order_by", QueryLocation, Required: false, StringType, Format: null,
 			[
-				"mal_id", "title", "start_date", "end_date", "episodes", "score", "scored_by", "rank", "popularity", "members", "favorites",
+				"mal_id", "title", "title_english", "title_japanese", "start_date", "end_date", "episodes", "score", "scored_by", "rank", "popularity",
+				"members", "favorites", "added", "score_change_30d", "score_spread", "members_gained_7d",
 			]),
 			new("sort", QueryLocation, Required: false, StringType, Format: null, ["asc", "desc"]),
 			new("limit", QueryLocation, Required: false, IntegerType, "int32", AllowedValues: null),
@@ -46,7 +50,9 @@ internal static class Program
 		new("/producers/{id}", "getProducersById", "ProducerResponse", [IdPathParameter]),
 	];
 
-	private static readonly string[] ErrorStatuses = ["400", "401", "403", "404", "405", "429", "500", "502", "503", "504"];
+	private static readonly string[] ErrorStatuses = ["400", "401", "403", "404", "405", "413", "414", "429", "431", "500", "502", "503", "504"];
+
+	private static readonly string[] UnprojectedBodylessStatuses = ["304"];
 
 	public static void Main(string[] args)
 	{
@@ -93,7 +99,7 @@ internal static class Program
 		var actualOperationId = operation["operationId"]?.GetValue<string>();
 		if (!string.Equals(actualOperationId, contract.OperationId, StringComparison.Ordinal))
 		{
-			throw new InvalidDataException($"Expected operationId '{contract.OperationId}' for GET {contract.Path}, but found '{actualOperationId ?? "<missing>"}'.");
+			throw new InvalidDataException($"Expected operationId '{contract.OperationId}' for GET {contract.Path}, but found '{actualOperationId ?? MissingValue}'.");
 		}
 
 		var occurrences = paths
@@ -109,7 +115,8 @@ internal static class Program
 		ValidateParameters(operation, contract);
 
 		var responses = operation["responses"]?.AsObject() ?? throw new InvalidDataException($"Missing responses for GET {contract.Path}.");
-		var expectedStatuses = ErrorStatuses.Append("200").ToHashSet(StringComparer.Ordinal);
+		var projectedStatuses = ErrorStatuses.Append("200").ToHashSet(StringComparer.Ordinal);
+		var expectedStatuses = projectedStatuses.Concat(UnprojectedBodylessStatuses).ToHashSet(StringComparer.Ordinal);
 		var actualStatuses = responses.Select(static response => response.Key).ToHashSet(StringComparer.Ordinal);
 		if (!actualStatuses.SetEquals(expectedStatuses))
 		{
@@ -119,7 +126,13 @@ internal static class Program
 				$"Unexpected response statuses for GET {contract.Path}. Expected {expected}; found {actual}.");
 		}
 
-		foreach (var status in expectedStatuses)
+		var statusWithBody = Array.Find(UnprojectedBodylessStatuses, status => responses[status]?["content"] is not null);
+		if (statusWithBody is not null)
+		{
+			throw new InvalidDataException($"Expected bodyless response {statusWithBody} for GET {contract.Path}, but it declares content.");
+		}
+
+		foreach (var status in projectedStatuses)
 		{
 			var response = responses[status]?.AsObject() ?? throw new InvalidDataException($"Missing response {status} for GET {contract.Path}.");
 			_ = GetRequiredString(response, "description", $"the {status} response description for GET {contract.Path}");
@@ -160,11 +173,17 @@ internal static class Program
 
 		var schema = source[SchemaProperty]?.AsObject()
 			?? throw new InvalidDataException($"Missing schema for {parameter.Location} parameter '{parameter.Name}' of GET {contract.Path}.");
+		if (parameter.UpstreamArray is not null)
+		{
+			ValidateCommaSeparatedArray(contract, parameter, parameter.UpstreamArray, source, schema);
+			return;
+		}
+
 		var type = schema["type"]?.GetValue<string>();
 		if (!string.Equals(type, parameter.Type, StringComparison.Ordinal))
 		{
 			throw new InvalidDataException(
-				$"Expected type '{parameter.Type}' for {parameter.Location} parameter '{parameter.Name}' of GET {contract.Path}, but found '{type ?? "<missing>"}'.");
+				$"Expected type '{parameter.Type}' for {parameter.Location} parameter '{parameter.Name}' of GET {contract.Path}, but found '{type ?? MissingValue}'.");
 		}
 
 		if (parameter.AllowedValues is null)
@@ -182,6 +201,30 @@ internal static class Program
 			var actual = string.Join(", ", actualValues.Order(StringComparer.Ordinal));
 			throw new InvalidDataException(
 				$"Unexpected enum for {parameter.Location} parameter '{parameter.Name}' of GET {contract.Path}. Expected {expected}; found {actual}.");
+		}
+	}
+
+	private static void ValidateCommaSeparatedArray(
+		OperationContract contract,
+		ParameterContract parameter,
+		UpstreamCommaSeparatedArray array,
+		JsonObject source,
+		JsonObject schema)
+	{
+		var type = schema["type"]?.GetValue<string>();
+		var itemType = schema["items"]?["type"]?.GetValue<string>();
+		var itemFormat = schema["items"]?["format"]?.GetValue<string>();
+		var style = source["style"]?.GetValue<string>();
+		var explode = source["explode"]?.GetValue<bool>();
+		if (!string.Equals(type, "array", StringComparison.Ordinal)
+			|| !string.Equals(itemType, array.ItemType, StringComparison.Ordinal)
+			|| !string.Equals(itemFormat, array.ItemFormat, StringComparison.Ordinal)
+			|| !string.Equals(style, "form", StringComparison.Ordinal)
+			|| explode != false)
+		{
+			throw new InvalidDataException(
+				$"Expected a comma-separated array of '{array.ItemType}' ({array.ItemFormat}) for {parameter.Location} parameter '{parameter.Name}' of GET {contract.Path}, "
+				+ $"but found type '{type ?? MissingValue}' of '{itemType ?? MissingValue}' ({itemFormat ?? MissingValue}), style '{style ?? MissingValue}', explode '{explode?.ToString() ?? MissingValue}'.");
 		}
 	}
 
@@ -623,5 +666,14 @@ internal static class Program
 
 	private sealed record OperationContract(string Path, string OperationId, string SuccessSchema, ParameterContract[] Parameters);
 
-	private sealed record ParameterContract(string Name, string Location, bool Required, string Type, string? Format, string[]? AllowedValues);
+	private sealed record ParameterContract(
+		string Name,
+		string Location,
+		bool Required,
+		string Type,
+		string? Format,
+		string[]? AllowedValues,
+		UpstreamCommaSeparatedArray? UpstreamArray = null);
+
+	private sealed record UpstreamCommaSeparatedArray(string ItemType, string ItemFormat);
 }

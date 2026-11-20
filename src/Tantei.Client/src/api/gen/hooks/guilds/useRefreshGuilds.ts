@@ -17,7 +17,7 @@ import type {
 export const refreshGuildsMutationKey = () => [{ url: "/api/guilds/refresh" }] as const;
 
 /**
- * {@link /api/guilds/refresh}
+ * `POST /api/guilds/refresh`
  */
 export function useRefreshGuilds<TContext>(
   options: {
@@ -27,7 +27,12 @@ export function useRefreshGuilds<TContext>(
       undefined,
       TContext
     > & { client?: QueryClient };
-    client?: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">>;
+    client?: Partial<
+      Omit<
+        RequestConfig,
+        "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError"
+      >
+    >;
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {};
