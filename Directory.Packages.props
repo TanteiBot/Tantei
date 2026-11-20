@@ -6,8 +6,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <EntityFrameworkCoreVersion>10.0.15</EntityFrameworkCoreVersion>
-    <DotnetExtensionsVersion>11.0.0</DotnetExtensionsVersion>
-    <DotnetSeparateExtensionsVersion>11.0.0</DotnetSeparateExtensionsVersion>  
+    <DotnetExtensionsVersion>10.0.15</DotnetExtensionsVersion>
+    <DotnetSeparateExtensionsVersion>10.11.0</DotnetSeparateExtensionsVersion>  
     <GraphQLClientVersion>6.1.0</GraphQLClientVersion>
     <DSharpPlusVersion>4.5.3</DSharpPlusVersion>
     <VisualStudioThreadingVersion>18.12.1</VisualStudioThreadingVersion>
@@ -17,8 +17,8 @@
   <ItemGroup>
     <!-- Logging -->
     <PackageVersion Include="Serilog" Version="4.4.0" />
-    <PackageVersion Include="Serilog.Extensions.Hosting" Version="11.0.0" />
-    <PackageVersion Include="Serilog.Settings.Configuration" Version="11.0.0" />
+    <PackageVersion Include="Serilog.Extensions.Hosting" Version="10.0.0" />
+    <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.1" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(DotnetExtensionsVersion)" />
