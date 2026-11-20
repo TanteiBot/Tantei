@@ -1,15 +1,16 @@
-﻿commit-date-format: o
-update-build-number: false
-mode: ManualDeployment
-increment: None
-is-release-branch: true
-is-main-branch: true
-commit-message-incrementing: Disabled
-track-merge-message: false
-label: all
-
-branches:
-  release:
-    label: all
-    increment: None
-    regex: (?<BranchName>.+)
+calculation:
+  branches:
+    release:
+      increment: None
+      label: all
+      regex: "(?<BranchName>.+)"
+  commit-message-incrementing: Disabled
+  increment: None
+  is-main-branch: true
+  is-release-branch: true
+  label: all
+  mode: ManualDeployment
+  track-merge-message: false
+output:
+  commit-date-format: o
+  update-build-number: false
