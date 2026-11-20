@@ -33,7 +33,7 @@
   "devDependencies": {
     "@iconify-json/circle-flags": "^1.2.14",
     "@intlify/unplugin-vue-i18n": "^11.2.8",
-    "@kubb/plugin-fetch": "^5.13.2",
+    "@kubb/plugin-fetch": "^6.1.1",
     "@kubb/plugin-ts": "^5.4.2",
     "@kubb/plugin-vue-query": "^5.9.1",
     "@kubb/plugin-zod": "^5.0.0",
