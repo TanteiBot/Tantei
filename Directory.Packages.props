@@ -6,19 +6,19 @@
   </PropertyGroup>
   <PropertyGroup>
     <EntityFrameworkCoreVersion>10.0.15</EntityFrameworkCoreVersion>
-    <DotnetExtensionsVersion>10.0.15</DotnetExtensionsVersion>
-    <DotnetSeparateExtensionsVersion>10.11.0</DotnetSeparateExtensionsVersion>  
+    <DotnetExtensionsVersion>11.0.0</DotnetExtensionsVersion>
+    <DotnetSeparateExtensionsVersion>11.0.0</DotnetSeparateExtensionsVersion>  
     <GraphQLClientVersion>6.1.0</GraphQLClientVersion>
     <DSharpPlusVersion>4.5.3</DSharpPlusVersion>
     <VisualStudioThreadingVersion>18.12.1</VisualStudioThreadingVersion>
 
-    <VerifyVersion>33.4.0</VerifyVersion>
+    <VerifyVersion>33.7.1</VerifyVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
     <PackageVersion Include="Serilog" Version="4.4.0" />
-    <PackageVersion Include="Serilog.Extensions.Hosting" Version="10.0.0" />
-    <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.1" />
+    <PackageVersion Include="Serilog.Extensions.Hosting" Version="11.0.0" />
+    <PackageVersion Include="Serilog.Settings.Configuration" Version="11.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(DotnetExtensionsVersion)" />
@@ -46,7 +46,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="EntityFrameworkCore.Exceptions.Sqlite" Version="10.0.1" />
+    <PackageVersion Include="EntityFrameworkCore.Exceptions.Sqlite" Version="10.0.2" />
 
     <!-- Hosting -->
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(DotnetExtensionsVersion)" />
@@ -81,11 +81,11 @@
 
     <!-- Misc -->
     <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
-    <PackageVersion Include="AngleSharp" Version="1.10.3" />
+    <PackageVersion Include="AngleSharp" Version="1.10.5" />
     <PackageVersion Include="System.Threading.RateLimiting" Version="$(DotnetExtensionsVersion)" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="$(VisualStudioThreadingVersion)" />
     <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="4.0.1" />
-    <GlobalPackageReference Include="GitVersion.MsBuild" Version="6.8.2">
+    <GlobalPackageReference Include="GitVersion.MsBuild" Version="7.0.1">
         <PrivateAssets>All</PrivateAssets>
     </GlobalPackageReference>
       
@@ -93,11 +93,11 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />  
 
     <!-- Analyzers-->
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.340">
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.341">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.36.0.15337">
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.37.0.15768">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </GlobalPackageReference>
@@ -131,11 +131,11 @@
     </GlobalPackageReference>
       
     <!-- Testing -->
-    <PackageVersion Include="coverlet.collector" Version="10.1.0" />
+    <PackageVersion Include="coverlet.collector" Version="10.1.1" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.5" />
     <PackageVersion Include="Verify" Version="$(VerifyVersion)" />
     <PackageVersion Include="Verify.TUnit" Version="$(VerifyVersion)" />
-    <PackageVersion Include="TUnit" Version="1.84.0" />
+    <PackageVersion Include="TUnit" Version="1.87.12" />
     <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="$(DotnetSeparateExtensionsVersion)" />
 
 
