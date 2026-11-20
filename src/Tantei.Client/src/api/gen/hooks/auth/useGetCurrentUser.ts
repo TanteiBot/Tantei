@@ -13,7 +13,7 @@ import { queryOptions, useQuery } from "@tanstack/vue-query";
 import { toValue } from "vue";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { getCurrentUser2 } from "../../clients/auth/getCurrentUser";
+import { getCurrentUser } from "../../clients/auth/getCurrentUser";
 import type { GetCurrentUserStatus200 } from "../../types/auth/GetCurrentUser";
 
 export const getCurrentUserQueryKey = () => [{ url: "/api/auth/me" }] as const;
@@ -21,14 +21,16 @@ export const getCurrentUserQueryKey = () => [{ url: "/api/auth/me" }] as const;
 export type GetCurrentUserQueryKey = ReturnType<typeof getCurrentUserQueryKey>;
 
 export function getCurrentUserQueryOptions(
-  config: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">> = {},
+  config: Partial<
+    Omit<RequestConfig, "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError">
+  > = {},
 ) {
   const queryKey = getCurrentUserQueryKey();
   return queryOptions<GetCurrentUserStatus200, ResponseErrorConfig<Error>, GetCurrentUserStatus200>(
     {
       queryKey,
       queryFn: async ({ signal }) => {
-        return getCurrentUser2({
+        return getCurrentUser({
           ...config,
           signal: config.signal ?? signal,
           throwOnError: true,
@@ -39,7 +41,7 @@ export function getCurrentUserQueryOptions(
 }
 
 /**
- * {@link /api/auth/me}
+ * `GET /api/auth/me`
  */
 export function useGetCurrentUser<
   TData = GetCurrentUserStatus200,
@@ -56,7 +58,12 @@ export function useGetCurrentUser<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">>;
+    client?: Partial<
+      Omit<
+        RequestConfig,
+        "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError"
+      >
+    >;
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};

@@ -13,7 +13,7 @@ import { queryOptions, useQuery } from "@tanstack/vue-query";
 import { toValue } from "vue";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { getSiteConfig2 } from "../../clients/config/getSiteConfig";
+import { getSiteConfig } from "../../clients/config/getSiteConfig";
 import type { GetSiteConfigStatus200 } from "../../types/config/GetSiteConfig";
 
 export const getSiteConfigQueryKey = () => [{ url: "/api/config" }] as const;
@@ -21,13 +21,15 @@ export const getSiteConfigQueryKey = () => [{ url: "/api/config" }] as const;
 export type GetSiteConfigQueryKey = ReturnType<typeof getSiteConfigQueryKey>;
 
 export function getSiteConfigQueryOptions(
-  config: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">> = {},
+  config: Partial<
+    Omit<RequestConfig, "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError">
+  > = {},
 ) {
   const queryKey = getSiteConfigQueryKey();
   return queryOptions<GetSiteConfigStatus200, ResponseErrorConfig<Error>, GetSiteConfigStatus200>({
     queryKey,
     queryFn: async ({ signal }) => {
-      return getSiteConfig2({
+      return getSiteConfig({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,
@@ -37,7 +39,7 @@ export function getSiteConfigQueryOptions(
 }
 
 /**
- * {@link /api/config}
+ * `GET /api/config`
  */
 export function useGetSiteConfig<
   TData = GetSiteConfigStatus200,
@@ -54,7 +56,12 @@ export function useGetSiteConfig<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">>;
+    client?: Partial<
+      Omit<
+        RequestConfig,
+        "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError"
+      >
+    >;
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};

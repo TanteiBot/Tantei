@@ -13,7 +13,7 @@ import { queryOptions, useQuery } from "@tanstack/vue-query";
 import { toValue } from "vue";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { getUpdateTimes2 } from "../../clients/status/getUpdateTimes";
+import { getUpdateTimes } from "../../clients/status/getUpdateTimes";
 import type {
   GetUpdateTimesStatus200,
   GetUpdateTimesStatus401,
@@ -25,7 +25,9 @@ export const getUpdateTimesQueryKey = () => [{ url: "/api/getUpdateTimes" }] as 
 export type GetUpdateTimesQueryKey = ReturnType<typeof getUpdateTimesQueryKey>;
 
 export function getUpdateTimesQueryOptions(
-  config: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">> = {},
+  config: Partial<
+    Omit<RequestConfig, "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError">
+  > = {},
 ) {
   const queryKey = getUpdateTimesQueryKey();
   return queryOptions<
@@ -35,7 +37,7 @@ export function getUpdateTimesQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      return getUpdateTimes2({
+      return getUpdateTimes({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,
@@ -45,7 +47,7 @@ export function getUpdateTimesQueryOptions(
 }
 
 /**
- * {@link /api/getUpdateTimes}
+ * `GET /api/getUpdateTimes`
  */
 export function useGetUpdateTimes<
   TData = GetUpdateTimesStatus200,
@@ -62,7 +64,12 @@ export function useGetUpdateTimes<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">>;
+    client?: Partial<
+      Omit<
+        RequestConfig,
+        "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError"
+      >
+    >;
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};

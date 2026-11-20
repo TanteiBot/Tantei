@@ -13,7 +13,7 @@ import { queryOptions, useQuery } from "@tanstack/vue-query";
 import { toValue } from "vue";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { getManageableGuilds2 } from "../../clients/guilds/getManageableGuilds";
+import { getManageableGuilds } from "../../clients/guilds/getManageableGuilds";
 import type {
   GetManageableGuildsStatus200,
   GetManageableGuildsStatus401,
@@ -25,7 +25,9 @@ export const getManageableGuildsQueryKey = () => [{ url: "/api/guilds/manageable
 export type GetManageableGuildsQueryKey = ReturnType<typeof getManageableGuildsQueryKey>;
 
 export function getManageableGuildsQueryOptions(
-  config: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">> = {},
+  config: Partial<
+    Omit<RequestConfig, "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError">
+  > = {},
 ) {
   const queryKey = getManageableGuildsQueryKey();
   return queryOptions<
@@ -35,7 +37,7 @@ export function getManageableGuildsQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      return getManageableGuilds2({
+      return getManageableGuilds({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,
@@ -45,7 +47,7 @@ export function getManageableGuildsQueryOptions(
 }
 
 /**
- * {@link /api/guilds/manageable}
+ * `GET /api/guilds/manageable`
  */
 export function useGetManageableGuilds<
   TData = GetManageableGuildsStatus200,
@@ -62,7 +64,12 @@ export function useGetManageableGuilds<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">>;
+    client?: Partial<
+      Omit<
+        RequestConfig,
+        "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError"
+      >
+    >;
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};

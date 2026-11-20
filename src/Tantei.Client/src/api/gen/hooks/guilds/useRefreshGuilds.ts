@@ -7,7 +7,7 @@ import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import { useMutation } from "@tanstack/vue-query";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { refreshGuilds2 } from "../../clients/guilds/refreshGuilds";
+import { refreshGuilds } from "../../clients/guilds/refreshGuilds";
 import type {
   RefreshGuildsStatus204,
   RefreshGuildsStatus401,
@@ -17,7 +17,7 @@ import type {
 export const refreshGuildsMutationKey = () => [{ url: "/api/guilds/refresh" }] as const;
 
 /**
- * {@link /api/guilds/refresh}
+ * `POST /api/guilds/refresh`
  */
 export function useRefreshGuilds<TContext>(
   options: {
@@ -27,7 +27,12 @@ export function useRefreshGuilds<TContext>(
       undefined,
       TContext
     > & { client?: QueryClient };
-    client?: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">>;
+    client?: Partial<
+      Omit<
+        RequestConfig,
+        "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError"
+      >
+    >;
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {};
@@ -42,7 +47,7 @@ export function useRefreshGuilds<TContext>(
   >(
     {
       mutationFn: async () => {
-        return refreshGuilds2({ ...config, throwOnError: true }).unwrap();
+        return refreshGuilds({ ...config, throwOnError: true }).unwrap();
       },
       mutationKey,
       ...mutationOptions,

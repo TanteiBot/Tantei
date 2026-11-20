@@ -6,5 +6,5 @@
 import type { CurrentUserResponse } from "./CurrentUserResponse";
 
 export type AuthStateResponse = {
-  user: null | CurrentUserResponse;
+  user: (null | null) | CurrentUserResponse;
 };

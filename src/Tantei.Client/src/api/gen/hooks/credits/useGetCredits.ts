@@ -13,7 +13,7 @@ import { queryOptions, useQuery } from "@tanstack/vue-query";
 import { toValue } from "vue";
 
 import type { RequestConfig, ResponseErrorConfig } from "../../.kubb/client";
-import { getCredits2 } from "../../clients/credits/getCredits";
+import { getCredits } from "../../clients/credits/getCredits";
 import type { GetCreditsStatus200 } from "../../types/credits/GetCredits";
 
 export const getCreditsQueryKey = () => [{ url: "/api/credits" }] as const;
@@ -21,13 +21,15 @@ export const getCreditsQueryKey = () => [{ url: "/api/credits" }] as const;
 export type GetCreditsQueryKey = ReturnType<typeof getCreditsQueryKey>;
 
 export function getCreditsQueryOptions(
-  config: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">> = {},
+  config: Partial<
+    Omit<RequestConfig, "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError">
+  > = {},
 ) {
   const queryKey = getCreditsQueryKey();
   return queryOptions<GetCreditsStatus200, ResponseErrorConfig<Error>, GetCreditsStatus200>({
     queryKey,
     queryFn: async ({ signal }) => {
-      return getCredits2({
+      return getCredits({
         ...config,
         signal: config.signal ?? signal,
         throwOnError: true,
@@ -37,7 +39,7 @@ export function getCreditsQueryOptions(
 }
 
 /**
- * {@link /api/credits}
+ * `GET /api/credits`
  */
 export function useGetCredits<
   TData = GetCreditsStatus200,
@@ -48,7 +50,12 @@ export function useGetCredits<
     query?: Partial<
       UseQueryOptions<GetCreditsStatus200, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>
     > & { client?: QueryClient };
-    client?: Partial<Omit<RequestConfig, "path" | "query" | "body" | "headers" | "url">>;
+    client?: Partial<
+      Omit<
+        RequestConfig,
+        "path" | "query" | "body" | "headers" | "cookies" | "url" | "throwOnError"
+      >
+    >;
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};
